@@ -347,7 +347,9 @@ export function chordVoicings(spec) {
   const n = shapes[0].length;
   let sets = spec.stringSet === 'auto' || !spec.stringSet ? null : [spec.stringSet];
   if (!sets) {
-    sets = stringSetsFor(n).filter((ss) => shapes.some((sh) => placeShape(root, sh, ss).length));
+    const STANDARD = { drop2: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]], drop3: [[6, 4, 3, 2], [5, 3, 2, 1]], drop24: [[6, 5, 3, 2], [5, 4, 2, 1]], drop23: [[6, 5, 4, 2], [5, 4, 3, 1]] };
+    const pool = (n === 4 && STANDARD[spec.voicing]) || (n === 3 && spec.voicing === 'close' ? [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]] : stringSetsFor(n));
+    sets = pool.filter((ss) => shapes.some((sh) => placeShape(root, sh, ss).length));
     if (!spec.stringSetAll) sets = sets.slice(0, 1);
   }
   let chosen = shapes;
@@ -462,9 +464,13 @@ export function voiceLead(chords, spec) {
   const out = [];
   let prev = null;
   for (const c of chords) {
-    const vspec = { root: c.root, quality: c.quality, voicing: spec.voicing || 'drop2', tones: c.tones, stringSet: spec.stringSet || 'auto', stringSetAll: !spec.stringSet };
+    const auto = !spec.stringSet || spec.stringSet === 'auto';
+    const vspec = { root: c.root, quality: c.quality, voicing: spec.voicing || 'drop2', tones: c.tones, stringSet: auto ? 'auto' : spec.stringSet, stringSetAll: auto };
     let cands = [];
     try { cands = chordVoicings({ ...vspec, inversion: 'all' }); } catch (e) { cands = []; }
+    // the given string set can't hold this chord (e.g. a 7th chord on 3 strings): use any standard set instead of going silent
+    if (!cands.length) { try { cands = chordVoicings({ ...vspec, stringSet: 'auto', stringSetAll: true, inversion: 'all' }); } catch (e) { cands = []; } }
+    if (!cands.length && vspec.voicing !== 'close') { try { cands = chordVoicings({ ...vspec, voicing: 'close', stringSet: 'auto', stringSetAll: true, inversion: 'all', maxSpan: 5 }); } catch (e) { cands = []; } }
     if (c.bass) {
       const bassIv = intervalBetween(c.root, c.bass);
       const f = cands.filter((p) => simpleIv(p.bassIv) === bassIv);
@@ -480,10 +486,26 @@ export function voiceLead(chords, spec) {
     } else {
       best = cands.reduce((a, b) => (movement(prev, a) <= movement(prev, b) ? a : b));
     }
+    if (c.bass && best && !best.notes.some((n) => n.midi % 12 === notePc(c.bass))) best = addBass(best, c.bass);
     out.push(best);
     prev = best;
   }
   return out;
+}
+// put a bass note (e.g. the F# of G/F#) under a voicing on the nearest free lower string
+function addBass(p, bass) {
+  const low = Math.max(...p.notes.map((n) => n.string));
+  const lowMidi = Math.min(...p.notes.map((n) => n.midi));
+  for (let s = low + 1; s <= 6; s++) {
+    for (let f = 0; f <= MAX_FRET; f++) {
+      const midi = OPEN[s] + f;
+      if (midi % 12 !== notePc(bass) || midi >= lowMidi) continue;
+      if (f && Math.abs(f - p.minFret) > 4 && Math.abs(f - p.maxFret) > 4) continue;
+      const notes = [{ string: s, fret: f, midi, iv: 'bass', note: bass }, ...p.notes];
+      return { ...p, notes, minFret: Math.min(p.minFret, f), maxFret: Math.max(p.maxFret, f) };
+    }
+  }
+  return p;
 }
 function movement(a, b) {
   const pa = a.notes.map((n) => n.midi).sort((x, y) => x - y);

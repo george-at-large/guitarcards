@@ -56,6 +56,8 @@ for (const t of lib.templates) {
         const c = compile(spec);
         if (spec.type !== 'text' && !(Array.isArray(spec)) && c.frames.length === 0 && spec.type !== 'chordMelody') errs.set(`${which} produced no diagram`, 1);
         if (which === 'demo' && spec.type !== 'text' && !c.events.length) errs.set('demo has no events', 1);
+        const silent = c.events.filter((e) => e.unvoiced).map((e) => e.label);
+        if (silent.length) errs.set(`${which}: ${silent.length} chord(s) could not be voiced (silent): ${silent.slice(0, 3).join(', ')}`, 1);
         for (const f of c.frames) for (const d of f.dots) if (d.fret < 0 || d.fret > 17) errs.set(`${which} fret out of range ${d.fret}`, 1);
         if (spec.type === 'voicings' || spec.type === 'chordScale') {
           const missing = c.html.match(/not playable/g);

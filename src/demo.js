@@ -340,13 +340,16 @@ function progressionCompile(spec) {
     if (scaleId && p) {
       const lo = Math.max(0, p.minFret - 2), hi = Math.min(17, p.maxFret + 2);
       scaleNotes = F.regionNotes({ root: scaleRoot, scale: scaleId, region: { frets: [lo, hi] } });
+      // one note per pitch (the fret window can contain the same pitch on two strings)
+      const seenMidi = new Set();
+      scaleNotes = scaleNotes.filter((n) => (seenMidi.has(n.midi) ? false : seenMidi.add(n.midi)));
       loW = Math.min(loW, lo); hiW = Math.max(hiW, hi);
     }
     const fi = frames.length;
     const chordDots = p ? dotsFrom(p.notes) : [];
     const ghost = scaleNotes.filter((n) => !p || !p.notes.some((q) => q.string === n.string && q.fret === n.fret)).map((n) => ({ string: n.string, fret: n.fret, label: T.prettyIv(n.iv), kind: n.iv === '1' ? 'root ghost' : 'ghost' }));
     frames.push({ dots: chordDots.concat(ghost), lo: 0, hi: 0, caption: label + (scaleId ? ` — ${T.noteName(scaleRoot, true)} ${T.getScale(scaleId).name}` : '') });
-    if (!p) { events.push({ beat: c.beat, dur: c.dur, kind: 'rest', frame: fi, hl: [], label }); return; }
+    if (!p) { events.push({ beat: c.beat, dur: c.dur, kind: 'rest', frame: fi, hl: [], label, unvoiced: true }); return; }
     const mids = p.notes.map((n) => n.midi).sort((a, b) => a - b);
     if (spec.walk === 'arpeggio') {
       const asc = [...p.notes].sort((a, b) => a.midi - b.midi);

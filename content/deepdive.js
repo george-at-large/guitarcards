@@ -233,7 +233,28 @@ const cycleTpl = [
   },
 ];
 
-export const templates = [...deepDives, TRIAD_DIVE, ...WHOLE_NECK, SPEED, ...journeys, ...cycleTpl];
+// ---------- rip it: free improvisation over a drone with the whole neck mapped ----------
+const RIP = {
+  id: 'improv-rip-it', mode: 'play', category: 'improv', tags: ['improvisation', 'drone', 'whole-neck', 'modes', 'rip-it'],
+  title: 'Rip it: {scale} over a {root} drone',
+  level: 3, length: 'medium', minutes: 5,
+  params: { root: 'any', scale: [
+    { v: 'dorian' }, { v: 'mixolydian' }, { v: 'lydian' }, { v: 'aeolian', label: 'natural minor' }, { v: 'ionian', label: 'major' },
+    { v: 'phrygian', lvl: 1 }, { v: 'minor-pentatonic' }, { v: 'blues' }, { v: 'major-pentatonic' },
+    { v: 'melodic-minor', lvl: 1 }, { v: 'lydian-dominant', lvl: 1 }, { v: 'harmonic-minor', lvl: 1 }, { v: 'phrygian-dominant', lvl: 2 },
+    { v: 'mixolydian-b6', lvl: 2 }, { v: 'dorian-b2', lvl: 3 }, { v: 'altered', lvl: 3 }, { v: 'diminished-hw', lvl: 3 }, { v: 'whole-tone', lvl: 2 },
+  ] },
+  prompt: 'Drone on. The whole neck of **{scale}** ({scaleNotes}) is mapped below, every note labelled with its interval. **Just play** — anywhere on the neck, for a few minutes. Move between positions, slide along strings, and keep landing on the notes that give the mode its colour.',
+  goal: 'Five minutes of free playing where you always know which interval you’re on.',
+  drone: { note: '$root', fifth: true },
+  hints: ['Start on the root, then find the colour note (the one that makes this mode different) and lean on it.', 'Try one string only for a minute, then two, then the whole neck.', 'Leave space: play a phrase, rest, answer it.'],
+  explain: 'Improvising over a drone with the whole fretboard mapped trains your ear and your neck knowledge at once: the drone fixes the root, so every note you play is heard as an interval against it. Help shows where the mode comes from, its one-note neighbours and what it is used for.',
+  visual: { type: 'scale', root: '$root', scale: '$scale', region: { neck: true }, labels: 'interval' },
+  demo: { type: 'scale', root: '$root', scale: '$scale', region: { neck: true }, path: 'up-and-down', beatsPerNote: 0.5 },
+  vary: ['root', 'scale'], concepts: ['mode-brightness'],
+};
+
+export const templates = [...deepDives, TRIAD_DIVE, ...WHOLE_NECK, SPEED, ...journeys, ...cycleTpl, RIP];
 export const concepts = [
   { id: 'cycle-of-fourths', title: 'The cycle of fourths (cycle of fifths)', tags: ['harmony', 'keys'],
     body: C4_EXPLAIN,
