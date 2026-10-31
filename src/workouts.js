@@ -49,10 +49,43 @@ WORKOUTS.splice(1, 0, {
     { id: 'voi-shell-plus-tension', why: 'Add one tension on top of the shell (9, ♭9, ♯9, 13).' },
   ],
 });
+WORKOUTS.unshift({
+  id: 'daily', name: 'Daily practice', minutes: 25,
+  blurb: 'A balanced session of the essentials — technique, time, fretboard, arpeggios, voice leading, guide tones, modes, the cycle and ear — different cards every day.',
+  steps: [
+    { pool: ['rhy-pick-alt-8ths', 'rhy-pick-alt-16ths', 'rhy-pick-alt-triplets', 'arp-speed-ladder'], why: 'Warm-up: picking hand.' },
+    { pool: ['rhy-16ths-muted', 'rhy-triplets-intro', 'rhy-triplet-accent-shift', 'rhy-8ths-accent-offbeats', 'rhy-blues-shuffle-strum'], why: 'Time: subdivisions and feel.' },
+    { pool: ['scl-fb-find-note-neck', 'scl-fb-note-on-fret-all', 'scl-fb-find-note-position'], why: 'Fretboard: know every note.' },
+    { pool: ['scl-arp-7ths-caged', 'scl-arp-inversions-string-sets', 'voi-drop2-inversion-arpeggio', 'scl-arp-7ths-connect'], why: 'Arpeggios.' },
+    { pool: ['voi-drop2-ii-V-I', 'voi-triad-I-vi-ii-V', 'voi-drop2-minor-ii-V-i', 'har-diatonic-cycle-4ths'], why: 'Voice leading through changes.' },
+    { pool: ['voi-guide-tones-ii-V-I', 'har-imp-target-3rds', 'har-comp-guide-tones', 'har-imp-guide-tone-line'], why: 'Guide tones.' },
+    { pool: ['improv-rip-it', 'scl-journey-light-to-dark', 'scl-journey-parent-loop', 'scl-neck-interval-tracking'], why: 'Modes and the whole neck.' },
+    { pool: ['cyc4-chords', 'cyc4-ii-v-i', 'cyc4-dominant-chain'], why: 'The cycle of fourths.' },
+    { pool: ['ear-prog-cadences-major', 'ear-prog-pop-loops', 'ear-prog-drill-diatonic', 'ear-prog-cadences-minor'], why: 'Ear: hear the progression.' },
+  ],
+});
+WORKOUTS.splice(3, 0, {
+  id: 'voice-leading', name: 'Voice leading workout', minutes: 30,
+  blurb: 'Move between chords with the smallest motion: nearest triads, shells, guide tones, drop 2 through ii–V–I in major and minor, line clichés, the cycle of 4ths, and a melody on top.',
+  steps: [
+    { id: 'voi-triad-I-IV-V-nearest', why: 'Nearest triads: I–IV–V–I without jumping.' },
+    { id: 'voi-triad-I-vi-ii-V', why: 'Triad turnaround, voice-led.' },
+    { id: 'voi-triad-key-cycle-voice-led', why: 'Triads round the cycle of 4ths in one position.' },
+    { id: 'voi-shell-ii-V-I', why: 'Shells through ii–V–I.' },
+    { id: 'voi-guide-tones-ii-V-I', why: 'Just the moving voices: 7th falls to 3rd.' },
+    { id: 'voi-drop2-ii-V-I', why: 'Drop 2 ii–V–I: one voice moves at a time.' },
+    { id: 'voi-drop2-minor-ii-V-i', why: 'The same in minor.' },
+    { id: 'voi-drop2-line-cliche', why: 'Line cliché: one voice walks down chromatically.' },
+    { id: 'har-diatonic-cycle-4ths', why: 'Diatonic cycle of 4ths in drop 2.' },
+    { id: 'voi-quiz-cycle-common-tones', why: 'Which cycles keep the most common tones?' },
+    { id: 'voi-cycle-4-5-drop2', why: 'Goodrick/Miller cycle 4 and 5 drills.' },
+    { id: 'har-comp-top-voice-melody', why: 'Make the top voice a melody (Ted Greene).' },
+  ],
+});
 // how essential a card is for real playing: multiplies its chance of coming up in mixed sessions (likes boost further)
 export const ESSENTIAL = {
   'ii-v-i': 1.5, 'minor-ii-v-i': 1.4, triads: 1.3, arpeggios: 1.3, drop2: 1.3, inversions: 1.3, 'cycle-of-fourths': 1.4,
-  'chord-tones': 1.3, 'guide-tones': 1.5, shells: 1.4, 'guide-tone': 1.5, targeting: 1.3, 'melodic-minor': 1.2, 'harmonic-minor': 1.2, comping: 1.2, 'deep-dive': 1.2,
+  'chord-tones': 1.3, 'voice-leading': 1.4, 'guide-tones': 1.5, shells: 1.4, 'guide-tone': 1.5, targeting: 1.3, 'melodic-minor': 1.2, 'harmonic-minor': 1.2, comping: 1.2, 'deep-dive': 1.2,
   'parallel-modes': 0.7, 'modal-interchange': 0.85, quartal: 0.8, 'harmonic-major': 0.6, 'drop24': 0.7, drop23: 0.6, drop4: 0.5,
 };
 export function essentialWeight(t) {

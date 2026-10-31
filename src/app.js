@@ -234,7 +234,8 @@ function renderHome() {
     <h3>Focus <span class="muted small">— bias toward topics (comma-separated)</span></h3>
     <input type="search" id="focus" placeholder="e.g. drop 2, bossa, altered, triplets" value="${esc(st().focus)}">
     <div class="chips" style="margin-top:8px">${suggestTags().map((t) => `<button class="chip" data-tag="${esc(t)}">${esc(t)}</button>`).join('')}</div>
-    <div class="row" style="margin-top:8px">${WORKOUTS.map((w) => `<button class="grow" data-wo="${w.id}">💪 ${esc(w.name)}<br><small class="muted">${w.steps.length} cards · ~${w.minutes} min</small></button>`).join('')}</div>
+    <h3>Workouts</h3>
+    <div class="navgrid">${WORKOUTS.map((w, i) => `<button data-wo="${w.id}" ${i === 0 ? 'style="grid-column:1/-1"' : ''}><b>${i === 0 ? '📅' : '💪'} ${esc(w.name)}</b><small>${w.steps.length} cards · ~${w.minutes} min</small></button>`).join('')}</div>
     <button class="primary start" data-act="start" ${elig ? '' : 'disabled'}>Start session${elig ? '' : ' (no cards match)'}</button>
     <p class="muted small" style="text-align:center">${elig} card types match these settings</p>
   </div>
@@ -255,7 +256,13 @@ function renderHome() {
   $app.onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const S = st().settings;
-    if (b.dataset.wo) { const w = WORKOUTS.find((x) => x.id === b.dataset.wo); const steps = w.steps.filter((x) => LIB.byId.has(x.id)); if (steps.length) startSession(null, { workout: { ...w, steps } }); return; }
+    if (b.dataset.wo) {
+      const w = WORKOUTS.find((x) => x.id === b.dataset.wo);
+      // pool steps pick one card each time, so a workout like Daily practice changes day to day
+      const steps = w.steps.map((x) => { if (!x.pool) return x; const ok = x.pool.filter((id) => LIB.byId.has(id)); return ok.length ? { ...x, id: ok[Math.floor(Math.random() * ok.length)] } : null; }).filter((x) => x && LIB.byId.has(x.id));
+      if (steps.length) startSession(null, { workout: { ...w, steps } });
+      return;
+    }
     if (b.dataset.mode) { const m = b.dataset.mode; S.modes = S.modes.includes(m) ? S.modes.filter((x) => x !== m) : [...S.modes, m]; if (!S.modes.length) S.modes = [m]; AD.save(); renderHome(); }
     else if (b.dataset.cat) { const [m, c] = b.dataset.cat.split('|'); const l = S.cats[m] || []; S.cats[m] = l.includes(c) ? l.filter((x) => x !== c) : [...l, c]; AD.save(); renderHome(); }
     else if (b.dataset.len) { S.length = b.dataset.len; AD.save(); renderHome(); }
