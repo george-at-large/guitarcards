@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Guitar Cards">
+<meta name="theme-color" content="#14161a">
+<title>Guitar Cards</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app"><div class="boot">Loading cards…</div></div>
+<div id="sheet" class="sheet hidden"><div class="sheet-inner"><div class="sheet-head"><button class="icon" id="sheet-back" aria-label="Back">‹</button><span id="sheet-title"></span><button class="icon" id="sheet-close" aria-label="Close">✕</button></div><div id="sheet-body"></div></div></div>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
