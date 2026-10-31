@@ -10,6 +10,7 @@ import { substitutions } from './subs.js';
 import { contextFor, chordScaleContext, modeOrigin } from './context.js';
 import { howToPlay } from './rhythm.js';
 import { EAR_LEVELS, PASS, gymQuestion } from './eargym.js';
+import { WORKOUTS } from './workouts.js';
 
 const $app = document.getElementById('app');
 let LIB = null;
@@ -233,6 +234,7 @@ function renderHome() {
     <h3>Focus <span class="muted small">— bias toward topics (comma-separated)</span></h3>
     <input type="search" id="focus" placeholder="e.g. drop 2, bossa, altered, triplets" value="${esc(st().focus)}">
     <div class="chips" style="margin-top:8px">${suggestTags().map((t) => `<button class="chip" data-tag="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+    <div class="row" style="margin-top:8px">${WORKOUTS.map((w) => `<button class="grow" data-wo="${w.id}">💪 ${esc(w.name)}<br><small class="muted">${w.steps.length} cards · ~${w.minutes} min</small></button>`).join('')}</div>
     <button class="primary start" data-act="start" ${elig ? '' : 'disabled'}>Start session${elig ? '' : ' (no cards match)'}</button>
     <p class="muted small" style="text-align:center">${elig} card types match these settings</p>
   </div>
@@ -253,6 +255,7 @@ function renderHome() {
   $app.onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const S = st().settings;
+    if (b.dataset.wo) { const w = WORKOUTS.find((x) => x.id === b.dataset.wo); const steps = w.steps.filter((x) => LIB.byId.has(x.id)); if (steps.length) startSession(null, { workout: { ...w, steps } }); return; }
     if (b.dataset.mode) { const m = b.dataset.mode; S.modes = S.modes.includes(m) ? S.modes.filter((x) => x !== m) : [...S.modes, m]; if (!S.modes.length) S.modes = [m]; AD.save(); renderHome(); }
     else if (b.dataset.cat) { const [m, c] = b.dataset.cat.split('|'); const l = S.cats[m] || []; S.cats[m] = l.includes(c) ? l.filter((x) => x !== c) : [...l, c]; AD.save(); renderHome(); }
     else if (b.dataset.len) { S.length = b.dataset.len; AD.save(); renderHome(); }
@@ -284,6 +287,7 @@ function startSession(onlyTpl = null, extra = {}) {
 }
 function sessionDone() {
   const s = st().settings.session;
+  if (SESSION.workout) return SESSION.cards.length >= SESSION.workout.steps.length;
   if (SESSION.only) return SESSION.cards.length >= 6;
   if (s.type === 'cards') return SESSION.cards.length >= s.n;
   return Date.now() - SESSION.start >= s.n * 60000;
@@ -299,9 +303,11 @@ function nextCard() {
       card = instantiate(q.from.tpl, AD.variantChooser(q.from, q.dir));
       card.followUp = q.dir > 0 ? (q.tempoOnly ? 'Same exercise — faster' : 'Same exercise — one notch harder') : (q.tempoOnly ? 'Same exercise — slower' : 'Same exercise — a bit easier');
     } else {
-      const tpl = SESSION.only ? SESSION.only : AD.pickTemplate(LIB, SESSION);
+      const wstep = SESSION.workout ? SESSION.workout.steps[SESSION.cards.length] : null;
+      const tpl = wstep ? LIB.byId.get(wstep.id) : SESSION.only ? SESSION.only : AD.pickTemplate(LIB, SESSION);
       if (!tpl) { toast('No cards match your settings'); return renderHome(); }
-      card = instantiate(tpl, AD.paramChooser(tpl));
+      card = instantiate(tpl, AD.paramChooser(tpl), (wstep && wstep.params) || {});
+      if (wstep) card.followUp = `${SESSION.workout.name} · ${SESSION.cards.length + 1}/${SESSION.workout.steps.length} — ${wstep.why}`;
     }
   } catch (err) {
     console.error(err);
@@ -339,7 +345,7 @@ function renderCard() {
   const { card } = CARD;
   const tpl = card.tpl;
   const n = SESSION.cards.length;
-  const total = SESSION.only ? '' : st().settings.session.type === 'cards' ? `/${st().settings.session.n}` : ` · ${Math.round((Date.now() - SESSION.start) / 60000)}/${st().settings.session.n}m`;
+  const total = SESSION.workout ? `/${SESSION.workout.steps.length}` : SESSION.only ? '' : st().settings.session.type === 'cards' ? `/${st().settings.session.n}` : ` · ${Math.round((Date.now() - SESSION.start) / 60000)}/${st().settings.session.n}m`;
   const hasTransport = tpl.mode === 'play' && (card.tempo || card.metronome || card.drone || tpl.category === 'improv' || tpl.category === 'scales');
   const hasDemo = !!card.demo;
   const hasHelp = (tpl.hints && tpl.hints.length) || tpl.explain || card.visual || (tpl.concepts && tpl.concepts.length);
@@ -607,7 +613,7 @@ function advance() { rateCard(3); }
 function scheduleFollowUp(card, eff) {
   const tpl = card.tpl;
   const hasVary = (tpl.vary || []).length || tpl.tempo;
-  if (!hasVary || SESSION.only) return;
+  if (!hasVary || SESSION.only || SESSION.workout) return;
   const tempoOnly = !!tpl.tempo && !(tpl.vary || []).some((v) => v !== 'tempo' && tpl.params && tpl.params[v]);
   if (eff >= 3.4 && Math.random() < 0.45) SESSION.queue.push({ from: card, dir: 1, at: SESSION.cards.length + 2 + Math.floor(Math.random() * 3), tempoOnly });
   else if (eff <= 1.8 && Math.random() < 0.6) SESSION.queue.push({ from: card, dir: -1, at: SESSION.cards.length + 1, tempoOnly });

@@ -1,4 +1,5 @@
 // Adaptive selection + learner model (persisted in localStorage).
+import { essentialWeight } from './workouts.js';
 const KEY = 'guitarcards.v1';
 const DAY = 86400000;
 
@@ -90,6 +91,7 @@ export function pickTemplate(lib, session) {
     const tagB = (t.tags || []).reduce((a, g) => a + (st.bias.tags[g] || 0), 0) + (st.bias.tpl[t.id] || 0) * 1.5;
     s *= Math.pow(1.5, Math.max(-4, Math.min(4, tagB)));
     if (toks.length) s *= matchesFocus(t, toks) ? 6 : 0.25;
+    s *= essentialWeight(t);
     // the Ted Greene book is big: in a mixed deck it gets a fair share, not a third of every session
     if (t.category === 'tedgreene' && !session.filter && !((st.settings.cats[t.mode] || []).includes('tedgreene'))) s *= 0.2;
     return { t, s: s * (0.6 + Math.random() * 0.8) };

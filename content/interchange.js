@@ -3,14 +3,10 @@
 // replaces, and exactly which notes changed.
 const MODES = [
   { v: 'aeolian', label: 'Aeolian (natural minor)' },
-  { v: 'dorian', label: 'Dorian' },
-  { v: 'mixolydian', label: 'Mixolydian' },
-  { v: 'phrygian', label: 'Phrygian', lvl: 1 },
-  { v: 'lydian', label: 'Lydian', lvl: 1 },
-  { v: 'harmonic-minor', label: 'harmonic minor', lvl: 2 },
-  { v: 'melodic-minor', label: 'melodic minor', lvl: 2 },
-  { v: 'harmonic-major', label: 'harmonic major', lvl: 3 },
-  { v: 'locrian', label: 'Locrian', lvl: 3 },
+  { v: 'harmonic-minor', label: 'harmonic minor' },
+  { v: 'melodic-minor', label: 'melodic minor' },
+  { v: 'dorian', label: 'Dorian', lvl: 2 },
+  { v: 'mixolydian', label: 'Mixolydian', lvl: 3 },
 ];
 const EXPLAIN = `### Modal interchange in one sentence
 Keep the **same tonic**, but borrow chords from a **parallel mode** (same root, different scale). C major can borrow from C Aeolian, C Dorian, C Mixolydian, C Phrygian, C harmonic minor…
