@@ -50,7 +50,8 @@ export function instantiate(tpl, chooser = (n, vals) => vals[Math.floor(Math.ran
     quiz: resolve(tpl.quiz),
     metronome: resolve(tpl.metronome),
     drone: resolve(tpl.drone),
-    tempo: tpl.tempo ? { ...tpl.tempo } : null,
+    // the metronome can always reach at least 200 bpm, whatever the card's suggested range
+    tempo: tpl.tempo ? { ...tpl.tempo, max: Math.max(tpl.tempo.max ?? 200, 200) } : null,
   };
   card.text = (s) => fill(s, card);
   // placeholders inside diagram captions

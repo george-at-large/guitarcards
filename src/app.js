@@ -1,13 +1,15 @@
 import * as T from './theory.js';
 import * as A from './audio.js';
-import { loadLibrary } from './library.js';
+import { loadLibrary, savePack } from './library.js';
 import { instantiate, fill } from './cards.js';
 import { compile, chartChords, chordLabel, asKey } from './demo.js';
 import { fretboardSVG, md, esc, rhythmHTML } from './render.js';
 import { makeQuiz, PC_NAMES } from './quiz.js';
 import * as AD from './adapt.js';
 import { substitutions } from './subs.js';
-import { contextFor, chordScaleContext } from './context.js';
+import { contextFor, chordScaleContext, modeOrigin } from './context.js';
+import { howToPlay } from './rhythm.js';
+import { EAR_LEVELS, PASS, gymQuestion } from './eargym.js';
 
 const $app = document.getElementById('app');
 let LIB = null;
@@ -35,7 +37,10 @@ async function keepAwake(on) {
 // ---------- neck player ----------
 class NeckPlayer {
   constructor(el, compiled, { bpm = 80, title = '' } = {}) {
-    this.el = el; this.c = compiled; this.bpm = bpm; this.loops = 1; this.speed = 1; this.click = false; this.frame = -1;
+    this.el = el; this.c = compiled; this.bpm = bpm; this.loops = 1; this.speed = 1; this.frame = -1;
+    // rhythms: click and count-in on by default so you always hear where the beat is
+    this.click = !!compiled.rhythm; this.countIn = !!compiled.rhythm; this.turn = false;
+    if (compiled.rhythm) this.loops = 3;
     this.title = title;
     this.render();
   }
@@ -44,15 +49,27 @@ class NeckPlayer {
     this.el.innerHTML = `<div class="watch">
       ${c.rhythm ? `<div class="rh"></div>` : ''}
       <div class="cap"></div><div class="neck"></div><div class="big"></div>
+      ${this.len() > 0 ? `<div class="scrubrow"><input type="range" class="scrub" min="0" max="${this.len()}" step="0.25" value="${this.pos || 0}" aria-label="Position in the demo"><span class="scrubpos small muted"></span></div>` : ''}
       <div class="ctrl">
         <button data-w="play" class="primary">▶ Play</button>
         <button data-w="loops">${this.loopLabel()}</button>
         <button data-w="speed">${this.speed}×</button>
         <button data-w="click" class="${this.click ? 'on' : ''}">Click</button>
+        ${c.rhythm ? `<button data-w="turn" class="${this.turn ? 'on' : ''}">Your turn</button><button data-w="count" class="${this.countIn ? 'on' : ''}">Count-in</button>` : ''}
         <span class="muted small grow" style="text-align:right">${Math.round(this.bpm * this.speed)} bpm</span>
-      </div></div>`;
+      </div>
+      ${c.rhythm ? `<p class="muted small turnnote">${this.turn ? 'Your turn: the demo plays a bar, then <b>you</b> play the next bar with only the click (cursor keeps moving). Repeats 4×.' : 'Tip: “Your turn” alternates demo bars with bars for you to play.'}</p>` : ''}
+      </div>`;
     if (c.rhythm) qs('.rh', this.el).innerHTML = rhythmHTML(c.rhythm);
+    this.frame = -1;
     this.showFrame(0);
+    if (this.pos) this.showAt(this.pos);
+    const sc = qs('.scrub', this.el);
+    if (sc) {
+      sc.oninput = () => { if (PLAYER === this && A.playing()) { this.resume = true; A.stopPlayer(); this.stopped(); } this.showAt(Number(sc.value)); };
+      sc.onchange = () => { if (this.resume) { this.resume = false; this.play(Number(sc.value)); } };
+    }
+    this.updatePos(this.pos || 0);
     this.el.onclick = (e) => {
       const b = e.target.closest('[data-w]'); if (!b) return;
       const w = b.dataset.w;
@@ -60,9 +77,29 @@ class NeckPlayer {
       if (w === 'loops') { this.loops = { 1: 3, 3: 99, 99: 1 }[this.loops]; b.textContent = this.loopLabel(); }
       if (w === 'speed') { this.speed = { 1: 0.5, 0.5: 0.75, 0.75: 1.25, 1.25: 1 }[this.speed]; this.render(); }
       if (w === 'click') { this.click = !this.click; b.classList.toggle('on', this.click); }
+      if (w === 'turn') { this.turn = !this.turn; this.render(); }
+      if (w === 'count') { this.countIn = !this.countIn; b.classList.toggle('on', this.countIn); }
     };
   }
   loopLabel() { return this.loops === 99 ? 'Loop ∞' : `×${this.loops}`; }
+  len() { const ev = this.c.events || []; return ev.length ? Math.max(this.c.length || 0, ...ev.map((e) => e.beat + (e.dur || 0))) : 0; }
+  updatePos(b) {
+    this.pos = b;
+    const bpb = this.c.beatsPerBar || 4;
+    const sc = qs('.scrub', this.el); if (sc && document.activeElement !== sc) sc.value = b;
+    const lab = qs('.scrubpos', this.el); if (lab) lab.textContent = `bar ${Math.floor(b / bpb) + 1} · beat ${Math.floor(b % bpb) + 1}`;
+  }
+  // show the moment at beat b (last event that has started by then)
+  showAt(b) {
+    const ev = (this.c.events || []).filter((e) => e.beat <= b + 1e-6).pop() || (this.c.events || [])[0];
+    if (ev) {
+      this.showFrame(ev.frame ?? 0, ev.hl, ev);
+      if (this.c.rhythm && ev.slot != null) qsa('.rslot, .cnum', this.el).forEach((s) => s.classList.toggle('cur', Number(s.dataset.i) === ev.slot));
+      const big = qs('.big', this.el);
+      if (big && !this.c.rhythm) big.textContent = ev.kind === 'note' && ev.hl && ev.hl.length === 1 ? (qs(`.dot[data-k="${ev.hl[0]}"] text`, this.el)?.textContent || '') : '';
+    }
+    this.updatePos(b);
+  }
   showFrame(i, hl = null, ev = null) {
     const f = this.c.frames[i];
     if (!f) { qs('.neck', this.el).innerHTML = ''; return; }
@@ -81,25 +118,45 @@ class NeckPlayer {
       if (!f.live) qsa('.dot', this.el).forEach((d) => d.classList.toggle('dim', !set.has(d.dataset.k) && hl.length > 0 && hl.length < 3 ? false : false));
     }
   }
-  play() {
+  play(from = 0) {
     stopAll();
     PLAYER = this;
     qs('[data-w=play]', this.el).textContent = '■ Stop';
     const bpm = this.bpm * this.speed;
-    A.playEvents(this.c.events, {
-      bpm, loops: this.loops, countIn: 0, clickTrack: this.click,
+    const bpb = this.c.beatsPerBar || 4;
+    const turn = this.turn && this.c.rhythm;
+    const L = this.len();
+    if (turn || from >= L - 1e-6) from = 0;
+    // start mid-way: play the rest of this pass, then any remaining full loops
+    let events = this.c.events.map((e) => ({ ...e, _b: e.beat }));
+    let loops = turn ? 8 : this.loops;
+    if (from > 0) {
+      const tail = events.filter((e) => e.beat >= from - 1e-6).map((e) => ({ ...e, beat: e.beat - from }));
+      const extra = loops === 99 ? 30 : loops - 1;
+      events = tail.concat(...[...Array(Math.max(0, extra)).keys()].map((k) => this.c.events.map((e) => ({ ...e, _b: e.beat, beat: e.beat + (L - from) + k * L }))));
+      loops = 1;
+    }
+    A.playEvents(events, {
+      bpm, loops, countIn: this.countIn && from === 0 ? Math.min(bpb, 6) : 0, clickTrack: this.click || turn,
+      beatsPerBar: bpb, clickAccents: this.c.clickAccents || [0],
+      silentPasses: turn ? (pass) => pass % 2 === 1 : null,
       sound: 'guitar',
+      onCount: (n, of) => { const big = qs('.big', this.el); if (big) big.textContent = `count-in ${n}…`; },
       onEvent: (e) => {
-        this.showFrame(e.frame ?? 0, e.hl, e);
+        if (e._b != null) this.updatePos(e._b);
+        this.showFrame(e.frame ?? 0, e.silent ? null : e.hl, e);
         const big = qs('.big', this.el);
-        if (big) big.textContent = e.kind === 'note' && e.hl && e.hl.length === 1 ? (qs(`.dot[data-k="${e.hl[0]}"] text`, this.el)?.textContent || '') : '';
-        if (this.c.rhythm && e.slot != null) { qsa('.rslot', this.el).forEach((s) => s.classList.toggle('cur', Number(s.dataset.i) === e.slot)); }
+        if (big) big.textContent = e.silent ? '🎸 Your turn' : this.c.rhythm ? '' : e.kind === 'note' && e.hl && e.hl.length === 1 ? (qs(`.dot[data-k="${e.hl[0]}"] text`, this.el)?.textContent || '') : '';
+        if (this.c.rhythm && e.slot != null) {
+          qsa('.rslot', this.el).forEach((s) => s.classList.toggle('cur', Number(s.dataset.i) === e.slot));
+          qsa('.cnum', this.el).forEach((s) => s.classList.toggle('cur', Number(s.dataset.i) === e.slot));
+        }
       },
-      onDone: () => this.stopped(),
+      onDone: () => { this.stopped(); if (this.onFinish) this.onFinish(); },
     });
   }
   stop() { A.stopPlayer(); this.stopped(); }
-  stopped() { if (PLAYER === this) PLAYER = null; const b = qs('[data-w=play]', this.el); if (b) b.textContent = '▶ Play'; qsa('.rslot.cur', this.el).forEach((s) => s.classList.remove('cur')); }
+  stopped() { if (PLAYER === this) PLAYER = null; const b = qs('[data-w=play]', this.el); if (b) b.textContent = '▶ Play'; qsa('.rslot.cur, .cnum.cur', this.el).forEach((s) => s.classList.remove('cur')); const big = qs('.big', this.el); if (big && this.c.rhythm) big.textContent = ''; }
 }
 function stopAll() { if (PLAYER) PLAYER.stop(); A.stopPlayer(); }
 // leaving a screen: nothing keeps sounding (demos, quiz audio, metronome, drone, timers)
@@ -185,10 +242,12 @@ function renderHome() {
     ${Object.entries(prog.byCat).sort((a, b) => a[1].mode.localeCompare(b[1].mode)).map(([c, v]) => `<div class="catrow"><span>${esc(AD.CAT_LABEL[c] || c)} <span class="muted small">L${AD.catLevel(c).toFixed(1)}</span></span><div class="bar"><i style="width:${(100 * v.seen) / v.total}%"></i><i class="m" style="width:${(100 * v.mastered) / v.total}%"></i></div><span class="muted small">${v.mastered}/${v.total}</span></div>`).join('')}
   </div>
   <div class="navgrid">
+    <button data-act="tg" style="grid-column:1/-1;border-color:var(--accent)"><b>🎹 Ted Greene</b><small>Modern Chord Progressions — every progression, playable in any key</small></button>
     <button data-act="songs"><b>🎼 Songs</b><small>Annotated progressions</small></button>
     <button data-act="toolbox"><b>🧰 Toolbox</b><small>What to play over what</small></button>
     <button data-act="concepts"><b>📖 Lessons</b><small>Concept deep-dives</small></button>
     <button data-act="library"><b>🗂 Library</b><small>Browse every card</small></button>
+    <button data-act="eargym" style="grid-column:1/-1"><b>🎧 Ear Gym</b><small>Hear progressions — level by level (${gymPassed()}/${EAR_LEVELS.length} passed)</small></button>
   </div>
   ${LIB.errors.length ? `<p class="muted small">Content not loaded: ${esc(LIB.errors.join('; '))}</p>` : ''}`;
   $app.onclick = (e) => {
@@ -201,9 +260,11 @@ function renderHome() {
     else if (b.dataset.tag) { const f = qs('#focus'); f.value = f.value ? f.value + ', ' + b.dataset.tag : b.dataset.tag; st().focus = f.value; AD.save(); }
     else if (b.dataset.act === 'start') { st().focus = qs('#focus').value; AD.save(); startSession(); }
     else if (b.dataset.act === 'songs') renderSongs();
+    else if (b.dataset.act === 'tg') renderTG();
     else if (b.dataset.act === 'toolbox') renderToolbox();
     else if (b.dataset.act === 'concepts') renderConcepts();
     else if (b.dataset.act === 'library') renderLibrary();
+    else if (b.dataset.act === 'eargym') renderEarGym();
     else if (b.dataset.act === 'settings') renderSettings();
   };
   qs('#focus').onchange = (e) => { st().focus = e.target.value; AD.save(); renderHome(); };
@@ -215,8 +276,8 @@ function suggestTags() {
 }
 
 // ---------- SESSION ----------
-function startSession(onlyTpl = null) {
-  SESSION = { cards: [], seen: new Set(), queue: [], start: Date.now(), results: [], only: onlyTpl, levels0: { ...Object.fromEntries(Object.keys(AD.CAT_LABEL).map((c) => [c, AD.catLevel(c)])) } };
+function startSession(onlyTpl = null, extra = {}) {
+  SESSION = { cards: [], seen: new Set(), queue: [], start: Date.now(), results: [], only: onlyTpl, ...extra, levels0: { ...Object.fromEntries(Object.keys(AD.CAT_LABEL).map((c) => [c, AD.catLevel(c)])) } };
   st().sessions++; AD.save();
   keepAwake(true);
   nextCard();
@@ -261,7 +322,7 @@ function nextCard() {
 function cardBpm() { return CARD.tempo || (CARD.card.tempo && CARD.card.tempo.start) || 80; }
 function startMetro() {
   const m = CARD.card.metronome || {};
-  A.startMetronome({ bpm: cardBpm(), meter: m.meter || '4/4', subdivision: m.subdivision || 1, swing: m.swing || 0, accent: m.accent !== false, gap: m.gap, clickOn: m.clickOn,
+  A.startMetronome({ bpm: cardBpm(), meter: m.meter || '4/4', subdivision: m.subdivision || 1, swing: m.swing || 0, accent: m.accent !== false, gap: m.gap, clickOn: m.clickOn, accentBeats: m.accentBeats,
     onBeat: ({ beat, gap }) => { qsa('.beatdots i').forEach((d, i) => d.classList.toggle('on', i === beat && !gap)); } });
   const b = qs('[data-c=metro]'); if (b) b.classList.add('on');
 }
@@ -293,6 +354,7 @@ function renderCard() {
   <h2>${esc(card.text(tpl.title))}</h2>
   <div class="prompt md">${md(card.text(tpl.prompt))}</div>
   ${tpl.goal ? `<div class="goal">🎯 ${esc(card.text(tpl.goal))}</div>` : ''}
+  ${tpl.link ? `<a class="linkbtn" style="display:block;text-align:center;padding:12px;margin:8px 0;border:1px solid var(--accent);border-radius:12px;color:var(--accent);text-decoration:none;font-weight:600" href="${esc(tpl.link)}" target="_blank" rel="noopener">📄 Open the lesson sheet</a>` : ''}
   ${hasTransport ? `<div class="transport">
      ${card.tempo || card.metronome ? `<button class="tbtn" data-c="slower">−</button><div class="bpm">${cardBpm()}<small>bpm</small></div><button class="tbtn" data-c="faster">+</button>
      <button class="tbtn ${A.metronomeOn() ? 'on' : ''}" data-c="metro">🥁 Click</button>` : ''}
@@ -331,6 +393,7 @@ function onCardClick(e) {
   else if (c === 'drone') { if (A.droneOn()) { A.stopDrone(); b.classList.remove('on'); } else startDroneFor(); }
   else if (c === 'watch') { toggleWatch(); }
   else if (c === 'help') { CARD.help++; drawHelp(true); b.textContent = '💡 More help'; }
+  else if (c === 'skip') skipCard();
   else if (c.startsWith('rate')) rateCard(Number(c.slice(4)));
   else if (c === 'next') advance();
   else if (c === 'ctxplay') playContext(Number(b.dataset.i));
@@ -357,7 +420,21 @@ function chordScaleTable(card) {
     ${t.scaleChange.length ? `<p class="small">Notes that differ from the major scale: <b>${t.scaleChange.map(T.prettyIv).join(' ')}</b></p>` : '<p class="small">This is the major scale itself.</p>'}
     <table><tr><th>Chord</th><th>vs major</th><th>Function</th></tr>${t.rows.map((r) => `<tr><td><b>${esc(T.prettyRoman(r.roman))}</b><br>${esc(r.chord)}</td><td class="small">${r.same ? '<span class="muted">same</span>' : `${esc(T.prettyRoman(r.droman))} ${esc(r.diatonic)}<br><span style="color:var(--accent)">changed: ${esc(r.changed.join(' '))}</span>`}</td><td class="small">${esc(r.fn)}</td></tr>`).join('')}</table></div>`;
 }
+function rhythmGuideHTML(card) {
+  const specs = [card.visual, card.demo].flat().filter(Boolean);
+  const rs = specs.filter((x) => x.type === 'rhythm');
+  if (!rs.length) return '';
+  const seen = new Set();
+  const uniq = rs.filter((r) => { const k = JSON.stringify([r.pattern, r.pick, r.meter, r.grid, r.swing]); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 3);
+  return uniq.map((r, i) => {
+    let body = '';
+    try { body = rhythmHTML(r) + `<div class="md">${md(howToPlay(r))}</div>`; } catch (e) { body = ''; }
+    return `<div class="ctxbox"><div class="ctxh">🥁 How to play this${uniq.length > 1 ? ` — part ${i + 1}${r.title ? ': ' + esc(r.title) : ''}` : ''}</div>${body}</div>`;
+  }).join('');
+}
 function contextHTML(card) {
+  const rg = rhythmGuideHTML(card);
+  if (rg) return rg;
   const cs = chordScaleTable(card);
   if (cs) return cs;
   let list = [];
@@ -369,7 +446,15 @@ function contextHTML(card) {
     <p><b>Job:</b> ${esc(c.info.use)}</p>
     ${c.example ? `<p><b>Example</b> (${esc(c.example.keyLabel)}, as ${esc(T.prettyRoman(c.example.deg))}): ${esc(c.example.names)}</p>` : ''}
     ${c.info.songs ? `<p class="muted small">Heard in: ${esc(c.info.songs)}</p>` : ''}
+    ${c.kind === 'scale' ? originHTML(c) : ''}
     ${c.example ? `<button data-c="ctxplay" data-i="${i}">▶ Hear it in context</button><div class="ctxw" id="ctxw${i}"></div>` : ''}</div>`).join('');
+}
+function originHTML(c) {
+  let o = {};
+  try { o = modeOrigin(CARD.card.ctx.root, c.example ? c.example.scale : CARD.card.ctx.scale); } catch (e) { return ''; }
+  const nb = (o.neighbours || []).map((n) => `<li>${n.up ? 'raise' : 'lower'} the <b>${esc(T.prettyIv(n.from))}</b> → ${esc(T.prettyIv(n.to))}: <b>${esc(n.name)}</b></li>`).join('');
+  return (o.parent ? `<p><b>Where it comes from:</b> ${md(o.parent).replace(/^<p>|<\/p>$/g, '')}</p>` : '') +
+    (nb ? `<p><b>One note away:</b></p><ul class="small">${nb}</ul>` : '');
 }
 function playContext(i) {
   const c = CARD.ctxList && CARD.ctxList[i];
@@ -493,12 +578,19 @@ function drawRate() {
   const objective = Q && ['choice', 'notes', 'tap', 'sequence'].includes(Q.type);
   if (objective) {
     el.className = 'rate one';
-    el.innerHTML = CARD.answered ? `<button class="r3" data-c="next">Next →</button>` : `<button data-c="rate1">Skip</button>`;
+    el.innerHTML = CARD.answered ? `<button class="r3" data-c="next">Next →</button>` : `<button data-c="skip">Skip</button>`;
     return;
   }
-  if (Q && Q.selfRate && !CARD.answered) { el.className = 'rate one'; el.innerHTML = `<button data-c="rate2">Skip</button>`; return; }
+  if (Q && Q.selfRate && !CARD.answered) { el.className = 'rate one'; el.innerHTML = `<button data-c="skip">Skip</button>`; return; }
   el.className = 'rate';
   el.innerHTML = `<button class="r1" data-c="rate1">Too hard</button><button class="r2" data-c="rate2">Hard</button><button class="r3" data-c="rate3">Good ✓</button><button class="r4" data-c="rate4">Easy</button>`;
+}
+// Skip = "not now": no rating, no follow-up, and it won't come straight back this session
+function skipCard() {
+  if (CARD.rated) return;
+  CARD.rated = true;
+  SESSION.results.push({ card: CARD.card, eff: null, skipped: true });
+  nextCard();
 }
 function rateCard(r) {
   if (CARD.rated) return;
@@ -529,12 +621,13 @@ function renderSummary() {
   const res = SESSION ? SESSION.results : [];
   const mins = SESSION ? Math.round((Date.now() - SESSION.start) / 60000) : 0;
   const moved = SESSION ? Object.keys(AD.CAT_LABEL).map((c) => [c, AD.catLevel(c) - (SESSION.levels0[c] ?? AD.catLevel(c))]).filter(([, d]) => Math.abs(d) > 0.05) : [];
-  const word = (e) => (e >= 3.5 ? 'easy' : e >= 2.9 ? 'good' : e >= 2 ? 'hard' : 'too hard');
+  const word = (e) => (e == null ? 'skipped' : e >= 3.5 ? 'easy' : e >= 2.9 ? 'good' : e >= 2 ? 'hard' : 'too hard');
   $app.innerHTML = `<h1>Session done</h1><p class="muted">${res.length} cards · ${mins} min</p>
   ${moved.length ? `<div class="panel"><h3>Level changes</h3>${moved.map(([c, d]) => `<div class="catrow"><span>${esc(AD.CAT_LABEL[c])}</span><span>${d > 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(2)}</span><span class="muted small">L${AD.catLevel(c).toFixed(1)}</span></div>`).join('')}</div>` : ''}
   <div class="panel list">${res.map((r, i) => `<button class="item" data-i="${i}"><span>${esc(r.card.text(r.card.tpl.title))}<br><small>${esc(AD.CAT_LABEL[r.card.tpl.category] || '')}${r.tempo ? ' · ' + r.tempo + ' bpm' : ''}</small></span><span class="badge ${r.eff >= 3 ? 'm' : ''}">${word(r.eff)}</span></button>`).join('')}</div>
   <button class="primary start" data-s="home">Done</button><button class="start" data-s="again">Another session</button>`;
-  $app.onclick = (e) => { const b = e.target.closest('[data-s]'); if (!b) return; if (b.dataset.s === 'home') renderHome(); else startSession(); };
+  const prev = SESSION;
+  $app.onclick = (e) => { const b = e.target.closest('[data-s]'); if (!b) return; if (b.dataset.s === 'home') (prev && prev.back ? prev.back() : renderHome()); else startSession(prev && prev.only, prev ? { filter: prev.filter, back: prev.back } : {}); };
 }
 
 // ---------- LIBRARY ----------
@@ -708,6 +801,211 @@ function openSubMenu(a, K, si, ci) {
       } catch (err) { toast(err.message); }
     };
   });
+}
+
+// ---------- TED GREENE ----------
+const TGK = { major: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'], minor: ['Am', 'Bbm', 'Bm', 'Cm', 'C#m', 'Dm', 'Ebm', 'Em', 'Fm', 'F#m', 'Gm', 'G#m'] };
+const TGS = { hold: false, key: null, bpm: 66, bpc: 2, arp: false };
+const tgEx = (id) => LIB.tg.examples.find((e) => e.id === id);
+const tgPage = (id) => LIB.tg.pages.find((p) => p.id === id);
+const tgFamilyOf = (ex) => LIB.tg.families.find((f) => f.examples.includes(ex.id));
+function renderTG() {
+  VIEW = 'tg';
+  silence();
+  const G = LIB.tg;
+  if (!G) { LIB.tg = { title: 'Ted Greene', chapters: [], pages: [], examples: [], families: [] }; TGS.tab = 'archive'; return renderTG(); }
+  const book = LIB.templates.filter((t) => (t.tags || []).includes('ted-greene') && !t.tags.includes('tg-archive'));
+  const nCards = book.length;
+  const ts = st().tpl;
+  const done = book.filter((t) => ts[t.id] && ts[t.id].n).length;
+  $app.innerHTML = `<div class="row"><button class="icon" data-l="back">‹</button><h2 class="grow">${esc(G.title)}</h2></div>
+  <p class="muted small">${G.pages.length} pages · ${G.examples.length} progressions · ${G.examples.reduce((a, e) => a + e.chords.length, 0)} grips · ${nCards} cards (${done} practised)</p>
+  <div class="row"><button class="primary grow" data-tg="practice">Practise book progressions</button><button class="grow" data-tg="archive">Random archive lesson</button></div>
+  <div class="seg" style="margin:12px 0"><button data-tgtab="lessons" class="${(TGS.tab || 'lessons') === 'lessons' ? 'on' : ''}">Lessons</button><button data-tgtab="families" class="${TGS.tab === 'families' ? 'on' : ''}">Progressions</button><button data-tgtab="archive" class="${TGS.tab === 'archive' ? 'on' : ''}">Archive${LIB.tgArchive ? ' (' + LIB.tgArchive.lessons.length + ')' : ''}</button></div>
+  <input type="search" id="tgq" placeholder="Search (chord scale, cycle, iii-vi-ii-V…)">
+  <p class="muted small" style="margin-top:6px">${LIB.tgPack ? `Book pack on this device (built ${esc(String(LIB.tgPack.built || '').slice(0, 10))}). ` : ''}<label style="color:var(--accent2);text-decoration:underline">${LIB.tgPack || G.pages.length ? 'Update' : 'Import'} the Ted Greene book pack<input type="file" id="tgpack" accept=".json,application/json" style="display:none"></label></p>
+  <div id="tglist"></div>`;
+  const list = qs('#tglist');
+  if ((TGS.tab || 'lessons') === 'lessons') {
+    list.innerHTML = G.chapters.map((c) => `<h3>${esc(c.name)}</h3><div class="list">${c.pages.map((pid) => { const p = tgPage(pid); return `<button class="item" data-tgpage="${p.id}" data-h="${esc((c.name + ' ' + p.headings.join(' ') + ' ' + p.summary).toLowerCase())}"><span>p.${p.page ?? '?'} ${esc(p.headings[0] || c.name)}<br><small>${p.examples.length ? p.examples.length + ' progression' + (p.examples.length > 1 ? 's' : '') : 'text'}</small></span><span>›</span></button>`; }).join('')}</div>`).join('');
+  } else if (TGS.tab === 'archive') {
+    const A = LIB.tgArchive;
+    list.innerHTML = !A ? '<p class="muted">Archive index not built.</p>' : `<p class="muted small">Every lesson sheet from tedgreene.com. “Sheet” opens the PDF online; “Card” practises it with a rating.</p>` + Object.keys(A.folders).map((cat) => `<details class="tgfold"><summary style="padding:10px 0;font-weight:700">${esc(cat)} <span class="muted small">${A.folders[cat]}</span></summary><div class="list">${A.lessons.filter((l) => l.cat === cat).map((l) => `<div class="item sub" data-h="${esc((cat + ' ' + l.title).toLowerCase())}" style="display:flex;gap:8px;align-items:center;margin:4px 0"><span class="grow">${esc(l.title)}<br><small class="muted">${esc(l.date || '')}${st().tpl[l.id]?.n ? ' · practised ' + st().tpl[l.id].n + '×' : ''}</small></span><a href="${esc(l.url)}" target="_blank" rel="noopener" style="color:var(--accent2)">Sheet</a><button class="tbtn" data-tga="${esc(l.id)}">Card</button></div>`).join('')}</div></details>`).join('');
+  } else {
+    list.innerHTML = `<div class="list">${G.families.map((f) => `<button class="item" data-tgfam="${f.id}" data-h="${esc((f.name + ' ' + f.kind).toLowerCase())}"><span>${esc(f.name)}<br><small>${esc(f.kind)} · ${f.examples.length} version${f.examples.length > 1 ? 's' : ''}</small></span><span>›</span></button>`).join('')}</div>`;
+  }
+  $app.onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.l) return renderHome();
+    if (b.dataset.tgtab) { TGS.tab = b.dataset.tgtab; return renderTG(); }
+    if (b.dataset.tgpage) return renderTGPage(b.dataset.tgpage);
+    if (b.dataset.tga) return startSession(LIB.byId.get(b.dataset.tga), { back: renderTG });
+    if (b.dataset.tgfam) { const f = G.families.find((x) => x.id === b.dataset.tgfam); return renderTGPlayer(f.examples, 0, f.name); }
+    if (b.dataset.tg === 'practice') startSession(null, { filter: (t) => (t.tags || []).includes('ted-greene') && !t.tags.includes('tg-archive'), back: renderTG });
+    if (b.dataset.tg === 'archive') startSession(null, { filter: (t) => (t.tags || []).includes('tg-archive'), back: renderTG });
+  };
+  qs('#tgpack').onchange = async (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try {
+      const pack = JSON.parse(await f.text());
+      if (pack.kind !== 'guitarcards-pack' || pack.name !== 'tedgreene') throw new Error('not a Ted Greene pack');
+      await savePack('tedgreene', pack);
+      LIB = await loadLibrary(); window.__LIB = LIB;
+      toast(`Imported ${pack.tg.examples.length} progressions — saved on this device`);
+      renderTG();
+    } catch (err) { toast('Import failed: ' + err.message); }
+  };
+  qs('#tgq').oninput = (e) => { const q = e.target.value.toLowerCase(); qsa('[data-h]').forEach((x) => { x.style.display = !q || x.dataset.h.includes(q) ? '' : 'none'; }); qsa('#tglist h3').forEach((h) => { const n = h.nextElementSibling; h.style.display = n && [...n.children].some((x) => x.style.display !== 'none') ? '' : 'none'; }); qsa('#tglist details').forEach((d) => { const any = [...d.querySelectorAll('[data-h]')].some((x) => x.style.display !== 'none'); d.style.display = any ? '' : 'none'; d.open = !!q && any; }); };
+}
+function renderTGPage(pid) {
+  VIEW = 'tgpage';
+  silence();
+  const p = tgPage(pid);
+  const G = LIB.tg;
+  const idx = G.pages.indexOf(p);
+  $app.innerHTML = `<div class="row"><button class="icon" data-l="back">‹</button><h2 class="grow">p.${p.page ?? '?'} ${esc(p.headings[0] || p.chapter)}</h2></div>
+  <p class="muted small">${esc(p.chapter)}</p>
+  <div class="md">${md(p.summary)}</div>
+  ${p.points.length ? `<div class="helpbox">${p.points.map((x) => `<div class="hint">• ${esc(x)}</div>`).join('')}</div>` : ''}
+  ${p.examples.map((id) => { const ex = tgEx(id); return `<div class="panel"><b>${esc(ex.label || ex.family)}</b><p class="muted small">${esc(ex.family)} · ${ex.chords.length} grips${ex.key ? ' · key of ' + esc(ex.key) : ''}</p><div class="tgmini" data-ex="${id}"></div><button class="primary" style="width:100%" data-tgplay="${id}">▶ Open in player (all keys, all versions)</button></div>`; }).join('')}
+  <div class="row spread" style="margin-top:12px">${idx > 0 ? `<button data-tgnav="${G.pages[idx - 1].id}">‹ p.${G.pages[idx - 1].page}</button>` : '<span></span>'}${idx < G.pages.length - 1 ? `<button data-tgnav="${G.pages[idx + 1].id}">p.${G.pages[idx + 1].page} ›</button>` : ''}</div>`;
+  qsa('.tgmini').forEach((el) => { try { el.innerHTML = compile(tgSpec(tgEx(el.dataset.ex), null)).html; } catch (err) { el.innerHTML = `<p class="muted small">${esc(err.message)}</p>`; } });
+  $app.onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.l) return renderTG();
+    if (b.dataset.tgnav) return renderTGPage(b.dataset.tgnav);
+    if (b.dataset.tgplay) { const ex = tgEx(b.dataset.tgplay); const f = tgFamilyOf(ex); return renderTGPlayer(f.examples, f.examples.indexOf(ex.id), f.name, () => renderTGPage(pid)); }
+  };
+}
+function tgSpec(ex, key, gen = null) {
+  const spec = { type: 'grips', from: ex.key || undefined, key: key || ex.key || undefined, chords: ex.chords, romans: ex.romans, beatsPerChord: TGS.bpc, arpeggiate: TGS.arp };
+  if (gen === 'up' || gen === 'down') Object.assign(spec, { generate: 'chordScale', dir: gen === 'up' ? 1 : -1, romans: undefined, from: ex.key || 'C' });
+  if (gen === 'cycle4' || gen === 'cycle5') Object.assign(spec, { generate: 'cycle', dir: gen === 'cycle4' ? -1 : 1, romans: undefined, from: ex.key || 'C' });
+  return spec;
+}
+// the player: lock the key and step through versions, or keep the version and change key
+function renderTGPlayer(ids, start = 0, title = '', back = null) {
+  VIEW = 'tgplayer';
+  silence();
+  const P = { ids, i: start, gen: null };
+  const exNow = () => tgEx(P.ids[P.i]);
+  const keyList = () => (exNow().key && /m$/.test(exNow().key) ? TGK.minor : TGK.major);
+  if (!TGS.hold || !TGS.key) TGS.key = exNow().key;
+  const draw = (autoplay = false) => {
+    silence();
+    const ex = exNow();
+    if (!TGS.hold) TGS.key = ex.key;
+    if (TGS.key && ex.key && /m$/.test(TGS.key) !== /m$/.test(ex.key)) TGS.key = ex.key;
+    const canKey = !!ex.key;
+    const pg = LIB.tg.pages.find((p) => p.examples.includes(ex.id));
+    $app.innerHTML = `<div class="row"><button class="icon" data-l="back">‹</button><h2 class="grow">${esc(title || ex.family)}</h2></div>
+    <p class="muted small">p.${ex.page} · ${esc(ex.label)}</p>
+    <div class="panel">
+      <div class="row spread"><span class="muted small">Version</span><div class="row"><button class="tbtn" data-p="vprev">◀</button><b>${P.i + 1} / ${P.ids.length}</b><button class="tbtn" data-p="vnext">▶</button></div></div>
+      <div class="row spread" style="margin-top:8px"><span class="muted small">Key</span><div class="row">${canKey ? `<button class="tbtn" data-p="kprev">◀</button><b>${esc(T.parseKey(TGS.key).name)}</b><button class="tbtn" data-p="knext">▶</button><button class="tbtn ${TGS.hold ? 'on' : ''}" data-p="hold">🔒 Hold key</button>` : '<span class="muted small">as written (no key given)</span>'}</div></div>
+      <div class="row spread" style="margin-top:8px"><span class="muted small">Tempo</span><div class="row"><button class="tbtn" data-p="slower">−</button><b>${TGS.bpm} bpm</b><button class="tbtn" data-p="faster">+</button><button class="tbtn" data-p="bpc">${TGS.bpc} beat${TGS.bpc > 1 ? 's' : ''}/chord</button><button class="tbtn ${TGS.arp ? 'on' : ''}" data-p="arp">Arpeggiate</button></div></div>
+      ${canKey ? `<div class="row" style="margin-top:8px"><span class="muted small">Ted's rules →</span><button class="tbtn ${!P.gen ? 'on' : ''}" data-gen="">Book</button><button class="tbtn ${P.gen === 'up' ? 'on' : ''}" data-gen="up">Chord scale ↑</button><button class="tbtn ${P.gen === 'down' ? 'on' : ''}" data-gen="down">Chord scale ↓</button>${ex.chords.length > 1 ? `<button class="tbtn ${P.gen === 'cycle4' ? 'on' : ''}" data-gen="cycle4">Cycle 4ths</button><button class="tbtn ${P.gen === 'cycle5' ? 'on' : ''}" data-gen="cycle5">Cycle 5ths</button>` : ''}</div>` : ''}
+      <div class="row" style="margin-top:8px"><button class="primary grow" data-p="playall">▶▶ Play every version${TGS.hold ? ' in this key' : ''}</button></div>
+    </div>
+    <div id="tgw"></div><div id="tgd"></div>
+    ${ex.chords.some((c) => c.flag) ? `<p class="muted small">⚠︎ Some grips here didn't match their chord name when transcribed; double-check against the book.</p>` : ''}
+    ${pg ? `<details class="helpbox"><summary>What the book says (p.${pg.page})</summary><div class="md">${md(pg.summary)}</div></details>` : ''}`;
+    let comp;
+    try { comp = compile(tgSpec(ex, canKey ? TGS.key : null, P.gen)); } catch (err) { qs('#tgw').innerHTML = `<p class="muted small">${esc(err.message)}</p>`; return; }
+    qs('#tgd').innerHTML = comp.html;
+    const pl = new NeckPlayer(qs('#tgw'), comp, { bpm: TGS.bpm, title: ex.label });
+    pl.loops = P.allMode ? 1 : 3;
+    pl.render();
+    if (P.allMode) pl.onFinish = () => { if (!P.allMode || VIEW !== 'tgplayer') return; if (P.i < P.ids.length - 1) { P.i++; draw(true); } else { P.allMode = false; toast('Played every version'); } };
+    if (autoplay) pl.play();
+  };
+  const step = (d) => { P.gen = null; P.i = (P.i + d + P.ids.length) % P.ids.length; draw(); };
+  const keyStep = (d) => { const L = keyList(); const cur = L.findIndex((k) => T.notePc(T.parseKey(k).tonic) === T.notePc(T.parseKey(TGS.key).tonic)); TGS.key = L[((cur < 0 ? 0 : cur) + d + L.length) % L.length]; TGS.hold = true; draw(); };
+  $app.onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const a = b.dataset.p;
+    if (b.dataset.l) { P.allMode = false; silence(); document.onkeydown = null; return back ? back() : renderTG(); }
+    if (a && a !== 'playall') P.allMode = false;
+    if (a === 'vprev') step(-1);
+    if (a === 'vnext') step(1);
+    if (a === 'kprev') keyStep(-1);
+    if (a === 'knext') keyStep(1);
+    if (a === 'hold') { TGS.hold = !TGS.hold; draw(); }
+    if (a === 'slower' || a === 'faster') { TGS.bpm = Math.max(30, Math.min(200, TGS.bpm + (a === 'faster' ? 6 : -6))); draw(); }
+    if (a === 'bpc') { TGS.bpc = { 1: 2, 2: 4, 4: 1 }[TGS.bpc]; draw(); }
+    if (a === 'arp') { TGS.arp = !TGS.arp; draw(); }
+    if (b.dataset.gen !== undefined) { P.gen = b.dataset.gen || null; draw(); }
+    if (a === 'playall') { P.allMode = true; P.i = 0; P.gen = null; draw(true); }
+  };
+  // desktop/keyboard: ←/→ versions, ↑/↓ keys, space play
+  document.onkeydown = (e) => {
+    if (VIEW !== 'tgplayer') { document.onkeydown = null; return; }
+    if (e.key === 'ArrowRight') step(1); else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowUp') keyStep(1); else if (e.key === 'ArrowDown') keyStep(-1);
+    else if (e.key === ' ') { e.preventDefault(); qs('[data-w=play]')?.click(); }
+  };
+  draw();
+}
+
+// ---------- EAR GYM ----------
+const gymState = () => (st().gym = st().gym || { hist: {}, passed: {} });
+const gymPassed = () => EAR_LEVELS.filter((l) => gymState().passed[l.id]).length;
+const gymUnlocked = (i) => i === 0 || !!gymState().passed[EAR_LEVELS[i - 1].id];
+function renderEarGym() {
+  VIEW = 'eargym';
+  silence();
+  const G = gymState();
+  $app.innerHTML = `<div class="row"><button class="icon" data-l="back">‹</button><h1>Ear Gym</h1></div>
+  <p class="muted small">Headphones on. Each level plays progressions in random keys; name what you hear. Get <b>${PASS.need} of the last ${PASS.of}</b> right to pass and unlock the next level. Replay as often as you like.</p>
+  <div class="list">${EAR_LEVELS.map((l, i) => { const h = G.hist[l.id] || []; const last = h.slice(-PASS.of); const ok = last.filter(Boolean).length; const lock = !gymUnlocked(i);
+    return `<button class="item" data-lv="${i}" ${lock ? 'disabled' : ''}><span>${lock ? '🔒 ' : G.passed[l.id] ? '✅ ' : '▶ '}<b>Level ${i + 1}</b> · ${esc(l.title)}<br><small>${l.options.length} choices${h.length ? ` · last ${last.length}: ${ok} right` : ''}</small></span><span class="badge ${G.passed[l.id] ? 'm' : ''}">${G.passed[l.id] ? 'passed' : lock ? 'locked' : 'open'}</span></button>`; }).join('')}</div>`;
+  $app.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.l) return renderHome(); if (b.dataset.lv) renderGymRun(Number(b.dataset.lv)); };
+}
+function renderGymRun(li) {
+  VIEW = 'gymrun';
+  silence();
+  const L = EAR_LEVELS[li];
+  const G = gymState();
+  const h = (G.hist[L.id] = G.hist[L.id] || []);
+  let Q = gymQuestion(L);
+  let answered = false;
+  const dots = () => { const last = h.slice(-PASS.of); return [...Array(PASS.of)].map((_, i) => `<span class="badge" style="min-width:22px;text-align:center;${last[i] === true ? 'background:var(--good);color:#052' : last[i] === false ? 'background:var(--bad);color:#300' : ''}">${last[i] === true ? '✓' : last[i] === false ? '✗' : '·'}</span>`).join('') + `<span class="muted small">need ${PASS.need}/${PASS.of}</span>`; };
+  const draw = () => {
+    $app.innerHTML = `<div class="row"><button class="icon" data-g="back">‹</button><h2 class="grow">Level ${li + 1}: ${esc(L.title)}</h2></div>
+    <p class="muted small">💡 ${esc(L.tip)}</p>
+    <div class="row" id="gdots" style="gap:4px;margin:8px 0">${dots()}</div>
+    <button class="primary playbig" data-g="play">▶ Play progression</button>
+    <div class="qgrid">${L.options.map((o, i) => `<button data-g="ans" data-i="${i}">${esc(o.name)}</button>`).join('')}</div>
+    <div id="gfb"></div>`;
+  };
+  const next = () => { Q = gymQuestion(L); answered = false; draw(); A.later(() => Q.play(), 300); };
+  draw();
+  A.later(() => Q.play(), 300);
+  $app.onclick = (e) => {
+    const b = e.target.closest('[data-g]'); if (!b) return;
+    const g = b.dataset.g;
+    if (g === 'back') return renderEarGym();
+    if (g === 'play') return Q.play();
+    if (g === 'next') return next();
+    if (g === 'hear') { const o = L.options[Number(b.dataset.i)]; const k = Q.key; const q2 = gymQuestion({ ...L, options: [o] }, T.noteName(k.tonic)); return q2.play(); }
+    if (g === 'ans' && !answered) {
+      answered = true;
+      const i = Number(b.dataset.i);
+      const ok = i === Q.answer;
+      h.push(ok);
+      const last = h.slice(-PASS.of);
+      const passedNow = last.length >= PASS.of && last.filter(Boolean).length >= PASS.need && !G.passed[L.id];
+      if (passedNow) G.passed[L.id] = Date.now();
+      AD.save();
+      qs('#gdots').innerHTML = dots();
+      qsa('[data-g=ans]').forEach((x, j) => { if (j === Q.answer) x.classList.add('right'); else if (j === i) x.classList.add('wrong'); });
+      qs('#gfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}">${ok ? '✓ Correct' : '✗ It was: ' + esc(Q.option.name)}</div>
+        <p class="small">In ${esc(Q.key.name)}: ${esc(Q.reveal)}</p>
+        ${!ok ? `<div class="row"><button data-g="hear" data-i="${Q.answer}">▶ Hear the answer</button><button data-g="hear" data-i="${i}">▶ Hear what you picked</button></div>` : ''}
+        ${passedNow ? `<div class="feedback ok">🎉 Level ${li + 1} passed${EAR_LEVELS[li + 1] ? ' — level ' + (li + 2) + ' unlocked' : ''}!</div>` : ''}
+        <button class="primary start" data-g="next">Next →</button>`;
+    }
+  };
 }
 
 // ---------- SETTINGS ----------

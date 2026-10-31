@@ -1,3 +1,9 @@
 .claude/
 .DS_Store
 node_modules/
+# Ted Greene material: private study only, never publish
+content/tedgreene.js
+tools/build-tg.mjs
+tools/tgcheck.mjs
+tg/
+private/

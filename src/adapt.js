@@ -3,19 +3,20 @@ const KEY = 'guitarcards.v1';
 const DAY = 86400000;
 
 export const CATEGORY_INFO = {
-  play: ['rhythm', 'picking', 'scales', 'pentatonic', 'arpeggios', 'voicings', 'progressions', 'improv', 'fretboard', 'styles'],
+  play: ['rhythm', 'picking', 'scales', 'pentatonic', 'arpeggios', 'voicings', 'progressions', 'improv', 'fretboard', 'styles', 'tedgreene'],
   ear: ['ear-intervals', 'ear-chords', 'ear-progressions', 'ear-melody', 'ear-functional'],
   theory: ['theory'],
 };
 export const CAT_LABEL = {
-  rhythm: 'Rhythm & time', picking: 'Picking & fingerstyle', scales: 'Scales & modes', pentatonic: 'Pentatonics', arpeggios: 'Arpeggios',
+  tedgreene: 'Ted Greene progressions', rhythm: 'Rhythm & time', picking: 'Picking & fingerstyle', scales: 'Scales & modes', pentatonic: 'Pentatonics', arpeggios: 'Arpeggios',
   voicings: 'Voicings & chord scales', progressions: 'Progressions & chord melody', improv: 'Improvisation', fretboard: 'Fretboard knowledge', styles: 'Styles (funk, bossa, flamenco…)',
   'ear-intervals': 'Intervals', 'ear-chords': 'Chord qualities', 'ear-progressions': 'Progressions', 'ear-melody': 'Melody & audiation', 'ear-functional': 'Scale degrees & modes',
   theory: 'Theory & heuristics',
 };
-export const CAT_SHORT = { rhythm: 'Rhythm', picking: 'Picking', scales: 'Scales', pentatonic: 'Pentatonic', arpeggios: 'Arpeggios', voicings: 'Voicings', progressions: 'Progressions', improv: 'Improv', fretboard: 'Fretboard', styles: 'Styles', 'ear-intervals': 'Intervals', 'ear-chords': 'Chords', 'ear-progressions': 'Progressions', 'ear-melody': 'Melody', 'ear-functional': 'Degrees', theory: 'Theory' };
+export const CAT_SHORT = { tedgreene: 'Ted Greene', rhythm: 'Rhythm', picking: 'Picking', scales: 'Scales', pentatonic: 'Pentatonic', arpeggios: 'Arpeggios', voicings: 'Voicings', progressions: 'Progressions', improv: 'Improv', fretboard: 'Fretboard', styles: 'Styles', 'ear-intervals': 'Intervals', 'ear-chords': 'Chords', 'ear-progressions': 'Progressions', 'ear-melody': 'Melody', 'ear-functional': 'Degrees', theory: 'Theory' };
 // starting levels from the user's self-description
 const START_LEVEL = {
+  tedgreene: 3,
   rhythm: 2.5, picking: 3, scales: 4.5, pentatonic: 4.5, arpeggios: 3.5, voicings: 3, progressions: 3.5, improv: 3.5, fretboard: 4.5, styles: 2,
   'ear-intervals': 2.5, 'ear-chords': 2, 'ear-progressions': 2, 'ear-melody': 2, 'ear-functional': 2, theory: 4,
 };
@@ -50,6 +51,8 @@ export function eligible(lib, settings = state().settings) {
     if (!modes.has(t.mode)) return false;
     const cats = settings.cats[t.mode];
     if (cats && cats.length && !cats.includes(t.category)) return false;
+    // the 2,387 Ted Greene archive sheets only join the deck when Ted Greene is picked explicitly
+    if (t.tags && t.tags.includes('tg-archive') && !(cats && cats.includes('tedgreene'))) return false;
     if (settings.length !== 'mix' && t.length && t.length !== settings.length) return false;
     if ((state().bias.tpl[t.id] || 0) <= -3) return false;
     return true;
@@ -66,7 +69,7 @@ function matchesFocus(t, toks) {
 // ---------- selection ----------
 export function pickTemplate(lib, session) {
   const st = state();
-  const cands = eligible(lib);
+  const cands = session.filter ? lib.templates.filter(session.filter) : eligible(lib);
   if (!cands.length) return null;
   const now = Date.now();
   const toks = focusTokens(st.focus);
@@ -87,6 +90,8 @@ export function pickTemplate(lib, session) {
     const tagB = (t.tags || []).reduce((a, g) => a + (st.bias.tags[g] || 0), 0) + (st.bias.tpl[t.id] || 0) * 1.5;
     s *= Math.pow(1.5, Math.max(-4, Math.min(4, tagB)));
     if (toks.length) s *= matchesFocus(t, toks) ? 6 : 0.25;
+    // the Ted Greene book is big: in a mixed deck it gets a fair share, not a third of every session
+    if (t.category === 'tedgreene' && !session.filter && !((st.settings.cats[t.mode] || []).includes('tedgreene'))) s *= 0.2;
     return { t, s: s * (0.6 + Math.random() * 0.8) };
   });
   const total = scored.reduce((a, x) => a + x.s, 0);
@@ -99,8 +104,22 @@ export function pickTemplate(lib, session) {
 export function paramChooser(tpl) {
   const ts = tplState(tpl.id);
   const desired = Math.max(0, Math.min(4, (catLevel(tpl.category) - tpl.level) * 0.6 + ts.lvlAdj));
+  const vals0 = ts.vals || {};
   return (name, vals) => {
-    const w = vals.map((v) => Math.exp(-(((v.lvl || 0) - desired) ** 2) / 1.2) + 0.05);
+    let w = vals.map((v) => Math.exp(-(((v.lvl || 0) - desired) ** 2) / 1.2) + 0.05);
+    // breadth before depth: until the easier values of this param are done (rated good), keep harder ones rare
+    if (name !== 'key' && name !== 'root' && vals.length > 1) {
+      const covered = (v) => (vals0[name + '=' + JSON.stringify(v.v)] || 0) > 0;
+      const open = vals.filter((v) => !covered(v));
+      if (open.length) {
+        const floor = Math.min(...open.map((v) => v.lvl || 0));
+        w = w.map((x, i) => {
+          const v = vals[i];
+          if ((v.lvl || 0) > floor + 0.5) return x * 0.08;
+          return covered(v) ? x * 0.5 : x * 2;
+        });
+      }
+    }
     const tot = w.reduce((a, b) => a + b, 0);
     let r = Math.random() * tot;
     for (let i = 0; i < vals.length; i++) { r -= w[i]; if (r <= 0) return vals[i]; }
@@ -149,7 +168,11 @@ export function record(card, { rating, help = 0, objective = null, tempo = null,
   ts.n++;
   ts.last = Date.now();
   ts.ratings = [...ts.ratings.slice(-9), Math.round(eff * 10) / 10];
-  if (eff >= 3) { ts.stab = ts.stab ? ts.stab * (eff >= 3.5 ? 3 : 2) : (eff >= 3.5 ? 3 : 1); ts.good++; }
+  if (eff >= 3) {
+    ts.stab = ts.stab ? ts.stab * (eff >= 3.5 ? 3 : 2) : (eff >= 3.5 ? 3 : 1); ts.good++;
+    ts.vals = ts.vals || {};
+    for (const [name, c] of Object.entries(card.chosen || {})) { const k = name + '=' + JSON.stringify(c.v); ts.vals[k] = (ts.vals[k] || 0) + 1; }
+  }
   else ts.stab = eff < 2 ? 0.01 : 0.3;
   ts.lvlAdj = Math.max(-2, Math.min(3, ts.lvlAdj + (eff >= 3.5 ? 0.5 : eff < 2 ? -0.6 : eff < 2.6 ? -0.2 : 0.1)));
   if (card.tempo && tempo) {
@@ -177,6 +200,7 @@ export function progress(lib) {
   const byCat = {};
   let seen = 0, mastered = 0;
   for (const t of lib.templates) {
+    if (t.tags && t.tags.includes('tg-archive')) continue; // archive sheets are tracked in the Ted Greene section
     const c = (byCat[t.category] = byCat[t.category] || { total: 0, seen: 0, mastered: 0, mode: t.mode });
     c.total++;
     const ts = st.tpl[t.id];

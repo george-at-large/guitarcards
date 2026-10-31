@@ -75,58 +75,7 @@ export function windowFor(notes, pad = 1) {
   return { lo, hi };
 }
 
-// ---------- rhythm grid ----------
-const COUNTS = {
-  1: [''], 2: ['', '&'], 3: ['', 'trip', 'let'], 4: ['', 'e', '&', 'a'], 6: ['', 'la', 'li', '&', 'la', 'li'], 5: ['', '2', '3', '4', '5'],
-};
-const SYMS = { D: '↓', U: '↑', d: '⇣', u: '⇡', X: '✕', '-': '', '.': '·', R: 'R', T: 'T' };
-export function rhythmHTML(spec, cursor = -1) {
-  const { beats, grid, slots, isPick } = rhythmSlots(spec);
-  const accents = new Set(spec.accents || []);
-  const perBar = beats * grid;
-  const bars = Math.max(1, Math.ceil(slots.length / perBar));
-  let h = '<div class="rgrid">';
-  for (let b = 0; b < bars; b++) {
-    h += '<div class="rbar">';
-    for (let bt = 0; bt < beats; bt++) {
-      h += '<div class="rbeat">';
-      for (let k = 0; k < grid; k++) {
-        const i = b * perBar + bt * grid + k;
-        const tok = slots[i] ?? '.';
-        const count = k === 0 ? String(bt + 1) : (COUNTS[grid] || [])[k] || '';
-        const sym = isPick ? (tok === '-' || tok === '.' ? '·' : tok) : (SYMS[tok] ?? tok);
-        const stroke = isPick && spec.strokes ? (clean(spec.strokes)[i] || '') : isPick && spec.fingers ? (clean(spec.fingers, true)[i] || '') : '';
-        h += `<div class="rslot ${tok === '-' || tok === '.' ? 'rest' : ''} ${accents.has(i) ? 'acc' : ''} ${i === cursor ? 'cur' : ''} ${/[du]/.test(tok) && !isPick ? 'ghost' : ''}" data-i="${i}">` +
-          `<span class="rsym">${accents.has(i) ? '<b>&gt;</b>' : ''}${esc(sym)}</span>` +
-          (stroke ? `<span class="rstroke">${esc(strokeSym(stroke))}</span>` : '') +
-          `<span class="rcount">${count}</span></div>`;
-      }
-      h += '</div>';
-    }
-    h += '</div>';
-  }
-  return h + '</div>';
-}
-const strokeSym = (c) => ({ D: '⊓', U: 'V', d: '⊓', u: 'V' }[c] || c);
-function clean(s, words = false) {
-  const t = String(s).replace(/\|/g, ' ').trim();
-  return words || /\s/.test(t) ? t.split(/\s+/).filter(Boolean).flatMap((w) => (words ? [w] : w.split(''))) : t.split('');
-}
-export function meterInfo(meter = '4/4') {
-  const [n, d] = String(meter).split('/').map(Number);
-  // compound meters count dotted quarters? We keep it simple: beats = numerator for /4, numerator for /8 (eighth = beat)
-  return { beats: n || 4, unit: d || 4 };
-}
-export function rhythmSlots(spec) {
-  const { beats } = meterInfo(spec.meter);
-  const grid = spec.grid || 2;
-  if (spec.pick) {
-    const toks = String(spec.pick).replace(/\|/g, ' ').trim().split(/\s+/).filter(Boolean);
-    return { beats, grid, slots: toks, isPick: true };
-  }
-  const slots = String(spec.pattern || '').replace(/[\s|]/g, '').split('');
-  return { beats, grid, slots, isPick: false };
-}
+export { rhythmHTML, rhythmSlots, meterInfo } from './rhythm.js';
 
 // ---------- mini markdown ----------
 export function md(src) {

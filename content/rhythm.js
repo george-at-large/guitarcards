@@ -392,8 +392,8 @@ The demo plays a bar of 16ths followed by a bar of triplets so you can hear both
 Switching every two beats forces you to 'pre-hear' the next subdivision while still playing the current one. This is what makes switching sound natural in real solos.`,
   visual: { type: "rhythm", meter: "2/4", grid: 4, bars: 1, pattern: "dudu dudu", accents: [0, 4], title: "Beats 1–2: 16ths (beats 3–4: triplets — see demo)" },
   demo: [
-    { type: "rhythm", meter: "2/4", grid: 4, bars: 1, pattern: "dudu dudu", accents: [0, 4] },
-    { type: "rhythm", meter: "2/4", grid: 3, bars: 1, pattern: "dud udu", accents: [0, 3] }
+    { type: "rhythm", meter: "2/4", grid: 4, bars: 1, pattern: "dudu dudu", accents: [0, 4], title: "Beats 1–2: 16ths (4 per click)" },
+    { type: "rhythm", meter: "2/4", grid: 3, bars: 1, pattern: "dud udu", accents: [0, 3], title: "Beats 3–4: triplets (3 per click)" }
   ],
   concepts: ["subdivisions", "triplets"],
   vary: ["tempo"]
@@ -409,7 +409,7 @@ Switching every two beats forces you to 'pre-hear' the next subdivision while st
   tempo: { start: 60, min: 40, max: 90, step: 4, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: [
-    "Sextuplets are two triplets per beat (6 notes). Count \"1-la-li-2-la-li\" double-time or \"1-ta-ka-di-mi-ta\".",
+    "Sextuplets are two triplets per beat (6 notes). Count \"1-la-li-&-la-li\" (the & lands exactly halfway through the beat).",
     "Coming down the ladder is harder than going up because players rush the slower subdivisions.",
     "Also try it at 50 bpm. Slow tempos expose uneven notes."
   ],
@@ -419,11 +419,11 @@ This classic drummer's exercise builds the mental 'gearbox' for switching. Each 
 The demo plays the way up; mirror it on the way down.`,
   visual: { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dudu du dudu du dudu du dudu du", accents: [0, 6, 12, 18], title: "Top rung: sextuplets (6 per beat)" },
   demo: [
-    { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pattern: "dddd", accents: [0] },
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "dudududu", accents: [0, 2, 4, 6] },
-    { type: "rhythm", meter: "4/4", grid: 3, bars: 1, pattern: "dudududududu", accents: [0, 3, 6, 9] },
-    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu dudu dudu dudu", accents: [0, 4, 8, 12] },
-    { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dududu dududu dududu dududu", accents: [0, 6, 12, 18] }
+    { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pattern: "dddd", accents: [0], title: "Rung 1: quarters (1 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "dudududu", accents: [0, 2, 4, 6], title: "Rung 2: 8ths (2 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 3, bars: 1, pattern: "dudududududu", accents: [0, 3, 6, 9], title: "Rung 3: triplets (3 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu dudu dudu dudu", accents: [0, 4, 8, 12], title: "Rung 4: 16ths (4 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dududu dududu dududu dududu", accents: [0, 6, 12, 18], title: "Rung 5: sextuplets (6 per click)" }
   ],
   concepts: ["subdivisions", "tuplets"],
   vary: ["tempo"]
@@ -438,8 +438,8 @@ The demo plays the way up; mirror it on the way down.`,
     target: [
       { v: [0, 6, 12, 18], label: "each beat" },
       { v: [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22], label: "every 2nd note (you'll hear triplets)" },
-      { v: [0, 3, 6, 9, 12, 15, 18, 21], label: "every 3rd note (you'll hear 16th-note pairs)", lvl: 1 },
-      { v: [0, 4, 8, 12, 16, 20], label: "every 4th note (3-over-2 inside the beat)", lvl: 3 }
+      { v: [0, 3, 6, 9, 12, 15, 18, 21], label: "every 3rd note (you'll hear 8ths: 2 per beat)", lvl: 1 },
+      { v: [0, 4, 8, 12, 16, 20], label: "every 4th note (quarter-note triplets: 3 accents per 2 beats)", lvl: 3 }
     ]
   },
   prompt: "Continuous muted **sextuplets** (6 per click, alternating). Accent **{p:target}**.",
@@ -476,8 +476,8 @@ A sextuplet is **6 equal notes per beat**, which you can hear as 2 × 3 (two tri
 Rock and metal players often play sextuplets when they 'shred'. Being able to switch cleanly between 4 and 6 is what separates controlled speed from runaway speed.`,
   visual: { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dududu dududu dududu dududu", accents: [0, 6, 12, 18], title: "Bar B: sextuplets (bar A: 16ths — see demo)" },
   demo: [
-    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu dudu dudu dudu", accents: [0, 4, 8, 12] },
-    { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dududu dududu dududu dududu", accents: [0, 6, 12, 18] }
+    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu dudu dudu dudu", accents: [0, 4, 8, 12], title: "Bar A: 16ths (4 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dududu dududu dududu dududu", accents: [0, 6, 12, 18], title: "Bar B: sextuplets (6 per click)" }
   ],
   concepts: ["tuplets", "subdivisions"],
   vary: ["tempo"]
@@ -525,10 +525,10 @@ Practise quintuplets slowly with speech syllables. The goal is feel, not speed.`
 Players like Guthrie Govan and Allan Holdsworth move fluidly between 4, 5, 6 and 7 notes per beat, so their lines float over the bar. You don't need 7s to sound modern. Smooth 4–5–6 switching already frees your phrasing from the 16th-note grid.`,
   visual: { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 5, 10, 15], title: "The middle rung: quintuplets" },
   demo: [
-    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu dudu dudu dudu", accents: [0, 4, 8, 12] },
-    { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 5, 10, 15] },
-    { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dududu dududu dududu dududu", accents: [0, 6, 12, 18] },
-    { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 5, 10, 15] }
+    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu dudu dudu dudu", accents: [0, 4, 8, 12], title: "Bar 1: 16ths (4 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 5, 10, 15], title: "Bar 2: quintuplets (5 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 6, bars: 1, pattern: "dududu dududu dududu dududu", accents: [0, 6, 12, 18], title: "Bar 3: sextuplets (6 per click)" },
+    { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 5, 10, 15], title: "Bar 4: quintuplets again (then the loop returns to 16ths)" }
   ],
   concepts: ["tuplets", "subdivisions"],
   vary: ["tempo"]
@@ -623,7 +623,7 @@ Triplets drift more than any other subdivision, because 3 is 'round' and easily 
   prompt: "Set the click to sound **only on beats 2 and 4**. Strum swung eighths on **{chord}** and feel the click as the hi-hat/snare backbeat. *You* provide beats 1 and 3.",
   goal: "16 bars without the click 'flipping' onto 1 and 3.",
   tempo: { start: 80, min: 60, max: 180, step: 5, unit: "bpm" },
-  metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: false, clickOn: "2&4" },
+  metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: false, clickOn: "2&4", swingHint: false },
   hints: [
     "Before you play, count \"1 (click) 3 (click)\" for a bar or two, saying 'one' and 'three' out loud.",
     "If the click flips to 1 and 3, stop, recount and restart. That's normal at first.",
@@ -632,12 +632,17 @@ Triplets drift more than any other subdivision, because 3 is 'round' and easily 
   explain: `### Why click on 2 and 4?
 Jazz and much pop/R&B are built on the **backbeat**. With the click on 2 and 4 you have to supply beats 1 and 3 internally, which is both more musical and a stronger test of time. It's one of the most widely recommended jazz time exercises.
 
-Start at moderate tempos. Very slow and very fast are both harder.`,
+### Check yourself
+- Say "**1** (click) **3** (click)" out loud while you play. If the click starts to feel like "1" and "3", it has *flipped*: stop and recount.
+- Your swung upstroke (the &) should land on the last third of the beat — "1-trip-**let**" — not halfway.
+- Play 16 bars, then stop playing but keep counting: the click must still land on *your* 2 and 4.
+
+Start at moderate tempos (100–140). Very slow and very fast are both harder.`,
   visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "DUDUDUDU", accents: [2, 6], swing: 0.67, chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "DUDUDUDU", accents: [2, 6], swing: 0.67, chord: { root: "$root", quality: "$quality" } },
   concepts: ["click-placement", "swing"],
   vary: ["tempo", "root"],
-  source: "Common jazz pedagogy; cf. Mick Goodrick, The Advancing Guitarist (Hal Leonard, 1987), 'Time' section"
+  source: "Common jazz pedagogy; e.g. Premier Guitar, 'Rhythm Rules: 6 Essential Exercises to Improve Your Groove' (click as the backbeat on 2 and 4)"
 },
 
 {
@@ -699,9 +704,14 @@ The less often the click sounds, the more responsibility you take for the time. 
     "You know this rhythm from rock riffs, reggaeton, Latin music and rumba flamenca."
   ],
   explain: `### The tresillo
-**3+3+2** (eight eighth notes grouped 3, 3, 2) is one of the most important rhythmic cells in Western popular music. It's the 'Habanera/tresillo' of Afro-Cuban music, the heartbeat of rumba flamenca, and countless rock riffs.
+**3+3+2**: eight 8th notes grouped 3, 3, 2, with hits on **1, the & of 2, and 4**. *Tresillo* is the name used in Afro-Cuban music, and it's one of the most widespread rhythmic cells in popular music: it underlies rumba flamenca, reggaeton, many rock and rockabilly riffs and a lot of Latin American music. Add a hit on beat 3 and you get the **habanera** (1, &2, 3, 4), its close relative.
 
-It's asymmetric (it doesn't divide the bar in equal halves), which is why it feels like it's 'pulling' against the beat.`,
+It doesn't divide the bar into equal halves, which is why it feels like it 'pulls' against the beat.
+
+### Check yourself
+- Clap it while saying all eight 8ths: "**1** & 2 **&** 3 & **4** &". The loud syllables are the hits.
+- The gaps are long-long-short (3, 3, 2). If the middle hit drifts onto beat 2 or beat 3, you've lost the shape.
+- Your hand keeps going down-up; the middle hit must come out as an **upstroke**. If it's a downstroke, your hand stopped.`,
   visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "D--U--D-", accents: [0, 3, 6], chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "D--U--D-", accents: [0, 3, 6], chord: { root: "$root", quality: "$quality" } },
   concepts: ["rhythmic-cells", "groupings"],
@@ -756,18 +766,25 @@ Notated here in 4/4 eighths (one 8th = one slot). Traditional notation often wri
   prompt: "Meter is 12/8, with one click per 8th note. Strum **{chord}** on the 7 strokes of the standard West African/Afro-Cuban **bell pattern**: x.x.xx.x.x.x. Then tap your foot on every 3rd eighth (the 4 big beats).",
   goal: "You can keep the bell going against a 4-beat foot tap for 8 cycles.",
   tempo: { start: 120, min: 90, max: 240, step: 10, unit: "bpm" },
-  metronome: { meter: "12/8", subdivision: 1, swing: 0, accent: true },
+  metronome: { meter: "12/8", subdivision: 1, swing: 0, accent: true, accentBeats: [0, 3, 6, 9] },
   hints: [
     "Group it as 2+2+1+2+2+2+1 eighths.",
     "The foot (every 3rd eighth) lines up with a bell stroke only on pulses 1 and 10. Elsewhere it falls between strokes, and that's the tension.",
-    "This is the 'mother' of the clave: compress it into 16 slots and you get son clave."
+    "Leave out two of the strokes and you get a 5-stroke '6/8 clave' (see the explanation)."
   ],
   explain: `### The standard bell
-This 7-stroke, 12-pulse pattern (also called *bembé* bell) is the timeline of much West African and Afro-Cuban 6/8 music. It implies 4 beats and 3 beats at the same time, a built-in polyrhythm. Playing it against a 4-beat foot pattern is excellent 'triple-feel' training.
+This 7-stroke, 12-pulse pattern (in Cuban music often called the *bembé* bell) is the timeline of much West African and Afro-Cuban 6/8 music. It is felt in **four big beats of three 8ths** (the grid counts them *1 & a 2 & a 3 & a 4 & a*), but its strokes also suggest groups of two, so it carries a built-in 3-against-2 tension.
 
-Tempo note: each click is one 8th note.`,
-  visual: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "D.D.DU.U.U.U", accents: [0], chord: { root: "$root", quality: "$quality" } },
-  demo: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "D.D.DU.U.U.U", accents: [0], chord: { root: "$root", quality: "$quality" } },
+It contains the strokes of both triple-pulse claves: drop pulses 6 and 12 and you get the son-type 6/8 clave (x.x.x..x.x..); drop 5 and 12 and you get the rumba-type, which is the form most often called '6/8 clave'.
+
+### Check yourself
+- Tap your foot on the four big beats (the louder clicks). Bell strokes coincide with your foot only on big beat 1 and big beat 4 ("4" = pulse 10).
+- Say all twelve pulses while you play; a stroke falls on each bold syllable: **1** & **a** 2 **&** **a** 3 **&** a **4** & **a**.
+- If it starts to feel like even 8ths in 4/4, your gaps have become equal. The pattern is 2-2-1-2-2-2-1.
+
+Tempo note: each click is one 8th note (three clicks per big beat).`,
+  visual: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "D.D.DU.U.U.U", accents: [0], count: "compound", chord: { root: "$root", quality: "$quality" } },
+  demo: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "D.D.DU.U.U.U", accents: [0], count: "compound", clickAccents: [0, 3, 6, 9], chord: { root: "$root", quality: "$quality" } },
   concepts: ["clave", "polyrhythm", "rhythmic-cells"],
   vary: ["tempo"]
 },
@@ -808,7 +825,7 @@ On guitar this is how you build modern-sounding phrases that float over the time
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: [
     "Master groups of 3 first.",
-    "Check yourself: in bar 2 the first accent falls on the 'e' of beat 1.",
+    "Check yourself: the accents land on 1, e of 2, & of 3, a of 4, then beat 2 of bar 2 (bar 2's beat 1 has no accent).",
     "Try a melodic version: a 5-note scale fragment repeated on 16ths."
   ],
   explain: `### Fives
@@ -900,12 +917,21 @@ Shifting a figure by a 16th is how funk and fusion players create endless variat
   tempo: { start: 90, min: 60, max: 180, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: "$feel", accent: true },
   hints: [
-    "Triplet swing: the downstroke lasts 2 triplets, the upstroke 1 ('**trip**-o-**let**' with the 'o' silent).",
-    "Light swing sits between straight and triplet — most medium-tempo jazz and blues live here.",
-    "At fast tempos swing naturally straightens out."
+    "Triplet swing: the downstroke lasts 2 triplets, the upstroke 1 ('**1**-trip-**let**' with the 'trip' silent).",
+    "Light swing sits between straight and triplet: the & is a little late, but not as late as the triplet's 'let'.",
+    "At fast tempos swing naturally straightens out; at slow and medium tempos it's usually close to (or even beyond) the triplet."
   ],
   explain: `### Swing is a ratio
-Swing lengthens the on-beat 8th and shortens the off-beat 8th. **Straight** = 1:1, **triplet swing** = 2:1, and real players float between, usually lighter at faster tempos. Being able to choose your ratio on purpose (not by accident) is a big part of sounding idiomatic in blues, jazz and shuffle grooves.`,
+Swing lengthens the on-beat 8th and shortens the off-beat 8th.
+- **Straight** = 1:1: the & is exactly halfway between clicks (rock, pop, bossa, funk).
+- **Triplet swing** = 2:1: the & sits on the last note of a triplet (blues shuffle, swing jazz). This is what "swung 8ths" means on most charts.
+- **Light swing** ≈ 1.4:1 here: a lazier straight feel, common in some pop, R&B and fast jazz.
+
+Measurements of jazz drummers' ride-cymbal patterns (Friberg & Sundström, 2002) found that the swing ratio **gets smaller as the tempo gets faster**, and that soloists tend to swing less than the drummer. So no single ratio is "correct", but you should be able to choose one on purpose.
+
+### Check yourself
+- Turn on the triplet metronome (subdivision 3): in triplet swing your upstroke lands exactly on the **third** click of each beat; in straight 8ths it falls between the 2nd and 3rd.
+- Switch the **feel** param back and forth on the same chord. You should be able to hear and play all three on demand.`,
   visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "DUDUDUDU", accents: [2, 6], swing: "$feel", chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "DUDUDUDU", accents: [2, 6], swing: "$feel", chord: { root: "$root", quality: "$quality" } },
   concepts: ["swing"],
@@ -921,13 +947,18 @@ Swing lengthens the on-beat 8th and shortens the off-beat 8th. **Straight** = 1:
   prompt: "Muted 16ths with **{p:feel}** on **{chord}**: the e and a arrive late. Accent 2 and 4.",
   goal: "Your swung 16ths match the demo and stay consistent for 8 bars.",
   tempo: { start: 76, min: 60, max: 100, step: 4, unit: "bpm" },
-  metronome: { meter: "4/4", subdivision: 4, swing: "$feel", accent: true },
+  metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: [
-    "Same idea as swung 8ths, one level down: the upstrokes (e, a) are delayed.",
-    "Think of J Dilla-era hip-hop and D'Angelo: lazy, behind the beat, but consistent."
+    "Same idea as swung 8ths, one level down: the upstrokes (e, a) are delayed; the beat and the & don't move.",
+    "Think of neo-soul and hip-hop grooves (D'Angelo, J Dilla's productions): lazy-sounding but consistent.",
+    "The metronome clicks only the beat here, so the swing has to come from you; compare with the demo."
   ],
   explain: `### 16th-note swing
-In funk, neo-soul and hip-hop, swing applies at the **16th** level: the e and a are pushed late while the beat and & stay put. Small amounts make a groove feel human; bigger amounts give the 'drunk' Dilla feel.`,
+In funk, neo-soul and hip-hop, swing can apply at the **16th** level: the e and a are pushed late while the beat and & stay put. Small amounts make a groove feel human; larger amounts sound lazier. (The famous 'drunk' feel of J Dilla's beats comes from deliberately loose, unquantized placement, not just one swing setting.)
+
+### Check yourself
+- Your **&** must still land exactly halfway between clicks; only the e and a move.
+- Play a bar straight, then a bar swung: the difference should be audible but the beat must not shift.`,
   visual: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu Dudu dudu Dudu", accents: [4, 12], swing: "$feel", chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu Dudu dudu Dudu", accents: [4, 12], swing: "$feel", chord: { root: "$root", quality: "$quality" } },
   concepts: ["swing", "pocket"],
@@ -975,7 +1006,7 @@ An 'odd' meter is just a bar made of uneven groups of 2s and 3s. **5/4 = 3+2 or 
   prompt: "7/8, one strum per 8th note on **{chord}**, alternating down-up. Accent **{p:group}**. Because 7 is odd, bar 2 starts on an **upstroke**.",
   goal: "16 bars of 7/8 that groove, with the groupings clearly audible.",
   tempo: { start: 140, min: 100, max: 260, step: 10, unit: "bpm" },
-  metronome: { meter: "7/8", subdivision: 1, swing: 0, accent: true },
+  metronome: { meter: "7/8", subdivision: 1, swing: 0, accent: true, accentBeats: "$group" },
   hints: [
     "Tempo is per 8th note (each click = one strum).",
     "Count with syllables: 2 = 'ta-ka', 3 = 'ta-ki-ta'. So 2+2+3 = 'ta-ka ta-ka ta-ki-ta'.",
@@ -1029,7 +1060,7 @@ A longer odd meter, usually felt as **4+3**. Each group is beat-based (quarters)
   prompt: "9/8 strummed in 8ths on **{chord}**, accenting **{p:group}**. Two bars shown — bar 2 starts on an upstroke.",
   goal: "Both groupings feel natural and you can switch on demand.",
   tempo: { start: 150, min: 100, max: 270, step: 10, unit: "bpm" },
-  metronome: { meter: "9/8", subdivision: 1, swing: 0, accent: true },
+  metronome: { meter: "9/8", subdivision: 1, swing: 0, accent: true, accentBeats: "$group" },
   hints: [
     "Tempo counts 8th notes.",
     "3+3+3 feels like slow triplets; 2+2+2+3 feels like a 4-beat bar with a limping last beat ('Blue Rondo à la Turk').",
@@ -1052,15 +1083,19 @@ A longer odd meter, usually felt as **4+3**. Each group is beat-based (quarters)
   prompt: "12/8 on **{chord}**: one strum per 8th (alternating), accent each group of 3. Tap your foot on the accents — that's the 'real' beat.",
   goal: "Smooth, rolling triple feel for 8 bars.",
   tempo: { start: 150, min: 120, max: 240, step: 10, unit: "bpm" },
-  metronome: { meter: "12/8", subdivision: 1, swing: 0, accent: true },
+  metronome: { meter: "12/8", subdivision: 1, swing: 0, accent: true, accentBeats: [0, 3, 6, 9] },
   hints: [
-    "Tempo counts 8th notes; the foot is at a third of that speed.",
-    "This is exactly the same as 4/4 with triplets — slow blues and doo-wop ballads live here."
+    "Tempo counts 8th notes; the foot is at a third of that speed (the louder clicks).",
+    "It sounds the same as 4/4 with triplets — slow blues and doo-wop/soul ballads live here."
   ],
   explain: `### Compound meter
-In **12/8** each of the four beats divides into **three** 8ths. It's the natural notation for slow blues, gospel ballads and 6/8-feel Afro-Cuban grooves. Feeling 12/8 = 4 beats of triplets is the bridge between 'counting 12' and grooving in 4.`,
-  visual: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "DUD UDU DUD UDU", accents: [0, 3, 6, 9], chord: { root: "$root", quality: "$quality" } },
-  demo: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "DUD UDU DUD UDU", accents: [0, 3, 6, 9], chord: { root: "$root", quality: "$quality" } },
+In **12/8** each of the four beats divides into **three** 8ths: count *1 & a 2 & a 3 & a 4 & a*. It's the usual notation for slow blues, 1950s doo-wop and soul ballads, and 6/8-feel Afro-Cuban grooves. Feeling 12/8 as 4 beats of triplets is the bridge between 'counting 12' and grooving in 4.
+
+### Check yourself
+- Your foot taps 4 times per bar, on the louder clicks; three strums fit evenly into each tap.
+- With strict down-up strumming, beats 2 and 4 start with an **upstroke**. If every beat starts with a down, you've added or dropped a stroke.`,
+  visual: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "DUD UDU DUD UDU", accents: [0, 3, 6, 9], count: "compound", chord: { root: "$root", quality: "$quality" } },
+  demo: { type: "rhythm", meter: "12/8", grid: 1, bars: 1, pattern: "DUD UDU DUD UDU", accents: [0, 3, 6, 9], count: "compound", chord: { root: "$root", quality: "$quality" } },
   concepts: ["triplets", "odd-meters"],
   vary: ["tempo", "root"]
 },
@@ -1070,7 +1105,7 @@ In **12/8** each of the four beats divides into **three** 8ths. It's the natural
   mode: "play", category: "rhythm", tags: ["polyrhythm", "3-2", "fingerstyle", "independence"],
   title: "Polyrhythm 3:2 — thumb vs finger",
   level: 5, length: "medium", minutes: 3,
-  prompt: "Thumb plays **2 per click** on string 6 (or any bass string); index plays **3 per click** on string 1. Both land together on the beat. Say \"**not** dif-fi-cult\".",
+  prompt: "One bar = 2 clicks. Thumb plays **one note per click** (2 per bar) on string 6; index plays **3 evenly spaced notes per bar** on string 1. Both land together on beat 1. Say \"**not** dif-fi-cult\".",
   goal: "Hands stay independent and even for 8 bars; you can hear both layers.",
   tempo: { start: 40, min: 30, max: 90, step: 4, unit: "bpm" },
   metronome: { meter: "2/4", subdivision: 1, swing: 0, accent: true },
@@ -1100,7 +1135,7 @@ Grid: 2/4, 3 slots per beat = 6 slots. Thumb on slots 0 and 3, finger on 0, 2, 4
   tempo: { start: 60, min: 40, max: 110, step: 4, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: [
-    "Accents alternate D, D, D... because you skip one stroke each time (D-U-D-U: accent every 2nd = all downs).",
+    "Every accent is a downstroke: in strict D-U-D-U alternation, every 2nd stroke is a down.",
     "Then try playing ONLY the accents (silent air strokes in between).",
     "Jazz soloists and drummers use quarter-note triplets constantly to 'stretch' time."
   ],
@@ -1149,7 +1184,11 @@ Three notes in the time of four beats (half-note triplets). On a common grid of 
     "Tap it on your legs before playing."
   ],
   explain: `### 4 against 3
-The finger plays dotted 8ths (every 3rd 16th) over the 3/4 bar: four evenly spaced notes against three beats. Ralph Towner, Pat Metheny and classical repertoire (Chopin, Brahms) use 4:3 constantly; it's the harder sibling of 3:2.`,
+The finger plays dotted 8ths (every 3rd 16th) over the 3/4 bar: four evenly spaced notes against three beats. A famous piano example is Chopin's *Fantaisie-Impromptu* (four notes in one hand against three in the other). It's the harder sibling of 3:2.
+
+### Check yourself
+- Say the mnemonic in strict rhythm first; only "PASS" lands with the thumb *and* finger together.
+- The thumb notes must stay exactly on the clicks. If the thumb starts following the finger, slow down.`,
   visual: { type: "rhythm", meter: "3/4", grid: 4, bars: 1, pick: "6+1 - - 1 6 - 1 - 6 1 - -", fingers: "p+i - - i p - i - p i - -", title: "Thumb = 3, index = 4" },
   demo: { type: "rhythm", meter: "3/4", grid: 4, bars: 1, pick: "6+1 - - 1 6 - 1 - 6 1 - -", fingers: "p+i - - i p - i - p i - -" },
   concepts: ["polyrhythm", "thumb-independence"],
@@ -1193,7 +1232,7 @@ Same 4:3 as the fingerstyle card, but felt as accents in a 16th stream. Switch b
     "Long-term card: a few minutes per week."
   ],
   explain: `### 5 against 4
-A master-level polyrhythm: 5 evenly spaced notes in a 4/4 bar. Built from quintuplets with an accent every 4th note (20-slot grid), it's the route Holdsworth-/Chaffee-style players use to make tuplet groupings feel natural.`,
+A master-level polyrhythm: 5 evenly spaced notes in a 4/4 bar. Building it from quintuplets with an accent every 4th note (a 20-slot grid) is the reliable way to learn it; guessing it by feel usually produces something uneven.`,
   visual: { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 4, 8, 12, 16] },
   demo: { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 4, 8, 12, 16] },
   concepts: ["polyrhythm", "tuplets"],
@@ -1212,7 +1251,7 @@ A master-level polyrhythm: 5 evenly spaced notes in a 4/4 bar. Built from quintu
   hints: [
     "Check: at 60 bpm the new tempo is 90 bpm. Set a second metronome to verify.",
     "The link is the quarter-note triplet — it's shared by both tempos.",
-    "Elliott Carter & Tony Williams used this; it's also great for rubato-free 'tempo shifts' in a band."
+    "The term is closely associated with the composer Elliott Carter; it's also great for clean 'tempo shifts' in a band."
   ],
   explain: `### Metric modulation
 A rhythm in the old tempo becomes the pulse of the new tempo. Quarter-note triplets (3 per 2 beats) as the new beat → tempo × 3/2. It trains rock-solid proportional time.`,
@@ -1261,7 +1300,7 @@ Playing quarter-note triplets *without* first subdividing into 8th-note triplets
     "This is the lifelong 'rhythmic freedom' card. Revisit it monthly."
   ],
   explain: `### Rhythmic freedom
-The end goal of all the subdivision, tuplet and switching cards is that **any** subdivision is available to you at any moment while the time stays rock solid. Players like Allan Holdsworth, Guthrie Govan and Pat Metheny move between 4, 5, 6 and 7 per beat as phrasing choices. The demo cycles 4 → 3 → 5 → 6 per beat as an example.`,
+The end goal of all the subdivision, tuplet and switching cards is that **any** subdivision is available to you at any moment while the time stays rock solid. Players like Allan Holdsworth and Guthrie Govan move between 4, 5, 6 and 7 per beat as phrasing choices. The demo cycles 4 → 3 → 5 → 6 per beat as an example.`,
   visual: { type: "rhythm", meter: "4/4", grid: 5, bars: 1, pattern: "dudud ududu dudud ududu", accents: [0, 5, 10, 15], title: "One possibility: quintuplets" },
   demo: [
     { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "dudu dudu dudu dudu", accents: [0, 4, 8, 12] },
@@ -1366,7 +1405,13 @@ Rhythm isn't only *when* a note starts — it's also *when it stops*. Controllin
     "Record and look at the waveform if you want to check."
   ],
   explain: `### The pocket
-Great players don't just play 'in time' — they choose *where* on the beat to sit. Laid-back (behind) is the blues/R&B/hip-hop pocket; pushing (ahead) adds urgency. Consistency is what matters: a constant offset is a feel, a varying one is just bad time.`,
+Great players don't just play 'in time' — they choose *where* on the beat to sit. Laid-back (behind) is the blues/R&B/hip-hop pocket; pushing (ahead) adds urgency. Consistency is what matters: a constant offset is a feel, a varying one is just bad time.
+
+Note: the demo always plays **dead on** the click; 'behind' and 'ahead' are tiny offsets (a few hundredths of a second) that you add yourself.
+
+### Check yourself
+- **On**: you hear one sound (strum and click fused). **Behind**: click, then strum, every time by the same tiny amount. **Ahead**: strum, then click.
+- Record 16 bars and look at the waveform: the gap between click and strum should be the same in every bar.`,
   visual: { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pattern: "DDDD", chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pattern: "DDDD", chord: { root: "$root", quality: "$quality" } },
   concepts: ["pocket"],
@@ -1473,7 +1518,7 @@ Pushing tempo in small steps from a comfortable start ('the ladder') is the stan
       { v: "D-DU-UD-D-DU-UD-", label: "16th cinquillo ×2", lvl: 1 },
       { v: "D--UD--UD--UD--U", label: "1 + a each beat", lvl: 1 },
       { v: "D-DU-U-UD-DU-U-U", label: "syncopated pop strum", lvl: 2 },
-      { v: "D--U--D--U--D-DU", label: "3+3+3+3+4 accents", lvl: 3 }
+      { v: "D--U--D--U--D-DU", label: "3+3+3+3+4 grouping", lvl: 3 }
     ]
   },
   prompt: "Hold **{chord}**. Constant 16th motion (down on 1 and &, up on e and a). Loop **{p:strum}**.",
@@ -1586,12 +1631,16 @@ Three beats per bar, strong-weak-weak. The bass-strum-strum pattern is the simpl
   prompt: "6/8 on **{chord}** with two big beats per bar (on 1 and 4). Strum **{p:strum}** — one slot per 8th note.",
   goal: "Lilting two-beat feel, not six equal beats.",
   tempo: { start: 120, min: 90, max: 200, step: 10, unit: "bpm" },
-  metronome: { meter: "6/8", subdivision: 1, swing: 0, accent: true },
-  hints: ["Tempo counts 8ths. Tap your foot only on 1 and 4.", "'House of the Rising Sun' (trad.) is the classic 6/8 strumming song."],
+  metronome: { meter: "6/8", subdivision: 1, swing: 0, accent: true, accentBeats: [0, 3] },
+  hints: ["Tempo counts 8ths (6 clicks per bar); the two louder clicks are the big beats. Tap your foot only on those.", "The traditional song 'House of the Rising Sun' is usually played in 6/8 (the well-known 1960s arrangement is arpeggiated)."],
   explain: `### 6/8
-Six 8th notes grouped **3+3**: two dotted-quarter beats, each divided in three. Feels like a slow triplet 2/4.`,
-  visual: { type: "rhythm", meter: "6/8", grid: 1, bars: 1, pattern: "$strum", accents: [0, 3], chord: { root: "$root", quality: "$quality" } },
-  demo: { type: "rhythm", meter: "6/8", grid: 1, bars: 1, pattern: "$strum", accents: [0, 3], chord: { root: "$root", quality: "$quality" } },
+Six 8th notes grouped **3+3**: two big (dotted-quarter) beats, each divided in three. Count *1 & a 2 & a*. It feels like a slow 2 with a triplet lilt, used in folk ballads, waltz-like pop songs and Irish jigs.
+
+### Check yourself
+- Your foot taps **twice** per bar. If you feel three beats per bar (1 2 3 4 5 6 grouped in pairs), that's 3/4, not 6/8.
+- With one stroke per 8th and the hand going down-up, big beat 2 can come out as an upstroke in some patterns. That's fine; keep it as loud as the downstroke on 1.`,
+  visual: { type: "rhythm", meter: "6/8", grid: 1, bars: 1, pattern: "$strum", accents: [0, 3], count: "compound", chord: { root: "$root", quality: "$quality" } },
+  demo: { type: "rhythm", meter: "6/8", grid: 1, bars: 1, pattern: "$strum", accents: [0, 3], count: "compound", chord: { root: "$root", quality: "$quality" } },
   concepts: ["triplets", "hemiola"],
   vary: ["tempo", "strum"]
 },
@@ -1620,18 +1669,19 @@ Right hand = time, left hand = sound/no sound. Getting the fretting hand to mute
   mode: "play", category: "rhythm", tags: ["strumming", "anticipation", "syncopation"],
   title: "The push: change chords on the & of 4",
   level: 4, length: "medium", minutes: 3,
-  prompt: "Alternate **G** and **C** every bar with **D-DU-UDU**, but change chord on the **last upstroke** (the & of 4) and let it ring through the next downbeat (no strum on beat 1).",
+  prompt: "Alternate **G** and **C** every bar with **D-DU-UDU**, but change chord on the **last upstroke** (the & of 4) and let it ring through the next downbeat (no strum on beat 1). In a loop that means *every* bar starts with an air strum.",
   goal: "The new chord clearly arrives early, and the time doesn't wobble.",
   tempo: { start: 70, min: 50, max: 140, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: [
-    "Bar 2 starts with an air strum (the `-`) — the pushed chord is ringing.",
-    "Move the fretting hand on the 4 so it's ready for the &."
+    "Each bar starts with an air strum (the `-`): the chord pushed in on the & of 4 is still ringing.",
+    "Move the fretting hand on the 4 so it's ready for the &.",
+    "Check yourself: beat 1 is silent but you still *feel* it; the click on 1 should not catch you strumming."
   ],
   explain: `### Anticipation ('the push')
 Arriving at the next chord an 8th early — and tying over the bar line — is the most common syncopation in pop and rock. It gives forward motion.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pattern: "D-DU-UDU | --DU-UDU", accents: [7, 15], chord: { root: "G", quality: "maj" }, title: "The & of 4 belongs to the next chord" },
-  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pattern: "D-DU-UDU | --DU-UDU", accents: [7, 15], chord: { root: "G", quality: "maj" }, title: "Rhythm on one chord: the accented & of 4 is where the next chord arrives" },
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pattern: "--DU-UDU | --DU-UDU", accents: [7, 15], chord: { root: "G", quality: "maj" }, title: "The & of 4 belongs to the next chord" },
+  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pattern: "--DU-UDU | --DU-UDU", accents: [7, 15], chord: { root: "G", quality: "maj" }, title: "Rhythm only, on one chord: the accented & of 4 is where the next chord arrives" },
   concepts: ["rhythmic-anticipation", "syncopation"],
   vary: ["tempo"]
 },
@@ -1651,8 +1701,8 @@ Arriving at the next chord an 8th early — and tying over the bar line — is t
 Playing a figure at double or half speed against the same pulse is a classic arranging trick (half-time choruses!) and a good switching drill.`,
   visual: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "D-DU-UDUD-DU-UDU", chord: { root: "$root", quality: "$quality" }, title: "Double-time bar (see demo for the 8th version first)" },
   demo: [
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "D-DU-UDU", chord: { root: "$root", quality: "$quality" } },
-    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "D-DU-UDUD-DU-UDU", chord: { root: "$root", quality: "$quality" } }
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pattern: "D-DU-UDU", chord: { root: "$root", quality: "$quality" }, title: "Bar 1: as 8ths (once per bar)" },
+    { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "D-DU-UDUD-DU-UDU", chord: { root: "$root", quality: "$quality" }, title: "Bar 2: as 16ths (twice per bar)" }
   ],
   concepts: ["subdivisions", "constant-motion"],
   vary: ["tempo"]
@@ -1673,7 +1723,7 @@ Playing a figure at double or half speed against the same pulse is a classic arr
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true },
   hints: ["Small motion, pick tip barely past the string.", "Grip the pick just firmly enough not to drop it."],
   explain: `### Alternate picking
-Strict down-up picking ties stroke direction to rhythm: downs on the beat/&, ups in between. It's the most rhythmically reliable technique and the base for everything that follows.`,
+Strict down-up picking ties stroke direction to rhythm. In 8ths: downs on the numbers, ups on the &s. (In 16ths it becomes downs on the numbers and &s, ups on the e's and a's.) It's the most rhythmically reliable technique and the base for everything that follows.`,
   visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "1 1 1 1 1 1 1 1", strokes: "D U D U D U D U" },
   demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "1 1 1 1 1 1 1 1", strokes: "D U D U D U D U" },
   concepts: ["alternate-picking"],
@@ -2248,7 +2298,7 @@ Giuliani's *120 Right-Hand Studies* is the classic source of these patterns. A h
   metronome: { meter: "4/4", subdivision: 3, swing: 0, accent: true },
   hints: ["Accent each beat lightly: p on beat 1, a on beat 2 (!), p on beat 3, a on beat 4.", "The accent landing on 'a' is the tricky part."],
   explain: `### Arpeggios in triplets
-A 6-note pattern in triplets puts the beat on alternating fingers — great for evenness. This is the texture of many Romantic guitar pieces and 'Spanish Romance'-type studies.`,
+A 6-note pattern in triplets puts the beat on alternating fingers (p, then a), which is great for evenness. Rolling triplet arpeggios like this run through Giuliani's right-hand studies and much 19th-century guitar music.`,
   visual: { type: "rhythm", meter: "4/4", grid: 3, bars: 1, pick: "5 3 2 1 2 3 4 3 2 1 2 3", fingers: "p i m a m i p i m a m i", chord: { root: "$root", quality: "$quality" }, accents: [0, 3, 6, 9] },
   demo: { type: "rhythm", meter: "4/4", grid: 3, bars: 1, pick: "5 3 2 1 2 3 4 3 2 1 2 3", fingers: "p i m a m i p i m a m i", chord: { root: "$root", quality: "$quality" }, accents: [0, 3, 6, 9] },
   concepts: ["pima", "triplets"],
@@ -2286,7 +2336,11 @@ In fingerstyle the thumb is the rhythm section. Making it automatic (so it doesn
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: ["Learn the finger rhythm alone first (clap it), then add the thumb.", "When it breaks, it's almost always the thumb following the fingers."],
   explain: `### Independence, step 2
-Syncopated fingers against a steady thumb is the essence of ragtime, Delta blues fingerpicking (Mississippi John Hurt) and Chet Atkins-style playing.`,
+Syncopated fingers against a steady thumb is the essence of ragtime guitar, country-blues fingerpicking (Mississippi John Hurt, Rev. Gary Davis) and Chet Atkins-style playing.
+
+### Check yourself
+- Play the thumb alone with the click first: the thumb notes are on 1, 2, 3, 4 and nowhere else.
+- Add the fingers: the thumb notes must sound exactly as before. Record both and compare.`,
   visual: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pick: "5 - - 2 4 - 1 - 5 - 2 - 4 1 - -", fingers: "p - - m p - a - p - m - p a - -", chord: { root: "$root", quality: "$quality" }, accents: [0, 4, 8, 12] },
   demo: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pick: "5 - - 2 4 - 1 - 5 - 2 - 4 1 - -", fingers: "p - - m p - a - p - m - p a - -", chord: { root: "$root", quality: "$quality" }, accents: [0, 4, 8, 12] },
   concepts: ["thumb-independence", "syncopation"],
@@ -2296,17 +2350,21 @@ Syncopated fingers against a steady thumb is the essence of ragtime, Delta blues
 {
   id: "rhy-travis-thumb",
   mode: "play", category: "picking", tags: ["travis-picking", "fingerstyle", "alternating-bass"],
-  title: "Travis step 1: alternating thumb on C",
+  title: "Travis step 1: alternating thumb on A",
   level: 2, length: "short", minutes: 2,
-  prompt: "Hold **C**. Thumb only, quarter notes: **string 5 → 4 → 6 → 4** (move your ring finger from string 5 to the G on string 6 for beat 3). Palm-mute lightly.",
+  prompt: "Hold an open **A** chord. Thumb only, quarter notes: **string 5 → 4 → 6 → 4** (A, E, low E, E). Palm-mute lightly. Once it's automatic, try the same on an open C (5 → 4 → 6 → 4, with your ring finger hopping to the G on string 6 for beat 3).",
   goal: "Rock-steady, automatic thumb for 16 bars while you look away.",
   tempo: { start: 70, min: 50, max: 160, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: ["The thumb should feel like walking — no thought.", "Light palm mute keeps the bass 'thumpy' like Merle Travis."],
   explain: `### Travis picking
-Named after Merle Travis (and developed by Chet Atkins and many others): the **thumb alternates bass notes on every beat** while fingers add chord and melody notes between. Step 1 is an autopilot thumb.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pick: "5 4 6 4", fingers: "p p p p", chord: { root: "C", quality: "maj" } },
-  demo: { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pick: "5 4 6 4", fingers: "p p p p", chord: { root: "C", quality: "maj" } },
+Named after Merle Travis and developed by Chet Atkins and many others: the **thumb alternates bass notes on every beat** while fingers add chord and melody notes between. You hear it in country, folk and fingerstyle pop from the 1940s on. Step 1 is an autopilot thumb.
+
+### Check yourself
+- Talk, or look away, while the thumb keeps going. If it stops or stumbles, it isn't automatic yet.
+- Every thumb note lands on a click, with the same volume. Beat 1 can be slightly stronger.`,
+  visual: { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pick: "5 4 6 4", fingers: "p p p p", chord: { root: "A", quality: "maj" } },
+  demo: { type: "rhythm", meter: "4/4", grid: 1, bars: 1, pick: "5 4 6 4", fingers: "p p p p", chord: { root: "A", quality: "maj" } },
   concepts: ["travis-picking", "thumb-independence"],
   vary: ["tempo"],
   source: "Merle Travis / Chet Atkins tradition; standard Travis-picking pedagogy (alternate thumb first, then add fingers)"
@@ -2317,15 +2375,19 @@ Named after Merle Travis (and developed by Chet Atkins and many others): the **t
   mode: "play", category: "picking", tags: ["travis-picking", "fingerstyle"],
   title: "Travis step 2: thumb + fingers on the &s",
   level: 3, length: "medium", minutes: 3,
-  prompt: "C chord. Thumb **5-4-6-4** on the beats; **m** on string 2 after beats 1 and 3, **i** on string 3 after beats 2 and 4.",
+  prompt: "Open A chord. Thumb **5-4-6-4** on the beats; **m** on string 2 after beats 1 and 3, **i** on string 3 after beats 2 and 4.",
   goal: "The classic Travis 'rolling' pattern, steady for 16 bars.",
   tempo: { start: 60, min: 40, max: 150, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true },
   hints: ["Count '1 & 2 & ...': thumb on numbers, fingers on &s.", "If it falls apart, go back to thumb alone for 4 bars and fade the fingers in."],
   explain: `### The basic Travis pattern
-Thumb on every beat, fingers on every &: the fingers 'answer' the thumb. The result sounds busier than it is — and it works on almost any chord.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "C", quality: "maj" } },
-  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "C", quality: "maj" } },
+Thumb on every beat, fingers on every &: the fingers 'answer' the thumb. The result sounds busier than it is — and it works on almost any chord.
+
+### Check yourself
+- Count "1 & 2 & 3 & 4 &": every number is a thumb note, every & a finger note. Nothing is ever played together in this step.
+- Mute the fingers' strings for a bar: the thumb part must sound exactly the same as in step 1.`,
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "A", quality: "maj" } },
+  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "A", quality: "maj" } },
   concepts: ["travis-picking", "thumb-independence"],
   vary: ["tempo"]
 },
@@ -2335,15 +2397,15 @@ Thumb on every beat, fingers on every &: the fingers 'answer' the thumb. The res
   mode: "play", category: "picking", tags: ["travis-picking", "fingerstyle", "pinch"],
   title: "Travis step 3: add the pinch",
   level: 4, length: "medium", minutes: 3,
-  prompt: "Same Travis pattern on C, but on beats 1 and 3 **pinch** the bass with a top-string note (**p + a** on string 1).",
+  prompt: "Same Travis pattern on open A, but on beats 1 and 3 **pinch** the bass with a top-string note (**p + a** on string 1).",
   goal: "Pinches land together, pattern flows for 16 bars.",
   tempo: { start: 60, min: 40, max: 150, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true },
   hints: ["A pinch is thumb and finger squeezing toward each other at the same instant.", "The top note of the pinch is where a melody will go later."],
   explain: `### The pinch
 Thumb + finger together. Pinches mark the strong beats and carry melody notes on top of the alternating bass.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 2 4 3 6+1 2 4 3", fingers: "p+a m p i p+a m p i", chord: { root: "C", quality: "maj" } },
-  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 2 4 3 6+1 2 4 3", fingers: "p+a m p i p+a m p i", chord: { root: "C", quality: "maj" } },
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 2 4 3 6+1 2 4 3", fingers: "p+a m p i p+a m p i", chord: { root: "A", quality: "maj" } },
+  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 2 4 3 6+1 2 4 3", fingers: "p+a m p i p+a m p i", chord: { root: "A", quality: "maj" } },
   concepts: ["travis-picking"],
   vary: ["tempo"]
 },
@@ -2353,15 +2415,15 @@ Thumb + finger together. Pinches mark the strong beats and carry melody notes on
   mode: "play", category: "picking", tags: ["travis-picking", "fingerstyle", "syncopation"],
   title: "Travis step 4: syncopated melody note",
   level: 5, length: "medium", minutes: 3,
-  prompt: "C chord, thumb 5-4-6-4. Pinch on beat 1, then let a melody note on string 1 land on **the & of 3** (an offbeat between thumb notes).",
+  prompt: "Open A chord, thumb 5-4-6-4. Pinch on beat 1, then let a melody note on string 1 land on **the & of 3** (an offbeat between thumb notes).",
   goal: "The offbeat melody note pops without disturbing the thumb, for 16 bars.",
   tempo: { start: 60, min: 40, max: 140, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true },
   hints: ["The thumb never stops or shifts — the melody is 'over' it.", "Syncopated top notes are the essence of the Travis sound."],
   explain: `### Syncopation over the thumb
 Once the thumb is automatic, melody notes can land on any &. That push-pull between steady bass and syncopated melody is the Travis/Atkins style.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 - 4 2 6 1 4 2", fingers: "p+a - p m p a p m", chord: { root: "C", quality: "maj" } },
-  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 - 4 2 6 1 4 2", fingers: "p+a - p m p a p m", chord: { root: "C", quality: "maj" } },
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 - 4 2 6 1 4 2", fingers: "p+a - p m p a p m", chord: { root: "A", quality: "maj" } },
+  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+1 - 4 2 6 1 4 2", fingers: "p+a - p m p a p m", chord: { root: "A", quality: "maj" } },
   concepts: ["travis-picking", "syncopation", "thumb-independence"],
   vary: ["tempo"]
 },
@@ -2369,21 +2431,23 @@ Once the thumb is automatic, melody notes can land on any &. That push-pull betw
 {
   id: "rhy-travis-progression",
   mode: "play", category: "picking", tags: ["travis-picking", "fingerstyle", "chord-changes"],
-  title: "Travis picking through C – Am – G – C",
+  title: "Travis picking through A – D – E – A",
   level: 5, length: "long", minutes: 5,
-  prompt: "Basic Travis pattern, one bar per chord: **C → Am → G → C**. On G, the thumb alternates strings **6 and 4**.",
+  prompt: "Basic Travis pattern, one bar per chord: **A → D → E → A**, using the shapes in the diagrams (open A, D barred at the 5th fret, open E). The thumb follows each root: **A: 5-4-6-4 · D: 5-4-5-4 · E: 6-4-5-4**.",
   goal: "Changes without the thumb hesitating, 4 loops.",
   tempo: { start: 60, min: 40, max: 140, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
-  hints: ["The thumb's bass string follows the chord root: C and Am root on 5, G root on 6.", "Change chords during beat 4 so you're ready on 1."],
+  hints: ["The thumb's first note is always the root: A and D (barred) have the root on string 5, E has it on string 6.", "Change chords during beat 4 so you're ready on 1.", "Check yourself: beat 1 of every bar is the new chord's root."],
   explain: `### Following the roots
-In Travis picking the thumb usually alternates the **root** and another chord tone on the next string(s). Moving between chords means moving the thumb's 'home' string.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "C", quality: "maj" } },
+In Travis picking the thumb usually alternates the **root** with another chord tone (often the fifth) on a neighbouring string. Moving between chords means moving the thumb's 'home' string, while the fingers keep exactly the same rhythm.
+
+(With an open D you'd play the root on string 4 instead; the barred D in the demo keeps the thumb on the same strings as the A.)`,
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "A", quality: "maj" } },
   demo: [
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "C", quality: "maj" } },
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "A", quality: "min" } },
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "6 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "G", quality: "maj" } },
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "C", quality: "maj" } }
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "A", quality: "maj" }, title: "Bar 1: A — thumb 5-4-6-4" },
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 5 2 4 3", fingers: "p m p i p m p i", chord: { root: "D", quality: "maj" }, title: "Bar 2: D (5th-fret barre) — thumb 5-4-5-4" },
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "6 2 4 3 5 2 4 3", fingers: "p m p i p m p i", chord: { root: "E", quality: "maj" }, title: "Bar 3: E — thumb 6-4-5-4" },
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 3 6 2 4 3", fingers: "p m p i p m p i", chord: { root: "A", quality: "maj" }, title: "Bar 4: A — thumb 5-4-6-4" }
   ],
   concepts: ["travis-picking"],
   vary: ["tempo"]
@@ -2394,15 +2458,15 @@ In Travis picking the thumb usually alternates the **root** and another chord to
   mode: "play", category: "picking", tags: ["travis-picking", "hybrid-picking"],
   title: "Travis picking with a pick (hybrid)",
   level: 5, length: "medium", minutes: 3,
-  prompt: "Basic Travis pattern on C, but the **pick** plays the thumb's bass notes and **m/a** play the treble notes.",
+  prompt: "Basic Travis pattern on open A, but the **pick** plays the thumb's bass notes (downstrokes) and **m/a** pluck the treble notes on the &s.",
   goal: "Sounds as smooth as fingerstyle, 16 bars.",
   tempo: { start: 60, min: 40, max: 150, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true },
   hints: ["`p` in the finger row = the pick (downstrokes).", "Useful when a gig needs both strumming and fingerpicking on one song."],
   explain: `### Travis with a pick
 Many electric country players do Travis patterns hybrid-style (pick + m + a). It's louder and punchier than flesh, and it lets you switch to strumming instantly.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 1 6 2 4 1", strokes: "D - D - D - D -", fingers: "p m p a p m p a", chord: { root: "C", quality: "maj" } },
-  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 1 6 2 4 1", strokes: "D - D - D - D -", fingers: "p m p a p m p a", chord: { root: "C", quality: "maj" } },
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 1 6 2 4 1", strokes: "D - D - D - D -", fingers: "p m p a p m p a", chord: { root: "A", quality: "maj" } },
+  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 2 4 1 6 2 4 1", strokes: "D - D - D - D -", fingers: "p m p a p m p a", chord: { root: "A", quality: "maj" } },
   concepts: ["travis-picking", "hybrid-picking"],
   vary: ["tempo"]
 },
@@ -2458,7 +2522,11 @@ A single treble note repeated by a-m-i over a thumb bass line creates the illusi
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
   hints: ["The slap is the side of the thumb/palm hitting the strings near the soundhole.", "Keep the up-brush light — it's a hi-hat."],
   explain: `### Percussive acoustic
-Modern acoustic players (Tommy Emmanuel's 'thumb + slap', Andy McKee and others) layer drum parts into fingerstyle. Rhythmically it's a 16th grid with assigned voices.`,
+Modern acoustic players (Andy McKee and many others) layer drum parts into fingerstyle. Rhythmically it's a 16th grid with assigned voices: thumb = kick (1, 3), slap = snare (2, 4), up-brush = hi-hat (the 'a' of every beat).
+
+### Check yourself
+- Say "kick – snare – kick – snare" with the click: your thumb and slap must match it exactly.
+- The up-brush is the *last* 16th before each beat, quiet and short.`,
   visual: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "T--UX--UT--UX--U", accents: [4, 12], chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "T--UX--UT--UX--U", accents: [4, 12], chord: { root: "$root", quality: "$quality" } },
   concepts: ["thumb-independence"],
@@ -2641,10 +2709,14 @@ Funk lines (think 'Get Up (I Feel Like Being a) Sex Machine'-era Catfish Collins
   prompt: "Chicken-scratch pattern on **{chord}** with **light 16th swing** (e and a arrive late). Think New Orleans funk / neo-soul.",
   goal: "Consistent swing amount for 16 bars; you can switch to straight and back.",
   tempo: { start: 84, min: 66, max: 104, step: 4, unit: "bpm" },
-  metronome: { meter: "4/4", subdivision: 4, swing: 0.33, accent: true },
-  hints: ["The Meters, D'Angelo and many hip-hop grooves sit here.", "Swing the upstrokes, not the beat."],
+  metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true },
+  hints: ["New Orleans funk (The Meters), D'Angelo-style neo-soul and many hip-hop grooves use a lightly swung 16th feel.", "Swing the upstrokes (e, a), not the beat or the &.", "The click marks only the beat; the swing is yours. Compare with the demo."],
   explain: `### Swung funk
-Not all funk is straight. A slight 16th-note swing changes the whole feel — choosing it deliberately is a mark of a mature rhythm player.`,
+Not all funk is straight. A slight 16th-note swing changes the whole feel — choosing it deliberately is a mark of a mature rhythm player.
+
+### Check yourself
+- Alternate 4 bars straight and 4 bars swung. Only the e and a should move; the hits on & stay exactly halfway between clicks.
+- The swing amount must be the same in every beat; record yourself and listen for beats that suddenly go straight.`,
   visual: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "duDu dUdu duDu dUDu", swing: 0.33, chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 4, bars: 1, pattern: "duDu dUdu duDu dUDu", swing: 0.33, chord: { root: "$root", quality: "$quality" } },
   concepts: ["funk-16ths", "swing"],
@@ -2658,18 +2730,30 @@ Not all funk is straight. A slight 16th-note swing changes the whole feel — ch
   mode: "play", category: "styles", tags: ["bossa-nova", "brazilian", "thumb", "fingerstyle"],
   title: "Bossa 1: the thumb on 1 and 3",
   level: 2, length: "short", minutes: 2,
-  params: { root: ["A", "D"], quality: ["m7"] },
-  prompt: "Hold **{chord}** (root on string 5). Thumb only: **root on beat 1, fifth on string 6 on beat 3**. Soft, even, slightly muted — like a surdo/bass.",
+  params: { root: ["A"], quality: ["m7", "maj7", "7", "6"] },
+  prompt: "Hold **{chord}** (open shape, root on string 5). Thumb only: **root (string 5) on beat 1, the fifth below it (open low E, string 6) on beat 3**. Soft, even, slightly muted — like a bass drum heard from the next room.",
   goal: "A relaxed, steady thumb you don't have to think about, 16 bars.",
-  tempo: { start: 70, min: 50, max: 140, step: 5, unit: "bpm" },
+  tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: false },
-  hints: ["Bossa is soft — the thumb is a heartbeat, not a punch.", "Many players think of bossa in 2 (cut time): the thumb is then on every beat."],
-  explain: `### João Gilberto's split
-Gilberto separated each chord into a **thumb bass** (strings 6/5, on the beat) and **upper voices plucked by the fingers** (the syncopation). The thumb alternates root and fifth and never stops. Get it automatic before adding fingers.`,
+  hints: [
+    "Bossa is soft — the thumb is a heartbeat, not a punch.",
+    "Many players think of bossa in 2 (cut time): the thumb is then on every beat.",
+    "Bossa 8ths are **straight**, never swung."
+  ],
+  explain: `### What bossa nova is
+Bossa nova ('new trend') is Brazilian music from Rio de Janeiro in the late 1950s: samba slowed down and made intimate, with jazz-influenced harmony. The guitar style comes from **João Gilberto** (his 1958 recording of 'Chega de Saudade', the album *Getz/Gilberto*, 1964), playing songs by **Antônio Carlos Jobim** such as 'The Girl from Ipanema', 'Desafinado' and 'Corcovado'. It's now a standard part of jazz.
+
+### João Gilberto's split
+Gilberto separated each chord into a **thumb bass** (on the beat) and **upper voices plucked by the fingers** (the syncopation). The thumb usually alternates the root and the **fifth below it**, like the samba surdo drum, and never stops. Get it automatic before adding fingers.
+
+### Check yourself
+- The thumb lands exactly on clicks 1 and 3, at the same soft volume, for 16 bars.
+- Count "1 & 2 & 3 & 4 &" out loud while the thumb plays only on 1 and 3.`,
   visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 - - - 6 - - -", fingers: "p - - - p - - -", chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5 - - - 6 - - -", fingers: "p - - - p - - -", chord: { root: "$root", quality: "$quality" } },
   concepts: ["bossa-nova", "thumb-independence"],
-  vary: ["tempo"]
+  vary: ["tempo", "quality"],
+  source: "Wikipedia, 'Bossa nova' (thumb as stylized surdo); Nelson Faria, The Brazilian Guitar Book (bass alternates root and the fifth below)"
 },
 
 {
@@ -2677,47 +2761,61 @@ Gilberto separated each chord into a **thumb bass** (strings 6/5, on the beat) a
   mode: "play", category: "styles", tags: ["bossa-nova", "brazilian", "fingerstyle", "syncopation"],
   title: "Bossa 2: one-bar pattern on {chord}",
   level: 3, length: "medium", minutes: 3,
-  params: { root: ["A", "D"], quality: ["m7", "m6"] },
-  prompt: "Thumb on **1 and 3**; fingers (i-m-a together) pluck the upper strings on **1, 2 and the & of 3**. Loop it.",
+  params: { root: ["A"], quality: ["m7", "maj7", "7", "6"] },
+  prompt: "Thumb on **1 and 3** (root, then the fifth below). Fingers (i-m-a together) pluck the upper strings on **1, 2 and the & of 3**. Loop it.",
   goal: "Gentle, swaying groove for 16 bars without the thumb wavering.",
-  tempo: { start: 70, min: 50, max: 140, step: 5, unit: "bpm" },
+  tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: false },
   hints: [
     "Count '1 & 2 & 3 & 4 &': fingers on 1, 2, & of 3. Thumb on 1 and 3.",
-    "The & of 3 is the first syncopation — it should feel like a gentle push.",
+    "The & of 3 is the first syncopation — it should feel like a gentle push, exactly halfway between clicks 3 and 4.",
     "Keep finger notes short-ish and soft."
   ],
-  explain: `### The simplest bossa pattern
-A widely taught one-bar bossa: thumb in half notes, fingers on 1, 2 and the & of 3. It's the seed of the longer 2-bar patterns. Bossa is often written in 2/4 or cut time; we use 4/4 8ths (same sound).`,
+  explain: `### The basic bossa pattern
+The most widely taught bossa pattern, used by Gilberto (e.g. on 'The Girl from Ipanema'): thumb in half notes, fingers on **1, 2 and the & of 3**. Written in 2/4 (as most Brazilian sources do), that's fingers on the first two 8ths of beat 1 and the second 16th of beat 2; the app writes it in 4/4 8ths, which sounds identical.
+
+### Feel and common mistakes
+- **Straight, not swung**: the & of 3 is exactly halfway between clicks 3 and 4.
+- **Soft**: bossa is quiet music; the fingers and thumb should be about equally loud.
+- The usual mistake is the thumb moving to the & of 3 with the fingers. The thumb never plays there.
+
+### Check yourself
+- Clap the finger rhythm while saying "**1** & **2** & 3 **&** 4 &", then play it.
+- Then thumb alone, then both. On beat 1, thumb and fingers sound together; on beat 3, only the thumb.`,
   visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - -", fingers: "p+i+m+a - i+m+a - p i+m+a - -", chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - -", fingers: "p+i+m+a - i+m+a - p i+m+a - -", chord: { root: "$root", quality: "$quality" } },
   concepts: ["bossa-nova", "thumb-independence", "syncopation"],
-  vary: ["tempo", "root"],
-  source: "Illinois Jazz Guitar, 'Bossa Nova Guitar' (2017): basic one-bar pattern"
+  vary: ["tempo", "quality"],
+  source: "Illinois Jazz Guitar, 'Bossa Nova Guitar' (2017): basic one-bar pattern '1, 2 and the & of 3' over half notes; Wikipedia, 'Bossa nova'"
 },
 
 {
   id: "rhy-bossa-two-bar",
   mode: "play", category: "styles", tags: ["bossa-nova", "brazilian", "clave", "fingerstyle"],
-  title: "Bossa 3: two-bar clave pattern",
+  title: "Bossa 3: a clave-based two-bar variation",
   level: 4, length: "medium", minutes: 4,
-  params: { root: ["A", "D", "C"], quality: ["m7", "maj7", "6"] },
-  prompt: "Thumb on 1 and 3 in both bars. Fingers follow the **bossa clave**: bar 1 → **1, & of 2, 4**; bar 2 → **2, & of 3**. Chord: **{chord}**.",
+  params: { root: ["A"], quality: ["m7", "maj7", "6"] },
+  prompt: "Thumb on 1 and 3 in both bars. Fingers follow the **bossa nova clave**: bar 1 → **1, & of 2, 4**; bar 2 → **2, & of 3**. Chord: **{chord}**.",
   goal: "16 bars where the thumb stays steady and the finger rhythm floats.",
-  tempo: { start: 70, min: 50, max: 140, step: 5, unit: "bpm" },
+  tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: false },
   hints: [
     "Learn the clave by clapping it while counting 8ths.",
     "Then add the thumb, then put the clap into the fingers.",
-    "Gilberto constantly varied the finger rhythm — this is a framework, not a straightjacket."
+    "Gilberto constantly varied the finger rhythm — this is one framework, not *the* pattern."
   ],
   explain: `### Clave-based bossa
-Bossa nova guitar patterns are built against the **bossa clave** (3-2), a cousin of the son clave with its last note delayed. The thumb gives the samba pulse; the fingers 'sing' the clave. The tension between the two layers is the style.`,
+Nelson Faria's *Brazilian Guitar Book* explains that bossa right-hand patterns are based on the **bossa nova clave**: x..x..x...x..x.. (in 4/4 8ths: **1, &2, 4 | 2, &3**). It's the son clave with one note of the 'two' side delayed by one 8th. Here the fingers play the clave exactly, over the steady thumb. Real accompaniments vary it constantly, so treat this as a framework.
+
+### Check yourself
+- In bar 1 the fingers play together with the thumb on beat 1 only; in bar 2 they never coincide with the thumb.
+- Every finger note on an & is exactly halfway between clicks (straight 8ths, no swing).
+- Loop it: it should feel like one long 2-bar phrase, not two separate bars.`,
   visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pick: "5+4+3+2 - - 4+3+2 6 - 4+3+2 - | 5 - 4+3+2 - 6 4+3+2 - -", fingers: "p+i+m+a - - i+m+a p - i+m+a - | p - i+m+a - p i+m+a - -", chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pick: "5+4+3+2 - - 4+3+2 6 - 4+3+2 - | 5 - 4+3+2 - 6 4+3+2 - -", fingers: "p+i+m+a - - i+m+a p - i+m+a - | p - i+m+a - p i+m+a - -", chord: { root: "$root", quality: "$quality" } },
   concepts: ["bossa-nova", "clave"],
-  vary: ["tempo", "root", "quality"],
-  source: "Premier Guitar, 'Rhythm Rules: Brazilian Guitar 101' (clave → basic → syncopated bossa sequence)"
+  vary: ["tempo", "quality"],
+  source: "Nelson Faria, The Brazilian Guitar Book (patterns based on the clave figure); Wikipedia, 'Clave (rhythm)' (bossa nova clave)"
 },
 
 {
@@ -2725,19 +2823,23 @@ Bossa nova guitar patterns are built against the **bossa clave** (3-2), a cousin
   mode: "play", category: "styles", tags: ["bossa-nova", "brazilian", "ii-v-i", "chord-changes"],
   title: "Bossa 4: ii–V–I in C (Dm7 – G7 – Cmaj7)",
   level: 5, length: "long", minutes: 5,
-  prompt: "One-bar bossa pattern through **Dm7 | G7 | Cmaj7 | Cmaj7**. The thumb follows each root: Dm7 and Cmaj7 root on string 5 (fifth on 6), G7 root on string 6 (fifth on 5).",
+  prompt: "One-bar bossa pattern through **Dm7 | G7 | Cmaj7 | Cmaj7**, using the barre shapes in the diagrams. Here the thumb simply plays each chord's **root** on 1 and 3: Dm7 and Cmaj7 root on string 5, G7 root on string 6.",
   goal: "Seamless changes, constant thumb, 4 loops.",
-  tempo: { start: 70, min: 50, max: 140, step: 5, unit: "bpm" },
+  tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: false },
-  hints: ["Use voicings that keep the top notes close (voice leading) so the fingers barely move.", "Then apply the 2-bar clave pattern to the same changes."],
+  hints: ["Use voicings that keep the top notes close (voice leading) so the fingers barely move.", "Once it flows, alternate the thumb root → fifth below on beat 3 (on string 6 for Dm7 and Cmaj7).", "Then apply the 2-bar clave pattern to the same changes."],
   explain: `### Bossa over changes
-Real bossa tunes move constantly through ii–V's. The thumb's string-switching (root on 5 vs 6) is the main coordination challenge.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - -", chord: { root: "D", quality: "m7" } },
+Real bossa tunes move constantly through ii–V's. The thumb's string-switching (root on 5 vs 6) is the main coordination challenge, so this card starts with the root on both thumb notes (a simplification that Faria's book also allows when the root is on string 6).
+
+### Check yourself
+- On every bar line the new root sounds exactly on beat 1, with the fingers.
+- The finger rhythm (1, 2, &3) never changes, whatever the chord.`,
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 5 4+3+2 - -", chord: { root: "D", quality: "m7" } },
   demo: [
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - -", chord: { root: "D", quality: "m7" } },
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "6+4+3+2 - 4+3+2 - 5 4+3+2 - -", chord: { root: "G", quality: "7" } },
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - -", chord: { root: "C", quality: "maj7" } },
-    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - -", chord: { root: "C", quality: "maj7" } }
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 5 4+3+2 - -", chord: { root: "D", quality: "m7" }, title: "Bar 1: Dm7 (root on string 5)" },
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "6+4+3+2 - 4+3+2 - 6 4+3+2 - -", chord: { root: "G", quality: "7" }, title: "Bar 2: G7 (root on string 6)" },
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 5 4+3+2 - -", chord: { root: "C", quality: "maj7" }, title: "Bar 3: Cmaj7 (root on string 5)" },
+    { type: "rhythm", meter: "4/4", grid: 2, bars: 1, pick: "5+4+3+2 - 4+3+2 - 5 4+3+2 - -", chord: { root: "C", quality: "maj7" }, title: "Bar 4: Cmaj7" }
   ],
   concepts: ["bossa-nova"],
   vary: ["tempo"]
@@ -2748,16 +2850,16 @@ Real bossa tunes move constantly through ii–V's. The thumb's string-switching 
   mode: "play", category: "styles", tags: ["bossa-nova", "anticipation", "syncopation"],
   title: "Bossa 5: anticipating the next chord",
   level: 6, length: "medium", minutes: 4,
-  params: { root: ["A", "D"], quality: ["m7"] },
-  prompt: "Two-bar pattern on **{chord}**: bar 1 = basic (1, 2, & of 3); bar 2 = fingers on **2** and the **& of 4**, which anticipates the next bar (no finger pluck on the following 1 — just the thumb).",
+  params: { root: ["A"], quality: ["m7", "maj7", "7"] },
+  prompt: "Two-bar loop on **{chord}**, thumb on 1 and 3 throughout. Bar 2: fingers on **2** and the **& of 4**, which anticipates the next bar. Bar 1: fingers on **2** and the **& of 3** only — no finger pluck on beat 1, because the & of 4 already played it.",
   goal: "The push on the & of 4 sounds natural and the thumb never moves, 16 bars.",
-  tempo: { start: 70, min: 50, max: 140, step: 5, unit: "bpm" },
+  tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
   metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: false },
-  hints: ["In real tunes the & of 4 is usually the *next* chord arriving early.", "Let the anticipated chord ring over the bar line."],
+  hints: ["In real tunes the & of 4 is usually the *next* chord arriving early.", "Let the anticipated chord ring over the bar line.", "Check yourself: in a loop, bar 1's beat 1 has only the thumb, because the fingers already played on the & of 4."],
   explain: `### Anticipations in bossa
-Chord changes that arrive an 8th early are everywhere in Brazilian accompaniment — they make the harmony 'lean forward' over the steady thumb.`,
-  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - - | 5 - 4+3+2 - 6 - - 4+3+2", chord: { root: "$root", quality: "$quality" } },
-  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pick: "5+4+3+2 - 4+3+2 - 6 4+3+2 - - | 5 - 4+3+2 - 6 - - 4+3+2", chord: { root: "$root", quality: "$quality" } },
+Chord changes that arrive an 8th early are everywhere in Brazilian accompaniment — they make the harmony 'lean forward' over the steady thumb. (The demo stays on one chord, so you hear the rhythm; in a song the & of 4 would already be the next chord.)`,
+  visual: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pick: "5 - 4+3+2 - 6 4+3+2 - - | 5 - 4+3+2 - 6 - - 4+3+2", chord: { root: "$root", quality: "$quality" } },
+  demo: { type: "rhythm", meter: "4/4", grid: 2, bars: 2, pick: "5 - 4+3+2 - 6 4+3+2 - - | 5 - 4+3+2 - 6 - - 4+3+2", chord: { root: "$root", quality: "$quality" } },
   concepts: ["bossa-nova", "rhythmic-anticipation"],
   vary: ["tempo"]
 },
@@ -2767,61 +2869,23 @@ Chord changes that arrive an 8th early are everywhere in Brazilian accompaniment
   mode: "play", category: "styles", tags: ["samba", "brazilian", "thumb", "2-4"],
   title: "Samba 1: thumb with the surdo accent on 2",
   level: 3, length: "short", minutes: 2,
-  params: { root: ["A", "D", "E"], quality: ["7", "m7", "6"] },
-  prompt: "Samba is felt **in 2**. Thumb on **both beats** of a 2/4 bar (root, then fifth), with the **accent on beat 2** like the low surdo drum.",
+  params: { root: ["A"], quality: ["7", "m7", "6"] },
+  prompt: "Samba is felt **in 2**. Thumb on **both beats** of a 2/4 bar (root on string 5, then the fifth below on string 6), with the **accent on beat 2** like the low surdo drum.",
   goal: "A driving, steady 2-feel with a clear beat-2 accent, 16 bars.",
-  tempo: { start: 70, min: 50, max: 120, step: 5, unit: "bpm" },
+  tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
   metronome: { meter: "2/4", subdivision: 1, swing: 0, accent: true },
-  hints: ["The beat-2 accent is the surdo de primeira — the heartbeat of samba.", "Samba is usually much faster than bossa; start slow."],
+  hints: ["The beat-2 accent comes from the samba's big surdo drum.", "Samba is usually much faster and more percussive than bossa; start slow."],
   explain: `### The samba pulse
-In samba the big drum (surdo) plays a strong note on **beat 2** of each 2/4 bar. The guitarist's thumb imitates it, while the fingers play the tamborim/cavaquinho-like 16th syncopations.`,
+Samba is Brazil's best-known popular rhythm (Rio de Janeiro, from the early 20th century; carnival samba schools). It's felt in **2**, and the big surdo drum gives **beat 2** the strongest note of each 2/4 bar. Bossa nova inherited this emphasis. The guitarist's thumb imitates the surdo, while the fingers add syncopations above it.
+
+### Check yourself
+- Beat 2 is clearly louder than beat 1, every bar.
+- Say "one-TWO, one-TWO" with the clicks; the loud syllable is your thumb on string 6.`,
   visual: { type: "rhythm", meter: "2/4", grid: 4, bars: 1, pick: "5 - - - 6 - - -", fingers: "p - - - p - - -", accents: [4], chord: { root: "$root", quality: "$quality" } },
   demo: { type: "rhythm", meter: "2/4", grid: 4, bars: 1, pick: "5 - - - 6 - - -", fingers: "p - - - p - - -", accents: [4], chord: { root: "$root", quality: "$quality" } },
   concepts: ["bossa-nova", "thumb-independence"],
-  vary: ["tempo"]
-},
-
-{
-  id: "rhy-samba-basic",
-  mode: "play", category: "styles", tags: ["samba", "brazilian", "sixteenths", "fingerstyle"],
-  title: "Samba 2: basic batida",
-  level: 4, length: "medium", minutes: 3,
-  params: { root: ["A", "D", "E"], quality: ["7", "m7", "6"] },
-  prompt: "2/4 in 16ths. Thumb on 1 and 2 (accent 2). Fingers pluck the chord on **1, &, a** of beat 1 and the **&** of beat 2.",
-  goal: "Lively 16th groove for 16 bars without the thumb dragging.",
-  tempo: { start: 60, min: 44, max: 110, step: 4, unit: "bpm" },
-  metronome: { meter: "2/4", subdivision: 1, swing: 0, accent: true },
-  hints: ["Say '1 e & a 2 e & a' and clap the finger rhythm first.", "This is one common teaching pattern — real samba guitar varies constantly."],
-  explain: `### Samba batida
-A basic 2/4 samba guitar pattern: thumb surdo on the beats, fingers on 16th syncopations. Faster and more percussive than bossa, but built from the same thumb/fingers split.`,
-  visual: { type: "rhythm", meter: "2/4", grid: 4, bars: 1, pick: "5+4+3+2 - 4+3+2 4+3+2 6 - 4+3+2 -", accents: [4], chord: { root: "$root", quality: "$quality" } },
-  demo: { type: "rhythm", meter: "2/4", grid: 4, bars: 1, pick: "5+4+3+2 - 4+3+2 4+3+2 6 - 4+3+2 -", accents: [4], chord: { root: "$root", quality: "$quality" } },
-  concepts: ["bossa-nova", "thumb-independence"],
-  vary: ["tempo", "root"]
-},
-
-{
-  id: "rhy-partido-alto",
-  mode: "play", category: "styles", tags: ["samba", "partido-alto", "brazilian", "sixteenths", "syncopation"],
-  title: "Samba 3: partido alto",
-  level: 5, length: "medium", minutes: 4,
-  params: { root: ["A", "D", "E"], quality: ["7", "m7", "9"] },
-  prompt: "Two 2/4 bars of 16ths. Thumb on every beat. Fingers play the **partido alto** figure: bar 1 → **e, a, &** of 2; bar 2 → **1, a, &** of 2.",
-  goal: "The two-bar figure grooves over a steady thumb for 16 bars.",
-  tempo: { start: 56, min: 40, max: 100, step: 4, unit: "bpm" },
-  metronome: { meter: "2/4", subdivision: 1, swing: 0, accent: true },
-  hints: [
-    "Clap the figure while tapping the beat with your foot before playing it.",
-    "The 'e' of beat 1 at the start is the signature 'high tone' of partido alto.",
-    "It can start on either bar — the melody of the song decides."
-  ],
-  explain: `### Partido alto
-A two-bar samba rhythm, felt in 16ths and usually a bit slower than standard samba, made famous on guitar by players like João Bosco. Notation varies between sources (there are a couple of common interpretations); this is one widely used version.`,
-  visual: { type: "rhythm", meter: "2/4", grid: 4, bars: 2, pick: "5 4+3+2 - 4+3+2 6 - 4+3+2 - | 5+4+3+2 - - 4+3+2 6 - 4+3+2 -", chord: { root: "$root", quality: "$quality" } },
-  demo: { type: "rhythm", meter: "2/4", grid: 4, bars: 2, pick: "5 4+3+2 - 4+3+2 6 - 4+3+2 - | 5+4+3+2 - - 4+3+2 6 - 4+3+2 -", chord: { root: "$root", quality: "$quality" } },
-  concepts: ["partido-alto", "bossa-nova", "syncopation"],
-  vary: ["tempo", "root"],
-  source: "Premier Guitar, 'Rhythm Rules: Brazilian Guitar 101'; jazzguitar.be forum (Chico Pinheiro Brazilian rhythms thread)"
+  vary: ["tempo", "quality"],
+  source: "Wikipedia, 'Bossa nova' (samba's emphasis on the second beat; surdo)"
 },
 
 // ── Flamenco ────────────────────────────────────────────────────────────────

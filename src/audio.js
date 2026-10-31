@@ -1,3 +1,5 @@
+import { swingFrac, slotOffsets } from './rhythm.js';
+export { swingFrac };
 // Web Audio engine: Karplus-Strong guitar, soft keys, metronome, drone, event player.
 let ctx = null;
 let master = null;
@@ -173,17 +175,19 @@ export function startMetronome(opts) {
       const beat = Math.floor(inBar / sub);
       const k = inBar % sub;
       const gap = m.gap ? (bar % (m.gap.play + m.gap.mute)) >= m.gap.play : false;
-      let level = k === 0 ? (beat === 0 && m.accent !== false ? 2 : 1) : 0;
+      let level = k === 0 ? (m.accentBeats ? (m.accentBeats.includes(beat) ? 2 : 1) : (beat === 0 && m.accent !== false ? 2 : 1)) : 0;
       let play = !gap;
       if (m.clickOn === '2&4') play = play && k === 0 && beat % 2 === 1;
       if (m.clickOn === '1') play = play && k === 0 && beat === 0;
       if (m.clickOn === '2&4') level = 1;
+      // a swung metronome with subdivision 1 still lets you hear the swing: a soft click on the triplet 'let'
+      if (play && sub === 1 && m.swing >= 0.5 && m.swingHint !== false) click(m.next + (60 / m.bpm) * swingFrac(m.swing), 0);
       if (play) click(m.next, level);
       const tt = m.next;
       if (k === 0) m.listeners.forEach((fn) => setTimeout(() => fn({ bar, beat, gap }), Math.max(0, (tt - c.currentTime) * 1000)));
       // swing applies to 8th subdivisions: long-short
       let dur = spb / sub;
-      if (sub === 2 && m.swing) { const f = swingFrac(m.swing); dur = k === 0 ? spb * f : spb * (1 - f); }
+      if (m.swing && (sub === 2 || sub === 4)) { const offs = slotOffsets(sub, m.swing); dur = spb * ((offs[k + 1] ?? 1) - offs[k]); }
       m.next += dur;
       m.slot++;
     }
@@ -193,8 +197,6 @@ export function startMetronome(opts) {
   metro = m;
   return m;
 }
-// swing 0 = straight, 0.67 = triplet swing (first 8th = 2/3 of the beat)
-export const swingFrac = (s) => 0.5 + Math.min(0.67, s || 0) * 0.25;
 export function setMetronomeBpm(bpm) { if (metro) metro.bpm = bpm; }
 export function stopMetronome() { if (metro) { clearInterval(metro.timer); metro = null; } }
 export const metronomeOn = () => !!metro;
@@ -203,7 +205,7 @@ export function meter(mtr = '4/4') { const [n, d] = String(mtr).split('/').map(N
 // ---------- event player ----------
 // events: [{beat, dur, notes:[midi], kind:'note'|'strum'|'mute'|'chuck'|'keys'|'click', dir, vel, onStart}]
 let player = null;
-export function playEvents(events, { bpm = 80, loops = 1, countIn = 0, sound = 'guitar', onEvent, onDone, clickTrack = false, beatsPerBar = 4 } = {}) {
+export function playEvents(events, { bpm = 80, loops = 1, countIn = 0, sound = 'guitar', onEvent, onDone, onCount, clickTrack = false, beatsPerBar = 4, clickAccents = [0], silentPasses = null } = {}) {
   stopPlayer();
   const c = audioCtx();
   const spb = 60 / bpm;
@@ -211,23 +213,29 @@ export function playEvents(events, { bpm = 80, loops = 1, countIn = 0, sound = '
   const length = Math.ceil(total);
   const timers = [];
   let t0 = c.currentTime + 0.12;
-  for (let i = 0; i < countIn; i++) click(t0 + i * spb, i === 0 ? 2 : 1);
+  for (let i = 0; i < countIn; i++) {
+    click(t0 + i * spb, i === 0 ? 2 : 1);
+    if (onCount) { const n = i; timers.push(setTimeout(() => onCount(n + 1, countIn), Math.max(0, (t0 + i * spb - c.currentTime) * 1000))); }
+  }
   t0 += countIn * spb;
+  const accSet = new Set(clickAccents);
   const p = { timers, stopped: false };
   const schedulePass = (pass, start) => {
-    for (const e of events) {
+    const silent = silentPasses && silentPasses(pass);
+    for (const e0 of events) {
+      const e = silent ? { ...e0, kind: 'rest', silent: true } : e0;
       const t = start + e.beat * spb;
       const dur = (e.dur || 1) * spb;
       const snd = e.sound || sound;
       if (e.kind === 'strum') strum(e.notes, t, { dir: e.dir || 'D', vel: e.vel ?? 0.8, dur: e.hold ? dur : null, sound: snd });
       else if (e.kind === 'mute') strum(e.notes.length ? e.notes : [52, 57, 62, 67], t, { dir: e.dir || 'D', vel: 0.6, muted: true, spread: 0.006 });
-      else if (e.kind === 'chuck') { noiseHit(t, { dur: 0.06, freq: 1800, vel: 0.7 }); }
+      else if (e.kind === 'chuck') { noiseHit(t, { dur: 0.06, freq: 1800, vel: (e.vel ?? 0.7) * 0.9 }); pluck(45, t, { vel: 0.25, muted: true }); }
       else if (e.kind === 'click') click(t, e.level ?? 1);
       else if (e.kind === 'rest') { /* visual only */ }
       else for (const m of e.notes || []) snd === 'keys' ? keys(m, t, dur * 0.95, e.vel ?? 0.6) : pluck(m, t, { vel: e.vel ?? 0.8, dur: e.legato ? null : Math.max(dur * 1.6, 0.25) });
       if (onEvent) timers.push(setTimeout(() => !p.stopped && onEvent(e, pass), Math.max(0, (t - c.currentTime) * 1000)));
     }
-    if (clickTrack) for (let b = 0; b < length; b++) click(start + b * spb, b % beatsPerBar === 0 ? 2 : 1);
+    if (clickTrack || silent) for (let b = 0; b < length; b++) click(start + b * spb, accSet.has(b % beatsPerBar) ? 2 : 1);
   };
   for (let pass = 0; pass < loops; pass++) {
     const start = t0 + pass * length * spb;

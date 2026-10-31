@@ -213,3 +213,39 @@ function romanMajorRel(tonic, c) {
   if (c.ivs[1] === '3' && c.ivs[2] === '#5') r += '+';
   return acc + r;
 }
+
+// ---------- where a mode comes from, and its one-note neighbours ----------
+const NEIGHBOUR_POOL = ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian',
+  'melodic-minor', 'dorian-b2', 'lydian-augmented', 'lydian-dominant', 'mixolydian-b6', 'locrian-nat2', 'altered',
+  'harmonic-minor', 'locrian-nat6', 'ionian-sharp5', 'dorian-sharp4', 'phrygian-dominant', 'lydian-sharp2', 'altered-dim', 'harmonic-major'];
+const ORD = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
+export function modeOrigin(root, scaleId) {
+  const s = T.getScale(scaleId);
+  const out = {};
+  const p = T.parentOf(root, scaleId);
+  if (p && s.family) {
+    const parent = T.getScale(p.scaleId);
+    out.parent = p.degree === 1
+      ? `${T.noteName(root, true)} ${s.name} is the parent scale itself (mode 1 of its family).`
+      : `${T.noteName(root, true)} ${s.name} = the ${ORD[p.degree - 1]} mode of **${T.noteName(p.root, true)} ${parent.name.toLowerCase()}** — same notes, starting on its ${ORD[p.degree - 1]} degree.`;
+  }
+  // scales with the same root that differ by exactly one note moved a half step
+  if (s.ivs.length === 7) {
+    const semis = s.ivs.map(T.intervalSemis);
+    const near = [];
+    for (const id of NEIGHBOUR_POOL) {
+      if (id === scaleId || T.getScale(id).alias) continue;
+      const o = T.getScale(id);
+      if (o.ivs.length !== 7) continue;
+      const os = o.ivs.map(T.intervalSemis);
+      const diff = [];
+      for (let i = 0; i < 7; i++) if (semis[i] !== os[i]) diff.push(i);
+      if (diff.length === 1 && Math.abs(semis[diff[0]] - os[diff[0]]) === 1) {
+        const i = diff[0];
+        near.push({ id, name: o.name, from: (s.labels || s.ivs)[i], to: (o.labels || o.ivs)[i], up: os[i] > semis[i] });
+      }
+    }
+    out.neighbours = near;
+  }
+  return out;
+}

@@ -19,9 +19,9 @@ Keep the **same tonic**, but borrow chords from a **parallel mode** (same root, 
 Play the major-key chord on each degree first, then the borrowed version. The table in Help shows, for every degree, **which notes changed** and **what job the chord does**. The roman numerals are always measured against the *major* scale, so a borrowed chord carries its accidentals: ♭III, iv, ♭VI, ♭VII.
 
 ### The usual suspects
-- **iv** (from Aeolian/Dorian… minor): IV → iv → I, the ♭6 sighing down to 5.
+- **iv** (from Aeolian, Phrygian or harmonic minor; Dorian's IV stays major): IV → iv → I, the ♭6 sighing down to 5.
 - **♭VI** and **♭VII** (Aeolian): ♭VI–♭VII–I, and V → ♭VI as a deceptive cadence.
-- **♭VII7** (backdoor dominant), **iiø7** (darker predominant), **♭II** (Phrygian/Neapolitan), **II7** (Lydian lift).`;
+- **♭VII7** (backdoor dominant, Aeolian), **iiø7** (darker predominant, Aeolian/Phrygian), **♭II** (Phrygian; the Neapolitan), **II7** (Lydian lift).`;
 
 export const templates = [
   {
@@ -34,7 +34,7 @@ export const templates = [
     tempo: { start: 60, min: 40, max: 120, step: 5 }, metronome: { meter: '4/4' },
     hints: ['Find the I chord first — same root as {key}, but in {p:mode} its quality may change.', 'Only the notes the mode changes move: everything else is the same fingering as the major-key chord scale.', 'Open Help for the table of functions and changed notes.'],
     explain: EXPLAIN,
-    visual: { type: 'chordScale', root: '$key', scale: '$mode', size: 4, voicing: 'drop2', stringSet: '$stringSet', inversion: 0 },
+    visual: { type: 'chordScale', root: '$key', scale: '$mode', size: 4, voicing: 'drop2', stringSet: '$stringSet', inversion: 0, title: 'Step 1: the parallel-mode chord scale (numerals relative to the major key). Step 2, the pairs with the major-key chords, is yours.' },
     vary: ['mode', 'key', 'stringSet'], concepts: ['modal-interchange', 'parallel-vs-derived-modes', 'mode-brightness', 'diatonic-harmony'],
   },
   {
@@ -57,24 +57,24 @@ export const templates = [
     params: {
       key: 'major',
       chart: [
-        { v: '| I:maj7 | IV:maj7 | iv:m6 | I:maj7 |', label: 'IV → iv → I (minor plagal, from Aeolian)' },
-        { v: '| I:maj | bVI:maj | bVII:maj | I:maj |', label: '♭VI → ♭VII → I (Aeolian)' },
-        { v: '| ii:m7 | V:7 | bVI:maj7 | % |', label: 'V → ♭VI deceptive (Aeolian)' },
-        { v: '| I:maj7 | iv:m7 | bVII:7 | I:maj7 |', label: 'iv → ♭VII7 → I backdoor (Aeolian/Dorian)', lvl: 1 },
-        { v: '| ii:m7b5 | V:7 | I:maj7 | % |', label: 'iiø7 in a major ii–V (Aeolian)', lvl: 1 },
-        { v: '| I:maj7 | II:7 | IV:maj7 | I:maj7 |', label: 'II7 lift (Lydian)', lvl: 1 },
-        { v: '| I:maj | bVII:maj | IV:maj | I:maj |', label: 'I → ♭VII → IV (Mixolydian)' },
-        { v: '| I:maj | v:min | IV:maj | I:maj |', label: 'minor v (Mixolydian)', lvl: 1 },
-        { v: '| I:maj7 | bII:maj7 | I:maj7 | % |', label: '♭IImaj7 (Phrygian)', lvl: 2 },
-        { v: '| I:maj7 | bIII:maj7 | bVI:maj7 | bII:maj7 |', label: 'chromatic-mediant borrowing (Aeolian/Phrygian)', lvl: 2 },
+        { v: '| I:maj7 | IV:maj7 | IV:maj7 | I:maj7 | I:maj7 | IV:maj7 | iv:m6 | I:maj7 |', label: 'IV → iv → I (minor plagal, from Aeolian)' },
+        { v: '| I:maj | vi:min | vii:dim | I:maj | I:maj | bVI:maj | bVII:maj | I:maj |', label: '♭VI → ♭VII → I (Aeolian)' },
+        { v: '| ii:m7 | V:7 | vi:m7 | % | ii:m7 | V:7 | bVI:maj7 | % |', label: 'V → ♭VI deceptive (Aeolian)' },
+        { v: '| I:maj7 | IV:maj7 | vii:m7b5 | I:maj7 | I:maj7 | iv:m7 | bVII:7 | I:maj7 |', label: 'iv → ♭VII7 → I backdoor (Aeolian)', lvl: 1 },
+        { v: '| ii:m7 | V:7 | I:maj7 | % | ii:m7b5 | V:7 | I:maj7 | % |', label: 'iiø7 in a major ii–V (Aeolian)', lvl: 1 },
+        { v: '| I:maj7 | ii:m7 | IV:maj7 | I:maj7 | I:maj7 | II:7 | IV:maj7 | I:maj7 |', label: 'II7 lift (Lydian)', lvl: 1 },
+        { v: '| I:maj | vii:dim | IV:maj | I:maj | I:maj | bVII:maj | IV:maj | I:maj |', label: 'I → ♭VII → IV (Mixolydian)' },
+        { v: '| I:maj | V:maj | IV:maj | I:maj | I:maj | v:min | IV:maj | I:maj |', label: 'minor v (Mixolydian)', lvl: 1 },
+        { v: '| I:maj7 | ii:m7 | I:maj7 | % | I:maj7 | bII:maj7 | I:maj7 | % |', label: '♭IImaj7 (Phrygian)', lvl: 2 },
+        { v: '| I:maj7 | iii:m7 | vi:m7 | ii:m7 | I:maj7 | bIII:maj7 | bVI:maj7 | bII:maj7 |', label: 'chromatic-mediant borrowing (Aeolian/Phrygian)', lvl: 2 },
       ],
     },
-    prompt: 'In **{key}**, comp this progression with a metronome: **{p:chart}**. Play it first with the plain diatonic chord in place of the borrowed one, then with the borrowed chord, and listen for the note that changes.',
+    prompt: 'In **{key}**, comp this progression with a metronome: **{p:chart}**. Play it first with the plain diatonic chord in place of the borrowed one, then with the borrowed chord, and listen for the note that changes. (The demo plays exactly that: 4 bars with the diatonic chord on the same root letter, then 4 bars with the borrowed chord.)',
     goal: 'Hear and name the borrowed chord’s colour note.',
     tempo: { start: 72, min: 50, max: 140, step: 6 }, metronome: { meter: '4/4' },
     hints: ['Find the chord the borrowed one replaces (same root letter, diatonic quality) and compare the two grips.', 'Usually only one or two notes move by a half step.'],
     explain: EXPLAIN,
-    visual: { type: 'progression', key: '$key', chart: '$chart', voiceLead: true },
+    visual: { type: 'progression', key: '$key', chart: '$chart', voiceLead: true, title: 'Bars 1–4: diatonic chord · bars 5–8: borrowed chord' },
     vary: ['chart', 'key', 'tempo'], concepts: ['modal-interchange'],
   },
   {
@@ -101,7 +101,7 @@ export const templates = [
     id: 'mi-thy-source', mode: 'theory', category: 'theory', tags: ['modal-interchange', 'harmony', 'borrowed-chords'],
     title: 'Where is this chord borrowed from?', level: 4, length: 'short',
     prompt: 'Name the most common parallel mode each borrowed chord comes from, then reveal.',
-    quiz: { kind: 'reveal', question: 'In a major key, which parallel mode supplies: **iv**, **♭VI**, **♭VII**, **♭II**, **II (major)**, **v (minor)**, **iiø7**, **♭III**?', answer: '- **iv, ♭VI, ♭VII, ♭III, iiø7** → Aeolian (natural minor) — iv and ♭VII are also in Dorian.\n- **♭II** → Phrygian (also the Neapolitan).\n- **II (major)** → Lydian (the ♯4 is its 3rd).\n- **v (minor)** and **♭VII** → Mixolydian (♭7).\n- Harmonic minor adds **V7** with a leading tone and **vii°7**; melodic minor gives **IV7** and **i(maj7)**.' },
+    quiz: { kind: 'reveal', question: 'In a major key, which parallel mode supplies: **iv**, **♭VI**, **♭VII**, **♭II**, **II (major)**, **v (minor)**, **iiø7**, **♭III**?', answer: '- **iv, ♭VI, ♭VII, ♭III, iiø7** → Aeolian (natural minor). ♭III and ♭VII are also in Dorian (whose IV is major, not minor); iv, ♭III and ♭VI are also in Phrygian.\n- **♭II** → Phrygian (also the Neapolitan).\n- **II (major)** → Lydian (the ♯4 is its 3rd).\n- **v (minor)** and **♭VII** → Mixolydian (♭7).\n- Harmonic minor supplies **vii°7** (and iv, ♭VI next to the ordinary V7); melodic minor gives **IV7** and **i(maj7)**.' },
     explain: EXPLAIN, concepts: ['modal-interchange'],
   },
 ];

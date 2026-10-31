@@ -399,3 +399,16 @@ that exist (any domain's `concepts`) — list new ones you need in your own `con
 The app ALSO generates a generic substitution menu for any chord by function (tritone sub, relative ii,
 backdoor, modal interchange, diatonic substitutes, secondary dominants, passing diminished), so curated
 `subs` should focus on the musically interesting, piece-specific choices.
+
+## 12. Rhythm notation additions (v2)
+Rhythm specs (§4.5) also accept:
+- `count: "compound"` — x/8 meters with `grid: 1` are counted in dotted quarters: *1 & a 2 & a …* (slow 12/8 blues, 6/8).
+- `count: "compas"` / `startCount: 12` — flamenco-style cycle counting. `startCount: 12` makes slot 0 read "12" (bulerías). `cycle` (default 12) sets the wrap.
+  12-beat one-slot-per-beat patterns automatically get a **compás clock** diagram (accents as big circles).
+- `clickAccents: [beat indices]` — which beats the demo's click accents (default: beat 1; for `grid: 1` patterns, the accented slots).
+- `title` — caption for that part when a demo is an array of specs.
+Metronome (§5) also accepts `accentBeats: [0-based beats]` (e.g. soleá `[2,5,7,9,11]`), and swung metronomes with
+`subdivision: 1` add a soft click on the swung off-beat (disable with `swingHint: false`).
+The app generates a slot-by-slot "How to play this" guide, hand-motion arrows (when every stroke follows
+down-on-even / up-on-odd slots), a count-in, and a "Your turn" call-and-response mode for every rhythm demo —
+so explanations in content should focus on **what the style is, where it's heard, the feel, and common mistakes**.

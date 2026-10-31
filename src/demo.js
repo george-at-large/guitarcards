@@ -2,7 +2,9 @@
 import * as T from './theory.js';
 import * as F from './fretboard.js';
 import { fretboardSVG, dotsFrom, windowFor, rhythmHTML, rhythmSlots, md, esc } from './render.js';
-import { swingFrac } from './audio.js';
+import { slotBeat as rSlotBeat, isCompas } from './rhythm.js';
+import { transposeExample, gripPlacement, chordScaleFrom, cycleFrom, keyShift } from './tg.js';
+import { transposeSymbol } from './tgchords.js';
 
 export function asRoot(x) {
   if (!x) return T.parseNote('C');
@@ -98,7 +100,7 @@ function combine(list) {
     frameBase += c.frames.length;
   }
   const lo = Math.min(...frames.map((f) => f.lo)), hi = Math.max(...frames.map((f) => f.hi));
-  return { html: list.map((c) => (c.title ? `<h4>${esc(c.title)}</h4>` : '') + c.html).join(''), frames, events, length: beat, lo, hi, rhythm: list.find((c) => c.rhythm)?.rhythm, perFrame: list.some((c) => c.perFrame) || hi - lo > 11 };
+  return { html: list.map((c) => (c.title ? `<h4>${esc(c.title)}</h4>` : '') + c.html).join(''), frames, events, length: beat, lo, hi, rhythm: list.find((c) => c.rhythm)?.rhythm, beatsPerBar: list.find((c) => c.beatsPerBar)?.beatsPerBar, clickAccents: list.find((c) => c.clickAccents)?.clickAccents, perFrame: list.some((c) => c.perFrame) || hi - lo > 11 };
 }
 
 function scaleLike(spec) {
@@ -117,9 +119,10 @@ function scaleLike(spec) {
   else path = F.orderPath(demoNotes, spec.path || 'up-and-down', spec.fromRoot);
   const bpn = spec.beatsPerNote ?? (spec.sequence ? 0.5 : 1);
   const w = windowFor(notes);
-  const frame = { dots: dotsFrom(notes, labels), lo: w.lo, hi: Math.min(w.hi, 17), caption: '' };
-  const events = path.map((n, i) => ({ beat: i * bpn, dur: bpn, kind: 'note', notes: [n.midi], frame: 0, hl: [key(n)], label: lblOf(n, labels) }));
-  const name = spec.quality ? T.chordSymbol(root, spec.quality) + ' arpeggio' : spec.tones ? 'Arpeggio' : `${T.noteName(root, true)} ${T.getScale(s.scale).name}`;
+  const name = spec.quality ? T.chordSymbol(root, spec.quality) + ' arpeggio' : spec.tones ? `Arpeggio (${spec.tones.map(T.prettyIv).join(' ')})` : `${T.noteName(root, true)} ${T.getScale(s.scale).name}`;
+  // caption = what is being played; the big readout under the neck shows each note's interval
+  const frame = { dots: dotsFrom(notes, labels), lo: w.lo, hi: Math.min(w.hi, 17), caption: spec.title || (name + regionCaption(spec.region)) };
+  const events = path.map((n, i) => ({ beat: i * bpn, dur: bpn, kind: 'note', notes: [n.midi], frame: 0, hl: [key(n)], iv: lblOf(n, labels) }));
   return {
     html: fretboardSVG({ ...frame, caption: name + regionCaption(spec.region) }),
     frames: [frame], events, length: path.length * bpn, lo: frame.lo, hi: frame.hi, title: '', name,
@@ -225,18 +228,13 @@ const COMPILERS = {
     if (grip) for (const n of grip.notes) byString[n.string] = n.midi;
     const stringMidi = (s) => byString[s] ?? F.OPEN[s];
     const events = [];
-    const sw = spec.swing ? swingFrac(spec.swing) : 0.5;
-    const slotBeat = (i) => {
-      const b = Math.floor(i / grid), k = i % grid;
-      if (spec.swing && grid === 2) return b + (k === 0 ? 0 : sw);
-      if (spec.swing && grid === 4) return b + [0, sw / 2, 0.5, 0.5 + sw / 2][k];
-      return b + k / grid;
-    };
+    const slotBeat = (i) => rSlotBeat(i, grid, spec.swing);
     const accents = new Set(spec.accents || []);
     slots.forEach((tok, i) => {
       const beat = slotBeat(i);
-      const dur = 1 / grid;
-      const vel = accents.has(i) ? 1 : 0.7;
+      const dur = slotBeat(i + 1) - beat;
+      // clear dynamics: accents loud, normal strokes medium, ghosts quiet
+      const vel = accents.has(i) ? 1 : (accents.size ? 0.55 : 0.75);
       const base = { beat, dur, slot: i, frame: 0, hl: [] };
       if (isPick) {
         if (tok === '-' || tok === '.') { events.push({ ...base, kind: 'rest' }); return; }
@@ -246,15 +244,17 @@ const COMPILERS = {
       }
       if (tok === 'D') events.push({ ...base, kind: 'strum', dir: 'D', notes: gripMidis, vel, hl: grip ? grip.notes.map(key) : [] });
       else if (tok === 'U') events.push({ ...base, kind: 'strum', dir: 'U', notes: gripMidis.slice(-4), vel: vel * 0.85, hl: grip ? grip.notes.map(key) : [] });
-      else if (tok === 'd' || tok === 'u') events.push({ ...base, kind: 'mute', dir: tok.toUpperCase(), notes: gripMidis, vel: 0.5 });
-      else if (tok === 'X') events.push({ ...base, kind: 'chuck' });
+      else if (tok === 'd' || tok === 'u') events.push({ ...base, kind: 'mute', dir: tok.toUpperCase(), notes: gripMidis, vel: accents.has(i) ? 0.8 : 0.4 });
+      else if (tok === 'X') events.push({ ...base, kind: 'chuck', vel });
       else if (tok === 'T') events.push({ ...base, kind: 'note', notes: [gripMidis[0]], vel });
       else if (tok === 'R') { for (let k = 0; k < 4; k++) events.push({ ...base, beat: beat + k * (dur / 4), dur: dur / 4, kind: 'strum', dir: 'D', notes: gripMidis, vel: 0.55 + k * 0.1, spread: 0.006 }); }
       else events.push({ ...base, kind: 'rest' });
     });
     const frame = grip ? (() => { const w = windowFor(grip.notes, 1); return { dots: dotsFrom(grip.notes), lo: w.lo, hi: w.hi, caption: 'Hold: ' + T.chordSymbol(asRoot(spec.chord.root ?? spec.chord.key), spec.chord.quality || 'maj') }; })() : { dots: [], lo: 0, hi: 5, caption: isPick ? 'Open strings' : 'Muted strings' };
     const html = rhythmHTML(spec) + (grip ? fretboardSVG({ ...frame, compact: true, caption: esc(frame.caption) }) : '');
-    return { html, frames: [frame], events, length: Math.ceil(slots.length / grid / beats) * beats, lo: frame.lo, hi: frame.hi, rhythm: spec };
+    // click track: beat 1 of the bar, plus the accented beats of a compás / one-slot-per-beat pattern
+    const clickAccents = grid === 1 ? [...accents] : [0];
+    return { html, frames: [frame], events, length: Math.ceil(slots.length / grid / beats) * beats, lo: frame.lo, hi: frame.hi, rhythm: spec, beatsPerBar: beats, clickAccents: spec.clickAccents || clickAccents, compas: isCompas(spec) };
   },
 
   fretboard(spec) {
@@ -275,8 +275,30 @@ const COMPILERS = {
 
   chordMelody(spec) { return chordMelodyCompile(spec); },
 
+  // exact book grips (Ted Greene), transposed from `from` to `key`; optional generation by his rules
+  grips(spec) {
+    const from = spec.from || spec.key || 'C';
+    const to = spec.key || from;
+    let chords = spec.chords || [];
+    if (spec.generate === 'chordScale' && chords[0]) chords = chordScaleFrom(chords[0], from, spec.dir || 1, spec.steps || 7);
+    if (spec.generate === 'cycle' && chords[1]) chords = cycleFrom(chords[0], chords[1], from, spec.dir || -1, spec.length || 8);
+    const sh = keyShift(from, to);
+    const tx = transposeExample(chords, from, to).map((c, i) => ({ ...c, means: chords[i].means && sh ? safeT(chords[i].means, sh) : chords[i].means }));
+    // the neck view stops at fret 17: grips above it drop an octave
+    tx.forEach((c) => { const v = c.frets.filter((x) => x != null); if (Math.max(...v) > 17 && Math.min(...v) >= 12) c.frets = c.frets.map((x) => (x == null ? null : x - 12)); });
+    const pls = tx.map((c) => gripPlacement(c.means || c.name, c.frets));
+    const romans = spec.romans || chords.map((c) => c.roman || '');
+    const caps = tx.map((c, i) => `${T.pretty(c.name)}${c.means && c.means !== c.name ? ` (= ${T.pretty(c.means)})` : ''}${romans[i] ? ` · ${T.prettyRoman ? T.prettyRoman(romans[i]) : romans[i]}` : ''}`);
+    const out = voicingEvents(pls, caps, { beatsPerChord: spec.beatsPerChord ?? 2, labels: spec.labels, arpeggiate: spec.arpeggiate ?? false });
+    out.chords = tx;
+    out.name = spec.title || '';
+    return out;
+  },
+
   text(spec) { return { html: `<div class="md">${md(spec.body)}</div>`, frames: [], events: [], length: 0, lo: 0, hi: 12 }; },
 };
+
+const safeT = (n, s) => { try { return transposeSymbol(n, s); } catch (e) { return n; } };
 
 // ---------- progressions ----------
 export function chartChords(spec) {

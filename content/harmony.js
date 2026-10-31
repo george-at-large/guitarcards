@@ -18,9 +18,9 @@ export const templates = [
     title: "Diatonic triads of {key} inside the {p:caged} shape",
     level: 1, length: "short", minutes: 1,
     params: { key: "major", caged: ["E", "A", "C", "G", "D"] },
-    prompt: "Play the seven diatonic triads of **{key}** in order (I ii iii IV V vi vii° I), one per bar, **without leaving the {p:caged}-shape area** of the neck. Then come back down.",
+    prompt: "Play the seven diatonic triads of **{key}** in order (I ii iii IV V vi vii° I), one per bar, **without leaving the {p:caged}-shape area** of the neck. Then come back down.\n\n*Watch it* shows the idea in one hand position around frets 3–8 (whichever CAGED shape sits there in {key}); your job is the same series inside the {p:caged} shape.",
     goal: "Every chord found inside a 5-fret window; changes land on beat 1.",
-    tempo: { start: 60, min: 40, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Pattern of qualities in any major key: maj, min, min, maj, maj, min, dim.",
@@ -29,7 +29,7 @@ export const templates = [
     ],
     explain: "### Why stay in one position?\nThe whole key lives inside every CAGED window. If you can find all seven chords *without moving your hand*, you see the key as one shape instead of seven separate grips. That is the skill behind comping and chord melody: the next chord is almost always within a fret or two.\n\n### The formula\nStack thirds on each degree of the major scale and you get **I ii iii IV V vi vii°**. Uppercase = major, lowercase = minor, ° = diminished. That quality pattern is identical in all 12 keys, so the only thing that changes is *where* the window sits.",
     visual: { type: "progression", key: "$key", chart: "| I:maj | ii:min | iii:min | IV:maj | V:maj | vi:min | vii:dim | I:maj |" },
-    demo: { type: "progression", key: "$key", chart: "| I:maj | ii:min | iii:min | IV:maj | V:maj | vi:min | vii:dim | I:maj |" },
+    demo: { type: "progression", key: "$key", chart: "| I:maj | ii:min | iii:min | IV:maj | V:maj | vi:min | vii:dim | I:maj |", voiceLead: false },
     concepts: ["diatonic-harmony", "roman-numerals"],
     vary: ["key", "caged", "tempo"],
   },
@@ -39,9 +39,9 @@ export const templates = [
     title: "Diatonic 7th chords of {key} in the {p:caged} position",
     level: 2, length: "short", minutes: 2,
     params: { key: "major", caged: ["E", "A", "C", "G", "D"] },
-    prompt: "Play **Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7 Imaj7** in **{key}**, one chord per bar, all inside the **{p:caged}** position. Say each chord name out loud as you play it.",
+    prompt: "Play **Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7 Imaj7** in **{key}**, one chord per bar, all inside the **{p:caged}** position. Say each chord name out loud as you play it.\n\n*Watch it* plays the series in one hand position around frets 3–8 (whichever CAGED shape sits there in {key}); do the same inside the {p:caged} position.",
     goal: "No hesitation between chords; each chord named correctly.",
-    tempo: { start: 60, min: 40, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Qualities: maj7, m7, m7, maj7, 7, m7, m7b5.",
@@ -50,7 +50,7 @@ export const templates = [
     ],
     explain: "### Diatonic sevenths\nAdd another third on top of each triad and you get the jazz palette: **Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7**. Learning them as a *series in one position* means you can read any diatonic chart without searching.\n\n### Think in functions\n- **Tonic:** I, iii, vi (stable)\n- **Subdominant:** ii, IV (moving away)\n- **Dominant:** V, vii (tension that wants I)\n\nAlmost every progression in this deck is a path through those three families.",
     visual: { type: "progression", key: "$key", chart: "| I:maj7 | ii:m7 | iii:m7 | IV:maj7 | V:7 | vi:m7 | vii:m7b5 | I:maj7 |" },
-    demo: { type: "progression", key: "$key", chart: "| I:maj7 | ii:m7 | iii:m7 | IV:maj7 | V:7 | vi:m7 | vii:m7b5 | I:maj7 |" },
+    demo: { type: "progression", key: "$key", chart: "| I:maj7 | ii:m7 | iii:m7 | IV:maj7 | V:7 | vi:m7 | vii:m7b5 | I:maj7 |", voiceLead: false },
     concepts: ["diatonic-harmony", "roman-numerals"],
     vary: ["key", "caged", "tempo"],
   },
@@ -60,9 +60,9 @@ export const templates = [
     title: "I–IV–V–I in {key}, starting from the {p:caged} shape",
     level: 1, length: "short", minutes: 2,
     params: { key: "major", caged: ["C", "A", "G", "E", "D"] },
-    prompt: "Play **| I | IV | V | I |** in **{key}** with the I chord as a **{p:caged}** shape. Find IV and V *in the same area*. Then move the I chord to the next CAGED shape up the neck and repeat, until you've done all five.",
+    prompt: "Play **| I | IV | V | I |** in **{key}** with the I chord as a **{p:caged}** shape. Find IV and V *in the same area*. Then move the I chord to the next CAGED shape up the neck and repeat, until you've done all five.\n\n*Watch it* plays five passes in five areas of the neck (low to high) with small triad grips; play yours with the CAGED shapes.",
     goal: "Five complete passes, each in a different area of the neck.",
-    tempo: { start: 70, min: 50, max: 140, step: 5, unit: "bpm" },
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "CAGED order going up the neck: C → A → G → E → D → C …",
@@ -71,7 +71,13 @@ export const templates = [
     ],
     explain: "### The point\nThe primary chords I, IV and V share a lot of real estate: wherever I is, IV and V are within reach. Doing the loop in all five CAGED regions joins the neck together and gives you five choices of register for any three-chord song.",
     visual: { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |" },
-    demo: { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |" },
+    demo: [
+      { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |", voiceLead: true, startFret: 1, title: "Pass 1: lowest area" },
+      { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |", voiceLead: true, startFret: 4, title: "Pass 2: next area up" },
+      { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |", voiceLead: true, startFret: 7, title: "Pass 3: middle of the neck" },
+      { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |", voiceLead: true, startFret: 10, title: "Pass 4: higher" },
+      { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |", voiceLead: true, startFret: 13, title: "Pass 5: highest area" }
+    ],
     concepts: ["diatonic-harmony"],
     vary: ["key", "caged", "tempo"],
   },
@@ -83,7 +89,7 @@ export const templates = [
     params: { key: "major", stringSet: [[4, 3, 2, 1], [5, 4, 3, 2]] },
     prompt: "Play the diatonic cycle **Imaj7 IVmaj7 viiø7 iii7 vi7 ii7 V7 Imaj7** in **{key}** as drop-2 voicings on strings **{stringSet}**. Move each voice to the *nearest* note of the next chord.",
     goal: "No voice jumps more than 2 frets; the top line is smooth.",
-    tempo: { start: 60, min: 40, max: 140, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Every root moves up a 4th (down a 5th). That's the strongest root motion in tonal music.",
@@ -109,7 +115,8 @@ export const templates = [
         { v: "| I:maj7 V/ii:7 | ii:m7 V:7 |", label: "I–VI7–ii–V", lvl: 1 },
         { v: "| I:maj7 #i:dim7 | ii:m7 V:7 |", label: "I–#i°7–ii–V", lvl: 1 },
         { v: "| iii:m7 V/ii:7 | V/V:7 V:7 |", label: "iii–VI7–II7–V7", lvl: 2 },
-        { v: "| I:maj7 bIII:7 | bVI:7 bII:7 |", label: "Tadd Dameron (all tritone subs)", lvl: 3 }
+        { v: "| I:maj7 bIII:7 | bVI:7 bII:7 |", label: "all tritone subs (I–bIII7–bVI7–bII7)", lvl: 3 },
+        { v: "| I:maj7 bIII:maj7 | bVI:maj7 bII:maj7 |", label: "Tadd Dameron / Lady Bird (I–bIIImaj7–bVImaj7–bIImaj7)", lvl: 3 }
       ]
     },
     prompt: "Loop the turnaround **{p:chart}** in **{key}**, two chords per bar, for 8 bars. Use any voicings, but keep it in one area of the neck.",
@@ -121,7 +128,7 @@ export const templates = [
       "VI7 is the dominant of ii, and II7 is the dominant of V. Each chord pulls to the next.",
       "#i°7 is a rootless VI7b9. It does the same job with a smoother bass line (1 → #1 → 2)."
     ],
-    explain: "### What a turnaround is\nThe last two bars of a form, or any two bars of tonic, can be filled with chords that lead back to I. Every version here is a substitute for the basic **I–vi–ii–V**:\n- **iii for I**: iii shares three notes with Imaj7.\n- **VI7 for vi**: making vi a dominant pulls it harder to ii (secondary dominant).\n- **#i°7 for VI7**: a diminished 7th a half step above the root is the dominant 7b9 without its root.\n- **Tadd Dameron**: tritone-sub every chord after I and you get I–bIII7–bVI7–bII7, a bass line falling in 5ths but a half step 'off'.",
+    explain: "### What a turnaround is\nThe last two bars of a form, or any two bars of tonic, can be filled with chords that lead back to I. Every version here is a substitute for the basic **I–vi–ii–V**:\n- **iii for I**: iii shares three notes with Imaj7.\n- **VI7 for vi**: making vi a dominant pulls it harder to ii (secondary dominant).\n- **#i°7 for VI7**: a diminished 7th a half step above the root is the dominant 7b9 without its root.\n- **All tritone subs**: tritone-sub every dominant in I–VI7–II7–V7 and you get I–bIII7–bVI7–bII7: the bass falls in 5ths from bIII, then a half step into I.\n- **Tadd Dameron turnaround** (the ending of his *Lady Bird*): the same roots played as maj7 chords, I–bIIImaj7–bVImaj7–bIImaj7.",
     visual: { type: "progression", key: "$key", chart: "$chart", voiceLead: true },
     demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true },
     concepts: ["turnarounds", "secondary-dominants", "tritone-sub", "passing-diminished"],
@@ -139,8 +146,8 @@ export const templates = [
     params: {
       key: "major",
       chart: [
-        { v: "| IV:maj V:7 | I:maj | % |", label: "Perfect authentic (V7–I, root on top at the end)" },
-        { v: "| IV:maj V:maj/3 | I:maj/3 | % |", label: "Imperfect authentic (inversions, 3rd on top)" },
+        { v: "| IV:maj V:7/1 | I:maj/1 | % |", label: "Perfect authentic (V7–I, both in root position, tonic on top)" },
+        { v: "| IV:maj V:maj/3 | I:maj | % |", label: "Imperfect authentic (V with its 3rd in the bass)" },
         { v: "| I:maj | IV:maj | I:maj | % |", label: "Plagal (IV–I, 'amen')" },
         { v: "| I:maj | iv:min | I:maj | % |", label: "Minor plagal (iv–I, borrowed)", lvl: 1 },
         { v: "| I:maj vi:min | ii:min V:maj | % |", label: "Half cadence (ends on V)" },
@@ -150,12 +157,13 @@ export const templates = [
     },
     prompt: "Play the **{p:chart}** cadence in **{key}** three times in different areas of the neck. Then sing the root of the final chord. Is it home, almost home, or a surprise?",
     goal: "You can name the cadence by how it feels before you look at the label.",
-    tempo: { start: 70, min: 50, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Authentic = V to I. 'Perfect' means root position with the tonic on top; anything else is 'imperfect'.",
       "Half cadence = the phrase stops ON V, like a comma.",
-      "Deceptive = V goes somewhere other than I, usually vi. Backdoor = a dominant a whole step *below* the tonic resolves up."
+      "Deceptive = V goes somewhere other than I, usually vi. Backdoor = a dominant a whole step *below* the tonic resolves up.",
+      "Watch it voices the triads with three notes, so on the perfect authentic cadence its final I (root in the bass) has the 3rd or 5th on top. When you play it, add the tonic on top too, e.g. a full E-shape barre, whose 1st-string note is the root."
     ],
     explain: "### Cadences are punctuation\n| Cadence | Motion | Feels like |\n|---|---|---|\n| Perfect authentic | V(7)–I, both root position, tonic on top | full stop |\n| Imperfect authentic | V–I with inversions or 3rd/5th on top | full stop, softer |\n| Plagal | IV–I | 'amen', gentle |\n| Minor plagal | iv–I (iv borrowed from minor) | bittersweet; very common in ballads and pop |\n| Half | ends on V | comma or question |\n| Deceptive | V–vi (or V–bVI, V–IV/3…) | surprise, keeps the music going |\n| Backdoor | iv7–bVII7–I | soft, 'sideways' arrival |\n\nThe minor plagal and backdoor cadences both get their pull from **b6 → 5** (Ab → G in C). The authentic cadence uses **7 → 1** (B → C).",
     visual: { type: "progression", key: "$key", chart: "$chart", voiceLead: true },
@@ -181,7 +189,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}**. Listen to the bass line and the top voice in the last two chords.",
     goal: "You hear the half step b6 → 5 in the bass (Phrygian) and 7 → 1 on top (harmonic-minor V).",
-    tempo: { start: 66, min: 50, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 66, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "A minor-key V is major (borrowed from harmonic minor), so it has a leading tone.",
@@ -210,9 +218,9 @@ export const templates = [
         { v: "| ii:m7 V:7 | bII:maj7 | ii:m7 V:7 | I:maj7 |", label: "V7 → bIImaj7 (very surprising)", lvl: 2 }
       ]
     },
-    prompt: "Play **{p:chart}** in **{key}**. The first V7 is a fake-out; the second one finally resolves. Voice-lead so the top note of V7 moves by step into the deceptive chord.",
+    prompt: "Play **{p:chart}** in **{key}**. The first V7 is a fake-out; the second one finally resolves. Voice-lead so every voice moves as little as possible, and aim for the top note of V7 to move by step (or hold) into the deceptive chord.",
     goal: "Smooth top voice; you can hear the moment of surprise.",
-    tempo: { start: 72, min: 50, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "The best deceptive chords keep the tonic note (1) or the 3rd of I, so a melody can still 'land'.",
@@ -248,8 +256,8 @@ export const templates = [
       "With shells, alternate between root-7-3 and root-3-7 grips."
     ],
     explain: "### The most important progression in jazz\nii–V–I is pre-dominant → dominant → tonic, with roots falling in 5ths. Its guide tones form two smooth lines: in C, **C → B → B** and **F → F → E**. Every jazz voicing is just these two lines plus colour tones.\n\n### Practice tip\nOnce it's comfortable, start from a different inversion so the top voice changes. Then do it in all 12 keys around the cycle.",
-    visual: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", voicing: "$voicing", stringSet: "auto", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", voicing: "$voicing", stringSet: "auto", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", voicing: "$voicing", voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", voicing: "$voicing", voiceLead: true },
     concepts: ["ii-v-i", "guide-tones", "comping"],
     vary: ["key", "voicing", "tempo"],
   },
@@ -268,7 +276,7 @@ export const templates = [
     },
     prompt: "Comp **{p:chart}** in **{key}**. Use 4-note voicings and make the top voice move by step.",
     goal: "Clear difference in colour between the m7b5, the altered V and the minor tonic.",
-    tempo: { start: 70, min: 50, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "iiø7 = ii with a flat 5. Its b5 is the b6 of the key, the 'minor' note.",
@@ -289,7 +297,7 @@ export const templates = [
     params: { key: "major" },
     prompt: "Alternate **| ii7 V7 | Imaj7 |** with **| iiø7 V7b9 | im6 |** in **{key}** (same tonic). Stay in one area of the neck and change as few notes as possible between the two versions.",
     goal: "You can switch between major and minor without moving your hand.",
-    tempo: { start: 72, min: 50, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "ii7 → iiø7: lower the 5th by a half step. That's the only change.",
@@ -308,7 +316,7 @@ export const templates = [
     title: "ii–V–I falling in whole steps from {key}",
     level: 5, length: "medium", minutes: 3,
     params: { key: ["C", "F", "G", "Bb", "D"] },
-    prompt: "Play a ii–V–I in **{key}**, then in the key a whole step lower, and so on: four keys in 8 bars. Stay within a 5-fret window by choosing the closest voicing every time.",
+    prompt: "Play a ii–V–I in **{key}**, then in the key a whole step lower, and so on: four keys in 8 bars. Stay in one area of the neck by choosing the closest voicing every time.",
     goal: "No hand jumps; each new ii7 is voice-led from the previous Imaj7.",
     tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -329,9 +337,9 @@ export const templates = [
     title: "ii–V–I through all 12 keys (cycle of 4ths)",
     level: 7, length: "long", minutes: 8,
     params: { key: ["C", "F", "G"] },
-    prompt: "Play ii–V–I in every key around the cycle of 4ths starting from **{key}**: 24 bars, 12 keys. Keep the top voice moving by step and stay between frets 2 and 10.",
+    prompt: "Play ii–V–I in every key around the cycle of 4ths starting from **{key}**: 24 bars, 12 keys. Keep the top voice moving by step and stay in one region of the neck (the demo never goes above the 10th fret; when you run out of room low down, restart the shape an octave higher).",
     goal: "One unbroken pass at {tempo}.",
-    tempo: { start: 60, min: 40, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Key order from C: C F Bb Eb Ab Db Gb B E A D G.",
@@ -351,7 +359,7 @@ export const templates = [
     title: "Chromatic ii–V chain into I ({key})",
     level: 6, length: "short", minutes: 2,
     params: { key: "major" },
-    prompt: "Play **| iii7 VI7 | biii7 bVI7 | ii7 V7 | Imaj7 |** in **{key}**. Each ii–V slides down a half step until it lands. Use the *same* grip shape for each ii–V and just slide it.",
+    prompt: "Play **| iii7 VI7 | biii7 bVI7 | ii7 V7 | Imaj7 |** in **{key}**. Each ii–V slides down a half step until it lands. Use the *same* grip shape for each ii–V and just slide it down a fret.",
     goal: "Exact half-step slides, in time, and a clean landing on I.",
     tempo: { start: 80, min: 60, max: 220, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -360,9 +368,9 @@ export const templates = [
       "The same shapes slid down a fret: easy on guitar, sophisticated sound.",
       "Try voicing VI7 and bVI7 as 13ths or 7#9s for colour."
     ],
-    explain: "### Planing ii–Vs\nA ii–V a half step above the 'correct' one works as a chromatic approach: biii7–bVI7 is the tritone sub of the ii–V of V (Am7–D7 → Ebm7–Ab7 in C), slid in as a chromatic connector. Ellington and bebop tunes (*Satin Doll*, *Moment's Notice*) are full of these chains. On guitar it's one shape slid fret by fret.",
-    visual: { type: "progression", key: "$key", chart: "| iii:m7 VI:7 | biii:m7 bVI:7 | ii:m7 V:7 | I:maj7 |", voicing: "drop2", stringSet: [5, 4, 3, 2], voiceLead: false },
-    demo: { type: "progression", key: "$key", chart: "| iii:m7 VI:7 | biii:m7 bVI:7 | ii:m7 V:7 | I:maj7 |", voicing: "drop2", stringSet: [5, 4, 3, 2], voiceLead: false },
+    explain: "### Planing ii–Vs\nA ii–V a half step above the 'correct' one works as a chromatic approach: biii7–bVI7 is the tritone sub of the ii–V of V (Am7–D7 → Ebm7–Ab7 in C), slid in as a chromatic connector. Tunes like Ellington and Strayhorn's *Satin Doll* and Coltrane's *Moment's Notice* are full of these chains. On guitar it's one shape slid fret by fret.",
+    visual: { type: "progression", key: "$key", chart: "| iii:m7 VI:7 | biii:m7 bVI:7 | ii:m7 V:7 | I:maj7 |", voicing: "drop2", stringSet: [5, 4, 3, 2], voiceLead: true, startFret: 7 },
+    demo: { type: "progression", key: "$key", chart: "| iii:m7 VI:7 | biii:m7 bVI:7 | ii:m7 V:7 | I:maj7 |", voicing: "drop2", stringSet: [5, 4, 3, 2], voiceLead: true, startFret: 7 },
     concepts: ["ii-v-i", "chromatic-approach-chords", "tritone-sub"],
     vary: ["key", "tempo"],
   },
@@ -386,7 +394,7 @@ export const templates = [
     },
     prompt: "Play the **{p:chart}** form in **{key}** with a shuffle feel, two choruses. First chorus: open/low chords. Second chorus: the same chords as small dominant-7 grips above fret 5.",
     goal: "Two choruses without losing the form; you always know which bar you're in.",
-    tempo: { start: 80, min: 60, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Count the bars in groups of four: I-I-I-I / IV-IV-I-I / V-IV-I-V.",
@@ -432,12 +440,12 @@ export const templates = [
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Bars 2–4: a cycle of ii–Vs walking down: viiø–III7 → vi–II7 → v–I7 → IV7.",
-      "Bars 6–8: iv–bVII7 (backdoor) then iii, then biii–bVI7 (a ii–V a half step above ii).",
+      "Bars 6–8: iv–bVII7 (backdoor), then iii–VI7 and biii–bVI7: two ii–Vs sliding down a half step into ii in bar 9.",
       "Think in 2-bar targets: bar 5 = IV7, bar 7 = iii7, bar 9 = ii7."
     ],
     explain: "### Parker's reharmonization\nCharlie Parker filled the blues with **descending ii–Vs** so the harmony is always moving toward the IV chord (bar 5) and the ii chord (bar 9). The skeleton is still I–IV–I–V–I, but each target is approached by its own ii–V, and bars 6–8 use a **backdoor** (iv–bVII7) and a **chromatic ii–V** (biii–bVI7 → ii).",
-    visual: { type: "progression", key: "$key", chart: "| I:maj7 | vii:m7b5 III:7 | vi:m7 II:7 | v:m7 I:7 | IV:7 | iv:m7 bVII:7 | iii:m7 | biii:m7 bVI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| I:maj7 | vii:m7b5 III:7 | vi:m7 II:7 | v:m7 I:7 | IV:7 | iv:m7 bVII:7 | iii:m7 | biii:m7 bVI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| I:maj7 | vii:m7b5 III:7 | vi:m7 II:7 | v:m7 I:7 | IV:7 | iv:m7 bVII:7 | iii:m7 VI:7 | biii:m7 bVI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "| I:maj7 | vii:m7b5 III:7 | vi:m7 II:7 | v:m7 I:7 | IV:7 | iv:m7 bVII:7 | iii:m7 VI:7 | biii:m7 bVI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voiceLead: true },
     concepts: ["blues-forms", "ii-v-i", "backdoor-ii-v", "chromatic-approach-chords"],
     vary: ["key", "tempo"],
     source: "Bird-blues changes as commonly taught (e.g. Charlie Parker, 'Blues for Alice', 1951)",
@@ -455,8 +463,8 @@ export const templates = [
         { v: "| i:m7 | iv:m7 | i:m7 | v:m7b5 I:7b9 | iv:m7 | % | i:m7 | bVI:7 | ii:m7b5 | V:7alt | i:m7 bVI:7 | ii:m7b5 V:7alt |", label: "with ii–Vs", lvl: 2 }
       ]
     },
-    prompt: "Comp **{p:chart}** in **{key}** for two choruses, swing feel. Make the bVI7 → V7 move (bar 9 → 10) as smooth as possible: it's a half step in the bass.",
-    goal: "Steady comping; bVI7 → V7alt sounds like a slide, not a jump.",
+    prompt: "Comp **{p:chart}** in **{key}** for two choruses, swing feel. Make the move into V7 in bar 10 as smooth as possible: in the first two versions it's bVI7 → V7, a half step in the bass (in the ii–V version bVI7 comes a bar earlier and leads to iiø).",
+    goal: "Steady comping; the change into V7 in bar 10 sounds like a slide, not a jump.",
     tempo: { start: 100, min: 70, max: 220, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
@@ -476,7 +484,7 @@ export const templates = [
     title: "Jazz blues with tritone subs in {key}",
     level: 7, length: "medium", minutes: 4,
     params: { key: ["F", "Bb", "C"] },
-    prompt: "Play the jazz blues in **{key}**, but replace every dominant that resolves down a 5th with its **tritone sub** (bII7-type). Compare a chorus of the plain version with a chorus of the subbed version.",
+    prompt: "Play the jazz blues in **{key}**, but replace the dominants that set up the next chord (bars 4, 8, 10, 11 and 12) with their **tritone subs** (bII7-type). Compare a chorus of the plain version with a chorus of the subbed version.",
     goal: "Bass line moves chromatically at every sub; you can hear the difference.",
     tempo: { start: 100, min: 70, max: 220, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -504,7 +512,7 @@ export const templates = [
     title: "Rhythm changes A section in {key}",
     level: 5, length: "medium", minutes: 3,
     params: { key: ["Bb", "F", "Eb", "C"] },
-    prompt: "Comp the **A section of rhythm changes** in **{key}** (8 bars, two chords per bar). It's I–vi–ii–V twice, then I–I7–IV–#iv°7, then I/5 and a ii–V turnaround.",
+    prompt: "Comp the **A section of rhythm changes** in **{key}** (8 bars, two chords per bar). It's I–vi–ii–V twice, then I–I7–IV–#iv°7, then I/5–VI7 and a ii–V turnaround.",
     goal: "Two chords per bar, in time, at {tempo}.",
     tempo: { start: 100, min: 70, max: 300, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -514,8 +522,8 @@ export const templates = [
       "Bar 7: I with the 5th in the bass, then the turnaround back."
     ],
     explain: "### Rhythm changes\nThe chords of Gershwin's *I Got Rhythm*, used for hundreds of bebop heads (*Oleo*, *Anthropology*, *Moose the Mooche*). Form: **AABA**, 32 bars, usually in Bb. The A section is turnarounds, the bridge is a dominant cycle (next card). Common subs: iii for I in bar 3, VI7 for vi, tritone subs everywhere.",
-    visual: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true },
     concepts: ["rhythm-changes", "turnarounds", "passing-diminished"],
     vary: ["key", "tempo"],
   },
@@ -532,7 +540,7 @@ export const templates = [
         { v: "| III:7 | bVII:7 | VI:7 | bIII:7 | II:7 | bVI:7 | V:7 | bII:7 |", label: "second bar of each dominant tritone-subbed", lvl: 2 }
       ]
     },
-    prompt: "Play the **rhythm-changes bridge** ({p:chart}) in **{key}**. Each dominant lasts two bars and resolves down a 5th to the next.",
+    prompt: "Play the **rhythm-changes bridge** ({p:chart}) in **{key}**. Each dominant lasts two bars and resolves down a 5th to the next (in the tritone-sub version, each second-bar sub slides down a half step instead).",
     goal: "You can hear each dominant as the V of the next.",
     tempo: { start: 100, min: 70, max: 300, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -563,8 +571,11 @@ export const templates = [
       "Count 8-bar sections out loud: A1, A2, B, A3."
     ],
     explain: "### AABA form\nA (turnarounds) ×2, B (dominant cycle), A (turnarounds, ending on I). Knowing exactly where the bridge starts is the most common stumbling point, so the second A ends on I and the bridge drops onto III7.",
-    visual: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 V:7 | I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 | III:7 | % | VI:7 | % | II:7 | % | V:7 | % | I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 |", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 V:7 | I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 | III:7 | % | VI:7 | % | II:7 | % | V:7 | % | I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 |", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 | III:7 | % | VI:7 | % | II:7 | % | V:7 | % | I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 |", voiceLead: true },
+    demo: [
+      { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 | III:7 | % | VI:7 | % | II:7 | % | V:7 | % | I:6 vi:m7 | ii:m7 V:7 | I:6 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 |", voiceLead: true, title: "Chorus 1: plain changes" },
+      { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 V:7 | I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 | vii:m7 III:7 | % | iii:m7 VI:7 | % | vi:m7 II:7 | % | ii:m7 V:7 | % | I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V:7 | I:6 |", voiceLead: true, title: "Chorus 2: iii for I in bar 3 of each A, related-ii bridge" }
+    ],
     concepts: ["rhythm-changes", "song-form"],
     vary: ["key", "tempo"],
   },
@@ -635,7 +646,10 @@ export const templates = [
     ],
     explain: "### Why this is hard\nTwo key centres per bar for long stretches, at fast tempos. Practise slowly, chord tones first, then add **1-2-3-5 cells** on each chord (Coltrane's own approach). Chart romans are relative to the middle key centre so every chord is spelled correctly.",
     visual: { type: "progression", key: "$key", chart: "| III:maj7 V:7 | I:maj7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 bIII:7 | bVI:maj7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 | #iv:m7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | #iv:m7 VII:7 |", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| III:maj7 V:7 | I:maj7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 bIII:7 | bVI:maj7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 | #iv:m7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | #iv:m7 VII:7 |", voiceLead: true, walk: "arpeggio" },
+    demo: [
+      { type: "progression", key: "$key", chart: "| III:maj7 V:7 | I:maj7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 bIII:7 | bVI:maj7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 | #iv:m7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | #iv:m7 VII:7 |", voiceLead: true, title: "Comp" },
+      { type: "progression", key: "$key", chart: "| III:maj7 V:7 | I:maj7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 bIII:7 | bVI:maj7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | ii:m7 V:7 | I:maj7 | #iv:m7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 | #iv:m7 VII:7 |", voiceLead: true, walk: "arpeggio", title: "Arpeggiated (each voicing low to high; your exercise is root–3–5–7 from each root)" }
+    ],
     concepts: ["coltrane-changes"],
     vary: ["key", "tempo"],
     source: "John Coltrane, 'Giant Steps' (1959); chord changes as commonly charted",
@@ -657,9 +671,9 @@ export const templates = [
         { v: "| IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 | I:maj7 |", label: "IV – #iv°7 – I/5", lvl: 1 }
       ]
     },
-    prompt: "Play **{p:chart}** in **{key}**. Each diminished chord sits a **half step below** the chord it leads to; let the bass rise chromatically.",
-    goal: "Bass line rises by half steps; each dim7 resolves smoothly up.",
-    tempo: { start: 70, min: 50, max: 180, step: 5, unit: "bpm" },
+    prompt: "Play **{p:chart}** in **{key}**. Each diminished chord's root sits a **half step below** the root of the chord it leads to, so the roots rise chromatically; put them in the bass.\n\n*Watch it* uses drop-2 grips on strings 4-3-2-1, where every voice moves by a half step or stays; add the roots on the 5th/6th string to hear the rising bass.",
+    goal: "Roots rise by half steps in the bass; each dim7 resolves smoothly up.",
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Find the target chord first, then build a dim7 grip with its lowest note one fret lower.",
@@ -679,15 +693,15 @@ export const templates = [
     level: 5, length: "short", minutes: 2,
     params: { key: "major" },
     prompt: "Play **| Imaj7 | iii7 biii°7 | ii7 V7 | Imaj7 |** in **{key}**. The diminished chord connects iii and ii with a descending chromatic bass line.",
-    goal: "Bass line 3 → b3 → 2 is smooth and audible.",
-    tempo: { start: 70, min: 50, max: 180, step: 5, unit: "bpm" },
+    goal: "The roots walk down 3 → b3 → 2 smoothly (in the demo's drop-2 grips the lowest voice also slides down by half steps).",
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "biii°7 is not a dominant function; it's a pure chromatic passing chord (voice-leading device).",
-      "It has the same notes as #i°7 / vi°7 / #iv°7, so one grip covers all of them.",
+      "It has the same notes as I°7, #iv°7 and vi°7 (in C: Eb°7 = C°7 = F#°7 = A°7), so one grip covers all of them.",
       "Hear it as iii7 with its notes nudged down."
     ],
-    explain: "### Descending diminished\nUnlike the ascending type, **biii°7** (e.g. Eb°7 between Em7 and Dm7) does not function as a dominant. It's a chromatic connector. It's very common in standards: listen for the bass walking down 3–b3–2 into a ii–V. Because a dim7 is symmetrical, it shares notes with **#i°7, #iv°7 and vi°7**: one sound, four spellings.",
+    explain: "### Descending diminished\nUnlike the ascending type, **biii°7** (e.g. Eb°7 between Em7 and Dm7) does not function as a dominant. It's a chromatic connector. It's very common in standards: listen for the bass walking down 3–b3–2 into a ii–V. Because a dim7 is symmetrical, it has the same notes as **I°7, #iv°7 and vi°7** (Eb°7 = C°7 = F#°7 = A°7 in C): one sound, four spellings.",
     visual: { type: "progression", key: "$key", chart: "| I:maj7 | iii:m7 biii:dim7 | ii:m7 V:7 | I:maj7 |", voiceLead: true, voicing: "drop2", stringSet: [5, 4, 3, 2] },
     demo: { type: "progression", key: "$key", chart: "| I:maj7 | iii:m7 biii:dim7 | ii:m7 V:7 | I:maj7 |", voiceLead: true, voicing: "drop2", stringSet: [5, 4, 3, 2] },
     concepts: ["passing-diminished"],
@@ -707,9 +721,9 @@ export const templates = [
         { v: "| IV:maj7 | IV:dim7 | IV:maj7 | I:maj7 |", label: "IV – IV°7 – IV", lvl: 1 }
       ]
     },
-    prompt: "Play **{p:chart}** in **{key}**. Keep the **shared root on top** (or in the bass) and move only the other voices a half step and back.",
-    goal: "One note stays put; the others 'shimmer' a half step and return.",
-    tempo: { start: 66, min: 50, max: 160, step: 5, unit: "bpm" },
+    prompt: "Play **{p:chart}** in **{key}**. Keep the **shared root** on the same string and fret (top, bass or inside the voicing) and move only the other voices a half step and back.",
+    goal: "One note stays put; the others 'shimmer' a half (or whole) step and return.",
+    tempo: { start: 66, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Common-tone °7 = a dim7 that shares the ROOT of the chord it decorates.",
@@ -730,12 +744,12 @@ export const templates = [
     params: { key: "major" },
     prompt: "Play **| ii7 | V7b9 | Imaj7 | % |** in **{key}**, then replace V7b9 with **vii°7** (the dim7 on the 3rd of V). Then try the other three inversions of that same dim7 over the V bar.",
     goal: "You hear that vii°7 and V7b9 do the same job.",
-    tempo: { start: 70, min: 50, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "G7b9 = G B D F Ab. Remove the G and you have B D F Ab = B°7.",
       "Move that dim7 grip up 3 frets: same notes, new inversion, new top voice.",
-      "The same dim7 is also the rootless 7b9 of three other dominants a minor 3rd apart (G7, Bb7, Db7, E7)."
+      "The same dim7 is the rootless 7b9 of four dominants a minor 3rd apart (G7, Bb7, Db7, E7)."
     ],
     explain: "### One dim7 = four dominants\nA dim7 built on the 3rd of any dominant gives you **3–5–b7–b9** of that dominant. Because the dim7 is symmetrical, the same four notes are the rootless 7b9 of **four dominants a minor third apart**. B°7 = G7b9 = Bb7b9 = Db7b9 = E7b9. That's why a dim7 can resolve in four directions, and why players use dim7 arpeggios over dominants.",
     visual: { type: "compare", key: "$key", chart: "| ii:m7 | V:7b9 | I:maj7 | % |", target: "V:7b9",
@@ -746,7 +760,10 @@ export const templates = [
         { token: "bII:7", label: "bII7 (tritone sub, for contrast)" }
       ],
       explain: "Listen for how V7b9 and vii°7 sound almost the same (the bass note is the only difference) and how both pull harder to I than plain V7." },
-    demo: { type: "progression", key: "$key", chart: "| ii:m7 | vii:dim7 | I:maj7 | % |", voiceLead: true, voicing: "drop2", stringSet: [4, 3, 2, 1] },
+    demo: [
+      { type: "progression", key: "$key", chart: "| ii:m7 | V:7b9 | I:maj7 | % |", voiceLead: true, voicing: "drop2", stringSet: [4, 3, 2, 1], title: "ii – V7b9 – I" },
+      { type: "progression", key: "$key", chart: "| ii:m7 | vii:dim7 | I:maj7 | % |", voiceLead: true, voicing: "drop2", stringSet: [4, 3, 2, 1], title: "ii – vii°7 (rootless V7b9) – I" }
+    ],
     concepts: ["dim7-rootless-dominant", "passing-diminished"],
     vary: ["key", "tempo"],
   },
@@ -756,9 +773,9 @@ export const templates = [
     title: "Barry Harris: major 6th–diminished movement in {key}",
     level: 7, length: "medium", minutes: 3,
     params: { key: "major", stringSet: [[4, 3, 2, 1], [5, 4, 3, 2]] },
-    prompt: "Harmonize the **major 6th–diminished scale** of **{key}** in drop 2 on strings **{stringSet}**: alternate the I6 chord and its vii°7, moving every voice up one scale step each time: I6 → °7 → I6/3 → °7 → I6/5 → °7 → I6/6 → °7 → I6.",
+    prompt: "Harmonize the **major 6th–diminished scale** of **{key}** in drop 2 on strings **{stringSet}**: alternate the I6 chord and its vii°7, moving every voice up one scale step each time: I6 → °7 → I6/3 → °7 → I6/5 → °7 → I6/6 → °7 → I6.\n\nIn C: C6 → B°7/D → C6/E → B°7/F → C6/G → B°7/Ab → C6/A → B°7 → C6 (the demo writes the root-position chords as C6/C and B°7/B). When the line runs past the 17th fret, the demo drops an octave and carries on.",
     goal: "Eight chords up the neck, top voice playing the scale, every voice moving by step.",
-    tempo: { start: 60, min: 40, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "The scale is major + a b6 (#5): in C, C D E F G Ab A B.",
@@ -766,8 +783,8 @@ export const templates = [
       "All four diminished chords are the same chord in different inversions."
     ],
     explain: "### The 6th-diminished concept (Barry Harris)\nBarry Harris taught that a major 6th chord and the diminished 7th a half step below its root interlock perfectly: together they form an 8-note scale (major + b6). Harmonize each scale note by alternating **I6** and **vii°7** and you get a smooth, bebop-flavoured chord scale. This is the basis of his 'movement' approach to comping and chord melody: the tonic is static, the diminished chord creates motion, and you can move in and out of the tonic on any melody note.",
-    visual: { type: "progression", key: "$key", chart: "| I:6 vii:dim7 | I:6/3 ii:dim7 | I:6/5 iv:dim7 | I:6/6 bvi:dim7 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| I:6 vii:dim7 | I:6/3 ii:dim7 | I:6/5 iv:dim7 | I:6/6 bvi:dim7 | I:6 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| I:6/1 vii:dim7/b3 | I:6/3 vii:dim7/b5 | I:6/5 vii:dim7/bb7 | I:6/6 vii:dim7/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
+    demo: { type: "progression", key: "$key", chart: "| I:6/1 vii:dim7/b3 | I:6/3 vii:dim7/b5 | I:6/5 vii:dim7/bb7 | I:6/6 vii:dim7/1 | I:6/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
     concepts: ["sixth-diminished", "passing-diminished"],
     vary: ["key", "stringSet", "tempo"],
     source: "Barry Harris workshops; Alan Kingstone, The Barry Harris Harmonic Method for Guitar",
@@ -778,9 +795,9 @@ export const templates = [
     title: "Barry Harris: minor 6th–diminished movement in {key}",
     level: 8, length: "medium", minutes: 3,
     params: { key: "minor", stringSet: [[4, 3, 2, 1], [5, 4, 3, 2]] },
-    prompt: "Do the same 6th-diminished movement in **{key}** with the **minor 6th** chord: im6 → vii°7 → im6/b3 → °7 → im6/5 → °7 → im6/6 → °7, drop 2 on strings **{stringSet}**.",
+    prompt: "Do the same 6th-diminished movement in **{key}** with the **minor 6th** chord: im6 → vii°7 → im6/b3 → °7 → im6/5 → °7 → im6/6 → °7 → im6, every voice moving up one scale step each time, drop 2 on strings **{stringSet}**.\n\nIn C minor: Cm6 → B°7/D → Cm6/Eb → B°7/F → Cm6/G → B°7/Ab → Cm6/A → B°7 → Cm6 (the demo writes the root-position chords as Cm6/C and B°7/B). When the line runs past the 17th fret, the demo drops an octave and carries on.",
     goal: "Smooth stepwise ascent; you can stop on any im6 inversion and it sounds like home.",
-    tempo: { start: 60, min: 40, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Minor 6th-diminished scale: melodic minor + #5 (in C: C D Eb F G Ab A B).",
@@ -788,8 +805,8 @@ export const templates = [
       "im6 is also a rootless IV9 and a vi ø7 inversion, so this movement doubles as minor ii–V material."
     ],
     explain: "### Minor 6th–diminished\nSame engine as the major version: **im6** (C Eb G A) interlocks with **vii°7** (B D F Ab). Barry Harris used it for minor tonic movement and noted that Cm6 = Am7b5 (in inversion), so the same moves work over the iiø of a minor ii–V.",
-    visual: { type: "progression", key: "$key", chart: "| i:m6 vii:dim7 | i:m6/b3 ii:dim7 | i:m6/5 iv:dim7 | i:m6/6 bvi:dim7 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| i:m6 vii:dim7 | i:m6/b3 ii:dim7 | i:m6/5 iv:dim7 | i:m6/6 bvi:dim7 | i:m6 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| i:m6/1 vii:dim7/b3 | i:m6/b3 vii:dim7/b5 | i:m6/5 vii:dim7/bb7 | i:m6/6 vii:dim7/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
+    demo: { type: "progression", key: "$key", chart: "| i:m6/1 vii:dim7/b3 | i:m6/b3 vii:dim7/b5 | i:m6/5 vii:dim7/bb7 | i:m6/6 vii:dim7/1 | i:m6/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
     concepts: ["sixth-diminished"],
     vary: ["key", "stringSet", "tempo"],
     source: "Barry Harris workshops",
@@ -804,8 +821,8 @@ export const templates = [
     title: "Side-step approach chords in {key}",
     level: 4, length: "short", minutes: 2,
     params: { key: "major" },
-    prompt: "Take **| ii7 | V7 | Imaj7 | % |** in **{key}** and approach every chord from **a half step above, same quality**, on the last two beats of the previous bar: **| biii7 ii7 | bVI7 V7 | bIImaj7 Imaj7 | % |**.",
-    goal: "Same grip slid one fret; landing chord on beat 1 or 3 exactly.",
+    prompt: "Take **| ii7 | V7 | Imaj7 | % |** in **{key}** and approach every chord from **a half step above, same quality**, for the first two beats of its bar: **| biii7 ii7 | bVI7 V7 | bIImaj7 Imaj7 | % |**.",
+    goal: "Same grip slid one fret; landing chord exactly on beat 3.",
     tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
@@ -814,8 +831,8 @@ export const templates = [
       "Works best on short durations: the approach chord is a passing event, not a destination."
     ],
     explain: "### Chromatic approach chords\nAny chord can be approached by the *same chord* a half step above or below. It's pure voice leading: every voice moves by a half step into the target. Guitarists love it because it's just a slide. It's the chordal equivalent of a chromatic approach note in a solo.",
-    visual: { type: "progression", key: "$key", chart: "| biii:m7 ii:m7 | bVI:7 V:7 | bII:maj7 I:maj7 | % |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: false },
-    demo: { type: "progression", key: "$key", chart: "| biii:m7 ii:m7 | bVI:7 V:7 | bII:maj7 I:maj7 | % |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: false },
+    visual: { type: "progression", key: "$key", chart: "| biii:m7 ii:m7 | bVI:7 V:7 | bII:maj7 I:maj7 | % |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "| biii:m7 ii:m7 | bVI:7 V:7 | bII:maj7 I:maj7 | % |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: true },
     concepts: ["chromatic-approach-chords"],
     vary: ["key", "tempo"],
   },
@@ -834,9 +851,9 @@ export const templates = [
       "biii7 between ii7 and iii7 is a chromatic neighbour chord.",
       "The ending ii7–bII7–I is a tritone-sub ii–V."
     ],
-    explain: "### Planing\nIn planing, the shape is kept and the whole chord moves in parallel. The ear accepts chromatic chords as long as the outer targets are clear (ii and iii here). Organists and guitarists like Wes Montgomery and Grant Green comp this way over m7 vamps.",
-    visual: { type: "progression", key: "$key", chart: "| ii:m7 biii:m7 | iii:m7 biii:m7 | ii:m7 bII:7 | I:maj7 |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: false },
-    demo: { type: "progression", key: "$key", chart: "| ii:m7 biii:m7 | iii:m7 biii:m7 | ii:m7 bII:7 | I:maj7 |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: false },
+    explain: "### Planing\nIn planing, the shape is kept and the whole chord moves in parallel. The ear accepts chromatic chords as long as the outer targets are clear (ii and iii here). It's a common comping move over m7 vamps in organ-trio and soul-jazz settings.",
+    visual: { type: "progression", key: "$key", chart: "| ii:m7 biii:m7 | iii:m7 biii:m7 | ii:m7 bII:7 | I:maj7 |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "| ii:m7 biii:m7 | iii:m7 biii:m7 | ii:m7 bII:7 | I:maj7 |", voicing: "drop2", stringSet: [4, 3, 2, 1], voiceLead: true },
     concepts: ["chromatic-approach-chords", "tritone-sub"],
     vary: ["key", "tempo"],
   },
@@ -848,22 +865,22 @@ export const templates = [
     params: {
       key: "major",
       chart: [
-        { v: "| I:maj | I:maj/7 | I:7/b7 | IV:maj/3 |", label: "I – I/7 – I7/b7 – IV/6 (line cliché descending)" },
-        { v: "| vi:min | vi:mMaj7 | vi:m7 | vi:m6 |", label: "minor line cliché (vi – vi(maj7) – vi7 – vi6)" },
-        { v: "| i:min | i:mMaj7 | i:m7 | i:m6 |", label: "minor line cliché on the tonic", lvl: 1 },
-        { v: "| I:maj | V:maj/3 | vi:min | I:maj/5 | IV:maj | I:maj/3 | ii:m7 | V:7 |", label: "stepwise bass (Pachelbel-style descent)" }
+        { v: "| I:maj/1 | I:maj7/7 | I:7/b7 | IV:maj/3 |", label: "I – Imaj7/7 – I7/b7 – IV/3 (descending line cliché, bass 1–7–b7–6)" },
+        { v: "| vi:min/1 | vi:mMaj7/7 | vi:m7/b7 | vi:m6/6 |", label: "minor line cliché in the bass (vi – vi(maj7) – vi7 – vi6)" },
+        { v: "| i:min/1 | i:mMaj7/7 | i:m7/b7 | i:m6/6 |", label: "minor line cliché on the tonic", lvl: 1 },
+        { v: "| I:maj/1 | V:maj/3 | vi:min/1 | I:maj/5 | IV:maj/1 | I:maj/3 | ii:m7/1 | V:7/1 |", label: "stepwise descending bass (I–V/3–vi–I/5–IV–I/3–ii–V)" }
       ]
     },
-    prompt: "Play **{p:chart}** in **{key}** with the bass note clearly on the lowest string. The upper notes mostly stay; only the bass (or one inner voice) moves by half or whole steps.",
+    prompt: "Play **{p:chart}** in **{key}** with the bass note clearly on the lowest string. The upper notes mostly stay; only the bass (or one inner voice) moves by half or whole steps.\n\nIn *Watch it* a root-position chord is written with its root after the slash (e.g. G/G) so you can see every bass note.",
     goal: "You can hear and sing the moving line.",
-    tempo: { start: 72, min: 50, max: 140, step: 5, unit: "bpm" },
+    tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "A 'line cliché' is one voice moving chromatically through a static chord: 1 → 7 → b7 → 6.",
       "Hold a small triad on the top strings and move only the bass with your thumb or 2nd finger.",
       "Slash chords: the symbol after / is the bass note's interval *relative to that chord*."
     ],
-    explain: "### Line clichés\nA chromatic inner or bass line through one chord is one of the most common devices in pop, Broadway and jazz ballads. On a minor chord it's **m – m(maj7) – m7 – m6** (the James Bond / *My Funny Valentine* / *Stairway* sound). The harmony barely changes but the moving voice gives it momentum.",
+    explain: "### Line clichés\nA chromatic inner or bass line through one chord is one of the most common devices in pop, Broadway and jazz ballads. On a minor chord it's **m – m(maj7) – m7 – m6** (the *My Funny Valentine* / *Stairway to Heaven* intro sound; the James Bond theme uses the rising cousin, 5 – #5 – 6 – #5). The harmony barely changes but the moving voice gives it momentum.",
     visual: { type: "progression", key: "$key", chart: "$chart" },
     demo: { type: "progression", key: "$key", chart: "$chart" },
     concepts: ["line-cliche", "chromatic-approach-chords"],
@@ -881,7 +898,7 @@ export const templates = [
     params: { key: "major" },
     prompt: "Walk up the diatonic chords of **{key}**, putting **the V7 of each chord** on beats 3–4 of the bar before it: I – V7/ii – ii – V7/iii – iii – V7/IV – IV – V7/V – V – V7/vi – vi. Say the name of each secondary dominant before you play it.",
     goal: "Every secondary dominant has its 3rd a half step below the next chord's root.",
-    tempo: { start: 66, min: 50, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 66, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Secondary dominant = a dominant 7 a perfect 5th above the target chord.",
@@ -958,7 +975,7 @@ export const templates = [
         { v: "| I:maj7 VI:7 | II:7 V:7 |", label: "I–VI7–II7–V7 (original)" },
         { v: "| I:maj7 bIII:7 | II:7 bII:7 |", label: "subs on VI7 and V7" },
         { v: "| I:maj7 VI:7 | bVI:7 bII:7 |", label: "subs on II7 and V7" },
-        { v: "| I:maj7 bIII:7 | bVI:7 bII:7 |", label: "all subbed (Tadd Dameron)", lvl: 1 },
+        { v: "| I:maj7 bIII:7 | bVI:7 bII:7 |", label: "all subbed (I–bIII7–bVI7–bII7)", lvl: 1 },
         { v: "| iii:m7 bIII:7 | ii:m7 bII:7 |", label: "chromatic: iii–bIII7–ii–bII7", lvl: 1 }
       ]
     },
@@ -971,7 +988,7 @@ export const templates = [
       "Mixing original and sub gives chromatic bass lines: C – Eb – D – Db – C.",
       "7#11 and 9 voicings suit the subs."
     ],
-    explain: "### Mix and match\nIn a turnaround of dominants, any one can be tritone-subbed. The combinations give a menu of bass lines, from cycle-of-5ths to fully chromatic. *Lady Bird*'s famous ending is the all-sub version (Tadd Dameron turnaround).",
+    explain: "### Mix and match\nIn a turnaround of dominants, any one can be tritone-subbed. The combinations give a menu of bass lines, from cycle-of-5ths to fully chromatic. The **Tadd Dameron turnaround** (the ending of his *Lady Bird*) uses the same roots as the all-sub version but plays them as maj7 chords: I–bIIImaj7–bVImaj7–bIImaj7.",
     visual: { type: "progression", key: "$key", chart: "$chart", voiceLead: true },
     demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true },
     concepts: ["tritone-sub", "turnarounds", "tadd-dameron-turnaround"],
@@ -989,7 +1006,7 @@ export const templates = [
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "bVII7 is a dominant a whole step below I. It resolves UP to I.",
-      "bVII7 shares 3 notes with iv6/iv7 (both from the parallel minor).",
+      "bVII7 shares three notes with iv6 and two with iv7 (in C: Bb7 = Bb D F Ab, Fm6 = F Ab C D, Fm7 = F Ab C Eb).",
       "The key voice: b6 → 5 (Ab → G in C), like the minor plagal cadence."
     ],
     explain: "### The backdoor\nInstead of V7 → I (front door), you arrive from **bVII7** (back door), usually preceded by its ii (**iv7**). Both chords are borrowed from the parallel minor. The resolution is gentler because there's no leading tone. The pull comes from **b6 → 5** and **b7 → 1**. Heard in *Lady Bird*, *Misty*-type ballads, and the Bird blues (bars 6–7).",
@@ -1026,9 +1043,9 @@ export const templates = [
         { v: "| I:maj | vi:min | IV:maj | iv:min |", label: "I – vi – IV – iv", lvl: 0 }
       ]
     },
-    prompt: "Strum or comp **{p:chart}** in **{key}**. On the iv chord, find the one note that changed from IV and make it the top note.",
+    prompt: "Strum or comp **{p:chart}** in **{key}**. On the iv chord, find the one note that changed from IV and make it the top note.\n\n*Watch it* voice-leads triads on strings 3-2-1, so the changed note (6 → b6, then on to 5) moves by a half step on one string; depending on the key it is the top voice or an inner voice. Then find a grip where it is on top.",
     goal: "You can hear and sing the 6 → b6 → 5 line.",
-    tempo: { start: 72, min: 50, max: 140, step: 5, unit: "bpm" },
+    tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "IV → iv: only the 3rd of IV drops a half step (in C: A → Ab).",
@@ -1049,7 +1066,7 @@ export const templates = [
     params: { key: "major" },
     prompt: "Play **| I | bVI | bVII | I |** in **{key}** with power-chord or triad shapes, then **| ii | V | bVI bVII | I |**. The bVI and bVII come from the parallel minor.",
     goal: "Confident, 'heroic' resolution from bVII up to I.",
-    tempo: { start: 90, min: 60, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 90, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "In C: Ab and Bb major. Their roots are the b6 and b7 of C minor.",
@@ -1086,7 +1103,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}**. Name the borrowed chord, and the one or two notes in it that don't belong to {key} major.",
     goal: "You can name which mode each borrowed chord came from.",
-    tempo: { start: 66, min: 50, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 66, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Parallel modes share the tonic. Write out C Aeolian, C Dorian, C Phrygian… and harmonize them.",
@@ -1119,7 +1136,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}** as triads on strings 3-2-1 (then 4-3-2). Keep the **common tone** in the same finger and move the other two voices by step.",
     goal: "One voice holds; the other two move a half or whole step.",
-    tempo: { start: 60, min: 40, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Chromatic mediant = a chord a 3rd away, same quality (both major), so only one note is shared.",
@@ -1148,7 +1165,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}** with voice-led triads or maj7s, staying in one area of the neck. Then try the same cycle starting on a different inversion.",
     goal: "Each chord is voice-led from the last; the cycle closes back on I.",
-    tempo: { start: 60, min: 40, max: 140, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Major thirds split the octave into 3 equal parts; minor thirds into 4.",
@@ -1177,7 +1194,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}** as triads. These chord pairs share **no** notes, so voice-lead every voice by a half or whole step.",
     goal: "All three voices move by step; it sounds like a sudden 'light change'.",
-    tempo: { start: 56, min: 40, max: 120, step: 4, unit: "bpm" },
+    tempo: { start: 56, min: 40, max: 200, step: 4, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "C (C E G) → Ab minor (Ab Cb Eb): C → Cb, E → Eb, G → Ab. Every voice moves a half step.",
@@ -1223,7 +1240,7 @@ export const templates = [
     params: { key: "major" },
     prompt: "Play **| Imaj7 | vi7 | ii7 | V7 | im7 | iv7 | bVII7 | bIIImaj7 | iiø7 | V7b9 | Imaj7 | % |** in **{key}**: major, then parallel minor (with a trip to its relative major), then back to major.",
     goal: "Mood change is clear at bar 5 and bar 11.",
-    tempo: { start: 72, min: 50, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "V7 can resolve to either Imaj7 or im7. That's the hinge.",
@@ -1290,7 +1307,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}** four times: open/low position, then a CAGED shape around fret 5, then triads on strings 3-2-1, then triads on 4-3-2. Same progression, four registers.",
     goal: "No gap at any chord change in any register.",
-    tempo: { start: 80, min: 60, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "All of these use only the four 'happy' diatonic chords I, IV, V and vi (plus iii in the royal road).",
@@ -1311,7 +1328,7 @@ export const templates = [
     params: { key: ["C", "G", "D", "A", "F", "Bb"] },
     prompt: "Play **| I | vi | IV | V |** in **{key}** in 12/8: four triplet 8ths per chord beat, a slow arpeggio on each chord. Then try it with **ii** instead of IV (I–vi–ii–V).",
     goal: "Even triplet arpeggios; chord changes exactly on each bar line.",
-    tempo: { start: 50, min: 40, max: 80, step: 2, unit: "bpm" },
+    tempo: { start: 50, min: 40, max: 200, step: 2, unit: "bpm" },
     metronome: { meter: "12/8", subdivision: 3, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "12/8 = four beats, each split into three. Count 1-trip-let 2-trip-let …",
@@ -1332,7 +1349,7 @@ export const templates = [
     params: { key: ["Am", "Em", "Bm", "Dm", "F#m", "C#m"] },
     prompt: "Play **| i | bVII | bVI | V |** in **{key}**, letting the bass walk down 1–b7–b6–5. Then solo over it: use the natural minor over i–bVII–bVI and switch to **Phrygian dominant** (harmonic minor from the 4th) over V.",
     goal: "The bass walk-down is audible; the scale switch on V is clean.",
-    tempo: { start: 80, min: 60, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "In A minor: Am – G – F – E. The E major chord's G# is borrowed from harmonic minor.",
@@ -1359,7 +1376,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}**, one chord per bar. On the slash-chord version, make the descending bass line clear (1–7–6–5–4–3–4–5).",
     goal: "Even bars; on the slash version the bass descends by step.",
-    tempo: { start: 66, min: 50, max: 120, step: 2, unit: "bpm" },
+    tempo: { start: 66, min: 50, max: 200, step: 2, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Original pattern: roots fall a 4th, rise a 2nd, fall a 4th, rise a 2nd …",
@@ -1388,7 +1405,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}** with power chords, then with triads on the top 3 strings. Then solo over it with **{key} Mixolydian** (major pentatonic + b7).",
     goal: "Solid groove; solo lands on chord tones at each change.",
-    tempo: { start: 100, min: 70, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 100, min: 70, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "bVII comes from the Mixolydian mode: a major key with a flat 7.",
@@ -1418,7 +1435,7 @@ export const templates = [
     },
     prompt: "Play **{p:chart}** in **{key}**, then solo: **minor pentatonic** throughout, then the exact mode (Aeolian, or Dorian when there's a major IV, with harmonic-minor notes over a major V).",
     goal: "You hear when the scale needs to change (major IV or major V).",
-    tempo: { start: 90, min: 60, max: 170, step: 5, unit: "bpm" },
+    tempo: { start: 90, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "bVI and bVII are diatonic to natural minor. No scale change needed.",
@@ -1505,7 +1522,7 @@ export const templates = [
     params: { key: ["F", "C", "G", "Bb", "Eb"] },
     prompt: "Comp the 8-bar **A section of the Ipanema changes** in **{key}**, bossa feel: Imaj7 (2 bars), II7 (2 bars, a non-resolving secondary dominant), ii7, then bII7 to I and bII7 again. Play II7 as a 9#11 or 13#11.",
     goal: "II7 sounds bright and floating; bII7 slides into I.",
-    tempo: { start: 110, min: 80, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 110, min: 80, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 2, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "II7 here doesn't go to V; it goes to ii. That's why Lydian dominant (#11) fits it.",
@@ -1654,11 +1671,14 @@ export const templates = [
     hints: [
       "Django players think in arpeggios first: m6 arpeggio on i, m6 on iv.",
       "Over V7: play the dim7 arpeggio built on its 3rd. That gives 3–5–b7–b9.",
-      "Harmonic minor of the key covers the whole thing."
+      "Scales if you want them: melodic minor over im6 (it has the natural 6), Dorian over ivm6, harmonic minor of the key (= Phrygian dominant) over V7. Plain harmonic minor clashes with im6's natural 6."
     ],
-    explain: "### The Django sound\nGypsy-jazz minor tunes run on **im6, ivm6 and V7(b9)**, all from harmonic minor. Django Reinhardt's improvisations lean on m6 arpeggios and the diminished arpeggio over the dominant. That gives a very specific, very learnable sound.",
-    visual: { type: "progression", key: "$key", chart: "| i:m6 | % | iv:m6 | % | V:7 | % | i:m6 | % | iv:m6 | % | i:m6 | % | V:7 | % | i:m6 | % |", scales: { "i:m6": "harmonic-minor", "iv:m6": "dorian", "V:7": "phrygian-dominant" } },
-    demo: { type: "progression", key: "$key", chart: "| i:m6 | % | iv:m6 | % | V:7 | % | i:m6 | % | iv:m6 | % | i:m6 | % | V:7 | % | i:m6 | % |", walk: "arpeggio" },
+    explain: "### The Django sound\nGypsy-jazz minor tunes run on **im6, ivm6 and V7(b9)**. They don't share one scale: im6 has the natural 6 (melodic minor), ivm6 has the key's natural 2 as its 6 (Dorian on iv), and V7b9 comes from harmonic minor. Django Reinhardt's improvisations lean on m6 arpeggios and the diminished arpeggio over the dominant. That gives a very specific, very learnable sound.",
+    visual: { type: "progression", key: "$key", chart: "| i:m6 | % | iv:m6 | % | V:7 | % | i:m6 | % | iv:m6 | % | i:m6 | % | V:7 | % | i:m6 | % |", scales: { "i:m6": "melodic-minor", "iv:m6": "dorian", "V:7": "phrygian-dominant" } },
+    demo: [
+      { type: "progression", key: "$key", chart: "| i:m6 | % | iv:m6 | % | V:7 | % | i:m6 | % | iv:m6 | % | i:m6 | % | V:7 | % | i:m6 | % |", title: "The 16-bar form, one chord per bar (comp it with la pompe)" },
+      { type: "progression", key: "$key", chart: "| i:m6 | % | iv:m6 | % | VII:dim7 | % | i:m6 | % |", walk: "arpeggio", title: "Arpeggio solo, first 8 bars: im6, ivm6, then over V7 the dim7 on its 3rd (3–5–b7–b9 = V7b9 without the root)" },
+    ],
     concepts: ["minor-ii-v-i", "dim7-rootless-dominant"],
     vary: ["key", "tempo"],
     source: "Django Reinhardt & Stéphane Grappelli, 'Minor Swing' (1937): progression as commonly charted",
@@ -1678,7 +1698,7 @@ export const templates = [
       "Split each 4-bar dominant into ii–V (2+2) for a bebop feel.",
       "Over each dominant, try altered on the last bar before it resolves."
     ],
-    explain: "### Secondary dominants in a row\n*Sweet Georgia Brown* (1925) opens with four bars each of VI7, II7, V7 and then I: three secondary dominants in a chain. It's the same as the rhythm-changes bridge stretched out, and a great 3rd-targeting drill.",
+    explain: "### Secondary dominants in a row\n*Sweet Georgia Brown* (1925) opens with four bars each of VI7, II7, V7 and then I: three secondary dominants in a chain. It's the back half of the rhythm-changes bridge (III7–VI7–II7–V7) stretched out to four bars per chord, and a great 3rd-targeting drill.",
     visual: { type: "progression", key: "$key", chart: "| VI:7 | % | % | % | II:7 | % | % | % | V:7 | % | % | % | I:maj | % | % | % |", scales: { "VI:7": "mixolydian", "II:7": "mixolydian", "V:7": "mixolydian", "I:maj": "ionian" } },
     demo: { type: "progression", key: "$key", chart: "| VI:7 | % | % | % | II:7 | % | % | % | V:7 | % | % | % | I:maj | % | % | % |" },
     concepts: ["secondary-dominants", "guide-tones"],
@@ -1713,16 +1733,16 @@ export const templates = [
     title: "Stella by Starlight-type opening in {key}",
     level: 8, length: "medium", minutes: 3,
     params: { key: ["Bb", "F", "C", "Eb"] },
-    prompt: "Comp the first 8 bars of the **Stella** changes in **{key}**: a minor ii–V that never resolves, then ii–Vs 'backcycling' down by whole steps, landing on IVmaj7 and a bVII7#11.",
+    prompt: "Comp the first 8 bars of the **Stella** changes in **{key}**: a minor ii–V that never resolves, then two ii–Vs a 5th apart (ii–V of I, then ii–V of IV: 'backcycling' down the cycle of 5ths), landing on IVmaj7 and a bVII7#11.",
     goal: "You hear each ii–V as a separate unit even though none resolves where expected.",
     tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "#ivø7–VII7 is the minor ii–V of iii, which never arrives.",
-      "ii7–V7 → v7–I7 → IVmaj7: each ii–V a whole step lower than the last.",
+      "ii7–V7 → v7–I7 → IVmaj7: each ii–V a 5th lower than the last (down the cycle), and only the last one resolves.",
       "bVII7#11 is a backdoor-type dominant: Lydian dominant fits."
     ],
-    explain: "### Unresolved ii–Vs and backcycling\nVictor Young's *Stella* opens on a minor ii–V that doesn't resolve, then steps down through ii–Vs. Teachers call this **backcycling**. It trains you to hear each ii–V as a self-contained unit and to choose scales for the ii–V itself, not for a key.",
+    explain: "### Unresolved ii–Vs and backcycling\nVictor Young's *Stella* opens on a minor ii–V that doesn't resolve, then moves down the cycle of 5ths through ii–Vs (ii–V of I, then ii–V of IV, which finally resolves). Some teachers call this **backcycling**. It trains you to hear each ii–V as a self-contained unit and to choose scales for the ii–V itself, not for a key.",
     visual: { type: "progression", key: "$key", chart: "| #iv:m7b5 | VII:7b9 | ii:m7 | V:7 | v:m7 | I:7 | IV:maj7 | bVII:7#11 |", voiceLead: true, scales: { "#iv:m7b5": "locrian-nat2", "VII:7b9": "phrygian-dominant", "ii:m7": "dorian", "V:7": "mixolydian", "v:m7": "dorian", "I:7": "mixolydian", "IV:maj7": "lydian", "bVII:7#11": "lydian-dominant" } },
     demo: { type: "progression", key: "$key", chart: "| #iv:m7b5 | VII:7b9 | ii:m7 | V:7 | v:m7 | I:7 | IV:maj7 | bVII:7#11 |", voiceLead: true },
     concepts: ["ii-v-i", "minor-ii-v-i", "lydian-dominant-usage"],
@@ -1744,13 +1764,13 @@ export const templates = [
     tempo: { start: 100, min: 70, max: 220, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4", gap: { play: 2, mute: 2 } },
     hints: [
-      "Shells on strings 6-4-3 and 5-4-3 cover every chord in a blues with tiny moves.",
+      "Shells on strings 6-4-3 and 5-4-3 cover every chord in a blues with tiny moves. (The demo voice-leads its shells across all string sets, so some sit on higher strings; the chords and the root–3–7 / root–7–3 shapes are the same.)",
       "Short notes on 1 and 3, slightly longer on 2 and 4: that's the Freddie Green feel.",
       "Tap your foot on 2 and 4 during the gap."
     ],
     explain: "### Why shells\nRoot, 3rd and 7th are all a chord needs to be identified. Shells keep the texture clear, leave room for the soloist and make voice leading automatic: on a ii–V the 7th moves down a half step to the next 3rd. The gap click forces you to own the time instead of following the metronome.",
-    visual: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", stringSet: "auto", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", stringSet: "auto", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", voiceLead: true },
     concepts: ["comping", "guide-tones", "blues-forms"],
     vary: ["key", "tempo"],
   },
@@ -1760,7 +1780,7 @@ export const templates = [
     title: "Two-note guide-tone comping in {key}",
     level: 3, length: "short", minutes: 3,
     params: { key: "major" },
-    prompt: "Comp the cycle **ii7 V7 Imaj7 IVmaj7 viiø7 III7 vi7 VI7** in **{key}** playing **only the 3rd and 7th** of each chord on two adjacent strings (4-3 or 3-2). Every move should be a half step, a whole step, or no move at all.",
+    prompt: "Comp the cycle **ii7 V7 Imaj7 IVmaj7 viiø7 III7 vi7 VI7** in **{key}** playing **only the 3rd and 7th** of each chord, on two neighbouring strings where you can (4-3 or 3-2). Every move should be a half step, a whole step, or no move at all.",
     goal: "Eight chords, nothing but small moves, and you can hear every chord change.",
     tempo: { start: 80, min: 60, max: 220, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -1770,8 +1790,8 @@ export const templates = [
       "Once smooth, add the root on string 5 or 6 on beat 1."
     ],
     explain: "### Guide tones\nThe **3rd and 7th** define a chord's quality and carry its voice leading. Comping with only these two notes is how pianists and guitarists keep out of the soloist's way, and it's the foundation of every 'rootless' and 'shell' voicing. Improvisers use the same lines as targets (see the guide-tone line improv card).",
-    visual: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | III:7 | vi:m7 | VI:7 |", voicing: "shell", stringSet: "auto", voiceLead: true, title: "Shells shown; play only the top two notes (3 and 7)" },
-    demo: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | III:7 | vi:m7 | VI:7 |", voicing: "shell", stringSet: "auto", voiceLead: true, title: "Shells shown; play only the top two notes (3 and 7)" },
+    visual: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | III:7 | vi:m7 | VI:7 |", voicing: "shell", voiceLead: true, title: "Shells shown (root underneath for reference); play only the top two notes, the 3rd and 7th. The demo's string choice varies; copy the guide-tone pairs" },
+    demo: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | III:7 | vi:m7 | VI:7 |", voicing: "shell", voiceLead: true, title: "Shells shown (root underneath for reference); play only the top two notes, the 3rd and 7th. The demo's string choice varies; copy the guide-tone pairs" },
     concepts: ["guide-tones", "comping"],
     vary: ["key", "tempo"],
   },
@@ -1780,10 +1800,10 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["comping", "voice-leading", "drop2", "ted-greene", "masters"],
     title: "Ted Greene tip: make the top voice a melody ({key})",
     level: 5, length: "medium", minutes: 4,
-    params: { key: "major", stringSet: [[4, 3, 2, 1], [5, 4, 3, 2]] },
+    params: { key: ["G", "A", "Bb", "Ab"], stringSet: [[4, 3, 2, 1]] },
     prompt: "Comp **| Imaj7 | vi7 | ii7 | V7 |** in **{key}** with drop-2 voicings on **{stringSet}**, choosing inversions so the **top note** forms (1) a descending line, (2) an ascending line, (3) a line that stays on one note as long as possible.",
     goal: "Three different top-voice melodies over the same four chords.",
-    tempo: { start: 70, min: 50, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Choose the top note first, then find the inversion that has it on top.",
@@ -1792,7 +1812,11 @@ export const templates = [
     ],
     explain: "### Voice-leading as melody\nTed Greene's teaching (*Chord Chemistry*, *Modern Chord Progressions*) treats every progression as a set of moving voices, with the **top voice as a melody**. Choosing inversions by their top note turns comping into composition, and it's the bridge to chord melody.",
     visual: { type: "progression", key: "$key", chart: "| I:maj7 | vi:m7 | ii:m7 | V:7 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| I:maj7 | vi:m7 | ii:m7 | V:7 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true },
+    demo: [
+      { type: "progression", key: "$key", chart: "| I:maj7/3 | vi:m7/b3 | ii:m7/b7 | V:7/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, title: "(1) Descending top line: 5 – 3 – 2 – 7 of the key (inversions chosen by top note; the slash shows the bass note, and a chord slashed over its own root is root position)" },
+      { type: "progression", key: "$key", chart: "| I:maj7/1 | vi:m7/5 | ii:m7/b3 | V:7/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, title: "(2) Ascending top line: 3 – 5 – 6 – 7 of the key" },
+      { type: "progression", key: "$key", chart: "| I:maj7/7 | vi:m7/1 | ii:m7/5 | V:7/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, title: "(3) Static top line: the tonic held over I, vi and ii, then down a half step to 7 over V" },
+    ],
     concepts: ["comping", "chord-melody", "guide-tones"],
     vary: ["key", "stringSet", "tempo"],
     source: "Ted Greene, Modern Chord Progressions (1976) and Chord Chemistry (1971): paraphrased",
@@ -1810,11 +1834,11 @@ export const templates = [
     hints: [
       "Charleston = hit on 1, hit on the and-of-2, rest.",
       "With two chords per bar, the second chord falls on beat 3 (or anticipates on the and-of-2).",
-      "Smallest possible moves: strings 4-3-2 are your home."
+      "Smallest possible moves: drop-2 grips on strings 4-3-2-1 are your home; for 3-note grips, leave out the note on string 1."
     ],
     explain: "### Comping at speed\nRhythm changes is the standard bebop comping test: two chords per bar at fast tempos. The gap click exposes rushing, the most common comping fault. Keep the voicings tiny and let the rhythm carry the energy.",
-    visual: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true, stringSet: [4, 3, 2] },
-    demo: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true, stringSet: [4, 3, 2] },
+    visual: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true, voicing: "drop2", stringSet: [4, 3, 2, 1], title: "Drop-2 grips on 4-3-2-1, voice-led (the demo strikes each chord on its beat, 1 and 3; for the Charleston, hit beat 1 and anticipate the second chord on the and-of-2)" },
+    demo: { type: "progression", key: "$key", chart: "| I:6 vi:m7 | ii:m7 V:7 | iii:m7 vi:m7 | ii:m7 V:7 | I:maj7 I:7 | IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 |", voiceLead: true, voicing: "drop2", stringSet: [4, 3, 2, 1], title: "Drop-2 grips on 4-3-2-1, voice-led (the demo strikes each chord on its beat, 1 and 3; for the Charleston, hit beat 1 and anticipate the second chord on the and-of-2)" },
     concepts: ["comping", "rhythm-changes"],
     vary: ["key", "tempo"],
   },
@@ -1829,21 +1853,21 @@ export const templates = [
         { v: "| ii:m9 | V:13 | I:6 | % |", label: "ii9 – V13 – I6" },
         { v: "| ii:m9 | V:7#9b13 | I:maj9 | % |", label: "ii9 – V7alt(#9 b13) – Imaj9", lvl: 1 },
         { v: "| ii:m11 | V:13b9 | I:maj7#11 | % |", label: "ii11 – V13b9 – Imaj7#11", lvl: 1 },
-        { v: "| ii:m7b5 | V:7b13 | i:m6 | % |", label: "minor: iiø – V7b13 – im6", lvl: 1 }
+        { v: "| ii:m7b5 | V:7b9b13 | i:m6 | % |", label: "minor: iiø – V7(b9 b13) – im6", lvl: 1 }
       ]
     },
-    prompt: "Comp **{p:chart}** in **{key}** with 4-note voicings that leave out the root. Keep a common tone on top where possible.",
+    prompt: "Comp **{p:chart}** in **{key}** with 4-note voicings on strings 4-3-2-1 that carry the tensions. Leave the root out of the dominant (the bass player has it); on ii and I, try the grip with the root and then with the 9th in its place. Keep a common tone on top where possible.",
     goal: "The colour tones are audible on top; the bass player would 'own' the roots.",
     tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
-      "Rootless: replace the root with the 9th (or the 13th on dominants).",
+      "Rootless: replace the root with the 9th; on dominants, the 13th usually replaces the 5th.",
       "V13 → I6: the 13th of V (E in G13) is the 3rd of I. It can stay on top.",
       "On altered dominants, b13 → 9 of I and #9 → maj7 of I are smooth resolutions."
     ],
-    explain: "### Tension and resolution in the voicing\nWith a bass player covering roots, guitarists voice the 3rd, 7th and **tensions** (9, 11, 13 and their alterations). The trick is to resolve tensions by step: **b9 → 5, #9 → 3 (or maj7), b13 → 9, 13 → 3**. Levine's rule of thumb: on major and minor chords add 9 (and 6 or 11); on dominants add 9/13 if it resolves to major, b9/#9/b13 if it resolves to minor.",
+    explain: "### Tension and resolution in the voicing\nWith a bass player covering roots, guitarists voice the 3rd, 7th and **tensions** (9, 11, 13 and their alterations). The trick is to resolve tensions by step: **b9 → 5, #9 → maj7 (or 6), b13 → 9 (or 3), and 13 → 3 as a common tone**. A common rule of thumb (Levine discusses it): on major and minor chords add 9 (and 6 or 11); on dominants add 9/13 if it resolves to major, b9/#9/b13 if it resolves to minor.",
     visual: { type: "progression", key: "$key", chart: "$chart", voiceLead: true, stringSet: [4, 3, 2, 1] },
-    demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true, stringSet: [4, 3, 2, 1] },
+    demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true, stringSet: [4, 3, 2, 1], title: "Engine's 4-note grips: the 5- and 6-note chords (V13, V7alt, ii11…) drop the root and 5th; 4-tone chords and ii9/Imaj9/maj7#11 keep the root, so try replacing it with the 9th yourself" },
     concepts: ["comping", "upper-structure-triads"],
     vary: ["key", "chart", "tempo"],
     source: "Mark Levine, The Jazz Theory Book (1995), chapters on chord voicings and tensions",
@@ -1865,7 +1889,11 @@ export const templates = [
     ],
     explain: "### Fourths for modal harmony\nStacks of 4ths are ambiguous: they don't spell a triad, so they don't pull toward a cadence. That's ideal for modal tunes, where you want a colour, not a function. Moving one quartal shape up and down the mode (planing) creates motion over a static chord.",
     visual: { type: "voicings", root: "$key", quality: "m7", voicing: "custom", order: ["1", "4", "b7", "b3", "5"], stringSet: [5, 4, 3, 2, 1] },
-    demo: { type: "chordScale", root: "$key", scale: "dorian", size: "quartal", stringSet: [4, 3, 2], path: "up-and-down" },
+    demo: [
+      { type: "chordScale", root: "$key", scale: "dorian", size: "quartal", stringSet: [4, 3, 2], path: "up-and-down", title: "Diatonic planing: 3-note 4ths stacks on every degree of the Dorian mode" },
+      { type: "voicings", root: "$key", quality: "m7", voicing: "custom", order: ["1", "4", "b7", "b3", "5"], stringSet: [5, 4, 3, 2, 1], inversion: 0, beatsPerChord: 4, title: "So What chord on the tonic: 1 4 b7 b3 5 (three 4ths + a major 3rd)" },
+      { type: "voicings", root: "$key", quality: "m7", voicing: "custom", order: ["2", "5", "1", "4", "6"], stringSet: [5, 4, 3, 2, 1], inversion: 0, beatsPerChord: 4, title: "Same shape one Dorian step up (labels = degrees of the key: 2 5 1 4 6)" },
+    ],
     drone: { note: "$key", fifth: true },
     concepts: ["modal-jazz", "comping"],
     vary: ["key", "tempo"],
@@ -1886,7 +1914,7 @@ export const templates = [
     },
     prompt: "Comp **{p:chart}** in **{key}**: on the V bar, play a **major triad on the top 3 strings** with the 3rd and 7th of V on strings 4–5 underneath. Find the right triad by its distance from V's root.",
     goal: "You can find each triad instantly from the dominant's root.",
-    tempo: { start: 70, min: 50, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Over G7: A major (II) = 9 #11 13; E major (VI) = 13 b9 3; Eb major (bVI) = b13 1 #9; Db major (bV) = #11 b7 b9.",
@@ -1895,7 +1923,7 @@ export const templates = [
     ],
     explain: "### Upper-structure triads\nA triad placed above a dominant's 3rd and 7th produces a specific set of tensions. Mark Levine's list: **II** (13 #11), **bVI** (#9 b13), **VI** (13 b9), **bV** (b9 #11), plus minor triads such as **bii** (b9 b13). On guitar this is easy: a shell on the low strings and a triad on top.",
     visual: { type: "progression", key: "$key", chart: "$chart", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true, title: "Sound check: the engine voices V as a 4-note drop-2 grip with 3, b7 and the upper-structure tensions (it can't stack a triad over a shell, and one triad tone may be missing: the bV option's #11). On guitar: 3 and b7 on strings 5-4, the full triad on 3-2-1" },
     concepts: ["upper-structure-triads"],
     vary: ["key", "chart", "tempo"],
     source: "Mark Levine, The Jazz Piano Book (1989) and The Jazz Theory Book (1995): upper-structure triads",
@@ -1908,7 +1936,7 @@ export const templates = [
     params: { key: ["F", "G", "A", "C"] },
     prompt: "Play a jazz blues in **{key}** as solo guitar: **walk quarter notes** on strings 6–5 and add a **2- or 3-note chord** (3rd + 7th) on the 'and' of 2 or 4, Joe Pass style.",
     goal: "Bass never stops; chord stabs don't interrupt it.",
-    tempo: { start: 80, min: 60, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Bass line per bar: root on beat 1, chord tones or scale steps on 2–3, chromatic approach to the next root on 4.",
@@ -1916,8 +1944,8 @@ export const templates = [
       "Start with one stab per bar, then two."
     ],
     explain: "### Being the band\nJoe Pass and Martin Taylor made solo guitar sound like bass + piano by walking a line and dropping in tiny chord fragments. The secret is economy: the bass carries time and roots, so the chords only need the 3rd and 7th. The bass line's last note before each bar is an approach note (chromatic or a 5th above) into the next root.",
-    visual: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", stringSet: "auto", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", stringSet: "auto", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", voiceLead: true },
+    demo: { type: "progression", key: "$key", chart: "| I:7 | IV:7 | I:7 | v:m7 I:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 VI:7 | ii:m7 | V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: "shell", voiceLead: true, title: "The chord skeleton only: root–3–7 shells, voice-led (the engine can't walk a bass line). Play the root on beat 1 of your walking line on strings 6–5 and stab just the 3rd + 7th" },
     concepts: ["comping", "chord-melody", "blues-forms"],
     vary: ["key", "tempo"],
     source: "Joe Pass, Joe Pass Guitar Style (1970); Martin Taylor, walking-bass lessons (Guitar World): paraphrased",
@@ -1932,10 +1960,10 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["chord-melody", "melody-only", "bass", "public-domain"],
     title: "Chord melody step 1–2: Mary Had a Little Lamb in {key}",
     level: 3, length: "medium", minutes: 4,
-    params: { key: ["C", "G", "D", "F", "A"] },
+    params: { key: ["G", "A", "Bb", "Ab"] },
     prompt: "In **{key}**, play the melody of *Mary Had a Little Lamb* on the **top two strings** (step 1). Then add a **bass note on beat 1 of every bar** (root of I or V on strings 5–6) under the melody (step 2). Melody on top, always.",
     goal: "Melody stays legato and on top; bass notes ring under it on each downbeat.",
-    tempo: { start: 70, min: 50, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Find the melody in a position where the tonic is on string 2 or 1, around frets 5–10. That leaves the low strings free for bass notes.",
@@ -1945,9 +1973,8 @@ export const templates = [
     explain: "### Why start here\nEvery chord-melody method (Martin Taylor, Tuck Andress, Jens Larsen) starts the same way: **learn the melody first, in a good register**, then frame it with a bass line. Melody + bass already implies the harmony. Chords are added later to fill the middle. Keeping the melody on the top string(s) makes it the loudest voice, so it sings.",
     visual: { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "melody-only" },
     demo: [
-      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "melody-only", title: "Step 1: melody only" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "shell-under", title: "One way: shell under the melody" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "triad-top", title: "Another way: triad with melody on top" }
+      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "melody-only", title: "Step 1: melody only, on the top two strings (step 2 is yours: add the root of I or V on string 6 or 5 on each beat 1)" },
+      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "triad-top", title: "Looking ahead to step 3: a triad under the melody at each chord change" }
     ],
     concepts: ["chord-melody"],
     vary: ["key", "tempo"],
@@ -1958,10 +1985,10 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["chord-melody", "harmonization", "triads", "drop2"],
     title: "Harmonize the {key} scale with the melody on top",
     level: 4, length: "short", minutes: 3,
-    params: { key: "major" },
+    params: { key: ["C", "G", "D", "E", "F", "Eb"] },
     prompt: "Play the **{key} major scale** (1 up to 1') as a melody on the top strings and put a **diatonic chord under every note** that has that note on top: I, V, vi, ii | I, IV, V7, I. Then find a second chord choice for each note.",
     goal: "Every melody note on top, every chord from the key.",
-    tempo: { start: 60, min: 40, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Each scale note belongs to three diatonic triads (as root, 3rd or 5th). Pick any of the three.",
@@ -1984,10 +2011,10 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["chord-melody", "triads", "public-domain"],
     title: "Chord melody step 3: Twinkle Twinkle with triads under the melody ({key})",
     level: 4, length: "medium", minutes: 5,
-    params: { key: ["C", "G", "D", "F", "A", "E"] },
+    params: { key: ["G", "A", "E", "F", "Ab"] },
     prompt: "In **{key}**, build a chord-melody arrangement of *Twinkle Twinkle Little Star*, **melody on top**. On every chord change play a **triad whose top note is the melody note** (strings 3-2-1 or 4-3-2); play the notes between changes as single notes.",
     goal: "Melody clearly on top; a triad under each chord-change note.",
-    tempo: { start: 66, min: 50, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 66, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Three chords: I, IV, V7. Two changes per bar in some bars.",
@@ -1998,7 +2025,6 @@ export const templates = [
     visual: { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj | I:maj IV:maj | I:maj V:7 | I:maj IV:maj | I:maj V:7 | I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj |", style: "triad-top" },
     demo: [
       { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj | I:maj IV:maj | I:maj V:7 | I:maj IV:maj | I:maj V:7 | I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj |", style: "triad-top", title: "One way: triads on top strings" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj | I:maj IV:maj | I:maj V:7 | I:maj IV:maj | I:maj V:7 | I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj |", style: "shell-under", title: "Another way: bass + shell under the melody" },
       { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj | I:maj IV:maj | I:maj V:7 | I:maj IV:maj | I:maj V:7 | I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj |", style: "drop2-top", title: "Looking ahead: drop 2" }
     ],
     concepts: ["chord-melody"],
@@ -2010,10 +2036,10 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["chord-melody", "drop2", "drop3", "public-domain"],
     title: "Chord melody step 4: Ode to Joy with drop 2 under the melody ({key})",
     level: 5, length: "medium", minutes: 5,
-    params: { key: ["C", "G", "D", "F", "Bb", "A"] },
+    params: { key: ["G", "A", "Bb", "F", "D"] },
     prompt: "In **{key}**, arrange *Ode to Joy* (Beethoven) as chord melody, **melody on top**, with **drop-2 seventh chords** (strings 4-3-2-1) at every chord change. Then redo it with **drop 3** (bass on string 6 or 5) for a fuller sound.",
     goal: "Melody on string 1 or 2 at every change; voicings change by small moves.",
-    tempo: { start: 60, min: 40, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "For each melody note, pick the drop-2 inversion of Imaj7 or V7 that has it on top.",
@@ -2036,22 +2062,21 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["chord-melody", "3-4", "triads", "drop2", "public-domain"],
     title: "Chord melody: Amazing Grace in 3/4 ({key})",
     level: 6, length: "long", minutes: 6,
-    params: { key: ["G", "C", "D", "F", "A"] },
+    params: { key: ["G", "A", "C", "Bb"] },
     prompt: "In **{key}**, build a chord-melody arrangement of *Amazing Grace* in 3/4, **melody on top**: a chord on beat 1 of every bar, the rest of the bar as melody notes over the ringing chord. Use I, I7, IV, vi, V and V13.",
     goal: "A singing melody over full chords; the I7 → IV move in bars 2–3 is clear.",
-    tempo: { start: 60, min: 40, max: 100, step: 4, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 4, unit: "bpm" },
     metronome: { meter: "3/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
-      "The pickup bar is just the melody's first note; start the chords in bar 1.",
+      "The pickup is a single melody note (the demo puts a V7 under it; a lone note works too). The real chord changes start in bar 1.",
       "I7 has the b7 in it: let it ring into IV to give the 'gospel' pull.",
-      "In bar 15 the melody's 3 sits on top of V as a 13th. Let it hang, then resolve."
+      "In the second-to-last bar the melody's 3 sits on top of V as a 13th. Let it hang, then resolve."
     ],
-    explain: "### Arranging in 3/4\nOne chord per bar on beat 1, melody notes on beats 2 and 3 over the sustain: the classic hymn/ballad chord-melody texture. The melody spans an octave and a half, so choose a key where its lowest note (the 5 below the tonic) still sits on string 3 or higher; G and A work well. The 13th on V near the end is a first taste of reharmonizing by colour.",
-    visual: { type: "chordMelody", key: "$key", scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj | I:7 | IV:maj | I:maj | I:maj | vi:min | V:maj | I:maj | I:maj | I:7 | IV:maj | I:maj | vi:min | V:13 | I:maj |", style: "triad-top" },
+    explain: "### Arranging in 3/4\nOne chord per bar on beat 1, melody notes on beats 2 and 3 over the sustain: the classic hymn/ballad chord-melody texture. The melody spans an octave (from the 5 below the tonic up to the 5 above), so choose a key where its lowest note still sits on string 3 or higher; G and A work well. The 13th on V near the end is a first taste of reharmonizing by colour.",
+    visual: { type: "chordMelody", key: "$key", beatsPerBar: 3, scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj | I:7 | IV:maj | I:maj | I:maj | vi:min | V:maj | I:maj | I:maj | I:7 | IV:maj | I:maj | vi:min | V:7 | I:maj |", style: "triad-top" },
     demo: [
-      { type: "chordMelody", key: "$key", scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj | I:7 | IV:maj | I:maj | I:maj | vi:min | V:maj | I:maj | I:maj | I:7 | IV:maj | I:maj | vi:min | V:13 | I:maj |", style: "triad-top", title: "One way: triads" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | I:7 | IV:maj7 | I:maj7 | I:6 | vi:m7 | V:7 | I:maj7 | I:6 | I:7 | IV:maj7 | I:maj7 | vi:m7 | V:13 | I:6 |", style: "drop2-top", title: "Another way: drop 2 sevenths" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj | I:7 | IV:maj | I:maj | I:maj | vi:min | V:maj | I:maj | I:maj | I:7 | IV:maj | I:maj | vi:min | V:13 | I:maj |", style: "shell-under", title: "A third way: bass + shell under the melody" }
+      { type: "chordMelody", key: "$key", beatsPerBar: 3, scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj | I:7 | IV:maj | I:maj | I:maj | vi:min | V:maj | I:maj | I:maj | I:7 | IV:maj | I:maj | vi:min | V:7 | I:maj |", style: "triad-top", title: "One way: triads (no triad puts the melody's 13th on top of V, so that bar has a root–3–7 shell under it: V13)" },
+      { type: "chordMelody", key: "$key", beatsPerBar: 3, scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | I:7 | IV:maj7 | I:maj7 | I:6 | vi:m7 | V:7 | I:maj7 | I:6 | I:7 | IV:maj7 | I:maj7 | vi:m7 | V:13 | I:6 |", style: "drop2-top", title: "Another way: drop 2 sevenths" },
     ],
     concepts: ["chord-melody"],
     vary: ["key", "tempo"],
@@ -2062,22 +2087,22 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["chord-melody", "reharm", "ii-v-i", "tritone-sub", "public-domain"],
     title: "Chord melody step 5: reharmonize Twinkle Twinkle in {key}",
     level: 7, length: "long", minutes: 6,
-    params: { key: ["C", "G", "F", "D", "Bb"] },
+    params: { key: ["C", "G", "F", "D", "A"] },
     prompt: "Take your *Twinkle Twinkle* arrangement in **{key}** and **reharmonize** it, melody still on top: secondary dominants (VI7), ii–Vs, a backdoor bVII7, a tritone sub with #11, and a final bVI7#11 → I6. Check that every melody note at a change is a chord tone or a good tension.",
     goal: "Same melody, jazz harmony, still singable.",
-    tempo: { start: 60, min: 40, max: 120, step: 4, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 4, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "For each melody note at a change, ask: what interval is it over the new chord? Root, 3, 5, 7, 9, 11, 13 = fine; avoid a natural 11 over major/dominant.",
       "Bar 10's G over Db7 is its #11 (hence Db7#11).",
       "Reharm in stages: secondary dominants first, then subs."
     ],
-    explain: "### Step 5: reharmonization\nWith melody-on-top technique in place, the fun starts: substitute chords that **still contain the melody note** (as a chord tone or a tension). Here: I–VI7 | ii–V, iii–VI7b13, ii9–V7, I–bVII7 (backdoor), vi–bIII7 (tritone sub of VI7), ii–bII7#11, and bVI7#11 → I6. Every substitute is one you've drilled on other cards.",
+    explain: "### Step 5: reharmonization\nWith melody-on-top technique in place, the fun starts: substitute chords that **still contain the melody note** (as a chord tone or a tension). Here: I–VI7 | ii–V, iii–VI7b13, ii9–V7, I–bVII7 (the backdoor dominant, borrowed from minor; here it moves on to ii–V), vi–bIII7 (tritone sub of VI7), ii–bII7#11, and bVI7#11 → I6. Every substitute is one you've drilled on other cards.",
     visual: { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj7 V/ii:7 | ii:m7 V:7 | IV:maj7 iii:m7 | V:7sus4 I:maj7 | iii:m7 V/ii:7b13 | ii:m9 V:7 | I:maj7 bVII:7 | ii:m9 V:7 | vi:m7 bIII:7 | ii:m7 bII:7#11 | IV:maj7 iii:m7 | bVI:7#11 I:6 |", style: "drop2-top" },
     demo: [
       { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj | I:maj IV:maj | I:maj V:7 | I:maj IV:maj | I:maj V:7 | I:maj | IV:maj I:maj | IV:maj I:maj | V:7 I:maj |", style: "triad-top", title: "Before: original harmony" },
       { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj7 V/ii:7 | ii:m7 V:7 | IV:maj7 iii:m7 | V:7sus4 I:maj7 | iii:m7 V/ii:7b13 | ii:m9 V:7 | I:maj7 bVII:7 | ii:m9 V:7 | vi:m7 bIII:7 | ii:m7 bII:7#11 | IV:maj7 iii:m7 | bVI:7#11 I:6 |", style: "drop2-top", title: "One way: jazz reharm, drop 2" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj7 V/ii:7 | ii:m7 V:7 | IV:maj7 iii:m7 | V:7sus4 I:maj7 | iii:m7 V/ii:7b13 | ii:m9 V:7 | I:maj7 bVII:7 | ii:m9 V:7 | vi:m7 bIII:7 | ii:m7 bII:7#11 | IV:maj7 iii:m7 | bVI:7#11 I:6 |", style: "drop3-top", title: "Another way: same reharm, drop 3" }
+      { type: "chordMelody", key: "$key", scale: "major", melody: "1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- | 5 5 4 4 | 3 3 2- | 5 5 4 4 | 3 3 2- | 1 1 5 5 | 6 6 5- | 4 4 3 3 | 2 2 1- |", chart: "| I:maj7 V/ii:7 | ii:m7 V:7 | IV:maj7 iii:m7 | V:7sus4 I:maj7 | iii:m7 V/ii:7b13 | ii:m7 V:7 | I:maj7 bVII:7 | ii:m7 V:7 | vi:m7 bIII:7 | ii:m7 bII:7#11 | IV:maj7 iii:m7 | bVI:7#11 I:6 |", style: "drop3-top", title: "Another way: same reharm, drop 3 (no drop-3 grip puts the 9th on top of ii9, so those bars use a root–3–7 shell under the melody: still ii9)" }
     ],
     concepts: ["chord-melody", "secondary-dominants", "tritone-sub", "backdoor-ii-v"],
     vary: ["key", "tempo"],
@@ -2088,21 +2113,21 @@ export const templates = [
     mode: "play", category: "progressions", tags: ["chord-melody", "reharm", "3-4", "public-domain"],
     title: "Reharmonized chord melody: Amazing Grace in {key}",
     level: 8, length: "long", minutes: 8,
-    params: { key: ["G", "C", "D", "F"] },
+    params: { key: ["G", "A", "Bb", "F"] },
     prompt: "Reharmonize *Amazing Grace* in **{key}**, melody on top, one chord per bar: secondary dominants (I7 → IV, II9 → V, VI7 → ii), a V7sus4, iii and vi substitutes for I, a #ivø7 → V13 ending. Then make your own version: change at least four chords.",
     goal: "A ballad-style arrangement where every melody note at a change is a chord tone or tension.",
-    tempo: { start: 54, min: 40, max: 90, step: 3, unit: "bpm" },
+    tempo: { start: 54, min: 40, max: 200, step: 3, unit: "bpm" },
     metronome: { meter: "3/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "iii7 and vi7 can replace I under melody notes 3 and 5 (or 1 and 5 for vi).",
       "#ivø7 contains the tonic as its b5: a classic tonic-melody substitute that leads to V.",
       "Tensions on top (9, 13, #11) sound lush in a slow 3/4."
     ],
-    explain: "### Reharm by function\nSubstitutes come from the function families: **tonic** (I, iii, vi, #ivø), **subdominant** (IV, ii, iv), **dominant** (V, V7sus, bII7, vii°), plus **secondary dominants** for colour. Keep the melody note in the new chord and the arrangement survives any change. Ballad players like Martin Taylor, Ted Greene and Lenny Breau reharmonize hymns and standards exactly this way.",
-    visual: { type: "chordMelody", key: "$key", scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | V/IV:7 | IV:maj7 | iii:m7 | vi:m7 | V/V:9 | V:7sus4 | iii:m7 | V/ii:7 | ii:m9 | IV:maj7 | I:maj/5 | #iv:m7b5 | V:13 | I:6 |", style: "drop2-top" },
+    explain: "### Reharm by function\nSubstitutes come from the function families: **tonic** (I, iii, vi, #ivø), **subdominant** (IV, ii, iv), **dominant** (V, V7sus, bII7, vii°), plus **secondary dominants** for colour. Keep the melody note in the new chord and the arrangement survives any change. Ballad players like Martin Taylor, Ted Greene and Lenny Breau reharmonize hymns and standards in this spirit.",
+    visual: { type: "chordMelody", key: "$key", beatsPerBar: 3, scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | V/IV:7 | IV:maj7 | iii:m7 | vi:m7 | V/V:9 | V:7sus4 | iii:m7 | V/ii:7 | ii:m9 | IV:maj7 | I:maj/5 | #iv:m7b5 | V:13 | I:6 |", style: "drop2-top" },
     demo: [
-      { type: "chordMelody", key: "$key", scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | V/IV:7 | IV:maj7 | iii:m7 | vi:m7 | V/V:9 | V:7sus4 | iii:m7 | V/ii:7 | ii:m9 | IV:maj7 | I:maj/5 | #iv:m7b5 | V:13 | I:6 |", style: "drop2-top", title: "One way: drop 2" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | V/IV:7 | IV:maj7 | iii:m7 | vi:m7 | V/V:9 | V:7sus4 | iii:m7 | V/ii:7 | ii:m9 | IV:maj7 | I:maj/5 | #iv:m7b5 | V:13 | I:6 |", style: "drop3-top", title: "Another way: drop 3 (fuller bass)" }
+      { type: "chordMelody", key: "$key", beatsPerBar: 3, scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | V/IV:7 | IV:maj7 | iii:m7 | vi:m7 | V/V:9 | V:7sus4 | iii:m7 | V/ii:7 | ii:m9 | IV:maj7 | I:maj/5 | #iv:m7b5 | V:13 | I:6 |", style: "drop2-top", title: "One way: drop 2" },
+      { type: "chordMelody", key: "$key", beatsPerBar: 3, scale: "major", melody: ". . 5, | 1- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 5-- | 5- 3 | 5- 3_ 1_ | 3- 2 | 1- 6, | 5,- 5, | 1- 3_ 1_ | 3- 2 | 1-- |", chart: "| V:7 | I:maj7 | V/IV:7 | IV:maj7 | iii:m7 | vi:m7 | V/V:9 | V:7sus4 | iii:m7 | V/ii:7 | ii:m7 | IV:maj7 | I:maj/5 | #iv:m7b5 | V:13 | I:6 |", style: "drop3-top", title: "Another way: drop 3 (fuller bass). No drop-3 grip puts the 9th on top of ii, so that bar is a root–3–7 shell under the melody (= ii9)" }
     ],
     concepts: ["chord-melody", "secondary-dominants", "reharmonization"],
     vary: ["key", "tempo"],
@@ -2116,7 +2141,7 @@ export const templates = [
     params: { key: "major" },
     prompt: "Hold the **tonic of {key}** as the top note on string 1 or 2 and put eight different chords under it: Imaj7 (as root), vi7 (b3), IVmaj7 (5), ii7 (b7), bVI7 (3), bIImaj7 (7), VII7b9 (b9), #ivø7 (b5). Say the melody note's interval over each chord.",
     goal: "Same top note, eight colours; you can name the interval each time.",
-    tempo: { start: 50, min: 40, max: 100, step: 4, unit: "bpm" },
+    tempo: { start: 50, min: 40, max: 200, step: 4, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
       "Find the note on the top string first, then build each chord down from it.",
@@ -2140,18 +2165,18 @@ export const templates = [
     params: { key: ["C", "G", "F", "D", "A"] },
     prompt: "In **{key}**, play the scale in **10ths**: bass on string 6 or 5, the note a 10th above (an octave + 3rd) on string 3 or 2, walking up diatonically. Then play *Mary Had a Little Lamb* with a bass note a 10th (or 6th) below each melody note at the chord changes.",
     goal: "Two independent voices, both clear, the melody on top.",
-    tempo: { start: 60, min: 40, max: 120, step: 5, unit: "bpm" },
+    tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     hints: [
-      "A 10th = a 3rd plus an octave. On strings 6 and 3, it's the same fret pattern as a 3rd shifted across the neck.",
+      "A 10th = a 3rd plus an octave. On strings 6 and 3: a minor 10th is the same fret on both strings, a major 10th is one fret higher on string 3 (G on 6:3 → B on 3:4).",
       "10ths are always 3rds of the key, so they're automatically diatonic.",
       "Thumb on the bass, finger on the melody."
     ],
-    explain: "### 10ths: the frame of solo guitar\nMartin Taylor's chord-melody teaching (*Beyond Chord Melody*) starts with tunes played in **10ths**: bass plus melody a 10th above. Two voices already imply the harmony and sound like piano. Then you add inner voices only where they help.",
+    explain: "### 10ths: the frame of solo guitar\nMartin Taylor's chord-melody teaching (e.g. *Beyond Chord Melody*) leans heavily on melody-plus-bass playing, and **10ths** (bass with the melody a 10th above) are the classic frame for it. Two voices already imply the harmony and sound like piano. Then you add inner voices only where they help.",
     visual: { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "shell-under" },
     demo: [
-      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | I:maj | V:7 | I:maj | I:maj | I:maj | V:7 | I:maj |", style: "shell-under", title: "Bass + shell under the melody (closest available style to 10ths)" },
-      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | vi:min | V:7 | I:maj | I:maj | IV:maj | V:7 | I:maj |", style: "triad-top", title: "Another way: triads with a vi and IV for variety" }
+      { type: "chordScale", root: "$key", scale: "major", size: 3, voicing: "spread", stringSet: [6, 4, 3], inversion: 0, path: "ascending", beatsPerChord: 2, title: "The scale in 10ths: root on string 6, the 10th on string 3. The engine also sounds the 5th on string 4 (an open/spread triad); leave it out for pure 10ths" },
+      { type: "chordMelody", key: "$key", scale: "major", melody: "3 2 1 2 | 3 3 3- | 2 2 2- | 3 5 5- | 3 2 1 2 | 3 3 3 3 | 2 2 3 2 | 1--- |", chart: "| I:maj | vi:min | V:7 | I:maj | I:maj | iii:min | V:7 | I:maj |", style: "triad-top", title: "Mary with a triad under the melody at each change (vi and iii for variety). For the 10ths version, keep just the melody and one bass note a 10th (or 6th) below it" }
     ],
     concepts: ["chord-melody"],
     vary: ["key", "tempo"],
@@ -2317,7 +2342,7 @@ export const templates = [
     params: { key: "major" },
     prompt: "Over a tonic drone, improvise **two bars in each parallel mode** from brightest to darkest: Lydian → Ionian → Mixolydian → Dorian → Aeolian → Phrygian → Locrian. Each step changes **one note** (lowers it a half step).",
     goal: "You lower exactly one note at each change and can hear the mood darken.",
-    tempo: { start: 80, min: 60, max: 140, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
     drone: { note: "$key", fifth: true },
     hints: [
@@ -2327,7 +2352,7 @@ export const templates = [
     ],
     explain: "### Brightness order\nOrdering the modes by how many raised notes they have gives a ladder where **each step lowers one note**: Lydian, Ionian, Mixolydian, Dorian, Aeolian, Phrygian, Locrian. It's the most useful way to hear modes as *colours of the same tonic*, which is exactly how modal interchange works.",
     visual: { type: "progression", key: "$key", chart: "| I:maj7#11 | I:maj7 | I:7 | i:m6 | i:m7 | i:min | i:m7b5 |", scales: { "I:maj7#11": "lydian", "I:maj7": "ionian", "I:7": "mixolydian", "i:m6": "dorian", "i:m7": "aeolian", "i:min": "phrygian", "i:m7b5": "locrian" } },
-    demo: { type: "progression", key: "$key", chart: "| I:maj7#11 | I:maj7 | I:7 | i:m6 | i:m7 | i:min | i:m7b5 |", walk: "arpeggio", scales: { "I:maj7#11": "lydian", "I:maj7": "ionian", "I:7": "mixolydian", "i:m6": "dorian", "i:m7": "aeolian", "i:min": "phrygian", "i:m7b5": "locrian" } },
+    demo: { type: "progression", key: "$key", chart: "| I:maj7#11 | I:maj7 | I:7 | i:m6 | i:m7 | i:min | i:m7b5 |", walk: "arpeggio", title: "Each mode's tonic chord arpeggiated, with the whole mode shown as ghost dots: listen for the one note that drops each time", scales: { "I:maj7#11": "lydian", "I:maj7": "ionian", "I:7": "mixolydian", "i:m6": "dorian", "i:m7": "aeolian", "i:min": "phrygian", "i:m7b5": "locrian" } },
     concepts: ["mode-brightness", "modal-interchange"],
     vary: ["key", "tempo"],
   },
@@ -2338,12 +2363,12 @@ export const templates = [
   {
     id: "har-imp-pent-sub-maj7",
     mode: "play", category: "improv", tags: ["pentatonic-substitution", "maj7", "heuristics"],
-    title: "Pentatonic subs over {key}maj7",
+    title: "Pentatonic subs over {root}maj7",
     level: 4, length: "medium", minutes: 3,
     params: { key: "major" },
-    prompt: "Over a **{key}maj7** vamp, improvise 4 bars with each pentatonic: (1) major pentatonic from the **root**, (2) minor pentatonic from the **3rd** (= major pentatonic from the 5th), (3) minor pentatonic from the **7th** (= major pentatonic from the 2nd, a Lydian sound).",
+    prompt: "Over a **{root}maj7** vamp, improvise 4 bars with each pentatonic: (1) major pentatonic from the **root**, (2) minor pentatonic from the **3rd** (= major pentatonic from the 5th), (3) minor pentatonic from the **7th** (= major pentatonic from the 2nd, a Lydian sound).",
     goal: "You can hear three distinct colours: plain, maj7/9, and #11.",
-    tempo: { start: 80, min: 60, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     drone: { note: "$key", fifth: true },
     hints: [
@@ -2365,12 +2390,12 @@ export const templates = [
   {
     id: "har-imp-pent-sub-m7",
     mode: "play", category: "improv", tags: ["pentatonic-substitution", "m7", "dorian", "heuristics"],
-    title: "Minor pentatonics from the 1, 5 and 9 over {key}m7",
+    title: "Minor pentatonics from the 1, 5 and 9 over {root}m7",
     level: 4, length: "medium", minutes: 3,
     params: { key: "minor" },
     prompt: "Over an **i m7** vamp in **{key}**, improvise 4 bars each with minor pentatonic from the **root**, from the **5th**, and from the **9th** (2nd). Then mix them in one solo.",
     goal: "You can hear the 9th and 6th appear when you switch pentatonics.",
-    tempo: { start: 80, min: 60, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     drone: { note: "$key", fifth: true },
     hints: [
@@ -2435,7 +2460,7 @@ export const templates = [
     ],
     explain: "### Targeting\nThe 3rd is the note that tells the ear which chord it is. Landing on it at each change makes even a simple line 'make the changes'. This is the first rule of bebop phrasing: **strong beats get chord tones**.",
     visual: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", walk: "arpeggio" },
-    demo: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", walk: "arpeggio", scales: { "ii:m7": "dorian", "V:7": "mixolydian", "I:maj7": "ionian" } },
+    demo: { type: "progression", key: "$key", chart: "| ii:m7/b3 | V:7/3 | I:maj7/3 | % |", walk: "arpeggio", scales: { "ii:m7/b3": "dorian", "V:7/3": "mixolydian", "I:maj7/3": "ionian" }, title: "Each bar's arpeggio starts on the chord's 3rd (the slash shows that note in the bass), so beat 1 is always the 3rd" },
     concepts: ["guide-tones", "chord-tone-targeting"],
     vary: ["key", "tempo"],
   },
@@ -2455,8 +2480,8 @@ export const templates = [
       "Sing the line over the comping before you play it."
     ],
     explain: "### Guide-tone lines\nIn a cycle of 4ths, the 3rd and 7th of consecutive chords move by step (7 → 3, 3 → 7). String those notes together and you have a melody that outlines every chord: a **guide-tone line**. It's the skeleton jazz players hang lines on, a technique taught everywhere from Berklee to Barry Harris.",
-    visual: { type: "progression", key: "$key", chart: "| iv:m7 | bVII:7 | bIII:maj7 | bVI:maj7 | ii:m7b5 | V:7b9 | i:m6 | % |", voicing: "shell", stringSet: "auto", voiceLead: true },
-    demo: { type: "progression", key: "$key", chart: "| iv:m7 | bVII:7 | bIII:maj7 | bVI:maj7 | ii:m7b5 | V:7b9 | i:m6 | % |", voicing: "shell", stringSet: "auto", voiceLead: true },
+    visual: { type: "progression", key: "$key", chart: "| iv:m7 | bVII:7 | bIII:maj7 | bVI:maj7 | ii:m7b5 | V:7b9 | i:m6 | % |", voicing: "shell", voiceLead: true, title: "Root–3–7 shells, voice-led: the guide-tone line is the 3rd/7th that moves by step from bar to bar (on im6 the 6 stands in for the 7th)" },
+    demo: { type: "progression", key: "$key", chart: "| iv:m7 | bVII:7 | bIII:maj7 | bVI:maj7 | ii:m7b5 | V:7b9 | i:m6 | % |", voicing: "shell", voiceLead: true, title: "Root–3–7 shells, voice-led: the guide-tone line is the 3rd/7th that moves by step from bar to bar (on im6 the 6 stands in for the 7th)" },
     concepts: ["guide-tones", "chord-tone-targeting"],
     vary: ["key", "tempo"],
   },
@@ -2498,13 +2523,16 @@ export const templates = [
     ],
     explain: "### Chord-scale theory in one sentence\nEach chord implies a scale, and in a diatonic ii–V–I they're all modes of the **same parent**. So the job isn't 'change scales', it's **change targets**. Lydian on Imaj7 is the first 'outside the key' choice: it removes the avoid note (the 4th against the 3rd).",
     visual: { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", scales: { "ii:m7": "dorian", "V:7": "mixolydian", "I:maj7": "ionian" } },
-    demo: { type: "compare", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", target: "I:maj7",
+    demo: [
+      { type: "progression", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", voiceLead: true, scales: { "ii:m7": "dorian", "V:7": "mixolydian", "I:maj7": "ionian" }, title: "Dorian → Mixolydian → Ionian: one parent scale, a new chord to target each bar" },
+      { type: "compare", key: "$key", chart: "| ii:m7 | V:7 | I:maj7 | % |", target: "I:maj7",
       options: [
         { scale: "ionian", label: "Ionian: inside, but the 4th is an avoid note" },
         { scale: "lydian", label: "Lydian: #11 replaces the avoid note" },
         { scale: "major-pentatonic", label: "Major pentatonic: no avoid notes at all" }
       ],
       explain: "Listen to what happens when the run passes the 4th degree. In Ionian it rubs against the 3rd; in Lydian it floats; the pentatonic skips it." },
+    ],
     concepts: ["chord-scale-theory", "avoid-notes", "ii-v-i"],
     vary: ["key", "tempo"],
   },
@@ -2572,6 +2600,7 @@ export const templates = [
         { scale: "ionian", label: "Ionian" },
         { scale: "lydian", label: "Lydian (#11)" },
         { scale: "major-pentatonic", label: "Major pentatonic" },
+        { scale: "minor-pentatonic", from: "3", label: "Minor pentatonic from the 3rd (= major pent from the 5th: adds the 7th)" },
         { scale: "bebop-major", label: "Bebop major (6th-diminished)" }
       ],
       explain: "Listen to the 4th degree: Ionian's natural 4 sounds unresolved over the chord; Lydian's #4 sounds like colour; the pentatonic leaves it out." },
@@ -2580,6 +2609,7 @@ export const templates = [
         { scale: "ionian", label: "Ionian" },
         { scale: "lydian", label: "Lydian (#11)" },
         { scale: "major-pentatonic", label: "Major pentatonic" },
+        { scale: "minor-pentatonic", from: "3", label: "Minor pentatonic from the 3rd (= major pent from the 5th: adds the 7th)" },
         { scale: "bebop-major", label: "Bebop major" }
       ],
       explain: "Listen for the treatment of the 4th degree in each run." },
@@ -2606,7 +2636,8 @@ export const templates = [
       options: [
         { scale: "dorian", label: "Dorian (default)" },
         { scale: "bebop-dorian", label: "Bebop Dorian (passing 3rd)" },
-        { scale: "minor-pentatonic", label: "Minor pentatonic" },
+        { scale: "minor-pentatonic", label: "Minor pentatonic from the root" },
+        { scale: "minor-pentatonic", from: "5", label: "Minor pentatonic from the 5th (adds the 9th)" },
         { scale: "aeolian", label: "Aeolian (for contrast: its b6 is out of the key)" }
       ],
       explain: "Dorian and its pentatonic sound inside; Aeolian's b6 pulls the ii toward a minor key. You'll hear it." },
@@ -2614,8 +2645,9 @@ export const templates = [
       options: [
         { scale: "dorian", label: "Dorian" },
         { scale: "bebop-dorian", label: "Bebop Dorian" },
-        { scale: "minor-pentatonic", label: "Minor pentatonic" },
-        { scale: "aeolian", label: "Aeolian (contrast)" }
+        { scale: "minor-pentatonic", label: "Minor pentatonic from the root" },
+        { scale: "minor-pentatonic", from: "5", label: "Minor pentatonic from the 5th (adds the 9th)" },
+        { scale: "aeolian", label: "Aeolian (contrast: its b6 is out of the key)" }
       ],
       explain: "Listen for the 6th degree: natural in Dorian, flat in Aeolian." },
     concepts: ["chord-scale-theory", "pentatonic-substitution", "think-dominant"],
@@ -2632,19 +2664,18 @@ export const templates = [
     tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
-      "Simplest: one harmonic minor scale (of the key) over all three chords.",
+      "Simplest: the key's harmonic minor over iiø7 and V7b9, then melodic minor on im6 (harmonic minor's b6 would clash with the chord's 6).",
       "Locrian ♮2 over Dm7b5 = F melodic minor. Its natural 9 (E) sounds more modern than Locrian's b9.",
       "Altered over G7 = Ab melodic minor; Phrygian dominant over G7 = C harmonic minor."
     ],
-    explain: "### Minor ii–V–i choices\n| Chord (in C minor) | Options | Parent |\n|---|---|---|\n| Dm7b5 | Locrian / **Locrian ♮2** | Eb major / F melodic minor |\n| G7b9 | **Phrygian dominant** / altered / half-whole | C harmonic minor / Ab melodic minor / G diminished |\n| Cm6 | **melodic minor** / Dorian / harmonic minor | C melodic minor / Bb major / C harmonic minor |\n\nThe **one-scale shortcut**: C harmonic minor over all three. The **modern** sound: F melodic minor → Ab melodic minor → C melodic minor.",
+    explain: "### Minor ii–V–i choices\n| Chord (in C minor) | Options | Parent |\n|---|---|---|\n| Dm7b5 | Locrian / **Locrian ♮2** | Eb major / F melodic minor |\n| G7b9 | **Phrygian dominant** / altered / half-whole | C harmonic minor / Ab melodic minor / G diminished |\n| Cm6 | **melodic minor** / Dorian | C melodic minor / Bb major |\n\nHarmonic minor fits a plain Cm or Cm(maj7) tonic, but its Ab clashes with the A of Cm6.\n\nThe **one-scale shortcut**: C harmonic minor over iiø7–V7 (and over the tonic when it's Cm or Cm(maj7)). The **modern** sound: F melodic minor → Ab melodic minor → C melodic minor.",
     visual: { type: "compare", key: "$key", chart: "| ii:m7b5 | V:7b9 | i:m6 | % |", target: "V:7b9",
       options: [
         { scale: "phrygian-dominant", label: "Phrygian dominant (harmonic minor)" },
         { scale: "altered", label: "Altered (melodic minor ½ step up)" },
-        { scale: "diminished-hw", label: "Half-whole diminished" },
-        { scale: "mixolydian-b6", label: "Mixolydian b6 (natural 9, b13)" }
+        { scale: "diminished-hw", label: "Half-whole diminished" }
       ],
-      explain: "All four have a b13 or b9 that resolves down into the minor tonic. Phrygian dominant sounds classical/Spanish, altered sounds modern-jazz, half-whole sounds symmetric and 'bebop'." },
+      explain: "All three have a b9 (and two have a b13) that resolves down into the minor tonic. Phrygian dominant sounds classical/Spanish, altered sounds modern-jazz, half-whole sounds symmetric and 'bebop'." },
     demo: [
       { type: "compare", key: "$key", chart: "| ii:m7b5 | V:7b9 | i:m6 | % |", target: "ii:m7b5",
         options: [
@@ -2663,9 +2694,9 @@ export const templates = [
         options: [
           { scale: "melodic-minor", label: "Melodic minor (maj7, 6)" },
           { scale: "dorian", label: "Dorian (b7, 6)" },
-          { scale: "harmonic-minor", label: "Harmonic minor (maj7, b6)" }
+          { scale: "harmonic-minor", label: "Harmonic minor (contrast: its b6 clashes with the chord's 6)" }
         ],
-        explain: "Compare the 6th and 7th degrees: each choice gives the tonic minor a different mood." }
+        explain: "Compare the 6th and 7th degrees. Melodic minor and Dorian both keep the chord's natural 6; harmonic minor's b6 rubs against it (save it for a plain im or im(maj7) tonic)." }
     ],
     concepts: ["minor-ii-v-i", "altered-dominant", "chord-scale-theory"],
     vary: ["key", "tempo"],
@@ -2692,7 +2723,14 @@ export const templates = [
         { scale: "altered-dim", label: "7th mode of harmonic minor (= harmonic minor of ii)" }
       ],
       explain: "Both contain the dim7's four notes. Whole-half adds symmetric colour; the harmonic-minor version sounds like a minor-key leading tone resolving into ii." },
-    demo: { type: "progression", key: "$key", chart: "| I:maj7 #i:dim7 | ii:m7 V:7 |", walk: "arpeggio" },
+    demo: [
+      { type: "progression", key: "$key", chart: "| I:maj7 #i:dim7 | ii:m7 V:7 |", walk: "arpeggio", title: "(1) The dim7 arpeggio, resolving up a half step into ii" },
+      { type: "compare", key: "$key", chart: "| I:maj7 #i:dim7 | ii:m7 V:7 |", target: "#i:dim7",
+        options: [
+          { scale: "diminished-wh", label: "(2) Whole-half diminished from the dim7 root" },
+          { scale: "altered-dim", label: "(3) Harmonic minor of ii (its 7th mode, from the dim7 root)" }
+        ] },
+    ],
     concepts: ["passing-diminished", "dim7-rootless-dominant"],
     vary: ["key", "tempo"],
   },
@@ -2742,7 +2780,7 @@ export const templates = [
     params: { key: ["A", "E", "G", "C", "D", "F", "Bb"] },
     prompt: "Solo over a 12-bar blues in **{key}**: chorus 1 **minor pentatonic / blues scale**, chorus 2 **major pentatonic**, chorus 3 mix them, sliding from b3 to 3 over the I chord.",
     goal: "The b3 → 3 slide sounds bluesy and deliberate.",
-    tempo: { start: 80, min: 60, max: 160, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "Minor pent over a major/dominant blues: the b3 is a 'blue note' that bends toward 3.",
@@ -3135,7 +3173,7 @@ export const templates = [
     params: { key: "major", string: [1, 2, 3, 4] },
     prompt: "Solo over **| ii7 | V7 | Imaj7 | VI7 |** in **{key}** using **only string {p:string}**, the whole neck. Target chord tones on the downbeats.",
     goal: "Musical lines on one string; you see intervals as distances along the string.",
-    tempo: { start: 80, min: 60, max: 180, step: 5, unit: "bpm" },
+    tempo: { start: 80, min: 60, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
     hints: [
       "One string = the piano keyboard laid out in a line: intervals are just fret distances.",

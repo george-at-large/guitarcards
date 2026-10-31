@@ -161,3 +161,37 @@ svg.compact .dot text { font-size: 8.5px; }
 .ctxbox { border: 1px solid color-mix(in srgb, var(--accent2) 40%, var(--line)); background: color-mix(in srgb, var(--accent2) 7%, var(--panel)); border-radius: 12px; padding: 10px 12px; margin: 4px 0 10px; font-size: 15px; }
 .ctxbox p { margin: 4px 0; } .ctxh { font-weight: 700; color: var(--accent2); margin-bottom: 2px; }
 .ctxbox button { margin-top: 6px; font-size: 14px; padding: 8px 12px; }
+
+/* rhythm notation v2 */
+.rhy { margin: 8px 0; }
+.rhead { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.rhead .rmeter { display: inline-block; font-weight: 800; color: var(--text); background: var(--panel2); border-radius: 6px; padding: 1px 6px; margin-right: 4px; }
+.rbar { display: flex; flex-direction: column; gap: 2px; border-left: 3px solid var(--muted); padding-left: 5px; margin-bottom: 6px; }
+.rbarn { font-size: 10px; color: var(--muted); height: 12px; }
+.rbeats { display: flex; gap: 4px; }
+.rbeat { display: flex; flex: 1; gap: 1px; background: var(--panel); border-radius: 8px; padding: 3px 2px; border: 1px solid transparent; }
+.rbeat.bacc { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+.rslot { flex-basis: 0; display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 1px 0; border-radius: 5px; }
+.rslot .racc { font-size: 12px; font-weight: 900; color: var(--accent); height: 13px; line-height: 13px; }
+.rslot .rsym { font-size: 20px; font-weight: 800; height: 24px; line-height: 24px; white-space: nowrap; }
+.rslot .rcount { font-size: 10px; color: var(--muted); }
+.rslot .rcount.beatn { font-size: 12px; color: var(--text); font-weight: 700; }
+.rslot.acc .rsym { color: #ffe3a6; }
+.rslot.ghost .rsym { color: #8a93a1; font-size: 15px; }
+.ghostarrow { font-style: normal; color: #4a525e; font-weight: 400; }
+.rslot.cur { background: var(--on); } .rslot.cur .rsym, .rslot.cur .rcount, .rslot.cur .racc, .rslot.cur .ghostarrow { color: #001; }
+.rlegend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.rlegend b { color: var(--text); } .rlegend .ghosttxt { color: #8a93a1; } .rlegend .acctxt { color: var(--accent); }
+.clockwrap { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.compasclock { width: 150px; height: 150px; flex: none; }
+.clockring { fill: none; stroke: var(--line); stroke-width: 1.5; }
+.cnum circle { fill: var(--panel2); stroke: var(--line); } .cnum text { fill: var(--muted); font-size: 11px; font-weight: 700; text-anchor: middle; }
+.cnum.acc circle { fill: var(--accent); stroke: var(--accent); } .cnum.acc text { fill: #1a1406; font-size: 13px; }
+.cnum.cur circle { fill: var(--on); stroke: var(--on); } .cnum.cur text { fill: #001; }
+.clockc { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.clocknote { color: var(--muted); }
+.turnnote { margin: 6px 0 0; }
+
+.scrubrow { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.scrub { flex: 1; accent-color: var(--accent2); height: 28px; }
+.scrubpos { min-width: 92px; text-align: right; }

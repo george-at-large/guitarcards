@@ -77,7 +77,7 @@ export const analyses = [
         notes: [
           { bar: 2, text: "Cm/Bb: the bass starts its slow descent C → Bb → Ab → G, the **lament bass**.", concepts: ["ana-bass-line"] },
           { bar: 3, text: "Fm with Ab in the bass (iv6). Ab is the b6 of the key.", concepts: ["ana-half-cadence"] },
-          { bar: 4, text: "Ab → G in the bass, a half step down, while the upper voice rises F → G. That pair of half steps is the **Phrygian** sound, the same b2–1 pull as F → E in A Phrygian. Bach chorales end slow movements with it; flamenco treats this chord as home.", concepts: ["ana-half-cadence", "ana-andalusian"] } ],
+          { bar: 4, text: "Ab → G in the bass, a half step down, while the upper voice rises F → G. That pair of half steps is the **Phrygian** sound, the same b2–1 pull as F → E in E Phrygian. Bach chorales end slow movements with it; flamenco treats this chord as home.", concepts: ["ana-half-cadence", "ana-andalusian"] } ],
         subs: [
           { bar: 3, options: [
             { token: "bVI:maj", label: "bVI (Ab major)", why: "Same bass note, slightly brighter. Cm–Bb–Ab–G is exactly the **Andalusian cadence** in C minor.", concepts: ["ana-andalusian"] },
@@ -101,24 +101,24 @@ export const analyses = [
         subs: [
           { bar: 4, options: [
             { token: "IV:maj/3", label: "IV6 (F/A)", why: "Same bass step G → A, but the harmony slips to the subdominant. It is common in gospel and in hymn reharmonisations.", concepts: ["ana-bass-line"] },
-            { token: "V/ii:7", label: "A7 (V/ii)", why: "Deceptive *and* forward-moving: A7 shares nothing with C, and it pushes on towards Dm.", concepts: ["ana-secondary-dominant"] } ] } ] },
+            { token: "V/ii:7", label: "A7 (V/ii)", why: "Deceptive *and* forward-moving: A7 keeps E and G but turns C into C#, the leading tone of D, so it pushes on towards Dm.", concepts: ["ana-secondary-dominant"] } ] } ] },
       { name: "2. V–bVI (borrowed)", chart: "| I:maj | IV:maj | V:7 | bVI:maj | IV:maj | V:7 | I:maj | % |",
         notes: [
-          { bar: 4, text: "Ab major: Ab–C–Eb. The leading tone B slides *up* to C, but D falls to Eb and G falls to Ab. Everything sinks by a half step, a dramatic darkening borrowed from C minor.", concepts: ["ana-deceptive-cadence", "ana-modal-interchange"] } ],
+          { bar: 4, text: "Ab major: Ab–C–Eb. The leading tone B still rises to C, and D and G also rise a half step, to Eb and Ab, while F falls to Eb. Instead of falling a 5th, the bass creeps up a half step (G → Ab): a dramatic darkening borrowed from C minor.", concepts: ["ana-deceptive-cadence", "ana-modal-interchange"] } ],
         subs: [
           { bar: 4, options: [
-            { token: "bVI:maj7", label: "Abmaj7", why: "Adds G, the note you were expecting as the root of a C chord's fifth, hanging on as a common tone. It softens the blow and sounds lush rather than shocked.", concepts: ["ana-modal-interchange"] } ] } ] } ],
+            { token: "bVI:maj7", label: "Abmaj7", why: "Adds G, the root of the G7 you just heard and the 5th of the C chord you were expecting, held over as a common tone. It softens the blow and sounds lush rather than shocked.", concepts: ["ana-modal-interchange"] } ] } ] } ],
     compare: [
       { type: "compare", key: "C", chart: "| vi:min | IV:maj | V:7 | I:maj |", target: "I:maj",
         options: [ { token: "I:maj", label: "I: authentic, the expected answer" }, { token: "vi:min", label: "vi: deceptive, the classic" },
                    { token: "bVI:maj7", label: "bVImaj7: borrowed, cinematic" }, { token: "V/ii:7", label: "A7: deceptive, then keeps moving" } ],
-        explain: "Each option follows the same G7. Notice how much 'C' each one still contains: Am keeps C and E, Abmaj7 keeps C and G, and A7 keeps only E. The less common ground, the bigger the surprise." } ],
+        explain: "Each option follows the same G7. Notice how much 'C' each one still contains: Am keeps C and E, Abmaj7 keeps C and G, and A7 keeps E and G but sharpens C to C#. The less common ground, the bigger the surprise." } ],
     source: "Original illustration; terminology per Open Music Theory and standard harmony texts."
   },
   {
     id: "ana-cadence-backdoor", title: "Backdoor cadence: iv–bVII7–I", artist: "Illustration (original)",
     genre: "jazz", level: 5, key: "C", tempo: 100, meter: "4/4", tags: ["cadence", "backdoor", "modal-interchange", "jazz"],
-    summary: "The **backdoor progression** comes home through the back: **ivm7 → bVII7 → Imaj7** (in C: Fm7 → Bb7 → Cmaj7). It is a ii–V *of the wrong key*. Fm7–Bb7 is ii–V in Eb, but it resolves to C instead.\n\nWhy it works: Bb7 contains Ab and D, the notes of Fm6 (the minor plagal chord). It also has a root a whole step below C, and its own 'leading tone', D, which sits a step above C. The ear hears a mixture of minor plagal and dominant. Standards that use it include 'There Will Never Be Another You', 'Lady Bird' and 'Stella by Starlight'. It is also the bridge between jazz and the rock bVII chord.",
+    summary: "The **backdoor progression** comes home through the back: **ivm7 → bVII7 → Imaj7** (in C: Fm7 → Bb7 → Cmaj7). It is a ii–V *of the wrong key*. Fm7–Bb7 is ii–V in Eb, but it resolves to C instead.\n\nWhy it works: Bb7 contains Ab and D, the notes of Fm6 (the minor plagal chord). It also has a root a whole step below C, and a D that falls by step into C. The ear hears a mixture of minor plagal and dominant. Standards that use it include 'There Will Never Be Another You', 'Lady Bird' and 'Stella by Starlight'. It is also the bridge between jazz and the rock bVII chord.",
     sections: [
       { name: "Front door, then back door", chart: "| ii:m7 | V:7 | I:maj7 | % | iv:m7 | bVII:7 | I:maj7 | % |",
         notes: [
@@ -157,14 +157,14 @@ export const analyses = [
         notes: [
           { bar: 2, text: "Eb major in a C major song: a chromatic mediant (root a minor third up). G is shared, and C→Bb and E→Eb pull downward.", concepts: ["ana-modal-interchange", "ana-chromatic-mediant"] },
           { bar: 3, text: "IV → iv: the A → Ab sigh, the minor plagal cadence.", concepts: ["ana-plagal-cadence"] } ] },
-      { name: "3. ii° and iv in a ii–V", chart: "| I:maj7 | vi:m7 | ii:m7b5 | V:7b9 | I:maj7 | % |",
+      { name: "3. Borrowed ii° in a ii–V", chart: "| I:maj7 | vi:m7 | ii:m7b5 | V:7b9 | I:maj7 | % |",
         notes: [
           { bar: 3, text: "Dm7♭5 is ii borrowed from C minor (D F Ab C). Its Ab carries straight into the b9 of G7♭9 (also Ab). This *minor ii–V into a major I* is a standard jazz colour.", concepts: ["ana-modal-interchange", "ana-ii-v-i"] } ] } ],
     compare: [
       { type: "compare", key: "C", chart: "| I:maj | IV:maj | ii:min | I:maj |", target: "ii:min",
         options: [ { token: "ii:min", label: "Dm: diatonic ii" }, { token: "iv:min", label: "Fm: borrowed iv" }, { token: "ii:m7b5", label: "Dm7♭5: borrowed ii°" },
                    { token: "bVII:maj", label: "Bb: borrowed bVII" }, { token: "bVI:maj", label: "Ab: borrowed bVI" } ],
-        explain: "The same slot holds five chords. Go down the list and the colour grows darker and more 'filmic': each borrowed chord brings one or two flat notes from C minor (Ab, Bb) into the bright key." } ],
+        explain: "The same slot holds five chords. Go down the list and the colour grows darker and more 'filmic': each borrowed chord brings one or two flat notes from C minor (Ab, Bb, Eb) into the bright key." } ],
     source: "Original illustration; modal mixture as presented in Open Music Theory ('Modal mixture') and the Berklee approach to modal interchange."
   },
   {
@@ -193,7 +193,7 @@ export const analyses = [
       { type: "compare", key: "C", chart: "| I:maj7 | V/ii:7 | ii:m7 | V:7 |", target: "V/ii:7",
         options: [ { scale: "phrygian-dominant", label: "A Phrygian dominant (D harmonic minor)" }, { scale: "mixolydian", label: "A Mixolydian" },
                    { scale: "altered", label: "A altered" }, { scale: "diminished-hw", label: "A half-whole diminished" } ],
-        explain: "A7 is heading to D *minor*. Phrygian dominant gives you Bb and F, notes of the target key, so the line flows into Dm. Mixolydian's F# and B point to D *major*; once Dm arrives, that F# sounds wrong. Altered and half-whole add tension but still contain Bb." } ],
+        explain: "A7 is heading to D *minor*. Phrygian dominant gives you Bb and F, notes of the target key, so the line flows into Dm. Mixolydian's F# and B point to D *major*; once Dm arrives, that F# sounds wrong. Altered adds tension and keeps Bb and F, so it still lands well on Dm. Half-whole keeps Bb too, but its F# leans towards D major." } ],
     source: "Original illustration; secondary and extended dominants as in Open Music Theory ('Applied chords') and the bridge of Rhythm Changes."
   },
   {
@@ -207,7 +207,7 @@ export const analyses = [
         subs: [
           { bar: 2, options: [
             { token: "I:maj7#11", label: "Cmaj7#11", why: "The same colour stacked into one chord: the Lydian tonic as a single sound.", concepts: ["ana-mode-brightness"] },
-            { token: "IV:maj/5", label: "F/C (plain Ionian)", why: "The diatonic equivalent. It sounds warm and hymn-like rather than airborne; the only difference is F versus F#.", concepts: ["ana-pedal-point"] } ] } ] },
+            { token: "IV:maj/5", label: "F/C (plain Ionian)", why: "The diatonic equivalent. It sounds warm and hymn-like rather than airborne; the telling difference is F versus F# (D/C also adds D).", concepts: ["ana-pedal-point"] } ] } ] },
       { name: "2. Major chromatic mediants", chart: "| I:maj | III:maj | bVI:maj | I:maj |",
         notes: [
           { bar: 2, text: "C → E: the common tone is E, and C→B and G→G# move by half step. It is bright and lifting, with a sense of revelation.", concepts: ["ana-chromatic-mediant"] },
@@ -217,7 +217,7 @@ export const analyses = [
           { bar: 2, options: [
             { token: "iii:min", label: "Em (diatonic mediant)", why: "The diatonic relative. It shares two notes with C, so it is barely a change. Making it major (E) adds the G#, and the magic appears.", concepts: ["ana-chromatic-mediant"] },
             { token: "bIII:maj", label: "Eb (flat mediant)", why: "The darker direction. Eb shares G with C, and the borrowed Eb and Bb drag the mood down.", concepts: ["ana-modal-interchange"] },
-            { token: "VI:maj", label: "A major", why: "The chromatic mediant above the relative minor, a heroic, bright lift (C# is the new note).", concepts: ["ana-chromatic-mediant"] } ] } ] },
+            { token: "VI:maj", label: "A major", why: "The relative minor made major, a chromatic submediant (root a minor third below C, sharing only E): a heroic, bright lift (C# is the new note).", concepts: ["ana-chromatic-mediant"] } ] } ] },
       { name: "3. Minor mediants (mystery)", chart: "| i:min | bvi:min | i:min | iii:min |",
         notes: [
           { bar: 2, text: "Cm → Abm (Ab Cb Eb): Eb is held while C→Cb and G→Ab move by half step. It is eerie, a staple of fantasy and horror cues.", concepts: ["ana-chromatic-mediant"] },
@@ -244,7 +244,7 @@ export const analyses = [
           { bar: 4, text: "F#, the 6th. Am6 = A C E F#, the Dorian colour. It sets up D or E nicely.", concepts: ["ana-line-cliche", "ana-dorian-iv"] } ],
         subs: [
           { bar: 4, options: [
-            { token: "IV:9", label: "D9", why: "Am6 without the A is just D9 without its root. Moving to D9 turns the cliché into i → IV, the Dorian vamp.", concepts: ["ana-dorian-iv"] },
+            { token: "IV:9", label: "D9", why: "Am6 (A C E F#) is D9 without its root. Moving to D9 turns the cliché into i → IV, the Dorian vamp.", concepts: ["ana-dorian-iv"] },
             { token: "vi:m7b5", label: "F#m7♭5 (same notes, new bass)", why: "Am6 (A C E F#) and F#m7♭5 (F# A C E) are the same four notes. Put F# in the bass and the cliché turns into the ii of a minor ii–V towards E minor (F#ø–B7–Em).", concepts: ["ana-ii-v-i", "ana-line-cliche"] } ] } ] },
       { name: "2. Minor, bass line", chart: "| i:min | i:min/7 | i:min/b7 | IV:maj/3 | bVI:maj7 | % | V:7 | % |",
         notes: [
@@ -254,7 +254,7 @@ export const analyses = [
       { name: "3. Major, ascending", chart: "| bIII:maj | bIII:aug | bIII:6 | bIII:7 | bVI:maj | % |",
         notes: [
           { bar: 2, text: "C → C+: G rises to G#. This is the augmented triad's natural job, a passing chord.", concepts: ["ana-line-cliche"] },
-          { bar: 4, text: "C7: the line arrives at Bb, so the chord becomes V/IV and resolves to F. The climb has turned into a secondary dominant.", concepts: ["ana-secondary-dominant"] } ] } ],
+          { bar: 4, text: "C7: the line arrives at Bb, so the chord becomes V7 of F and resolves there. The climb has turned into a secondary dominant.", concepts: ["ana-secondary-dominant"] } ] } ],
     compare: [
       { type: "compare", key: "Am", chart: "| i:min | i:mMaj7 | i:m7 | i:m6 |", target: "i:mMaj7",
         options: [ { scale: "harmonic-minor", label: "A harmonic minor: G# and F" }, { scale: "melodic-minor", label: "A melodic minor: G# and F#" } ],
@@ -300,7 +300,7 @@ export const analyses = [
             { token: "bII:maj7", label: "Dbmaj7 (Neapolitan colour)", why: "Not a dominant at all, but it still slides by a half step. It is the Tadd Dameron / 'Lady Bird' turnaround sound.", concepts: ["ana-tadd-turnaround", "ana-neapolitan"] } ] } ] },
       { name: "2. Subbed turnaround (I–bIII7–ii–bII7)", chart: "| I:maj7 bIII:7 | ii:m7 bII:7 | I:maj7 bIII:7 | ii:m7 bII:7 |",
         notes: [
-          { bar: 1, text: "Eb7 replaces A7 (V/ii). Its tritone, G and Db (= C#), is the same as A7's. Bass: C → Eb → D → Db → C, a chromatic descent.", concepts: ["ana-tritone-sub", "ana-secondary-dominant"] } ] },
+          { bar: 1, text: "Eb7 replaces A7 (V/ii). Its tritone, G and Db (= C#), is the same as A7's. Bass: C leaps up to Eb, then falls chromatically Eb → D → Db → C.", concepts: ["ana-tritone-sub", "ana-secondary-dominant"] } ] },
       { name: "3. Sub the ii too", chart: "| ii:m7 V:7 | bvi:m7 bII:7 | I:maj7 | % |",
         notes: [
           { bar: 2, text: "Abm7–Db7 is a whole ii–V a tritone away from Dm7–G7. It sounds like a sudden key shift that resolves down a half step. Bird and Coltrane use it constantly.", concepts: ["ana-tritone-sub", "ana-ii-v-i"] } ] } ],
@@ -316,7 +316,7 @@ export const analyses = [
   {
     id: "ana-coltrane-changes-demo", title: "Coltrane changes: ii–V–I through three keys", artist: "Illustration (original, after John Coltrane's 'Countdown' approach)",
     genre: "jazz", level: 8, key: "C", tempo: 160, meter: "4/4", tags: ["coltrane-changes", "major-thirds", "giant-steps", "reharmonization"],
-    summary: "**Coltrane changes** split the octave into three equal parts, keys a major third apart (C, Ab, E), and visit each through its own dominant. Coltrane used them to reharmonise ordinary ii–V–Is ('Countdown' is built on 'Tune Up'; '26-2' on 'Confirmation'), and wrote 'Giant Steps' entirely around the cycle.\n\nThe trick: a two-bar ii–V–I (Dm7 | G7 | Cmaj7) becomes **Dm7 Eb7 | Abmaj7 B7 | Emaj7 G7 | Cmaj7**. The start and the destination are the same, but in between the music passes through Ab and E. Each key change is a **chromatic mediant** and each arrival is prepared by its own V7, so the line stays logical even as it modulates every two beats.",
+    summary: "**Coltrane changes** split the octave into three equal parts, keys a major third apart (C, Ab, E), and visit each through its own dominant. Coltrane used them to reharmonise ordinary ii–V–Is ('Countdown' is built on 'Tune Up'; '26-2' on 'Confirmation'), and wrote 'Giant Steps' entirely around the cycle.\n\nThe trick: a four-bar ii–V–I (Dm7 | G7 | Cmaj7 | Cmaj7) becomes **Dm7 Eb7 | Abmaj7 B7 | Emaj7 G7 | Cmaj7**. The start and the destination are the same, but in between the music passes through Ab and E. Each key change is a **chromatic mediant** and each arrival is prepared by its own V7, so the line stays logical even though it lands in a new key every bar.",
     sections: [
       { name: "1. Plain ii–V–I", chart: "| ii:m7 | V:7 | I:maj7 | % |",
         notes: [ { bar: 1, text: "The skeleton Coltrane starts from.", concepts: ["ana-ii-v-i"] } ] },
@@ -381,15 +381,15 @@ export const analyses = [
         subs: [
           { bar: 4, options: [
             { token: "V:13sus4", label: "Bb13sus4", why: "The 13th (G) adds even more air. It is the gospel and neo-soul pre-resolution chord.", concepts: ["ana-sus-dominant"] },
-            { token: "bII:maj7", label: "Fbmaj7 (sounds as Emaj7)", why: "A major 7th chord a half step above the tonic, sliding down into Eb. It is a chromatic planing move, a Neapolitan colour used as a modern approach chord.", concepts: ["ana-neapolitan"] } ] } ] },
+            { token: "bII:maj7", label: "Fbmaj7 (sounds as Emaj7)", why: "A major 7th chord a half step above the tonic. When the loop finally resolves it slides down into Ebmaj7; back into Abmaj9 it is a chromatic-mediant move (Ab and Eb held). It is a chromatic planing move, a Neapolitan colour used as a modern approach chord.", concepts: ["ana-neapolitan"] } ] } ] },
       { name: "2. Chromatic slide + minor iv", chart: "| IV:maj9 | iv:m9 | iii:m7 biii:m7 | ii:m9 V:9sus4 |",
         notes: [
           { bar: 2, text: "Abmaj9 → Abm9: the borrowed minor iv. C falls to Cb (B), which is the minor plagal sigh with jazz extensions.", concepts: ["ana-modal-interchange", "ana-plagal-cadence"] },
           { bar: 3, text: "Gm7 → Gbm7 → (Fm9): parallel minor 7ths sliding down by half steps. Gbm7 isn't functional; it is **planing**, the same grip moved down a fret.", concepts: ["ana-bass-line"] } ] } ],
     compare: [
       { type: "compare", key: "Eb", chart: "| IV:maj9 | iii:m7 V/ii:7#9 | ii:m9 | V:9sus4 |", target: "V/ii:7#9",
-        options: [ { scale: "altered", label: "C altered: #9, b9, b13" }, { scale: "diminished-hw", label: "C half-whole: #9 with natural 13" }, { scale: "mixolydian-b6", label: "C Mixolydian b6 (F harmonic-minor-ish)" } ],
-        explain: "C7#9 is heading to Fm9. Altered gives the slinkiest pull (Db and Ab fall into Fm). Half-whole keeps the A natural, a brighter, funkier tension. Mixolydian b6 keeps the 9th natural and sounds more 'soul' than 'bebop'." } ],
+        options: [ { scale: "altered", label: "C altered: #9, b9, b13" }, { scale: "diminished-hw", label: "C half-whole: #9 with natural 13" }, { scale: "mixolydian-b6", label: "C Mixolydian b6 (F melodic minor)" } ],
+        explain: "C7#9 is heading to Fm9. Altered gives the slinkiest pull (Db falls to C, and Ab is held into Fm). Half-whole keeps the A natural, a brighter, funkier tension. Mixolydian b6 keeps the 9th natural and sounds more 'soul' than 'bebop'." } ],
     source: "Original illustration of common neo-soul harmonic devices; style description paraphrased from general jazz/neo-soul pedagogy."
   },
   {
@@ -405,7 +405,7 @@ export const analyses = [
           { bar: 4, text: "E major: G# from harmonic minor. G and G# a bar apart is the Spanish 'cross-relation'.", concepts: ["ana-andalusian", "ana-dominant-colors"] } ],
         subs: [
           { bar: 3, options: [
-            { token: "bVI:maj7", label: "Fmaj7", why: "Adds E on top, which anticipates the next chord's root. This is the jazz/bossa version (as in Hotel California-style ballads).", concepts: ["ana-andalusian"] },
+            { token: "bVI:maj7", label: "Fmaj7", why: "Adds E on top, which anticipates the next chord's root. This is the jazz/bossa version.", concepts: ["ana-andalusian"] },
             { token: "bVI:7", label: "F7", why: "F7 is the tritone sub of B7 (V of E), so it slides by half step into the E chord. This is the jazz-flamenco crossover sound.", concepts: ["ana-tritone-sub"] } ] },
           { bar: 4, options: [
             { token: "V:7b9", label: "E7♭9", why: "The b9 (F) is the Phrygian bII as a tension inside the chord. It is the classic flamenco/jazz crossover voicing.", concepts: ["ana-dominant-colors"] } ] } ] },
@@ -428,12 +428,12 @@ export const analyses = [
       { name: "1. Basic 12-bar", chart: "| I:7 | % | % | % | IV:7 | % | I:7 | % | V:7 | IV:7 | I:7 | V:7 |",
         notes: [
           { bar: 1, text: "A7 as tonic: the b7 (G) is part of the home sound.", concepts: ["ana-blues-harmony"] },
-          { bar: 5, text: "D7: A7's G becomes D7's C. The 'blue' 3rd of A (C) is now a chord tone.", concepts: ["ana-blues-harmony"] },
+          { bar: 5, text: "D7: A7's C# drops to C, D7's b7. The 'blue' 3rd of A (C) is now a chord tone.", concepts: ["ana-blues-harmony"] },
           { bar: 9, text: "V → IV → I: a 'backwards' cadence. The dominant relaxes into IV, then I. The blues is where the plagal habit of rock comes from.", concepts: ["ana-plagal-cadence", "ana-blues-harmony"] },
           { bar: 12, text: "The turnaround: E7 sends you back to bar 1." } ],
         subs: [
           { bar: 12, options: [
-            { token: "V:7#9", label: "E7#9", why: "The #9 (G) is the blue b3 of the *key*, stacked onto the dominant. It is the Hendrix sound.", concepts: ["ana-dominant-colors"] },
+            { token: "V:7#9", label: "E7#9", why: "The #9 (G, spelled Fx) is E's own minor 3rd stacked on top of its major 3rd G#, the blue-note clash built into one chord. G is also the b7 of the key. It is the Hendrix sound.", concepts: ["ana-dominant-colors"] },
             { token: "bVI:7", label: "F7 → E7 (half-step approach)", why: "A common turnaround is | A7 F7 | E7 |. F7 is a tritone sub for B7 (V/V), so it slides into E.", concepts: ["ana-tritone-sub"] } ] } ] },
       { name: "2. Quick change + turnaround", chart: "| I:7 | IV:7 | I:7 | % | IV:7 | % | I:7 | % | V:7 | IV:7 | I:7 IV:7 | I:7 V:7 |",
         notes: [
@@ -454,7 +454,7 @@ export const analyses = [
       { name: "12-bar jazz blues", chart: "| I:7 | IV:7 | I:7 | ii/IV:m7 V/IV:7 | IV:7 | #iv:dim7 | I:7 | iii:m7 V/ii:7 | ii:m7 | V:7 | I:7 V/ii:7 | ii:m7 V:7 |",
         notes: [
           { bar: 4, text: "Cm7–F7: a ii–V of Bb, so the move to IV is 'tonicized' and feels like a little key change.", concepts: ["ana-ii-v-i", "ana-secondary-dominant"] },
-          { bar: 6, text: "B°7 (B D F Ab): the bass rises Bb → B → C (F7/C). The diminished chord is a rootless C7♭9, i.e. V of F.", concepts: ["ana-diminished-passing"] },
+          { bar: 6, text: "B°7 (B D F Ab): the bass rises Bb → B → C (F7/C). B°7 is Bb7 with only its root raised a half step (D, F and Ab stay put), so it works as a chromatic passing chord from IV back to I. It is also a rootless G7♭9 (V/V), which is why it leans into the C bass of F7/C.", concepts: ["ana-diminished-passing"] },
           { bar: 8, text: "Am7–D7: iii then V/ii, pointing at Gm7.", concepts: ["ana-secondary-dominant"] },
           { bar: 9, text: "Gm7–C7 replaces C7–Bb7: the ii–V is the jazz version of the blues V–IV.", concepts: ["ana-ii-v-i"] },
           { bar: 11, text: "I–VI–ii–V turnaround (F7 D7 | Gm7 C7).", concepts: ["ana-secondary-dominant"] } ],
@@ -473,7 +473,7 @@ export const analyses = [
   {
     id: "ana-its-my-life", title: "It's My Life", artist: "Talk Talk (1984)",
     genre: "pop", level: 6, key: "Eb", tempo: 116, meter: "4/4", tags: ["chromatic-mediant", "tritone-modulation", "mixolydian", "synth-pop", "pivot"],
-    summary: "A synth-pop hit with one of the boldest key relationships in the charts. The **verse sits in Eb** (with a Mixolydian Db), and the **pre-chorus and chorus are in A minor**, a **tritone** away, the most distant key there is. It barely sounds like a jolt because both seams are stitched with **chromatic mediants**:\n- **Out**: the verse's last chord, Ab6, moves to **E major** (a major third down, holding Ab = G#). E then acts as V of A minor.\n- **Back**: the chorus ends on **Fm**. Am → Fm is a minor-chord chromatic mediant (C held), and Fm is ii of Eb. It is also hidden inside the verse's Ab6, which has the same notes as Fm7.\n\n*Numerals here are all relative to Eb. Heard in A minor, the pre-chorus is i–VI6–bVII–III and the chorus i–iv–bVII–III (see the notes).*",
+    summary: "A synth-pop hit with one of the boldest key relationships in the charts. The **verse sits in Eb** (with a Mixolydian Db), and the **pre-chorus and chorus are in A minor**, a **tritone** away, the most distant key there is. It barely sounds like a jolt because both seams are stitched with **chromatic mediants**:\n- **Out**: the verse's last chord, Ab6, moves to **E major** (a major third down, holding Ab = G#). E then acts as V of A minor.\n- **Back**: the chorus ends on **Fm**. Am → Fm is a minor-chord chromatic mediant (C held), and Fm is ii of Eb. It is also hidden inside the verse's Ab6, which has the same notes as Fm7.\n\n*Numerals here are all relative to Eb. Heard in A minor, the pre-chorus is i–bVI6–bVII–bIII and the chorus i–iv–bVII–bIII (see the notes).*",
     sections: [
       { name: "Verse (Eb)", chart: "| I:maj | % | bVII:maj/3 | IV:6 | I:maj | % | bVII:maj/3 | IV:6 |",
         notes: [
@@ -503,7 +503,7 @@ export const analyses = [
     compare: [
       { type: "compare", key: "Eb", chart: "| I:maj | IV:6 | #I:maj | #iv:min |", target: "#I:maj",
         options: [ { token: "#I:maj", label: "E: the record's pivot" }, { token: "#I:7", label: "E7: explicit V of A minor" }, { token: "IV:6", label: "No pivot: Ab6 straight to Am" } ],
-        explain: "Without the E chord, Ab6 → Am is a raw jump with no common tone. With E, the ear first hears a mediant slide (Ab = G# held), then a dominant-to-tonic cadence. Two small, logical steps cover a tritone's distance." } ],
+        explain: "Without the E chord, Ab6 → Am is a raw half-step lurch: only C is shared, and the other notes all shift. With E, the ear first hears a mediant slide (Ab = G# held), then a dominant-to-tonic cadence. Two small, logical steps cover a tritone's distance." } ],
     source: "MusicRadar, 'the surprising music theory that underpinned a Talk Talk classic' (Roland Schmidt): verse Eb (2 bars) – Db/F – Ab(add6); 2-bar E major pivot; pre-chorus Am F/A G C, F (6 beats) G; chorus Am Dm G C; Fm (2 bars) back to the verse; tritone relation. Hooktheory TheoryTab: verse Eb Mixolydian I4/3–VII6–ii6; pre-chorus/chorus A minor i–VI6–VII–III–VI. Fan chord sheets (guitartabs.cc) show Eb–Bbm–Db. Bar counts per MusicRadar; repeats approximate."
   },
   {
@@ -547,7 +547,7 @@ export const analyses = [
             { token: "bVII:9", label: "G9 (backdoor)", why: "Keeps the F (as the 7th) and adds a bluesy root motion into A.", concepts: ["ana-backdoor"] } ] } ] },
       { name: "Refrain", chart: "| vi:min | IV:maj | bVII:maj | I:maj | vi:min | II:maj | iv:min | I:maj |",
         notes: [
-          { bar: 3, text: "G major: bVII, borrowed from A Mixolydian/minor. G → A is the rock 'double-plagal' arrival.", concepts: ["ana-mixolydian-bvii", "ana-modal-interchange"] },
+          { bar: 3, text: "G major: bVII, borrowed from A Mixolydian/minor. D – G – A (IV – bVII – I) is the rock 'Mixolydian' way home, with no leading tone.", concepts: ["ana-mixolydian-bvii", "ana-modal-interchange"] },
           { bar: 6, text: "B major = II = V/V. It *should* lead to E. Instead it goes to Dm. Follow the inner line: D# (in B) → D (in Dm) → C# (in A).", concepts: ["ana-secondary-dominant", "ana-line-cliche"] },
           { bar: 7, text: "Dm again: the minor iv closes every phrase of the song.", concepts: ["ana-plagal-cadence"] } ],
         subs: [
@@ -660,7 +660,7 @@ export const analyses = [
   {
     id: "ana-while-my-guitar", title: "While My Guitar Gently Weeps", artist: "The Beatles (George Harrison, 1968)",
     genre: "rock", level: 4, key: "Am", tempo: 116, meter: "4/4", tags: ["line-cliche", "descending-bass", "dorian", "parallel-major", "harmonic-minor"],
-    summary: "A minor verse over a **descending chromatic bass** (A – G – F# – F) that switches to **A major** for the bridge: the same tonic, a different mode (**parallel major**). The verse also mixes three minor-key colours:\n- Am/F# and D, the Dorian F#\n- Fmaj7 and C, natural minor\n- E major, the harmonic-minor V",
+    summary: "A minor verse over a **descending bass** (A – G – F# – F, chromatic after the first step) that switches to **A major** for the bridge: the same tonic, a different mode (**parallel major**). The verse also mixes three minor-key colours:\n- Am/F# and D, the Dorian F#\n- Fmaj7 and C, natural minor\n- E major, the harmonic-minor V",
     sections: [
       { name: "Verse", chart: "| i:min | i:min/b7 | i:min/6 | bVI:maj7 | i:min | bVII:maj | IV:maj | V:maj | i:min | i:min/b7 | i:min/6 | bVI:maj7 | i:min | bVII:maj | bIII:maj | V:maj |",
         notes: [
@@ -687,7 +687,7 @@ export const analyses = [
   {
     id: "ana-let-it-be", title: "Let It Be", artist: "The Beatles (1970)",
     genre: "pop", level: 2, key: "C", tempo: 72, meter: "4/4", tags: ["axis", "plagal", "bVII", "descending-bass", "gospel"],
-    summary: "The verse is the **Axis progression** (I–V–vi–IV) with a gospel plagal ending. The verse and chorus both finish **F → C (IV–I)**, never G → C. The chorus walks the axis backwards (vi–V–IV–I), and the instrumental tag adds a borrowed **Bb (bVII)**.\n\nA lesson in how much mileage four diatonic chords can give, depending on order and bass line.",
+    summary: "The verse is the **Axis progression** (I–V–vi–IV) with a gospel plagal ending. The verse and chorus both finish **F → C (IV–I)**, never G → C. The chorus reorders the same four chords as a stepwise fall (vi–V–IV–I), and the instrumental tag adds a borrowed **Bb (bVII)**.\n\nA lesson in how much mileage four diatonic chords can give, depending on order and bass line.",
     sections: [
       { name: "Verse (×2)", chart: "| I:maj V:maj | vi:min IV:maj | I:maj V:maj | IV:maj I:maj |",
         notes: [
@@ -697,7 +697,7 @@ export const analyses = [
             { token: "IV:maj7", label: "Fmaj7", why: "Adds E on top. It is softer and more 'piano ballad', and the E is the next chord's 3rd.", concepts: ["ana-axis"] } ] } ] },
       { name: "Chorus", chart: "| vi:min V:maj | IV:maj I:maj | I:maj V:maj | IV:maj I:maj/3 ii:m7 I:maj |",
         notes: [
-          { bar: 1, text: "Am – G – F – C: roots falling A–G–F, then C. It is the Axis rotated, starting on vi.", concepts: ["ana-axis"] },
+          { bar: 1, text: "Am – G – F – C: roots falling stepwise A–G–F, then home to C. The verse's four chords in a new order (vi–V–IV–I).", concepts: ["ana-axis"] },
           { bar: 4, text: "F – C/E – Dm7 – C: the bass walks F–E–D–C, the gospel piano 'amen' fill.", concepts: ["ana-bass-line", "ana-plagal-cadence"] } ],
         subs: [
           { bar: 1, chord: 1, options: [
@@ -740,7 +740,7 @@ export const analyses = [
       { name: "Verse", chart: "| i:m7 bIII:maj | bVII:sus4 IV:7sus4 | i:m7 bIII:maj | bVII:sus4 IV:7sus4 |",
         notes: [
           { bar: 1, text: "F#m7 – A: shapes Em7 and G, with the same two top-string notes (sounding E and A).", concepts: ["ana-pedal-point"] },
-          { bar: 2, text: "Esus4 – B7sus4: no 3rds anywhere, so neither chord commits to major or minor. B7sus4 is the IV chord, unresolved and suspended.", concepts: ["ana-sus-dominant", "ana-key-ambiguity"] } ],
+          { bar: 2, text: "Esus4 – B7sus4: no 3rds anywhere, so neither chord commits to major or minor. B7sus4 is the IV chord, the predominant, but it never moves on to a V: it falls straight back to F#m7, a suspended plagal (iv → i) close.", concepts: ["ana-sus-dominant", "ana-key-ambiguity"] } ],
         subs: [
           { bar: 2, chord: 1, options: [
             { token: "IV:7", label: "B7 (resolve the sus)", why: "Brings in D#, the Dorian 6th of F#m. It sounds brighter and more 'folk', and it commits the mode.", concepts: ["ana-dorian-iv"] } ] } ] },
@@ -770,7 +770,7 @@ export const analyses = [
         notes: [
           { bar: 1, text: "Eb major, heard as home because the loop starts and lingers here.", concepts: ["ana-key-ambiguity"] },
           { bar: 2, text: "Bbm: the Db in it is the Mixolydian b7. Without a major V, nothing pulls hard towards Eb, so the loop can spin forever.", concepts: ["ana-mixolydian-bvii", "ana-mode-brightness"] },
-          { bar: 4, text: "Fm, which Hooktheory gives as a ii7. In Ab major the same three chords are V – ii – vi, so the song never settles the question.", concepts: ["ana-key-ambiguity"] } ],
+          { bar: 4, text: "Fm, which Hooktheory gives as a ii7: a predominant that returns to Eb without any dominant in between. In Ab major the same three chords are V – ii – vi, so the song never settles the question.", concepts: ["ana-key-ambiguity"] } ],
         subs: [
           { bar: 2, options: [
             { token: "V:maj", label: "Bb major", why: "Brings in D natural, the leading tone. The loop now sounds like plain Eb major, and the mystery evaporates.", concepts: ["ana-mode-brightness"] } ] },
@@ -785,7 +785,7 @@ export const analyses = [
   {
     id: "ana-viva-la-vida", title: "Viva la Vida", artist: "Coldplay (2008)",
     genre: "pop", level: 2, key: "Ab", tempo: 138, meter: "4/4", tags: ["axis", "loop", "sus", "rotation"],
-    summary: "**Db – Eb – Ab – Fm (IV – V – I – vi)**, one chord per bar, for the whole song. It is a rotation of the Axis family that starts on the predominant, so each pass sounds like a cadence (IV – V – I) followed by a step aside (vi). On guitar it is usually played capo 1 with C – D – G – Em shapes.\n\nThe Eb chord is often voiced as **Eb7sus4**, or (in Wikipedia's notation) **Absus4/Eb**, the tonic's sus chord over the dominant bass. Both soften the V so the loop never feels too final.",
+    summary: "**Db – Eb – Ab – Fm (IV – V – I – vi)**, one chord per bar, for the whole song. It uses the four Axis chords in a different order, starting on the predominant, so each pass sounds like a cadence (IV – V – I) followed by a step aside (vi). On guitar it is usually played capo 1 with C – D – G – Em shapes.\n\nThe Eb chord is often voiced as **Eb7sus4**, or (in Wikipedia's notation) **Absus4/Eb**, the tonic's sus chord over the dominant bass. Both soften the V so the loop never feels too final.",
     sections: [
       { name: "Loop", chart: "| IV:maj | V:maj | I:maj | vi:min |",
         notes: [
@@ -885,7 +885,7 @@ export const analyses = [
       { name: "Verse", chart: "| I:sus2 | vi:m11 | V:maj | IV:sus2 | I:sus2 | vi:m11 | V:maj | V:maj |",
         notes: [
           { bar: 1, text: "Bbsus2: no 3rd, just 1-2-5. It sounds open, neither happy nor sad.", concepts: ["ana-sus-dominant"] },
-          { bar: 2, text: "Gm7(11), which Hooktheory gives as vi7sus4. The 11th (C) is a held common tone with the sus2 chords.", concepts: ["ana-pedal-point"] },
+          { bar: 2, text: "Gm7(11), which Hooktheory gives as vi7sus4. The 11th (C) is a held common tone with the Bbsus2 before it (its 2nd).", concepts: ["ana-pedal-point"] },
           { bar: 4, text: "F → Eb: V moving *down* to IV, a rock 'retrogression'. The dominant relaxes rather than resolves.", concepts: ["ana-axis", "ana-plagal-cadence"] } ],
         subs: [
           { bar: 2, options: [
@@ -900,7 +900,7 @@ export const analyses = [
   {
     id: "ana-teen-spirit", title: "Smells Like Teen Spirit", artist: "Nirvana (1991)",
     genre: "rock", level: 2, key: "Fm", tempo: 117, meter: "4/4", tags: ["power-chords", "key-ambiguity", "aeolian", "riff"],
-    summary: "**F5 – Bb5 – Ab5 – Db5**, two beats each, through the verse, pre-chorus and chorus. Power chords contain no 3rds, so the riff doesn't say major or minor. Analysts call it **F minor** (i – iv – bIII – bVI), but **Ab major** (vi – ii – I – IV) fits the same notes. The vocal and lead lines decide.\n\nThe root motion (up a 4th, down a step, up a 4th) is the pattern of many rock riffs: two 'plagal' leaps joined by a step.",
+    summary: "**F5 – Bb5 – Ab5 – Db5**, two beats each, through the verse, pre-chorus and chorus. Power chords contain no 3rds, so the riff doesn't say major or minor. Analysts call it **F minor** (i – iv – bIII – bVI), but **Ab major** (vi – ii – I – IV) fits the same notes. The vocal and lead lines decide.\n\nThe root motion (up a 4th, down a step, up a 4th) is the pattern of many rock riffs: two 'plagal' leaps joined by a step. There is no dominant (C) anywhere: iv (Bb5) is the only predominant, and the loop gets back to F from Db5 (bVI → i), a rock return rather than a cadence.",
     sections: [
       { name: "Riff", chart: "| i:5 iv:5 | bIII:5 bVI:5 | i:5 iv:5 | bIII:5 bVI:5 |",
         notes: [
@@ -976,7 +976,7 @@ export const analyses = [
     compare: [
       { type: "compare", key: "Bm", chart: "| i:m7 | bIII:maj | v:m7 | IV:maj |", target: "i:m7",
         options: [ { scale: "dorian", label: "B Dorian (G#)" }, { scale: "aeolian", label: "B Aeolian (G)" } ],
-        explain: "Aeolian's G clashes with the E major chord (G#) two bars later. Dorian matches the whole loop, the soul and disco minor." } ],
+        explain: "Aeolian's G clashes with the E major chord (G#) at the end of the loop. Dorian matches the whole loop, the soul and disco minor." } ],
     source: "Hooktheory TheoryTab (B Dorian; IV–i7–III–v7 starting on E); MusicTech tutorial; UG chart (capo 2 shapes, via search snippet)."
   },
   {
@@ -1026,13 +1026,13 @@ export const analyses = [
       { name: "Loop", chart: "| bVI:maj7 V:7b9 | i:m7 i:m7 bvii:m7 bIII:7 |",
         notes: [
           { bar: 1, text: "Dbmaj7 → C7: bVI → V, the half-step-down bass of the Andalusian and Phrygian cadences, now in jazz chords. C7 uses E natural from harmonic minor.", concepts: ["ana-andalusian", "ana-dominant-colors"] },
-          { bar: 2, text: "Fm7 for two beats, then **Ebm7 – Ab7**: a ii–V of Db, so the loop 'resolves' to its own first chord. Note that Ebm7 is a *borrowed* minor ii (Eb minor isn't in F minor).", concepts: ["ana-ii-v-i", "ana-secondary-dominant"] },
-          { bar: 2, chord: 3, text: "Ab7 is bIII7 in F minor and I7 in Ab major. Either way it is the dominant of Db.", concepts: ["ana-key-ambiguity"] } ],
+          { bar: 2, text: "Fm7 for two beats, then **Ebm7 – Ab7**: a ii–V of Db, so the loop 'resolves' to its own first chord. Note that Ebm7 is a *borrowed* minor ii: its Gb is not in F minor, where the chord on Eb would be Eb7 (bVII7).", concepts: ["ana-ii-v-i", "ana-secondary-dominant"] },
+          { bar: 2, chord: 2, text: "Ab7 is bIII7 in F minor and I7 in Ab major. Either way it is the dominant of Db.", concepts: ["ana-key-ambiguity"] } ],
         subs: [
           { bar: 1, chord: 1, options: [
             { token: "bII:7", label: "Gb7 (tritone sub)", why: "Gb7 slides by half step into Fm7. The bass becomes Db – Gb – F, smoother and jazzier.", concepts: ["ana-tritone-sub"] },
             { token: "V:7#9", label: "C7#9", why: "The #9 (Eb) is the b7 of Fm7. It is a funkier, Hendrix-flavoured tension.", concepts: ["ana-dominant-colors"] } ] },
-          { bar: 2, chord: 3, options: [
+          { bar: 2, chord: 2, options: [
             { token: "VI:7", label: "D7 (tritone sub of Ab7)", why: "D7 → Dbmaj7: the chord a half step above slides into the loop's start.", concepts: ["ana-tritone-sub"] } ] } ] },
       { name: "Chorus variant (chromatic m7s)", chart: "| bVI:maj7 V:7b9 | i:m7 vii:m7 bvii:m7 bIII:7 |",
         notes: [ { bar: 2, text: "Fm7 – Em7 – Ebm7: the same grip slid down a fret at a time (planing), into the Ab7.", concepts: ["ana-bass-line"] } ] } ],
@@ -1245,22 +1245,22 @@ export const analyses = [
   {
     id: "ana-moonlight-sonata", title: "'Moonlight' Sonata, mvt. 1 (bars 1–5)", artist: "Ludwig van Beethoven (Op. 27 No. 2, 1801)",
     genre: "classical", level: 5, key: "C#m", tempo: 54, meter: "4/4", tags: ["neapolitan", "descending-bass", "minor", "cadential-64"],
-    summary: "The opening five bars contain a complete minor-key cadence with one of the most famous **Neapolitan chords** in music. Over slow triplet arpeggios the bass descends **C# – B – A – F# – G#**:\n\n**i – i/b7 – VI – N6 – V7 – i**\n\nThe Neapolitan (**D major over F#**) is the major chord on the *lowered* 2nd degree. It replaces the normal predominant (iv or ii°), and its D natural falls to C#, B# and G# as the dominant arrives.\n\n*The movement is in cut time (2/2). The app plays it in 4/4 at a slow tempo, one bar per bar.*",
+    summary: "The opening five bars contain a complete minor-key cadence with one of the most famous **Neapolitan chords** in music. Over slow triplet arpeggios the bass descends **C# – B – A – F# – G#**:\n\n**i – i/b7 – bVI – N6 – V7 – i**\n\nThe Neapolitan (**D major over F#**) is the major chord on the *lowered* 2nd degree. It replaces the normal predominant (iv or ii°), and its D natural falls through C# to B#, the leading tone, as the dominant arrives.\n\n*The movement is in cut time (2/2). The app plays it in 4/4 at a slow tempo, one bar per bar.*",
     sections: [
       { name: "Bars 1–5", chart: "| i:min | i:min/b7 | bVI:maj bII:maj/3 | V:7 | i:min |",
         notes: [
           { bar: 2, text: "C#m over B: a passing bass note on the way down.", concepts: ["ana-bass-line"] },
-          { bar: 3, text: "A major (VI), then **D/F#**, the **Neapolitan sixth**. D natural is the b2 of C# minor; F# is the bass, as in a normal iv chord.", concepts: ["ana-neapolitan"] },
+          { bar: 3, text: "A major (bVI), then **D/F#**, the **Neapolitan sixth**. D natural is the b2 of C# minor; F# is the bass, as in a normal iv chord.", concepts: ["ana-neapolitan"] },
           { bar: 4, text: "G#7: the harmonic-minor dominant. D natural falls to C# and then B#. Analysts read a brief **cadential 6/4** (C#m/G#) and a suspension inside this bar before the pure V7.", concepts: ["ana-authentic-cadence", "ana-pedal-point"] },
           { bar: 5, text: "Home to C#m. The melody enters here." } ],
         subs: [
           { bar: 3, chord: 1, options: [
-            { token: "iv:min", label: "F#m (plain iv)", why: "Same bass, same function, but D# instead of D. Comparing them shows exactly what the Neapolitan's lowered 2nd adds: a darker, more tragic weight.", concepts: ["ana-neapolitan"] },
+            { token: "iv:min", label: "F#m (plain iv)", why: "Same bass, same function, but C# instead of D. Comparing them shows exactly what the Neapolitan's lowered 2nd adds: a darker, more tragic weight.", concepts: ["ana-neapolitan"] },
             { token: "ii:m7b5/b3", label: "D#ø/F# (ii°)", why: "The other standard minor predominant, also over F#. It is restrained, where the Neapolitan is dramatic.", concepts: ["ana-harmonic-function"] } ] } ] } ],
     compare: [
       { type: "compare", key: "C#m", chart: "| i:min | i:min/b7 | bII:maj/3 | V:7 | i:min |", target: "bII:maj/3",
         options: [ { token: "bII:maj/3", label: "D/F#: Neapolitan sixth" }, { token: "iv:min", label: "F#m: plain iv" }, { token: "ii:m7b5/b3", label: "D#ø/F#: ii°" } ],
-        explain: "All three keep F# in the bass. Listen to the note a step above the tonic: D# (iv, ii°) or D natural (Neapolitan). The D natural is what makes the arrival on G#7 feel so heavy." } ],
+        explain: "All three keep F# in the bass. Listen for the note just above the tonic C#: plain iv has none (it keeps C#), ii° has D#, and the Neapolitan has D natural, only a half step above. The D natural is what makes the arrival on G#7 feel so heavy." } ],
     source: "Bernd Hamann's bar-by-bar notes on Op. 27/2 (UC Davis); good-music-guide.com forum analysis (VI, N6); Society for Music Theory symposium article on Neapolitan formations in Beethoven's sonatas."
   },
   // ───────────────────────────── JAZZ STANDARDS ─────────────────────────────
@@ -1338,7 +1338,7 @@ export const analyses = [
   {
     id: "ana-giant-steps", title: "Giant Steps", artist: "John Coltrane (1959)",
     genre: "jazz", level: 10, key: "B", tempo: 280, meter: "4/4", tags: ["coltrane-changes", "major-thirds", "ii-v-i", "fast"],
-    summary: "Sixteen bars cycling through three tonal centres a **major third apart: B, G and Eb**. These divide the octave into three equal parts, so their tonics form an augmented triad. Each new key is approached by its own V7, or by a ii–V in the second half.\n\nBars 1–7 move *down* the cycle (B → G → Eb) twice over, with dominants in between. Bars 8–16 move *up* the cycle with ii–Vs.\n\n*Numerals are relative to B. The engine spells Bb7 as A#7 and Ebmaj7 as D#maj7, since they are the 7th and 3rd degrees of B.*",
+    summary: "Sixteen bars cycling through three tonal centres a **major third apart: B, G and Eb**. These divide the octave into three equal parts, so their tonics form an augmented triad. Each new key is approached by its own V7, or by a ii–V in the second half.\n\nBars 1–7 mostly fall through the cycle (B → G → Eb, then G → Eb → B), with single dominants in between. Bars 8–16 climb it (Eb → G → B → Eb) with ii–Vs.\n\n*Numerals are relative to B. The engine spells Bb7 as A#7 and Ebmaj7 as D#maj7, since they are the 7th and 3rd degrees of B.*",
     sections: [
       { name: "Bars 1–8", chart: "| I:maj7 bIII:7 | bVI:maj7 VII:7 | III:maj7 | bvii:m7 bIII:7 | bVI:maj7 VII:7 | III:maj7 V:7 | I:maj7 | bv:m7 VII:7 |",
         notes: [
@@ -1377,7 +1377,7 @@ export const analyses = [
             { token: "V/ii:7", label: "G7 (VI7)", why: "The bebop default: I–VI7–ii–V. The secondary dominant adds B natural.", concepts: ["ana-secondary-dominant"] } ] },
           { bar: 6, chord: 1, options: [
             { token: "#iv:dim7", label: "E°7", why: "Eb6 – E°7 – Bb/F: a passing diminished chord with a rising bass, the classic alternative.", concepts: ["ana-diminished-passing"] },
-            { token: "bVII:7", label: "Ab7 (backdoor)", why: "Eb7 – Ab7 → Bb: a backdoor approach to the tonic.", concepts: ["ana-backdoor"] } ] } ] },
+            { token: "bVII:7", label: "Ab7 (backdoor)", why: "Eb6 – Ab7 → Bb (often played Eb7 – Ab7): bVII7, the backdoor dominant, resolves up a whole step to the tonic.", concepts: ["ana-backdoor"] } ] } ] },
       { name: "Bridge", chart: "| V/vi:7 | % | V/ii:7 | % | V/V:7 | % | V:7 | % |",
         notes: [
           { bar: 1, text: "D7 → G7 → C7 → F7: each dominant resolves to another dominant. The 'Sears Roebuck bridge' of the swing era.", concepts: ["ana-secondary-dominant"] },
@@ -1430,7 +1430,7 @@ export const analyses = [
       { name: "Bars 9–16", chart: "| I:maj7 | #iv:m7b5 VII:7 | iii:m7 | i:m7 IV:7 | V:maj7 | #iv:m7b5 VII:7 | vii:m7b5 | III:7b9 |",
         notes: [
           { bar: 1, text: "Bbmaj7: the tonic, finally, at bar 9.", concepts: ["ana-backdoor"] },
-          { bar: 3, text: "Dm7 – Bbm7 Eb7 → Fmaj7: a ii–V a whole step below the target, borrowed from the parallel minor (iv–bVII of F). It is the backdoor into V.", concepts: ["ana-backdoor", "ana-modulation"] },
+          { bar: 3, text: "Dm7 – Bbm7 Eb7 → Fmaj7: Bbm7–Eb7 is iv–bVII of F, borrowed from F minor, with Eb7 a whole step below F. It is the backdoor into V.", concepts: ["ana-backdoor", "ana-modulation"] },
           { bar: 7, text: "Am7♭5 – D7♭9: minor ii–V towards G minor...", concepts: ["ana-ii-v-i"] } ] },
       { name: "Bars 17–24", chart: "| VI:7#5 | % | ii:m7 | % | bVII:7 | % | I:maj7 | % |",
         notes: [
@@ -1444,7 +1444,7 @@ export const analyses = [
     compare: [
       { type: "compare", key: "Bb", chart: "| v:m7 | I:7 | IV:maj7 | bVII:7 | I:maj7 |", target: "bVII:7",
         options: [ { scale: "lydian-dominant", label: "Ab Lydian dominant (D natural)" }, { scale: "mixolydian", label: "Ab Mixolydian (Db)" } ],
-        explain: "D natural (the #11 of Ab7) is the 3rd of the coming Bbmaj7, so Lydian dominant glides into the resolution. Mixolydian's Db sounds bluesy and pulls towards Gb instead." },
+        explain: "D natural (the #11 of Ab7) is the 3rd of the coming Bbmaj7, so Lydian dominant glides into the resolution. Mixolydian's Db sounds bluesy and pulls towards Db, the key where Ab7 would be V." },
       { type: "compare", key: "Bb", chart: "| vii:m7b5 | III:7b9 | VI:7#5 | ii:m7 |", target: "VI:7#5",
         options: [ { scale: "altered", label: "G altered" }, { scale: "whole-tone", label: "G whole tone" }, { scale: "mixolydian-b6", label: "G Mixolydian ♭6" } ],
         explain: "G7#5 is going to C minor. All three options contain Eb (#5 / b13), the 3rd of Cm. Whole tone matches the #5 chord symmetrically, altered adds Ab and Bb (b9, #9), and Mixolydian ♭6 keeps a natural 9 (A)." } ],
@@ -1465,7 +1465,7 @@ export const analyses = [
         subs: [
           { bar: 2, chord: 1, options: [
             { token: "#I:7", label: "D7 (tritone sub of Ab7)", why: "A very common variant: Ebm7 – D7 → Dbmaj7, a chromatic bass Eb – D – Db.", concepts: ["ana-tritone-sub"] } ] } ] },
-      { name: "Bridge (D → C → back)", chart: "| #I:maj7 #ii:m7 | #iii:m7 #iii:m7 #iv:m7 VII:7 | #iii:m7 #VI:7 #ii:m7 #V:7 | #I:maj7 | #i:m7 #IV:7 | VII:maj7 ii:dim7 | #i:m7 #IV:7 | VII:7 VII:7 #VI:7 VI:7 |",
+      { name: "Bridge (D → C → back)", chart: "| #I:maj7 #ii:m7 | iii/#I:m7 iii/#I:m7 #iv:m7 VII:7 | iii/#I:m7 #VI:7 #ii:m7 #V:7 | #I:maj7 | #i:m7 #IV:7 | VII:maj7 ii:dim7 | #i:m7 #IV:7 | VII:7 VII:7 #VI:7 VI:7 |",
         notes: [
           { bar: 1, text: "**D major**, a half step above Db. A2 ended with Em7 – A7 (ii–V of D), so the jump has been prepared.", concepts: ["ana-modulation"] },
           { bar: 2, text: "F#m7 – Gm7 – C7: a chromatic sidestep. Gm7–C7 is a ii–V a half step above F#m7 (a common bebop 'side-slip').", concepts: ["ana-ii-v-i"] },
@@ -1473,20 +1473,20 @@ export const analyses = [
           { bar: 6, text: "Eb°7: a passing diminished chord between Cmaj7 and Dm7.", concepts: ["ana-diminished-passing"] },
           { bar: 8, text: "C7 – B7 – Bb7: chromatic dominants. Bb7 is V of Ebm7, the first chord of the last A, so the half-step crawl returns us to Db. (C7 – B7 – Bb7 is the tritone-sub version of C7 – F7 – Bb7.)", concepts: ["ana-tritone-sub", "ana-secondary-dominant"] } ],
         subs: [
-          { bar: 8, chord: 2, options: [
+          { bar: 8, chord: 1, options: [
             { token: "III:7", label: "F7 (cycle of fifths)", why: "The un-subbed version: C7 – F7 – Bb7, falling fifths. The chromatic B7 is the tritone sub of F7.", concepts: ["ana-tritone-sub"] } ] } ] } ],
     source: "jazz-library.com 'Body and Soul' (chord order incl. bridge); jazzstandards.com (A-section chords; bridge in D then C; C7–B7–Bb7); guitarcomposerstoolbox.com; Wikipedia 'Body and Soul (1930 song)'; Faber sheet-music excerpt (Ebm7 Bb7♭9 Ebm7 Ab9 Dbmaj7 Gb13 Fm7 Edim7 Ebm7 Ebm7/Db Cm7♭5 F7♭9). Bridge confidence medium."
   },
   {
     id: "ana-lady-bird", title: "Lady Bird", artist: "Tadd Dameron (1939)",
     genre: "jazz", level: 6, key: "C", tempo: 160, meter: "4/4", tags: ["backdoor", "tadd-dameron-turnaround", "modal-interchange", "ii-v"],
-    summary: "Sixteen bars that are a little textbook of **modal interchange**. Out of C major come:\n- a **backdoor** ii–V (Fm7 – Bb7 → C)\n- a ii–V into **Ab** (bVI), the key of C minor's submediant\n- the famous **Tadd Dameron turnaround**, **Cmaj7 – Ebmaj7 | Abmaj7 – Dbmaj7**, which is the I–vi–ii–V turnaround with every chord replaced by a major-seventh chord a tritone (or minor third) away\n\nMiles Davis's 'Half Nelson' uses the same changes.",
+    summary: "Sixteen bars that are a little textbook of **modal interchange**. Out of C major come:\n- a **backdoor** ii–V (Fm7 – Bb7 → C)\n- a ii–V into **Ab** (bVI), the key of C minor's submediant\n- the famous **Tadd Dameron turnaround**, **Cmaj7 – Ebmaj7 | Abmaj7 – Dbmaj7**, which is the I–VI7–II7–V7 turnaround with the last three chords replaced by their tritone subs, played as major-seventh chords\n\nMiles Davis's 'Half Nelson' uses the same changes.",
     sections: [
       { name: "16 bars", chart: "| I:maj7 | % | iv:m7 | bVII:7 | I:maj7 | % | bvii:m7 | bIII:7 | bVI:maj7 | % | vi:m7 | V/V:7 | ii:m7 | V:7 | I:maj7 bIII:maj7 | bVI:maj7 bII:maj7 |",
         notes: [
           { bar: 3, text: "Fm7 – Bb7 → Cmaj7: the **backdoor** ii–V, minor iv and bVII7 borrowed from C minor.", concepts: ["ana-backdoor", "ana-modal-interchange"] },
           { bar: 7, text: "Bbm7 – Eb7 → Abmaj7: a ii–V into **bVI** (Ab), a borrowed key area. Ab is a chromatic mediant of C.", concepts: ["ana-modal-interchange", "ana-chromatic-mediant", "ana-ii-v-i"] },
-          { bar: 11, text: "Am7 – D7 – Dm7 – G7: back to C via VI–II–ii–V, with D7 working as V/V.", concepts: ["ana-secondary-dominant", "ana-ii-v-i"] },
+          { bar: 11, text: "Am7 – D7 – Dm7 – G7: back to C via vi–II7–ii–V, with D7 working as V/V.", concepts: ["ana-secondary-dominant", "ana-ii-v-i"] },
           { bar: 15, text: "**The Tadd Dameron turnaround**: C – Eb – Ab – Db, all maj7. Compare it with C – A7 – D7 – G7. Each dominant is swapped for its tritone sub (Eb7, Ab7, Db7), and then the subs are turned into maj7 chords. After C, the roots Eb – Ab – Db fall in fifths, each a tritone away from the 'original' root (A, D, G), and the last one slides by half step into C.", concepts: ["ana-tadd-turnaround", "ana-tritone-sub"] } ],
         subs: [
           { bar: 15, chord: 1, options: [
@@ -1497,13 +1497,13 @@ export const analyses = [
     compare: [
       { type: "compare", key: "C", chart: "| I:maj7 bIII:maj7 | bVI:maj7 bII:maj7 | I:maj7 | % |", target: "bII:maj7",
         options: [ { token: "bII:maj7", label: "Dbmaj7: Tadd's choice" }, { token: "bII:7", label: "Db7: tritone sub" }, { token: "V:7", label: "G7: plain V" } ],
-        explain: "Dbmaj7 contains C, the tonic itself, so the resolution is soft and glowing. Db7 adds Cb (= B, the leading tone), and G7 adds the full tritone. Three degrees of pull into the same Cmaj7." } ],
+        explain: "Dbmaj7 contains C, the tonic itself, so the resolution is soft and glowing. Db7 swaps that C for Cb (= B, the leading tone), so it holds G7's tritone (F–B) over a half-step bass. G7 has the same tritone with the strong fifth-fall root. Three degrees of pull into the same Cmaj7." } ],
     source: "Wikipedia 'Lady Bird (composition)' and 'Tadd Dameron turnaround'; guitarcomposerstoolbox.com 'Lady Bird in C'. Turnaround variants: all maj7 vs Eb7/Db7."
   },
   {
     id: "ana-solar", title: "Solar", artist: "Miles Davis (1954; after Chuck Wayne's 'Sonny')",
     genre: "jazz", level: 6, key: "Cm", tempo: 160, meter: "4/4", tags: ["ii-v-chains", "descending-keys", "minor-major-7", "modulation"],
-    summary: "Twelve bars, and a ii–V staircase that walks **down by whole steps through keys**. From the C minor(maj7) tonic, the tune goes:\n- Gm7 – C7 → **F**\n- Fm7 – Bb7 → **Eb**\n- Ebm7 – Ab7 → **Db**\n- Dm7♭5 – G7 → **C minor** again\n\nEach ii–V is the 'ii' of the previous key turned minor, the same trick that drives 'Tune Up' and 'How High the Moon'.",
+    summary: "Twelve bars, and a ii–V staircase that walks **down through keys**, mostly by whole steps. From the C minor(maj7) tonic, the tune goes:\n- Gm7 – C7 → **F**\n- Fm7 – Bb7 → **Eb**\n- Ebm7 – Ab7 → **Db**\n- Dm7♭5 – G7 → **C minor** again\n\nAfter the first, each ii–V starts by turning the previous major tonic minor (Fmaj7 → Fm7, Ebmaj7 → Ebm7), the same trick that drives 'Tune Up' and 'How High the Moon'.",
     sections: [
       { name: "12 bars", chart: "| i:mMaj7 | % | v:m7 | I:7 | IV:maj7 | % | iv:m7 | bVII:7 | bIII:maj7 | biii:m7 bVI:7 | bII:maj7 | ii:m7b5 V:7 |",
         notes: [

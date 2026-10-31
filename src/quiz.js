@@ -40,7 +40,7 @@ function earVoicing(root, quality, { inversion = 0, voicing = 'close', tones = n
   }
   return mids;
 }
-function progressionVoicings(chords) {
+export function progressionVoicings(chords) {
   let prev = null;
   return chords.map((c) => {
     const ivs = (c.tones || T.getChord(c.quality).ivs).map(F.simpleIv);
