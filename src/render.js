@@ -113,3 +113,37 @@ export function md(src) {
   flushPara(); flush();
   return out;
 }
+
+// ---------- book-style vertical chord box (Ted Greene layout) ----------
+// frets: [s6..s1] numbers or null; optional / added: ['strN:fret', ...] ; added = [[stage1...], [stage2...]]
+export function chordBoxSVG({ frets, name = '', sub = '', optional = [], added = [], note = '' }) {
+  const pos = (str) => { const m = /str(\d):(\d+)/.exec(str); return m ? { s: Number(m[1]), f: Number(m[2]) } : null; };
+  const opt = optional.map(pos).filter(Boolean);
+  const stages = (added || []).map((st) => (Array.isArray(st) ? st : [st]).map(pos).filter(Boolean));
+  const all = frets.filter((x) => x != null && x > 0).concat(opt.map((o) => o.f), ...stages.map((st) => st.map((o) => o.f))).filter((x) => x > 0);
+  const lo = all.length ? Math.min(...all) : 1;
+  const top = lo <= 2 ? 1 : lo;
+  const rows = Math.max(4, (all.length ? Math.max(...all) : 4) - top + 1);
+  const W = 132, sx = 28, sw = 18, y0 = 30, rh = 22;
+  const x = (s) => sx + (6 - s) * sw;           // string 6 on the left (book layout)
+  const y = (f) => y0 + (f - top + 0.5) * rh;
+  let g = '';
+  for (let r = 0; r <= rows; r++) g += `<line x1="${sx}" y1="${y0 + r * rh}" x2="${sx + 5 * sw}" y2="${y0 + r * rh}" class="${r === 0 && top === 1 ? 'nut' : 'wire'}"/>`;
+  for (let s = 1; s <= 6; s++) g += `<line x1="${x(s)}" y1="${y0}" x2="${x(s)}" y2="${y0 + rows * rh}" class="string"/>`;
+  if (top > 1) g += `<text x="${sx - 12}" y="${y0 + rh * 0.5 + 4}" class="fretnum" text-anchor="end">${top}</text>`;
+  frets.forEach((f, i) => {
+    const s = 6 - i;
+    if (f === 0) g += `<circle cx="${x(s)}" cy="${y0 - 9}" r="4.5" class="openstr"/>`;
+    else if (f != null) g += `<circle cx="${x(s)}" cy="${y(f)}" r="7" class="bdot"/>`;
+  });
+  for (const o of opt) g += `<g class="optnote"><circle cx="${x(o.s)}" cy="${o.f ? y(o.f) : y0 - 9}" r="7"/><line x1="${x(o.s) - 5}" y1="${(o.f ? y(o.f) : y0 - 9) + 5}" x2="${x(o.s) + 5}" y2="${(o.f ? y(o.f) : y0 - 9) - 5}"/></g>`;
+  stages.forEach((st, k) => st.forEach((o) => {
+    const cy = o.f ? y(o.f) : y0 - 9;
+    g += k === 0
+      ? `<g class="addx"><line x1="${x(o.s) - 6}" y1="${cy - 6}" x2="${x(o.s) + 6}" y2="${cy + 6}"/><line x1="${x(o.s) - 6}" y1="${cy + 6}" x2="${x(o.s) + 6}" y2="${cy - 6}"/></g>`
+      : `<rect class="addsq" x="${x(o.s) - 6}" y="${cy - 6}" width="12" height="12"/>`;
+  }));
+  const H = y0 + rows * rh + 8;
+  return `<figure class="cbox"><figcaption><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</figcaption><svg viewBox="0 0 ${W} ${H}" class="chordbox">${g}</svg>${note ? `<div class="cboxnote">${esc(note)}</div>` : ''}</figure>`;
+}
+export const CHORDBOX_LEGEND = '<div class="rlegend"><span><b>●</b> chord tone</span><span><b class="addtxt">✕</b> added after the chord (chord keeps ringing)</span><span><b class="sqtxt">■</b> played after the ✕ notes</span><span><b>⊘</b> optional note — try with and without</span><span><b>○</b> above = open string</span></div>';

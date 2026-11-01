@@ -17,11 +17,27 @@ export function audioCtx() {
   }
   return ctx;
 }
+// iOS home-screen apps: a looping silent <audio> element puts the page in the "media playback" audio session,
+// so Web Audio isn't muted by the ring/silent switch and keeps working when the app is reopened offline.
+let keepAlive = null;
+function silentWavUrl() {
+  const sr = 8000, n = sr; // 1 s of silence, 8-bit mono
+  const buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+  const w = (o, str) => [...str].forEach((ch, i) => v.setUint8(o + i, ch.charCodeAt(0)));
+  w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+  for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
 // call from a user gesture (iOS)
 export async function unlockAudio() {
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* */ }
+  try {
+    if (!keepAlive) { keepAlive = new Audio(silentWavUrl()); keepAlive.loop = true; keepAlive.setAttribute('playsinline', ''); keepAlive.volume = 0.01; }
+    if (keepAlive.paused) keepAlive.play().catch(() => {});
+  } catch (e) { /* */ }
   const c = audioCtx();
-  if (c.state !== 'running') await c.resume();
+  if (c.state !== 'running') { try { await c.resume(); } catch (e) { /* */ } }
   const b = c.createBuffer(1, 1, 22050);
   const s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0);
 }
@@ -282,3 +298,16 @@ function cutMaster(keepDrone) {
   }
 }
 export const playing = () => !!player;
+// make sure the audio clock is actually running before scheduling (iOS can leave it 'suspended' or 'interrupted')
+export async function ensureRunning() {
+  const c = audioCtx();
+  if (c.state !== 'running') { try { await c.resume(); } catch (e) { /* */ } }
+  if (c.state !== 'running') await new Promise((r) => setTimeout(r, 120));
+  return c.state === 'running';
+}
+if (typeof document !== 'undefined') {
+  const wake = () => { if (ctx && ctx.state !== 'running' && document.visibilityState === 'visible') ctx.resume().catch(() => {}); };
+  document.addEventListener('visibilitychange', wake);
+  window.addEventListener('pageshow', wake);
+  window.addEventListener('focus', wake);
+}

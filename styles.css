@@ -195,3 +195,14 @@ svg.compact .dot text { font-size: 8.5px; }
 .scrubrow { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
 .scrub { flex: 1; accent-color: var(--accent2); height: 28px; }
 .scrubpos { min-width: 92px; text-align: right; }
+
+/* book-style chord boxes */
+.cboxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px 8px; margin: 8px 0; }
+.cbox { margin: 0; text-align: center; }
+.cbox figcaption { display: flex; flex-direction: column; font-size: 14px; } .cbox figcaption small { color: var(--muted); font-size: 11px; }
+svg.chordbox { width: 100%; max-width: 130px; }
+svg.chordbox .bdot { fill: var(--tone); } svg.chordbox .openstr { fill: none; stroke: var(--tone); stroke-width: 1.5; }
+svg.chordbox .optnote circle { fill: none; stroke: var(--tone); stroke-width: 1.5; } svg.chordbox .optnote line { stroke: var(--tone); stroke-width: 1.5; }
+svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordbox .addsq { fill: var(--accent2); }
+.cboxnote { font-size: 11px; color: var(--muted); text-align: left; line-height: 1.3; }
+.addtxt { color: var(--accent); } .sqtxt { color: var(--accent2); }

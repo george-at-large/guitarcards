@@ -3,7 +3,7 @@ import * as A from './audio.js';
 import { loadLibrary, savePack } from './library.js';
 import { instantiate, fill } from './cards.js';
 import { compile, chartChords, chordLabel, asKey } from './demo.js';
-import { fretboardSVG, md, esc, rhythmHTML } from './render.js';
+import { fretboardSVG, md, esc, rhythmHTML, chordBoxSVG, CHORDBOX_LEGEND } from './render.js';
 import { makeQuiz, PC_NAMES } from './quiz.js';
 import * as AD from './adapt.js';
 import { substitutions } from './subs.js';
@@ -123,6 +123,10 @@ class NeckPlayer {
     stopAll();
     PLAYER = this;
     qs('[data-w=play]', this.el).textContent = '■ Stop';
+    // wake the audio engine first; scheduling against a sleeping clock is what makes demos silent on iPhone
+    A.unlockAudio().then(() => A.ensureRunning()).then(() => { if (PLAYER === this) this.start(from); });
+  }
+  start(from = 0) {
     const bpm = this.bpm * this.speed;
     const bpb = this.c.beatsPerBar || 4;
     const turn = this.turn && this.c.rhythm;
@@ -882,13 +886,30 @@ function renderTGPage(pid) {
   ${p.points.length ? `<div class="helpbox">${p.points.map((x) => `<div class="hint">• ${esc(x)}</div>`).join('')}</div>` : ''}
   ${p.examples.map((id) => { const ex = tgEx(id); return `<div class="panel"><b>${esc(ex.label || ex.family)}</b><p class="muted small">${esc(ex.family)} · ${ex.chords.length} grips${ex.key ? ' · key of ' + esc(ex.key) : ''}</p><div class="tgmini" data-ex="${id}"></div><button class="primary" style="width:100%" data-tgplay="${id}">▶ Open in player (all keys, all versions)</button></div>`; }).join('')}
   <div class="row spread" style="margin-top:12px">${idx > 0 ? `<button data-tgnav="${G.pages[idx - 1].id}">‹ p.${G.pages[idx - 1].page}</button>` : '<span></span>'}${idx < G.pages.length - 1 ? `<button data-tgnav="${G.pages[idx + 1].id}">p.${G.pages[idx + 1].page} ›</button>` : ''}</div>`;
-  qsa('.tgmini').forEach((el) => { try { el.innerHTML = compile(tgSpec(tgEx(el.dataset.ex), null)).html; } catch (err) { el.innerHTML = `<p class="muted small">${esc(err.message)}</p>`; } });
+  qsa('.tgmini').forEach((el) => { try { const ex = tgEx(el.dataset.ex); el.innerHTML = tgBoxes(compile(tgSpec(ex, null)), ex); } catch (err) { el.innerHTML = `<p class="muted small">${esc(err.message)}</p>`; } });
   $app.onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.l) return renderTG();
     if (b.dataset.tgnav) return renderTGPage(b.dataset.tgnav);
     if (b.dataset.tgplay) { const ex = tgEx(b.dataset.tgplay); const f = tgFamilyOf(ex); return renderTGPlayer(f.examples, f.examples.indexOf(ex.id), f.name, () => renderTGPage(pid)); }
   };
+}
+// the progression as book-style chord boxes (with Greene's added ✕/■ notes and optional notes), transposed with the grips
+const tgParse = (f) => (Array.isArray(f) ? f : String(f).trim().split(/\s+/).map((x) => (/^\d+$/.test(x) ? Number(x) : null)));
+function tgBoxes(comp, ex, withMarks = true) {
+  const chords = comp.chords || [];
+  const shiftPos = (arr, d) => (arr || []).map((p) => p.replace(/(str\d):(\d+)/, (m, a, f) => `${a}:${Math.max(0, Number(f) + d)}`));
+  const boxes = chords.map((c, i) => {
+    const orig = withMarks && ex.chords[i] ? tgParse(ex.chords[i].frets) : null;
+    let d = 0;
+    if (orig) { const k = orig.findIndex((x, j) => x != null && c.frets[j] != null); if (k >= 0) d = c.frets[k] - orig[k]; }
+    const o = withMarks && ex.chords[i] ? ex.chords[i] : {};
+    const roman = (ex.romans && ex.romans[i]) || c.roman || '';
+    return chordBoxSVG({ frets: c.frets, name: T.pretty(c.name), sub: [c.means && c.means !== c.name ? '= ' + T.pretty(c.means) : '', roman ? T.prettyRoman(roman) : ''].filter(Boolean).join(' · '),
+      optional: shiftPos(o.optional, d), added: (o.added || []).map((st) => shiftPos(st, d)), note: o.note && (o.added || o.optional) ? o.note : '' });
+  });
+  const marks = withMarks && ex.chords.some((c) => c.added || c.optional);
+  return `<div class="cboxes">${boxes.join('')}</div>${marks ? CHORDBOX_LEGEND : ''}`;
 }
 function tgSpec(ex, key, gen = null) {
   const spec = { type: 'grips', from: ex.key || undefined, key: key || ex.key || undefined, chords: ex.chords, romans: ex.romans, beatsPerChord: TGS.bpc, arpeggiate: TGS.arp };
@@ -920,12 +941,13 @@ function renderTGPlayer(ids, start = 0, title = '', back = null) {
       ${canKey ? `<div class="row" style="margin-top:8px"><span class="muted small">Ted's rules →</span><button class="tbtn ${!P.gen ? 'on' : ''}" data-gen="">Book</button><button class="tbtn ${P.gen === 'up' ? 'on' : ''}" data-gen="up">Chord scale ↑</button><button class="tbtn ${P.gen === 'down' ? 'on' : ''}" data-gen="down">Chord scale ↓</button>${ex.chords.length > 1 ? `<button class="tbtn ${P.gen === 'cycle4' ? 'on' : ''}" data-gen="cycle4">Cycle 4ths</button><button class="tbtn ${P.gen === 'cycle5' ? 'on' : ''}" data-gen="cycle5">Cycle 5ths</button>` : ''}</div>` : ''}
       <div class="row" style="margin-top:8px"><button class="primary grow" data-p="playall">▶▶ Play every version${TGS.hold ? ' in this key' : ''}</button></div>
     </div>
-    <div id="tgw"></div><div id="tgd"></div>
+    <div id="tgd"></div><details class="helpbox" id="tgwrap"><summary>👁 Watch &amp; hear it</summary><div id="tgw"></div></details>
     ${ex.chords.some((c) => c.flag) ? `<p class="muted small">⚠︎ Some grips here didn't match their chord name when transcribed; double-check against the book.</p>` : ''}
     ${pg ? `<details class="helpbox"><summary>What the book says (p.${pg.page})</summary><div class="md">${md(pg.summary)}</div></details>` : ''}`;
     let comp;
     try { comp = compile(tgSpec(ex, canKey ? TGS.key : null, P.gen)); } catch (err) { qs('#tgw').innerHTML = `<p class="muted small">${esc(err.message)}</p>`; return; }
-    qs('#tgd').innerHTML = comp.html;
+    qs('#tgd').innerHTML = tgBoxes(comp, ex, !P.gen);
+    if (autoplay || P.allMode) qs('#tgwrap').open = true;
     const pl = new NeckPlayer(qs('#tgw'), comp, { bpm: TGS.bpm, title: ex.label });
     pl.loops = P.allMode ? 1 : 3;
     pl.render();
