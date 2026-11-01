@@ -11,6 +11,7 @@ import { contextFor, chordScaleContext, modeOrigin } from './context.js';
 import { howToPlay } from './rhythm.js';
 import { EAR_LEVELS, PASS, gymQuestion } from './eargym.js';
 import { WORKOUTS } from './workouts.js';
+import { PG_LEVELS, PG_PASS, pgRound, playSeq, chordName } from './proggame.js';
 
 const $app = document.getElementById('app');
 let LIB = null;
@@ -254,6 +255,7 @@ function renderHome() {
     <button data-act="toolbox"><b>🧰 Toolbox</b><small>What to play over what</small></button>
     <button data-act="concepts"><b>📖 Lessons</b><small>Concept deep-dives</small></button>
     <button data-act="library"><b>🗂 Library</b><small>Browse every card</small></button>
+    <button data-act="proggame" style="grid-column:1/-1"><b>🎯 Progression game</b><small>Hear it, spell it — from 2 chords up (level ${(st().pgame?.level ?? 0) + 1}/${PG_LEVELS.length})</small></button>
     <button data-act="eargym" style="grid-column:1/-1"><b>🎧 Ear Gym</b><small>Hear progressions — level by level (${gymPassed()}/${EAR_LEVELS.length} passed)</small></button>
   </div>
   ${LIB.errors.length ? `<p class="muted small">Content not loaded: ${esc(LIB.errors.join('; '))}</p>` : ''}`;
@@ -279,6 +281,7 @@ function renderHome() {
     else if (b.dataset.act === 'concepts') renderConcepts();
     else if (b.dataset.act === 'library') renderLibrary();
     else if (b.dataset.act === 'eargym') renderEarGym();
+    else if (b.dataset.act === 'proggame') renderProgGame();
     else if (b.dataset.act === 'settings') renderSettings();
   };
   qs('#focus').onchange = (e) => { st().focus = e.target.value; AD.save(); renderHome(); };
@@ -980,6 +983,69 @@ function renderTGPlayer(ids, start = 0, title = '', back = null) {
     else if (e.key === ' ') { e.preventDefault(); qs('[data-w=play]')?.click(); }
   };
   draw();
+}
+
+// ---------- PROGRESSION GAME ----------
+function renderProgGame() {
+  VIEW = 'proggame';
+  silence();
+  const G = (st().pgame = st().pgame || { level: 0, hist: [], arp: false, best: 0 });
+  let R = pgRound(G.level);
+  let pick = [];
+  let done = false;
+  const L = () => PG_LEVELS[G.level];
+  const play = (seq = R.seq) => playSeq(seq, R.key.tonic, { arpeggio: G.arp });
+  const dots = () => { const last = G.hist.slice(-PG_PASS.of); return [...Array(PG_PASS.of)].map((_, i) => `<span class="badge" style="min-width:20px;text-align:center;${last[i] === true ? 'background:var(--good);color:#052' : last[i] === false ? 'background:var(--bad);color:#300' : ''}">${last[i] === true ? '✓' : last[i] === false ? '✗' : '·'}</span>`).join(''); };
+  const slots = () => R.seq.map((c, i) => {
+    if (i === 0) return `<span class="pgslot fixed">${esc(c.label)}</span>`;
+    const p = pick[i - 1];
+    const cls = done ? (p && p.tok === c.tok ? 'ok' : 'bad') : p ? 'filled' : '';
+    return `<span class="pgslot ${cls}">${p ? esc(p.label) : '?'}</span>`;
+  }).join('<span class="pgarrow">→</span>');
+  const draw = () => {
+    $app.innerHTML = `<div class="row"><button class="icon" data-pg="back">‹</button><h2 class="grow">Progression game</h2></div>
+    <div class="row spread"><span><b>Level ${G.level + 1}</b> <span class="muted small">/ ${PG_LEVELS.length}</span></span>
+      <span class="row"><button class="tbtn" data-pg="lvdown" ${G.level ? '' : 'disabled'}>−</button><button class="tbtn" data-pg="lvup" ${G.level < PG_LEVELS.length - 1 ? '' : 'disabled'}>+</button></span></div>
+    <p class="muted small">${esc(L().title)}. The first chord is always I (home). Get ${PG_PASS.need} of the last ${PG_PASS.of} right to level up.</p>
+    <div class="row" id="pgdots" style="gap:3px;margin:6px 0">${dots()}</div>
+    <div class="row"><button class="primary grow playbig" data-pg="play">▶ Play</button><button class="tbtn ${G.arp ? 'on' : ''}" data-pg="arp" style="padding:16px 12px">Arpeggiate</button></div>
+    <div class="pgslots">${slots()}</div>
+    <div class="qgrid">${L().pool.map((c, i) => `<button data-pg="pick" data-i="${i}" ${done ? 'disabled' : ''}>${esc(c.label)}</button>`).join('')}</div>
+    <div class="row"><button data-pg="undo" ${done || !pick.length ? 'disabled' : ''}>⌫ Undo</button><button class="primary grow" data-pg="check" ${done || pick.length < R.seq.length - 1 ? 'disabled' : ''}>Check</button></div>
+    <div id="pgfb"></div>`;
+  };
+  const next = () => { R = pgRound(G.level); pick = []; done = false; draw(); A.later(() => play(), 250); };
+  draw();
+  A.later(() => play(), 250);
+  $app.onclick = (e) => {
+    const b = e.target.closest('[data-pg]'); if (!b) return;
+    const a = b.dataset.pg;
+    if (a === 'back') return renderHome();
+    if (a === 'play') return play();
+    if (a === 'arp') { G.arp = !G.arp; AD.save(); b.classList.toggle('on', G.arp); return play(); }
+    if (a === 'lvdown' || a === 'lvup') { G.level = Math.max(0, Math.min(PG_LEVELS.length - 1, G.level + (a === 'lvup' ? 1 : -1))); G.hist = []; AD.save(); return next(); }
+    if (a === 'next') return next();
+    if (a === 'hearmine') return play([R.seq[0], ...pick]);
+    if (a === 'hearans') return play();
+    if (done) return;
+    if (a === 'pick' && pick.length < R.seq.length - 1) { pick.push(L().pool[Number(b.dataset.i)]); draw(); }
+    if (a === 'undo') { pick.pop(); draw(); }
+    if (a === 'check') {
+      done = true;
+      const ok = pick.every((p, i) => p.tok === R.seq[i + 1].tok);
+      G.hist.push(ok);
+      const last = G.hist.slice(-PG_PASS.of);
+      let msg = '';
+      if (last.length >= PG_PASS.of && last.filter(Boolean).length >= PG_PASS.need && G.level < PG_LEVELS.length - 1) { G.level++; G.hist = []; msg = `🎉 Level up! Now: ${PG_LEVELS[G.level].title}`; }
+      AD.save();
+      draw();
+      qs('#pgfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}">${ok ? '✓ Correct' : '✗ Not quite'}</div>
+        <p class="small">In ${esc(R.key.name)}: ${R.seq.map((c) => `<b>${esc(c.label)}</b> ${esc(chordName(c.tok, R.key.tonic))}`).join(' → ')}</p>
+        ${ok ? '' : `<div class="row"><button data-pg="hearans">▶ Hear the answer</button><button data-pg="hearmine">▶ Hear yours</button></div>`}
+        ${msg ? `<div class="feedback ok">${esc(msg)}</div>` : ''}
+        <button class="primary start" data-pg="next">Next →</button>`;
+    }
+  };
 }
 
 // ---------- EAR GYM ----------
