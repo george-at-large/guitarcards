@@ -215,3 +215,6 @@ svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordb
 .pgslot.ok { background: var(--good); color: #052; border-color: var(--good); }
 .pgslot.bad { background: var(--bad); color: #300; border-color: var(--bad); }
 .pgarrow { color: var(--muted); }
+
+.cheat table { font-size: 12.5px; } .cheat td, .cheat th { padding: 4px 5px; } .cheat h4 { margin-top: 14px; }
+.sheet-inner .cheat { overflow-x: auto; }

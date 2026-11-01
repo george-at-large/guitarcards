@@ -12,6 +12,7 @@ import { howToPlay } from './rhythm.js';
 import { EAR_LEVELS, PASS, gymQuestion } from './eargym.js';
 import { WORKOUTS } from './workouts.js';
 import { PG_LEVELS, PG_PASS, pgRound, playSeq, chordName } from './proggame.js';
+import { CHEATS, cheatsFor } from './cheats.js';
 
 const $app = document.getElementById('app');
 let LIB = null;
@@ -197,6 +198,8 @@ function conceptLinks(ids) {
   return `<div class="links">${list.map((id) => `<button data-concept="${esc(id)}">📖 ${esc(LIB.concepts.get(id).title)}</button>`).join('')}</div>`;
 }
 document.addEventListener('click', (e) => {
+  const ch = e.target.closest('[data-cheat]');
+  if (ch) { e.stopPropagation(); openCheat(ch.dataset.cheat, CARD && VIEW === 'card' && CARD.card.ctx.root ? T.noteName(CARD.card.ctx.root) : 'C'); return; }
   const b = e.target.closest('[data-concept]');
   if (b) { e.stopPropagation(); openConcept(b.dataset.concept); }
 });
@@ -216,6 +219,23 @@ function openConcept(id) {
 }
 // specs in concepts/analyses may contain literal values only
 const normalizeSpec = (s) => s;
+function openCheatList() {
+  openSheet('Cheat sheets', (body) => {
+    body.innerHTML = `<div class="list">${Object.entries(CHEATS).filter(([id]) => id !== 'tgsymbols' || LIB.tg).map(([id, c]) => `<button class="item" data-cheat="${id}"><span>${esc(c.title)}</span><span>›</span></button>`).join('')}</div>`;
+  });
+}
+function openCheat(id, key = 'C') {
+  const c = CHEATS[id]; if (!c) return;
+  openSheet(c.title, (body) => {
+    const draw = (k) => {
+      let html = '';
+      try { html = c.html(k, LIB); } catch (err) { html = `<p class="muted small">${esc(err.message)}</p>`; }
+      body.innerHTML = (c.keyed ? `<div class="row"><span class="muted small">Key / root</span><select id="cheatkey" style="width:auto">${T.ROOTS.map((r) => `<option ${r === k ? 'selected' : ''}>${r}</option>`).join('')}</select></div>` : '') + `<div class="md cheat">${html}</div>`;
+      const sel = qs('#cheatkey', body); if (sel) sel.onchange = (e) => draw(e.target.value);
+    };
+    draw(T.ROOTS.includes(key) ? key : 'C');
+  });
+}
 
 // ---------- HOME ----------
 function renderHome() {
@@ -255,6 +275,7 @@ function renderHome() {
     <button data-act="toolbox"><b>🧰 Toolbox</b><small>What to play over what</small></button>
     <button data-act="concepts"><b>📖 Lessons</b><small>Concept deep-dives</small></button>
     <button data-act="library"><b>🗂 Library</b><small>Browse every card</small></button>
+    <button data-act="cheats" style="grid-column:1/-1"><b>📋 Cheat sheets</b><small>Modes, diatonic chords, chord formulas, intervals, cycle of 4ths, voicings, rhythm…</small></button>
     <button data-act="proggame" style="grid-column:1/-1"><b>🎯 Progression game</b><small>Hear it, spell it — from 2 chords up (level ${(st().pgame?.level ?? 0) + 1}/${PG_LEVELS.length})</small></button>
     <button data-act="eargym" style="grid-column:1/-1"><b>🎧 Ear Gym</b><small>Hear progressions — level by level (${gymPassed()}/${EAR_LEVELS.length} passed)</small></button>
   </div>
@@ -282,6 +303,7 @@ function renderHome() {
     else if (b.dataset.act === 'library') renderLibrary();
     else if (b.dataset.act === 'eargym') renderEarGym();
     else if (b.dataset.act === 'proggame') renderProgGame();
+    else if (b.dataset.act === 'cheats') openCheatList();
     else if (b.dataset.act === 'settings') renderSettings();
   };
   qs('#focus').onchange = (e) => { st().focus = e.target.value; AD.save(); renderHome(); };
@@ -495,6 +517,8 @@ function drawHelp(scroll) {
   const showExplain = CARD.help > hints.length && tpl.explain;
   const showVisual = CARD.help > hints.length + (tpl.explain ? 1 : 0);
   let h = '<div class="helpbox">';
+  const cs = cheatsFor(tpl);
+  if (cs.length) h += `<div class="links" style="margin:0 0 8px">${cs.map((id) => `<button data-cheat="${id}">📋 ${esc(CHEATS[id].title)}</button>`).join('')}</div>`;
   h += contextHTML(card);
   h += hints.slice(0, nh).map((x, i) => `<div class="hint">💡 ${md(x).replace(/^<p>|<\/p>$/g, '')}</div>`).join('');
   if (showExplain) h += `<div class="md">${md(card.text(tpl.explain))}</div>`;
