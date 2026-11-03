@@ -254,7 +254,28 @@ const RIP = {
   vary: ['root', 'scale'], concepts: ['mode-brightness'],
 };
 
-export const templates = [...deepDives, TRIAD_DIVE, ...WHOLE_NECK, SPEED, ...journeys, ...cycleTpl, RIP];
+// ---------- inversion rhythm ladder (after LearnJazzStandards, "Major 7th chord guitar") ----------
+const INV_LADDER = {
+  id: 'voi-drop2-inversion-rhythm-ladder', mode: 'play', category: 'voicings', tags: ['drop2', 'inversions', 'rhythm', 'memorise'],
+  title: 'Inversion ladder: {chord} drop 2 on {stringSet}, {p:speed}',
+  level: 3, length: 'medium', minutes: 4,
+  params: {
+    key: 'major',
+    quality: [{ v: 'maj7' }, { v: 'm7', lvl: 0.5 }, { v: '7', lvl: 0.5 }, { v: 'm7b5', lvl: 1 }],
+    stringSet: [{ v: [6, 5, 4, 3], label: 'E-A-D-G' }, { v: [5, 4, 3, 2], label: 'A-D-G-B' }, { v: [4, 3, 2, 1], label: 'D-G-B-E' }],
+    speed: [{ v: 4, label: 'whole notes (4 beats each)' }, { v: 2, label: 'half notes (2 beats each)', lvl: 0.5 }, { v: 1, label: 'quarter notes (1 beat each)', lvl: 1.5 }, { v: 0.5, label: '8th notes (2 per beat)', lvl: 2.5 }],
+  },
+  prompt: 'Cycle through all four inversions of **{chord}** on strings **{p:stringSet}** — root position → 1st → 2nd → 3rd → back to root an octave up, then down again — changing chord every **{p:speed}**, with the metronome at a fixed tempo.',
+  goal: 'Every change exactly on time; when it’s easy, move to the next speed (whole → half → quarter → 8ths).',
+  tempo: { start: 56, min: 40, max: 200, step: 4 }, metronome: { meter: '4/4' },
+  hints: ['Root position on each string group is R–5–7–3 from low to high; each inversion moves every voice up to the next chord tone.', 'Keep the tempo fixed and shorten the time per chord instead — that is what forces the shapes into memory.', 'After maj7: the same on the other two string groups, then the other 11 keys, then m7, 7 and m7♭5.'],
+  explain: '### Why this ladder works\nThe tempo stays the same while the time per chord shrinks — whole notes, half notes, quarters, then 8ths — so you need the next inversion ready sooner each level. That moves the shapes from “figuring it out” to memory.\n\n### The four 7th chords of the major scale\nmaj7 (1 3 5 7), m7 (1 ♭3 5 ♭7), 7 (1 3 5 ♭7) and m7♭5 (1 ♭3 ♭5 ♭7) — the same four inversions and string groups work for all of them; only one or two notes change.',
+  visual: { type: 'voicings', root: '$key', quality: '$quality', voicing: 'drop2', stringSet: '$stringSet', inversion: 'all', beatsPerChord: '$speed', arpeggiate: false },
+  vary: ['speed', 'stringSet', 'quality', 'key'], concepts: ['drop2', 'inversions'],
+  source: 'After “Major 7th Chord: Mastering Maj7 Chord Theory and Guitar Voicings”, LearnJazzStandards.com',
+};
+
+export const templates = [...deepDives, TRIAD_DIVE, ...WHOLE_NECK, SPEED, ...journeys, ...cycleTpl, RIP, INV_LADDER];
 export const concepts = [
   { id: 'cycle-of-fourths', title: 'The cycle of fourths (cycle of fifths)', tags: ['harmony', 'keys'],
     body: C4_EXPLAIN,
