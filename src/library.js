@@ -1,5 +1,5 @@
 // Loads all content modules into one library.
-export const CONTENT_FILES = ['voicings', 'scales', 'rhythm', 'harmony', 'ear', 'analyses', 'interchange', 'deepdive', 'tedgreene', 'tgarchive'];
+export const CONTENT_FILES = ['voicings', 'scales', 'rhythm', 'harmony', 'ear', 'analyses', 'interchange', 'deepdive', 'barnby', 'tedgreene', 'tgarchive'];
 
 export async function loadLibrary(base = '../content/') {
   const lib = { templates: [], concepts: new Map(), toolbox: [], analyses: [], errors: [] };

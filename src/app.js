@@ -110,7 +110,7 @@ class NeckPlayer {
       const dots = f.live && hl ? hl.map((k) => { const [s, fr] = k.split(':').map(Number); return { string: s, fret: fr, label: '', kind: 'tone' }; }) : f.dots;
       const lo = this.c.perFrame ? f.lo : (this.c.lo ?? f.lo);
       const hi = this.c.perFrame ? f.hi : (this.c.hi ?? f.hi);
-      qs('.neck', this.el).innerHTML = fretboardSVG({ lo, hi: Math.min(17, Math.max(hi, lo + 4)), dots });
+      qs('.neck', this.el).innerHTML = fretboardSVG({ lo, hi: Math.min(24, Math.max(hi, lo + 4)), dots });
       this.frame = i;
     }
     qs('.cap', this.el).textContent = (ev && ev.label) || f.caption || this.title || '';

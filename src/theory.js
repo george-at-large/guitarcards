@@ -223,6 +223,7 @@ ch('7alt', '7alt', ['1', '3', 'b7', 'b9', '#9', '#11', 'b13'], 'altered dominant
 ch('dim-maj7', '°(maj7)', ['1', 'b3', 'b5', '7']);
 ch('m7#5', 'm7♯5', ['1', 'b3', '#5', 'b7']);
 ch('7sus2', '7sus2', ['1', '2', '5', 'b7']);
+ch('7sus4b5', '7sus4♭5', ['1', '4', 'b5', 'b7']);
 ch('quartal', ' quartal', ['1', '4', 'b7']);
 // aliases authors may use
 const ALIAS = { major: 'maj', minor: 'min', m: 'min', '': 'maj', M7: 'maj7', dom7: '7', 'ø7': 'm7b5', 'ø': 'm7b5', o7: 'dim7', '°7': 'dim7', mmaj7: 'mMaj7', 'm(maj7)': 'mMaj7', 'maj7#11': 'maj7#11', '+': 'aug', '°': 'dim', 'dim7b5': 'dim7', '69': '6/9', 'maj6': '6', 'aug7': '7#5', '+7': '7#5', 'halfdim': 'm7b5', 'alt': '7alt', 'm7(b5)': 'm7b5', 'maj': 'maj' };

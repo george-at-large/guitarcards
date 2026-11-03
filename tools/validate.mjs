@@ -58,7 +58,8 @@ for (const t of lib.templates) {
         if (which === 'demo' && spec.type !== 'text' && !c.events.length) errs.set('demo has no events', 1);
         const silent = c.events.filter((e) => e.unvoiced).map((e) => e.label);
         if (silent.length) errs.set(`${which}: ${silent.length} chord(s) could not be voiced (silent): ${silent.slice(0, 3).join(', ')}`, 1);
-        for (const f of c.frames) for (const d of f.dots) if (d.fret < 0 || d.fret > 17) errs.set(`${which} fret out of range ${d.fret}`, 1);
+        const top = [spec].flat().some((x) => x.region && x.region.octaves) ? 24 : 17; // multi-octave runs go past fret 17 on purpose
+        for (const f of c.frames) for (const d of f.dots) if (d.fret < 0 || d.fret > top) errs.set(`${which} fret out of range ${d.fret}`, 1);
         if (spec.type === 'voicings' || spec.type === 'chordScale') {
           const missing = c.html.match(/not playable/g);
           if (missing) errs.set(`${which}: ${missing.length} chord(s) not playable on ${JSON.stringify(spec.stringSet)} (${spec.voicing})`, 1);

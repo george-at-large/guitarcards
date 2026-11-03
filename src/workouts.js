@@ -82,6 +82,16 @@ WORKOUTS.splice(3, 0, {
     { id: 'har-comp-top-voice-melody', why: 'Make the top voice a melody (Ted Greene).' },
   ],
 });
+import { RB_QUALITIES } from '../content/barnby.js';
+WORKOUTS.splice(2, 0, {
+  id: 'barnby', name: 'Robbie Barnby arpeggio workout', minutes: 60,
+  blurb: 'Three-octave arpeggios through all 12 keys for every essential quality, then the substitution sounds and the chromatic ladder.',
+  steps: [
+    ...RB_QUALITIES.map((q) => ({ id: 'rb-cycle', params: { quality: q.v }, why: `${q.label}: three octaves, all 12 keys. ${q.tip}` })),
+    { id: 'rb-other-sounds', why: 'The same shapes as other chords (Cmaj7 = Am9, C°(maj7) = D13♭9…).' },
+    { id: 'rb-chromatic', why: 'Chromatic ladder: up in E, down in F, up in F♯…' },
+  ],
+});
 // how essential a card is for real playing: multiplies its chance of coming up in mixed sessions (likes boost further)
 export const ESSENTIAL = {
   'ii-v-i': 1.5, 'minor-ii-v-i': 1.4, triads: 1.3, arpeggios: 1.3, drop2: 1.3, inversions: 1.3, 'cycle-of-fourths': 1.4,

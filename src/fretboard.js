@@ -53,6 +53,40 @@ function fretFor(s, pc, minR = 0) {
   return r;
 }
 
+// Multi-octave diagonal run from the lowest root on string 6: chord/scale tones only, one note per pitch,
+// strings move low → high, at most 3 notes per string, minimising hand movement (dynamic programming).
+function octavePath(root, ivs, map, octaves, maxFret) {
+  const pcs = new Set(ivs.map((iv) => (notePc(root) + intervalSemis(iv)) % 12));
+  const start = OPEN[6] + fretFor(6, notePc(root));
+  const pitches = [];
+  for (let m = start; m <= start + 12 * octaves; m++) if (pcs.has(m % 12)) pitches.push(m);
+  // state: [stringIndex 0..5 (6..1), countOnString]; dp over notes
+  const S = [6, 5, 4, 3, 2, 1];
+  let layer = new Map([[`0:1`, { cost: 0, path: [{ s: 6, f: start - OPEN[6] }] }]]);
+  for (let i = 1; i < pitches.length; i++) {
+    const m = pitches[i];
+    const next = new Map();
+    for (const [k, st] of layer) {
+      const [si, cnt] = k.split(':').map(Number);
+      const prev = st.path[st.path.length - 1];
+      for (const nsi of [si, si + 1]) {
+        if (nsi > 5) continue;
+        const s = S[nsi], f = m - OPEN[s];
+        if (f < 0 || f > maxFret) continue;
+        const ncnt = nsi === si ? cnt + 1 : 1;
+        if (ncnt > 3) continue;
+        const cost = st.cost + Math.abs(f - prev.f) + (ncnt === 3 ? 1.5 : 0) + (nsi === si && f - prev.f > 5 ? 4 : 0);
+        const key = `${nsi}:${ncnt}`;
+        if (!next.has(key) || next.get(key).cost > cost) next.set(key, { cost, path: [...st.path, { s, f }] });
+      }
+    }
+    layer = next;
+  }
+  const best = [...layer.values()].sort((a, b) => a.cost - b.cost)[0];
+  if (!best) return [];
+  return best.path.map(({ s, f }) => { const midi = OPEN[s] + f; const t = map.get(midi % 12); return { string: s, fret: f, midi, iv: t.iv, note: t.note, idx: t.idx }; });
+}
+
 // CAGED windows relative to the root fret on its anchor string
 const CAGED = {
   E: { s: 6, lo: -1, hi: 3 },
@@ -129,6 +163,7 @@ export function regionNotes(spec) {
     const seen = new Set();
     return all.filter((n) => { const k = n.string + ':' + n.fret; if (seen.has(k)) return false; seen.add(k); return true; }).sort(byPitch);
   }
+  if (reg.octaves) { const p = octavePath(root, ivs, map, reg.octaves, reg.maxFret ?? 22); return p.length ? p : octavePath(root, ivs, map, reg.octaves, 24); }
   if (reg.caged) {
     const w = cagedWindow(root, reg.caged);
     return dedupe(notesInWindow(map, w.lo, w.hi)).sort(byPitch);

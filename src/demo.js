@@ -121,7 +121,7 @@ function scaleLike(spec) {
   const w = windowFor(notes);
   const name = spec.quality ? T.chordSymbol(root, spec.quality) + ' arpeggio' : spec.tones ? `Arpeggio (${spec.tones.map(T.prettyIv).join(' ')})` : `${T.noteName(root, true)} ${T.getScale(s.scale).name}`;
   // caption = what is being played; the big readout under the neck shows each note's interval
-  const frame = { dots: dotsFrom(notes, labels), lo: w.lo, hi: Math.min(w.hi, 17), caption: spec.title || (name + regionCaption(spec.region)) };
+  const frame = { dots: dotsFrom(notes, labels), lo: w.lo, hi: Math.min(w.hi, spec.region && spec.region.octaves ? 24 : 17), caption: spec.title || (name + regionCaption(spec.region)) };
   const events = path.map((n, i) => ({ beat: i * bpn, dur: bpn, kind: 'note', notes: [n.midi], frame: 0, hl: [key(n)], iv: lblOf(n, labels) }));
   return {
     html: fretboardSVG({ ...frame, caption: name + regionCaption(spec.region) }),
@@ -138,6 +138,7 @@ function regionCaption(r) {
   if (r.string) return ` — string ${r.string}`;
   if (r.strings) return ` — strings ${r.strings.join('-')}`;
   if (r.connect) return ` — ${r.connect.join(' → ')}`;
+  if (r.octaves) return ` — ${r.octaves} octaves from string 6`;
   if (r.frets) return ` — frets ${r.frets[0]}–${r.frets[1]}`;
   return ' — whole neck';
 }
