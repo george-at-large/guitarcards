@@ -136,26 +136,25 @@ function step(a, b) {
 const JOURNEYS = [
   { id: 'light-to-dark', name: 'Light to dark, the whole way', lvl: 4, path: ['lydian-augmented', 'lydian', 'ionian', 'mixolydian', 'dorian', 'aeolian', 'phrygian', 'locrian', 'altered', 'altered-dim'],
     why: 'Every step lowers one note by a half step, so the sound gets one shade darker each time — from the brightest mode (Lydian ♯5) to the darkest (Altered ♭♭7). The middle seven are the modes of the major scale in "brightness order".' },
-  { id: 'dark-to-light', name: 'Dark to light, the whole way', lvl: 4, path: ['altered-dim', 'altered', 'locrian', 'phrygian', 'aeolian', 'dorian', 'mixolydian', 'ionian', 'lydian', 'lydian-augmented'],
+  { id: 'dark-to-light', retired: true, name: 'Dark to light, the whole way', lvl: 4, path: ['altered-dim', 'altered', 'locrian', 'phrygian', 'aeolian', 'dorian', 'mixolydian', 'ionian', 'lydian', 'lydian-augmented'],
     why: 'The same ladder climbed upward: each step raises one note a half step and the colour brightens.' },
   { id: 'parent-loop', name: 'The four parent scales in a loop', lvl: 5, path: ['aeolian', 'harmonic-minor', 'harmonic-major', 'ionian', 'melodic-minor', 'dorian', 'aeolian'],
     why: 'Natural minor, harmonic minor, harmonic major, major and melodic minor (plus Dorian) are all one note apart in a circle. Raise the 7 of natural minor and you are in harmonic minor; raise its ♭3 and you have harmonic major; raise the ♭6 and you reach major; lower the 3 for melodic minor; lower the 7 for Dorian; lower the 6 and you are home.' },
   { id: 'dominants', name: 'Dominant colours, bright to dark', lvl: 5, path: ['lydian-dominant', 'mixolydian', 'mixolydian-b6', 'phrygian-dominant'],
     why: 'All four keep the major 3rd and ♭7 — they are all dominant-7th scales — but each step darkens one tension: ♯11 → 11, 13 → ♭13, 9 → ♭9. Lydian dominant suits non-resolving II7/♭VII7; Mixolydian the plain V7; Mixolydian ♭6 and Phrygian dominant a V7 resolving to minor.' },
-  { id: 'grand-tour', name: 'Grand tour through all four harmonic systems', lvl: 7, path: ['lydian', 'lydian-augmented', 'ionian-sharp5', 'ionian', 'mixolydian', 'lydian-dominant', 'dorian-sharp4', 'dorian', 'aeolian', 'locrian-nat2', 'locrian', 'locrian-nat6', 'dorian-b2', 'phrygian', 'phrygian-dominant', 'mixolydian-b6', 'harmonic-major', 'harmonic-minor', 'melodic-minor'],
+  { id: 'grand-tour', retired: true, name: 'Grand tour through all four harmonic systems', lvl: 7, path: ['lydian', 'lydian-augmented', 'ionian-sharp5', 'ionian', 'mixolydian', 'lydian-dominant', 'dorian-sharp4', 'dorian', 'aeolian', 'locrian-nat2', 'locrian', 'locrian-nat6', 'dorian-b2', 'phrygian', 'phrygian-dominant', 'mixolydian-b6', 'harmonic-major', 'harmonic-minor', 'melodic-minor'],
     why: 'Nineteen modes — from the major, melodic-minor, harmonic-minor and harmonic-major families — chained so every step changes exactly one note. It shows that the "exotic" modes are just one note away from ones you already know.' },
 ];
 const journeys = JOURNEYS.map((j) => {
   const steps = j.path.slice(1).map((b, k) => step(j.path[k], b));
   const names = j.path.map((id) => getScale(id).name);
   return {
-    id: `scl-journey-${j.id}`, mode: 'play', category: 'scales', tags: ['one-note-change', 'modes', 'parallel-modes', 'drone', 'mode-brightness'],
+    id: `scl-journey-${j.id}`, ...(j.retired ? { retired: true } : {}), mode: 'play', category: 'scales', tags: ['one-note-change', 'modes', 'parallel-modes', 'drone', 'mode-brightness'],
     title: `One-note journey: ${j.name} on {root}`,
     level: j.lvl, length: j.path.length > 8 ? 'long' : 'medium', minutes: Math.max(4, Math.round(j.path.length * 0.8)),
     params: { root: 'any' },
-    prompt: `Over a **{root} drone**, play each scale up and down in the same position (E shape), then change **one note** and play the next:\n\n` +
-      names.map((n, k) => `${k + 1}. **{root} ${n}**${k ? ` — ${steps[k - 1]}` : ''}`).join('\n') +
-      '\n\nLean on the note that just changed every time it comes round, and listen to the colour shift.',
+    prompt: `**{root} drone**, E shape. Play each scale up and back, then change **one note** for the next:\n\n` +
+      names.map((n, k) => `${k + 1}. **{root} ${n}**${k ? ` — ${steps[k - 1]}` : ''}`).join('\n'),
     goal: 'You can say which note changes before you play each step, and hear the shift against the drone.',
     tempo: { start: 70, min: 40, max: 200, step: 4 }, metronome: { meter: '4/4', subdivision: 2 },
     drone: { note: '$root', fifth: true },

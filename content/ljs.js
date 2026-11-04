@@ -96,7 +96,7 @@ export const templates = [
     source: "After \"Mastering The Fretboard: Major 7(b5) Chords\", LearnJazzStandards.com",
   },
   {
-    id: "ljs-mtf-three-sets",
+    id: "ljs-mtf-three-sets", retired: true,
     mode: "play",
     category: "voicings",
     tags: ["drop2", "inversions", "string-sets", "routine", "fretboard"],
@@ -971,7 +971,7 @@ export const templates = [
     source: "After \"Master the Diminished Triad on the Guitar and Infuse Your Playing With the Diminished Sound\", LearnJazzStandards.com",
   },
   {
-    id: "ljs-triads-all-groups-routine",
+    id: "ljs-triads-all-groups-routine", retired: true,
     mode: "play",
     category: "voicings",
     tags: ["triads", "close", "inversions", "routine", "string-sets"],

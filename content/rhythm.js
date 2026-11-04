@@ -1785,7 +1785,7 @@ The 'shred' subdivision: six per beat. At 100 bpm that's 10 notes per second. Cl
 },
 
 {
-  id: "rhy-pick-alt-quintuplets",
+  id: "rhy-pick-alt-quintuplets", retired: true,
   mode: "play", category: "picking", tags: ["alternate-picking", "quintuplets", "advanced"],
   title: "Alternate picking: quintuplets",
   level: 7, length: "short", minutes: 2,

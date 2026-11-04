@@ -394,12 +394,12 @@ The major pentatonic has only two kinds of step: whole steps (1-2, 2-3, 5-6) and
     title: 'Pentatonic ladder, 2-3 shape: {p:root}',
     level: 4, length: 'short', minutes: 3,
     params: { root: [{ v: 'G', label: 'C major pentatonic from its 5th (G)' }, { v: 'A', label: 'D major pentatonic from its 5th (A)' }, { v: 'C', label: 'F major pentatonic from its 5th (C)' }, { v: 'D', label: 'G major pentatonic from its 5th (D)' }, { v: 'F', label: 'B♭ major pentatonic from its 5th (F)' }] },
-    prompt: 'Start the ladder on the **5th** of the scale on the 6th string ({p:root}): **two** notes on that string, **three** on the next, two, three… Whole steps along strings, minor 3rds across. Note names are shown.\n\nAs you climb, notice the major chord forms you pass through: **A form** at the bottom (it feels like a bass line), then **G, E, D** and **C** forms higher up.',
+    prompt: "Start the ladder on the **5th** of the scale on the 6th string ({p:root}): **two** notes on that string, **three** on the next, two, three… Whole steps along strings, minor 3rds across. Note names are shown.",
     goal: 'Up and down in time, with each CAGED chord form recognised as you pass it.',
     tempo: { start: 60, min: 40, max: 180, step: 4, unit: 'bpm' },
     metronome: { meter: '4/4', subdivision: 2, swing: 0, accent: true },
     hints: ['Low strings: 5 6 | 1 2 3 | 5 6 | 1 2 3 …', 'Ring finger slides between groups; no pinky.', 'The relative minor (6th degree) lives on the same ladder: same notes, aim at a different home.'],
-    explain: `### 2-3 vs 3-2
+    explain: `As you climb, notice the major chord forms you pass through: **A form** at the bottom (it feels like a bass line), then **G, E, D** and **C** forms higher up.\n\n### 2-3 vs 3-2
 The two ladders are the same rule from two starting points. From the 5th you get 2-3; from the root, 3-2. Together they cover the neck diagonally, and both cross the five CAGED chord shapes of the key in order, so every chord tone you need for a chord change is always one step away.`,
     visual: { type: 'scale', root: '$root', tones: ['1', '2', '4', '5', '6'], region: { octaves: 3 }, labels: 'note' },
     demo: { type: 'scale', root: '$root', tones: ['1', '2', '4', '5', '6'], region: { octaves: 3 }, path: 'up-and-down', beatsPerNote: 0.5, labels: 'note' },

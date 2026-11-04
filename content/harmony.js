@@ -16,9 +16,9 @@ export const templates = [
     id: "har-diatonic-triads-caged",
     mode: "play", category: "progressions", tags: ["diatonic", "triads", "caged", "chord-series"],
     title: "Diatonic triads of {key} inside the {p:caged} shape",
-    level: 1, length: "short", minutes: 1,
+    level: 2, length: "short", minutes: 1,
     params: { key: "major", caged: ["E", "A", "C", "G", "D"] },
-    prompt: "Play the seven diatonic triads of **{key}** in order (I ii iii IV V vi vii° I), one per bar, **without leaving the {p:caged}-shape area** of the neck. Then come back down.\n\n*Watch it* shows the idea in one hand position around frets 3–8 (whichever CAGED shape sits there in {key}); your job is the same series inside the {p:caged} shape.",
+    prompt: "Play the seven diatonic triads of **{key}** in order (I ii iii IV V vi vii° I), one per bar, **without leaving the {p:caged}-shape area** of the neck. Then come back down.",
     goal: "Every chord found inside a 5-fret window; changes land on beat 1.",
     tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
@@ -27,7 +27,7 @@ export const templates = [
       "Find the I chord's {p:caged} shape first, then look for each next root *inside* that window, usually on a neighbouring string.",
       "Small 3- or 4-string grips are fine. You do not need full barre chords."
     ],
-    explain: "### Why stay in one position?\nThe whole key lives inside every CAGED window. If you can find all seven chords *without moving your hand*, you see the key as one shape instead of seven separate grips. That is the skill behind comping and chord melody: the next chord is almost always within a fret or two.\n\n### The formula\nStack thirds on each degree of the major scale and you get **I ii iii IV V vi vii°**. Uppercase = major, lowercase = minor, ° = diminished. That quality pattern is identical in all 12 keys, so the only thing that changes is *where* the window sits.",
+    explain: "*Watch it* shows the idea in one hand position around frets 3–8 (whichever CAGED shape sits there in {key}); your job is the same series inside the {p:caged} shape.\n\n### Why stay in one position?\nThe whole key lives inside every CAGED window. If you can find all seven chords *without moving your hand*, you see the key as one shape instead of seven separate grips. That is the skill behind comping and chord melody: the next chord is almost always within a fret or two.\n\n### The formula\nStack thirds on each degree of the major scale and you get **I ii iii IV V vi vii°**. Uppercase = major, lowercase = minor, ° = diminished. That quality pattern is identical in all 12 keys, so the only thing that changes is *where* the window sits.",
     visual: { type: "progression", key: "$key", chart: "| I:maj | ii:min | iii:min | IV:maj | V:maj | vi:min | vii:dim | I:maj |" },
     demo: { type: "progression", key: "$key", chart: "| I:maj | ii:min | iii:min | IV:maj | V:maj | vi:min | vii:dim | I:maj |", voiceLead: false },
     concepts: ["diatonic-harmony", "roman-numerals"],
@@ -37,9 +37,9 @@ export const templates = [
     id: "har-diatonic-7ths-caged",
     mode: "play", category: "progressions", tags: ["diatonic", "seventh-chords", "caged", "chord-series"],
     title: "Diatonic 7th chords of {key} in the {p:caged} position",
-    level: 2, length: "short", minutes: 2,
+    level: 3, length: "short", minutes: 2,
     params: { key: "major", caged: ["E", "A", "C", "G", "D"] },
-    prompt: "Play **Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7 Imaj7** in **{key}**, one chord per bar, all inside the **{p:caged}** position. Say each chord name out loud as you play it.\n\n*Watch it* plays the series in one hand position around frets 3–8 (whichever CAGED shape sits there in {key}); do the same inside the {p:caged} position.",
+    prompt: "Play **Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7 Imaj7** in **{key}**, one chord per bar, all inside the **{p:caged}** position. Say each chord name out loud as you play it.",
     goal: "No hesitation between chords; each chord named correctly.",
     tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
@@ -48,7 +48,7 @@ export const templates = [
       "There's only one dominant 7 in a major key (the V) and only one m7b5 (the vii).",
       "If a grip is awkward, drop the 5th. Root–3–7 shells exist for every chord on strings 6-4-3 or 5-4-3."
     ],
-    explain: "### Diatonic sevenths\nAdd another third on top of each triad and you get the jazz palette: **Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7**. Learning them as a *series in one position* means you can read any diatonic chart without searching.\n\n### Think in functions\n- **Tonic:** I, iii, vi (stable)\n- **Subdominant:** ii, IV (moving away)\n- **Dominant:** V, vii (tension that wants I)\n\nAlmost every progression in this deck is a path through those three families.",
+    explain: "*Watch it* plays the series in one hand position around frets 3–8 (whichever CAGED shape sits there in {key}); do the same inside the {p:caged} position.\n\n### Diatonic sevenths\nAdd another third on top of each triad and you get the jazz palette: **Imaj7 ii7 iii7 IVmaj7 V7 vi7 viiø7**. Learning them as a *series in one position* means you can read any diatonic chart without searching.\n\n### Think in functions\n- **Tonic:** I, iii, vi (stable)\n- **Subdominant:** ii, IV (moving away)\n- **Dominant:** V, vii (tension that wants I)\n\nAlmost every progression in this deck is a path through those three families.",
     visual: { type: "progression", key: "$key", chart: "| I:maj7 | ii:m7 | iii:m7 | IV:maj7 | V:7 | vi:m7 | vii:m7b5 | I:maj7 |" },
     demo: { type: "progression", key: "$key", chart: "| I:maj7 | ii:m7 | iii:m7 | IV:maj7 | V:7 | vi:m7 | vii:m7b5 | I:maj7 |", voiceLead: false },
     concepts: ["diatonic-harmony", "roman-numerals"],
@@ -58,9 +58,9 @@ export const templates = [
     id: "har-I-IV-V-all-caged",
     mode: "play", category: "progressions", tags: ["caged", "chord-series", "primary-chords"],
     title: "I–IV–V–I in {key}, starting from the {p:caged} shape",
-    level: 1, length: "short", minutes: 2,
+    level: 2, length: "short", minutes: 2,
     params: { key: "major", caged: ["C", "A", "G", "E", "D"] },
-    prompt: "Play **| I | IV | V | I |** in **{key}** with the I chord as a **{p:caged}** shape. Find IV and V *in the same area*. Then move the I chord to the next CAGED shape up the neck and repeat, until you've done all five.\n\n*Watch it* plays five passes in five areas of the neck (low to high) with small triad grips; play yours with the CAGED shapes.",
+    prompt: "Play **| I | IV | V | I |** in **{key}** with the I chord as a **{p:caged}** shape. Find IV and V *in the same area*. Then move the I chord to the next CAGED shape up the neck and repeat, until you've done all five.",
     goal: "Five complete passes, each in a different area of the neck.",
     tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
@@ -69,7 +69,7 @@ export const templates = [
       "IV is usually 'one string set over' (same fret area, root one string higher). V is IV moved up two frets.",
       "Use small triad fragments if a full shape is a stretch."
     ],
-    explain: "### The point\nThe primary chords I, IV and V share a lot of real estate: wherever I is, IV and V are within reach. Doing the loop in all five CAGED regions joins the neck together and gives you five choices of register for any three-chord song.",
+    explain: "*Watch it* plays five passes in five areas of the neck (low to high) with small triad grips; play yours with the CAGED shapes.\n\n### The point\nThe primary chords I, IV and V share a lot of real estate: wherever I is, IV and V are within reach. Doing the loop in all five CAGED regions joins the neck together and gives you five choices of register for any three-chord song.",
     visual: { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |" },
     demo: [
       { type: "progression", key: "$key", chart: "| I:maj | IV:maj | V:maj | I:maj |", voiceLead: true, startFret: 1, title: "Pass 1: lowest area" },
@@ -332,7 +332,7 @@ export const templates = [
     vary: ["key", "tempo"],
   },
   {
-    id: "har-ii-V-I-twelve-keys",
+    id: "har-ii-V-I-twelve-keys", retired: true,
     mode: "play", category: "progressions", tags: ["ii-v-i", "all-keys", "cycle", "masters"],
     title: "ii–V–I through all 12 keys (cycle of 4ths)",
     level: 7, length: "long", minutes: 8,
@@ -662,7 +662,7 @@ export const templates = [
     id: "har-dim-passing-ascending",
     mode: "play", category: "progressions", tags: ["diminished", "passing-chords", "chromatic"],
     title: "Ascending passing diminished in {key}: {p:chart}",
-    level: 2, length: "short", minutes: 2,
+    level: 3, length: "short", minutes: 2,
     params: {
       key: "major",
       chart: [
@@ -671,7 +671,7 @@ export const templates = [
         { v: "| IV:maj7 #iv:dim7 | I:maj7/5 V/ii:7 | ii:m7 V:7 | I:maj7 |", label: "IV – #iv°7 – I/5", lvl: 1 }
       ]
     },
-    prompt: "Play **{p:chart}** in **{key}**. Each diminished chord's root sits a **half step below** the root of the chord it leads to, so the roots rise chromatically; put them in the bass.\n\n*Watch it* uses drop-2 grips on strings 4-3-2-1, where every voice moves by a half step or stays; add the roots on the 5th/6th string to hear the rising bass.",
+    prompt: "Play **{p:chart}** in **{key}**. Each diminished chord's root sits a **half step below** the root of the chord it leads to, so the roots rise chromatically; put them in the bass.",
     goal: "Roots rise by half steps in the bass; each dim7 resolves smoothly up.",
     tempo: { start: 70, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -680,7 +680,7 @@ export const templates = [
       "A dim7 grip repeats every 3 frets (minor 3rds), so you can pick whichever inversion is closest.",
       "#i°7 → ii7: every voice moves by a half step or stays."
     ],
-    explain: "### Passing diminished\nA dim7 a half step below a diatonic chord acts as its **leading-tone chord** (vii°7 of the target). It's really a rootless **V7b9** of the target: C#°7 = A7b9 without the A, which is V7/ii. That's why it pulls so strongly into ii.\n\nClassic spots: **I–#i°7–ii**, **ii–#ii°7–iii**, **IV–#iv°7–I/5**.",
+    explain: "*Watch it* uses drop-2 grips on strings 4-3-2-1, where every voice moves by a half step or stays; add the roots on the 5th/6th string to hear the rising bass.\n\n### Passing diminished\nA dim7 a half step below a diatonic chord acts as its **leading-tone chord** (vii°7 of the target). It's really a rootless **V7b9** of the target: C#°7 = A7b9 without the A, which is V7/ii. That's why it pulls so strongly into ii.\n\nClassic spots: **I–#i°7–ii**, **ii–#ii°7–iii**, **IV–#iv°7–I/5**.",
     visual: { type: "progression", key: "$key", chart: "$chart", voiceLead: true, voicing: "drop2", stringSet: [4, 3, 2, 1] },
     demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true, voicing: "drop2", stringSet: [4, 3, 2, 1] },
     concepts: ["passing-diminished", "dim7-rootless-dominant"],
@@ -773,7 +773,7 @@ export const templates = [
     title: "Barry Harris: major 6th–diminished movement in {key}",
     level: 7, length: "medium", minutes: 3,
     params: { key: "major", stringSet: [[4, 3, 2, 1], [5, 4, 3, 2]] },
-    prompt: "Harmonize the **major 6th–diminished scale** of **{key}** in drop 2 on strings **{stringSet}**: alternate the I6 chord and its vii°7, moving every voice up one scale step each time: I6 → °7 → I6/3 → °7 → I6/5 → °7 → I6/6 → °7 → I6.\n\nIn C: C6 → B°7/D → C6/E → B°7/F → C6/G → B°7/Ab → C6/A → B°7 → C6 (the demo writes the root-position chords as C6/C and B°7/B). When the line runs past the 17th fret, the demo drops an octave and carries on.",
+    prompt: "Harmonize the **major 6th–diminished scale** of **{key}** in drop 2 on strings **{stringSet}**: alternate the I6 chord and its vii°7, moving every voice up one scale step each time: I6 → °7 → I6/3 → °7 → I6/5 → °7 → I6/6 → °7 → I6.",
     goal: "Eight chords up the neck, top voice playing the scale, every voice moving by step.",
     tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -782,7 +782,7 @@ export const templates = [
       "Chord tones of C6 (C E G A) alternate with chord tones of B°7 (B D F Ab). Every second note belongs to the other chord.",
       "All four diminished chords are the same chord in different inversions."
     ],
-    explain: "### The 6th-diminished concept (Barry Harris)\nBarry Harris taught that a major 6th chord and the diminished 7th a half step below its root interlock perfectly: together they form an 8-note scale (major + b6). Harmonize each scale note by alternating **I6** and **vii°7** and you get a smooth, bebop-flavoured chord scale. This is the basis of his 'movement' approach to comping and chord melody: the tonic is static, the diminished chord creates motion, and you can move in and out of the tonic on any melody note.",
+    explain: "In C: C6 → B°7/D → C6/E → B°7/F → C6/G → B°7/Ab → C6/A → B°7 → C6 (the demo writes the root-position chords as C6/C and B°7/B). When the line runs past the 17th fret, the demo drops an octave and carries on.\n\n### The 6th-diminished concept (Barry Harris)\nBarry Harris taught that a major 6th chord and the diminished 7th a half step below its root interlock perfectly: together they form an 8-note scale (major + b6). Harmonize each scale note by alternating **I6** and **vii°7** and you get a smooth, bebop-flavoured chord scale. This is the basis of his 'movement' approach to comping and chord melody: the tonic is static, the diminished chord creates motion, and you can move in and out of the tonic on any melody note.",
     visual: { type: "progression", key: "$key", chart: "| I:6/1 vii:dim7/b3 | I:6/3 vii:dim7/b5 | I:6/5 vii:dim7/bb7 | I:6/6 vii:dim7/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
     demo: { type: "progression", key: "$key", chart: "| I:6/1 vii:dim7/b3 | I:6/3 vii:dim7/b5 | I:6/5 vii:dim7/bb7 | I:6/6 vii:dim7/1 | I:6/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
     concepts: ["sixth-diminished", "passing-diminished"],
@@ -795,7 +795,7 @@ export const templates = [
     title: "Barry Harris: minor 6th–diminished movement in {key}",
     level: 8, length: "medium", minutes: 3,
     params: { key: "minor", stringSet: [[4, 3, 2, 1], [5, 4, 3, 2]] },
-    prompt: "Do the same 6th-diminished movement in **{key}** with the **minor 6th** chord: im6 → vii°7 → im6/b3 → °7 → im6/5 → °7 → im6/6 → °7 → im6, every voice moving up one scale step each time, drop 2 on strings **{stringSet}**.\n\nIn C minor: Cm6 → B°7/D → Cm6/Eb → B°7/F → Cm6/G → B°7/Ab → Cm6/A → B°7 → Cm6 (the demo writes the root-position chords as Cm6/C and B°7/B). When the line runs past the 17th fret, the demo drops an octave and carries on.",
+    prompt: "Do the same 6th-diminished movement in **{key}** with the **minor 6th** chord: im6 → vii°7 → im6/b3 → °7 → im6/5 → °7 → im6/6 → °7 → im6, every voice moving up one scale step each time, drop 2 on strings **{stringSet}**.",
     goal: "Smooth stepwise ascent; you can stop on any im6 inversion and it sounds like home.",
     tempo: { start: 60, min: 40, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0.67, accent: true, clickOn: "2&4" },
@@ -804,7 +804,7 @@ export const templates = [
       "The diminished chord is the same as in the major version: built on the 7th degree.",
       "im6 is also a rootless IV9 and a vi ø7 inversion, so this movement doubles as minor ii–V material."
     ],
-    explain: "### Minor 6th–diminished\nSame engine as the major version: **im6** (C Eb G A) interlocks with **vii°7** (B D F Ab). Barry Harris used it for minor tonic movement and noted that Cm6 = Am7b5 (in inversion), so the same moves work over the iiø of a minor ii–V.",
+    explain: "In C minor: Cm6 → B°7/D → Cm6/Eb → B°7/F → Cm6/G → B°7/Ab → Cm6/A → B°7 → Cm6 (the demo writes the root-position chords as Cm6/C and B°7/B). When the line runs past the 17th fret, the demo drops an octave and carries on.\n\n### Minor 6th–diminished\nSame engine as the major version: **im6** (C Eb G A) interlocks with **vii°7** (B D F Ab). Barry Harris used it for minor tonic movement and noted that Cm6 = Am7b5 (in inversion), so the same moves work over the iiø of a minor ii–V.",
     visual: { type: "progression", key: "$key", chart: "| i:m6/1 vii:dim7/b3 | i:m6/b3 vii:dim7/b5 | i:m6/5 vii:dim7/bb7 | i:m6/6 vii:dim7/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
     demo: { type: "progression", key: "$key", chart: "| i:m6/1 vii:dim7/b3 | i:m6/b3 vii:dim7/b5 | i:m6/5 vii:dim7/bb7 | i:m6/6 vii:dim7/1 | i:m6/1 |", voicing: "drop2", stringSet: "$stringSet", voiceLead: true, startFret: 0 },
     concepts: ["sixth-diminished"],
@@ -871,7 +871,7 @@ export const templates = [
         { v: "| I:maj/1 | V:maj/3 | vi:min/1 | I:maj/5 | IV:maj/1 | I:maj/3 | ii:m7/1 | V:7/1 |", label: "stepwise descending bass (I–V/3–vi–I/5–IV–I/3–ii–V)" }
       ]
     },
-    prompt: "Play **{p:chart}** in **{key}** with the bass note clearly on the lowest string. The upper notes mostly stay; only the bass (or one inner voice) moves by half or whole steps.\n\nIn *Watch it* a root-position chord is written with its root after the slash (e.g. G/G) so you can see every bass note.",
+    prompt: "Play **{p:chart}** in **{key}** with the bass note clearly on the lowest string. The upper notes mostly stay; only the bass (or one inner voice) moves by half or whole steps.",
     goal: "You can hear and sing the moving line.",
     tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
@@ -880,7 +880,7 @@ export const templates = [
       "Hold a small triad on the top strings and move only the bass with your thumb or 2nd finger.",
       "Slash chords: the symbol after / is the bass note's interval *relative to that chord*."
     ],
-    explain: "### Line clichés\nA chromatic inner or bass line through one chord is one of the most common devices in pop, Broadway and jazz ballads. On a minor chord it's **m – m(maj7) – m7 – m6** (the *My Funny Valentine* / *Stairway to Heaven* intro sound; the James Bond theme uses the rising cousin, 5 – #5 – 6 – #5). The harmony barely changes but the moving voice gives it momentum.",
+    explain: "In *Watch it* a root-position chord is written with its root after the slash (e.g. G/G) so you can see every bass note.\n\n### Line clichés\nA chromatic inner or bass line through one chord is one of the most common devices in pop, Broadway and jazz ballads. On a minor chord it's **m – m(maj7) – m7 – m6** (the *My Funny Valentine* / *Stairway to Heaven* intro sound; the James Bond theme uses the rising cousin, 5 – #5 – 6 – #5). The harmony barely changes but the moving voice gives it momentum.",
     visual: { type: "progression", key: "$key", chart: "$chart" },
     demo: { type: "progression", key: "$key", chart: "$chart" },
     concepts: ["line-cliche", "chromatic-approach-chords"],
@@ -1043,7 +1043,7 @@ export const templates = [
         { v: "| I:maj | vi:min | IV:maj | iv:min |", label: "I – vi – IV – iv", lvl: 0 }
       ]
     },
-    prompt: "Strum or comp **{p:chart}** in **{key}**. On the iv chord, find the one note that changed from IV and make it the top note.\n\n*Watch it* voice-leads the chords, so the changed note (6 → b6, then on to 5) moves by a half step on one string; depending on the key it is the top voice, an inner voice or the bass. Then find a grip where it is on top.",
+    prompt: "Strum or comp **{p:chart}** in **{key}**. On the iv chord, find the one note that changed from IV and make it the top note.",
     goal: "You can hear and sing the 6 → b6 → 5 line.",
     tempo: { start: 72, min: 50, max: 200, step: 5, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
@@ -1052,7 +1052,7 @@ export const templates = [
       "That Ab (b6 of the key) then falls to G (the 5th of I). That's the 'tear-jerker' line.",
       "iv is borrowed from the parallel natural minor (Aeolian)."
     ],
-    explain: "### The most common borrowed chord\nThe minor iv is borrowed from the parallel minor. It works because **b6 → 5** is a strong half-step resolution into the tonic chord. Pop, Beatles, Radiohead, Broadway, jazz ballads: everyone uses it. In jazz it's often iv6 or iv7 → bVII7 (the backdoor).",
+    explain: "*Watch it* voice-leads the chords, so the changed note (6 → b6, then on to 5) moves by a half step on one string; depending on the key it is the top voice, an inner voice or the bass. Then find a grip where it is on top.\n\n### The most common borrowed chord\nThe minor iv is borrowed from the parallel minor. It works because **b6 → 5** is a strong half-step resolution into the tonic chord. Pop, Beatles, Radiohead, Broadway, jazz ballads: everyone uses it. In jazz it's often iv6 or iv7 → bVII7 (the backdoor).",
     visual: { type: "progression", key: "$key", chart: "$chart" },
     demo: { type: "progression", key: "$key", chart: "$chart", voiceLead: true, startFret: 8 },
     concepts: ["modal-interchange", "cadences"],
@@ -1380,7 +1380,7 @@ export const templates = [
         { v: "| I:maj/1 | V:maj/3 | vi:min/1 | iii:min/b3 | IV:maj/1 | I:maj/3 | IV:maj/1 | V:maj/1 |", label: "stepwise descending bass (pop 'Canon' version)", lvl: 1 }
       ]
     },
-    prompt: "Play **{p:chart}** in **{key}**, one chord per bar. On the slash-chord version, make the descending bass line clear (1–7–6–5–4–3–4–5).\n\nIn *Watch it* a root-position chord is written with its root after the slash (e.g. D/D) so you can see every bass note.",
+    prompt: "Play **{p:chart}** in **{key}**, one chord per bar. On the slash-chord version, make the descending bass line clear (1–7–6–5–4–3–4–5).",
     goal: "Even bars; on the slash version the bass descends by step.",
     tempo: { start: 66, min: 50, max: 200, step: 2, unit: "bpm" },
     metronome: { meter: "4/4", subdivision: 1, swing: 0, accent: true, clickOn: "all" },
@@ -1389,7 +1389,7 @@ export const templates = [
       "V/3 = V with its 3rd (the leading tone) in the bass; iii/b3 = iii with its 3rd in the bass (in C: Em/G), which puts the key's 5th in the bass.",
       "Pachelbel's Canon is public domain; the same bass underlies many pop songs."
     ],
-    explain: "### The Canon progression\nPachelbel's Canon in D (late 17th century) repeats **I–V–vi–iii–IV–I–IV–V** over a ground bass. Swapping in inversions turns the bass into a smooth **descending scale**, the version pop songwriters borrow most. It's an excellent slash-chord and voice-leading drill.",
+    explain: "In *Watch it* a root-position chord is written with its root after the slash (e.g. D/D) so you can see every bass note.\n\n### The Canon progression\nPachelbel's Canon in D (late 17th century) repeats **I–V–vi–iii–IV–I–IV–V** over a ground bass. Swapping in inversions turns the bass into a smooth **descending scale**, the version pop songwriters borrow most. It's an excellent slash-chord and voice-leading drill.",
     visual: { type: "progression", key: "$key", chart: "$chart" },
     demo: { type: "progression", key: "$key", chart: "$chart" },
     concepts: ["diatonic-harmony", "line-cliche"],
@@ -1987,7 +1987,7 @@ export const templates = [
     source: "Approach after Martin Taylor and Jens Larsen chord-melody lessons; melody traditional (public domain)",
   },
   {
-    id: "har-cm-harmonize-scale",
+    id: "har-cm-harmonize-scale", retired: true,
     mode: "play", category: "progressions", tags: ["chord-melody", "harmonization", "triads", "drop2"],
     title: "Harmonize the {key} scale with the melody on top",
     level: 4, length: "short", minutes: 3,
@@ -2861,7 +2861,7 @@ export const templates = [
   // 20. HEURISTICS IN ACTION (and tips from the masters)
   // ==========================================================================
   {
-    id: "har-imp-think-minor",
+    id: "har-imp-think-minor", retired: true,
     mode: "play", category: "improv", tags: ["minor-conversion", "martino", "heuristics", "masters"],
     title: "Pat Martino's 'think minor' over {root}7",
     level: 5, length: "medium", minutes: 4,
@@ -3485,7 +3485,7 @@ export const templates = [
     vary: ["key"],
   },
   {
-    id: "har-thy-parent-major",
+    id: "har-thy-parent-major", retired: true,
     mode: "theory", category: "theory", tags: ["heuristics", "modes", "parent-scale"],
     title: "Parent scale: major modes",
     level: 3, length: "short", minutes: 1,
@@ -3498,7 +3498,7 @@ export const templates = [
     vary: ["root"],
   },
   {
-    id: "har-thy-parent-melodic-minor",
+    id: "har-thy-parent-melodic-minor", retired: true,
     mode: "theory", category: "theory", tags: ["heuristics", "melodic-minor", "parent-scale"],
     title: "Parent scale: melodic minor modes",
     level: 5, length: "short", minutes: 1,
@@ -3514,7 +3514,7 @@ export const templates = [
     vary: ["root"],
   },
   {
-    id: "har-thy-parent-harmonic-minor",
+    id: "har-thy-parent-harmonic-minor", retired: true,
     mode: "theory", category: "theory", tags: ["heuristics", "harmonic-minor", "parent-scale"],
     title: "Parent scale: harmonic minor modes",
     level: 6, length: "short", minutes: 1,
@@ -3707,7 +3707,7 @@ export const templates = [
     concepts: ["minor-conversion"],
   },
   {
-    id: "har-thy-upper-structure",
+    id: "har-thy-upper-structure", retired: true,
     mode: "theory", category: "theory", tags: ["heuristics", "upper-structure-triads"],
     title: "Which triad gives 13 #11?",
     level: 7, length: "short", minutes: 1,
