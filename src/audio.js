@@ -2,18 +2,49 @@ import { swingFrac, slotOffsets } from './rhythm.js';
 export { swingFrac };
 // Web Audio engine: Karplus-Strong guitar, soft keys, metronome, drone, event player.
 let ctx = null;
-let master = null;
+let master = null;     // every voice goes in here
+let guitarBus = null;  // plucked strings go through a guitar-body EQ first
+let irBuf = null;
 const pluckCache = new Map();
 
+// small-room reverb impulse: decaying stereo noise, generated once
+function roomIR(c) {
+  if (irBuf) return irBuf;
+  const len = Math.floor(c.sampleRate * 1.6);
+  irBuf = c.createBuffer(2, len, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = irBuf.getChannelData(ch);
+    let lp = 0;
+    for (let i = 0; i < len; i++) {
+      const t = i / c.sampleRate;
+      lp = lp * 0.6 + (Math.random() * 2 - 1) * 0.4;           // darker tail
+      d[i] = lp * Math.pow(1 - i / len, 2.2) * Math.exp(-t * 2.2) * (i < 80 ? i / 80 : 1);
+    }
+  }
+  return irBuf;
+}
+function buildBus() {
+  const c = ctx;
+  master = c.createGain(); master.gain.value = 0.85;
+  const comp = c.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.004; comp.release.value = 0.2;
+  const dry = c.createGain(); dry.gain.value = 1;
+  const verb = c.createConvolver(); verb.buffer = roomIR(c);
+  const wet = c.createGain(); wet.gain.value = 0.16;
+  master.connect(dry).connect(comp);
+  master.connect(verb).connect(wet).connect(comp);
+  comp.connect(c.destination);
+  // guitar body: a little low-mid warmth, tame the harsh upper mids and fizz
+  guitarBus = c.createGain(); guitarBus.gain.value = 1;
+  const body = c.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 120; body.Q.value = 0.9; body.gain.value = 3.5;
+  const mid = c.createBiquadFilter(); mid.type = 'peaking'; mid.frequency.value = 2400; mid.Q.value = 1.2; mid.gain.value = -3;
+  const air = c.createBiquadFilter(); air.type = 'highshelf'; air.frequency.value = 6500; air.gain.value = -7;
+  guitarBus.connect(body).connect(mid).connect(air).connect(master);
+}
 export function audioCtx() {
   if (!ctx) {
     const AC = window.AudioContext || window.webkitAudioContext;
     ctx = new AC({ latencyHint: 'interactive' });
-    master = ctx.createGain();
-    master.gain.value = 0.9;
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -14; comp.ratio.value = 4;
-    master.connect(comp).connect(ctx.destination);
+    buildBus();
   }
   return ctx;
 }
@@ -48,25 +79,34 @@ function ksBuffer(midi, muted = false) {
   if (pluckCache.has(key)) return pluckCache.get(key);
   const c = audioCtx();
   const sr = c.sampleRate;
-  const len = Math.floor(sr * (muted ? 0.18 : 2.2));
-  const buf = c.createBuffer(1, len, sr);
-  const d = buf.getChannelData(0);
   const f = hz(midi);
-  const N = Math.max(2, Math.round(sr / f));
-  const ring = new Float32Array(N);
-  let last = 0;
-  for (let i = 0; i < N; i++) { const r = Math.random() * 2 - 1; last = last * 0.55 + r * 0.45; ring[i] = last; }
-  const decay = muted ? 0.9 : 0.996 - Math.max(0, (midi - 64)) * 0.00025;
-  let idx = 0;
-  for (let i = 0; i < len; i++) {
-    const nxt = (idx + 1) % N;
-    const v = (ring[idx] + ring[nxt]) * 0.5 * decay;
-    d[i] = ring[idx];
-    ring[idx] = v;
-    idx = nxt;
+  // low strings ring longer than high ones
+  const t60 = muted ? 0.09 : Math.max(1.1, 4.2 - (midi - 40) * 0.075);
+  const len = Math.floor(sr * Math.min(3.2, muted ? 0.16 : t60 * 0.85));
+  const buf = c.createBuffer(1, len, sr);
+  const y = buf.getChannelData(0);
+  const D = sr / f - 0.5;                 // loop delay incl. the averaging filter's half-sample
+  const Di = Math.floor(D), fr = D - Di;
+  const rho = Math.pow(10, -3 / (sr * t60));
+  // excitation: soft-picked noise burst, then a pick-position comb (removes harmonics like a real pluck point)
+  const N = Math.ceil(D);
+  const exc = new Float32Array(N + 1);
+  let lp = 0;
+  const bright = muted ? 0.25 : Math.min(0.75, 0.45 + (80 - midi) * 0.004);
+  for (let i = 0; i < N; i++) { lp += bright * ((Math.random() * 2 - 1) - lp); exc[i] = lp; }
+  const P = Math.max(1, Math.round(N * 0.14));
+  for (let i = N - 1; i >= P; i--) exc[i] -= exc[i - P] * 0.9;
+  const at = (n) => (n >= 0 ? y[n] : 0);
+  for (let n = 0; n < len; n++) {
+    const a1 = (1 - fr) * at(n - Di) + fr * at(n - Di - 1);
+    const a2 = (1 - fr) * at(n - Di - 1) + fr * at(n - Di - 2);
+    y[n] = (n < N ? exc[n] : 0) + rho * 0.5 * (a1 + a2);
   }
-  // gentle fade-out
-  for (let i = Math.max(0, len - 2000); i < len; i++) d[i] *= (len - i) / 2000;
+  // normalise and fade the tail
+  let peak = 0; for (let n = 0; n < Math.min(len, N * 4); n++) peak = Math.max(peak, Math.abs(y[n]));
+  const k = peak ? 0.9 / peak : 1;
+  const fade = Math.min(len, Math.floor(sr * 0.08));
+  for (let n = 0; n < len; n++) y[n] *= k * (n > len - fade ? (len - n) / fade : 1);
   pluckCache.set(key, buf);
   return buf;
 }
@@ -76,35 +116,45 @@ export function pluck(midi, t, { vel = 0.8, muted = false, dur = null, dest = nu
   const s = c.createBufferSource();
   s.buffer = ksBuffer(midi, muted);
   const g = c.createGain();
-  g.gain.value = vel * 0.55;
+  const v = vel * 0.42;
+  g.gain.value = v;
+  // softer touch = darker tone
   const lp = c.createBiquadFilter();
-  lp.type = 'lowpass'; lp.frequency.value = muted ? 1800 : 5200;
-  s.connect(lp).connect(g).connect(dest || master);
+  lp.type = 'lowpass'; lp.frequency.value = muted ? 1400 : 2200 + vel * 4200; lp.Q.value = 0.5;
+  s.connect(lp).connect(g).connect(dest || guitarBus);
   s.start(t);
-  if (dur) { g.gain.setValueAtTime(vel * 0.55, t + dur); g.gain.linearRampToValueAtTime(0.0001, t + dur + 0.08); s.stop(t + dur + 0.1); }
+  if (dur) { g.gain.setValueAtTime(v, t + dur); g.gain.exponentialRampToValueAtTime(0.0005, t + dur + 0.12); s.stop(t + dur + 0.15); }
   return s;
 }
 
 export function keys(midi, t, dur = 1, vel = 0.6) {
   const c = audioCtx();
   const f = hz(midi);
-  const g = c.createGain();
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(vel * 0.22, t + 0.012);
-  g.gain.exponentialRampToValueAtTime(vel * 0.09, t + 0.35);
-  g.gain.setValueAtTime(vel * 0.09, t + Math.max(0.36, dur));
-  g.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.36, dur) + 0.35);
-  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400 + 6 * f;
-  g.connect(lp).connect(master);
-  const partials = [[1, 1], [2, 0.35], [3, 0.12], [4, 0.06]];
-  for (const [mult, amp] of partials) {
-    const o = c.createOscillator();
-    o.type = mult === 1 ? 'triangle' : 'sine';
-    o.frequency.value = f * mult;
-    const og = c.createGain(); og.gain.value = amp;
-    o.connect(og).connect(g);
-    o.start(t); o.stop(t + Math.max(0.36, dur) + 0.4);
-  }
+  const hold = Math.max(0.35, dur);
+  const end = t + hold + 0.6;
+  const out = c.createGain();
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(vel * 0.2, t + 0.006);
+  out.gain.exponentialRampToValueAtTime(vel * 0.11, t + 0.4);
+  out.gain.setTargetAtTime(vel * 0.06, t + 0.4, 1.2);
+  out.gain.setTargetAtTime(0.0001, t + hold, 0.18);
+  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = Math.min(9000, 1800 + 5 * f); lp.Q.value = 0.4;
+  out.connect(lp).connect(master);
+  // tine: carrier + modulator at 1:1, bright at the attack then mellowing (Rhodes-like)
+  const car = c.createOscillator(); car.type = 'sine'; car.frequency.value = f;
+  const mod = c.createOscillator(); mod.type = 'sine'; mod.frequency.value = f;
+  const mi = c.createGain();
+  mi.gain.setValueAtTime(f * 1.6 * vel, t);
+  mi.gain.exponentialRampToValueAtTime(f * 0.25, t + 0.5);
+  mod.connect(mi).connect(car.frequency);
+  // bell partial for the "ding"
+  const bell = c.createOscillator(); bell.type = 'sine'; bell.frequency.value = f * 4.01;
+  const bg = c.createGain(); bg.gain.setValueAtTime(0.06 * vel, t); bg.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+  // body: soft sine an octave below for warmth on higher notes
+  const sub = c.createOscillator(); sub.type = 'sine'; sub.frequency.value = f / 2;
+  const sg = c.createGain(); sg.gain.value = midi > 60 ? 0.12 : 0.05;
+  car.connect(out); bell.connect(bg).connect(out); sub.connect(sg).connect(out);
+  for (const o of [car, mod, bell, sub]) { o.start(t); o.stop(end); }
 }
 
 export function noiseHit(t, { dur = 0.05, freq = 2500, vel = 0.5 } = {}) {
@@ -120,17 +170,20 @@ export function noiseHit(t, { dur = 0.05, freq = 2500, vel = 0.5 } = {}) {
   s.start(t);
 }
 
+let clickBuf = null;
 export function click(t, level = 1) {
-  // level 2 = bar accent, 1 = beat, 0 = subdivision
+  // level 2 = bar accent, 1 = beat, 0 = subdivision — a short woodblock-like tick
   const c = audioCtx();
-  const o = c.createOscillator();
-  const g = c.createGain();
-  o.frequency.value = level === 2 ? 1760 : level === 1 ? 1180 : 820;
-  const v = level === 2 ? 0.5 : level === 1 ? 0.34 : 0.16;
-  g.gain.setValueAtTime(v, t);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
-  o.connect(g).connect(master);
-  o.start(t); o.stop(t + 0.05);
+  if (!clickBuf) { const n = Math.floor(c.sampleRate * 0.03); clickBuf = c.createBuffer(1, n, c.sampleRate); const d = clickBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.12)); }
+  const f = level === 2 ? 2100 : level === 1 ? 1500 : 1050;
+  const v = level === 2 ? 0.9 : level === 1 ? 0.6 : 0.28;
+  const s = c.createBufferSource(); s.buffer = clickBuf;
+  const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 9;
+  const g = c.createGain(); g.gain.value = v * 2.2;
+  s.connect(bp).connect(g).connect(master); s.start(t);
+  const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+  const og = c.createGain(); og.gain.setValueAtTime(v * 0.25, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+  o.connect(og).connect(master); o.start(t); o.stop(t + 0.03);
 }
 
 // strum: midis low->high; dir 'D' plays low->high, 'U' high->low
@@ -149,18 +202,20 @@ export function startDrone(midi, fifth = true) {
   const c = audioCtx();
   const out = c.createGain();
   out.gain.setValueAtTime(0.0001, c.currentTime);
-  out.gain.exponentialRampToValueAtTime(0.16, c.currentTime + 0.8);
-  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+  out.gain.exponentialRampToValueAtTime(0.14, c.currentTime + 1.2);
+  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100; lp.Q.value = 0.7;
+  // slow filter sweep so it breathes
+  const lfo = c.createOscillator(); lfo.frequency.value = 0.09; const lfoG = c.createGain(); lfoG.gain.value = 350;
+  lfo.connect(lfoG).connect(lp.frequency);
   out.connect(lp).connect(master);
-  const notes = [midi, midi + 12].concat(fifth ? [midi + 7] : []);
-  const oscs = [];
-  for (const m of notes) {
-    for (const det of [-4, 4]) {
-      const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = hz(m); o.detune.value = det;
-      const g = c.createGain(); g.gain.value = m === midi ? 0.32 : 0.16;
-      o.connect(g).connect(out); o.start(); oscs.push(o);
-    }
-  }
+  const voices = [[midi, 'triangle', 0.5], [midi, 'sine', 0.35], [midi + 12, 'sine', 0.22], [midi + 24, 'sine', 0.06]].concat(fifth ? [[midi + 7, 'sine', 0.2], [midi + 19, 'sine', 0.06]] : []);
+  const oscs = [lfo];
+  voices.forEach(([m, type, amp], i) => {
+    const o = c.createOscillator(); o.type = type; o.frequency.value = hz(m); o.detune.value = (i % 2 ? 3 : -3);
+    const g = c.createGain(); g.gain.value = amp;
+    o.connect(g).connect(out); o.start(); oscs.push(o);
+  });
+  lfo.start();
   drone = { out, oscs, midi, fifth };
 }
 export function stopDrone() {
@@ -289,11 +344,9 @@ function cutMaster(keepDrone) {
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(0.0001, t);
     // rebuild master so scheduled sources are cut off
-    const old = master;
-    master = ctx.createGain(); master.gain.value = 0.9;
-    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
-    master.connect(comp).connect(ctx.destination);
-    setTimeout(() => { try { old.disconnect(); } catch (e) { /* */ } }, 50);
+    const old = master, oldG = guitarBus;
+    buildBus();
+    setTimeout(() => { try { old.disconnect(); oldG.disconnect(); } catch (e) { /* */ } }, 50);
     if (keepDrone && drone) { const d = drone; drone = null; startDrone(d.midi, d.fifth); }
   }
 }
