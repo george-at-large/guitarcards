@@ -186,6 +186,42 @@ const GEN = {
     const correct = optText(opt);
     return { type: 'choice', question: `Over <b>${chordName}</b>, which of these is a standard choice?`, ...choices(correct, wrong.filter((w) => w !== correct)), explain: `${correct}: ${opt.relation ? opt.relation + '. ' : ''}${opt.why || ''}` };
   },
+  // tap a voicing onto the neck; any correct placement of that inversion on that string set counts
+  'voicing-tap'(q, card) {
+    const SETS = { drop2: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]], drop3: [[6, 4, 3, 2], [5, 3, 2, 1]], drop24: [[6, 5, 3, 2], [5, 4, 2, 1]], close: [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]], spread: [[6, 4, 3], [5, 3, 2], [4, 2, 1]] };
+    const voicing = q.voicing || 'drop2';
+    const quality = q.quality || (card.ctx.quality) || 'maj7';
+    const root = card.ctx.root;
+    const sets = q.stringSet ? [q.stringSet] : SETS[voicing] || SETS.drop2;
+    for (let tries = 0; tries < 30; tries++) {
+      const ss = rnd(sets);
+      let all = [];
+      try { all = F.chordVoicings({ root, quality, voicing, stringSet: ss, inversion: 'all' }); } catch (e) { all = []; }
+      if (!all.length) continue;
+      const invs = [...new Set(all.map((p) => p.inversion))];
+      const inv = q.inversion != null ? q.inversion : rnd(invs);
+      const mine = all.filter((p) => p.inversion === inv && p.maxFret <= 15);
+      if (!mine.length) continue;
+      const anchor = rnd(mine);
+      const lo = Math.max(0, anchor.minFret - 2), hi = Math.min(15, Math.max(anchor.maxFret + 3, lo + 6));
+      const inWin = mine.filter((p) => p.minFret >= lo && p.maxFret <= hi);
+      const label = anchor.label;
+      return {
+        type: 'tap', voicingTap: true,
+        question: `Tap <b>${T.chordSymbol(root, quality)}</b> — <b>${voicing === 'close' ? 'close' : voicing.replace('drop', 'drop ').replace('24', '2&4')}</b>, <b>${label}</b> on strings <b>${[...ss].sort((a, b) => b - a).join('-')}</b> (somewhere between frets ${lo} and ${hi}).`,
+        board: { lo, hi }, strings: ss,
+        targetsAny: inWin.map((p) => p.notes.map((n) => `${n.string}:${n.fret}`)),
+        targets: inWin[0].notes.map((n) => `${n.string}:${n.fret}`),
+        reveal: inWin[0].notes.map((n) => ({ k: `${n.string}:${n.fret}`, iv: n.iv })),
+        explain: `${T.chordSymbol(root, quality)} ${voicing} ${label}: ${inWin[0].notes.slice().sort((a, b) => b.string - a.string).map((n) => `string ${n.string} fret ${n.fret} (${T.prettyIv(n.iv)})`).join(', ')}.`,
+      };
+    }
+    return null;
+  },
+  // think/play first, then reveal a computed diagram (e.g. every inversion on every string set)
+  'voicing-map'(q, card) {
+    return { type: 'reveal', question: fill(q.question || 'Play them all, then reveal the map.', card), answerHtml: '', revealSpec: q.spec, selfRate: true };
+  },
   choice(q, card) {
     const cs = q.choices.map((c) => fill(c, card));
     // shuffle while tracking the answer

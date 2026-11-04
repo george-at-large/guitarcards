@@ -246,38 +246,50 @@ function renderHome() {
   const pct = (x) => (prog.total ? Math.round((100 * x) / prog.total) : 0);
   const catsFor = (mode) => AD.CATEGORY_INFO[mode].filter((c) => LIB.templates.some((t) => t.category === c && t.mode === mode));
   const elig = AD.eligible(LIB).length;
+  const tile = (act, icon, title, sub, wide = false) => `<button data-act="${act}" ${wide ? 'style="grid-column:1/-1"' : ''}><b>${icon} ${title}</b><small>${sub}</small></button>`;
   $app.innerHTML = `
-  <div class="row spread"><h1>Guitar Cards</h1><button class="icon" data-act="settings">⚙︎</button></div>
-  <p class="muted small">${LIB.templates.length} card types · ${LIB.analyses.length} songs · ${LIB.concepts.size} lessons</p>
+  <div class="row spread hero"><div><h1>Guitar Cards</h1><div class="tag">${LIB.templates.filter((t) => !(t.tags || []).includes('tg-archive')).length} cards · ${WORKOUTS.length} workouts · ${LIB.analyses.length} songs</div></div><button class="icon" data-act="settings" aria-label="Settings">⚙︎</button></div>
+
+  <h3>Workouts</h3>
+  <div class="navgrid">${WORKOUTS.map((w, i) => `<button data-wo="${w.id}" ${i === 0 ? 'style="grid-column:1/-1"' : ''}><b>${({ daily: '📅', drops: '🧩', arpeggios: '🌀', barnby: '🔥', 'guide-tones': '🧭', 'melodic-minor-cs': '🌙', 'voice-leading': '🔗', 'minor-chord-scales': '🌑' })[w.id] || '💪'} ${esc(w.name)}</b><small>${w.steps.length} cards · ~${w.minutes} min</small></button>`).join('')}</div>
+
+  <h3>Mixed session</h3>
   <div class="panel">
     <div class="bigmode">${Object.entries(MODE_META).map(([m, [ic, lb]]) => `<button data-mode="${m}" class="${s.modes.includes(m) ? 'on' : ''}"><span>${ic}</span>${lb}</button>`).join('')}</div>
-    ${s.modes.map((m) => `<h3>${MODE_META[m][1]} topics <span class="muted small">(none = all)</span></h3><div class="chips">${catsFor(m).map((c) => `<button class="chip ${(s.cats[m] || []).includes(c) ? 'on' : ''}" data-cat="${m}|${c}">${esc(AD.CAT_LABEL[c] || c)}</button>`).join('')}</div>`).join('')}
+    ${s.modes.map((m) => `<h3>${MODE_META[m][1]} topics <span class="muted small" style="text-transform:none;letter-spacing:0">(none = all)</span></h3><div class="chips">${catsFor(m).map((c) => `<button class="chip ${(s.cats[m] || []).includes(c) ? 'on' : ''}" data-cat="${m}|${c}">${esc(AD.CAT_LABEL[c] || c)}</button>`).join('')}</div>`).join('')}
     <h3>Card length</h3>
     <div class="seg">${['short', 'medium', 'long', 'mix'].map((l) => `<button data-len="${l}" class="${s.length === l ? 'on' : ''}">${l[0].toUpperCase() + l.slice(1)}</button>`).join('')}</div>
     <h3>Session</h3>
     <div class="seg">${[['cards', 10], ['cards', 20], ['cards', 40], ['min', 15], ['min', 30], ['min', 60]].map(([t, n]) => `<button data-sess="${t}|${n}" class="${s.session.type === t && s.session.n === n ? 'on' : ''}">${n}${t === 'min' ? 'm' : ''}</button>`).join('')}</div>
-    <h3>Focus <span class="muted small">— bias toward topics (comma-separated)</span></h3>
-    <input type="search" id="focus" placeholder="e.g. drop 2, bossa, altered, triplets" value="${esc(st().focus)}">
+    <h3>Focus</h3>
+    <input type="search" id="focus" placeholder="Bias toward topics: drop 2, bossa, altered…" value="${esc(st().focus)}">
     <div class="chips" style="margin-top:8px">${suggestTags().map((t) => `<button class="chip" data-tag="${esc(t)}">${esc(t)}</button>`).join('')}</div>
-    <h3>Workouts</h3>
-    <div class="navgrid">${WORKOUTS.map((w, i) => `<button data-wo="${w.id}" ${i === 0 ? 'style="grid-column:1/-1"' : ''}><b>${i === 0 ? '📅' : '💪'} ${esc(w.name)}</b><small>${w.steps.length} cards · ~${w.minutes} min</small></button>`).join('')}</div>
     <button class="primary start" data-act="start" ${elig ? '' : 'disabled'}>Start session${elig ? '' : ' (no cards match)'}</button>
-    <p class="muted small" style="text-align:center">${elig} card types match these settings</p>
+    <p class="muted small" style="text-align:center">${elig} card types match</p>
   </div>
+
+  <h3>Train your ear</h3>
+  <div class="navgrid">
+    ${tile('proggame', '🎯', 'Progression game', `Hear it, spell it · level ${(st().pgame?.level ?? 0) + 1}/${PG_LEVELS.length}`)}
+    ${tile('eargym', '🎧', 'Ear Gym', `${gymPassed()}/${EAR_LEVELS.length} levels passed`)}
+  </div>
+
+  <h3>Learn</h3>
+  <div class="navgrid">
+    ${LIB.routines && LIB.routines.length ? tile('marbin', '🎬', 'Marbin practice routines', `${LIB.routines.length} routines with the videos`, true) : ''}
+    ${tile('tg', '🎹', 'Ted Greene', 'Modern Chord Progressions', true)}
+    ${tile('cheats', '📋', 'Cheat sheets', 'Modes, chords, intervals…')}
+    ${tile('songs', '🎼', 'Songs', 'Annotated progressions')}
+    ${tile('concepts', '📖', 'Lessons', 'Concept deep-dives')}
+    ${tile('toolbox', '🧰', 'Toolbox', 'What to play over what')}
+    ${tile('library', '🗂', 'Library', 'Browse every card', true)}
+  </div>
+
+  <h3>Progress</h3>
   <div class="panel">
     <div class="row spread"><div><div class="ring">${pct(prog.mastered)}%</div><span class="muted small">mastered · ${pct(prog.seen)}% seen</span></div>
     <div class="muted small" style="text-align:right">${prog.mastered}/${prog.total} mastered<br>${prog.seen} seen</div></div>
     ${Object.entries(prog.byCat).sort((a, b) => a[1].mode.localeCompare(b[1].mode)).map(([c, v]) => `<div class="catrow"><span>${esc(AD.CAT_LABEL[c] || c)} <span class="muted small">L${AD.catLevel(c).toFixed(1)}</span></span><div class="bar"><i style="width:${(100 * v.seen) / v.total}%"></i><i class="m" style="width:${(100 * v.mastered) / v.total}%"></i></div><span class="muted small">${v.mastered}/${v.total}</span></div>`).join('')}
-  </div>
-  <div class="navgrid">
-    <button data-act="tg" style="grid-column:1/-1;border-color:var(--accent)"><b>🎹 Ted Greene</b><small>Modern Chord Progressions — every progression, playable in any key</small></button>
-    <button data-act="songs"><b>🎼 Songs</b><small>Annotated progressions</small></button>
-    <button data-act="toolbox"><b>🧰 Toolbox</b><small>What to play over what</small></button>
-    <button data-act="concepts"><b>📖 Lessons</b><small>Concept deep-dives</small></button>
-    <button data-act="library"><b>🗂 Library</b><small>Browse every card</small></button>
-    <button data-act="cheats" style="grid-column:1/-1"><b>📋 Cheat sheets</b><small>Modes, diatonic chords, chord formulas, intervals, cycle of 4ths, voicings, rhythm…</small></button>
-    <button data-act="proggame" style="grid-column:1/-1"><b>🎯 Progression game</b><small>Hear it, spell it — from 2 chords up (level ${(st().pgame?.level ?? 0) + 1}/${PG_LEVELS.length})</small></button>
-    <button data-act="eargym" style="grid-column:1/-1"><b>🎧 Ear Gym</b><small>Hear progressions — level by level (${gymPassed()}/${EAR_LEVELS.length} passed)</small></button>
   </div>
   ${LIB.errors.length ? `<p class="muted small">Content not loaded: ${esc(LIB.errors.join('; '))}</p>` : ''}`;
   $app.onclick = (e) => {
@@ -304,6 +316,7 @@ function renderHome() {
     else if (b.dataset.act === 'eargym') renderEarGym();
     else if (b.dataset.act === 'proggame') renderProgGame();
     else if (b.dataset.act === 'cheats') openCheatList();
+    else if (b.dataset.act === 'marbin') renderMarbin();
     else if (b.dataset.act === 'settings') renderSettings();
   };
   qs('#focus').onchange = (e) => { st().focus = e.target.value; AD.save(); renderHome(); };
@@ -586,15 +599,22 @@ function onQuizClick(e) {
     let ok = false;
     if (Q.type === 'notes') { ok = Q.answer.size === CARD.picks.size && [...Q.answer].every((x) => CARD.picks.has(x)); qsa('[data-q=pc]').forEach((x, j) => { if (Q.answer.has(j)) x.classList.add('right'); else if (CARD.picks.has(j)) x.classList.add('wrong'); }); }
     if (Q.type === 'tap') {
-      const tg = new Set(Q.targets);
+      let tg = new Set(Q.targets);
+      if (Q.targetsAny) { const hit = Q.targetsAny.find((set) => set.length === CARD.picks.size && set.every((x) => CARD.picks.has(x))); if (hit) tg = new Set(hit); else { const best = Q.targetsAny.slice().sort((a, b) => b.filter((x) => CARD.picks.has(x)).length - a.filter((x) => CARD.picks.has(x)).length)[0]; tg = new Set(best); } }
       ok = tg.size === CARD.picks.size && [...tg].every((x) => CARD.picks.has(x));
+      const ivOf = Q.reveal ? Object.fromEntries((Q.targetsAny || [Q.targets]).flatMap((set) => set.map((k) => [k, '']))) : {};
+      if (Q.voicingTap) { const pl = (Q.targetsAny || []).find((set) => set.every((x) => tg.has(x))); }
       const dots = [...new Set([...tg, ...CARD.picks])].map((k) => { const [s, f] = k.split(':').map(Number); return { string: s, fret: f, label: '', kind: tg.has(k) ? (CARD.picks.has(k) ? 'mark' : 'missed') : 'wrong' }; });
       qs('#tapboard').innerHTML = fretboardSVG({ lo: Q.board.lo, hi: Q.board.hi, dots });
     }
     if (Q.type === 'sequence') ok = CARD.seq.length === Q.answer.length && CARD.seq.every((x, i) => x === Q.answer[i]);
     finishObjective(ok);
   }
-  if (a === 'reveal') { qs('#revealed').innerHTML = `<div class="md">${md(Q.answerHtml)}</div>`; CARD.answered = true; drawRate(); }
+  if (a === 'reveal') {
+    let extra = '';
+    if (Q.revealSpec) { try { extra = compile(Q.revealSpec).html; } catch (err) { extra = `<p class="muted small">${esc(err.message)}</p>`; } }
+    qs('#revealed').innerHTML = `<div class="md">${md(Q.answerHtml)}</div>${extra}`; CARD.answered = true; drawRate();
+  }
   if (a === 'show') {
     const el = qs('#qneck');
     if (Q.show === 'degrees' || Q.show === 'notes') { el.innerHTML = `<div class="watch"><div class="big" id="audbig"></div></div>`; }
@@ -1007,6 +1027,34 @@ function renderTGPlayer(ids, start = 0, title = '', back = null) {
     else if (e.key === ' ') { e.preventDefault(); qs('[data-w=play]')?.click(); }
   };
   draw();
+}
+
+// ---------- MARBIN ROUTINES ----------
+function renderMarbin() {
+  VIEW = 'marbin';
+  silence();
+  const R = LIB.routines || [];
+  $app.innerHTML = `<div class="row"><button class="icon" data-l="back">‹</button><h1 class="grow">Marbin routines</h1></div>
+  <p class="muted small">Lessons from Marbin (Dani Rabin)’s YouTube videos: the idea explained, then a practice routine. Watch the video, read the concept, then run the routine.</p>
+  <div class="list">${R.map((r, i) => `<button class="item" data-mr="${i}"><span><b>${esc(r.name)}</b><br><small>${r.steps.length} steps · ~${r.minutes || 20} min${r.video ? ' · ▶ video' : ''}</small></span><span>›</span></button>`).join('')}</div>`;
+  $app.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.l) return renderHome(); if (b.dataset.mr) renderMarbinRoutine(R[Number(b.dataset.mr)]); };
+}
+function renderMarbinRoutine(r) {
+  VIEW = 'marbinroutine';
+  silence();
+  const steps = (r.steps || []).filter((x) => LIB.byId.has(x.id));
+  $app.innerHTML = `<div class="row"><button class="icon" data-l="back">‹</button><h2 class="grow">${esc(r.name)}</h2></div>
+  ${r.video ? `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${esc(r.video)}" title="${esc(r.videoTitle || r.name)}" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>` : ''}
+  ${r.videoTitle ? `<p class="muted small">Video: “${esc(r.videoTitle)}” — Marbin (YouTube). Needs internet.</p>` : ''}
+  <div class="panel md">${md(r.concept || '')}</div>
+  <h3>The routine</h3>
+  <ol class="steplist">${steps.map((x) => `<li><b>${esc(LIB.byId.get(x.id).title.replace(/\{[^}]+\}/g, '…'))}</b><br><span class="muted">${esc(x.why || '')}</span></li>`).join('')}</ol>
+  <button class="primary start" data-mstart="1" ${steps.length ? '' : 'disabled'}>▶ Start routine (${steps.length} cards)</button>`;
+  $app.onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.l) return renderMarbin();
+    if (b.dataset.mstart) startSession(null, { workout: { id: r.id, name: r.name, steps }, back: () => renderMarbinRoutine(r) });
+  };
 }
 
 // ---------- PROGRESSION GAME ----------

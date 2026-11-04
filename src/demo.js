@@ -320,7 +320,7 @@ export function chartChords(spec) {
 }
 export function chordLabel(c) {
   let s = T.chordSymbol(c.root, c.quality);
-  if (c.bass) s += '/' + T.noteName(c.bass, true);
+  if (c.bass && T.notePc(c.bass) !== T.notePc(c.root)) s += '/' + T.noteName(c.bass, true); // '/1' (root in bass) is just the chord
   return s;
 }
 function progressionCompile(spec) {

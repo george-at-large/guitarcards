@@ -92,6 +92,36 @@ WORKOUTS.splice(2, 0, {
     { id: 'rb-chromatic', why: 'Chromatic ladder: up in E, down in F, up in F♯…' },
   ],
 });
+WORKOUTS.splice(1, 0, {
+  id: 'drops', name: 'Drop voicings & inversions', minutes: 25,
+  blurb: 'Know the difference (close, drop 2, drop 3, inversions), then drill: find each voicing, tap it on the neck, get instant feedback.',
+  steps: [
+    { id: 'drops-concept', why: 'Close vs drop 2 vs drop 3 — how to tell them apart.' },
+    { id: 'drops-concept-inversion', why: 'Inversions are named by the bass note.' },
+    { id: 'drops-tap-triads', params: { voicing: 'close' }, why: 'Warm-up: find a triad inversion on the neck.' },
+    { id: 'drops-tap', params: { voicing: 'drop2', quality: 'maj7' }, why: 'Drop 2 maj7: find it and tap it.' },
+    { id: 'drops-tap', params: { voicing: 'drop2', quality: 'm7' }, why: 'Drop 2 m7.' },
+    { id: 'drops-tap', params: { voicing: 'drop2', quality: '7' }, why: 'Drop 2 dominant 7.' },
+    { id: 'drops-tap', params: { voicing: 'drop2', quality: 'm7b5' }, why: 'Drop 2 m7♭5.' },
+    { id: 'drops-tap', params: { voicing: 'drop3', quality: 'maj7' }, why: 'Drop 3: bass, skip a string, three strings.' },
+    { id: 'drops-tap', params: { voicing: 'drop3', quality: '7' }, why: 'Drop 3 dominant.' },
+    { id: 'drops-all-inversions-map', params: { voicing: 'drop2' }, why: 'Play every drop-2 inversion on every string set, then check the map.' },
+    { id: 'voi-drop2-inversion-rhythm-ladder', why: 'Lock them in time: whole → half → quarter → 8ths.' },
+    { id: 'voi-drop2-inversion-arpeggio', why: 'Strum each inversion, then arpeggiate it.' },
+  ],
+});
+WORKOUTS.splice(5, 0, {
+  id: 'melodic-minor-cs', name: 'Melodic minor chord scales', minutes: 25,
+  blurb: 'The chords of melodic minor — i(maj7) ii7 ♭III+maj7 IV7 V7 viø7 viiø7 — as triads, drop 2 and drop 3, with what each chord is used for.',
+  steps: [
+    { id: 'voi-triad-chord-scale-minor-modalities', params: { scale: 'melodic-minor' }, why: 'Triads of melodic minor: i ii ♭III+ IV V vi° vii°.' },
+    { id: 'voi-cs-melodic-minor-drop2', why: 'Drop-2 7th chords of melodic minor up the neck.' },
+    { id: 'mi-palette-7ths', params: { mode: 'melodic-minor' }, why: 'Melodic minor against the major key: what changed and what each chord does.' },
+    { id: 'voi-cs-minor-modalities-drop3', params: { scale: 'melodic-minor' }, why: 'The same in drop 3.' },
+    { id: 'voi-cs-play-and-arpeggiate', params: { scale: 'melodic-minor' }, why: 'Play each chord, then arpeggiate it.' },
+    { id: 'scl-arp-diatonic-7ths-minor-families', params: { scale: 'melodic-minor' }, why: 'The 7th arpeggios of melodic minor in a 3nps position.' },
+  ],
+});
 // how essential a card is for real playing: multiplies its chance of coming up in mixed sessions (likes boost further)
 export const ESSENTIAL = {
   'ii-v-i': 1.5, 'minor-ii-v-i': 1.4, triads: 1.3, arpeggios: 1.3, drop2: 1.3, inversions: 1.3, 'cycle-of-fourths': 1.4,
