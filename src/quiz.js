@@ -222,6 +222,30 @@ const GEN = {
   'voicing-map'(q, card) {
     return { type: 'reveal', question: fill(q.question || 'Play them all, then reveal the map.', card), answerHtml: '', revealSpec: q.spec, selfRate: true };
   },
+  // a melody as a chain of intervals (learn, step through, sing, then test)
+  'melody-intervals'(q, card) {
+    const root = card.params.key ? card.ctx.root : T.parseNote(rnd(['C', 'D', 'E', 'F', 'G', 'A', 'Bb']));
+    const sid = q.scale === 'minor' ? 'aeolian' : q.scale || 'major';
+    const mel = parseMelody(q.melody, root, sid);
+    const NAMES = ['unison', 'm2', 'M2', 'm3', 'M3', 'P4', 'tritone', 'P5', 'm6', 'M6', 'm7', 'M7', 'octave'];
+    const LONG = { m2: 'minor 2nd', M2: 'major 2nd', m3: 'minor 3rd', M3: 'major 3rd', P4: 'perfect 4th', tritone: 'tritone', P5: 'perfect 5th', m6: 'minor 6th', M6: 'major 6th', m7: 'minor 7th', M7: 'major 7th', octave: 'octave' };
+    const steps = [];
+    for (let i = 1; i < mel.notes.length; i++) {
+      const d = mel.notes[i].midi - mel.notes[i - 1].midi;
+      const a = Math.abs(d);
+      const name = a === 0 ? 'same' : a <= 12 ? NAMES[a] : (a === 24 ? '2 octaves' : `${NAMES[a - 12]}+8ve`);
+      const label = a === 0 ? '=' : `${d > 0 ? '↑' : '↓'}${name}`;
+      steps.push({ i, label, long: a === 0 ? 'same note' : `${d > 0 ? 'up' : 'down'} a ${LONG[name] || name}`, a: mel.notes[i - 1].midi, b: mel.notes[i].midi });
+    }
+    const spb = 60 / 84;
+    const playAll = (onNote) => { A.hush(); const t0 = A.audioCtx().currentTime + 0.1; mel.notes.forEach((n, k) => { A.keys(n.midi, t0 + n.beat * spb, n.dur * spb * 0.95); if (onNote) A.later(() => onNote(k), (0.1 + n.beat * spb) * 1000); }); };
+    const playPair = (k) => { A.hush(); const t = A.audioCtx().currentTime + 0.05; A.keys(steps[k].a, t, 0.55); A.keys(steps[k].b, t + 0.6, 0.8); };
+    const testN = Math.min(8, steps.length);
+    const pool = [...new Set(steps.slice(0, testN).map((x) => x.label))];
+    const extras = ['↑M2', '↓M2', '↑m3', '↓m3', '↑P4', '↓P4', '↑P5', '↓M3'].filter((x) => !pool.includes(x));
+    return { type: 'melintervals', name: q.name, start: mel.notes[0].deg, startNote: T.noteName(T.transposeSemis(root, mel.notes[0].s), true), key: T.noteName(root, true), steps, playAll, playPair, testN,
+      options: pool.concat(extras.slice(0, Math.max(0, 6 - pool.length))), selfRate: true };
+  },
   // understand → visualise (eyes closed) → watch it played
   visualize(q, card) {
     return { type: 'visualize', concept: fill(q.concept || card.tpl.explain || '', card), imagine: fill(q.imagine || 'Picture it on the neck.', card), seconds: q.seconds || 15, selfRate: true };

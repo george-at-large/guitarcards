@@ -284,6 +284,7 @@ function renderHome() {
   <div class="navgrid">
     ${tile('proggame', '🎯', 'Progression game', `Hear it, spell it · level ${(st().pgame?.level ?? 0) + 1}/${PG_LEVELS.length}`)}
     ${tile('eargym', '🎧', 'Ear Gym', `${gymPassed()}/${EAR_LEVELS.length} levels passed`)}
+    ${tile('melodies', '🎵', 'Melodies by interval', 'Learn tunes as intervals, sing them, test yourself', true)}
   </div>
 
   <h3>Learn</h3>
@@ -336,6 +337,7 @@ function renderHome() {
     else if (b.dataset.act === 'proggame') renderProgGame();
     else if (b.dataset.act === 'cheats') openCheatList();
     else if (b.dataset.act === 'marbin') renderMarbin();
+    else if (b.dataset.act === 'melodies') { const ids = LIB.templates.filter((t) => t.id.startsWith('mel-')).sort((x, y) => x.level - y.level).map((t) => t.id); if (ids.length) startSession(null, { workout: { id: 'melodies', name: 'Melodies by interval', steps: ids.map((id) => ({ id })) } }); }
     else if (b.dataset.act === 'visualizer') { const ids = LIB.templates.filter((t) => t.id.startsWith('viz-')).map((t) => t.id).sort(() => Math.random() - 0.5).slice(0, 8); if (ids.length) startSession(null, { workout: { id: 'visualizer', name: 'Visualizer', steps: ids.map((id) => ({ id })) } }); }
     else if (b.dataset.act === 'settings') renderSettings();
   };
@@ -580,7 +582,11 @@ function drawQuiz() {
   if (Q.type === 'tap') h += `<div id="tapboard">${fretboardSVG({ lo: Q.board.lo, hi: Q.board.hi, dots: [], tappable: true })}</div><button class="primary" style="width:100%" data-q="check">Check</button>`;
   if (Q.type === 'sequence') h += `<div class="seqout" id="seqout"></div><div class="qgrid twelve">${Q.options.map((o) => `<button data-q="deg" data-v="${esc(o)}">${esc(T.prettyIv(o))}</button>`).join('')}</div><div class="row"><button data-q="undo">⌫ Undo</button><button class="primary grow" data-q="check">Check</button></div>`;
   if (Q.type === 'reveal') h += `<button style="width:100%" data-q="reveal">Show answer</button><div id="revealed"></div>`;
-  if (Q.type === 'visualize') h = `<div class="panel viz"><div class="vizsteps"><span class="on">1 Understand</span><span>2 Visualize</span><span>3 Show me</span></div><div id="vizbody"></div></div>`;
+  if (Q.type === 'melintervals') h = `<div class="panel"><div class="melhead">Starts on <b>${esc(T.prettyIv(String(Q.start).replace(/[',]/g, '')))}</b> <span class="muted small">(${esc(Q.startNote)} in ${esc(Q.key)})</span></div>
+    <div class="melchips" id="melchips">${Q.steps.map((x, k) => `<button class="melchip ${x.label.startsWith('↑') ? 'up' : x.label.startsWith('↓') ? 'down' : 'same'}" data-mel="${k}" title="${esc(x.long)}">${esc(x.label)}</button>`).join('')}</div>
+    <div class="row"><button class="primary grow" data-q="melplay">▶ Play the melody</button><button data-q="meltest">🎯 Test me</button></div>
+    <div id="meltestbox"></div></div>`;
+    if (Q.type === 'visualize') h = `<div class="panel viz"><div class="vizsteps"><span class="on">1 Understand</span><span>2 Visualize</span><span>3 Show me</span></div><div id="vizbody"></div></div>`;
   if (Q.type === 'listen') h += `<div class="md">${md(Q.html)}</div><div id="qneck"></div><p class="muted small">Degrees: ${Q.degrees.map(T.prettyIv).join(' ')}</p>`;
   if (Q.type === 'audiate') h += `<p class="muted small">1) Hear the starting note · 2) Watch the melody and sing it in your head · 3) Reveal and compare.</p><button style="width:100%" data-q="show">👁 Show the melody (silent)</button><div id="qneck"></div><button style="width:100%; margin-top:8px" data-q="revealsound">🔊 Reveal (play it)</button>`;
   h += '<div id="fb"></div></div>';
@@ -623,9 +629,29 @@ function vizStage(n) {
 const neckWin = (placed) => { const fs = placed.map((p) => p.fret); const lo = Math.max(0, Math.min(...fs) - 1); return { lo, hi: Math.max(Math.max(...fs) + 1, lo + 4) }; };
 function onQuizClick(e) {
   const vz = e.target.closest('[data-viz]'); if (vz) { vizStage(Number(vz.dataset.viz)); return; }
+  const mc = e.target.closest('[data-mel]'); if (mc && CARD.quiz.type === 'melintervals') { CARD.quiz.playPair(Number(mc.dataset.mel)); return; }
   const b = e.target.closest('[data-q]'); if (!b) return;
   const Q = CARD.quiz;
   const a = b.dataset.q;
+  if (a === 'melplay') { CARD.answered = true; drawRate(); Q.playAll((k) => qsa('#melchips .melchip').forEach((c, j) => c.classList.toggle('cur', j === k - 1))); return; }
+  if (a === 'meltest') {
+    CARD.answered = true; drawRate();
+    CARD.seq = [];
+    qs('#melchips').classList.add('hidden-intervals');
+    qs('#meltestbox').innerHTML = `<p class="small">Listen, then tap the first <b>${Q.testN}</b> intervals in order.</p><button data-q="melplay2" style="width:100%">▶ Play again</button><div class="seqout" id="melseq"></div><div class="qgrid">${Q.options.map((o) => `<button data-q="melpick" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div><div class="row"><button data-q="melundo">⌫</button><button class="primary grow" data-q="melcheck">Check</button></div><div id="melfb"></div>`;
+    Q.playAll();
+    return;
+  }
+  if (a === 'melplay2') { Q.playAll(); return; }
+  if (a === 'melpick') { if (CARD.seq.length < Q.testN) CARD.seq.push(b.dataset.v); qs('#melseq').textContent = CARD.seq.join('  '); return; }
+  if (a === 'melundo') { CARD.seq.pop(); qs('#melseq').textContent = CARD.seq.join('  '); return; }
+  if (a === 'melcheck') {
+    const want = Q.steps.slice(0, Q.testN).map((x) => x.label);
+    const right = CARD.seq.filter((x, i) => x === want[i]).length;
+    qs('#melchips').classList.remove('hidden-intervals');
+    qs('#melfb').innerHTML = `<div class="feedback ${right === Q.testN ? 'ok' : 'no'}">${right}/${Q.testN} right</div><p class="small">${want.map((w, i) => `<b style="color:${CARD.seq[i] === w ? 'var(--good)' : 'var(--bad)'}">${esc(w)}</b>`).join('  ')}</p>`;
+    return;
+  }
   if (a === 'play') { A.hush(); if (Q.type === 'audiate') Q.playStart(); else Q.play(); CARD.replays = (CARD.replays || 0) + 1; return; }
   if (CARD.answered && !['show', 'revealsound'].includes(a)) return;
   if (a === 'ans') {

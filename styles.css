@@ -231,3 +231,13 @@ svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordb
 .vizimagine { text-align: center; padding: 18px 8px; border-radius: 16px; background: radial-gradient(80% 80% at 50% 30%, rgba(76, 201, 240, 0.1), transparent 70%), var(--bg2); border: 1px solid var(--line); }
 .vizeye { font-size: 34px; }
 .vizcount { font: 800 54px/1 -apple-system, "SF Pro Display", system-ui; color: var(--accent2); margin: 10px 0; text-shadow: 0 0 24px rgba(76, 201, 240, .5); font-variant-numeric: tabular-nums; }
+
+/* melodies by interval */
+.melhead { font-size: 15px; margin-bottom: 8px; }
+.melchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+.melchip { padding: 8px 10px; font-size: 14px; font-weight: 750; border-radius: 10px; min-width: 52px; }
+.melchip.up { color: #7ff0c2; border-color: rgba(52, 211, 153, 0.4); }
+.melchip.down { color: #ffb38a; border-color: rgba(251, 146, 60, 0.4); }
+.melchip.same { color: var(--muted); }
+.melchip.cur { background: var(--on); color: #00141c; border-color: var(--on); }
+.hidden-intervals .melchip { color: transparent !important; text-shadow: 0 0 8px rgba(255,255,255,.35); }
