@@ -60,9 +60,9 @@ input:focus, select:focus { border-color: rgba(76, 201, 240, 0.6); box-shadow: 0
 .switch.on { background: var(--good); } .switch.on::after { left: 23px; }
 .start { width: 100%; padding: 17px; font-size: 18px; border-radius: 18px; margin-top: 10px; }
 .navgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.navgrid button { text-align: left; padding: 15px 15px 14px; border-radius: 18px; background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0) 60%), var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 3px; min-height: 76px; }
-.navgrid button b { display: block; font-size: 15.5px; letter-spacing: -0.01em; }
-.navgrid button small { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+.navgrid button, .navgrid .navlink { color: inherit; text-decoration: none; text-align: left; padding: 15px 15px 14px; border-radius: 18px; background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0) 60%), var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 3px; min-height: 76px; }
+.navgrid button b, .navgrid .navlink b { display: block; font-size: 15.5px; letter-spacing: -0.01em; }
+.navgrid button small, .navgrid .navlink small { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
 .bar { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; position: relative; }
 .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent2); opacity: .35; border-radius: 3px; }
 .bar i.m { background: var(--grad); opacity: 1; }
