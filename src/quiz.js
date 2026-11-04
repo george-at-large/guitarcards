@@ -222,6 +222,10 @@ const GEN = {
   'voicing-map'(q, card) {
     return { type: 'reveal', question: fill(q.question || 'Play them all, then reveal the map.', card), answerHtml: '', revealSpec: q.spec, selfRate: true };
   },
+  // understand → visualise (eyes closed) → watch it played
+  visualize(q, card) {
+    return { type: 'visualize', concept: fill(q.concept || card.tpl.explain || '', card), imagine: fill(q.imagine || 'Picture it on the neck.', card), seconds: q.seconds || 15, selfRate: true };
+  },
   choice(q, card) {
     const cs = q.choices.map((c) => fill(c, card));
     // shuffle while tracking the answer

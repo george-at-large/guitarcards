@@ -260,6 +260,8 @@ function renderHome() {
     ['scl-fb-find-note-neck', null, '📍', 'Find the notes', 'Every C, F♯… on the neck'],
   ].filter(([id]) => LIB.byId.has(id)).map(([id, p, ic, t, sub]) => `<button data-drill="${id}" data-dp='${p ? JSON.stringify(p) : ''}'><b>${ic} ${t}</b><small>${sub}</small></button>`).join('')}</div>
 
+  <div class="navgrid" style="margin-top:10px"><button data-act="visualizer" style="grid-column:1/-1"><b>👁️ Visualizer</b><small>Understand a concept → picture it on the neck → watch it played</small></button></div>
+
   <h3>Workouts</h3>
   <div class="navgrid">${WORKOUTS.map((w, i) => `<button data-wo="${w.id}" ${i === 0 ? 'style="grid-column:1/-1"' : ''}><b>${({ daily: '📅', drops: '🧩', arpeggios: '🌀', barnby: '🔥', 'guide-tones': '🧭', 'melodic-minor-cs': '🌙', 'voice-leading': '🔗', 'minor-chord-scales': '🌑' })[w.id] || '💪'} ${esc(w.name)}</b><small>${w.steps.length} cards · ~${w.minutes} min</small></button>`).join('')}</div>
 
@@ -334,6 +336,7 @@ function renderHome() {
     else if (b.dataset.act === 'proggame') renderProgGame();
     else if (b.dataset.act === 'cheats') openCheatList();
     else if (b.dataset.act === 'marbin') renderMarbin();
+    else if (b.dataset.act === 'visualizer') { const ids = LIB.templates.filter((t) => t.id.startsWith('viz-')).map((t) => t.id).sort(() => Math.random() - 0.5).slice(0, 8); if (ids.length) startSession(null, { workout: { id: 'visualizer', name: 'Visualizer', steps: ids.map((id) => ({ id })) } }); }
     else if (b.dataset.act === 'settings') renderSettings();
   };
   qs('#focus').onchange = (e) => { st().focus = e.target.value; AD.save(); renderHome(); };
@@ -577,11 +580,13 @@ function drawQuiz() {
   if (Q.type === 'tap') h += `<div id="tapboard">${fretboardSVG({ lo: Q.board.lo, hi: Q.board.hi, dots: [], tappable: true })}</div><button class="primary" style="width:100%" data-q="check">Check</button>`;
   if (Q.type === 'sequence') h += `<div class="seqout" id="seqout"></div><div class="qgrid twelve">${Q.options.map((o) => `<button data-q="deg" data-v="${esc(o)}">${esc(T.prettyIv(o))}</button>`).join('')}</div><div class="row"><button data-q="undo">⌫ Undo</button><button class="primary grow" data-q="check">Check</button></div>`;
   if (Q.type === 'reveal') h += `<button style="width:100%" data-q="reveal">Show answer</button><div id="revealed"></div>`;
+  if (Q.type === 'visualize') h = `<div class="panel viz"><div class="vizsteps"><span class="on">1 Understand</span><span>2 Visualize</span><span>3 Show me</span></div><div id="vizbody"></div></div>`;
   if (Q.type === 'listen') h += `<div class="md">${md(Q.html)}</div><div id="qneck"></div><p class="muted small">Degrees: ${Q.degrees.map(T.prettyIv).join(' ')}</p>`;
   if (Q.type === 'audiate') h += `<p class="muted small">1) Hear the starting note · 2) Watch the melody and sing it in your head · 3) Reveal and compare.</p><button style="width:100%" data-q="show">👁 Show the melody (silent)</button><div id="qneck"></div><button style="width:100%; margin-top:8px" data-q="revealsound">🔊 Reveal (play it)</button>`;
   h += '<div id="fb"></div></div>';
   el.innerHTML = h;
   CARD.picks = new Set(); CARD.seq = [];
+  if (Q.type === 'visualize') { el.onclick = onQuizClick; vizStage(1); return; }
   el.onclick = onQuizClick;
   if (Q.type === 'tap') {
     qs('#tapboard', el).onclick = (e) => {
@@ -595,8 +600,29 @@ function drawQuiz() {
   if (Q.type === 'listen' && Q.placed) qs('#qneck', el).innerHTML = fretboardSVG({ ...neckWin(Q.placed), dots: Q.placed.map((p, i) => ({ string: p.string, fret: p.fret, label: T.prettyIv(Q.degrees[i]), kind: i === 0 ? 'root' : 'tone' })) });
   if (Q.play && Q.type !== 'audiate') A.later(() => { if (CARD && CARD.quiz === Q) Q.play(); }, 350);
 }
+function vizStage(n) {
+  const Q = CARD.quiz;
+  const body = qs('#vizbody'); if (!body) return;
+  qsa('.vizsteps span').forEach((x, i) => { x.classList.toggle('on', i === n - 1); x.classList.toggle('done', i < n - 1); });
+  stopAll();
+  if (n === 1) {
+    let diag = '';
+    try { if (CARD.card.visual) diag = compile(CARD.card.visual).html; } catch (e) { diag = ''; }
+    body.innerHTML = `<div class="md">${md(Q.concept)}</div>${diag}<button class="primary start" data-viz="2">I get it → visualize</button>`;
+  } else if (n === 2) {
+    body.innerHTML = `<div class="vizimagine"><div class="vizeye">👁️</div><div class="md">${md(Q.imagine)}</div><div class="vizcount" id="vizcount">${Q.seconds}</div><p class="muted small">Close your eyes. See each note on the neck — string, fret, interval — before you look.</p></div><button class="primary start" data-viz="3">Show me</button>`;
+    let left = Q.seconds;
+    const tick = () => { const el = qs('#vizcount'); if (!el || CARD.quiz !== Q) return; left--; el.textContent = left > 0 ? left : '✓'; if (left > 0) A.later(tick, 1000); };
+    A.later(tick, 1000);
+  } else {
+    body.innerHTML = `<p class="muted small">Compare with what you pictured. Then play it yourself.</p><div id="vizwatch"></div><button data-viz="1" style="width:100%;margin-top:8px">↺ Back to the explanation</button>`;
+    try { const comp = compile(CARD.card.demo || CARD.card.visual); const p = new NeckPlayer(qs('#vizwatch'), comp, { bpm: Math.min(cardBpm(), 100) }); p.play(); } catch (err) { qs('#vizwatch').innerHTML = `<p class="muted small">${esc(err.message)}</p>`; }
+    CARD.answered = true; drawRate();
+  }
+}
 const neckWin = (placed) => { const fs = placed.map((p) => p.fret); const lo = Math.max(0, Math.min(...fs) - 1); return { lo, hi: Math.max(Math.max(...fs) + 1, lo + 4) }; };
 function onQuizClick(e) {
+  const vz = e.target.closest('[data-viz]'); if (vz) { vizStage(Number(vz.dataset.viz)); return; }
   const b = e.target.closest('[data-q]'); if (!b) return;
   const Q = CARD.quiz;
   const a = b.dataset.q;

@@ -219,3 +219,15 @@ svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordb
 .steplist li::before { content: counter(st); position: absolute; left: 12px; top: 10px; width: 22px; height: 22px; border-radius: 11px; background: var(--panel3); color: var(--accent); font-weight: 800; font-size: 12px; display: grid; place-items: center; }
 .hero .tag { color: var(--muted); font-size: 13.5px; }
 .section-title { display: flex; align-items: baseline; justify-content: space-between; }
+
+/* tapped notes must not block the tap target under them */
+#tapboard .dot { pointer-events: none; }
+
+/* visualizer */
+.vizsteps { display: flex; gap: 6px; margin-bottom: 12px; }
+.vizsteps span { flex: 1; text-align: center; font-size: 12px; font-weight: 700; padding: 7px 4px; border-radius: 999px; background: var(--bg2); color: var(--dim); border: 1px solid var(--line); }
+.vizsteps span.on { background: rgba(76, 201, 240, 0.14); color: var(--accent2); border-color: rgba(76, 201, 240, 0.5); }
+.vizsteps span.done { color: var(--good); }
+.vizimagine { text-align: center; padding: 18px 8px; border-radius: 16px; background: radial-gradient(80% 80% at 50% 30%, rgba(76, 201, 240, 0.1), transparent 70%), var(--bg2); border: 1px solid var(--line); }
+.vizeye { font-size: 34px; }
+.vizcount { font: 800 54px/1 -apple-system, "SF Pro Display", system-ui; color: var(--accent2); margin: 10px 0; text-shadow: 0 0 24px rgba(76, 201, 240, .5); font-variant-numeric: tabular-nums; }
