@@ -234,10 +234,18 @@ svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordb
 
 /* melodies by interval */
 .melhead { font-size: 15px; margin-bottom: 8px; }
-.melchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
-.melchip { padding: 8px 10px; font-size: 14px; font-weight: 750; border-radius: 10px; min-width: 52px; }
-.melchip.up { color: #7ff0c2; border-color: rgba(52, 211, 153, 0.4); }
-.melchip.down { color: #ffb38a; border-color: rgba(251, 146, 60, 0.4); }
-.melchip.same { color: var(--muted); }
+.melkey { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 800; font-size: 14px; }
+.melkey.major { background: rgba(52, 211, 153, 0.15); color: #7ff0c2; }
+.melkey.minor { background: rgba(129, 140, 248, 0.18); color: #b4bcff; }
+.melchips { display: flex; flex-direction: column; gap: 8px; margin: 10px 0 8px; }
+.melbar { display: flex; flex-wrap: wrap; gap: 5px; padding-left: 8px; border-left: 2px solid var(--line, rgba(255,255,255,.15)); }
+.melchip { display: flex; flex-direction: column; align-items: center; padding: 4px 6px 5px; border-radius: 10px; min-width: 44px; line-height: 1.1; }
+.melchip b { font-size: 19px; font-weight: 800; }
+.melchip .mfrom { font-size: 10px; color: var(--muted); }
+.melchip .mstep { display: none; font-size: 10px; color: #ffd27a; }
+.showsteps .melchip .mstep { display: block; min-height: 11px; }
+.melchip.low b { color: #9fb7ff; }
+.melchip.high b { color: #ffb38a; }
 .melchip.cur { background: var(--on); color: #00141c; border-color: var(--on); }
-.hidden-intervals .melchip { color: transparent !important; text-shadow: 0 0 8px rgba(255,255,255,.35); }
+.melchip.cur b, .melchip.cur .mfrom { color: #00141c; }
+.melsteps { display: flex; gap: 8px; align-items: center; margin-top: 10px; }

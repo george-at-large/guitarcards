@@ -222,29 +222,47 @@ const GEN = {
   'voicing-map'(q, card) {
     return { type: 'reveal', question: fill(q.question || 'Play them all, then reveal the map.', card), answerHtml: '', revealSpec: q.spec, selfRate: true };
   },
-  // a melody as a chain of intervals (learn, step through, sing, then test)
+  // a melody as scale degrees from the 1 (its interval structure), with optional steps between notes
   'melody-intervals'(q, card) {
-    const root = card.params.key ? card.ctx.root : T.parseNote(rnd(['C', 'D', 'E', 'F', 'G', 'A', 'Bb']));
+    const minor = /aeolian|minor|dorian|phrygian/.test(q.scale || '');
+    const root = card.params.key ? card.ctx.root : T.parseNote(rnd(minor ? ['A', 'E', 'D', 'G', 'C', 'B'] : ['C', 'D', 'E', 'F', 'G', 'A', 'Bb']));
     const sid = q.scale === 'minor' ? 'aeolian' : q.scale || 'major';
     const mel = parseMelody(q.melody, root, sid);
     const NAMES = ['unison', 'm2', 'M2', 'm3', 'M3', 'P4', 'tritone', 'P5', 'm6', 'M6', 'm7', 'M7', 'octave'];
     const LONG = { m2: 'minor 2nd', M2: 'major 2nd', m3: 'minor 3rd', M3: 'major 3rd', P4: 'perfect 4th', tritone: 'tritone', P5: 'perfect 5th', m6: 'minor 6th', M6: 'major 6th', m7: 'minor 7th', M7: 'major 7th', octave: 'octave' };
-    const steps = [];
-    for (let i = 1; i < mel.notes.length; i++) {
-      const d = mel.notes[i].midi - mel.notes[i - 1].midi;
+    const FROM1 = ['1', 'm2', 'M2', 'm3', 'M3', 'P4', 'TT', 'P5', 'm6', 'M6', 'm7', 'M7'];
+    const tonic = mel.notes[0].midi - mel.notes[0].s;
+    const notes = mel.notes.map((n, i) => {
+      const reg = n.s < 0 ? 'low' : n.s >= 12 ? 'high' : '';
+      const d = i ? n.midi - mel.notes[i - 1].midi : null;
       const a = Math.abs(d);
       const name = a === 0 ? 'same' : a <= 12 ? NAMES[a] : (a === 24 ? '2 octaves' : `${NAMES[a - 12]}+8ve`);
-      const label = a === 0 ? '=' : `${d > 0 ? '↑' : '↓'}${name}`;
-      steps.push({ i, label, long: a === 0 ? 'same note' : `${d > 0 ? 'up' : 'down'} a ${LONG[name] || name}`, a: mel.notes[i - 1].midi, b: mel.notes[i].midi });
-    }
+      return { deg: n.deg.replace(/[',]/g, ''), reg, from1: FROM1[((n.s % 12) + 12) % 12], midi: n.midi, beat: n.beat,
+        bar: mel.barStarts.filter((b) => b <= n.beat + 1e-9).length - 1,
+        step: i ? (a === 0 ? '=' : `${d > 0 ? '↑' : '↓'}${name}`) : '', stepLong: i ? (a === 0 ? 'same note' : `${d > 0 ? 'up' : 'down'} a ${LONG[name] || name}`) : '' };
+    });
+    const degName = (n) => `${T.prettyIv(n.deg)}${n.reg ? ` (${n.reg})` : ''}`;
+    const lo = notes.reduce((x, n) => (n.midi < x.midi ? n : x)), hi = notes.reduce((x, n) => (n.midi > x.midi ? n : x));
+    const used = [...new Set(mel.notes.map((n) => ((n.s % 12) + 12) % 12))].sort((x, y) => x - y).map((s) => T.prettyIv(mel.notes.find((n) => ((n.s % 12) + 12) % 12 === s).deg.replace(/[',]/g, '')));
+    const leaps = notes.filter((n, i) => i && Math.abs(n.midi - notes[i - 1].midi) >= 5);
+    const span = hi.midi - lo.midi;
     const spb = 60 / 84;
-    const playAll = (onNote) => { A.hush(); const t0 = A.audioCtx().currentTime + 0.1; mel.notes.forEach((n, k) => { A.keys(n.midi, t0 + n.beat * spb, n.dur * spb * 0.95); if (onNote) A.later(() => onNote(k), (0.1 + n.beat * spb) * 1000); }); };
-    const playPair = (k) => { A.hush(); const t = A.audioCtx().currentTime + 0.05; A.keys(steps[k].a, t, 0.55); A.keys(steps[k].b, t + 0.6, 0.8); };
-    const testN = Math.min(8, steps.length);
-    const pool = [...new Set(steps.slice(0, testN).map((x) => x.label))];
-    const extras = ['↑M2', '↓M2', '↑m3', '↓m3', '↑P4', '↓P4', '↑P5', '↓M3'].filter((x) => !pool.includes(x));
-    return { type: 'melintervals', name: q.name, start: mel.notes[0].deg, startNote: T.noteName(T.transposeSemis(root, mel.notes[0].s), true), key: T.noteName(root, true), steps, playAll, playPair, testN,
-      options: pool.concat(extras.slice(0, Math.max(0, 6 - pool.length))), selfRate: true };
+    const playAll = (onNote, withDrone) => {
+      A.hush(); const t0 = A.audioCtx().currentTime + 0.1;
+      if (withDrone) { const had = A.droneOn(); if (!had) { A.startDrone(tonic - 12, true); A.later(() => A.stopDrone(), (0.4 + mel.length * spb) * 1000); } }
+      mel.notes.forEach((n, k) => { A.keys(n.midi, t0 + n.beat * spb, n.dur * spb * 0.95); if (onNote) A.later(() => onNote(k), (0.1 + n.beat * spb) * 1000); });
+    };
+    // hear any note against the 1: tonic, then the note
+    const playFrom1 = (k) => { A.hush(); const t = A.audioCtx().currentTime + 0.05; A.keys(tonic, t, 0.55); A.keys(notes[k].midi, t + 0.6, 0.8); };
+    const modeName = { major: 'major', aeolian: 'minor', minor: 'minor', dorian: 'minor (Dorian)', mixolydian: 'major (Mixolydian)', phrygian: 'minor (Phrygian)' }[sid] || sid;
+    const keyName = `${T.noteName(root, true)} ${modeName}`;
+    const summary = [
+      `Starts on **${degName(notes[0])}**, ends on **${degName(notes[notes.length - 1])}**.`,
+      `Range: ${degName(lo)} → ${degName(hi)} (${span === 12 ? 'an octave' : span > 12 ? `an octave + ${NAMES[span - 12]}` : NAMES[span]}).`,
+      `Degrees used: ${used.join(' ')}.`,
+      leaps.length ? `Leaps: ${leaps.slice(0, 4).map((n) => `${degName(notes[notes.indexOf(n) - 1])} → ${degName(n)}`).join(', ')}${leaps.length > 4 ? '…' : ''}.` : 'All steps — no leaps.',
+    ];
+    return { type: 'melintervals', name: q.name, keyName, minor, notes, summary, playAll, playFrom1, bars: mel.barStarts.length, selfRate: true };
   },
   // understand → visualise (eyes closed) → watch it played
   visualize(q, card) {

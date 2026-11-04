@@ -1,7 +1,7 @@
 import * as T from './theory.js';
 import * as A from './audio.js';
 import { loadLibrary, savePack } from './library.js';
-import { instantiate, fill } from './cards.js';
+import { instantiate, fill, poolValues } from './cards.js';
 import { compile, chartChords, chordLabel, asKey } from './demo.js';
 import { fretboardSVG, md, esc, rhythmHTML, chordBoxSVG, CHORDBOX_LEGEND } from './render.js';
 import { makeQuiz, PC_NAMES } from './quiz.js';
@@ -27,7 +27,8 @@ const qs = (s, el = document) => el.querySelector(s);
 const qsa = (s, el = document) => [...el.querySelectorAll(s)];
 function toast(msg) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
 const lvlDots = (l) => `<span class="lvl" title="level ${l.toFixed(1)}">${[...Array(10)].map((_, i) => `<i class="${i < Math.round(l) ? 'f' : ''}"></i>`).join('')}</span>`;
-const MODE_META = { play: ['🎸', 'Play'], ear: ['🎧', 'Ear'], theory: ['🧠', 'Theory'] };
+// theory cards live only in the Theory tester, never mixed in with playing/ear cards
+const MODE_META = { play: ['🎸', 'Play'], ear: ['🎧', 'Ear'] };
 document.addEventListener('pointerdown', () => { A.unlockAudio().catch(() => {}); }, { once: false, passive: true });
 let wakeLock = null;
 async function keepAwake(on) {
@@ -242,6 +243,7 @@ function renderHome() {
   VIEW = 'home';
   silence(); keepAwake(false);
   const s = st().settings;
+  if (s.modes.includes('theory')) { s.modes = s.modes.filter((m) => m !== 'theory'); if (!s.modes.length) s.modes = ['play']; AD.save(); }
   const prog = AD.progress(LIB);
   const pct = (x) => (prog.total ? Math.round((100 * x) / prog.total) : 0);
   const catsFor = (mode) => AD.CATEGORY_INFO[mode].filter((c) => LIB.templates.some((t) => t.category === c && t.mode === mode));
@@ -259,6 +261,9 @@ function renderHome() {
     ['voi-drop2-inversion-rhythm-ladder', null, '⏱️', 'Inversion ladder', 'Whole → half → quarter → 8ths'],
     ['scl-fb-find-note-neck', null, '📍', 'Find the notes', 'Every C, F♯… on the neck'],
   ].filter(([id]) => LIB.byId.has(id)).map(([id, p, ic, t, sub]) => `<button data-drill="${id}" data-dp='${p ? JSON.stringify(p) : ''}'><b>${ic} ${t}</b><small>${sub}</small></button>`).join('')}</div>
+
+  ${(LIB.coreSets || []).length ? `<h3>Core sets <span class="muted small" style="text-transform:none;letter-spacing:0">commit to memory</span></h3>
+  <div class="navgrid">${LIB.coreSets.map((c) => { const ids = c.steps.filter((id) => LIB.byId.has(id)); const solid = ids.filter((id) => st().tpl[id]?.mastered).length; return `<button data-core="${c.id}" ${c.id === 'mi' ? 'style="grid-column:1/-1"' : ''}><b>${c.icon} ${esc(c.name)}</b><small>${esc(c.blurb)} · ${solid}/${ids.length} solid</small></button>`; }).join('')}</div>` : ''}
 
   <div class="navgrid" style="margin-top:10px"><button data-act="visualizer" style="grid-column:1/-1"><b>👁️ Visualizer</b><small>Understand a concept → picture it on the neck → watch it played</small></button></div>
 
@@ -284,13 +289,14 @@ function renderHome() {
   <div class="navgrid">
     ${tile('proggame', '🎯', 'Progression game', `Hear it, spell it · level ${(st().pgame?.level ?? 0) + 1}/${PG_LEVELS.length}`)}
     ${tile('eargym', '🎧', 'Ear Gym', `${gymPassed()}/${EAR_LEVELS.length} levels passed`)}
-    ${tile('melodies', '🎵', 'Melodies by interval', 'Learn tunes as intervals, sing them, test yourself', true)}
+    ${tile('melodies', '🎵', 'Melodies by degree', 'Tunes as degrees from the 1, major or minor — sing them', true)}
   </div>
 
   <h3>Learn</h3>
   <div class="navgrid">
     ${LIB.routines && LIB.routines.length ? tile('marbin', '🎬', 'Marbin practice routines', `${LIB.routines.length} routines with the videos`, true) : ''}
     ${tile('tg', '🎹', 'Ted Greene', 'Modern Chord Progressions', true)}
+    ${tile('theory', '🧠', 'Theory tester', `${LIB.templates.filter((t) => t.mode === 'theory' && !(t.tags || []).includes('ted-greene')).length} quick questions, kept apart from practice`)}
     ${tile('cheats', '📋', 'Cheat sheets', 'Modes, chords, intervals…')}
     ${tile('songs', '🎼', 'Songs', 'Annotated progressions')}
     ${tile('concepts', '📖', 'Lessons', 'Concept deep-dives')}
@@ -315,11 +321,27 @@ function renderHome() {
       startSession(null, { workout: { id: 'drill-' + b.dataset.drill, name: b.querySelector('b').textContent.replace(/^\S+\s/, ''), steps } });
       return;
     }
+    if (b.dataset.core) {
+      // a core set runs in shuffled order, so you recall each move rather than the sequence
+      const c = LIB.coreSets.find((x) => x.id === b.dataset.core);
+      const steps = c.steps.filter((id) => LIB.byId.has(id)).sort(() => Math.random() - 0.5).map((id) => ({ id }));
+      if (steps.length) startSession(null, { workout: { id: 'core-' + c.id, name: c.name, steps } });
+      return;
+    }
     if (b.dataset.wo) {
       const w = WORKOUTS.find((x) => x.id === b.dataset.wo);
       // pool steps pick one card each time, so a workout like Daily practice changes day to day
       const steps = w.steps.map((x) => { if (!x.pool) return x; const ok = x.pool.filter((id) => LIB.byId.has(id)); return ok.length ? { ...x, id: ok[Math.floor(Math.random() * ok.length)] } : null; }).filter((x) => x && LIB.byId.has(x.id));
-      if (steps.length) startSession(null, { workout: { ...w, steps } });
+      let name = w.name;
+      if (w.oneChord) {
+        // pin one chord across every step (the triad step gets the chord's triad)
+        const q = w.oneChord[Math.floor(Math.random() * w.oneChord.length)], r = T.ROOTS[Math.floor(Math.random() * T.ROOTS.length)];
+        const tri = { maj7: 'maj', 7: 'maj', m7: 'min', m7b5: 'dim' }[q];
+        const pin = (tpl) => { const p = {}; for (const k of ['key', 'root']) if (tpl.params && tpl.params[k]) p[k] = r; if (tpl.params && tpl.params.quality) p.quality = poolValues('quality', tpl.params.quality).some((x) => x.v === q) ? q : tri; return p; };
+        steps.forEach((x, i) => { steps[i] = { ...x, params: { ...pin(LIB.byId.get(x.id)), ...(x.params || {}) } }; });
+        name = `${w.name.split(':')[0]}: ${T.pretty(T.chordSymbol(T.parseNote(r), q))}`;
+      }
+      if (steps.length) startSession(null, { workout: { ...w, name, steps } });
       return;
     }
     if (b.dataset.mode) { const m = b.dataset.mode; S.modes = S.modes.includes(m) ? S.modes.filter((x) => x !== m) : [...S.modes, m]; if (!S.modes.length) S.modes = [m]; AD.save(); renderHome(); }
@@ -337,7 +359,8 @@ function renderHome() {
     else if (b.dataset.act === 'proggame') renderProgGame();
     else if (b.dataset.act === 'cheats') openCheatList();
     else if (b.dataset.act === 'marbin') renderMarbin();
-    else if (b.dataset.act === 'melodies') { const ids = LIB.templates.filter((t) => t.id.startsWith('mel-')).sort((x, y) => x.level - y.level).map((t) => t.id); if (ids.length) startSession(null, { workout: { id: 'melodies', name: 'Melodies by interval', steps: ids.map((id) => ({ id })) } }); }
+    else if (b.dataset.act === 'melodies') { const ids = LIB.templates.filter((t) => t.id.startsWith('mel-')).sort((x, y) => x.level - y.level).map((t) => t.id); if (ids.length) startSession(null, { workout: { id: 'melodies', name: 'Melodies by degree', steps: ids.map((id) => ({ id })) } }); }
+    else if (b.dataset.act === 'theory') startSession(null, { theory: true, limit: 15, filter: (t) => t.mode === 'theory' && !(t.tags || []).includes('ted-greene') });
     else if (b.dataset.act === 'visualizer') { const ids = LIB.templates.filter((t) => t.id.startsWith('viz-')).map((t) => t.id).sort(() => Math.random() - 0.5).slice(0, 8); if (ids.length) startSession(null, { workout: { id: 'visualizer', name: 'Visualizer', steps: ids.map((id) => ({ id })) } }); }
     else if (b.dataset.act === 'settings') renderSettings();
   };
@@ -351,6 +374,7 @@ function suggestTags() {
 
 // ---------- SESSION ----------
 function startSession(onlyTpl = null, extra = {}) {
+  if (extra.workout && !extra.theory) extra = { ...extra, workout: { ...extra.workout, steps: extra.workout.steps.filter((x) => LIB.byId.get(x.id)?.mode !== 'theory') } };
   SESSION = { cards: [], seen: new Set(), queue: [], start: Date.now(), results: [], only: onlyTpl, ...extra, levels0: { ...Object.fromEntries(Object.keys(AD.CAT_LABEL).map((c) => [c, AD.catLevel(c)])) } };
   st().sessions++; AD.save();
   keepAwake(true);
@@ -360,6 +384,7 @@ function sessionDone() {
   const s = st().settings.session;
   if (SESSION.workout) return SESSION.cards.length >= SESSION.workout.steps.length;
   if (SESSION.only) return SESSION.cards.length >= 6;
+  if (SESSION.limit) return SESSION.cards.length >= SESSION.limit;
   if (s.type === 'cards') return SESSION.cards.length >= s.n;
   return Date.now() - SESSION.start >= s.n * 60000;
 }
@@ -582,10 +607,15 @@ function drawQuiz() {
   if (Q.type === 'tap') h += `<div id="tapboard">${fretboardSVG({ lo: Q.board.lo, hi: Q.board.hi, dots: [], tappable: true })}</div><button class="primary" style="width:100%" data-q="check">Check</button>`;
   if (Q.type === 'sequence') h += `<div class="seqout" id="seqout"></div><div class="qgrid twelve">${Q.options.map((o) => `<button data-q="deg" data-v="${esc(o)}">${esc(T.prettyIv(o))}</button>`).join('')}</div><div class="row"><button data-q="undo">⌫ Undo</button><button class="primary grow" data-q="check">Check</button></div>`;
   if (Q.type === 'reveal') h += `<button style="width:100%" data-q="reveal">Show answer</button><div id="revealed"></div>`;
-  if (Q.type === 'melintervals') h = `<div class="panel"><div class="melhead">Starts on <b>${esc(T.prettyIv(String(Q.start).replace(/[',]/g, '')))}</b> <span class="muted small">(${esc(Q.startNote)} in ${esc(Q.key)})</span></div>
-    <div class="melchips" id="melchips">${Q.steps.map((x, k) => `<button class="melchip ${x.label.startsWith('↑') ? 'up' : x.label.startsWith('↓') ? 'down' : 'same'}" data-mel="${k}" title="${esc(x.long)}">${esc(x.label)}</button>`).join('')}</div>
-    <div class="row"><button class="primary grow" data-q="melplay">▶ Play the melody</button><button data-q="meltest">🎯 Test me</button></div>
-    <div id="meltestbox"></div></div>`;
+  if (Q.type === 'melintervals') {
+    const bars = Array.from({ length: Q.bars }, (_, i) => Q.notes.map((n, k) => [n, k]).filter(([n]) => n.bar === i));
+    h = `<div class="panel"><div class="melhead"><span class="melkey ${Q.minor ? 'minor' : 'major'}">${esc(Q.keyName)}</span></div>
+    <div class="md small">${md(Q.summary.map((x) => '- ' + x).join('\n'))}</div>
+    <div class="melchips" id="melchips">${bars.filter((x) => x.length).map((bar) => `<div class="melbar">${bar.map(([n, k]) => `<button class="melchip ${n.reg}" data-mel="${k}" title="${esc(n.from1)} from the 1${n.stepLong ? ` · ${esc(n.stepLong)} from the last note` : ''}"><span class="mstep">${esc(n.step)}</span><b>${esc(T.prettyIv(n.deg))}</b><span class="mfrom">${n.reg === 'low' ? '↓8ve' : n.reg === 'high' ? '↑8ve' : esc(n.from1)}</span></button>`).join('')}</div>`).join('')}</div>
+    <p class="muted small">Numbers are scale degrees from the 1. Tap a note to hear it against the 1.</p>
+    <div class="row"><button class="primary grow" data-q="melplay">▶ Play</button><button class="grow" data-q="meldrone">▶ Over a 1 drone</button></div>
+    <label class="small melsteps"><input type="checkbox" id="melstepsbox"> Also show the step from the previous note</label></div>`;
+  }
     if (Q.type === 'visualize') h = `<div class="panel viz"><div class="vizsteps"><span class="on">1 Understand</span><span>2 Visualize</span><span>3 Show me</span></div><div id="vizbody"></div></div>`;
   if (Q.type === 'listen') h += `<div class="md">${md(Q.html)}</div><div id="qneck"></div><p class="muted small">Degrees: ${Q.degrees.map(T.prettyIv).join(' ')}</p>`;
   if (Q.type === 'audiate') h += `<p class="muted small">1) Hear the starting note · 2) Watch the melody and sing it in your head · 3) Reveal and compare.</p><button style="width:100%" data-q="show">👁 Show the melody (silent)</button><div id="qneck"></div><button style="width:100%; margin-top:8px" data-q="revealsound">🔊 Reveal (play it)</button>`;
@@ -629,29 +659,12 @@ function vizStage(n) {
 const neckWin = (placed) => { const fs = placed.map((p) => p.fret); const lo = Math.max(0, Math.min(...fs) - 1); return { lo, hi: Math.max(Math.max(...fs) + 1, lo + 4) }; };
 function onQuizClick(e) {
   const vz = e.target.closest('[data-viz]'); if (vz) { vizStage(Number(vz.dataset.viz)); return; }
-  const mc = e.target.closest('[data-mel]'); if (mc && CARD.quiz.type === 'melintervals') { CARD.quiz.playPair(Number(mc.dataset.mel)); return; }
+  const mc = e.target.closest('[data-mel]'); if (mc && CARD.quiz.type === 'melintervals') { CARD.quiz.playFrom1(Number(mc.dataset.mel)); return; }
+  if (e.target.id === 'melstepsbox') { qs('#melchips').classList.toggle('showsteps', e.target.checked); return; }
   const b = e.target.closest('[data-q]'); if (!b) return;
   const Q = CARD.quiz;
   const a = b.dataset.q;
-  if (a === 'melplay') { CARD.answered = true; drawRate(); Q.playAll((k) => qsa('#melchips .melchip').forEach((c, j) => c.classList.toggle('cur', j === k - 1))); return; }
-  if (a === 'meltest') {
-    CARD.answered = true; drawRate();
-    CARD.seq = [];
-    qs('#melchips').classList.add('hidden-intervals');
-    qs('#meltestbox').innerHTML = `<p class="small">Listen, then tap the first <b>${Q.testN}</b> intervals in order.</p><button data-q="melplay2" style="width:100%">▶ Play again</button><div class="seqout" id="melseq"></div><div class="qgrid">${Q.options.map((o) => `<button data-q="melpick" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div><div class="row"><button data-q="melundo">⌫</button><button class="primary grow" data-q="melcheck">Check</button></div><div id="melfb"></div>`;
-    Q.playAll();
-    return;
-  }
-  if (a === 'melplay2') { Q.playAll(); return; }
-  if (a === 'melpick') { if (CARD.seq.length < Q.testN) CARD.seq.push(b.dataset.v); qs('#melseq').textContent = CARD.seq.join('  '); return; }
-  if (a === 'melundo') { CARD.seq.pop(); qs('#melseq').textContent = CARD.seq.join('  '); return; }
-  if (a === 'melcheck') {
-    const want = Q.steps.slice(0, Q.testN).map((x) => x.label);
-    const right = CARD.seq.filter((x, i) => x === want[i]).length;
-    qs('#melchips').classList.remove('hidden-intervals');
-    qs('#melfb').innerHTML = `<div class="feedback ${right === Q.testN ? 'ok' : 'no'}">${right}/${Q.testN} right</div><p class="small">${want.map((w, i) => `<b style="color:${CARD.seq[i] === w ? 'var(--good)' : 'var(--bad)'}">${esc(w)}</b>`).join('  ')}</p>`;
-    return;
-  }
+  if (a === 'melplay' || a === 'meldrone') { CARD.answered = true; drawRate(); Q.playAll((k) => qsa('#melchips .melchip').forEach((c, j) => c.classList.toggle('cur', j === k)), a === 'meldrone'); return; }
   if (a === 'play') { A.hush(); if (Q.type === 'audiate') Q.playStart(); else Q.play(); CARD.replays = (CARD.replays || 0) + 1; return; }
   if (CARD.answered && !['show', 'revealsound'].includes(a)) return;
   if (a === 'ans') {
@@ -760,7 +773,7 @@ function renderSummary() {
   <div class="panel list">${res.map((r, i) => `<button class="item" data-i="${i}"><span>${esc(r.card.text(r.card.tpl.title))}<br><small>${esc(AD.CAT_LABEL[r.card.tpl.category] || '')}${r.tempo ? ' · ' + r.tempo + ' bpm' : ''}</small></span><span class="badge ${r.eff >= 3 ? 'm' : ''}">${word(r.eff)}</span></button>`).join('')}</div>
   <button class="primary start" data-s="home">Done</button><button class="start" data-s="again">Another session</button>`;
   const prev = SESSION;
-  $app.onclick = (e) => { const b = e.target.closest('[data-s]'); if (!b) return; if (b.dataset.s === 'home') (prev && prev.back ? prev.back() : renderHome()); else startSession(prev && prev.only, prev ? { filter: prev.filter, back: prev.back } : {}); };
+  $app.onclick = (e) => { const b = e.target.closest('[data-s]'); if (!b) return; if (b.dataset.s === 'home') (prev && prev.back ? prev.back() : renderHome()); else startSession(prev && prev.only, prev ? { filter: prev.filter, back: prev.back, theory: prev.theory, limit: prev.limit } : {}); };
 }
 
 // ---------- LIBRARY ----------

@@ -1,5 +1,5 @@
 // Loads all content modules into one library.
-export const CONTENT_FILES = ['voicings', 'scales', 'rhythm', 'harmony', 'ear', 'analyses', 'interchange', 'deepdive', 'barnby', 'ljs', 'drops', 'marbin', 'visualize', 'melodies', 'tedgreene', 'tgarchive'];
+export const CONTENT_FILES = ['voicings', 'scales', 'rhythm', 'harmony', 'ear', 'analyses', 'interchange', 'deepdive', 'barnby', 'ljs', 'drops', 'marbin', 'visualize', 'melodies', 'core', 'tedgreene', 'tgarchive'];
 
 export async function loadLibrary(base = '../content/') {
   const lib = { templates: [], concepts: new Map(), toolbox: [], analyses: [], errors: [] };
@@ -12,6 +12,7 @@ export async function loadLibrary(base = '../content/') {
     if (m.toolbox) lib.toolbox.push(...m.toolbox);
     if (m.analyses) lib.analyses.push(...m.analyses);
     if (m.routines) (lib.routines = lib.routines || []).push(...m.routines);
+    if (m.coreSets) (lib.coreSets = lib.coreSets || []).push(...m.coreSets);
     if (m.tg) lib.tg = m.tg;
     if (m.tgArchive) lib.tgArchive = m.tgArchive;
   }

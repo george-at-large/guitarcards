@@ -35,8 +35,6 @@ WORKOUTS.splice(1, 0, {
   id: 'guide-tones', name: 'Guide tones workout', minutes: 30,
   blurb: 'The 3rds and 7ths that carry the harmony: understand them, grip them as shells, connect them as lines, comp with them, then solo by landing on them.',
   steps: [
-    { id: 'voi-quiz-guide-tones', why: 'Why the 3rd and 7th: where the 7th of ii goes in a ii–V.' },
-    { id: 'voi-quiz-shell-5th', why: 'Why shells leave out the 5th (and the root can go too).' },
     { id: 'voi-shell-shape', why: 'Shell grips: root + 3rd + 7th on the low strings.' },
     { id: 'voi-shell-ii-V-I', why: 'Shells through ii–V–I: hear the 7th fall to the next 3rd.' },
     { id: 'voi-guide-tones-ii-V-I', why: 'Guide-tone lines: just the two moving voices.' },
@@ -77,7 +75,6 @@ WORKOUTS.splice(3, 0, {
     { id: 'voi-drop2-minor-ii-V-i', why: 'The same in minor.' },
     { id: 'voi-drop2-line-cliche', why: 'Line cliché: one voice walks down chromatically.' },
     { id: 'har-diatonic-cycle-4ths', why: 'Diatonic cycle of 4ths in drop 2.' },
-    { id: 'voi-quiz-cycle-common-tones', why: 'Which cycles keep the most common tones?' },
     { id: 'voi-cycle-4-5-drop2', why: 'Goodrick/Miller cycle 4 and 5 drills.' },
     { id: 'har-comp-top-voice-melody', why: 'Make the top voice a melody (Ted Greene).' },
   ],
@@ -93,21 +90,22 @@ WORKOUTS.splice(2, 0, {
   ],
 });
 WORKOUTS.splice(1, 0, {
-  id: 'drops', name: 'Drop voicings & inversions', minutes: 25,
-  blurb: 'Know the difference (close, drop 2, drop 3, inversions), then drill: find each voicing, tap it on the neck, get instant feedback.',
+  id: 'drops', name: 'Drop voicings: one chord, all of it', minutes: 25,
+  blurb: 'One chord (say F m7), the whole neck: triad, arpeggio, every drop-2 and drop-3 inversion, tapped, mapped, in time.',
+  // every step uses the same root and quality, picked when the workout starts
+  oneChord: ['maj7', 'm7', '7', 'm7b5'],
   steps: [
-    { id: 'drops-concept', why: 'Close vs drop 2 vs drop 3 — how to tell them apart.' },
-    { id: 'drops-concept-inversion', why: 'Inversions are named by the bass note.' },
-    { id: 'drops-tap-triads', params: { voicing: 'close' }, why: 'Warm-up: find a triad inversion on the neck.' },
-    { id: 'drops-tap', params: { voicing: 'drop2', quality: 'maj7' }, why: 'Drop 2 maj7: find it and tap it.' },
-    { id: 'drops-tap', params: { voicing: 'drop2', quality: 'm7' }, why: 'Drop 2 m7.' },
-    { id: 'drops-tap', params: { voicing: 'drop2', quality: '7' }, why: 'Drop 2 dominant 7.' },
-    { id: 'drops-tap', params: { voicing: 'drop2', quality: 'm7b5' }, why: 'Drop 2 m7♭5.' },
-    { id: 'drops-tap', params: { voicing: 'drop3', quality: 'maj7' }, why: 'Drop 3: bass, skip a string, three strings.' },
-    { id: 'drops-tap', params: { voicing: 'drop3', quality: '7' }, why: 'Drop 3 dominant.' },
-    { id: 'drops-all-inversions-map', params: { voicing: 'drop2' }, why: 'Play every drop-2 inversion on every string set, then check the map.' },
-    { id: 'voi-drop2-inversion-rhythm-ladder', why: 'Lock them in time: whole → half → quarter → 8ths.' },
+    { id: 'drops-tap-triads', params: { voicing: 'close' }, why: 'Warm-up: the triad inside the chord, any inversion.' },
+    { id: 'scl-arp-7ths-caged', why: 'The arpeggio in one shape: say each interval as you play it.' },
+    { id: 'drops-tap', params: { voicing: 'drop2' }, why: 'Drop 2: find this inversion and tap it.' },
+    { id: 'drops-tap', params: { voicing: 'drop2' }, why: 'Drop 2: another inversion / string set.' },
+    { id: 'drops-all-inversions-map', params: { voicing: 'drop2' }, why: 'Every drop-2 inversion on every string set, then check the map.' },
     { id: 'voi-drop2-inversion-arpeggio', why: 'Strum each inversion, then arpeggiate it.' },
+    { id: 'voi-drop2-inversion-rhythm-ladder', why: 'Lock them in time: whole → half → quarter → 8ths.' },
+    { id: 'drops-tap', params: { voicing: 'drop3' }, why: 'Drop 3: bass, skip a string, three strings.' },
+    { id: 'drops-tap', params: { voicing: 'drop3' }, why: 'Drop 3: another inversion.' },
+    { id: 'drops-all-inversions-map', params: { voicing: 'drop3' }, why: 'Every drop-3 inversion, then the map.' },
+    { id: 'scl-arp-7ths-connect', why: 'Finish: the arpeggio across the whole neck.' },
   ],
 });
 WORKOUTS.splice(5, 0, {
