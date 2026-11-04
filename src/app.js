@@ -250,6 +250,16 @@ function renderHome() {
   $app.innerHTML = `
   <div class="row spread hero"><div><h1>Guitar Cards</h1><div class="tag">${LIB.templates.filter((t) => !(t.tags || []).includes('tg-archive')).length} cards · ${WORKOUTS.length} workouts · ${LIB.analyses.length} songs</div></div><button class="icon" data-act="settings" aria-label="Settings">⚙︎</button></div>
 
+  <h3>Drills</h3>
+  <div class="navgrid">${[
+    ['drops-tap', { voicing: 'drop2' }, '🧩', 'Drop 2 drill', 'Tap the inversion on the neck'],
+    ['drops-tap', { voicing: 'drop3' }, '🧩', 'Drop 3 drill', 'Bass, skip a string, three strings'],
+    ['drops-tap-triads', null, '🔺', 'Triad inversions', 'Close & spread, tap it'],
+    ['drops-all-inversions-map', null, '🗺️', 'Every inversion', 'Play them all, check the map'],
+    ['voi-drop2-inversion-rhythm-ladder', null, '⏱️', 'Inversion ladder', 'Whole → half → quarter → 8ths'],
+    ['scl-fb-find-note-neck', null, '📍', 'Find the notes', 'Every C, F♯… on the neck'],
+  ].filter(([id]) => LIB.byId.has(id)).map(([id, p, ic, t, sub]) => `<button data-drill="${id}" data-dp='${p ? JSON.stringify(p) : ''}'><b>${ic} ${t}</b><small>${sub}</small></button>`).join('')}</div>
+
   <h3>Workouts</h3>
   <div class="navgrid">${WORKOUTS.map((w, i) => `<button data-wo="${w.id}" ${i === 0 ? 'style="grid-column:1/-1"' : ''}><b>${({ daily: '📅', drops: '🧩', arpeggios: '🌀', barnby: '🔥', 'guide-tones': '🧭', 'melodic-minor-cs': '🌙', 'voice-leading': '🔗', 'minor-chord-scales': '🌑' })[w.id] || '💪'} ${esc(w.name)}</b><small>${w.steps.length} cards · ~${w.minutes} min</small></button>`).join('')}</div>
 
@@ -295,6 +305,13 @@ function renderHome() {
   $app.onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const S = st().settings;
+    if (b.dataset.drill) {
+      // a drill = 10 cards of one exercise (pinned options where given)
+      const p = b.dataset.dp ? JSON.parse(b.dataset.dp) : null;
+      const steps = [...Array(10)].map(() => ({ id: b.dataset.drill, params: p || undefined, why: '' }));
+      startSession(null, { workout: { id: 'drill-' + b.dataset.drill, name: b.querySelector('b').textContent.replace(/^\S+\s/, ''), steps } });
+      return;
+    }
     if (b.dataset.wo) {
       const w = WORKOUTS.find((x) => x.id === b.dataset.wo);
       // pool steps pick one card each time, so a workout like Daily practice changes day to day
@@ -356,7 +373,7 @@ function nextCard() {
       const tpl = wstep ? LIB.byId.get(wstep.id) : SESSION.only ? SESSION.only : AD.pickTemplate(LIB, SESSION);
       if (!tpl) { toast('No cards match your settings'); return renderHome(); }
       card = instantiate(tpl, AD.paramChooser(tpl), (wstep && wstep.params) || {});
-      if (wstep) card.followUp = `${SESSION.workout.name} · ${SESSION.cards.length + 1}/${SESSION.workout.steps.length} — ${wstep.why}`;
+      if (wstep) card.followUp = `${SESSION.workout.name} · ${SESSION.cards.length + 1}/${SESSION.workout.steps.length}${wstep.why ? ' — ' + wstep.why : ''}`;
     }
   } catch (err) {
     console.error(err);
