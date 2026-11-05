@@ -328,14 +328,21 @@ svg.vneck .mute { fill: #e9dccd; font-size: 15px; font-weight: 700; text-anchor:
 .msinfo span { line-height: 1.35; }
 .msview { flex-wrap: nowrap; }
 .msview .seg { flex: 1 1 auto; padding: 3px; }
-.msview .seg button { padding: 6px 2px; font-size: 12.5px; white-space: nowrap; }
+.msview .seg button { padding: 6px 2px; font-size: 12px; white-space: nowrap; }
 .msview > button { padding: 6px 10px; font-size: 16px; }
 .msview > button.on { background: var(--panel3); border-color: var(--good); color: var(--good); }
 .msneck { display: flex; justify-content: center; }
-.msneck svg.msvg { width: 100%; max-width: 420px; height: auto; }
+.msneck { flex-direction: column; align-items: center; }
+.msneck svg.msvg { display: block; width: 100%; max-width: 420px; height: auto; overflow: visible; }
+.msneck svg.msvg .board { filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); }
+.msneck svg.msvg .binding { stroke: #eadfc6; stroke-width: 1.6; opacity: .75; }
+.msneck svg.msvg .fretnum { fill: #7d6a5a; font-size: 10.5px; }
+.msneck svg.msvg .fretnum.strong { fill: #d9c4a7; }
+.msneck.inf svg.msvg { margin-top: -0.5px; }
+.msneck.inf svg.msvg .board { filter: none; }
 .msneck .msdot { pointer-events: none; }
 .msdot circle, .msk, .msleg i { fill: var(--tone); background: var(--tone); }
-.msdot circle { stroke: rgba(0, 0, 0, .45); stroke-width: 1; }
+.msdot circle { stroke: rgba(0, 0, 0, .5); stroke-width: 1; }
 .msdot text { fill: #16110c; font-weight: 800; text-anchor: middle; }
 .msdot.r circle, .msleg.r i, .msk.r { fill: var(--root); background: var(--root); }
 .msdot.t3 circle, .msleg.t3 i, .msk.t3 { fill: #ff7a9a; background: #ff7a9a; }
@@ -343,6 +350,9 @@ svg.vneck .mute { fill: #e9dccd; font-size: 15px; font-weight: 700; text-anchor:
 .msdot.t7 circle, .msleg.t7 i, .msk.t7 { fill: #b49cff; background: #b49cff; }
 .msdot.tx circle, .msleg.tx i, .msk.tx { fill: #efe8da; background: #efe8da; }
 .msdot circle.ring { fill: none; stroke: var(--good); stroke-width: 2.6; }
+.msneck .msdot circle.sh { fill: #000; opacity: .45; stroke: none; }
+.msneck .msdot circle.shine { fill: url(#msShine); stroke: none; filter: none; }
+.msneck .msdot.open { opacity: .9; }
 .msdot.fresh { animation: mspulse 1.4s ease-out 2; transform-box: fill-box; transform-origin: center; }
 @keyframes mspulse { 0% { transform: scale(1); } 30% { transform: scale(1.35); } 100% { transform: scale(1); } }
 .msk { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; color: #16110c; font-weight: 800; font-size: 11px; }
