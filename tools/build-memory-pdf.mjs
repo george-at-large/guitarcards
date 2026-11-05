@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 // Builds the printed companion to the Memory pack: guide/memory-essentials.html -> guide/memory-essentials.pdf
-// (headless Chrome, A4). Facts, tables and all 12 keys; no fretboard diagrams (those live in guitar-mastery.pdf).
-// Every note name is produced by the Memory pack engine (src/memory/engine.js) and the superimposition table
-// (src/superimpose.js), so spellings match the app card for card (E♯ in F♯ major, C♭ in D♭7, …).
+// (headless Chrome, A4). Only what is worth memorising: the circle of fifths, every modal-interchange chord in a
+// major and a minor key with its source modes, the interval structure of every scale and of the chords of melodic
+// and harmonic minor, superimposition (what and why), and a daily recall checklist. No 12-key grids.
+// Everything musical is computed: borrowed chords from the engine's modes (src/memory/engine.js), scale formulas
+// from src/theory.js SCALES (cross-checked against the engine), superimpositions from src/superimpose.js and the
+// stock moves from content/core.js.
 //
 //   node tools/build-memory-pdf.mjs          build HTML + PDF (repeated passes so the contents page gets page numbers)
 //   node tools/build-memory-pdf.mjs --html   build the HTML only
@@ -15,8 +18,10 @@ globalThis.window ??= globalThis;
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const imp = (p) => import(pathToFileURL(path.join(ROOT, p)).href);
 const E = await imp('src/memory/engine.js');
-const { UNITS, MODULES } = await imp('src/memory/cards.js');
+const T = await imp('src/theory.js');
+const { UNITS } = await imp('src/memory/cards.js');
 const SI = await imp('src/superimpose.js');
+const { MI_MOVES } = await imp('content/core.js');
 
 const OUT_DIR = path.join(ROOT, 'guide');
 const HTML = path.join(OUT_DIR, 'memory-essentials.html');
@@ -27,99 +32,258 @@ const ACC = '#0f766e';
 // ---------------------------------------------------------------------------------------------
 // helpers
 // ---------------------------------------------------------------------------------------------
-const { N, nm, up, down } = E;
+const { N, nm, up } = E;
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const inl = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>');
 const assert = (c, msg) => { if (!c) throw new Error('Memory PDF check failed: ' + msg); };
-const pf = (f) => f.split(' ').map(E.prettyDeg).join(' ');
+const pd = E.prettyDeg;
+const pf = (toks) => toks.map(pd).join(' ');
 const list = (ns, sep = ' ') => ns.map(nm).join(sep);
-const isDbl = (n) => Math.abs(n.acc) > 1;
-// simplest spelling of a pitch class, for enharmonic hints next to double-accidental roots
-const COMMON = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
-const SPELLINGS = [['C'], ['C#', 'Db'], ['D'], ['Eb', 'D#'], ['E'], ['F'], ['F#', 'Gb'], ['G'], ['Ab', 'G#'], ['A'], ['Bb', 'A#'], ['B']];
-const simple = (n) => N(COMMON[E.pc(n)]);
-const CIRCLE_PCS = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
-// rows that show both spellings of the ambiguous black keys
-const ROOTS14 = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'].map(N);
-// chord label: the engine spelling, with the plain enharmonic beside it when the root has a double accidental
-const chord = (root, q) => isDbl(root) ? `${E.csym(root, q)}<span class="enh"> = ${E.csym(simple(root), q)}</span>` : E.csym(root, q);
 const sigLabel = (k) => { const s = E.SIG[k]; return s === 0 ? '—' : s > 0 ? `${s}♯` : `${-s}♭`; };
-const sigOf = (notes) => { const c = E.accCount(notes); return c === 0 ? '—' : `${c}${notes.some((x) => x.acc > 0) ? '♯' : '♭'}`; };
 
-const table = (head, rows, cls = '') => `<table class="${cls}"><thead><tr>${head.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c ?? ''}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-const h3 = (s) => `<h3>${s}</h3>`;
+const table = (head, rows, cls = '', rowCls = []) => `<table class="${cls}"><thead><tr>${head.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr${rowCls[i] ? ` class="${rowCls[i]}"` : ''}>${r.map((c) => `<td>${c ?? ''}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+const h3 = (s, id = '', cls = '') => `<h3${id ? ` id="${id}"` : ''}${cls ? ` class="${cls}"` : ''}>${s}</h3>`;
 const h4 = (s) => `<h4>${s}</h4>`;
 const p = (s, cls = '') => `<p class="${cls}">${inl(s)}</p>`;
 const ul = (items, cls = '') => `<ul class="${cls}">${items.map((i) => `<li>${inl(i)}</li>`).join('')}</ul>`;
+const ol = (items, cls = '') => `<ol class="${cls}">${items.map((i) => `<li>${inl(i)}</li>`).join('')}</ol>`;
 const two = (a, b) => `<div class="two"><div>${a}</div><div>${b}</div></div>`;
 const keep = (s) => `<div class="keep">${s}</div>`;
 const callout = (s) => `<div class="callout">${s}</div>`;
-const hl = (s) => `<span class="hl">${s}</span>`;
+const small = (s) => `<small>${s}</small>`;
 
-// the unit explainers from cards.js, as prose (tables are dropped: this PDF replaces them with 12-key versions)
+// the unit explainers from cards.js, as prose (markdown tables dropped)
 const UNIT = Object.fromEntries(UNITS.map((u) => [u.id, u]));
-function mdProse(src, { skip = [], seen = null } = {}) {
+function mdProse(src) {
   const out = [];
-  const push = (h) => { if (seen) { if (seen.has(h)) return; seen.add(h); } out.push(h); };
-  let para = [], li = null, ol = null;
+  let para = [], li = null, oli = null;
   const flush = () => {
-    if (para.length) push(`<p>${inl(para.join(' '))}</p>`);
-    if (li) push(`<ul>${li.map((x) => `<li>${inl(x)}</li>`).join('')}</ul>`);
-    if (ol) push(`<ol>${ol.map((x) => `<li>${inl(x)}</li>`).join('')}</ol>`);
-    para = []; li = null; ol = null;
+    if (para.length) out.push(`<p>${inl(para.join(' '))}</p>`);
+    if (li) out.push(`<ul>${li.map((x) => `<li>${inl(x)}</li>`).join('')}</ul>`);
+    if (oli) out.push(`<ol>${oli.map((x) => `<li>${inl(x)}</li>`).join('')}</ol>`);
+    para = []; li = null; oli = null;
   };
   for (const raw of src.split('\n')) {
     const line = raw.trim();
-    if (!line) { flush(); continue; }
-    if (line.startsWith('|')) { flush(); continue; }
-    if (skip.some((s) => line.startsWith(s))) { flush(); continue; }
+    if (!line || line.startsWith('|')) { flush(); continue; }
     let m;
-    if ((m = /^#{1,4} (.*)$/.exec(line))) { flush(); push(`<h4>${inl(m[1])}</h4>`); continue; }
-    if ((m = /^- (.*)$/.exec(line))) { if (para.length || ol) flush(); (li ??= []).push(m[1]); continue; }
-    if ((m = /^\d+\. (.*)$/.exec(line))) { if (para.length || li) flush(); (ol ??= []).push(m[1]); continue; }
-    if (li || ol) flush();
+    if ((m = /^#{1,4} (.*)$/.exec(line))) { flush(); out.push(`<h4>${inl(m[1])}</h4>`); continue; }
+    if ((m = /^- (.*)$/.exec(line))) { if (para.length || oli) flush(); (li ??= []).push(m[1]); continue; }
+    if ((m = /^\d+\. (.*)$/.exec(line))) { if (para.length || li) flush(); (oli ??= []).push(m[1]); continue; }
+    if (li || oli) flush();
     para.push(line);
   }
   flush();
   return `<div class="prose">${out.join('')}</div>`;
 }
-const explain = (id, opts) => mdProse(UNIT[id].md, opts);
-const ruleBox = (id) => `<div class="rule"><span class="rid">${id} rule</span> ${inl(UNIT[id].rule)}</div>`;
+const ruleBox = (id) => `<div class="rule"><span class="rid">Rule</span> ${inl(UNIT[id].rule)}</div>`;
 
-// sections
+// sections (subs: extra contents-page entries pointing at h3 ids inside the section)
 const SECTIONS = [];
-function section(part, id, num, title, body, { lead = '', flow = false } = {}) {
-  SECTIONS.push({ part, id, num, title, html: `<section class="sec${flow ? ' flow' : ''}" id="${id}"><div class="partband">${esc(part)}</div><h2>${num ? `<span class="num">${num}</span>` : ''}${title}</h2>${lead ? `<p class="lead">${inl(lead)}</p>` : ''}${body}</section>` });
+function section(part, id, num, title, body, { lead = '', subs = [] } = {}) {
+  SECTIONS.push({ part, id, num, title, subs, html: `<section class="sec" id="${id}"><div class="partband">${esc(part)}</div><h2>${num ? `<span class="num">${num}</span>` : ''}${title}</h2>${lead ? `<p class="lead">${inl(lead)}</p>` : ''}${body}</section>` });
 }
-const PART = Object.fromEntries(MODULES.map((m) => [m.id, `${m.id} · ${m.name}`]));
 
 // ---------------------------------------------------------------------------------------------
-// FRONT — the rules that generate everything
+// chord analysis: interval tokens, qualities, roman numerals
 // ---------------------------------------------------------------------------------------------
+const MAJ_SEMI = [0, 2, 4, 5, 7, 9, 11];
+// interval token from root up to x, by letter distance first (so a 3rd is always a 3rd: b3, 3, #5, bb7 …)
+function tokOf(root, x) {
+  const ld = (((x.letter - root.letter) % 7) + 7) % 7;
+  let diff = (((E.pc(x) - E.pc(root) - MAJ_SEMI[ld]) % 12) + 12) % 12; if (diff > 6) diff -= 12;
+  return ({ '-2': 'bb', '-1': 'b', 0: '', 1: '#', 2: '##' })[diff] + (ld + 1);
+}
+const Q7 = [['maj7', '1 3 5 7'], ['m7', '1 b3 5 b7'], ['7', '1 3 5 b7'], ['m7b5', '1 b3 b5 b7'], ['dim7', '1 b3 b5 bb7'], ['mMaj7', '1 b3 5 7'], ['maj7#5', '1 3 #5 7'], ['7#5', '1 3 #5 b7']];
+const Q3 = [['maj', '1 3 5'], ['min', '1 b3 5'], ['dim', '1 b3 b5'], ['aug', '1 3 #5']];
+const qOf = (toks, tbl) => (tbl.find(([, f]) => f === toks.join(' ')) || [null])[0];
+const SYM7 = { maj7: 'maj7', m7: 'm7', 7: '7', m7b5: 'm7♭5', dim7: '°7', mMaj7: 'm(maj7)', 'maj7#5': 'maj7♯5', '7#5': '7♯5' };
+const RSUF7 = { maj7: 'maj7', m7: 'm7', 7: '7', m7b5: 'ø7', dim7: '°7', mMaj7: '(maj7)', 'maj7#5': 'maj7♯5', '7#5': '7♯5' };
+const SYM3 = { maj: '', min: 'm', dim: '°', aug: '+' };
+const RSUF3 = { maj: '', min: '', dim: '°', aug: '+' };
+const QNAME7 = { maj7: 'major 7', m7: 'minor 7', 7: 'dominant 7', m7b5: 'half-diminished', dim7: 'diminished 7', mMaj7: 'minor-major 7', 'maj7#5': 'major 7 ♯5', '7#5': 'dominant 7 ♯5' };
+const MINORISH = (q) => ['m7', 'm7b5', 'dim7', 'mMaj7', 'min', 'dim'].includes(q);
+const ROM = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+// numerals relative to the major scale of the tonic (the app's convention): lower case = minor 3rd
+function roman(degTok, q, triad = false) {
+  const { d, acc } = E.parseDeg(degTok);
+  const R = MINORISH(q) ? ROM[d - 1].toLowerCase() : ROM[d - 1];
+  return (acc < 0 ? '♭'.repeat(-acc) : '♯'.repeat(acc)) + R + (triad ? RSUF3[q] : RSUF7[q]);
+}
+const sym7 = (root, q) => nm(root) + SYM7[q];
+const sym3 = (root, q) => nm(root) + SYM3[q];
+
+// the seven diatonic 7th chords of a mode on a tonic, with their triads
+function diatonic(tonic, modeId) {
+  const f = E.formula(modeId), notes = E.spell(tonic, modeId);
+  return notes.map((r, i) => {
+    const tones = [0, 2, 4, 6].map((k) => notes[(i + k) % 7]);
+    const toks = tones.map((x) => tokOf(r, x));
+    const q = qOf(toks, Q7), q3 = qOf(toks.slice(0, 3), Q3);
+    assert(q && q3, `unrecognised chord ${toks.join(' ')} on degree ${i + 1} of ${modeId}`);
+    return { i, deg: f[i], root: r, q, q3, toks, tones, rn: roman(f[i], q), rn3: roman(f[i], q3, true), sym: sym7(r, q), sym3: sym3(r, q3) };
+  });
+}
+
+// ---------------------------------------------------------------------------------------------
+// modal interchange: computed from the parallel modes
+// ---------------------------------------------------------------------------------------------
+const PAR = ['ionian', 'lydian', 'mixolydian', 'dorian', 'aeolian', 'phrygian', 'locrian', 'harmonic-minor', 'melodic-minor'];
+const MNAME = { ionian: 'Ionian (major)', lydian: 'Lydian', mixolydian: 'Mixolydian', dorian: 'Dorian', aeolian: 'Aeolian', phrygian: 'Phrygian', locrian: 'Locrian', 'harmonic-minor': 'harmonic minor', 'melodic-minor': 'melodic minor' };
+const MSHORT = { ...MNAME, ionian: 'Ionian', 'harmonic-minor': 'harm. minor', 'melodic-minor': 'mel. minor' };
+const pcsOf = (notes) => new Set(notes.map(E.pc));
+const contains = (tonic, modeId, notes) => { const s = pcsOf(E.spell(tonic, modeId)); return notes.every((x) => s.has(E.pc(x))); };
+const sourcesOf = (tonic, home, notes) => PAR.filter((m) => m !== home && contains(tonic, m, notes));
+
+function interchange(tonic, home) {
+  const H = diatonic(tonic, home);
+  const map = new Map();
+  const byMode = {};
+  for (const m of PAR.filter((x) => x !== home)) {
+    byMode[m] = [];
+    for (const c of diatonic(tonic, m)) {
+      const h = H[c.i];
+      if (h.q === c.q && E.same(h.root, c.root)) continue; // the home key's own chord
+      byMode[m].push(c);
+      if (!map.has(c.rn)) map.set(c.rn, { ...c, src: [], sameTriad: E.same(h.root, c.root) && h.q3 === c.q3, homeRn3: h.rn3 });
+      map.get(c.rn).src.push(m);
+    }
+  }
+  for (const b of map.values()) {
+    // cross-check: the grouped sources are exactly the parallel modes that contain every note of the chord
+    const byNotes = sourcesOf(tonic, home, b.tones);
+    assert(byNotes.join() === b.src.join(), `sources of ${b.rn}: ${b.src} vs ${byNotes}`);
+    b.src3 = sourcesOf(tonic, home, b.tones.slice(0, 3));
+  }
+  return { H, chords: map, byMode };
+}
+// a chord outside the 7th-chord sets (e.g. ivm6), with its sources computed from its notes
+function extra(tonic, home, degTok, toks, sym) {
+  const r = up(tonic, degTok), tones = toks.split(' ').map((t) => up(r, t));
+  return { r, name: nm(r) + sym, src: sourcesOf(tonic, home, tones) };
+}
+const srcList = (src) => src.map((m) => MSHORT[m]).join(', ');
+
+const C = N('C');
+const MAJ = interchange(C, 'ionian');
+const MIN = interchange(C, 'aeolian');
+
+// spot checks from the brief (fail the build if the engine ever disagrees)
 {
-  const body = MODULES.map((m) => `<div class="rmod"><div class="rmh"><span>${m.id}</span>${esc(m.name)}<small>${esc(m.blurb)}</small></div>${UNITS.filter((u) => u.module === m.id).map((u) => `<div class="rl"><b>${u.id}</b><div><span class="rn">${esc(u.name)}.</span> ${inl(u.rule)}</div></div>`).join('')}</div>`).join('');
-  section('Front', 'rules', '', 'Rules that generate everything', body + `<p class="note">Seventeen rules, one per unit of the Memory pack. Everything else in this booklet is one of these rules applied to all 12 keys: if a table cell is ever in doubt, rebuild it from the rule.</p>`,
-    { lead: 'Learn these lines first. Each one regenerates a whole table in the pages that follow.' });
+  const g = (I, rn) => { const c = I.chords.get(rn); assert(c, `missing ${rn}`); return c; };
+  assert(g(MAJ, '♭VImaj7').sym === 'A♭maj7' && ['aeolian', 'phrygian', 'harmonic-minor'].every((m) => g(MAJ, '♭VImaj7').src.includes(m)), '♭VImaj7 = A♭maj7 from Aeolian/Phrygian/harm. minor');
+  assert(g(MAJ, '♭VII7').sym === 'B♭7' && g(MAJ, '♭VII7').src.join() === 'aeolian', '♭VII7 = B♭7 from Aeolian only');
+  assert(g(MAJ, 'II7').sym === 'D7' && g(MAJ, 'II7').src.join() === 'lydian', 'II7 = D7 from Lydian');
+  assert(!g(MAJ, 'ivm7').src.includes('dorian'), 'Dorian has a major IV, so it does not lend ivm7');
+  assert(g(MIN, 'V7').src.includes('harmonic-minor') && g(MIN, 'IV7').src.includes('dorian'), 'minor V7 / IV7 sources');
 }
 
-// ---------------------------------------------------------------------------------------------
-// A · KEYS
-// ---------------------------------------------------------------------------------------------
-// A1 intervals
-{
-  const INV = { m2: 'M7', M2: 'm7', m3: 'M6', M3: 'm6', P4: 'P5', TT: 'TT', P5: 'P4', m6: 'M3', M6: 'm3', m7: 'M2', M7: 'm2' };
-  const core = table(['Interval', 'Name', 'Semitones', 'Degree', 'Inverts to', 'Inverted semitones'],
-    E.IV.map(([k, tok, s, long]) => [`<b>${E.ivLabel(k)}</b>`, `<span class="nw">${long}</span>`, s, E.prettyDeg(tok) + (k === 'TT' ? ' / ♭5' : k === 'm6' ? ' / ♯5' : k === 'm3' ? ' / ♯2' : ''), E.ivLabel(INV[k]), 12 - s]).concat([['<b>P8</b>', 'octave', 12, '8', 'P1', 0]]), 'center z');
-  const EXT = [['♭9', 'b9', '♭2', 1], ['9', '9', '2', 2], ['♯9', '#9', '♯2 (sounds as ♭3)', 3], ['11', '11', '4', 5], ['♯11', '#11', '♯4 (sounds as ♭5)', 6], ['♭13', 'b13', '♭6 (sounds as ♯5)', 8], ['13', '13', '6', 9]];
-  const ext = table(['Extension', 'Same note as', 'Semitones above root (mod 12)'], EXT.map(([a, , b, s]) => [`<b>${a}</b>`, b, s]), 'center z');
-  const body = ruleBox('A1') + explain('A1')
-    + two(h3('The eleven intervals') + core, h3('Extensions = 2nd, 4th, 6th an octave up') + ext + callout('<b>Hold these:</b> inversions add to <b>9</b> (M3 ↔ m6, P4 ↔ P5) and their semitones add to <b>12</b>; major ↔ minor, perfect stays perfect, the tritone stays a tritone. Extensions: <b>9 = 2, 11 = 4, 13 = 6</b>.'))
-;
-  section(PART.A, 'a1', 'A1', 'Intervals', body);
+// usage notes, in order of usefulness; core = know these cold. Every computed chord must have one and vice versa.
+const MAJ_USE = [
+  ['ivm7', 1, 'Minor plagal: IV–iv–I, the 6 of the key sighs down to ♭6, then to 5. The triad iv is the common form.'],
+  ['♭VImaj7', 1, 'Deceptive cadence V7 → ♭VImaj7 (bass 5 → ♭6); and ♭VI–♭VII–I, the triumphant “Mario” cadence.'],
+  ['♭VII7', 1, 'The backdoor dominant: ivm7–♭VII7–Imaj7, a softer arrival than V7–I (♭6 → 5 instead of 7 → 1).'],
+  ['♭IIImaj7', 1, 'I–♭III–IV rock and blues climb (the blues ♭3 as a chord); opens the Dameron turnaround.'],
+  ['iiø7', 1, 'Minor ii in a major key: iiø7–V7♭9–Imaj7, a darker, more urgent approach to I.'],
+  ['vm7', 1, 'Mixolydian v: I–v–IV–I (no leading tone, so nothing pulls); also the ii of IV (vm7–I7–IVmaj7).'],
+  ['♭IImaj7', 1, 'Neapolitan ♭II–V7–I, or ♭IImaj7 → Imaj7 directly (the same bass as a tritone sub).'],
+  ['II7', 1, 'Lydian II: I–II–IV–I as colour, not resolving to V (♯4 falls back to 4). Resolving to V it is V7/V.'],
+  ['♭VIImaj7', 1, 'I–♭VII–I and the double plagal I–♭VII–IV–I; the maj7 form is the Mixolydian/Dorian colour.'],
+  ['im7', 1, 'The parallel switch: Imaj7 → im7, a whole section moves to the minor side of the same tonic.'],
+  ['vii°7', 0, 'Leading-tone diminished into I (vii°7–I); also a common-tone passing chord.'],
+  ['I7', 0, 'Same chord as V7/IV: I7–IVmaj7; and the blues tonic.'],
+  ['IV7', 0, 'The blues IV7 (I7–IV7), and IV7–I as a bluesy plagal cadence.'],
+  ['♭VI7', 0, 'Tritone sub of II7 (V7/V): ♭VI7–V7; also ♭VI7–I as a backdoor variant.'],
+  ['♭viim7', 0, 'ii of ♭VI: ♭viim7–♭III7–♭VImaj7, a common modulating bridge move.'],
+  ['♭III7', 0, 'Tritone sub of VI7 (V7/ii): ♭III7–iim7; and V7 of ♭VI.'],
+  ['viø7', 0, 'Minor ii–V into V: viø7–II7–V7. Same notes as im6 with the 6 in the bass.'],
+  ['i(maj7)', 0, 'Minor line cliché on the parallel-minor tonic: im–i(maj7)–im7–im6.'],
+  ['♭iiim7', 0, 'Chromatic ii–Vs falling: iiim7–♭iiim7–iim7; ii of the ♭VI7.'],
+  ['vø7', 0, 'ii of a minor iv: vø7–I7♭9–ivm7.'],
+  ['♯ivø7', 0, 'Rising bass IV–♯ivø7–I/5 (4 → ♯4 → 5); ii of iii: ♯ivø7–VII7–iiim7.'],
+  ['iiiø7', 0, 'ii of a minor ii: iiiø7–VI7♭9–iim7.'],
+  ['iø7', 0, 'ii of ♭VII: iø7–IV7–♭VIImaj7. Rare as a tonic.'],
+  ['viim7', 0, 'Rare: Lydian colour; a brighter ii into vi (viim7–III7–vim7).'],
+  ['Vmaj7', 0, 'Rare: Lydian vamps (Imaj7–Vmaj7); no ♭7, so no dominant pull.'],
+  ['♭Vmaj7', 0, 'Rare: a distant, dark colour a tritone from the tonic (film, modern writing).'],
+  ['♭IIImaj7♯5', 0, 'Rare: really a rootless i(maj9); a colour voicing of the minor tonic.'],
+];
+const MIN_USE = [
+  ['V7', 1, 'The real dominant: V7–im, usually V7♭9; minor ii–V–i = iiø7–V7–im.'],
+  ['vii°7', 1, 'Leading-tone diminished: vii°7–im; it is V7♭9 without its root.'],
+  ['Imaj7', 1, 'Picardy third: end a minor piece on a major I (triad or maj7); the switch to the parallel major.'],
+  ['IV7', 1, 'Dorian vamp im7–IV7: the ♮6 (3rd of IV) brightens the minor. Funk, soul-jazz, modal tunes.'],
+  ['iim7', 1, 'Dorian / melodic-minor ii: iim7–V7–im, softer than iiø7; iim7–IV7 vamps.'],
+  ['♭IImaj7', 1, 'Neapolitan ♭II–V7–im, or ♭II–im directly (Phrygian, flamenco, metal).'],
+  ['i(maj7)', 1, 'The jazz minor tonic and the line cliché im–i(maj7)–im7–im6.'],
+  ['viø7', 1, 'Same notes as im6 with the ♮6 in the bass: line clichés and Dorian minor tunes.'],
+  ['I7', 1, 'V7/iv: I7–ivm7, the major-3rd turn into iv.'],
+  ['♭VI7', 1, 'Augmented-6th sound: ♭VI7–V7, the tritone sub of II7 (V7/V).'],
+  ['II7', 0, 'V7/V: II7–V7–im; from Lydian it is pure colour.'],
+  ['IVmaj7', 0, 'The major IV as a maj7: brighter, rarer than IV7.'],
+  ['♭VIImaj7', 0, '♭VII as a maj7 instead of the natural ♭VII7: softer, for modal minor vamps.'],
+  ['viiø7', 0, 'A rootless V9: passing chord into im.'],
+  ['♭III7', 0, 'V7 of ♭VI: ♭III7–♭VImaj7; tritone sub of VI7.'],
+  ['♭viim7', 0, 'ii of ♭VI: ♭viim7–♭III7–♭VImaj7.'],
+  ['vø7', 0, 'ii of iv: vø7–I7♭9–ivm7.'],
+  ['♯ivø7', 0, 'Rising bass iv–♯ivø7–V (4 → ♯4 → 5).'],
+  ['iiim7', 0, 'Parallel-major colour: appears when the music turns to the major side.'],
+  ['vim7', 0, 'Parallel-major vi; with the ♮6 in the bass it leans Dorian.'],
+  ['iiiø7', 0, 'ii of ii: iiiø7–VI7–iim7.'],
+  ['iø7', 0, 'The darkest tonic (Locrian); ii of ♭VII: iø7–IV7–♭VII.'],
+  ['♭iiim7', 0, 'ii of ♭II: ♭iiim7–♭VI7–♭IImaj7.'],
+  ['Vmaj7', 0, 'Rare: Lydian colour; no ♭7, so no dominant pull.'],
+  ['viim7', 0, 'Rare: Lydian colour.'],
+  ['♭Vmaj7', 0, 'Rare: tritone colour (film, metal).'],
+  ['♭IIImaj7♯5', 0, 'Rare: the harmonic/melodic-minor ♭III, really a rootless i(maj9).'],
+];
+for (const [I, U, tag] of [[MAJ, MAJ_USE, 'major'], [MIN, MIN_USE, 'minor']]) {
+  const a = [...I.chords.keys()].sort().join(), b = U.map((u) => u[0]).sort().join();
+  assert(a === b, `${tag}-key usage notes do not match the computed chords:\n computed ${a}\n notes    ${b}`);
 }
 
-// A2 circle of fifths and key signatures, A3 relative and parallel
-function circleSVG({ size = 330, title = false } = {}) {
+function checklist(I, U, keyLabel) {
+  const rowsFor = (items) => items.map(([rn, , use]) => {
+    const c = I.chords.get(rn);
+    const tri = c.sameTriad
+      ? `<span class="enh">same triad as the key (${c.homeRn3}); only the 7th is borrowed</span>`
+      : `<b>${c.rn3}</b> ${small(c.sym3)}${c.src3.join() !== c.src.join() ? `<br><span class="enh">triad also in ${srcList(c.src3.filter((m) => !c.src.includes(m)))}</span>` : ''}`;
+    return ['<span class="box">☐</span>', `<b class="rn">${c.rn}</b>`, c.sym, tri, srcList(c.src), use];
+  });
+  const head = ['', 'Chord', keyLabel, 'Triad form', 'From', 'When it’s used'];
+  const core = U.filter((u) => u[1]), rest = U.filter((u) => !u[1]);
+  return { core: table(head, rowsFor(core), 'ckt core'), rest: table(head, rowsFor(rest), 'ckt'), n: U.length, nCore: core.length };
+}
+// what each parallel mode lends, against the home scale
+function lendsTable(I, home, homeName, coreSet) {
+  const hf = E.formula(home);
+  const order = PAR.filter((m) => m !== home);
+  const rows = order.map((m) => {
+    const f = E.formula(m);
+    const diff = f.map((t, i) => (t === hf[i] ? null : (/^\d/.test(t) ? '♮' + t : pd(t)))).filter(Boolean);
+    const lends = I.byMode[m].map((c) => `<span class="nw">${coreSet.has(c.rn) ? `<b>${c.rn}</b>` : c.rn} <small>${c.sym}</small></span>`).join(', ');
+    return [`<b>${MNAME[m]}</b>`, `<span class="nw">${diff.join(' ')}</span>`, lends || '—'];
+  });
+  return table(['Parallel mode', `vs ${homeName}`, 'Chords it lends (bold = core)'], rows, 'z lends');
+}
+// stock moves from content/core.js
+const QSUF = { maj: '', min: '', m7: 'm7', m6: 'm6', maj7: 'maj7', 7: '7', '7b9': '7♭9', m7b5: 'ø7' };
+function chartRoman(chart) {
+  return chart.split('|').map((s) => s.trim()).filter(Boolean).map((bar) => bar.split(/\s+/).map((tok) => {
+    if (tok === '%') return '%';
+    const [h, q] = tok.split(':');
+    assert(q in QSUF, `chart quality ${q}`);
+    return T.prettyRoman(h) + QSUF[q];
+  }).join(' ')).join(' │ ');
+}
+const isMinorMove = (m) => /^\|\s*i:/.test(m.chart);
+const movesTable = (moves) => table(['Move', 'Chart', 'From', 'The voice that moves', 'Where you hear it'],
+  moves.map((m) => [`<b>${esc(m.name)}</b>`, `<span class="chart">${chartRoman(m.chart)}</span>`, esc(m.source), esc(m.voice), `<span class="where">${esc(m.where)}</span>`]), 'z moves');
+
+// ---------------------------------------------------------------------------------------------
+// 1 · CIRCLE OF FIFTHS (the existing page)
+// ---------------------------------------------------------------------------------------------
+function circleSVG({ size = 330 } = {}) {
   const c = size / 2, rO = size * 0.385, rI = size * 0.255, rS = size * 0.47;
   const maj = E.MAJOR_KEYS.map((k, i) => (i === 5 ? 'B / C♭' : i === 6 ? 'F♯ / G♭' : i === 7 ? 'D♭ / C♯' : nm(N(k))));
   const min = E.MINOR_KEYS.map((k, i) => (i === 5 ? 'G♯m / A♭m' : i === 6 ? 'D♯m / E♭m' : i === 7 ? 'B♭m / A♯m' : nm(N(k)) + 'm'));
@@ -136,7 +300,6 @@ function circleSVG({ size = 330, title = false } = {}) {
     s += `<text x="${xs}" y="${ys + 3}" text-anchor="middle" font-size="${size * 0.03}" fill="${ACC}">${sig[i]}</text>`;
   }
   s += `<text x="${c}" y="${c - 3}" text-anchor="middle" font-size="${size * 0.03}" fill="#666">clockwise: 5th up, +1♯</text><text x="${c}" y="${c + 9}" text-anchor="middle" font-size="${size * 0.03}" fill="#666">anticlockwise: 4th up, +1♭</text>`;
-  if (title) s += '';
   return s + '</svg>';
 }
 {
@@ -148,385 +311,233 @@ function circleSVG({ size = 330, title = false } = {}) {
     const added = s > 0 ? `${nm(last)} = 7th of ${nm(key)}` : s < 0 ? `${nm(last)} = 4th of ${nm(key)}` : '—';
     return [`<b>${nm(key)}</b>`, sigLabel(k), sig.length ? list(sig) : '—', added, nm(up(key, '6')) + 'm', how];
   });
-  const sigT = table(['Major key', 'Sig.', 'Accidentals, in order', 'Newest accidental', 'Rel. minor', 'Naming shortcut'], rows, 'z');
   const body = ruleBox('A2')
-    + `<div class="trigrid"><div>${circleSVG()}</div><div>${explain('A2')}</div></div>`
-    + h3('Key signatures: all 15 spellings') + sigT
+    + `<div class="trigrid"><div>${circleSVG()}</div><div>${mdProse(UNIT.A2.md)}</div></div>`
+    + h3('Key signatures: all 15 spellings') + table(['Major key', 'Sig.', 'Accidentals, in order', 'Newest accidental', 'Rel. minor', 'Naming shortcut'], rows, 'z sig')
     + two(callout('<b>Order of sharps:</b> F C G D A E B &nbsp;·&nbsp; <b>Order of flats:</b> B E A D G C F (the same backwards).'), callout('<b>Enharmonic pairs on the circle:</b> B = C♭ (5♯ / 7♭), F♯ = G♭ (6♯ / 6♭), C♯ = D♭ (7♯ / 5♭). Sharps + flats of the pair always add to 12.'));
-  section(PART.A, 'a2', 'A2', 'Circle of fifths and key signatures', body);
-
-  const relRows = E.MAJOR_KEYS.map((k) => {
-    const key = N(k), rel = up(key, '6');
-    let pm = key, sc = E.spell(key, 'aeolian');
-    if (E.accCount(sc) > 7) { pm = E.bestRoot(E.pc(key), (r) => E.spell(r, 'aeolian')); sc = E.spell(pm, 'aeolian'); }
-    return [`<b>${nm(key)}</b>`, sigLabel(k), `${nm(rel)}m`, `${nm(pm)}m${E.same(pm, key) ? '' : ' <span class="enh">(enh.)</span>'}`, sigOf(sc), nm(up(pm, 'b3')), nm(up(key, '5')), nm(up(key, '4'))];
-  });
-  const body3 = ruleBox('A3') + explain('A3')
-    + table(['Major key', 'Sig.', 'Relative minor (6th)', 'Parallel minor (same tonic)', 'Parallel minor sig.', 'Its relative major (♭III)', 'Clockwise neighbour (5th up)', 'Anticlockwise neighbour (4th up)'], relRows, 'center z')
-    + p('**Parallel minor = three more flats (or three fewer sharps)** than the major on the same tonic. Relative minor = down a minor 3rd; relative major = up a minor 3rd.', 'note')
-    + h3('From the minor side') + table(['Minor key', 'Sig.', 'Relative major (♭3)', 'Parallel major (same tonic)', 'Parallel major sig.', 'Dominant (V7, harmonic minor)', 'Leading tone (raised 7th)'], E.MINOR_KEYS.map((k) => {
-      const key = N(k), rel = up(key, 'b3');
-      let pM = key, sc = E.spell(key, 'ionian');
-      if (E.accCount(sc) > 7) { pM = E.bestRoot(E.pc(key), (r) => E.spell(r, 'ionian')); sc = E.spell(pM, 'ionian'); }
-      return [`<b>${nm(key)}m</b>`, sigOf(E.spell(key, 'aeolian')), nm(rel), `${nm(pM)}${E.same(pM, key) ? '' : ' <span class="enh">(enh.)</span>'}`, sigOf(sc), E.csym(up(key, '5'), '7'), nm(up(key, '7'))];
-    }), 'center z');
-  section(PART.A, 'a3', 'A3', 'Relative and parallel keys', body3);
-}
-
-// A4 every note in every key
-{
-  const majRows = E.MAJOR_KEYS.map((k) => {
-    const key = N(k), sc = E.spell(key, 'ionian'), sig = E.sigNotes(k), newest = sig.at(-1);
-    return [`<b>${nm(key)}</b>`, sigLabel(k), ...sc.map((x) => (newest && E.same(x, newest) ? hl(nm(x)) : nm(x)))];
-  });
-  const DEG = (id) => E.MODE[id].f.split(' ').map((t) => E.prettyDeg(t));
-  const minTable = (id, mark) => table(['Tonic', 'Rel. major', ...DEG(id)], E.MINOR_KEYS.map((k) => {
-    const key = N(k), sc = E.spell(key, id), nat = E.spell(key, 'aeolian');
-    return [`<b>${nm(key)}</b>`, nm(up(key, 'b3')), ...sc.map((x, i) => (mark && !E.same(x, nat[i]) ? hl(nm(x)) : nm(x)))];
-  }), 'center z keys');
-  const body = ruleBox('A4') + explain('A4')
-    + two(keep(h3('Major keys (circle order)') + table(['Key', 'Sig.', ...DEG('ionian')], majRows, 'center z keys') + p('Highlighted: the accidental this key adds to its neighbour (a new sharp is the 7th; a new flat is the 4th).', 'note')),
-      keep(h3('Natural minor (relative major from its 6th)') + minTable('aeolian', false)))
-    + two(keep(h3('Harmonic minor (natural minor, 7th raised)') + minTable('harmonic-minor', true) + p('Highlighted: the raised 7th, the leading tone that gives minor its V7.', 'note')),
-      keep(h3('Melodic minor, jazz form (major with ♭3)') + minTable('melodic-minor', true) + p('Highlighted: the raised 6th and 7th compared with natural minor.', 'note')));
-  section(PART.A, 'a4', 'A4', 'Every note in every key', body);
-}
-
-// A5 degree triangle
-{
-  const head = (tri) => tri.map((t) => `${E.romanQ(t)}<small>${E.MODE[t.mode].name}</small>`);
-  const majT = table(['Key', ...head(E.MAJ_TRI)], E.MAJOR_KEYS.map((k) => [`<b>${nm(N(k))}</b>`, ...E.MAJ_TRI.map((t) => chord(up(N(k), t.d), t.q))]), 'center z tri');
-  const minT = table(['Key', ...head(E.MIN_TRI)], E.MINOR_KEYS.map((k) => [`<b>${nm(N(k))}m</b>`, ...E.MIN_TRI.map((t) => chord(up(N(k), t.d), t.q))]), 'center z tri');
-  // where a chord lives (reverse lookup)
-  const live = CIRCLE_PCS.map((pcN) => {
-    const mk = (degs) => E.bestRoot(pcN, (r) => degs.map((d) => down(r, d)));
-    const cell = (q, degs) => { const r = mk(degs); return `<b>${E.csym(r, q)}</b>: ${degs.map((d) => nm(down(r, d))).join(' · ')}`; };
-    return [cell('m7', ['2', '3', '6']), cell('maj7', ['1', '4']), cell('7', ['5']), cell('m7b5', ['7'])];
-  });
-  const liveT = table(['m7 is ii · iii · vi of…', 'maj7 is I · IV of…', '7 is V of…', 'm7♭5 is vii of…'], live, 'z');
-  const famTri = (fam) => {
-    const ms = E.MODES.filter((m) => m.fam === fam), toks = E.MODE[ms[0].id].f.split(' ');
-    const roman = (tok, q) => { const { d, acc } = E.parseDeg(tok); const R = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][d - 1]; return (acc < 0 ? '♭' : acc > 0 ? '♯' : '') + (['m7', 'm7b5', 'mMaj7', 'dim7'].includes(q) ? R.toLowerCase() : R); };
-    return table(['Key', ...ms.map((m, i) => `${roman(toks[i], m.chord)}${{ mMaj7: '(maj7)', m7: '7', m7b5: 'ø7', dim7: '°7' }[m.chord] ?? E.CHORD[m.chord].sym}<small>${m.name}</small>`)],
-      E.MINOR_KEYS.map((k) => { const sc = E.spell(N(k), ms[0].id); return [`<b>${nm(N(k))}m</b>`, ...ms.map((m, i) => chord(sc[i], m.chord))]; }), 'center z tri');
-  };
-  const body = ruleBox('A5') + explain('A5')
-    + keep(h3('Major keys: the seven 7th chords and their modes') + majT)
-    + keep(h3('Natural minor keys: i · iiø7 · ♭III · iv · v · ♭VI · ♭VII7') + minT)
-    + keep(h3('Harmonic minor keys: where the V7 and vii°7 come from') + famTri('harmonic'))
-    + keep(h3('Melodic minor keys: the jazz-minor chords') + famTri('melodic'))
-    + keep(h3('Where a chord lives: the major keys that contain it') + p('Go down from the chord root by its degree: ii → a step down, iii → a major 3rd down, IV → a 4th down, V → a 5th down, vi → a major 6th down, vii → a semitone up. A minor 7 lives in three keys, a maj7 in two, a dominant 7 and a m7♭5 in one.', 'note') + liveT);
-  section(PART.A, 'a5', 'A5', 'The degree triangle in all 24 keys', body);
+  section('Keys', 'circle', '1', 'Circle of fifths', body);
 }
 
 // ---------------------------------------------------------------------------------------------
-// B · SCALES AND MODES
+// 2 · MODAL INTERCHANGE IN A MAJOR KEY
 // ---------------------------------------------------------------------------------------------
-const FAMF = { harmonic: E.MODE['harmonic-minor'].f.split(' '), melodic: E.MODE['melodic-minor'].f.split(' ') };
-// one mode spelled on all 12 roots (simplest root spelling, circle order), characteristic note highlighted
-function modeGrid(id) {
-  const m = E.MODE[id], toks = m.f.split(' ');
-  let mark = [];
-  if (m.fam === 'major') mark = toks.map((t, i) => (E.prettyDeg(t) === m.change ? i : -1)).filter((i) => i >= 0);
-  else if (m.twin) { const tw = E.MODE[m.twin].f.split(' '); mark = toks.map((t, i) => (t !== tw[i] ? i : -1)).filter((i) => i >= 0); }
-  const parentHead = m.fam === 'major' ? 'Parent major' : m.fam === 'harmonic' ? 'Parent harm. min.' : 'Parent mel. min.';
-  const rows = [];
-  for (const pcN of CIRCLE_PCS) {
-    const root = E.bestRoot(pcN, (r) => E.spell(r, id));
-    assert(root, `no spelling for ${id} on pc ${pcN}`);
-    const notes = E.spell(root, id);
-    const par = m.fam === 'major' ? E.parentOf(root, id) : down(root, FAMF[m.fam][m.i - 1]);
-    rows.push([`<b>${nm(root)}</b>`, ...notes.map((x, i) => (mark.includes(i) ? hl(nm(x)) : nm(x))), E.csym(root, m.chord), nm(par)]);
-  }
-  const sub = m.fam === 'major' ? (m.change === '—' ? 'the major scale' : `major with ${m.change}`) + ` · parent ${E.PARENT[id][1]}` : `${E.MODE[m.twin].name}, ${m.how}`;
-  return keep(`<div class="gt"><b>${m.name}</b> <span>${sub}</span></div>` + table(['Root', ...toks.map((t, i) => (mark.includes(i) ? `<span class="hh">${E.prettyDeg(t)}</span>` : E.prettyDeg(t))), '7th chord', parentHead], rows, 'center z mg'));
+{
+  const ck = checklist(MAJ, MAJ_USE, 'In C');
+  const coreSet = new Set(MAJ_USE.filter((u) => u[1]).map((u) => u[0]));
+  const iv6 = extra(C, 'ionian', '4', '1 b3 5 6', 'm6');
+  const aeo = MAJ.byMode.aeolian.map((c) => c.rn).join(', ');
+  const body = callout(`<b>How the list is made.</b> Take every parallel mode on the same tonic (Lydian, Mixolydian, Dorian, Aeolian, Phrygian, Locrian, harmonic minor, melodic minor), build the 7th chord on each degree, and drop the ones the major key already has. What is left is every borrowed chord: <b>${ck.n} of them</b>. Each appears once, with every mode it can come from. Numerals are relative to the <b>major</b> scale of the tonic, so ♭VI is always a minor 6th above the tonic.`)
+    + h3('The core ' + ck.nCore + ' — know these cold', 'mi-major-core') + ck.core
+    + p(`**Variant to know:** the jazz form of iv is **ivm6** (${iv6.name} in C, from ${srcList(iv6.src)}); its notes double as a rootless ♭VII9, the backdoor dominant.`, 'note')
+    + h3('The rest — the complete set', 'mi-major-rest', 'pb') + ck.rest
+    + keep(h3('What each parallel mode lends', 'mi-major-modes') + p(`Each row: the notes that differ from major, and every chord that changes because of them. Read it as “from Aeolian I get ${aeo}”.`, 'note') + lendsTable(MAJ, 'ionian', 'major', coreSet))
+    + callout('<b>Finding a source fast:</b> a borrowed chord needs its altered notes. ♭VI contains ♭6 (and ♭3), so it comes from a mode with ♭6: Aeolian, Phrygian or harmonic minor. II7 contains ♯4, which only Lydian has. The darker the mode (brightness ladder), the flatter the chords it lends.')
+    + h3('In context: the stock moves', 'mi-moves') + p('The moves from the Modal-interchange core set, one line each. Learn the numerals, the source and the one voice that moves.', 'note') + movesTable(MI_MOVES.filter((m) => !isMinorMove(m)));
+  section('Modal interchange', 'mi-major', '2', 'Modal interchange in a major key', body,
+    { lead: 'The checklist first: tick a line when you can name the chord, its source mode and its job instantly in any key.', subs: [['mi-major-core', 'The core borrowed chords'], ['mi-major-rest', 'The complete set'], ['mi-major-modes', 'What each parallel mode lends'], ['mi-moves', 'In context: the stock moves']] });
 }
-const pairs = (items) => { let s = ''; for (let i = 0; i < items.length; i += 2) s += two(items[i], items[i + 1] || ''); return s; };
 
-// B1 brightness ladder
+// ---------------------------------------------------------------------------------------------
+// 3 · MODAL INTERCHANGE IN A MINOR KEY
+// ---------------------------------------------------------------------------------------------
 {
-  const ladder = table(['#', 'Mode', 'Formula', 'Changed note', '7th chord', 'Colour', 'Degree of major', 'Parent major'], E.BRIGHT.map((id, i) => {
-    const m = E.MODE[id];
-    return [i + 1, `<b>${m.name}</b>`, pf(m.f), m.change, E.CHORD[m.chord].sym, m.colour, E.MAJ_TRI[m.i - 1].r, E.PARENT[id][1]];
-  }), 'z');
-  const body = ruleBox('B1') + explain('B1') + keep(h3('The ladder, brightest to darkest') + ladder)
-    + h3('All seven major modes on all 12 roots') + p('Rows in circle order; each root spelled with the fewest accidentals. Highlighted column: the note that mode changes on the ladder. Last column: the major scale with the same notes.', 'note')
-    + pairs(E.BRIGHT.map(modeGrid))
-    + keep(h3('Contrast pairs: the note that separates them') + table(['Pair', 'Differs at', 'First', 'Second'], [
-      ...E.BRIGHT.slice(0, -1).map((id, i) => [id, E.BRIGHT[i + 1]]),
-      ['dorian', 'melodic-minor'], ['aeolian', 'harmonic-minor'], ['mixolydian', 'lydian-dominant'], ['phrygian', 'phrygian-dominant'], ['locrian', 'locrian-nat2'], ['mixolydian', 'mixolydian-b6'], ['phrygian', 'dorian-b2'], ['locrian', 'altered'],
-    ].map(([a, b]) => { const fa = E.MODE[a].f.split(' '), fb = E.MODE[b].f.split(' '); const d = fa.map((t, i) => (t !== fb[i] ? `${E.prettyDeg(t)} vs ${E.prettyDeg(fb[i])}` : null)).filter(Boolean); return [`<b>${E.MODE[a].name}</b> vs <b>${E.MODE[b].name}</b>`, d.join(', '), pf(E.MODE[a].f), pf(E.MODE[b].f)]; }), 'z'));
-  section(PART.B, 'b1', 'B1', 'Major modes: the brightness ladder', body);
+  const ck = checklist(MIN, MIN_USE, 'In C minor');
+  const coreSet = new Set(MIN_USE.filter((u) => u[1]).map((u) => u[0]));
+  const im6 = extra(C, 'aeolian', '1', '1 b3 5 6', 'm6');
+  const homeRow = MIN.H.map((c) => `${c.rn} ${small(c.sym)}`).join(' · ');
+  const body = callout(`<b>Home scale: natural minor (Aeolian).</b> Its own chords: ${homeRow}. Everything below is borrowed from the other parallel modes on the same tonic: the parallel major (Ionian), Dorian, Phrygian, Lydian, Mixolydian, Locrian, harmonic minor and melodic minor. <b>${ck.n} chords</b>, each listed once with all its sources.`)
+    + h3('The core ' + ck.nCore + ' — know these cold', 'mi-minor-core') + ck.core
+    + p(`**Variant to know:** the jazz minor tonic **im6** (${im6.name} in C minor, from ${srcList(im6.src)}).`, 'note')
+    + h3('The rest — the complete set', 'mi-minor-rest', 'pb') + ck.rest
+    + keep(h3('What each parallel mode lends', 'mi-minor-modes') + p('Against natural minor. Harmonic and melodic minor are the classical and jazz ways of getting a real V7 (♮7); Dorian and melodic minor give the major IV (♮6); the parallel major gives the Picardy I (♮3).', 'note') + lendsTable(MIN, 'aeolian', 'natural minor', coreSet))
+    + keep(h3('In context', 'mi-minor-moves') + movesTable(MI_MOVES.filter(isMinorMove)));
+  section('Modal interchange', 'mi-minor', '3', 'Modal interchange in a minor key', body,
+    { lead: 'Same method, with natural minor as home. Numerals are still relative to the major scale of the tonic: the natural-minor chords read im7 iiø7 ♭IIImaj7 ivm7 vm7 ♭VImaj7 ♭VII7.', subs: [['mi-minor-core', 'The core borrowed chords'], ['mi-minor-rest', 'The complete set'], ['mi-minor-modes', 'What each parallel mode lends'], ['mi-minor-moves', 'In context']] });
 }
-// B2 / B3 harmonic and melodic minor modes
-function famTable(fam) {
-  return table(['#', 'Mode', 'Twin + change', 'Formula', '7th chord', 'Colour', 'Use'], E.MODES.filter((m) => m.fam === fam).map((m) => [m.i, `<b>${m.name}</b>`, m.alias || `${E.MODE[m.twin].name}, ${m.how}`, pf(m.f), E.CHORD[m.chord].sym, m.colour, m.use]), 'z');
+
+// ---------------------------------------------------------------------------------------------
+// 4 · INTERVAL STRUCTURE OF EVERY SCALE
+// ---------------------------------------------------------------------------------------------
+const SC = (id) => T.getScale(id);
+const ivsOf = (id) => SC(id).ivs;
+// cross-check theory.js against the engine wherever both define the scale
+const ENGINE_ID = { 'altered-dim': 'ultralocrian' };
+for (const id of Object.keys(T.SCALES)) {
+  const eid = ENGINE_ID[id] || id;
+  if (E.MODE[eid] && E.MODE[eid].fam !== 'symmetric') assert(ivsOf(id).join(' ') === E.MODE[eid].f, `formula of ${id}: theory ${ivsOf(id).join(' ')} vs engine ${E.MODE[eid].f}`);
+}
+const chordOfScale = (id) => {
+  const iv = ivsOf(id);
+  const toks = [iv[0], iv[2], iv[4], iv[6]];
+  const q = qOf(toks, Q7), q3 = qOf(toks.slice(0, 3), Q3);
+  assert(q && q3, `7th chord of ${id}: ${toks}`);
+  return { toks, q, q3 };
+};
+const chordCell = (id) => {
+  const { toks, q } = chordOfScale(id);
+  const alt = id === 'altered' ? '<br><span class="enh">read as 7alt: ♭4 = 3</span>' : '';
+  return `<span class="nw">${pf(toks)}</span> = <b>${SYM7[q]}</b>${alt}`;
+};
+const stepsOf = (ivs) => ivs.map((t, i) => { const a = T.intervalSemis(t) % 12, b = i + 1 < ivs.length ? T.intervalSemis(ivs[i + 1]) % 12 : 12; return { 1: 'H', 2: 'W', 3: 'm3' }[b - a] ?? `${b - a}`; }).join(' ');
+const famIds = (fam) => Object.values(T.SCALES).filter((s) => s.family === fam && !s.alias && s.id !== 'major').sort((a, b) => a.modeIndex - b.modeIndex).map((s) => s.id);
+const modeName = (id) => (E.MODE[ENGINE_ID[id] || id]?.name) || SC(id).name;
+const labelsNote = (id) => (SC(id).labels && ['altered', 'phrygian-dominant'].includes(id) ? `<br><span class="enh">as a dominant: ${pf(SC(id).labels)}</span>` : '');
+const formulaCell = (id) => `<span class="nw f">${pf(ivsOf(id))}</span>${labelsNote(id)}`;
+
+const MAJ_MODE_INFO = {
+  ionian: ['♮4, ♮7', 'I chord: maj7, 6, 6/9 (the 4th is the avoid note)'],
+  dorian: ['♮6', 'ii chord; minor vamps (m7, m6, m9)'],
+  phrygian: ['♭2', 'iii chord; Spanish / metal minor'],
+  lydian: ['♯4', 'IV chord; the bright maj7♯11 tonic'],
+  mixolydian: ['♭7 with ♮3', 'V chord (unaltered 7, 9, 13, sus); blues'],
+  aeolian: ['♭6', 'vi chord; the natural minor key'],
+  locrian: ['♭5 (and ♭2)', 'viiø7; m7♭5 (Locrian ♮2 is usually preferred)'],
+};
+function familyTable(fam, extraCols) {
+  const ids = famIds(fam);
+  assert(ids.length === 7, `${fam} has 7 modes`);
+  return table(['#', 'Mode', 'Formula (against major)', '7th chord', ...extraCols.head], ids.map((id, i) => [i + 1, `<b>${modeName(id)}</b>`, formulaCell(id), chordCell(id), ...extraCols.row(id, i)]), 'z sc');
+}
+function chordsOfFamily(fam) {
+  const ids = famIds(fam), parent = ids[0], pf0 = ivsOf(parent);
+  const sp = E.spell(C, ENGINE_ID[parent] || parent);
+  return table(['Degree', 'Chord', 'Mode', '7th chord as intervals', 'Symbol', 'In C ' + modeName(parent).toLowerCase()],
+    ids.map((id, i) => { const { toks, q } = chordOfScale(id); return [`<b>${pd(pf0[i])}</b>`, `<b>${roman(pf0[i], q)}</b>`, modeName(id), `<span class="nw f">${pf(toks)}</span>`, `<b>${SYM7[q]}</b>${id === 'altered' ? ' <span class="enh">/ 7alt</span>' : ''} ${small(QNAME7[q])}`, sym7(sp[i], q)]; }), 'z chords');
 }
 {
-  const ids = E.MODES.filter((m) => m.fam === 'harmonic').map((m) => m.id);
-  const body = ruleBox('B2') + explain('B2') + keep(h3('The seven modes') + famTable('harmonic'))
-    + h3('Every harmonic-minor mode on all 12 roots') + p('Highlighted: the note(s) that differ from the twin major mode. Last column: the harmonic minor that contains it.', 'note') + pairs(ids.map(modeGrid));
-  section(PART.B, 'b2', 'B2', 'Harmonic minor modes', body);
-}
-{
-  const ids = E.MODES.filter((m) => m.fam === 'melodic').map((m) => m.id);
-  const body = ruleBox('B3') + explain('B3') + keep(h3('The seven modes') + famTable('melodic'))
-    + h3('Every melodic-minor mode on all 12 roots') + p('Highlighted: the note that differs from the twin major mode. Altered is spelled as a scale (♭4); over the chord read the ♭4 as the 3rd.', 'note') + pairs(ids.map(modeGrid));
-  section(PART.B, 'b3', 'B3', 'Melodic minor modes', body);
-}
-// B4 symmetric scales
-{
-  const sym = E.MODES.filter((m) => m.fam === 'symmetric');
-  const symT = table(['Scale', 'Steps', 'Formula', 'Over', 'Versions', 'Shortcut'], sym.map((m) => [`<b class="nw">${m.name}</b>`, `<span class="nw">${m.steps}</span>`, `<span class="nw">${pf(m.f)}</span>`, `<span class="nw">${m.over}</span>`, m.versions, m.shortcut]), 'z');
-  const groups = (id, n) => {
-    const rows = [];
-    for (let g = 0; g < n; g++) {
-      const pcs = Array.from({ length: 12 / n }, (_, j) => (g + j * n) % 12);
-      pcs.forEach((pcN, j) => {
-        const r = E.bestRoot(pcN, (x) => E.spell(x, id));
-        rows.push([j === 0 ? `<b>${g + 1}</b>` : '', `<b>${nm(r)}</b>`, list(E.spell(r, id)), E.csym(r, E.MODE[id].chord)]);
-      });
-    }
-    return rows;
-  };
-  const hw = table(['Set', 'Root', 'Notes', 'Fits'], groups('half-whole', 3), 'z sym');
-  const wh = table(['Set', 'Root', 'Notes', 'Fits'], groups('whole-half', 3), 'z sym');
-  const wt = table(['Set', 'Root', 'Notes', 'Fits'], groups('whole-tone', 2), 'z sym');
-  const body = ruleBox('B4') + explain('B4') + keep(symT)
-    + two(keep(h3('Half-whole diminished: 3 sets of 4 dominants') + hw), keep(h3('Whole-half diminished: 3 sets of 4 dim7 chords') + wh))
-    + keep(h3('Whole tone: 2 sets of 6') + wt)
-    + callout(`<b>Set membership is the memory fact.</b> ${[0, 1, 2].map((g) => `Half-whole set ${g + 1} = ${[0, 3, 6, 9].map((j) => nm(E.bestRoot((g + j) % 12, (x) => E.spell(x, 'half-whole')))).join(', ')} dominants`).join('; ')}. Whole-half on a note = half-whole a semitone lower. Whole-tone set 1 = ${list(E.spell(N('C'), 'whole-tone'))}; set 2 = ${list(E.spell(N('Db'), 'whole-tone'))}.`);
-  section(PART.B, 'b4', 'B4', 'Symmetric scales', body);
-}
-// B5 parent shortcuts on 12 roots
-{
-  const SHORT = [
-    { head: 'X7alt<small>altered = mel. minor ½ step up</small>', mode: 'altered', tok: 'b2', fam: 'mel. minor', q: '7alt' },
-    { head: 'X7♯11<small>Lydian dom. = mel. minor 5th up</small>', mode: 'lydian-dominant', tok: '5', fam: 'mel. minor', q: '7' },
-    { head: 'Xm7♭5<small>Locrian ♮2 = mel. minor m3 up</small>', mode: 'locrian-nat2', tok: 'b3', fam: 'mel. minor', q: 'm7b5' },
-    { head: 'X7♭9 (to minor)<small>Phryg. dom. = harm. minor 4th up</small>', mode: 'phrygian-dominant', tok: '4', fam: 'harm. minor', q: '7' },
-    { head: 'X7♭13<small>Mixolydian ♭6 = mel. minor 4th up</small>', mode: 'mixolydian-b6', tok: '4', fam: 'mel. minor', q: '7' },
-    { head: 'Xm7 (Dorian)<small>major a whole step down</small>', mode: 'dorian', tok: null, fam: 'major', q: 'm7' },
+  const BR = Object.fromEntries(E.BRIGHT.map((id, i) => [id, i + 1]));
+  for (const [id, [ch]] of Object.entries(MAJ_MODE_INFO)) for (const t of ch.match(/[♭♯♮]?\d/g)) assert(ivsOf(id).map(pd).includes(t.replace('♮', '')), `characteristic ${t} of ${id}`);
+  const major = familyTable('major', { head: ['Characteristic', 'Use', 'Brightness'], row: (id) => [MAJ_MODE_INFO[id][0], MAJ_MODE_INFO[id][1], `${BR[id]}`] });
+  const mel = familyTable('melodic-minor', { head: ['Characteristic', 'Use'], row: (id) => [E.MODE[id].colour, E.MODE[id].use] });
+  const harm = familyTable('harmonic-minor', { head: ['Characteristic', 'Use'], row: (id) => [E.MODE[ENGINE_ID[id] || id].colour, E.MODE[ENGINE_ID[id] || id].use] });
+
+  // symmetric scales
+  const SYMS = [
+    ['diminished-hw', 'half-whole', '7♭9, 13♭9 (♭9 ♯9 ♯11 ♮13, natural 5th)', 3, 'Repeats every minor 3rd: four dominants share one scale.'],
+    ['diminished-wh', 'whole-half', '°7 (and °(maj7))', 3, 'Same notes as half-whole a semitone lower.'],
+    ['whole-tone', 'whole-tone', '7♯5, 9♯5 (♮9 ♯11 ♭13, no 5th)', 2, 'Only two exist; no perfect 5th anywhere.'],
+    ['augmented', null, 'maj7♯5; mMaj7 colour', 4, 'Two augmented triads a minor 3rd apart (1 3 ♯5 + ♭3 5 7).'],
   ];
-  // sanity: the shortcut intervals agree with the mode's position in its family
-  for (const s of SHORT.filter((x) => x.tok)) { const m = E.MODE[s.mode]; const f = FAMF[m.fam]; const r = N('G'); assert(E.same(up(r, s.tok), down(r, f[m.i - 1])), `shortcut ${s.mode}`); }
-  const ex = SHORT.map((s) => {
-    const r = N(s.mode === 'altered' ? 'G' : s.mode === 'lydian-dominant' ? 'D' : s.mode === 'locrian-nat2' ? 'F#' : s.mode === 'phrygian-dominant' ? 'E' : s.mode === 'mixolydian-b6' ? 'E' : 'D');
-    const par = s.tok ? up(r, s.tok) : E.parentOf(r, s.mode);
-    return [`<b>${s.head.replace(/<small>.*$/, '')}</b>`, E.MODE[s.mode].name, s.head.replace(/^.*<small>(.*)<\/small>$/, '$1').replace(/^[^=]*= /, ''), `${E.csym(r, s.q)} → ${nm(par)} ${s.fam === 'major' ? 'major' : s.fam}: ${list(E.spell(par, s.fam === 'major' ? 'ionian' : s.fam === 'mel. minor' ? 'melodic-minor' : 'harmonic-minor'))}`, `${nm(r)} ${E.MODE[s.mode].name}: ${list(E.spell(r, s.mode))}`];
-  });
-  const body = p('The fastest way to spell a melodic- or harmonic-minor mode is to jump to its parent scale and read it from your root. These are the jumps worth knowing cold; the mode tables in B1–B3 show every root.', 'lead')
-    + table(['Chord', 'Mode', 'Parent jump', 'Example', 'Read from the root'], ex, 'z ps')
-    + two(callout('<b>The four to know cold:</b> X7alt → melodic minor a <b>semitone up</b>. X7♯11 → melodic minor a <b>5th up</b>. Xm7♭5 → melodic minor a <b>minor 3rd up</b>. X Phrygian dominant → harmonic minor a <b>4th up</b>.'),
-      (() => { const r = N('Ab'); return callout(`<b>One scale, four chords:</b> each melodic minor covers its own m6/mMaj7, the m7♭5 a major 6th up, the 7♯11 a 4th up and the 7alt a major 7th up. ${nm(r)} melodic minor = ${E.csym(r, 'mMaj7')} = ${E.csym(up(r, '6'), 'm7b5')} = ${E.csym(up(r, '4'), '7')}♯11 = ${E.csym(up(r, '7'), '7alt')}.`); })())
-    + h3('Major-mode parents (from B1)') + table(['Mode', 'Parent', 'Example'], E.BRIGHT.filter((id) => id !== 'ionian').map((id) => { const r = E.bestRoot(5, (x) => E.spell(x, id)); return [`<b>${E.MODE[id].name}</b>`, E.PARENT[id][1], `${nm(r)} ${E.MODE[id].name} = ${nm(E.parentOf(r, id))} major from ${nm(r)}`]; }), 'z');
-  section(PART.B, 'b5', 'B5', 'Parent shortcuts', body);
-}
-// B6 chord -> scale cheat sheet
-{
-  const R = [
-    ['maj7, maj9, 6, 6/9', 'I (tonic major)', 'Ionian', 'Major pentatonic; Lydian for a brighter tonic', 'The 4th (11) is the avoid note over maj7'],
-    ['maj7♯11, maj7 on IV', 'IV, ♭VI, ♭II, ♭III', 'Lydian', 'II triad / II major pentatonic on top', 'Parent: major a 4th down'],
-    ['maj7♯5', 'Augmented colour', 'Lydian augmented', 'Ionian ♯5 (harmonic minor mode 3)', 'Parent: melodic minor a minor 3rd down'],
-    ['m7, m9, m11', 'ii', 'Dorian', 'ii minor pentatonic (Dorian pentatonic)', '♮13 is the Dorian colour'],
-    ['m7', 'vi, or i in natural minor', 'Aeolian', 'Dorian for a brighter minor', '♭13 is the Aeolian colour'],
-    ['m7', 'iii', 'Phrygian', 'Aeolian if the melody has a ♮9', '♭9 is a colour note, not an avoid note in modal use'],
-    ['m6, m6/9, mMaj7', 'Tonic minor (jazz)', 'Melodic minor', 'Dorian', 'V triad on top gives m(maj9)'],
-    ['mMaj7 (dark)', 'Tonic minor (classical)', 'Harmonic minor', 'Melodic minor', 'The ♭6–7 augmented 2nd is the sound'],
-    ['m7♭5', 'iiø7 in minor', 'Locrian ♮2', 'Locrian; Locrian ♮6', 'Locrian ♮2 = mel. minor a m3 up'],
-    ['°7', 'vii°7, passing diminished', 'Whole-half diminished', 'Ultralocrian (inside a harmonic-minor key)', 'Any note of a dim7 can be the root'],
-    ['7, 9, 13', 'V (unaltered), blues', 'Mixolydian', 'v minor pentatonic for 9sus4', '11 is the avoid note unless sus'],
-    ['7sus4, 9sus4', 'Suspended V', 'Mixolydian', 'Dorian ♭2 for 7sus♭9', 'The 4th replaces the 3rd'],
-    ['7♯11, 9♯11, 13♯11', 'IV7, ♭VII7, subV7, II7', 'Lydian dominant', 'II triad on top', 'Mel. minor a 5th up'],
-    ['7♭9, 7♭9♭13', 'V into a minor chord', 'Phrygian dominant', 'Altered', 'Harm. minor a 4th up (the key you resolve to)'],
-    ['7♭13, 9♭13', 'Gentle V in minor', 'Mixolydian ♭6', 'Phrygian dominant', 'Mel. minor a 4th up'],
-    ['13♭9, 7♭9 (♮13)', 'V into major, bright tension', 'Half-whole diminished', 'VI triad on top', 'Has ♮5 and ♮13; repeats every minor 3rd'],
-    ['7alt, 7♯9♭13, 7♭9♯9', 'V into major or minor, max tension', 'Altered', '♭iii minor pentatonic; ♭VI or ♭V triads', 'Mel. minor a semitone up; no ♮5'],
-    ['7♯5, 9♯5', 'Augmented dominant', 'Whole tone', 'Altered', 'No perfect 5th; repeats every whole step'],
+  for (const [id, eid] of SYMS) if (eid) assert(E.MODE[eid] && pcsOf(E.formula(eid).map((t) => up(C, t))).size === ivsOf(id).length && ivsOf(id).every((t) => pcsOf(E.formula(eid).map((x) => up(C, x))).has(E.pc(up(C, t)))), `symmetric ${id} agrees with engine`);
+  const symT = table(['Scale', 'Formula', 'Steps', 'Fits', 'Versions', 'Remember'], SYMS.map(([id, , fits, n, tip]) => [`<b>${SC(id).name}</b>`, `<span class="nw f">${pf(ivsOf(id))}</span>`, `<span class="nw">${stepsOf(ivsOf(id))}</span>`, fits, n, tip]), 'z sc');
+
+  // other scales, described by their difference from a reference scale (computed)
+  const OTHER = [
+    ['major-pentatonic', 'ionian', 'Major chords, country, melody; over maj7 and dominant'],
+    ['minor-pentatonic', 'aeolian', 'Minor chords, blues and rock; superimposes widely'],
+    ['blues', 'minor-pentatonic', 'Blues and rock over minor or dominant chords'],
+    ['major-blues', 'major-pentatonic', 'Country, gospel and blues over a major or dominant I'],
+    ['bebop-dominant', 'mixolydian', 'Bebop lines over V7: chord tones fall on the beat'],
+    ['bebop-major', 'ionian', 'Bebop lines over maj7 / 6'],
+    ['bebop-dorian', 'dorian', 'Bebop lines over m7'],
+    ['harmonic-major', 'ionian', 'Major with the borrowed ♭6: the iv sound inside the I chord'],
   ];
-  const body = p('First choice = the scale that names the chord’s own colour without an avoid note. When a chord has more than one job, the job decides the scale.', 'lead')
-    + table(['Chord', 'Typical job', 'First choice', 'Also good', 'Remember'], R.map((r) => [`<b>${r[0]}</b>`, r[1], `<b>${r[2]}</b>`, r[3], r[4]]), 'z cs')
-    + callout('<b>Dominant decision tree:</b> resolving to major and want it inside → Mixolydian. Bright tension → half-whole (13♭9). Maximum tension → altered. Resolving to minor → Phrygian dominant (♭9 ♭13) or altered. Not resolving down a 5th (IV7, ♭VII7, subV) → Lydian dominant.');
-  section(PART.B, 'b6', 'B6', 'Chord → scale cheat sheet', body.replace('Parent: melodic minor a minor 3rd down', 'Parent: melodic minor a minor 3rd down'));
-}
-
-// ---------------------------------------------------------------------------------------------
-// C · FUNCTIONAL HARMONY
-// ---------------------------------------------------------------------------------------------
-const outOf = (root, q, scale) => E.CHORD[q].f.slice(0, 4).map((t) => up(root, t)).filter((x) => !scale.some((y) => E.same(x, y)));
-{
-  const head = E.SECONDARY.map((s) => `V7/${s.target}<small>(${s.short})</small>`);
-  const rows = E.MAJOR_KEYS.map((k) => {
-    const key = N(k), sc = E.spell(key, 'ionian');
-    return [`<b>${nm(key)}</b>`, ...E.SECONDARY.map((s) => {
-      const tgt = up(key, s.td), dom = up(tgt, '5');
-      const outs = outOf(dom, '7', sc);
-      const lead = up(dom, s.out);
-      assert(outs.some((x) => E.same(x, lead)), `secondary out-of-key ${k} ${s.target}`);
-      const extra = outs.filter((x) => !E.same(x, lead));
-      const ii = up(tgt, '2'), iiq = s.tq === 'm7' ? 'm7b5' : 'm7';
-      return `<b>${chord(dom, '7')}</b> <span class="oo">${nm(lead)}</span>${extra.length ? ` <span class="enh">+${list(extra)}</span>` : ''}<br><small>${E.csym(ii, iiq)}–${E.csym(dom, '7')}–${E.csym(tgt, s.tq)}</small>`;
-    })];
-  });
-  const minRows = E.MINOR_KEYS.map((k) => {
-    const key = N(k), sc = E.spell(key, 'aeolian');
-    return [`<b>${nm(key)}m</b>`, ...E.SECONDARY_MINOR.map((s) => { const tgt = up(key, s.td), dom = up(tgt, '5'); const o = outOf(dom, '7', sc); return `<b>${chord(dom, '7')}</b> <span class="oo">${o.map(nm).join(' ') || '—'}</span>`; }),
-      (() => { const v = up(key, '5'); const o = outOf(v, '7', sc); return `<b>${E.csym(v, '7')}</b> <span class="oo">${o.map(nm).join(' ')}</span>`; })()];
-  });
-  const body = ruleBox('C1') + explain('C1')
-    + keep(h3('Secondary dominants in all 12 major keys') + p('Each cell: the secondary dominant, its characteristic out-of-key note (accent: the leading tone of the target, or the ♭7 for V7/IV), any other out-of-key note (grey), and the ii–V into the target.', 'note') + table(['Key', ...head], rows, 'center z sd'))
-    + keep(h3('Minor keys') + table(['Key', ...E.SECONDARY_MINOR.map((s) => `V7/${s.target}`), 'V7 (harmonic minor)'], minRows, 'center z'));
-  section(PART.C, 'c1', 'C1', 'Secondary dominants', body);
-}
-{
-  const pairsT = table(['Dominant', 'Guide tones (3, ♭7)', 'Tritone sub', 'Guide tones (3, ♭7)', 'Both resolve to'], ['C', 'G', 'D', 'A', 'E', 'B'].map((r0) => {
-    const r = N(r0), s = E.tritoneSub(r), g = E.guideTones(r, '7'), h = E.guideTones(s, '7');
-    assert(E.pc(g[0]) === E.pc(h[1]) && E.pc(g[1]) === E.pc(h[0]), 'tritone guide tones swap');
-    return [`<b>${E.csym(r, '7')}</b>`, list(g, ', '), `<b>${E.csym(s, '7')}</b>`, list(h, ', '), `${nm(up(r, '4'))} <span class="enh">(down a 5th / down a semitone)</span>`];
-  }), 'center z');
-  // subV of each secondary dominant: the dominant a semitone above the target
-  const targets = [...E.SECONDARY.map((s) => [s.target, s.td]), ['I', '1']];
-  const rows = E.MAJOR_KEYS.map((k) => {
-    const key = N(k);
-    return [`<b>${nm(key)}</b>`, ...targets.map(([, td]) => {
-      const tgt = up(key, td), sub = up(tgt, 'b2'), v = up(tgt, '5');
-      assert(E.pc(sub) === E.pc(E.tritoneSub(v)), 'subV is a tritone from V');
-      return `<b>${chord(sub, '7')}</b><br><small>for ${E.csym(v, '7')}</small>`;
-    })];
-  });
-  const body = ruleBox('C2') + explain('C2')
-    + keep(h3('The six tritone pairs') + pairsT)
-    + keep(h3('subV7 of every target in all 12 major keys') + p('The tritone sub of V7/x is the dominant a semitone above x. Last column: subV7 of I (♭II7), the substitute for the main V7.', 'note')
-      + table(['Key', ...targets.map(([t]) => `subV7/${t}`)], rows, 'center z sd'));
-  section(PART.C, 'c2', 'C2', 'Tritone substitution', body);
-}
-{
-  const BM = E.BORROW_MAJOR;
-  const legend = table(['Borrowed chord', 'Source (parallel)', 'Typical move'], BM.map((b) => [`<b>${b.r}</b>${b.name ? ` <span class="enh">(${b.name})</span>` : ''}`, b.src, b.move]), 'z');
-  const rows = E.MAJOR_KEYS.map((k) => [`<b>${nm(N(k))}</b>`, ...BM.map((b) => chord(up(N(k), b.d), b.q))]);
-  const head = BM.map((b) => `${b.r}<small>${b.src.replace(' or ', '/')}</small>`);
-  const BMi = E.BORROW_MINOR;
-  const mRows = E.MINOR_KEYS.map((k) => [`<b>${nm(N(k))}m</b>`, ...BMi.map((b) => chord(up(N(k), b.d), b.q))]);
-  const body = ruleBox('C3') + explain('C3')
-    + two(keep(h3('In a major key') + legend), keep(h3('In a minor key') + table(['Borrowed chord', 'Source', 'Typical move'], BMi.map((b) => [`<b>${b.r}</b>`, b.src, b.move]), 'z')))
-    + keep(h3('Borrowed chords in all 12 major keys') + table(['Key', ...head], rows, 'center z bc'))
-    + keep(h3('Borrowed chords in all 12 minor keys') + table(['Key', ...BMi.map((b) => `${b.r}<small>${b.src}</small>`)], mRows, 'center z'));
-  section(PART.C, 'c3', 'C3', 'Modal interchange (borrowed chords)', body);
-}
-
-// ---------------------------------------------------------------------------------------------
-// D · GUIDE TONES
-// ---------------------------------------------------------------------------------------------
-{
-  const QS = ['maj7', '7', 'm7', 'm7b5', 'mMaj7', 'dim7'];
-  const qInfo = table(['Quality', '3rd', '7th', 'Between them', 'Formula'], QS.map((q) => {
-    const g = E.guideTones(N('C'), q), iv = E.intervalName(g[0], g[1]);
-    return [`<b>${E.CHORD[q].sym}</b> <span class="enh">${E.CHORD[q].name}</span>`, E.prettyDeg(E.third(q)), E.prettyDeg(E.seventh(q)), { P5: 'perfect 5th', TT: 'tritone', A5: 'augmented 5th', d5: 'tritone' }[iv] || iv, pf(E.CHORD[q].f.join(' '))];
-  }), 'z');
-  const grid = table(['Root', ...QS.map((q) => E.CHORD[q].sym)], ROOTS14.map((r) => [`<b>${nm(r)}</b>`, ...QS.map((q) => E.CHORD[q].f.map((t) => { const x = nm(up(r, t)); return t === E.third(q) || t === E.seventh(q) ? `<b class="gtn">${x}</b>` : `<span class="ct">${x}</span>`; }).join(' '))]), 'center z gtg');
-  const body = ruleBox('D1') + explain('D1')
-    + keep(qInfo)
-    + keep(h3('Every 7th chord spelled on every root, guide tones in bold') + p('Read across for one root, down for one quality. Both spellings are given for C♯/D♭ and F♯/G♭.', 'note') + grid)
-    + keep(h3('Guide tones (3rd, 7th) of the seven diatonic chords in all 12 major keys') + table(['Key', ...E.MAJ_TRI.map((t) => E.romanQ(t))], E.MAJOR_KEYS.map((k) => [`<b>${nm(N(k))}</b>`, ...E.MAJ_TRI.map((t) => list(E.guideTones(up(N(k), t.d), t.q)))]), 'center z'));
-  section(PART.D, 'd1', 'D1', 'Guide tones of every 7th chord', body);
-}
-{
-  const progTable = (prog, half = false) => {
-    const keys = prog.minor ? E.MINOR_KEYS : E.MAJOR_KEYS;
-    const rows = keys.map((k) => {
-      const g = E.guideLines(N(k), prog);
-      g.chords.forEach((c, i) => { const gt = E.guideTones(c.root, c.q); assert([g.A[i], g.B[i]].every((x) => gt.some((y) => E.same(x, y))), `${prog.id} ${k}`); });
-      return [`<b>${nm(N(k))}${prog.minor ? 'm' : ''}</b>`, g.chords.map((c) => chord(c.root, c.q)).join(' – '), list(g.A, ' → '), list(g.B, ' → ')];
-    });
-    return keep(h3(prog.name) + table(['Key', 'Chords', 'Line A', 'Line B'], rows, `z gl${half ? ' half' : ''}`));
+  const describe = (id, base) => {
+    const a = ivsOf(id), b = ivsOf(base);
+    const add = a.filter((t) => !b.includes(t)), drop = b.filter((t) => !a.includes(t));
+    const nb = modeName(base).replace(' (major)', '');
+    const swapped = add.length === 1 && drop.length === 1 && E.parseDeg(add[0]).d === E.parseDeg(drop[0]).d;
+    if (swapped) return `${nb} with ${pd(add[0])}`;
+    return [nb, drop.length ? `without ${drop.map(pd).join(', ')}` : '', add.length ? `+ ${add.map(pd).join(', ')}` : ''].filter(Boolean).join(' ');
   };
-  const body = ruleBox('D2') + explain('D2') + ruleBox('D3') + explain('D3', { skip: ['Shown in C'] })
-    + p('Line A starts on the 7th of the first chord (on the 3rd for the cycle and the blues); at every change each line moves to the nearest guide tone of the next chord. Minor ii–V–i is shown in the 12 minor keys.', 'note')
-    + (() => { const P = Object.fromEntries(E.PROGS.map((x) => [x.id, x])); assert(E.PROGS.length === 6, 'six progressions'); return two(progTable(P['ii-V-I'], true), progTable(P['minor-ii-V-i'], true)) + two(progTable(P['ii-subV-I'], true), progTable(P.blues, true)) + progTable(P.cycle) + progTable(P.turnaround); })();
-  section(PART.D, 'd2', 'D2', 'The ii–V–I rule and the canonical lines in all 12 keys', body);
+  const otherT = table(['Scale', 'Formula', 'Steps', 'Think of it as', 'Use'], OTHER.map(([id, base, use]) => [`<b>${SC(id).name}</b>`, `<span class="nw f">${pf(ivsOf(id))}</span>`, `<span class="nw">${stepsOf(ivsOf(id))}</span>`, describe(id, base), use]), 'z sc');
+
+  const body = p('Every formula is written against the major scale of the same root: 1 2 3 4 5 6 7 is major, ♭3 means a minor 3rd above the root, and so on. The 7th chord of each mode is its 1st, 3rd, 5th and 7th notes, so it is read straight off the formula.', 'lead')
+    + keep(h3('Major modes', 'sc-major') + major + p(`**Brightness ladder:** ${E.BRIGHT.map((id) => `${E.MODE[id].name}${E.MODE[id].change !== '—' ? ' ' + E.MODE[id].change : ''}`).join(' → ')}. Each step darkens one more note.`, 'note'))
+    + keep(h3('Melodic minor modes', 'sc-mel') + mel + p('Melodic minor = major with ♭3. Each mode is a major mode with one note changed: Lydian dominant = Mixolydian ♯4, Altered = Locrian ♭4, Locrian ♮2 = Locrian with ♮2.', 'note'))
+    + keep(h3('The chords of melodic minor', 'sc-mel-chords') + chordsOfFamily('melodic-minor') + p('Two pairs repeat: IV7 and V7 are both 1 3 5 ♭7 (Lydian dominant and Mixolydian ♭6), and viø7 and viiø7 are both 1 ♭3 ♭5 ♭7 (Locrian ♮2 and Altered, which is played as 7alt).', 'note'))
+    + keep(h3('Harmonic minor modes', 'sc-harm') + harm + p('Harmonic minor = natural minor with ♮7. The ♭6–7 augmented 2nd is its sound; mode 5 (Phrygian dominant) is why it exists: it gives a minor key its V7.', 'note'))
+    + keep(h3('The chords of harmonic minor', 'sc-harm-chords') + chordsOfFamily('harmonic-minor'))
+    + keep(h3('Symmetric scales', 'sc-sym') + symT + p('Steps: H = half step, W = whole step, m3 = minor 3rd (three half steps).', 'note'))
+    + keep(h3('Other scales worth knowing', 'sc-other') + otherT);
+  section('Scales', 'scales', '4', 'Interval structure of every scale', body,
+    { subs: [['sc-major', 'Major modes'], ['sc-mel', 'Melodic minor modes'], ['sc-mel-chords', 'The chords of melodic minor'], ['sc-harm', 'Harmonic minor modes'], ['sc-harm-chords', 'The chords of harmonic minor'], ['sc-sym', 'Symmetric scales'], ['sc-other', 'Other scales worth knowing']] });
 }
 
 // ---------------------------------------------------------------------------------------------
-// E · SUPERIMPOSITION
+// 5 · SUPERIMPOSITION — WHAT AND WHY
 // ---------------------------------------------------------------------------------------------
-// pick the enharmonic chord-root spelling that gives the cleanest structure
-const WIDE = [['C', 'B#'], ['C#', 'Db'], ['D'], ['Eb', 'D#'], ['E', 'Fb'], ['F', 'E#'], ['F#', 'Gb'], ['G'], ['Ab', 'G#'], ['A'], ['Bb', 'A#'], ['B', 'Cb']];
-function cleanStructure(pcN, key, item) {
-  let best = null, bs = 1e9;
-  for (const r of WIDE[pcN]) {
-    const s = SI.structure(N(r), key, item);
-    if (s.names.some((x) => /undefined/.test(x)) || s.notes.some((x) => Math.abs(x.acc) > 2)) continue;
-    const sc = E.accCount(s.notes) + 3 * s.notes.filter(isDbl).length + 0.5 * Math.abs(s.sroot.acc);
-    if (sc < bs) { bs = sc; best = s; }
-  }
-  assert(best, `structure ${key} ${pcN}`);
-  return best;
-}
-const shortName = (s, item) => s.rootName + (item.shape === 'min' ? 'm' : item.shape === 'pent' ? ' pent.' : item.shape === 'mpent' ? 'm pent.' : '');
 {
-  const SYM = { maj: 'maj7', dom: '7', min: 'm7', half: 'm7♭5', mmaj: 'm(maj7)', dim: '°7' };
+  const SYM = { maj: 'maj7', dom: '7', min: 'm7', half: 'm7b5', mmaj: 'mMaj7', dim: 'dim7' };
+  const chordC = (k) => T.pretty(T.chordSymbol('C', SYM[k]));
+  const pick = (k, deg, shape) => { const it = SI.menu(k).items.find((x) => x.deg === deg && x.shape === shape); assert(it, `menu item ${k} ${deg} ${shape}`); return it; };
+  // the why principles, straight from the Memory pack explainer
+  const whyMd = /### Why superimpositions work\n([\s\S]*?)\n\n/.exec(UNIT.E1.md);
+  assert(whyMd, 'why block in E1');
+  const why = whyMd[1].split('\n').map((l) => l.replace(/^\d+\.\s*/, '')).filter(Boolean);
+  assert(why.length >= 4, 'why principles');
+  const exItem = pick('dom', 'II', 'maj');
+  const ex = SI.explain('C', 'dom', exItem);
+  const method = [
+    '**Know the chord’s scale.** The job decides it: a C7 that goes nowhere (IV7, ♭VII7, subV) is Lydian dominant; a C7 resolving to F is Mixolydian, half-whole or altered depending on how much tension you want.',
+    '**Pick a triad or pentatonic inside that scale that holds the colour notes you want** — and ideally leaves out the avoid note (the 11 over a major or dominant chord).',
+    '**Name it by the chord degree it sits on** (II, ♭VI, ♭iii…), not by its letter. “II triad over a dominant” works on every dominant in every key.',
+    '**Read every note as a tension over the chord root** (D over C7 = 9, ♯11, 13), and end the phrase on a guide tone (3rd or 7th) or let it resolve by half step into the next chord.',
+  ];
   const menus = SI.MENU_KEYS.map((k) => {
     const mnu = SI.menu(k);
-    return keep(h3(`Over a ${mnu.label} (X${SYM[k]})`) + table(['Play', 'Adds', 'Sounds like', 'Scale', 'Why'], mnu.items.map((it) => [`<b>${it.deg} ${SI.shapeName(it.shape)}</b>`, SI.tensionsOf(k, it).join(' '), it.result, it.scale, `<span class="why">${esc(it.why)}</span>`]), 'z si'));
+    const rows = mnu.items.map((it) => {
+      const st = SI.structure('C', k, it);
+      const sw = SI.shortWhy('C', k, it).replace(/^Why it works: /, '');
+      return [`<b>${it.deg} ${SI.shapeName(it.shape)}</b><br>${small(`${st.name.replace(' triad', '')}: ${st.names.join(' ')} over ${chordC(k)}`)}`,
+        `<span class="nw">${SI.tensionsOf(k, it).join(' ')}</span><br>→ <b>${esc(it.result)}</b>`, esc(it.scale),
+        `${esc(it.why)}${sw ? `<br><span class="why">${esc(sw[0].toUpperCase() + sw.slice(1))}</span>` : ''}`];
+    });
+    return (h3(`Over a ${mnu.label} (X${T.pretty(T.getChord(SYM[k]).sym)})`) + table(['Play', 'Adds → sounds like', 'Scale', 'Why'], rows, 'z si'));
   });
-  const body = ruleBox('E1') + ruleBox('E2') + (() => { const seen = new Set(); return `<div class="cols">${mdProse(UNIT.E1.md, { skip: ['On the guitar'], seen }) + mdProse(UNIT.E2.md, { skip: ['On the guitar'], seen })}</div>`; })() + menus.join('');
-  section(PART.E, 'e1', 'E1', 'The superimposition menus', body);
-}
-{
-  const pick = (k, deg, shape) => { const it = SI.menu(k).items.find((x) => x.deg === deg && x.shape === shape); assert(it, `menu item ${k} ${deg} ${shape}`); return it; };
-  const grid = (k, sym, items) => table(['Chord', ...items.map((it) => `${it.deg} ${SI.shapeName(it.shape).replace('pentatonic', 'pent.')}<small>${SI.tensionsOf(k, it).join(' ')} → ${it.result}</small>`)],
-    CIRCLE_PCS.map((pcN) => [`<b>${[...new Set([COMMON[pcN], ...SPELLINGS[pcN]])].map((x) => nm(N(x)) + sym).join(' / ')}</b>`, ...items.map((it) => { const s = cleanStructure(pcN, k, it); return `<b>${shortName(s, it)}</b><br><small>${s.names.join(' ')}</small>`; })]), 'center z sg');
-  const dom = [pick('dom', 'II', 'maj'), pick('dom', 'VI', 'maj'), pick('dom', '♭VI', 'maj'), pick('dom', '♭V', 'maj'), pick('dom', '♭iii', 'mpent')];
-  const maj = [pick('maj', 'II', 'maj'), pick('maj', 'V', 'maj'), pick('maj', 'II', 'pent'), pick('maj', 'V', 'pent')];
-  const min = [pick('min', '♭VII', 'maj'), pick('min', 'IV', 'maj'), pick('min', 'ii', 'mpent'), pick('min', 'v', 'min')];
-  const body = p('The structure to play on every root, for the menu items worth knowing instantly. Header: the degree, the tensions it adds and the resulting chord. Structures are spelled the simplest way (they are played as shapes), so the enharmonic of the chord root is used where it avoids double accidentals.', 'lead')
-    + keep(h3('Over a dominant 7th') + grid('dom', '7', dom))
-    + keep(h3('Over a major 7th') + grid('maj', 'maj7', maj))
-    + keep(h3('Over a minor 7th') + grid('min', 'm7', min))
-    + callout(`<b>Say it as a sentence:</b> “over G7, ${dom.map((it) => `${shortName(cleanStructure(7, 'dom', it), it).replace(' pent.', ' pentatonic').replace('m pentatonic', ' minor pentatonic')} is ${it.result}`).join(', ')}.” Then move the chord round the circle and say it again.`);
-  section(PART.E, 'e2', 'E2', 'Superimposition in all 12 keys', body);
+  const name = (k, it) => `${it.deg} ${SI.shapeName(it.shape).replace('pentatonic', 'pent.')} (${SI.tensionsOf(k, it).join(' ')})`;
+  const coldDom = [pick('dom', 'II', 'maj'), pick('dom', 'VI', 'maj'), pick('dom', '♭VI', 'maj'), pick('dom', '♭V', 'maj'), pick('dom', '♭iii', 'mpent')];
+  const coldMaj = [pick('maj', 'II', 'maj'), pick('maj', 'V', 'maj')];
+  const coldMin = [pick('min', '♭VII', 'maj'), pick('min', 'IV', 'maj'), pick('min', 'ii', 'mpent')];
+  const body = callout('<b>What you are doing:</b> playing a shape you already own (a triad or a pentatonic) from a different root, so that its notes land on chosen tensions of the chord underneath. <b>Why:</b> it turns “play the 9, ♯11 and 13” into one clear, singable idea that you can find instantly in any key.')
+    + h3('The method', 'si-method') + ol(method, 'steps')
+    + h3('Why it works', 'si-why') + ol(why, 'steps')
+    + keep(h4(`Worked example: ${exItem.deg} ${SI.shapeName(exItem.shape)} over ${chordC('dom')}`) + ul(ex.map((x) => `**${x.k}.** ${x.t}`)))
+    + callout(`<b>Know these cold.</b> Over any dominant: ${coldDom.map((it) => name('dom', it)).join(', ')}. Over any maj7: ${coldMaj.map((it) => name('maj', it)).join(', ')}. Over any m7: ${coldMin.map((it) => name('min', it)).join(', ')}.`)
+    + h3('The options, chord by chord', 'si-menus', 'pb') + p('Examples over C; the degree name is what transfers to every key.', 'note') + menus.join('');
+  section('Superimposition', 'si', '5', 'Superimposition — what and why', body,
+    { subs: [['si-method', 'The method'], ['si-why', 'Why it works'], ['si-menus', 'The options, chord by chord']] });
 }
 
 // ---------------------------------------------------------------------------------------------
 // BACK — daily recall checklist
 // ---------------------------------------------------------------------------------------------
 {
+  const coreOf = (U) => U.filter((u) => u[1]).map((u) => u[0]).join(', ');
   const G = [
-    ['A · Keys', [
-      'Semitones of any interval, its inversion, and 9/11/13 as 2/4/6 — instantly.',
-      'The circle both ways, the sharps and flats of any key in order, and the key from any signature (both shortcuts).',
-      'Relative and parallel minor of every major key; relative major of every minor key.',
-      'Major, natural, harmonic and melodic minor of today’s key, aloud, in under 5 seconds each.',
-      'The seven 7th chords of any major and any minor key, with the mode on each degree.',
-      'Where a chord lives: every major key a m7, maj7, 7 or m7♭5 belongs to.',
+    ['Circle of fifths', [
+      'Walk the circle both ways from memory (C G D A E B F♯ D♭ A♭ E♭ B♭ F) with the relative minor inside each.',
+      'The sharps or flats of any key, in order (F C G D A E B / B E A D G C F).',
+      'Name the key from any signature: last sharp + a semitone; the second-to-last flat.',
     ]],
-    ['B · Scales and modes', [
-      'The brightness ladder with the changed note on each rung, and the parent of each major mode.',
-      'Any major mode on any root, by the ladder and then checked by the parent.',
-      'Harmonic- and melodic-minor modes: name, twin + change, 7th chord and use, in order.',
-      'The parent shortcuts in both directions (X7alt → melodic minor a semitone up, and back).',
-      'Which four dominants share each half-whole scale; the two whole-tone sets.',
-      'First-choice scale for every chord quality and every dominant job.',
+    ['Modal interchange in a major key', [
+      `The core borrowed chords, each with its source mode(s): ${coreOf(MAJ_USE)}.`,
+      `What each parallel mode lends — e.g. Aeolian: ${MAJ.byMode.aeolian.map((c) => c.rn).join(', ')}.`,
+      'The job of each core chord: minor plagal, deceptive ♭VI, backdoor ♭VII7, Mario cadence, Neapolitan ♭II, Lydian II.',
+      'The complete set: run down the list and check you know every one and where it comes from.',
+      'One stock move a day, played in today’s key.',
     ]],
-    ['C · Functional harmony', [
-      'The five secondary dominants of any major key with their out-of-key notes; the minor-key set.',
-      'The six tritone pairs and the guide tones they share; subV7 of any target.',
-      'The borrowed chords of any major key with their source modes; the backdoor ♭VII7.',
+    ['Modal interchange in a minor key', [
+      `The core borrowed chords with sources: ${coreOf(MIN_USE)}.`,
+      'Which come from the parallel major (Picardy I), from Dorian (IV7), from harmonic minor (V7, vii°7) and from melodic minor (iim7, IV7, V7, i(maj7)).',
     ]],
-    ['D · Guide tones', [
-      '3rd and 7th of maj7, 7, m7, m7♭5, mMaj7 and °7 on any root.',
-      '“7th falls, 3rd holds”: both lines of ii–V–I in all 12 keys, then minor ii–V–i, ii–subV–I.',
-      'The cycle of dominants, the turnaround from VI7 and the blues I7–IV7 lines in today’s key.',
+    ['Interval structure of every scale', [
+      'The formula of every major mode, by the brightness ladder.',
+      'The formula of every melodic-minor and harmonic-minor mode, and its 7th chord as intervals (1 ♭3 ♭5 ♭7 = m7♭5 …).',
+      'The seven chords of melodic minor and of harmonic minor, as numerals and as interval structures.',
+      'Half-whole, whole-half, whole-tone and augmented: the step pattern and what each fits.',
+      'Major and minor pentatonic, blues, major blues and the bebop scales as “a scale you know, plus or minus a note”.',
     ]],
-    ['E · Superimposition', [
-      'Over any dominant: II, VI, ♭VI, ♭V triads and the ♭iii minor pentatonic — name each one and the sound.',
+    ['Superimposition', [
+      'The four steps: chord scale → shape that holds the colour → name it by degree → read it as tensions.',
+      'The why: upper floors of the chord, inside the chord’s scale, skips the avoid note, strong shapes, tension that resolves.',
+      'Over any dominant: II, VI, ♭VI, ♭V triads and the ♭iii minor pentatonic — the tensions and the sound of each.',
       'Over any maj7: II and V triads; over any m7: ♭VII and IV triads and the ii minor pentatonic.',
-      'Read any triad over any root as tensions (D over C7 = 9 ♯11 13).',
     ]],
   ];
   const body = G.map(([t, items]) => `<div class="ck keep"><div class="ckh">${t}</div>${ul(items, 'check')}</div>`).join('')
-    + callout('<b>The daily routine (10 minutes):</b> pick today’s key by walking the circle (C, G, D, A, E, B, F♯, D♭, A♭, E♭, B♭, F). Say its signature and scales, its seven chords, its secondary dominants and borrowed chords, and the ii–V–I guide-tone lines. Then name the superimpositions over its V7. Anything slower than a second goes on tomorrow’s list.');
-  section('Back', 'checklist', '', 'Daily recall checklist', body, { lead: 'Be able to reel these off with no instrument and no paper. Tick a line when it is instant in all 12 keys.' });
+    + callout('<b>The daily routine (10 minutes):</b> pick today’s key by walking the circle. Say its signature. Name the core borrowed chords of the major and the minor key on that tonic, with sources. Recite one scale family’s formulas and chords. Then name the superimpositions over its V7. Anything slower than a second goes on tomorrow’s list.');
+  section('Back', 'checklist', '', 'Daily recall checklist', body, { lead: 'Be able to reel these off with no instrument and no paper. Tick a line when it is instant.' });
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -534,131 +545,115 @@ const shortName = (s, item) => s.rootName + (item.shape === 'min' ? 'm' : item.s
 // ---------------------------------------------------------------------------------------------
 const FONT = '-apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif';
 const CSS = `
-@page { size: A4; margin: 11mm 11mm 12mm;
+@page { size: A4; margin: 13mm 13mm 14mm;
   @bottom-center { content: counter(page); font: 8pt ${FONT}; color: #777; }
   @bottom-right { content: "Memory Essentials"; font: 7pt ${FONT}; color: #aaa; } }
 @page :first { @bottom-center { content: none; } @bottom-right { content: none; } }
 * { box-sizing: border-box; }
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-body { margin: 0; background: #fff; color: #1b1b1b; font: 9.3pt/1.38 ${FONT}; }
+body { margin: 0; background: #fff; color: #1b1b1b; font: 10pt/1.45 ${FONT}; }
 svg text { font-family: ${FONT}; }
 section.sec { break-before: page; }
-section.sec.flow { break-before: auto; margin-top: 14px; }
-.partband { font-size: 7pt; letter-spacing: .14em; text-transform: uppercase; color: ${ACC}; font-weight: 700; margin-bottom: 1px; }
-h2 { font-size: 15pt; margin: 0 0 6px; padding-bottom: 3px; border-bottom: 2px solid ${ACC}; break-after: avoid; }
-h2 .num { color: ${ACC}; margin-right: 8px; }
-h3 { font-size: 10.5pt; margin: 10px 0 3px; break-after: avoid; }
-h4 { font-size: 9.5pt; margin: 6px 0 2px; break-after: avoid; }
-p { margin: 2px 0 5px; }
-p.lead { font-size: 9.8pt; color: #333; margin-bottom: 7px; }
-p.note, .note { font-size: 8.3pt; color: #555; margin: 1px 0 3px; }
-.prose p { margin: 2px 0 4px; }
-.prose h4 { margin: 6px 0 2px; }
-.cols { column-count: 2; column-gap: 14px; font-size: 8.6pt; line-height: 1.33; margin-bottom: 4px; }
-.cols li, .cols p { break-inside: avoid; }
-.cols p:has(+ ul), .cols p:has(+ ol), .cols h4 { break-after: avoid; }
-.prose ul, .prose ol { margin: 2px 0 5px; padding-left: 16px; }
-ul { margin: 3px 0 6px; padding-left: 16px; }
-li { margin: 1px 0; }
-table { border-collapse: collapse; width: 100%; margin: 2px 0 7px; font-size: 8.6pt; line-height: 1.3; }
+.partband { font-size: 7.5pt; letter-spacing: .14em; text-transform: uppercase; color: ${ACC}; font-weight: 700; margin-bottom: 2px; }
+h2 { font-size: 17pt; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 2px solid ${ACC}; break-after: avoid; }
+h2 .num { color: ${ACC}; margin-right: 10px; }
+h3 { font-size: 12pt; margin: 16px 0 5px; break-after: avoid; color: #123; }
+h3.pb { break-before: page; margin-top: 0; }
+h4 { font-size: 10.5pt; margin: 10px 0 3px; break-after: avoid; }
+p { margin: 3px 0 7px; }
+p.lead { font-size: 10.5pt; color: #333; margin-bottom: 10px; }
+p.note, .note { font-size: 9pt; color: #555; margin: 3px 0 6px; }
+.prose p { margin: 3px 0 6px; }
+.prose ul, .prose ol { margin: 3px 0 6px; padding-left: 18px; }
+ul, ol { margin: 4px 0 8px; padding-left: 20px; }
+li { margin: 3px 0; }
+ol.steps li { margin: 5px 0; padding-left: 3px; }
+table { border-collapse: collapse; width: 100%; margin: 4px 0 10px; font-size: 9.2pt; line-height: 1.38; }
 thead { display: table-header-group; }
 tr { break-inside: avoid; }
-th { background: #e3efed; text-align: left; font-weight: 700; color: #123; vertical-align: bottom; }
-th small { display: block; font-weight: 400; color: #4a5a58; font-size: 7pt; line-height: 1.2; }
-th, td { border: 0.5pt solid #c9d3d1; padding: 1.6px 4px; vertical-align: top; }
+th { background: #e3efed; text-align: left; font-weight: 700; color: #123; vertical-align: bottom; font-size: 8.8pt; }
+th, td { border: 0.5pt solid #c9d3d1; padding: 3.5px 6px; vertical-align: top; }
 table.z tbody tr:nth-child(even) td { background: #f4f8f7; }
-table.center td, table.center th { text-align: center; }
-table.center td:first-child, table.center th:first-child { text-align: left; }
-td small { color: #555; font-size: 7.2pt; }
+td small { color: #555; font-size: 8pt; }
 .nw { white-space: nowrap; }
-table.gl.half { font-size: 7.8pt; }
-table.gl.half td { padding: 1.4px 3px; }
-table.gl.half td:first-child { width: 9%; }
-table.gl.half td:nth-child(2) { width: auto; }
-table.gl.half td:nth-child(3), table.gl.half td:nth-child(4) { white-space: nowrap; width: 1%; }
-.enh { color: #888; font-weight: 400; font-size: 7.5pt; }
-.hl { color: ${ACC}; font-weight: 700; }
-.hh { color: ${ACC}; }
-.oo { color: ${ACC}; font-weight: 700; }
+.f { letter-spacing: .02em; }
+.enh { color: #777; font-weight: 400; font-size: 8pt; }
 .keep { break-inside: avoid; }
-.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
-.callout { border-left: 3px solid ${ACC}; background: #eef6f5; padding: 4px 8px; margin: 5px 0 7px; font-size: 8.8pt; break-inside: avoid; }
-.rule { border: 0.8pt solid ${ACC}; border-radius: 3px; padding: 4px 8px; margin: 2px 0 6px; font-size: 9pt; background: #f7fbfa; break-inside: avoid; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.callout { border-left: 3px solid ${ACC}; background: #eef6f5; padding: 6px 10px; margin: 8px 0 10px; font-size: 9.4pt; break-inside: avoid; }
+.rule { border: 0.8pt solid ${ACC}; border-radius: 3px; padding: 5px 9px; margin: 2px 0 8px; font-size: 9.6pt; background: #f7fbfa; break-inside: avoid; }
 .rule .rid { font-weight: 700; color: ${ACC}; margin-right: 4px; text-transform: uppercase; font-size: 7.5pt; letter-spacing: .08em; }
-table.grid12 { font-size: 8.4pt; }
-table.grid12 td { padding: 1.3px 2px; }
-table.keys { font-size: 8.4pt; }
-table.keys td { padding: 1.3px 2px; }
-table.tri td { white-space: nowrap; }
-table.mg { font-size: 8pt; margin-bottom: 4px; }
-table.mg td, table.mg th { padding: 1.1px 2px; }
-table.mg th:nth-last-child(-n+2) { font-size: 7pt; }
-.gt { font-size: 8.8pt; margin: 6px 0 1px; break-after: avoid; }
-.gt span { color: #555; font-size: 8pt; }
-table.ps td { font-size: 8.4pt; }
-table.cs td:first-child { width: 22%; }
-table.sd td { font-size: 8.4pt; }
-table.bc { font-size: 8.2pt; }
-table.bc td { padding: 1.4px 2px; white-space: nowrap; }
-table.gtg { font-size: 8.4pt; }
-table.gtg td { padding: 1.4px 3px; white-space: nowrap; }
-.gtn { color: #111; }
-.ct { color: #888; }
-table.gl { font-size: 8.3pt; }
-table.gl td:first-child { width: 7%; }
-table.gl td:nth-child(2) { width: 39%; }
-table.si .why { font-size: 7.6pt; color: #444; }
-table.si td:first-child { width: 19%; }
-table.si td:nth-child(5) { width: 40%; }
-table.sg { font-size: 8.4pt; }
-table.sg td:first-child { white-space: nowrap; }
-table.sym td:nth-child(3) { white-space: nowrap; }
-.trigrid { display: grid; grid-template-columns: 340px 1fr; gap: 14px; align-items: center; margin: 2px 0 4px; }
-.rmod { margin: 0 0 5px; break-inside: avoid; }
-.rmh { font-size: 10.5pt; font-weight: 700; border-bottom: 1pt solid #cfe0dd; margin: 7px 0 2px; padding-bottom: 1px; }
-.rmh span { color: #fff; background: ${ACC}; border-radius: 3px; padding: 0 5px; margin-right: 6px; }
-.rmh small { font-weight: 400; color: #666; font-size: 8pt; margin-left: 8px; }
-.rl { display: grid; grid-template-columns: 26px 1fr; gap: 4px; font-size: 9pt; padding: 2.2px 0; border-bottom: 0.5pt dotted #d6dedc; }
-.rl b { color: ${ACC}; }
-.rl .rn { font-weight: 700; }
+.trigrid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: center; margin: 2px 0 4px; }
+table.sig { font-size: 8.8pt; }
+table.sig td { padding: 2px 5px; }
+/* modal-interchange checklist */
+table.ckt td { padding: 5px 6px; }
+table.ckt td:nth-child(1) { width: 4%; text-align: center; }
+table.ckt td:nth-child(2) { width: 12%; white-space: nowrap; }
+table.ckt td:nth-child(3) { width: 11%; white-space: nowrap; }
+table.ckt td:nth-child(4) { width: 15%; }
+table.ckt td:nth-child(5) { width: 16%; }
+table.ckt .rn { font-size: 10.5pt; }
+table.ckt.core .rn { color: ${ACC}; }
+table.ckt tbody tr:nth-child(even) td { background: #f6f9f8; }
+.box { color: ${ACC}; font-size: 12pt; line-height: 1; }
+table.lends td:first-child { width: 17%; white-space: nowrap; }
+table.lends td:nth-child(2) { width: 13%; }
+table.moves { font-size: 8.6pt; }
+table.moves td:first-child { width: 21%; }
+table.moves td:nth-child(2) { width: 22%; }
+table.moves td:nth-child(3) { width: 12%; }
+.chart { font-weight: 600; }
+.where { color: #555; }
+/* scales */
+table.sc td:first-child { width: 3%; }
+table.chords td:first-child { width: 8%; }
+/* superimposition */
+table.si td:first-child { width: 25%; }
+table.si td:nth-child(2) { width: 17%; }
+table.si td:nth-child(3) { width: 14%; }
+table.si .why { font-size: 8pt; color: #555; }
+/* checklist */
 .check { padding-left: 0; }
-.check li { list-style: none; padding-left: 18px; text-indent: -18px; margin: 3px 0; font-size: 9.6pt; }
-.check li::before { content: "☐"; color: ${ACC}; display: inline-block; width: 18px; text-indent: 0; }
-.ck { margin-bottom: 6px; }
-.ckh { font-weight: 700; font-size: 10.5pt; color: ${ACC}; border-bottom: 1pt solid #cfe0dd; margin: 8px 0 2px; }
-.title { height: 270mm; display: flex; flex-direction: column; justify-content: center; }
+.check li { list-style: none; padding-left: 20px; text-indent: -20px; margin: 5px 0; font-size: 10pt; }
+.check li::before { content: "☐"; color: ${ACC}; display: inline-block; width: 20px; text-indent: 0; }
+.ck { margin-bottom: 8px; }
+.ckh { font-weight: 700; font-size: 11.5pt; color: ${ACC}; border-bottom: 1pt solid #cfe0dd; margin: 12px 0 3px; }
+/* title and contents */
+.title { height: 265mm; display: flex; flex-direction: column; justify-content: center; }
 .title .kicker { font-size: 9pt; letter-spacing: .25em; color: ${ACC}; font-weight: 700; }
 .title h1 { font-size: 40pt; margin: 6px 0 4px; line-height: 1; }
-.title .sub { font-size: 12pt; color: #333; max-width: 150mm; margin-bottom: 10mm; }
-.title .meta { font-size: 8.5pt; color: #555; margin-top: 10mm; max-width: 165mm; }
-.title .fig { display: flex; gap: 18px; align-items: center; }
-.title .mods { font-size: 9.5pt; }
-.title .mods div { margin: 5px 0; }
-.title .mods .enh { display: block; margin-left: 16px; font-size: 8pt; }
-.title .mods b { color: ${ACC}; display: inline-block; width: 16px; }
+.title .sub { font-size: 12.5pt; color: #333; max-width: 150mm; margin-bottom: 10mm; }
+.title .meta { font-size: 9pt; color: #555; margin-top: 10mm; max-width: 165mm; }
+.title .fig { display: flex; gap: 22px; align-items: center; }
+.title .mods { font-size: 10.5pt; }
+.title .mods div { margin: 7px 0; }
+.title .mods b { color: ${ACC}; display: inline-block; width: 18px; }
 .toc { break-before: page; }
-.toc .tp { font-size: 8pt; font-weight: 700; color: ${ACC}; letter-spacing: .12em; text-transform: uppercase; margin: 10px 0 2px; }
-.toc a { display: flex; color: inherit; text-decoration: none; font-size: 10.5pt; padding: 2.4px 0; }
+.toc .tp { font-size: 8pt; font-weight: 700; color: ${ACC}; letter-spacing: .12em; text-transform: uppercase; margin: 14px 0 3px; }
+.toc a { display: flex; color: inherit; text-decoration: none; font-size: 11.5pt; padding: 3px 0; }
+.toc a.sub { font-size: 9.8pt; padding: 1.5px 0 1.5px 30px; color: #333; }
 .toc a .n { width: 30px; color: ${ACC}; font-weight: 700; }
 .toc a .t { flex: none; }
 .toc a .d { flex: 1; border-bottom: 1px dotted #aaa; margin: 0 6px 4px; }
 .toc a .pg { width: 24px; text-align: right; font-variant-numeric: tabular-nums; }
-.howto { margin-top: 14px; font-size: 9pt; }
+.howto { margin-top: 18px; font-size: 9.8pt; }
 `;
 
 function render(pages = {}) {
   const parts = [];
   for (const s of SECTIONS) { if (!parts.length || parts.at(-1).name !== s.part) parts.push({ name: s.part, secs: [] }); parts.at(-1).secs.push(s); }
-  const toc = parts.map((pt) => `<div class="tp">${esc(pt.name)}</div>` + pt.secs.map((s) => `<a href="#${s.id}"><span class="n">${s.num}</span><span class="t">${esc(s.title)}</span><span class="d"></span><span class="pg">${pages[s.id] ?? ''}</span></a>`).join('')).join('');
+  const toc = parts.map((pt) => `<div class="tp">${esc(pt.name)}</div>` + pt.secs.map((s) => `<a href="#${s.id}"><span class="n">${s.num}</span><span class="t">${esc(s.title)}</span><span class="d"></span><span class="pg">${pages[s.id] ?? ''}</span></a>`
+    + s.subs.map(([id, t]) => `<a class="sub" href="#${id}"><span class="t">${esc(t)}</span><span class="d"></span><span class="pg">${pages[id] ?? ''}</span></a>`).join('')).join('')).join('');
   const title = `<section class="title"><div class="kicker">GUITAR CARDS · MEMORY PACK</div><h1>Memory Essentials</h1>
-    <div class="sub">The facts to recall instantly, with no instrument: every key, every mode, functional harmony, guide tones and superimposition — in all 12 keys.</div>
-    <div class="fig">${circleSVG({ size: 300 })}<div class="mods">${MODULES.map((m) => `<div><b>${m.id}</b>${esc(m.name)} <span class="enh">${esc(m.blurb)}</span></div>`).join('')}</div></div>
-    <div class="meta">The printed companion to the Memory pack. Every note name in these tables is generated by the same spelling engine that writes the cards, so each letter appears once per scale and chord (E♯ in F♯ major, C♭ in D♭7, B𝄫 in C°7). Where a root needs a double accidental, the plain enharmonic is shown beside it in grey. Fretboard shapes live in the Guitar Mastery guide; this booklet is facts and tables only.</div></section>`;
+    <div class="sub">Only what is worth memorising: every borrowed chord and where it comes from, the interval structure of every scale, superimposition and the circle of fifths.</div>
+    <div class="fig">${circleSVG({ size: 280 })}<div class="mods">${SECTIONS.map((s) => `<div><b>${s.num || '✓'}</b>${esc(s.title)}</div>`).join('')}</div></div>
+    <div class="meta">The printed companion to the Memory pack. Every chord, source mode and formula in these pages is computed by the same engine that writes the cards, so nothing is hand-typed: the borrowed-chord lists come from building the 7th chords of every parallel mode, and the scale formulas from the app’s scale table. One example key (C) throughout; the numerals and formulas are what transfer to every key.</div></section>`;
   const howto = `<div class="howto">${ul([
-    '**Start with the rules page.** Every table is one rule applied to every key; recite the rule, then check yourself against the table.',
-    '**Accent colour** marks the note that matters: the newest accidental, the raised note, the characteristic degree of a mode, the out-of-key note of a secondary dominant.',
-    '**Keys run in circle order** (C G D A E B F♯ D♭ A♭ E♭ B♭ F) so neighbouring rows differ by one note. Cover a row, say it, uncover.',
-    'Roman numerals are relative to the **major** scale of the tonic: a minor key reads i iiø7 ♭III iv v ♭VI ♭VII.',
+    '**Checklists first.** Each modal-interchange section opens with a tick-box list: name the chord, its source and its job, then tick it.',
+    '**Roman numerals are relative to the major scale of the tonic**, as everywhere in the app: ♭VI is a minor 6th above the tonic in a major or a minor key. Lower case = minor 3rd (ivm7, iiø7, vii°7).',
+    '**Formulas are against the major scale** of the same root: ♭3 is a minor 3rd, ♯4 an augmented 4th, 𝄫7 a diminished 7th.',
+    '**Core** marks the chords and options that come up all the time; learn those first, then the complete set.',
   ])}</div>`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Memory Essentials</title><style>${CSS}</style></head><body>
 ${title}
@@ -712,4 +707,7 @@ if (Object.keys(map).length) {
 } else console.warn('Could not read page numbers from the PDF; contents page left without numbers.');
 const size = fs.statSync(PDF).size;
 console.log(`Wrote ${path.relative(ROOT, HTML)} and ${path.relative(ROOT, PDF)}: ${count} pages, ${(size / 1024 / 1024).toFixed(2)} MB`);
-for (const s of SECTIONS) console.log(`  ${String(s.num).padStart(3)}  p.${String(map[s.id] ?? '?').padStart(3)}  ${s.title}`);
+for (const s of SECTIONS) {
+  console.log(`  ${String(s.num).padStart(3)}  p.${String(map[s.id] ?? '?').padStart(3)}  ${s.title}`);
+  for (const [id, t] of s.subs) console.log(`         p.${String(map[id] ?? '?').padStart(3)}    ${t}`);
+}
