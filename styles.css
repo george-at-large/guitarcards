@@ -309,3 +309,43 @@ svg.vneck .mute { fill: #e9dccd; font-size: 15px; font-weight: 700; text-anchor:
 .dhelp { padding: 10px 0; border-bottom: 1px solid var(--line); }
 .dhelp.cur b { color: var(--on); }
 .dend { text-align: center; }
+
+/* ---------- mode scroller ---------- */
+.mshead { position: sticky; top: 0; z-index: 5; margin: calc(-1 * (var(--safe-t) + 14px)) -16px 8px; padding: calc(var(--safe-t) + 8px) 16px 8px; background: rgba(10, 11, 15, 0.92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.msrow { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+.msrow select { font: inherit; font-size: 15px; color: var(--text); background: var(--panel2); border: 1px solid var(--line2); border-radius: 12px; padding: 9px 8px; min-width: 0; }
+.msrow select[data-sel="key"] { flex: 0 0 auto; width: 66px; }
+.msrow select[data-sel="scale"] { flex: 1 1 auto; text-overflow: ellipsis; }
+.msrow > button { padding: 9px 11px; }
+.msrow .icon { padding: 6px 4px 6px 0; }
+.mslegend { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+.mslegend::-webkit-scrollbar { display: none; }
+.msleg { flex: 0 0 auto; padding: 0; width: 34px; height: 34px; border-radius: 50%; border: none; background: transparent; display: grid; place-items: center; }
+.msleg i { font-style: normal; font-weight: 800; font-size: 12px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #16110c; }
+.msleg.char i { box-shadow: 0 0 0 2.5px var(--bg), 0 0 0 4.5px var(--good); }
+.msleg.off i { opacity: 0.22; }
+.mslegend .chip { flex: 0 0 auto; padding: 6px 10px; font-size: 12.5px; }
+.msinfo span { line-height: 1.35; }
+.msview { flex-wrap: nowrap; }
+.msview .seg { flex: 1 1 auto; padding: 3px; }
+.msview .seg button { padding: 6px 2px; font-size: 12.5px; white-space: nowrap; }
+.msview > button { padding: 6px 10px; font-size: 16px; }
+.msview > button.on { background: var(--panel3); border-color: var(--good); color: var(--good); }
+.msneck { display: flex; justify-content: center; }
+.msneck svg.msvg { width: 100%; max-width: 420px; height: auto; }
+.msneck .msdot { pointer-events: none; }
+.msdot circle, .msk, .msleg i { fill: var(--tone); background: var(--tone); }
+.msdot circle { stroke: rgba(0, 0, 0, .45); stroke-width: 1; }
+.msdot text { fill: #16110c; font-weight: 800; text-anchor: middle; }
+.msdot.r circle, .msleg.r i, .msk.r { fill: var(--root); background: var(--root); }
+.msdot.t3 circle, .msleg.t3 i, .msk.t3 { fill: #ff7a9a; background: #ff7a9a; }
+.msdot.t5 circle, .msleg.t5 i, .msk.t5 { fill: #5ccdf2; background: #5ccdf2; }
+.msdot.t7 circle, .msleg.t7 i, .msk.t7 { fill: #b49cff; background: #b49cff; }
+.msdot.tx circle, .msleg.tx i, .msk.tx { fill: #efe8da; background: #efe8da; }
+.msdot circle.ring { fill: none; stroke: var(--good); stroke-width: 2.6; }
+.msdot.fresh { animation: mspulse 1.4s ease-out 2; transform-box: fill-box; transform-origin: center; }
+@keyframes mspulse { 0% { transform: scale(1); } 30% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.msk { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; color: #16110c; font-weight: 800; font-size: 11px; }
+.msk.ringed { box-shadow: 0 0 0 2px var(--good); background: transparent; color: var(--good); }
+.msnotes { margin-top: 14px; }
+.msnotes p { margin: 8px 0; }
