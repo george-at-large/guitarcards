@@ -2,7 +2,7 @@
 import * as T from './theory.js';
 import * as F from './fretboard.js';
 import * as A from './audio.js';
-import { fretboardSVG, esc } from './render.js';
+import { esc } from './render.js';
 
 const ROOTS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 const QUALITY_GROUPS = [
@@ -14,7 +14,9 @@ const QUALITY_GROUPS = [
 // voicing families: which engine voicing, on which string sets
 const FAMILIES = {
   tones: { label: 'Whole neck' },
+  open: { label: 'Open position', grips: true },
   triads: { label: 'Triads', voicing: 'close', sets: [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]], size: 3 },
+  spread: { label: 'Open triads', voicing: 'spread', sets: [[6, 4, 3], [5, 3, 2], [4, 2, 1], [6, 5, 3], [5, 4, 2]], size: 3 },
   drop2: { label: 'Drop 2', voicing: 'drop2', sets: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]], size: 4 },
   drop3: { label: 'Drop 3', voicing: 'drop3', sets: [[6, 4, 3, 2], [5, 3, 2, 1]], size: 4 },
   drop24: { label: 'Drop 2&4', voicing: 'drop24', sets: [[6, 5, 3, 2], [5, 4, 2, 1]], size: 4 },
@@ -33,13 +35,16 @@ const triadOf = (ivs) => {
   return t.length === 3 ? t : ivs.slice(0, 3);
 };
 // families that make sense for this chord (no 4-note drops for a 3-note chord)
-const famsFor = () => Object.keys(FAMILIES).filter((k) => !(FAMILIES[k].size === 4 && chordIvs().length < 4) && !(k === 'shell' && chordIvs().length < 4));
+const gripCache = new Map();
+const hasOpen = () => { const k = S.root + S.quality; if (!gripCache.has(k)) gripCache.set(k, openGrips().length > 0); return gripCache.get(k); };
+const famsFor = () => Object.keys(FAMILIES).filter((k) => !(FAMILIES[k].size === 4 && chordIvs().length < 4) && !(k === 'shell' && chordIvs().length < 4) && !(k === 'open' && !hasOpen()));
 
 function voicings() {
   const fam = FAMILIES[S.fam];
+  if (fam && fam.grips) return openGrips().filter((v) => S.inv === 'all' || F.simpleIv(v.bassIv) === S.inv);
   if (!fam || !fam.voicing) return [];
   const ivs = chordIvs();
-  const tones = S.fam === 'triads' ? triadOf(ivs) : undefined;
+  const tones = S.fam === 'triads' || S.fam === 'spread' ? triadOf(ivs) : undefined;
   let out = [];
   for (const ss of fam.sets) {
     if (S.set !== 'all' && ss.join('') !== S.set) continue;
@@ -49,6 +54,45 @@ function voicings() {
   // up the neck, lowest string set first at each position
   out.sort((a, b) => a.minFret - b.minFret || b.stringSet[0] - a.stringSet[0]);
   return out;
+}
+
+// open-position grips: every playable shape in frets 0–4 that uses open strings, has the root in the bass
+// and every chord tone (the 5th may be left out)
+function openGrips() {
+  const ivs = chordIvs();
+  const need = ivs.filter((iv) => !['5'].includes(F.simpleIv(iv)) || ivs.length < 4);
+  const must = ivs.length > 4 ? need.filter((iv) => !['9', '11'].includes(iv)) : need;
+  const ivAt = (s, f) => ivs.find((iv) => pcOf(iv) === F.midiAt(s, f) % 12);
+  const opts = [6, 5, 4, 3, 2, 1].map((s) => [null, ...[0, 1, 2, 3, 4].filter((f) => ivAt(s, f))]);
+  const out = [];
+  const rec = (i, acc) => {
+    if (i === 6) {
+      const notes = acc.map((f, k) => (f === null ? null : { string: 6 - k, fret: f, midi: F.midiAt(6 - k, f), iv: ivAt(6 - k, f) })).filter(Boolean);
+      if (notes.length < Math.min(4, ivs.length + 1) || !notes.some((n) => n.fret === 0)) return;
+      const first = acc.findIndex((f) => f !== null);
+      if (acc.slice(first).some((f) => f === null)) return; // no muted strings inside the grip
+      if (F.simpleIv(notes[0].iv) !== '1') return;
+      const have = new Set(notes.map((n) => F.simpleIv(n.iv)));
+      if (!must.every((iv) => have.has(F.simpleIv(iv)))) return;
+      const fr = notes.filter((n) => n.fret > 0).map((n) => n.fret);
+      if (fr.length && Math.max(...fr) - Math.min(...fr) > 3) return;
+      const lo = fr.length ? Math.min(...fr) : 0;
+      const atLo = fr.filter((f) => f === lo).length;
+      const fingers = fr.length - (atLo > 2 ? atLo - 1 : 0);
+      if (fingers > 4) return;
+      const grip = [6, 5, 4, 3, 2, 1].map((s2) => { const n = notes.find((x) => x.string === s2); return n ? n.fret : 'x'; }).join('');
+      out.push({ notes, minFret: Math.min(...notes.map((n) => n.fret)), maxFret: Math.max(...notes.map((n) => n.fret)), stringSet: notes.map((n) => n.string), bassIv: notes[0].iv,
+        label: `Open grip ${grip}`, score: notes.length * 3 - fingers - (fr.length ? Math.max(...fr) : 0) * 0.5 });
+      return;
+    }
+    for (const f of opts[i]) rec(i + 1, [...acc, f]);
+  };
+  rec(0, []);
+  out.sort((a, b) => b.score - a.score);
+  // keep the best few distinct shapes (one per bass string)
+  const seen = new Map();
+  for (const g of out) { const k = g.notes[0].string; if ((seen.get(k) || []).length < 2) seen.set(k, [...(seen.get(k) || []), g]); }
+  return [...seen.values()].flat().sort((a, b) => b.notes[0].string - a.notes[0].string || b.score - a.score);
 }
 
 function label(iv) {
@@ -74,6 +118,28 @@ function neckDots(cur) {
   return dots;
 }
 
+// the neck stood upright, like a chord box: low E on the left, the nut at the top, frets 0–17 going down
+const INL = [3, 5, 7, 9, 15, 17];
+function vneckSVG(dots, cur) {
+  const left = 30, sp = 27, nutY = 30, fh = 30, nF = F.MAX_FRET;
+  const W = left + 5 * sp + 16, H = nutY + nF * fh + 8;
+  const x = (s) => left + (6 - s) * sp;
+  const y = (f) => (f === 0 ? nutY - 14 : nutY + (f - 0.5) * fh);
+  let g = '';
+  for (let f = 1; f <= nF; f++) {
+    g += `<line x1="${x(6)}" y1="${nutY + f * fh}" x2="${x(1)}" y2="${nutY + f * fh}" class="wire"/>`;
+    g += `<text x="12" y="${y(f) + 3.5}" class="fretnum${INL.includes(f) || f === 12 ? ' strong' : ''}">${f}</text>`;
+    if (INL.includes(f)) g += `<circle cx="${(x(4) + x(3)) / 2}" cy="${y(f)}" r="4" class="inlay"/>`;
+    if (f === 12) g += `<circle cx="${(x(5) + x(4)) / 2}" cy="${y(f)}" r="4" class="inlay"/><circle cx="${(x(3) + x(2)) / 2}" cy="${y(f)}" r="4" class="inlay"/>`;
+  }
+  g += `<line x1="${x(6) - 2}" y1="${nutY}" x2="${x(1) + 2}" y2="${nutY}" class="nut"/>`;
+  for (let s = 1; s <= 6; s++) g += `<line x1="${x(s)}" y1="${nutY}" x2="${x(s)}" y2="${H - 6}" class="string s${s}"/>`;
+  for (let s = 1; s <= 6; s++) for (let f = 0; f <= nF; f++) g += `<rect x="${x(s) - sp / 2}" y="${f === 0 ? 4 : nutY + (f - 1) * fh}" width="${sp}" height="${f === 0 ? nutY - 6 : fh}" class="tap" data-s="${s}" data-f="${f}"/>`;
+  if (cur) for (let s2 = 1; s2 <= 6; s2++) if (!cur.notes.some((n) => n.string === s2)) g += `<text x="${x(s2)}" y="${nutY - 10}" class="mute">×</text>`;
+  for (const d of dots) g += `<g class="dot ${d.kind || 'tone'}"><circle cx="${x(d.string)}" cy="${y(d.fret)}" r="10"/>${d.label ? `<text x="${x(d.string)}" y="${y(d.fret) + 3.5}">${esc(d.label)}</text>` : ''}</g>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="fretboard vneck" preserveAspectRatio="xMidYMin meet">${g}</svg>`;
+}
+
 export function renderChordStudy($app, { onBack }) {
   stop();
   if (!famsFor().includes(S.fam)) S.fam = famsFor()[1] || 'tones';
@@ -84,27 +150,28 @@ export function renderChordStudy($app, { onBack }) {
   const fam = FAMILIES[S.fam];
   const notes = ivs.map((iv) => T.noteName(T.transpose(T.parseNote(S.root), F.simpleIv(iv)), true));
   const sets = fam.sets ? fam.sets.map((s) => s.join('')) : [];
-  const bassHave = new Set(fam.voicing ? voicingsAllInv().map((v) => F.simpleIv(v.bassIv)) : []);
+  const bassHave = new Set(fam.voicing || fam.grips ? voicingsAllInv().map((v) => F.simpleIv(v.bassIv)) : []);
   const bassOpts = ivs.map(F.simpleIv).filter((x) => bassHave.has(x));
-  const famHTML = `<div class="seg csfam">${famsFor().map((k) => `<button data-fam="${k}" class="${k === S.fam ? 'on' : ''}">${FAMILIES[k].label}</button>`).join('')}</div>`;
   $app.innerHTML = `
-  <div class="csstick">
-    <div class="row spread cshead"><button class="icon" data-cs="back" aria-label="Back">←</button><div class="cssym">${esc(sym())}</div><div class="muted small csnotes">${notes.map(esc).join(' ')}</div></div>
-    <div class="csneck" id="csneck">${fretboardSVG({ lo: 0, hi: F.MAX_FRET, dots: neckDots(cur), tappable: true })}</div>
-    <div class="cscap" id="cscap">${capText(cur, list)}</div>
-    ${fam.voicing ? `<div class="row csnav"><button data-cs="prev" aria-label="Previous voicing">◀</button><button class="primary grow" data-cs="play">▶ Play through</button><button data-cs="next" aria-label="Next voicing">▶</button></div>` : `<div class="row csnav"><button class="primary grow" data-cs="strum">▶ Hear the chord</button></div>`}
+  <div class="row spread cshead"><button class="icon" data-cs="back" aria-label="Back">←</button><div class="cssym">${esc(sym())}</div><div class="muted small csnotes">${notes.map(esc).join(' ')}</div></div>
+  <div class="cswrap">
+    <div class="csneck" id="csneck">${vneckSVG(neckDots(cur), cur)}</div>
+    <div class="csside">
+      <div class="cscap" id="cscap">${capText(cur, list)}</div>
+      ${fam.voicing || fam.grips ? `<div class="csnav"><button data-cs="prev" aria-label="Previous voicing">▲</button><button class="primary" data-cs="play">▶ Play</button><button data-cs="next" aria-label="Next voicing">▼</button></div>` : `<div class="csnav"><button class="primary" data-cs="strum">▶ Hear it</button></div>`}
+      <div class="csfam">${famsFor().map((k) => `<button data-fam="${k}" class="${k === S.fam ? 'on' : ''}">${FAMILIES[k].label}</button>`).join('')}</div>
+    </div>
   </div>
-  ${famHTML}
-  ${fam.voicing ? `<div class="chips cssub"><span class="muted small">Strings</span>${['all', ...sets].map((s) => `<button class="chip ${S.set === s ? 'on' : ''}" data-set="${s}">${s === 'all' ? 'All' : s.split('').join('-')}</button>`).join('')}</div>
-  <div class="chips cssub"><span class="muted small">Bass</span>${['all', ...bassOpts].map((b) => `<button class="chip ${S.inv === b ? 'on' : ''}" data-inv="${esc(b)}">${b === 'all' ? 'Any' : esc(T.prettyIv(b))}</button>`).join('')}</div>` : ''}
+  ${fam.voicing ? `<div class="chips cssub"><span class="muted small">Strings</span>${['all', ...sets].map((s) => `<button class="chip ${S.set === s ? 'on' : ''}" data-set="${s}">${s === 'all' ? 'All' : s.split('').join('-')}</button>`).join('')}</div>` : ''}
+  ${fam.voicing || fam.grips ? `<div class="chips cssub"><span class="muted small">Bass</span>${['all', ...bassOpts].map((b) => `<button class="chip ${S.inv === b ? 'on' : ''}" data-inv="${esc(b)}">${b === 'all' ? 'Any' : esc(T.prettyIv(b))}</button>`).join('')}</div>` : ''}
   <div class="chips cssub csivs"><span class="muted small">Show</span>${ivs.map((iv) => { const k = F.simpleIv(iv); const on = !S.ivs || S.ivs.has(k); return `<button class="chip ${on ? 'on' : ''}" data-iv="${esc(k)}">${esc(T.prettyIv(iv))}</button>`; }).join('')}<button class="chip" data-cs="guide">3 & 7</button><button class="chip" data-cs="allivs">All</button></div>
   <h3>Root</h3>
   <div class="chips csroots">${ROOTS.map((r) => `<button class="chip ${r === S.root ? 'on' : ''}" data-root="${r}">${esc(T.pretty(r))}</button>`).join('')}</div>
   <h3>Chord</h3>
   ${QUALITY_GROUPS.map(([g, qs]) => `<div class="small muted">${g}</div><div class="chips csqual">${qs.map((q) => `<button class="chip ${q === S.quality ? 'on' : ''}" data-qual="${q}">${esc(T.pretty(T.chordSymbol(T.parseNote(S.root), q)))}</button>`).join('')}</div>`).join('')}
   <h3>Options</h3>
-  <div class="row csopts">${fam.voicing ? `<button data-cs="bpm-">−</button><span class="small">${S.bpm} bpm · ${S.beats} beats each</span><button data-cs="bpm+">+</button><button data-cs="beats">Beats</button><button data-cs="arp" class="${S.arp ? 'on' : ''}">Arpeggiate</button><button data-cs="loop" class="${S.loop ? 'on' : ''}">Loop</button>` : ''}</div>
-  <div class="row csopts"><button data-cs="names" class="${S.names ? 'on' : ''}">Note names</button>${fam.voicing ? `<button data-cs="ghosts" class="${S.ghosts ? 'on' : ''}">Other chord tones</button>` : ''}</div>
+  <div class="row csopts">${fam.voicing || fam.grips ? `<button data-cs="bpm-">−</button><span class="small">${S.bpm} bpm · ${S.beats} beats each</span><button data-cs="bpm+">+</button><button data-cs="beats">Beats</button><button data-cs="arp" class="${S.arp ? 'on' : ''}">Arpeggiate</button><button data-cs="loop" class="${S.loop ? 'on' : ''}">Loop</button>` : ''}</div>
+  <div class="row csopts"><button data-cs="names" class="${S.names ? 'on' : ''}">Note names</button>${fam.voicing || fam.grips ? `<button data-cs="ghosts" class="${S.ghosts ? 'on' : ''}">Other chord tones</button>` : ''}</div>
   <p class="muted small">Tap any dot (or any fret) to hear it. ${S.fam === 'tones' ? '' : 'Faded dots are the same chord’s tones elsewhere on the neck.'}</p>`;
   scrollToCur(cur);
   $app.onclick = (e) => {
@@ -125,7 +192,7 @@ export function renderChordStudy($app, { onBack }) {
     if (d.cs === 'names') { S.names = !S.names; return redraw(); }
     if (d.cs === 'ghosts') { S.ghosts = !S.ghosts; return redraw(); }
     if (d.cs === 'next' || d.cs === 'prev') { stop(); if (!list.length) return; S.idx = (S.idx + (d.cs === 'next' ? 1 : list.length - 1)) % list.length; show(list); sound(list[S.idx]); return; }
-    if (d.cs === 'play') { if (timer) { stop(); b.textContent = '▶ Play through'; } else { b.textContent = '■ Stop'; playThrough(list, b); } return; }
+    if (d.cs === 'play') { if (timer) { stop(); b.textContent = '▶ Play'; } else { b.textContent = '■ Stop'; playThrough(list, b); } return; }
     if (d.cs === 'strum') { const lo = lowestShape(); A.unlockAudio().then(() => A.strum(lo, A.audioCtx().currentTime + 0.05)); return; }
     if (d.cs === 'bpm-' || d.cs === 'bpm+') { S.bpm = Math.max(30, Math.min(200, S.bpm + (d.cs === 'bpm+' ? 10 : -10))); return redraw(); }
     if (d.cs === 'beats') { S.beats = { 1: 2, 2: 4, 4: 1 }[S.beats]; return redraw(); }
@@ -143,16 +210,11 @@ function capText(cur, list) {
 }
 function show(list) {
   const cur = list[S.idx];
-  document.getElementById('csneck').innerHTML = fretboardSVG({ lo: 0, hi: F.MAX_FRET, dots: neckDots(cur), tappable: true });
+  document.getElementById('csneck').innerHTML = vneckSVG(neckDots(cur), cur);
   document.getElementById('cscap').innerHTML = capText(cur, list);
   scrollToCur(cur);
 }
-function scrollToCur(cur) {
-  const box = document.getElementById('csneck'); if (!box || !cur) return;
-  const svg = box.querySelector('svg'); if (!svg || box.scrollWidth <= box.clientWidth) return;
-  const frac = ((cur.minFret + cur.maxFret) / 2 + 0.5) / (F.MAX_FRET + 1);
-  box.scrollTo({ left: Math.max(0, frac * box.scrollWidth - box.clientWidth / 2), behavior: 'smooth' });
-}
+function scrollToCur() { /* the whole upright neck is always in view */ }
 function sound(v, t) {
   const midis = v.notes.map((n) => n.midi).sort((a, b) => a - b);
   A.unlockAudio().then(() => {
@@ -167,7 +229,7 @@ function playThrough(list, btn) {
     const tick = () => {
       show(list); sound(list[S.idx]);
       timer = setTimeout(() => {
-        if (S.idx + 1 >= list.length && !S.loop) { stop(); S.idx = list.length - 1; if (btn) btn.textContent = '▶ Play through'; return; }
+        if (S.idx + 1 >= list.length && !S.loop) { stop(); S.idx = list.length - 1; if (btn) btn.textContent = '▶ Play'; return; }
         S.idx = (S.idx + 1) % list.length; tick();
       }, (60 / S.bpm) * S.beats * 1000);
     };

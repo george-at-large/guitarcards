@@ -253,7 +253,7 @@ function renderHome() {
   $app.innerHTML = `
   <div class="row spread hero"><div><h1>Guitar Cards</h1><div class="tag">${LIB.templates.filter((t) => !(t.tags || []).includes('tg-archive')).length} cards · ${WORKOUTS.length} workouts · ${LIB.analyses.length} songs</div></div><button class="icon" data-act="settings" aria-label="Settings">⚙︎</button></div>
 
-  <div class="navgrid"><button data-act="chordstudy" class="hero-tile" style="grid-column:1/-1"><b>🔬 Chord study</b><small>Any chord on the whole neck: triads, drop 2, drop 3, shells — step or play through every voicing</small></button></div>
+  <div class="navgrid"><button data-act="chordstudy" class="hero-tile" style="grid-column:1/-1"><b>🔬 Deep chord study</b><small>Any chord on the whole neck: open, triads, drop 2, drop 3, shells — step or play through every voicing</small></button></div>
 
   <h3>Drills</h3>
   <div class="navgrid">${[
