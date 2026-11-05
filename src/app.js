@@ -298,6 +298,7 @@ function renderHome() {
   <h3>Learn</h3>
   <div class="navgrid">
     <a class="navlink" href="guide/guitar-mastery.pdf" target="_blank" rel="noopener" style="grid-column:1/-1"><b>📘 The mastery guide (PDF)</b><small>Cheat sheets first, then every chord, scale and arpeggio on the neck</small></a>
+    <a class="navlink" href="guide/memory-essentials.pdf" target="_blank" rel="noopener" style="grid-column:1/-1"><b>🧠 Memory essentials (PDF)</b><small>Every key, mode, borrowed chord, guide-tone line and superimposition, in all 12 keys</small></a>
     ${LIB.routines && LIB.routines.length ? tile('marbin', '🎬', 'Marbin practice routines', `${LIB.routines.length} routines with the videos`, true) : ''}
     ${tile('tg', '🎹', 'Ted Greene', 'Modern Chord Progressions', true)}
     ${tile('theory', '🧠', 'Theory tester', `${LIB.templates.filter((t) => t.mode === 'theory' && !(t.tags || []).includes('ted-greene')).length} quick questions, kept apart from practice`)}
