@@ -67,7 +67,7 @@ export function renderMemoryPack($app, { onBack } = {}) {
     <div class="mp-units">${UNITS.filter((u) => u.module === mo.id).map((u) => {
       const s = M.unitStatus(u.id), rel = M.released(DECK, u.id), all = M.unitDeck(DECK, u.id);
       const p = M.pctReviewed(all);
-      return `<button class="mp-unit ${s}" data-unit="${u.id}"><span class="mp-uid">${u.id}</span><span class="grow"><b>${esc(u.name)}</b><small>${s === 'locked' ? '🔒 locked — finish the unit before' : s === 'new' ? 'Not started' : `${Math.round(100 * M.pctFacts(all))}% of facts learned · ${all.length} cards, all 12 keys`}</small><i class="mp-bar"><i style="width:${Math.round(100 * p)}%"></i></i></span><span class="mp-chip">${s === 'locked' ? '🔒' : s === 'new' ? 'New' : s === 'learning' ? 'Learning' : 'Review'}</span></button>`;
+      return `<button class="mp-unit ${s}" data-unit="${u.id}"><span class="mp-uid">${u.id}</span><span class="grow"><b>${esc(u.name)}</b><small>${s === 'reference' ? 'Reference page — read it, nothing to drill' : s === 'locked' ? '🔒 locked — finish the unit before' : s === 'new' ? 'Not started' : `${Math.round(100 * M.pctFacts(all))}% of facts learned · ${all.length} cards, all 12 keys`}</small><i class="mp-bar"><i style="width:${Math.round(100 * p)}%"></i></i></span><span class="mp-chip">${s === 'reference' ? 'Ref' : s === 'locked' ? '🔒' : s === 'new' ? 'New' : s === 'learning' ? 'Learning' : 'Review'}</span></button>`;
     }).join('')}</div>`).join('')}
   <h3>Settings</h3>
   <div class="row mp-set"><button data-mp="unlockall" class="${st.settings.unlockAll ? 'on' : ''}">${st.settings.unlockAll ? '✓ ' : ''}Unlock all units</button><button data-mp="reset" class="ghost">Reset progress</button></div>
@@ -97,10 +97,10 @@ function renderUnit(uid) {
   window.scrollTo(0, 0);
   $root.innerHTML = `
   <div class="row spread"><button class="icon" data-mp="home" aria-label="Back">←</button><h2 style="margin:0">${u.id} · ${esc(u.name)}</h2><span></span></div>
-  ${s === 'locked' ? `<div class="panel mp-locked">🔒 Locked until 80% of ${esc(u.after || UNITS[UNITS.indexOf(u) - 1].id)}’s facts are in Review. You can read the explainer now. <button data-mp="force">Unlock anyway</button></div>` : ''}
+  ${s === 'locked' ? `<div class="panel mp-locked">🔒 Locked until 80% of ${esc(u.after || UNITS.slice(0, UNITS.indexOf(u)).reverse().find((x) => !x.reference).id)}’s facts are in Review. You can read the explainer now. <button data-mp="force">Unlock anyway</button></div>` : ''}
   <div class="panel"><div class="mp-vis">${visualHTML(u.visual)}</div><div class="md mp-md">${md(u.md)}</div></div>
   <div class="mp-ladder">${['Understand', 'Derive', 'Recall', 'Fluency', 'Interleave'].map((x, i) => `<span>${i + 1} ${x}</span>`).join('')}</div>
-  ${s !== 'locked' ? `<div class="navgrid">
+  ${s !== 'locked' && s !== 'reference' ? `<div class="navgrid">
     <button data-mp="learn" style="grid-column:1/-1"><b>${s === 'new' ? '▶ Start: derive → recall' : '▶ Learn more: derive → recall'}</b><small>3 cards with the rule shown, then recall with hints</small></button>
     <button data-mp="practise"><b>🔁 Practise</b><small>${rel.length} cards across all keys, due first</small></button>
     <button data-mp="fluency"><b>⚡ Fluency round</b><small>Timed, ~2 s per fact</small></button>

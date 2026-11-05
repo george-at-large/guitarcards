@@ -69,6 +69,9 @@ const MI = [
 ];
 const voicingFor = (chart) => (/:(maj|min)\b/.test(chart) ? { voicing: 'close', stringSet: [3, 2, 1] } : { voicing: 'drop2', stringSet: [4, 3, 2, 1] });
 
+// the moves as plain data (the Memory pack drills them in all 12 keys)
+export const MI_MOVES = MI.map(([id, name, chart, source, level, what, voice, where]) => ({ id, name, chart, source, what, voice, where }));
+
 export const templates = MI.map(([id, name, chart, source, level, what, voice, where]) => ({
   id: `core-mi-${id}`, mode: 'play', category: 'progressions', tags: ['modal-interchange', 'core', 'borrowed-chords'],
   title: `Modal interchange: ${name}`, level, length: 'short', minutes: 2,

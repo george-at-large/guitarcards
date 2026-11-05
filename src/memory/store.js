@@ -71,7 +71,10 @@ function bumpRelease(uid) {
 export function unlocked(uid) {
   const i = UNITS.findIndex((u) => u.id === uid);
   if (i <= 0 || state().settings.unlockAll || state().units[uid]?.forced) return true;
-  const prev = UNITS[i].after || UNITS[i - 1].id; // a unit may name its own prerequisite
+  if (UNITS[i].reference) return true;
+  // a unit may name its own prerequisite; reference-only units don't count
+  const prev = UNITS[i].after || UNITS.slice(0, i).reverse().find((u) => !u.reference)?.id;
+  if (!prev) return true;
   // the previous unit is learned when 80% of its facts are in Review in at least one key
   return pctFacts(unitDeck(DECK, prev)) >= 0.8;
 }
@@ -83,8 +86,9 @@ export function startUnit(uid) {
   save();
 }
 export const newUnitToday = () => state().days[today()]?.newUnit || null;
-export function nextNewUnit() { return UNITS.find((u) => !state().units[u.id] && unlocked(u.id)) || null; }
+export function nextNewUnit() { return UNITS.find((u) => !u.reference && !state().units[u.id] && unlocked(u.id)) || null; }
 export function unitStatus(uid) {
+  if (UNITS.find((u) => u.id === uid)?.reference) return 'reference';
   if (!unlocked(uid)) return 'locked';
   if (!state().units[uid]) return 'new';
   const p = pctReviewed(released(DECK, uid));

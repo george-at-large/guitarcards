@@ -2,6 +2,7 @@
 // Every answer, hint and why line is produced by the engine, so every key gets identical treatment.
 import * as E from './engine.js';
 import * as SI from '../superimpose.js';
+import { MI_MOVES } from '../../content/core.js';
 
 const { N, nm, up, down } = E;
 const R12 = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -50,7 +51,7 @@ function SI_MD(kind) {
 
 // ---------- units ----------
 export const UNITS = [
-  { id: 'A1', module: 'A', name: 'Intervals', rule: 'Spell the root’s major scale; major and perfect intervals are its notes. One semitone smaller than major is minor; smaller than perfect is diminished; larger is augmented.', visual: { type: 'clock', pcs: [0, 4, 7] },
+  { id: 'A1', module: 'A', reference: true, name: 'Intervals (reference)', rule: 'Spell the root’s major scale; major and perfect intervals are its notes. One semitone smaller than major is minor; smaller than perfect is diminished; larger is augmented.', visual: { type: 'clock', pcs: [0, 4, 7] },
     md: `The major scale is the measuring stick. Measured up from the root, every note of a major scale is a **major or perfect** interval: M2, M3, P4, P5, M6, M7. One semitone smaller than major is **minor**; one smaller than perfect is **diminished**; one larger than either is **augmented**.\n\nSo to find any interval above a note, spell that note's major scale and adjust. A minor 6th above E♭ is the 6th of E♭ major (C) lowered a semitone: **C♭**. Not B, because a 6th must land on the sixth letter.\n\n| Interval | Semitones | Interval | Semitones |\n|---|---|---|---|\n| m2 | 1 | P5 | 7 |\n| M2 | 2 | m6 / ♯5 | 8 |\n| m3 / ♯2 | 3 | M6 | 9 |\n| M3 | 4 | m7 | 10 |\n| P4 | 5 | M7 | 11 |\n| Tritone (♯4 / ♭5) | 6 | Octave | 12 |\n\n**Hold these:** inversions add to 9 (M3 inverts to m6, P4 to P5), and major inverts to minor. Extensions are the 2nd, 4th and 6th plus an octave: 9 = 2, 11 = 4, 13 = 6.` },
   { id: 'A2', module: 'A', name: 'Circle of fifths & key signatures', rule: 'Clockwise: up a 5th, add a sharp (the new key’s 7th). Anticlockwise: up a 4th, add a flat (the new key’s 4th). Sharp keys: up a semitone from the last sharp. Flat keys: the second-to-last flat.', visual: { type: 'circle' },
     md: `Going **clockwise** moves up a 5th and adds one sharp. The new sharp is always the new key's **7th degree**, raised so it leads to the tonic. Going **anticlockwise** moves up a 4th and adds one flat, which is always the new key's **4th degree**.\n\nOrder of sharps: **F C G D A E B** (“Father Charles Goes Down And Ends Battle”). Order of flats: the same backwards.\n\nTwo shortcuts name a key from its signature:\n- **Sharp keys:** go up a semitone from the last sharp. Four sharps end on D♯, so the key is E.\n- **Flat keys:** the second-to-last flat names the key. Four flats are B♭ E♭ A♭ D♭, so the key is A♭. (F, with one flat, is the one to memorise.)` },
@@ -74,6 +75,8 @@ export const UNITS = [
     md: `A dominant 7th's 3rd and 7th sit a tritone apart. The dominant whose root is a tritone away has **the same two notes, swapped**: G7 has B and F, D♭7 has F and C♭. With the same guide tones it does the same job, and its root resolves **down a semitone** instead of down a 5th, giving a chromatic bass (Dm7–D♭7–C). On the pitch clock the two roots sit directly opposite each other.\n\nThe six pairs: **C7↔G♭7, G7↔D♭7, D7↔A♭7, A7↔E♭7, E7↔B♭7, B7↔F7.**\n\nSecondary dominants can be substituted too: in C, A7 (V7/ii) becomes E♭7, giving Cmaj7–E♭7–Dm7–D♭7–Cmaj7.` },
   { id: 'C3', module: 'C', name: 'Modal interchange', rule: 'Borrow from the PARALLEL modes (same tonic). Flat-side chords come from darker modes: ♭VI needs a ♭6, so Aeolian or darker.', visual: { type: 'strip', f: '1 2 b3 4 5 b6 b7' },
     md: `Parallel modes share your tonic. Any chord from the degree triangle of a parallel mode can be borrowed. Darker modes give flat-side chords with a wistful, heavier colour; Lydian gives a brighter one. Using the brightness ladder (B1) you can find a borrowed chord's source: ♭VI needs a ♭6, so it comes from Aeolian or darker.\n\n| In C major | Chord | Source | Typical move |\n|---|---|---|---|\n| iv | Fm, Fm6, Fm7 | C Aeolian | IV–iv–I |\n| ♭VImaj7 | A♭maj7 | C Aeolian | ♭VI–♭VII–I or ♭VI–I |\n| ♭VII7 | B♭7 | C Aeolian | Backdoor: Fm7–B♭7–Cmaj7 |\n| ♭IIImaj7 | E♭maj7 | C Aeolian or Dorian | I–♭III–IV |\n| iiø7 | Dm7♭5 | C Aeolian | Dm7♭5–G7–Cmaj7 |\n| v | Gm7 | C Mixolydian | Gm7–C7–Fmaj7 |\n| ♭VIImaj7 | B♭maj7 | C Mixolydian or Dorian | I–♭VII–I |\n| ♭IImaj7 | D♭maj7 | C Phrygian | ♭II–I |\n| II7 | D7 | C Lydian | I–II7, not resolving to V |\n\n| In A minor | Chord | Source | Typical move |\n|---|---|---|---|\n| IV7 | D7 | A Dorian | i–IV7 vamp |\n| V7 | E7 | A harmonic minor | V7–i |\n| I | A or Amaj7 | A major | Picardy ending |\n| ♭IImaj7 | B♭maj7 | A Phrygian | ♭II–V–i or ♭II–i |` },
+  { id: 'C4', module: 'C', name: 'Modal interchange in context', rule: 'Each borrowed chord is a move with a job: name its numerals, its source mode and the one voice that moves (usually ♭6 → 5 or ♭7 → 1).', visual: { type: 'strip', f: '1 2 3 4 5 b6 b7' },
+    md: MI_MD() },
   { id: 'D1', module: 'D', name: 'Guide tones of any chord', rule: 'The 3rd says major or minor; the 7th says major 7th, dominant or diminished. Only the dominant has a tritone between them.', visual: { type: 'clock', pcs: [4, 10], line: true },
     md: `The **3rd** says major or minor; the **7th** says major 7th, dominant or diminished. Together they identify every 7th-chord quality except one pair (m7 and m7♭5 share them; only the 5th tells them apart).\n\n| Quality | 3rd | 7th | Between them | Root C |\n|---|---|---|---|---|\n| maj7 | 3 | 7 | Perfect 5th | E, B |\n| 7 | 3 | ♭7 | Tritone | E, B♭ |\n| m7 | ♭3 | ♭7 | Perfect 5th | E♭, B♭ |\n| m7♭5 | ♭3 | ♭7 | Perfect 5th | E♭, B♭ |\n| mMaj7 | ♭3 | 7 | Augmented 5th | E♭, B |\n| dim7 | ♭3 | 𝄫7 | Tritone | E♭, B𝄫 |\n\nAmong the four common 7th chords, **only the dominant has a tritone between its guide tones**. That tritone is the tension a V7 carries, and it's why the tritone sub works (C2).` },
   { id: 'D2', module: 'D', name: 'The ii–V–I rule', rule: 'Roots down a 5th: the 7th falls a step to the next 3rd; the 3rd holds to become the next 7th.', visual: { type: 'circle' },
@@ -587,8 +590,52 @@ function siCards(unit, tri) {
 function E1() { return siCards('E1', true).map((c) => ({ ...c, requires: ['B3'] })); }
 function E2() { return siCards('E2', false).map((c) => ({ ...c, requires: ['E1'] })); }
 
+
+// ---------- C4: modal interchange in context (the moves from content/core.js) ----------
+const RN_DEG = { I: '1', i: '1', bII: 'b2', II: '2', ii: '2', bIII: 'b3', iii: '3', IV: '4', iv: '4', V: '5', v: '5', bVI: 'b6', VI: '6', vi: '6', bVII: 'b7', VII: '7', vii: '7' };
+const Q_SYM = { maj: '', min: 'm', m7: 'm7', 7: '7', maj7: 'maj7', m6: 'm6', m7b5: 'm7♭5', '7b9': '7♭9' };
+const prettyRn = (t) => t.replace(/^b/, '♭');
+function moveChords(move, key) {
+  const toks = move.chart.split(/[\s|]+/).filter((t) => t && t !== '%');
+  return toks.map((t) => {
+    const [rn, q] = t.split(':');
+    let root = up(key, RN_DEG[rn]);
+    // the everyday name too: C♭maj7 is usually thought of as Bmaj7
+    const odd = Math.abs(root.acc) > 1 || ['C♭', 'F♭', 'E♯', 'B♯'].includes(nm(root));
+    const easy = odd ? E.bestRoot(E.pc(root), (r) => [r]) : root;
+    return { rn: prettyRn(rn) + (q === 'maj' || q === 'min' ? '' : q.replace('m7b5', 'ø7').replace('b9', '♭9').replace(/^m(?=\d)/, '')), sym: nm(root) + Q_SYM[q], easy: nm(easy) + Q_SYM[q] };
+  });
+}
+function MI_MD() {
+  const rows = MI_MOVES.map((m) => `| ${m.name} | ${m.source} | ${m.voice} |`);
+  return `Knowing that ♭VI “comes from minor” is not the point; knowing **what it does in a progression** is. Each card in this unit is one stock move. For every move, hold three things: the numerals, the **source mode** (the parallel mode it is borrowed from), and the **one voice that makes it work**. Then play it from memory in any key.\n\n| Move | Borrowed from | The voice that moves |\n|---|---|---|\n${rows.join('\n')}\n\nPlay each one on the guitar: Home → Core sets → Modal interchange in context.`;
+}
+function C4() {
+  const out = [];
+  const sources = [...new Set(MI_MOVES.map((m) => m.source))];
+  MI_MOVES.forEach((m, i) => {
+    out.push(card({ id: `C4.name.source.${m.id}`, module: 'C', unit: 'C4', type: 'name', input: 'choice', choices: sources, prompt: `${m.name}: borrowed from which mode?`, answer: [m.source], tags: ['interchange', 'context'],
+      why: `${m.name} borrows from ${m.source}. ${m.what}`, hints: ['Which note is flattened (or raised) against the major key?', m.voice, `It starts with “${m.source[0]}”.`] }));
+    const others = MI_MOVES.filter((x) => x.id !== m.id);
+    const pick = [m, others[(i * 5) % others.length], others[(i * 7 + 3) % others.length], others[(i * 11 + 6) % others.length]];
+    const choices = [...new Set(pick.map((x) => x.name))].sort();
+    out.push(card({ id: `C4.reverse.voice.${m.id}`, module: 'C', unit: 'C4', type: 'reverse', input: 'choice', choices, prompt: `Which move is this? ${m.voice}`, answer: [m.name], reverse_of: `C4.name.source.${m.id}`, tags: ['interchange', 'context'],
+      why: `${m.name}: ${m.voice}`, hints: [`Borrowed from ${m.source}.`, m.where, m.what.split('.')[0] + '.'] }));
+    for (const k of E.MAJOR_KEYS) {
+      const key = N(k);
+      const ch = moveChords(m, key);
+      out.push(card({ id: `C4.reeloff.${m.id}.${k}`, module: 'C', unit: 'C4', type: 'reeloff', input: 'self', prompt: `${m.name} in ${nm(key)}: name the chords`, answer: ch.map((c) => c.sym), accept: ch.some((c) => c.easy !== c.sym) ? [ch.map((c) => c.easy)] : [], answerText: ch.map((c) => `${c.sym}${c.easy !== c.sym ? ` (= ${c.easy})` : ''} ${c.rn}`).join(' → '), rank: rankOf(key), tags: ['interchange', 'context', 'keys'],
+        why: `${ch.map((c) => c.sym).join(' → ')}. ${m.voice}`, hints: [`Numerals: ${ch.map((c) => c.rn).join(' → ')}.`, `Borrowed chord from ${nm(key)} ${m.source.split(/[ /(]/)[0]}.`, `Starts ${ch[0].sym}…`] }));
+    }
+  });
+  return out;
+}
+
 export function buildDeck() {
-  const deck = [...A1(), ...A1ext(), ...A2(), ...A3(), ...A4(), ...A5(), ...B1(), ...B2(), ...B3(), ...B4(), ...C1(), ...C2(), ...C3(), ...D1(), ...D2(), ...D3(), ...E1(), ...E2()];
+  let deck = [...A2(), ...A3(), ...A4(), ...A5(), ...B1(), ...B2(), ...B3(), ...B4(), ...C1(), ...C2(), ...C3(), ...C4(), ...D1(), ...D2(), ...D3(), ...E1(), ...E2()];
+  // work-it-out-on-the-spot lookups are not drilled: per-key degree spot checks, sharp/flat counts, out-of-key notes, trivia counts
+  const CUT = /^(A2\.reverse\.keysig|A3\.name\.parallel|A4\.name\.deg|C1\.name\.out|B4\.name\.versions|D1\.name\.between)\./;
+  deck = deck.filter((c) => !CUT.test(c.id));
   // default requires: the previous unit
   const order = UNITS.map((u) => u.id);
   for (const c of deck) if (!c.requires.length) { const i = order.indexOf(c.unit); c.requires = i > 0 ? [order[i - 1]] : []; }
