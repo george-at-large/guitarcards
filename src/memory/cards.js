@@ -43,7 +43,9 @@ function SI_MD(kind) {
     const st = SI.structure('C', k, it);
     rows.push(`| C${SYM[k]} | ${it.deg} ${SI.shapeName(it.shape)} (${st.name}) | ${st.tensions.join(' ')} | ${it.result} | ${it.scale} |`);
   }
-  return `${intro}\n\n| Chord | Play | Adds | Sounds like | Scale |\n|---|---|---|---|---|\n${rows.join('\n')}\n\nOn the guitar: open **Deep chord study → Superimpose** to see each one on the neck, labelled as tensions over the chord.`;
+  const ex = SI.explain('C', 'dom', SI.menu('dom').items.find((x) => x.deg === (tri ? '♭V' : '♭iii')));
+  const why = `### Why superimpositions work\n1. **They are the chord’s upper floors.** Stack any chord in thirds past the 7th: 1 3 5 7 9 11 13. A triad built on the 5th, 7th or 9th of the chord is three neighbouring floors of that stack, so it isn’t a foreign chord at all: it is the top of a bigger version of the same chord (D over C7 = the top of C13♯11).\n2. **They come from the chord’s own scale.** Each option is a subset of the scale that fits the chord (Lydian dominant, altered, Dorian…). Pick the structure and you have picked the colour.\n3. **They skip the avoid notes.** The note a half step above a chord tone (the 11 over a major or dominant chord) rubs on a long note. Good superimpositions leave it out, or replace it with ♯11.\n4. **The ear trusts strong shapes.** A triad or a pentatonic is so familiar that even far-out notes sound deliberate: you are playing a clear idea, not wrong notes.\n5. **Tension has somewhere to go.** Over a dominant, altered notes sit a half step from notes of the I chord, so they pull into it when the chord resolves.\n\n**Worked example, ${ex[0].t}**\n${ex.slice(1).map((x) => `- **${x.k}.** ${x.t}`).join('\n')}`;
+  return `${intro}\n\n${why}\n\n| Chord | Play | Adds | Sounds like | Scale |\n|---|---|---|---|---|\n${rows.join('\n')}\n\nOn the guitar: open **Deep chord study → Superimpose** to see each one on the neck, labelled as tensions over the chord.`;
 }
 
 // ---------- units ----------
@@ -545,11 +547,11 @@ function siCards(unit, tri) {
       const inC = SI.structure('C', k, it);
       out.push(card({ id: `${unit}.name.adds.${tag}`, module: 'E', unit, type: 'name', input: 'choice', choices: addChoices,
         prompt: `Over a ${m.label} chord, the ${it.deg} ${nmShape} adds…?`, answer: [tens], tags: ['superimposition', k],
-        why: `${it.deg} ${nmShape} over ${m.label}: ${tens} → ${it.result} (${it.scale}). ${it.why}`,
+        why: `${it.deg} ${nmShape} over ${m.label}: ${tens} → ${it.result} (${it.scale}). ${SI.shortWhy('C', k, it)}`,
         hints: [`Count from the chord root to the ${it.deg}, then read each note against the chord root.`, `Over C${QSYM[k]} that is the ${inC.name}: ${inC.names.join(' ')}.`, `Starts ${tens.split(' ')[0]}…`] }));
       if (nameChoices.length > 1) out.push(card({ id: `${unit}.reverse.sound.${tag}`, module: 'E', unit, type: 'reverse', input: 'choice', choices: nameChoices,
         prompt: `Over a ${m.label} chord you want ${it.result} (${it.scale}). Play which ${tri ? 'triad' : 'pentatonic'}?`, answer: [`${it.deg} ${nmShape}`], reverse_of: `${unit}.name.adds.${tag}`, tags: ['superimposition', k],
-        why: `${it.deg} ${nmShape}: ${tens} over the chord. ${it.why}`,
+        why: `${it.deg} ${nmShape}: ${tens} over the chord. ${SI.shortWhy('C', k, it)}`,
         hints: [`Which notes does ${it.result} add? Find the ${tri ? 'triad' : 'pentatonic'} that contains them.`, `It adds ${tens}.`, `It is built on the ${it.deg}.`] }));
       for (const r of R12) {
         const cr = N(r);

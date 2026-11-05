@@ -262,7 +262,10 @@ svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordb
 .csneck .dot.tone.cur text { fill: #00141c; }
 svg .fretnum.strong { fill: #d8c3a8; }
 .cssi .chip { font-size: 12.5px; }
-.cswhy { margin: 2px 0 8px; color: var(--muted); }
+.cswhy { margin: 4px 0 10px; }
+.cswhy h4 { margin: 0 0 6px; font-size: 14px; }
+.cswhy ul { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.45; }
+.cswhy li { margin-bottom: 5px; }
 .csneck .dot.mark.cur circle { stroke: #fff; stroke-width: 2.2; }
 svg.vneck .mute { fill: #e9dccd; font-size: 15px; font-weight: 700; text-anchor: middle; }
 .csside { position: sticky; top: 8px; display: flex; flex-direction: column; gap: 10px; }
