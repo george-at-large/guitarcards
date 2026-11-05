@@ -249,3 +249,23 @@ svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordb
 .melchip.cur { background: var(--on); color: #00141c; border-color: var(--on); }
 .melchip.cur b, .melchip.cur .mfrom { color: #00141c; }
 .melsteps { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+
+/* chord study */
+.csstick { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 6px 0 8px; margin: 0 -2px; border-bottom: 1px solid var(--line); }
+.cshead { gap: 10px; align-items: center; }
+.cssym { font-size: 28px; font-weight: 850; letter-spacing: -0.02em; flex: 1; }
+.csnotes { text-align: right; }
+.csroots, .cssub, .csqual { margin: 8px 0; }
+.cssub { align-items: center; }
+.cssub .muted { margin-right: 4px; }
+.csfam { margin: 8px 0; flex-wrap: wrap; }
+.csneck { overflow-x: auto; margin: 4px -4px 4px; -webkit-overflow-scrolling: touch; }
+.csneck svg { min-width: 680px; }
+@media (min-width: 760px) { .csneck svg { min-width: 0; } }
+.csneck .dot { pointer-events: none; }
+.csneck .dot.cur circle { stroke: #fff; stroke-width: 2.2; r: 10.5; }
+.csneck .dot.tone.cur circle { fill: var(--on); }
+.csneck .dot.tone.cur text { fill: #00141c; }
+.cscap { min-height: 44px; font-size: 14px; }
+.csnav, .csopts { margin-top: 8px; gap: 6px; flex-wrap: wrap; align-items: center; }
+.csopts button.on { background: var(--on); color: #00141c; }
