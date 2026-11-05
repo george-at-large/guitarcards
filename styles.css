@@ -261,11 +261,16 @@ svg.chordbox .addx line { stroke: var(--accent); stroke-width: 2.5; } svg.chordb
 .csneck .dot.tone.cur circle { fill: var(--on); }
 .csneck .dot.tone.cur text { fill: #00141c; }
 svg .fretnum.strong { fill: #d8c3a8; }
+.cssi .chip { font-size: 12.5px; }
+.cswhy { margin: 2px 0 8px; color: var(--muted); }
+.csneck .dot.mark.cur circle { stroke: #fff; stroke-width: 2.2; }
 svg.vneck .mute { fill: #e9dccd; font-size: 15px; font-weight: 700; text-anchor: middle; }
 .csside { position: sticky; top: 8px; display: flex; flex-direction: column; gap: 10px; }
 .cscap { font-size: 13.5px; line-height: 1.4; min-height: 60px; }
-.csnav { display: grid; grid-template-columns: 1fr; gap: 6px; }
-.csnav button { width: 100%; }
+.csnav { display: flex; gap: 6px; }
+.csnav button { padding: 10px 6px; }
+.csnav button.primary { flex: 1; }
+.csnav button:not(.primary) { flex: 0 0 38px; }
 .csfam { display: flex; flex-direction: column; gap: 5px; }
 .csfam button { text-align: left; padding: 8px 10px; font-size: 13.5px; }
 .csfam button.on { background: var(--on); color: #00141c; border-color: var(--on); font-weight: 750; }

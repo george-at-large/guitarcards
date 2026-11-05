@@ -3,6 +3,7 @@ import * as T from './theory.js';
 import * as F from './fretboard.js';
 import * as A from './audio.js';
 import { esc } from './render.js';
+import * as SI from './superimpose.js';
 
 const ROOTS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 const QUALITY_GROUPS = [
@@ -20,9 +21,10 @@ const FAMILIES = {
   drop2: { label: 'Drop 2', voicing: 'drop2', sets: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]], size: 4 },
   drop3: { label: 'Drop 3', voicing: 'drop3', sets: [[6, 4, 3, 2], [5, 3, 2, 1]], size: 4 },
   drop24: { label: 'Drop 2&4', voicing: 'drop24', sets: [[6, 5, 3, 2], [5, 4, 2, 1]], size: 4 },
+  super: { label: 'Superimpose', si: true, sets: [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]] },
   shell: { label: 'Shells', voicing: 'shell', sets: [[6, 4, 3], [5, 3, 2], [6, 5, 4], [5, 4, 3]], size: 3 },
 };
-const S = { root: 'C', quality: 'maj7', fam: 'drop2', set: 'all', inv: 'all', ivs: null, names: false, idx: 0, bpm: 60, beats: 2, arp: false, loop: false, ghosts: true };
+const S = { root: 'C', quality: 'maj7', fam: 'drop2', set: 'all', inv: 'all', ivs: null, names: false, idx: 0, bpm: 60, beats: 2, arp: false, loop: false, ghosts: true, si: 0 };
 let timer = null;
 
 const sym = () => T.pretty(T.chordSymbol(T.parseNote(S.root), S.quality));
@@ -37,10 +39,32 @@ const triadOf = (ivs) => {
 // families that make sense for this chord (no 4-note drops for a 3-note chord)
 const gripCache = new Map();
 const hasOpen = () => { const k = S.root + S.quality; if (!gripCache.has(k)) gripCache.set(k, openGrips().length > 0); return gripCache.get(k); };
-const famsFor = () => Object.keys(FAMILIES).filter((k) => !(FAMILIES[k].size === 4 && chordIvs().length < 4) && !(k === 'shell' && chordIvs().length < 4) && !(k === 'open' && !hasOpen()));
+const famsFor = () => Object.keys(FAMILIES).filter((k) => !(FAMILIES[k].size === 4 && chordIvs().length < 4) && !(k === 'shell' && chordIvs().length < 4) && !(k === 'open' && !hasOpen()) && !(k === 'super' && !SI.menuKey(S.quality)));
+
+// the superimposed structure currently picked for this chord
+function siNow() {
+  const key = SI.menuKey(S.quality); if (!key) return null;
+  const items = SI.menu(key).items;
+  if (S.si >= items.length) S.si = 0;
+  const item = items[S.si];
+  const st = SI.structure(S.root, key, item);
+  const tensionOf = (pc) => st.tensions[st.pcs.indexOf(pc)];
+  return { key, items, item, st, tensionOf };
+}
+function siVoicings(fam) {
+  const x = siNow(); if (!x || !x.st.triad) return [];
+  const out = [];
+  for (const ss of fam.sets) {
+    if (S.set !== 'all' && ss.join('') !== S.set) continue;
+    try { out.push(...F.chordVoicings({ root: x.st.sroot, quality: x.st.triad, voicing: 'close', stringSet: ss, inversion: 'all' })); } catch (e) { /* no fit */ }
+  }
+  for (const v of out) v.notes = v.notes.map((n) => ({ ...n, tension: x.tensionOf(n.midi % 12) }));
+  return out.sort((a, b) => a.minFret - b.minFret || b.stringSet[0] - a.stringSet[0]);
+}
 
 function voicings() {
   const fam = FAMILIES[S.fam];
+  if (fam && fam.si) return siVoicings(fam);
   if (fam && fam.grips) return openGrips().filter((v) => S.inv === 'all' || F.simpleIv(v.bassIv) === S.inv);
   if (!fam || !fam.voicing) return [];
   const ivs = chordIvs();
@@ -101,6 +125,7 @@ function label(iv) {
 }
 
 function neckDots(cur) {
+  if (S.fam === 'super') return siDots(cur);
   const ivs = chordIvs();
   const shown = S.ivs || new Set(ivs.map(F.simpleIv));
   const curKeys = new Set(cur ? cur.notes.map((n) => `${n.string}:${n.fret}`) : []);
@@ -115,6 +140,23 @@ function neckDots(cur) {
     }
   }
   if (cur) for (const n of cur.notes) dots.push({ string: n.string, fret: n.fret, label: label(n.iv), kind: F.simpleIv(n.iv) === '1' ? 'root cur' : 'tone cur' });
+  return dots;
+}
+
+// chord tones faded underneath, the superimposed notes everywhere (labelled as tensions), the current triad shape on top
+function siDots(cur) {
+  const x = siNow(); if (!x) return [];
+  const ivs = chordIvs();
+  const curKeys = new Set(cur ? cur.notes.map((n) => `${n.string}:${n.fret}`) : []);
+  const names = (pc) => x.st.names[x.st.pcs.indexOf(pc)];
+  const dots = [];
+  for (let s = 1; s <= 6; s++) for (let f = 0; f <= F.MAX_FRET; f++) {
+    if (curKeys.has(`${s}:${f}`)) continue;
+    const pc = F.midiAt(s, f) % 12;
+    if (x.st.pcs.includes(pc)) dots.push({ string: s, fret: f, label: S.names ? names(pc) : x.tensionOf(pc), kind: cur ? 'mark dim' : 'mark' });
+    else if (S.ghosts) { const iv = ivs.find((y) => pcOf(y) === pc); if (iv) dots.push({ string: s, fret: f, label: label(iv), kind: 'ghost dim' }); }
+  }
+  if (cur) for (const n of cur.notes) dots.push({ string: n.string, fret: n.fret, label: S.names ? names(n.midi % 12) : n.tension, kind: 'mark cur' });
   return dots;
 }
 
@@ -158,11 +200,12 @@ export function renderChordStudy($app, { onBack }) {
     <div class="csneck" id="csneck">${vneckSVG(neckDots(cur), cur)}</div>
     <div class="csside">
       <div class="cscap" id="cscap">${capText(cur, list)}</div>
-      ${fam.voicing || fam.grips ? `<div class="csnav"><button data-cs="prev" aria-label="Previous voicing">▲</button><button class="primary" data-cs="play">▶ Play</button><button data-cs="next" aria-label="Next voicing">▼</button></div>` : `<div class="csnav"><button class="primary" data-cs="strum">▶ Hear it</button></div>`}
+      ${fam.si ? `<div class="csnav">${siNow()?.st.triad ? '<button data-cs="prev" aria-label="Previous shape">▲</button>' : ''}<button class="primary" data-cs="${siNow()?.st.triad ? 'play' : 'siplay'}">▶ Hear it</button>${siNow()?.st.triad ? '<button data-cs="next" aria-label="Next shape">▼</button>' : ''}</div>` : fam.voicing || fam.grips ? `<div class="csnav"><button data-cs="prev" aria-label="Previous voicing">▲</button><button class="primary" data-cs="play">▶ Play</button><button data-cs="next" aria-label="Next voicing">▼</button></div>` : `<div class="csnav"><button class="primary" data-cs="strum">▶ Hear it</button></div>`}
       <div class="csfam">${famsFor().map((k) => `<button data-fam="${k}" class="${k === S.fam ? 'on' : ''}">${FAMILIES[k].label}</button>`).join('')}</div>
     </div>
   </div>
-  ${fam.voicing ? `<div class="chips cssub"><span class="muted small">Strings</span>${['all', ...sets].map((s) => `<button class="chip ${S.set === s ? 'on' : ''}" data-set="${s}">${s === 'all' ? 'All' : s.split('').join('-')}</button>`).join('')}</div>` : ''}
+  ${fam.si ? `<div class="chips cssub cssi"><span class="muted small">Play</span>${siNow().items.map((it, i) => `<button class="chip ${i === S.si ? 'on' : ''}" data-si="${i}">${esc(it.deg)} ${esc(SI.shapeName(it.shape).replace('major ', 'maj ').replace('minor ', 'min ').replace('pentatonic', 'pent'))} <span class="muted">· ${esc(it.result)}</span></button>`).join('')}</div><p class="small cswhy">${esc(siNow().item.why)}</p>` : ''}
+  ${fam.voicing || (fam.si && siNow()?.st.triad) ? `<div class="chips cssub"><span class="muted small">Strings</span>${['all', ...sets].map((s) => `<button class="chip ${S.set === s ? 'on' : ''}" data-set="${s}">${s === 'all' ? 'All' : s.split('').join('-')}</button>`).join('')}</div>` : ''}
   ${fam.voicing || fam.grips ? `<div class="chips cssub"><span class="muted small">Bass</span>${['all', ...bassOpts].map((b) => `<button class="chip ${S.inv === b ? 'on' : ''}" data-inv="${esc(b)}">${b === 'all' ? 'Any' : esc(T.prettyIv(b))}</button>`).join('')}</div>` : ''}
   <div class="chips cssub csivs"><span class="muted small">Show</span>${ivs.map((iv) => { const k = F.simpleIv(iv); const on = !S.ivs || S.ivs.has(k); return `<button class="chip ${on ? 'on' : ''}" data-iv="${esc(k)}">${esc(T.prettyIv(iv))}</button>`; }).join('')}<button class="chip" data-cs="guide">3 & 7</button><button class="chip" data-cs="allivs">All</button></div>
   <h3>Root</h3>
@@ -184,6 +227,8 @@ export function renderChordStudy($app, { onBack }) {
     if (d.root) { S.root = d.root; S.idx = 0; return redraw(); }
     if (d.qual) { S.quality = d.qual; S.ivs = null; S.idx = 0; S.inv = 'all'; return redraw(); }
     if (d.fam) { S.fam = d.fam; S.set = 'all'; S.inv = 'all'; S.idx = 0; return redraw(); }
+    if (d.si) { S.si = Number(d.si); S.idx = 0; S.set = 'all'; redraw(); siHear(); return; }
+    if (d.cs === 'siplay') { siHear(); return; }
     if (d.set) { S.set = d.set; S.idx = 0; return redraw(); }
     if (d.inv) { S.inv = d.inv; S.idx = 0; return redraw(); }
     if (d.iv) { const all = new Set(ivs.map(F.simpleIv)); const cur2 = S.ivs || all; const n = new Set(cur2); n.has(d.iv) ? n.delete(d.iv) : n.add(d.iv); S.ivs = n.size === all.size ? null : n; return redraw(); }
@@ -203,6 +248,12 @@ export function renderChordStudy($app, { onBack }) {
 
 function voicingsAllInv() { const k = S.inv; S.inv = 'all'; const v = voicings(); S.inv = k; return v; }
 function capText(cur, list) {
+  if (S.fam === 'super') {
+    const x = siNow(); if (!x) return '';
+    const head = `<b>${esc(x.st.name)}</b> over <b>${esc(sym())}</b> → <b>${esc(x.st.tensions.join(' '))}</b><br><span class="small">${esc(x.item.result)} · ${esc(x.item.scale)}</span>`;
+    const where = cur ? `<br><span class="muted small">${S.idx + 1}/${list.length} · strings ${cur.stringSet.join('-')} · low→high ${cur.notes.map((n) => esc(n.tension)).join(' ')}</span>` : '';
+    return head + where;
+  }
   if (S.fam === 'tones') return `<b>${esc(sym())}</b> everywhere on the neck. Toggle intervals above (try <b>3 & 7 only</b>), or pick a voicing family.`;
   if (!cur) return '<span class="muted">No voicing of this family fits here — try other strings or bass.</span>';
   const frets = [6, 5, 4, 3, 2, 1].map((s) => { const n = cur.notes.find((x) => x.string === s); return n ? n.fret : 'x'; }).join(' ');
@@ -215,7 +266,26 @@ function show(list) {
   scrollToCur(cur);
 }
 function scrollToCur() { /* the whole upright neck is always in view */ }
+// the chord, then the superimposed shape over it
+function siHear(v) {
+  const x = siNow(); if (!x) return;
+  const chord = lowestShape();
+  const beat = 60 / Math.max(60, S.bpm);
+  A.unlockAudio().then(() => {
+    const t0 = A.audioCtx().currentTime + 0.05;
+    A.strum(chord, t0, { vel: 0.6 });
+    let top;
+    if (v) top = v.notes.map((n) => n.midi).sort((a, b) => a - b);
+    else {
+      // the structure's notes ascending from just above the chord, two octaves of a pentatonic or one of a triad
+      top = []; for (let m = Math.max(...chord) - 4; top.length < (x.st.triad ? 4 : 11); m++) if (x.st.pcs.includes(m % 12)) top.push(m);
+    }
+    if (v) { A.strum(chord, t0 + beat, { vel: 0.5 }); A.strum(top, t0 + beat, { vel: 0.8 }); }
+    top.forEach((m, i) => A.pluck(m, t0 + beat * (v ? 2 : 1) + i * beat * 0.5, { vel: 0.75 }));
+  });
+}
 function sound(v, t) {
+  if (S.fam === 'super') return siHear(v);
   const midis = v.notes.map((n) => n.midi).sort((a, b) => a - b);
   A.unlockAudio().then(() => {
     const t0 = t ?? A.audioCtx().currentTime + 0.03;
@@ -231,7 +301,7 @@ function playThrough(list, btn) {
       timer = setTimeout(() => {
         if (S.idx + 1 >= list.length && !S.loop) { stop(); S.idx = list.length - 1; if (btn) btn.textContent = '▶ Play'; return; }
         S.idx = (S.idx + 1) % list.length; tick();
-      }, (60 / S.bpm) * S.beats * 1000);
+      }, (60 / (S.fam === 'super' ? Math.max(60, S.bpm) : S.bpm)) * (S.fam === 'super' ? 4 : S.beats) * 1000);
     };
     tick();
   });
