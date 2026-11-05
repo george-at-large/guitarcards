@@ -14,6 +14,7 @@ import { WORKOUTS } from './workouts.js';
 import { PG_LEVELS, PG_PASS, pgRound, playSeq, chordName } from './proggame.js';
 import { CHEATS, cheatsFor } from './cheats.js';
 import { renderChordStudy } from './chordstudy.js';
+import { renderDisco } from './disco.js';
 
 const $app = document.getElementById('app');
 let LIB = null;
@@ -253,7 +254,7 @@ function renderHome() {
   $app.innerHTML = `
   <div class="row spread hero"><div><h1>Guitar Cards</h1><div class="tag">${LIB.templates.filter((t) => !(t.tags || []).includes('tg-archive')).length} cards · ${WORKOUTS.length} workouts · ${LIB.analyses.length} songs</div></div><button class="icon" data-act="settings" aria-label="Settings">⚙︎</button></div>
 
-  <div class="navgrid"><button data-act="chordstudy" class="hero-tile" style="grid-column:1/-1"><b>🔬 Deep chord study</b><small>Any chord on the whole neck: open, triads, drop 2, drop 3, shells — step or play through every voicing</small></button><button data-act="memory" style="grid-column:1/-1"><b>🧠 Memory pack</b><small>Keys, modes, functional harmony, guide tones — recall them instantly, no guitar needed</small></button></div>
+  <div class="navgrid"><button data-act="chordstudy" class="hero-tile" style="grid-column:1/-1"><b>🔬 Deep chord study</b><small>Any chord on the whole neck: open, triads, drop 2, drop 3, shells — step or play through every voicing</small></button><button data-act="disco" style="grid-column:1/-1"><b>🪩 Disco mode</b><small>Move between chords and modes in a key, in one CAGED position, on a click — level up, speed up</small></button><button data-act="memory" style="grid-column:1/-1"><b>🧠 Memory pack</b><small>Keys, modes, functional harmony, guide tones — recall them instantly, no guitar needed</small></button></div>
 
   <h3>Drills</h3>
   <div class="navgrid">${[
@@ -367,6 +368,7 @@ function renderHome() {
     else if (b.dataset.act === 'melodies') { const ids = LIB.templates.filter((t) => t.id.startsWith('mel-')).sort((x, y) => x.level - y.level).map((t) => t.id); if (ids.length) startSession(null, { workout: { id: 'melodies', name: 'Melodies by degree', steps: ids.map((id) => ({ id })) } }); }
     else if (b.dataset.act === 'theory') startSession(null, { theory: true, limit: 15, filter: (t) => t.mode === 'theory' && !(t.tags || []).includes('ted-greene') });
     else if (b.dataset.act === 'memory') { window.scrollTo(0, 0); import('./memorypack.js').then((m) => m.renderMemoryPack($app, { onBack: renderHome })).catch((err) => toast('Memory pack failed to load: ' + err.message)); }
+    else if (b.dataset.act === 'disco') { window.scrollTo(0, 0); renderDisco($app, { onBack: renderHome }); }
     else if (b.dataset.act === 'chordstudy') { window.scrollTo(0, 0); renderChordStudy($app, { onBack: renderHome }); }
     else if (b.dataset.act === 'visualizer') { const ids = LIB.templates.filter((t) => t.id.startsWith('viz-')).map((t) => t.id).sort(() => Math.random() - 0.5).slice(0, 8); if (ids.length) startSession(null, { workout: { id: 'visualizer', name: 'Visualizer', steps: ids.map((id) => ({ id })) } }); }
     else if (b.dataset.act === 'settings') renderSettings();

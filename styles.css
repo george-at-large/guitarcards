@@ -283,3 +283,29 @@ svg.vneck .mute { fill: #e9dccd; font-size: 15px; font-weight: 700; text-anchor:
 .csopts { margin-top: 8px; gap: 6px; flex-wrap: wrap; align-items: center; }
 .csopts button.on { background: var(--on); color: #00141c; }
 @media (min-width: 760px) { .cswrap { grid-template-columns: 340px 1fr; } }
+
+/* disco mode */
+.dgame, .dlevels { margin: 8px 0; }
+.dlevels { display: flex; flex-direction: column; gap: 6px; }
+.dlevels button { text-align: left; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.dlevels button small { color: var(--muted); font-size: 12px; }
+.dlevels button.on { border-color: var(--on); box-shadow: 0 0 0 1px var(--on) inset; }
+.dtempo { gap: 10px; align-items: center; margin-bottom: 6px; }
+.dtempo input { flex: 1; }
+.dnow { text-align: center; margin: 10px 0 6px; }
+.dname { font-size: 46px; font-weight: 850; letter-spacing: -0.02em; line-height: 1.05; }
+.drn { font-size: 15px; color: var(--muted); margin-top: 2px; }
+.dmode { font-size: 18px; font-weight: 700; color: var(--on); margin-top: 4px; }
+.dnext { font-size: 14px; margin-top: 6px; }
+.dbeats { display: flex; justify-content: center; gap: 8px; margin: 8px 0; }
+.dbeats i { width: 12px; height: 12px; border-radius: 50%; background: var(--line); }
+.dbeats i.on { background: var(--on); box-shadow: 0 0 8px var(--on); }
+.dneck { display: flex; justify-content: center; min-height: 160px; }
+.dneck svg.discoNeck { width: 100%; max-width: 330px; }
+.dneck .dot text { font-size: 11px; }
+.dhidden { align-self: center; color: var(--muted); padding: 40px 0; }
+.dwhy { margin: 6px 0; }
+.dctl { gap: 6px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 8px; }
+.dhelp { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.dhelp.cur b { color: var(--on); }
+.dend { text-align: center; }
