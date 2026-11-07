@@ -68,6 +68,7 @@ figcaption { font: 400 0.78rem/1.45 var(--mono); color: var(--muted); }
 .next { columns: 2 16rem; column-gap: 2rem; margin: 0; padding-left: 1.1rem; }
 .next li { break-inside: avoid; margin-bottom: 0.3rem; }
 code { font: 400 0.88em var(--mono); }
+.gist { font-size: 1.12rem; line-height: 1.55; max-width: 62ch; }
 @media (max-width: 34rem) {
   .note { grid-template-columns: 1fr; gap: 0.2rem; }
   .dur { margin-left: 0; }
@@ -76,11 +77,24 @@ code { font: 400 0.88em var(--mono); }
 
 <main>
   <header class="lede">
-    <p class="meta">Sound lab · pilot batch (4 of 16 clips) · 7 Nov 2026</p>
+    <p class="meta">Mind At Large · sound lab · first four sketches · November 2026</p>
     <h1>Sound Lab Notebook</h1>
-    <p>Sketches toward a non-human musical tradition, set beside human ones for comparison. Every sound here is synthesized from scratch in Python with numpy: no samples, no instrument libraries, no AI audio models. Each clip has its script in <code>experiments/sound-lab/</code> and re-renders deterministically.</p>
-    <p>I can't hear these. What I could check: spectrograms (shown under each player), roughness numbers from a sensory-dissonance model, and note counts for the phase process. Whether they <em>work</em> as music is your call. That's what this pilot is for.</p>
+    <p>What would music sound like if it came from a mind and body that aren't human? Random noise is strange but isn't music, and familiar music isn't strange. These sketches aim for the space in between: sound that follows rules you can learn, but rules no human tradition uses.</p>
+    <p>There are three kinds of clip here. <b>Alien</b> pieces test ideas for a made-up musical culture. <b>Reference</b> pieces borrow principles from real human traditions outside Western music, for comparison. <b>Phase</b> pieces use the slow drift-and-lock process Steve Reich made famous. Headphones help; several pieces use left and right as part of the music.</p>
   </header>
+
+  <section class="group" aria-labelledby="g-how">
+    <div class="group-head"><h2 id="g-how">How these were made</h2></div>
+    <div class="callout">
+      <p>Every sound was written as code. No recordings, samples, instrument libraries or AI audio generators were used. Claude, Anthropic's AI model, wrote and ran short Python programs that calculate each sound wave sample by sample, 44,100 numbers per second.</p>
+      <ul>
+        <li><b>Instruments</b> are built by adding up pure tones (each instrument's overtones), plus simple physical models of a piano, metal bars, drums and a gong.</li>
+        <li><b>Rooms</b> come from a calculated reverb, not a real space.</li>
+        <li><b>Rules</b> come from the science of hearing (a model of how rough two notes sound together) and from simulations of players who listen to each other.</li>
+      </ul>
+      <p>Claude can't hear. It checked its work with pictures of the sound (shown under each player), measurements of roughness, and note counts. A person listens and steers. The code re-creates every clip exactly.</p>
+    </div>
+  </section>
 
   <section class="group" aria-labelledby="g-alien">
     <div class="group-head">
@@ -90,6 +104,7 @@ code { font: 400 0.88em var(--mono); }
 
     <article>
       <div class="entry-head"><span class="code">A1</span><h3>Body-derived scale</h3><span class="dur">0:49</span></div>
+      <p class="gist">An invented instrument whose overtones don't line up like ours, and a scale worked out from that instrument alone. You hear the same tune twice: first on an ordinary instrument, where it should sound out of tune, then on its own instrument, where it should sound at rest.</p>
       <audio controls preload="none" src="audio/A1_body_scale.mp3"></audio>
       <figure><img src="spectrograms/A1_body_scale.png" alt="Spectrogram of A1. The first half shows dense beating stripes in the chords; the second half is visibly smoother." loading="lazy"><figcaption>Spectrogram, log frequency. Rough beating (fine vertical striping) is heavy before the gap at 22 s and thins after it.</figcaption></figure>
       <div class="notes">
@@ -112,6 +127,7 @@ code { font: 400 0.88em var(--mono); }
 
     <article>
       <div class="entry-head"><span class="code">A4</span><h3>Coupled-oscillator rhythm</h3><span class="dur">0:49</span></div>
+      <p class="gist">Twelve simulated drummers, each wanting a different tempo, are gradually made to listen to each other. Nobody wrote a rhythm. They fall into step, then split into two groups playing in each other's gaps.</p>
       <audio controls preload="none" src="audio/A4_coupled_rhythm.mp3"></audio>
       <figure><img src="spectrograms/A4_raster.png" alt="Hit raster of the twelve agents. Ticks are scattered at first, align vertically from about 15 seconds, then form two interleaved groups after 26 seconds." loading="lazy"><figcaption>Hit raster, from the simulation itself: one row per agent (slowest at top), one tick per stroke, faint lines at section changes. Ticks align from about 15 s; after 26 s the top seven and bottom five interleave.</figcaption></figure>
       <div class="notes">
@@ -149,6 +165,7 @@ code { font: 400 0.88em var(--mono); }
 
     <article>
       <div class="entry-head"><span class="code">B1</span><h3>Gamelan-inspired interlocking</h3><span class="dur">0:45</span></div>
+      <p class="gist">Borrows ideas from Indonesian gamelan: a non-Western tuning, a melody that cycles under gong strokes, two parts that interlock into one fast line, and paired instruments tuned slightly apart so every note shimmers. It's an homage built from those principles, not a recreation.</p>
       <audio controls preload="none" src="audio/B1_gamelan_inspired.mp3"></audio>
       <figure><img src="spectrograms/B1_gamelan_inspired.png" alt="Spectrogram of B1: dense interlocking metallic notes over periodic deep gong strokes, ending in a long gong decay." loading="lazy"><figcaption>Spectrogram. The low columns are gong and kempul strokes marking the cycle; the dense upper band is the interlocking elaboration.</figcaption></figure>
       <div class="notes">
@@ -186,6 +203,7 @@ code { font: 400 0.88em var(--mono); }
 
     <article>
       <div class="entry-head"><span class="code">C1</span><h3>Two-piano phase</h3><span class="dur">3:32</span></div>
+      <p class="gist">Two pianos repeat the same 12-note phrase. One creeps ahead a note at a time and locks in at each new position, so new melodies appear that neither piano is playing. After twelve steps they meet again in unison.</p>
       <audio controls preload="none" src="audio/C1_two_piano_phase.mp3"></audio>
       <figure><img src="spectrograms/C1_two_piano_phase.png" alt="Spectrogram of C1: a steady band of piano energy with regular pulses for three and a half minutes." loading="lazy"><figcaption>Spectrogram. At this length it shows only the steady texture; the changes are in the timing, which the onset count verified.</figcaption></figure>
       <div class="notes">
@@ -208,19 +226,8 @@ code { font: 400 0.88em var(--mono); }
     </article>
   </section>
 
-  <section class="group" aria-labelledby="g-feedback">
-    <div class="group-head"><h2 id="g-feedback">Before batch 2</h2></div>
-    <div class="callout">
-      <p>Your ears steer the next twelve clips. Fixes to the shared toolkit carry through to all of them, so the most useful notes are:</p>
-      <ol>
-        <li>Is the A1 flip audible? Does the second half sound more settled than the first?</li>
-        <li>Is the modelled piano good enough, or too synthetic or harsh?</li>
-        <li>Mix: is the reverb too wet or too dry? Is anything piercing or muddy?</li>
-        <li>In B1, is the shimmer pleasant or seasick?</li>
-        <li>Is C1's 3½ minutes the right length for the phase pieces?</li>
-      </ol>
-    </div>
-    <div class="group-head"><h2>Still to come</h2></div>
+  <section class="group" aria-labelledby="g-next">
+    <div class="group-head"><h2 id="g-next">Coming next</h2></div>
     <ul class="next">
       <li>A2 Bohlen–Pierce (no octaves)</li>
       <li>A3 Breath song (branching vocal tract)</li>
