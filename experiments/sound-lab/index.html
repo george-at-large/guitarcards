@@ -69,6 +69,21 @@ figcaption { font: 400 0.78rem/1.45 var(--mono); color: var(--muted); }
 .next li { break-inside: avoid; margin-bottom: 0.3rem; }
 code { font: 400 0.88em var(--mono); }
 .gist { font-size: 1.12rem; line-height: 1.55; max-width: 62ch; }
+#nowplaying {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  background: var(--fg); color: var(--bg);
+  font: 500 0.9rem/1.3 var(--mono);
+  padding-top: 0.7rem;
+  padding-bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#nowplaying button {
+  font: 600 0.9rem/1 var(--mono); padding: 0.55rem 1.1rem; border-radius: 4px;
+  border: 0; background: var(--accent); color: #fff; cursor: pointer;
+}
+#nowplaying button:focus-visible { outline: 2px solid var(--bg); outline-offset: 2px; }
 @media (max-width: 34rem) {
   .note { grid-template-columns: 1fr; gap: 0.2rem; }
   .dur { margin-left: 0; }
@@ -245,14 +260,36 @@ code { font: 400 0.88em var(--mono); }
   </section>
 </main>
 
+<div id="nowplaying" hidden>
+  <span>Playing: <b id="np-title"></b></span>
+  <button id="np-stop" type="button">Stop</button>
+</div>
+
 <script>
   // Only one clip plays at a time.
   document.addEventListener('play', (e) => {
     document.querySelectorAll('audio').forEach((a) => { if (a !== e.target) a.pause(); });
   }, true);
-  // Stop playback when the page is hidden or closed, so nothing keeps playing out of sight.
-  const pauseAll = () => document.querySelectorAll('audio').forEach((a) => a.pause());
+  // Never let a clip play out of sight: pause on load, when the tab is hidden or closed,
+  // and when this page (for example an inline copy in a chat) is scrolled out of view.
+  const players = [...document.querySelectorAll('audio')];
+  const pauseAll = () => players.forEach((a) => a.pause());
+  pauseAll();
   document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAll(); });
   window.addEventListener('pagehide', pauseAll);
-  window.addEventListener('blur', () => { if (document.hidden) pauseAll(); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      if (!entries[0].isIntersecting) pauseAll();
+    }).observe(document.querySelector('main'));
+  }
+  // A bar pinned to the bottom shows what is playing, with a Stop button.
+  const bar = document.getElementById('nowplaying');
+  const label = document.getElementById('np-title');
+  const update = () => {
+    const on = players.find((a) => !a.paused);
+    bar.hidden = !on;
+    if (on) label.textContent = on.closest('article').querySelector('h3').textContent;
+  };
+  players.forEach((a) => ['play', 'pause', 'ended'].forEach((ev) => a.addEventListener(ev, update)));
+  document.getElementById('np-stop').addEventListener('click', () => { pauseAll(); update(); });
 </script>
