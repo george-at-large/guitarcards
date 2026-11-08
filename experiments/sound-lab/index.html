@@ -250,4 +250,9 @@ code { font: 400 0.88em var(--mono); }
   document.addEventListener('play', (e) => {
     document.querySelectorAll('audio').forEach((a) => { if (a !== e.target) a.pause(); });
   }, true);
+  // Stop playback when the page is hidden or closed, so nothing keeps playing out of sight.
+  const pauseAll = () => document.querySelectorAll('audio').forEach((a) => a.pause());
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAll(); });
+  window.addEventListener('pagehide', pauseAll);
+  window.addEventListener('blur', () => { if (document.hidden) pauseAll(); });
 </script>
