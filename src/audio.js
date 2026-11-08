@@ -48,6 +48,14 @@ export function audioCtx() {
   }
   return ctx;
 }
+// Route every voice into a given context instead, e.g. an OfflineAudioContext for video export
+// (video/player.js). Returns the previous context so the caller can switch back.
+export function useContext(c) {
+  const prev = ctx;
+  ctx = c; irBuf = null; clickBuf = null; pluckCache.clear();
+  if (c) buildBus();
+  return prev;
+}
 // iOS home-screen apps: a looping silent <audio> element puts the page in the "media playback" audio session,
 // so Web Audio isn't muted by the ring/silent switch and keeps working when the app is reopened offline.
 let keepAlive = null;

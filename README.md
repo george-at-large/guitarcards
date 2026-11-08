@@ -14,6 +14,7 @@ A personal, offline, adaptive practice deck for iPhone (installable web app).
 - `src/` engine + UI (`theory`, `fretboard`, `demo`, `audio`, `cards`, `quiz`, `adapt`, `subs`, `app`)
 - `content/` card libraries (`voicings`, `scales`, `rhythm`, `harmony`, `ear`, `analyses`) — schema in `docs/SCHEMA.md`
 - `research/` notes and sources behind each library
+- `video/` + `tools/video/` practice videos rendered from one timeline (audiation so far) — see `video/README.md`
 
 ## Develop
 ```bash

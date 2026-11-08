@@ -9,3 +9,7 @@ tg/
 private/
 guide/guitar-mastery.html
 guide/memory-essentials.html
+
+# rendered videos and cached narration
+video/out/
+video/cache/
