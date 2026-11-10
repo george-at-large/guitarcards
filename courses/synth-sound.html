@@ -1,0 +1,1816 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0b0f">
+<title>Sound &amp; Synthesis</title>
+<style>
+:root {
+  --bg: #0a0b0f; --bg2: #101219;
+  --panel: #15181f; --panel2: #1d2129; --panel3: #262b35;
+  --line: rgba(255,255,255,0.07); --line2: rgba(255,255,255,0.12);
+  --text: #f4f5f8; --muted: #8d95a5; --dim: #5d6574;
+  --accent: #ffb547; --accent2: #4cc9f0;
+  --grad: linear-gradient(135deg, #ffc35c 0%, #ff8a4c 100%);
+  --good: #34d399; --bad: #f87171; --hard: #fb923c; --easy: #8b9cff;
+  --r: 18px;
+  --shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 10px 30px -12px rgba(0,0,0,0.6);
+  --safe-t: env(safe-area-inset-top); --safe-b: env(safe-area-inset-bottom);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; color: var(--text); font: 16px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { min-height: 100dvh; background: radial-gradient(120% 60% at 50% -10%, #1b1f2b 0%, var(--bg) 55%) fixed, var(--bg); overflow-x: hidden; }
+a { color: var(--accent2); }
+h1 { font: 800 30px/1.1 -apple-system, "SF Pro Display", system-ui, sans-serif; letter-spacing: -0.03em; margin: 18px 0 6px; background: linear-gradient(180deg, #fff 30%, #c9cdd6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h2 { font: 750 21px/1.25 -apple-system, "SF Pro Display", system-ui, sans-serif; letter-spacing: -0.02em; margin: 26px 0 8px; }
+h3 { font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin: 22px 0 8px; }
+p { margin: 8px 0; color: #dfe2e8; }
+b, strong { color: var(--text); }
+.kicker { color: var(--accent); font-size: 12.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-top: 14px; }
+.lede { font-size: 17px; color: #cfd4dd; }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+code { background: var(--panel3); padding: 1px 6px; border-radius: 6px; font-size: .9em; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 10px 0; }
+td, th { border-bottom: 1px solid var(--line); padding: 7px 6px; text-align: left; vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; }
+.tw { overflow-x: auto; }
+button { font: inherit; color: inherit; background: var(--panel2); border: 1px solid var(--line2); border-radius: 12px; padding: 9px 13px; cursor: pointer; touch-action: manipulation; transition: transform .08s, background .15s, border-color .15s; }
+button:active { transform: scale(.97); }
+button.primary { background: var(--grad); color: #1d1206; border-color: transparent; font-weight: 750; }
+button.on { border-color: rgba(255,181,71,.65); background: rgba(255,181,71,.14); color: #ffd79a; }
+button.play { font-weight: 700; min-width: 120px; }
+button.play.on { background: rgba(76,201,240,.14); border-color: rgba(76,201,240,.6); color: #aee9fb; }
+
+/* top + dock */
+.topwrap { position: sticky; top: 0; z-index: 20; background: rgba(10,11,15,.92); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); padding-top: var(--safe-t); }
+.top { max-width: 720px; margin: 0 auto; display: flex; align-items: center; gap: 8px; padding: 8px 16px 4px; }
+.top .back { color: var(--muted); text-decoration: none; font-size: 14px; white-space: nowrap; }
+.top .ttl { flex: 1; text-align: center; font-weight: 700; font-size: 14.5px; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.iconb { background: transparent; border: none; color: var(--muted); font-size: 18px; padding: 4px 8px; }
+.dock { max-width: 720px; margin: 0 auto; padding: 0 16px 8px; }
+.dock-head { display: flex; align-items: center; gap: 8px; }
+.dock-head .seg { flex: 0 1 auto; }
+.dock-head .peak { flex: 1; text-align: right; font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--accent2); white-space: nowrap; overflow: hidden; }
+#viz { display: block; width: 100%; height: 104px; margin-top: 6px; border-radius: 12px; background: #07080b; border: 1px solid var(--line); }
+.dock.collapsed #viz { display: none; }
+@media (min-width: 600px) { #viz { height: 140px; } }
+
+.seg { display: flex; background: var(--bg2); border-radius: 12px; padding: 3px; border: 1px solid var(--line); gap: 2px; flex-wrap: wrap; }
+.seg button { flex: 1; border: none; background: transparent; padding: 7px 9px; font-size: 13.5px; border-radius: 9px; color: var(--muted); white-space: nowrap; }
+.seg button.on { background: var(--panel3); color: var(--text); font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+.seg.mini button { padding: 5px 8px; font-size: 12px; }
+
+main { max-width: 720px; margin: 0 auto; padding: 4px 16px calc(var(--safe-b) + 120px); }
+body.kbd-open main { padding-bottom: calc(var(--safe-b) + 260px); }
+
+.demo { background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)), var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; margin: 16px 0; box-shadow: var(--shadow); }
+.demo-h { font-weight: 750; font-size: 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.demo-h::before { content: "🎛"; }
+.ctl-row { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; margin: 8px 0; }
+.ctl-row > * { min-width: 0; }
+.sl { display: block; flex: 1 1 150px; min-width: 130px; }
+.sl-top { display: flex; justify-content: space-between; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.sl-top b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; touch-action: pan-y; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgba(255,181,71,.55), rgba(76,201,240,.45)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; margin-top: -8px; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgba(255,181,71,.55), rgba(76,201,240,.45)); }
+input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: none; }
+.btns { display: flex; flex-wrap: wrap; gap: 7px; margin: 8px 0; }
+.btns button { font-size: 13.5px; padding: 8px 11px; }
+.readout { font: 600 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--accent2); }
+.note { border-radius: 14px; padding: 11px 13px; margin: 12px 0; font-size: 14.5px; border: 1px solid var(--line); background: var(--panel); }
+.note p { margin: 4px 0; font-size: 14.5px; }
+.note .nh { font-weight: 750; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px; }
+.note.listen { border-color: rgba(76,201,240,.35); background: rgba(76,201,240,.06); } .note.listen .nh { color: var(--accent2); }
+.note.ix { border-color: rgba(255,181,71,.4); background: rgba(255,181,71,.06); } .note.ix .nh { color: var(--accent); }
+.note.gen { border-color: rgba(139,156,255,.4); background: rgba(139,156,255,.06); } .note.gen .nh { color: var(--easy); }
+.note.phys { border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.05); } .note.phys .nh { color: var(--good); }
+.note.warn { border-color: rgba(248,113,113,.35); background: rgba(248,113,113,.06); } .note.warn .nh { color: var(--bad); }
+.ask { border: 1px dashed var(--line2); border-radius: 14px; padding: 12px; margin: 14px 0; }
+.ask-q { font-weight: 650; margin-bottom: 8px; }
+.ask-o { display: grid; gap: 6px; }
+.ask-o button { text-align: left; font-size: 14.5px; }
+.ask-o button.right { border-color: var(--good); background: rgba(52,211,153,.12); }
+.ask-o button.wrong { border-color: var(--bad); background: rgba(248,113,113,.12); }
+.ask-o button.dim { opacity: .5; }
+.ask-why { margin-top: 8px; font-size: 14px; color: #cfd4dd; }
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { padding: 7px 12px; border-radius: 999px; font-size: 13.5px; }
+svg { max-width: 100%; }
+.map { width: 100%; height: auto; display: block; margin: 8px 0; }
+.envsvg { width: 100%; height: 90px; display: block; background: #07080b; border-radius: 10px; border: 1px solid var(--line); margin: 6px 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.card { background: var(--panel2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.card b { display: block; }
+.card small { color: var(--muted); font-size: 12.5px; line-height: 1.35; display: block; }
+.drawbars { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; align-items: end; margin: 8px 0; }
+.drawbars .db { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10.5px; color: var(--muted); }
+.drawbars .db input { writing-mode: vertical-lr; direction: rtl; width: 26px; height: 110px; }
+.drawbars .db input::-webkit-slider-runnable-track { width: 6px; height: auto; }
+.drawbars .db input::-webkit-slider-thumb { margin-top: 0; margin-left: -8px; }
+.src { font-size: 13px; color: var(--muted); }
+.src li { margin: 4px 0; }
+.fact, .spec { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; padding: 1px 6px; border-radius: 6px; margin-right: 6px; vertical-align: 1px; }
+.fact { background: rgba(52,211,153,.15); color: var(--good); }
+.spec { background: rgba(251,146,60,.15); color: var(--hard); }
+.score { font-size: 40px; font-weight: 800; text-align: center; margin: 10px 0; }
+
+/* bottom bar + keyboard */
+.bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(10,11,15,.94); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 8px 16px calc(var(--safe-b) + 8px); }
+.bar-in { max-width: 720px; margin: 0 auto; display: flex; align-items: center; gap: 8px; }
+.bar .prog { flex: 1; min-width: 0; font-size: 12px; color: var(--muted); }
+.bar .prog div:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pbar { height: 4px; border-radius: 2px; background: var(--panel3); margin-top: 4px; overflow: hidden; }
+.pbar i { display: block; height: 100%; width: 0; background: var(--grad); transition: width .3s; }
+.kbd-wrap { max-width: 720px; margin: 0 auto 8px; }
+.kbd-tools { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.kbd-tools button { padding: 4px 10px; font-size: 13px; }
+#kbd { position: relative; height: 118px; user-select: none; -webkit-user-select: none; touch-action: none; }
+#kbd .k { position: absolute; top: 0; border-radius: 0 0 7px 7px; }
+#kbd .w { height: 118px; background: linear-gradient(180deg, #e9ebef, #fff); border: 1px solid #9aa0aa; z-index: 1; }
+#kbd .b { height: 72px; background: linear-gradient(180deg, #2a2e36, #0e1014); border: 1px solid #000; z-index: 2; }
+#kbd .w.down { background: linear-gradient(180deg, #ffd79a, #ffb547); }
+#kbd .b.down { background: linear-gradient(180deg, #4cc9f0, #1b7fa3); }
+#kbd .lbl { position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font-size: 10px; color: #6b7280; }
+.hidden { display: none !important; }
+
+.menu { position: fixed; inset: 0; z-index: 50; background: rgba(5,6,9,.7); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: flex-start; padding: calc(var(--safe-t) + 20px) 16px 20px; overflow-y: auto; }
+.menu-in { width: 100%; max-width: 560px; background: var(--panel); border: 1px solid var(--line2); border-radius: var(--r); padding: 14px; }
+.menu-in .mi { display: flex; width: 100%; text-align: left; align-items: center; gap: 10px; margin: 4px 0; padding: 10px 12px; }
+.menu-in .mi .n { color: var(--dim); width: 22px; font-variant-numeric: tabular-nums; font-size: 13px; }
+.menu-in .mi .t { flex: 1; }
+.menu-in .mi .m { color: var(--muted); font-size: 12.5px; }
+.menu-in .mi.cur { border-color: rgba(255,181,71,.6); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--safe-b) + 74px); z-index: 40; background: var(--panel3); border: 1px solid var(--line2); border-radius: 999px; padding: 8px 14px; font-size: 13.5px; box-shadow: var(--shadow); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="topwrap">
+  <div class="top">
+    <a class="back" href="../index.html">‹ Guitar Cards</a>
+    <div class="ttl" id="ttl">Sound &amp; Synthesis</div>
+    <button class="iconb" id="monoBtn" title="Mono check (sum L+R)">ST</button>
+    <button class="iconb" id="menuBtn" aria-label="Chapters">☰</button>
+  </div>
+  <div class="dock" id="dock">
+    <div class="dock-head">
+      <div class="seg mini" id="vizSeg"></div>
+      <span class="peak" id="peak"></span>
+      <button class="iconb" id="dockBtn" aria-label="Hide visualiser">▾</button>
+    </div>
+    <canvas id="viz"></canvas>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<div class="bar">
+  <div class="kbd-wrap hidden" id="kbdWrap">
+    <div class="kbd-tools"><span>Octave</span><button id="octDn">−</button><span id="octLbl">C3</span><button id="octUp">+</button><span class="grow" style="flex:1"></span><span class="hide-sm">Computer keys: A W S E D F T G Y H U J K · Z/X octave</span></div>
+    <div id="kbd"></div>
+  </div>
+  <div class="bar-in">
+    <button id="prev" aria-label="Previous">‹</button>
+    <div class="prog"><div id="progTxt"></div><div class="pbar"><i id="pfill"></i></div></div>
+    <button id="kbdBtn" title="Keyboard">🎹</button>
+    <button id="next" class="primary">Next ›</button>
+  </div>
+</div>
+<div class="menu hidden" id="menu"><div class="menu-in" id="menuIn"></div></div>
+<div class="toast" id="toast">🔈 Tap anywhere to switch sound on</div>
+
+<script>
+'use strict';
+/* ================= utilities ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
+const ftom = (f) => 69 + 12 * Math.log2(f / 440);
+const NOTES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+const nname = (m) => NOTES[((Math.round(m) % 12) + 12) % 12] + (Math.floor(Math.round(m) / 12) - 1);
+const fmtHz = (f) => f >= 1000 ? (f / 1000).toFixed(f >= 10000 ? 1 : 2).replace(/\.?0+$/, '') + ' kHz' : (f >= 100 ? Math.round(f) : f.toFixed(1)) + ' Hz';
+const fmtS = (s) => s >= 1 ? s.toFixed(2) + ' s' : Math.round(s * 1000) + ' ms';
+const pct = (v) => Math.round(v * 100) + '%';
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('synthcourse:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('synthcourse:' + k, JSON.stringify(v)); } catch (e) { /* private mode */ } },
+};
+
+/* ================= audio core ================= */
+const A = { voices: new Set(), owned: new Set(), waves: new Map(), curves: new Map(), noise: {} };
+let ctx = null;
+function ac() {
+  if (ctx) return ctx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  ctx = new AC({ latencyHint: 'interactive' });
+  buildGraph();
+  return ctx;
+}
+const now = () => ac().currentTime;
+
+// iOS home-screen apps: a looping silent <audio> element puts the page in the "media playback" audio session,
+// so Web Audio isn't muted by the ring/silent switch.
+let keepAlive = null, unlocked = false;
+function silentWavUrl() {
+  const sr = 8000, n = sr;
+  const buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+  const w = (o, str) => [...str].forEach((ch, i) => v.setUint8(o + i, ch.charCodeAt(0)));
+  w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+  for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+function unlock() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* */ }
+  try {
+    if (!keepAlive) { keepAlive = new Audio(silentWavUrl()); keepAlive.loop = true; keepAlive.setAttribute('playsinline', ''); keepAlive.volume = 0.01; }
+    if (keepAlive.paused) keepAlive.play().catch(() => {});
+  } catch (e) { /* */ }
+  const c = ac();
+  if (c.state !== 'running') c.resume().catch(() => {});
+  if (!unlocked) {
+    const b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0);
+    unlocked = true; $('#toast').classList.add('hidden');
+  }
+}
+
+function makeNoise(color) {
+  if (A.noise[color]) return A.noise[color];
+  const sr = ctx.sampleRate, n = sr * 3, b = ctx.createBuffer(2, n, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = b.getChannelData(ch);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0, br = 0;
+    for (let i = 0; i < n; i++) {
+      const w = Math.random() * 2 - 1;
+      if (color === 'pink') { // Paul Kellet's refined filter: -3 dB/octave
+        b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.96900 * b2 + w * 0.1538520;
+        b3 = 0.86650 * b3 + w * 0.3104856; b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
+        d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
+      } else if (color === 'brown') { // integrated white: -6 dB/octave
+        br = (br + 0.02 * w) / 1.02; d[i] = br * 3.5;
+      } else d[i] = w * 0.5;
+    }
+  }
+  return (A.noise[color] = b);
+}
+
+function buildGraph() {
+  const c = ctx;
+  const G = (v = 1) => { const g = c.createGain(); g.gain.value = v; return g; };
+  A.G = G;
+  A.synthBus = G(1); A.synthPan = c.createStereoPanner(); A.ducker = G(1); A.drumBus = G(0.9);
+  A.fxIn = G(1);
+  A.synthBus.connect(A.synthPan).connect(A.ducker).connect(A.fxIn);
+  A.drumBus.connect(A.fxIn);
+  // bus drive (shared by every voice, so chords intermodulate)
+  A.busDry = G(1); A.busWet = G(0); A.busShaper = c.createWaveShaper(); A.busShaper.oversample = '4x';
+  A.busDC = c.createBiquadFilter(); A.busDC.type = 'highpass'; A.busDC.frequency.value = 18;
+  A.crushIn = G(1); A.crushOut = G(1);
+  A.fxIn.connect(A.busDry).connect(A.crushIn);
+  A.fxIn.connect(A.busShaper).connect(A.busDC).connect(A.busWet).connect(A.crushIn);
+  A.crushIn.connect(A.crushOut);
+  // chorus: two modulated short delays, one per side, LFOs in antiphase
+  A.chDry = G(1); A.chWet = G(0); A.chOut = G(1);
+  const dl = c.createDelay(0.1), dr = c.createDelay(0.1); dl.delayTime.value = 0.016; dr.delayTime.value = 0.019;
+  const lfo = c.createOscillator(); lfo.frequency.value = 0.7; const dep = G(0.0024), inv = G(-0.0024);
+  lfo.connect(dep).connect(dl.delayTime); lfo.connect(inv).connect(dr.delayTime); lfo.start();
+  const sl = c.createChannelSplitter(2), sr = c.createChannelSplitter(2), mg = c.createChannelMerger(2);
+  A.crushOut.connect(A.chDry).connect(A.chOut);
+  A.crushOut.connect(dl); A.crushOut.connect(dr);
+  dl.connect(sl); dr.connect(sr); sl.connect(mg, 0, 0); sr.connect(mg, 1, 1); mg.connect(A.chWet).connect(A.chOut);
+  A.chLfo = lfo; A.chDep = dep; A.chInv = inv;
+  // compressor (switchable) with makeup gain
+  A.compIn = G(1); A.comp = c.createDynamicsCompressor(); A.compWet = G(0); A.compBy = G(1); A.makeup = G(1); A.post = G(1);
+  A.chOut.connect(A.compIn); A.compIn.connect(A.comp).connect(A.makeup).connect(A.compWet).connect(A.post); A.compIn.connect(A.compBy).connect(A.post);
+  // sends
+  A.mixBus = G(1); A.post.connect(A.mixBus);
+  A.dSend = G(0); A.dL = c.createDelay(2.5); A.dR = c.createDelay(2.5);
+  A.dLp1 = c.createBiquadFilter(); A.dLp2 = c.createBiquadFilter(); A.dLp1.type = A.dLp2.type = 'lowpass';
+  A.dFb1 = G(0.35); A.dFb2 = G(0.35);
+  A.dLL = G(1); A.dLR = G(0); A.dRR = G(1); A.dRL = G(0); A.dMg = c.createChannelMerger(2); A.dOut = G(1);
+  A.post.connect(A.dSend).connect(A.dL);
+  A.dL.connect(A.dLp1).connect(A.dFb1).connect(A.dR); A.dR.connect(A.dLp2).connect(A.dFb2).connect(A.dL);
+  A.dL.connect(A.dLL).connect(A.dMg, 0, 0); A.dL.connect(A.dLR).connect(A.dMg, 0, 1);
+  A.dR.connect(A.dRR).connect(A.dMg, 0, 1); A.dR.connect(A.dRL).connect(A.dMg, 0, 0);
+  A.dMg.connect(A.dOut).connect(A.mixBus);
+  A.rSend = G(0); A.rHP = c.createBiquadFilter(); A.rHP.type = 'highpass'; A.conv = c.createConvolver(); A.rOut = G(1);
+  A.post.connect(A.rSend).connect(A.rHP).connect(A.conv).connect(A.rOut).connect(A.mixBus);
+  // master: volume -> limiter -> (stereo | mono) -> analyser -> out
+  A.master = G(0.8); A.limiter = c.createDynamicsCompressor();
+  A.limiter.threshold.value = -5; A.limiter.knee.value = 3; A.limiter.ratio.value = 20; A.limiter.attack.value = 0.002; A.limiter.release.value = 0.15;
+  A.stG = G(1); A.monoG = G(0); A.monoG.channelCount = 1; A.monoG.channelCountMode = 'explicit'; A.monoG.channelInterpretation = 'speakers';
+  A.analyser = c.createAnalyser(); A.analyser.fftSize = 8192; A.analyser.smoothingTimeConstant = 0.72; A.analyser.minDecibels = -110; A.analyser.maxDecibels = -10;
+  A.mixBus.connect(A.master).connect(A.limiter);
+  A.limiter.connect(A.stG).connect(A.analyser); A.limiter.connect(A.monoG).connect(A.analyser);
+  A.analyser.connect(c.destination);
+  A.clean = A.mixBus; // bespoke demos that should skip the FX chain
+  // global free-running LFO (buffer based, so any shape)
+  A.lfoOut = G(1); A.lfoPanG = G(0); A.lfoOut.connect(A.lfoPanG).connect(A.synthPan.pan);
+  restartLFO();
+  loadCrusher();
+  applyFX();
+}
+
+/* ---------- bitcrusher (AudioWorklet from a Blob, ScriptProcessor fallback) ---------- */
+const CRUSH_SRC = `class Crush extends AudioWorkletProcessor{
+static get parameterDescriptors(){return[{name:'bits',defaultValue:16,minValue:1,maxValue:16},{name:'down',defaultValue:1,minValue:1,maxValue:128},{name:'mix',defaultValue:0,minValue:0,maxValue:1}]}
+constructor(){super();this.ph=[0,0];this.h=[0,0]}
+process(ins,outs,p){const i=ins[0],o=outs[0];if(!i||!i.length){for(const y of o)y.fill(0);return true}
+const bits=p.bits[0],down=p.down[0],mix=p.mix[0],q=Math.pow(2,bits-1);
+for(let c=0;c<o.length;c++){const x=i[c]||i[0],y=o[c];let ph=this.ph[c],h=this.h[c];
+for(let n=0;n<y.length;n++){ph+=1;if(ph>=down){ph-=down;h=Math.round(x[n]*q)/q}y[n]=x[n]*(1-mix)+h*mix}
+this.ph[c]=ph;this.h[c]=h}return true}}
+registerProcessor('crush',Crush);`;
+async function loadCrusher() {
+  try {
+    if (!ctx.audioWorklet) throw new Error('no worklet');
+    const url = URL.createObjectURL(new Blob([CRUSH_SRC], { type: 'application/javascript' }));
+    await ctx.audioWorklet.addModule(url);
+    const n = new AudioWorkletNode(ctx, 'crush', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2] });
+    A.crushIn.disconnect(); A.crushIn.connect(n).connect(A.crushOut); A.crush = n;
+  } catch (e) {
+    try {
+      const sp = ctx.createScriptProcessor(1024, 2, 2), st = { ph: [0, 0], h: [0, 0] };
+      sp.onaudioprocess = (ev) => {
+        const bits = FX.crushBits, down = FX.crushDown, mix = FX.crushMix, q = Math.pow(2, bits - 1);
+        for (let ch = 0; ch < 2; ch++) {
+          const x = ev.inputBuffer.getChannelData(Math.min(ch, ev.inputBuffer.numberOfChannels - 1)), y = ev.outputBuffer.getChannelData(ch);
+          let ph = st.ph[ch], h = st.h[ch];
+          for (let n = 0; n < y.length; n++) { ph += 1; if (ph >= down) { ph -= down; h = Math.round(x[n] * q) / q; } y[n] = x[n] * (1 - mix) + h * mix; }
+          st.ph[ch] = ph; st.h[ch] = h;
+        }
+      };
+      A.crushIn.disconnect(); A.crushIn.connect(sp).connect(A.crushOut); A.crushSP = sp;
+    } catch (e2) { /* crusher unavailable: stays bypassed */ }
+  }
+  applyFX();
+}
+
+/* ---------- waveshaper curves (gain baked into the curve; input stays within ±1) ---------- */
+function curve(type, drive) {
+  const key = type + ':' + drive.toFixed(2);
+  if (A.curves.has(key)) return A.curves.get(key);
+  const n = 4096, c = new Float32Array(n), K = 1 + drive * drive * 90, L = 0.25;
+  const f = {
+    soft: (x) => Math.tanh(K * x),
+    hard: (x) => clamp(K * x, -1, 1),
+    asym: (x) => Math.tanh(K * x + 0.6) - Math.tanh(0.6),
+    fold: (x) => Math.sin(K * x * Math.PI / 2),
+  }[type] || ((x) => Math.tanh(K * x));
+  const ref = Math.max(1e-3, Math.abs(type === 'fold' ? (K * L >= 1 ? 1 : f(L)) : f(L)));
+  for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; c[i] = f(x) * (L / ref); }
+  A.curves.set(key, c);
+  return c;
+}
+
+/* ================= patch + effects state ================= */
+const DEF = {
+  wave: 'sawtooth', harm: null, pw: 0.5, oct: 0, semi: 0, detune: 0, uni: 1, spread: 14, width: 0.6,
+  sub: 0, noise: 0, noiseColor: 'white',
+  fType: 'lowpass', cutoff: 18000, res: 0, slope: 12, key: 0, fEnv: 0, velF: 0.3,
+  aA: 0.004, aD: 0.3, aS: 0.85, aR: 0.18,
+  fA: 0.004, fD: 0.3, fS: 0, fR: 0.25,
+  lfoDest: 'none', lfoDepth: 0,
+  fmRatio: 1, fmIndex: 0, fmDecay: 0, fmSus: 0.15,
+  pitchEnv: 0, pitchDecay: 0.06,
+  drive: 0, driveType: 'soft', driveOrder: 'post',
+  vel: 0.6, level: 1,
+};
+const FXDEF = {
+  lfoRate: 4, lfoShape: 'sine', lfoSync: 0,
+  busDrive: 0, busDriveType: 'soft',
+  crushBits: 16, crushDown: 1, crushMix: 0,
+  chorus: 0, chorusRate: 0.7, chorusDepth: 0.5,
+  comp: 0, thr: -20, ratio: 4, att: 0.01, rel: 0.2, makeup: 0, knee: 6,
+  dMix: 0, dTime: 0.375, dFb: 0.35, dTone: 5000, dMode: 'pp', dSync: 0,
+  rMix: 0, rDecay: 2.2, rPre: 0.02, rDamp: 0.5, rLow: 120,
+  duck: 0, duckRel: 0.25,
+  vol: 0.8,
+};
+let patch = { ...DEF };
+let FX = { ...FXDEF };
+function setPatch(o) { patch = { ...DEF, ...(o || {}) }; applyLfoPan(); }
+function setFX(o) { FX = { ...FXDEF, ...(o || {}) }; if (ctx) { applyFX(); restartLFO(); } }
+
+function lfoHz() {
+  if (FX.lfoSync) return (Seq.bpm / 60) / FX.lfoSync; // lfoSync = cycle length in beats
+  return FX.lfoRate;
+}
+function restartLFO(t) {
+  if (!ctx) return;
+  const c = ctx, sr = c.sampleRate, N = sr, shape = FX.lfoShape;
+  const key = shape === 'random' ? 'random' + Math.random() : shape;
+  let b = A.waves.get('lfo:' + key);
+  if (!b) {
+    b = c.createBuffer(1, N, sr); const d = b.getChannelData(0);
+    const steps = 16, vals = Array.from({ length: steps }, () => Math.random() * 2 - 1);
+    for (let i = 0; i < N; i++) {
+      const p = i / N;
+      d[i] = shape === 'triangle' ? 1 - 4 * Math.abs(p - 0.5) : shape === 'saw' ? 1 - 2 * p : shape === 'ramp' ? 2 * p - 1
+        : shape === 'square' ? (p < 0.5 ? 1 : -1) : shape === 'random' ? vals[Math.floor(p * steps)] : Math.sin(2 * Math.PI * p);
+    }
+    if (shape !== 'random') A.waves.set('lfo:' + key, b);
+  }
+  const s = c.createBufferSource(); s.buffer = b; s.loop = true;
+  s.playbackRate.value = shape === 'random' ? lfoHz() / 16 : lfoHz();
+  s.connect(A.lfoOut);
+  const at = Math.max(c.currentTime, t || 0);
+  if (A.lfoSrc) { try { A.lfoSrc.stop(at); } catch (e) { /* */ } }
+  s.start(at); A.lfoSrc = s;
+}
+function setLfoRate() { if (A.lfoSrc) A.lfoSrc.playbackRate.setTargetAtTime(FX.lfoShape === 'random' ? lfoHz() / 16 : lfoHz(), now(), 0.02); }
+function applyLfoPan() { if (A.lfoPanG) A.lfoPanG.gain.setTargetAtTime(patch.lfoDest === 'pan' ? patch.lfoDepth : 0, now(), 0.02); }
+
+let irTimer = 0;
+function makeIR() {
+  const c = ctx, sr = c.sampleRate, pre = FX.rPre, dec = FX.rDecay, len = Math.floor(sr * (pre + dec * 1.15 + 0.05));
+  const b = c.createBuffer(2, len, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = b.getChannelData(ch); let lp = 0;
+    const p0 = Math.floor(pre * sr);
+    for (let i = p0; i < len; i++) {
+      const t = (i - p0) / sr, env = Math.pow(10, -3 * t / dec); // -60 dB at t = decay (RT60)
+      const k = 1 - FX.rDamp * 0.92 * Math.min(1, t / (dec * 0.6)); // damping: tail gets darker over time
+      lp += Math.max(0.04, k) * ((Math.random() * 2 - 1) - lp);
+      d[i] = lp * env * 0.6;
+    }
+    for (let e = 0; e < 7; e++) { // a few early reflections
+      const at = p0 + Math.floor(sr * (0.004 + Math.random() * 0.045)); if (at < len) d[at] += (Math.random() < 0.5 ? -1 : 1) * (0.5 - e * 0.05);
+    }
+  }
+  A.conv.buffer = b; A.irKey = [pre, dec, FX.rDamp].join();
+}
+function applyFX() {
+  if (!ctx) return;
+  const t = ctx.currentTime, s = (p, v, tc = 0.03) => p.setTargetAtTime(v, t, tc);
+  A.master.gain.setTargetAtTime(FX.vol, t, 0.05);
+  // bus drive
+  s(A.busDry.gain, FX.busDrive > 0 ? 0 : 1); s(A.busWet.gain, FX.busDrive > 0 ? 1 : 0);
+  if (FX.busDrive > 0) A.busShaper.curve = curve(FX.busDriveType, FX.busDrive);
+  // crusher
+  if (A.crush) {
+    const P = A.crush.parameters;
+    P.get('bits').setValueAtTime(FX.crushBits, t); P.get('down').setValueAtTime(FX.crushDown, t); P.get('mix').setValueAtTime(FX.crushMix, t);
+  }
+  // chorus
+  s(A.chWet.gain, FX.chorus * 0.8); s(A.chDry.gain, 1 - FX.chorus * 0.35);
+  s(A.chLfo.frequency, FX.chorusRate); s(A.chDep.gain, 0.0005 + 0.004 * FX.chorusDepth); s(A.chInv.gain, -(0.0005 + 0.004 * FX.chorusDepth));
+  // compressor
+  A.comp.threshold.setValueAtTime(FX.thr, t); A.comp.ratio.setValueAtTime(FX.ratio, t); A.comp.knee.setValueAtTime(FX.knee, t);
+  A.comp.attack.setValueAtTime(FX.att, t); A.comp.release.setValueAtTime(FX.rel, t);
+  s(A.makeup.gain, Math.pow(10, FX.makeup / 20)); s(A.compWet.gain, FX.comp ? 1 : 0, 0.01); s(A.compBy.gain, FX.comp ? 0 : 1, 0.01);
+  // delay
+  const dt = FX.dSync ? (60 / Seq.bpm) * FX.dSync : FX.dTime;
+  s(A.dSend.gain, FX.dMix); A.dL.delayTime.setTargetAtTime(dt, t, 0.05); A.dR.delayTime.setTargetAtTime(dt, t, 0.05);
+  s(A.dFb1.gain, Math.min(0.92, FX.dFb)); s(A.dFb2.gain, Math.min(0.92, FX.dFb));
+  s(A.dLp1.frequency, FX.dTone); s(A.dLp2.frequency, FX.dTone);
+  const pp = FX.dMode === 'pp';
+  s(A.dLL.gain, pp ? 1 : 0.7); s(A.dLR.gain, pp ? 0 : 0.7); s(A.dRR.gain, pp ? 1 : 0.7); s(A.dRL.gain, pp ? 0 : 0.7);
+  // reverb
+  s(A.rSend.gain, FX.rMix); s(A.rHP.frequency, FX.rLow);
+  const key = [FX.rPre, FX.rDecay, FX.rDamp].join();
+  if (A.irKey !== key) { clearTimeout(irTimer); if (!A.conv.buffer) makeIR(); else irTimer = setTimeout(makeIR, 140); }
+  setLfoRate();
+}
+function fx(k, v) { FX[k] = v; applyFX(); if (k === 'lfoShape') restartLFO(); }
+
+/* ================= voices ================= */
+function waveFor(P) {
+  if (P.wave === 'custom' && P.harm) {
+    const key = 'h:' + P.harm.map((x) => x.toFixed(3)).join(',');
+    let w = A.waves.get(key);
+    if (!w) {
+      const re = new Float32Array(P.harm.length + 1), im = new Float32Array(P.harm.length + 1);
+      P.harm.forEach((a, i) => { im[i + 1] = a; });
+      if (P.harm.every((a) => a === 0)) im[1] = 1e-6;
+      w = ctx.createPeriodicWave(re, im); A.waves.set(key, w);
+    }
+    return w;
+  }
+  return null;
+}
+function setOscWave(o, P) {
+  const w = waveFor(P);
+  if (w) o.setPeriodicWave(w); else o.type = ['sine', 'triangle', 'sawtooth', 'square'].includes(P.wave) ? P.wave : 'sawtooth';
+}
+const resQ = (P, stage) => {
+  if (P.fType === 'lowpass' || P.fType === 'highpass') return stage === 0 && P.slope === 24 ? -3 : -3 + P.res * 27; // dB for LP/HP biquads
+  return 0.6 + P.res * P.res * 30; // linear Q for band/notch
+};
+function cutBase(P, m) { return clamp(P.cutoff * Math.pow(2, P.key * (m - 60) / 12), 20, 20000); }
+function lfoScale(P, f) {
+  const d = P.lfoDepth;
+  return { pitch: d * 200, cutoff: d * 4800, amp: d * 0.5, pw: d * 0.42 / f, pan: 0, none: 0 }[P.lfoDest] || 0;
+}
+function envAt(dt, A_, D, S, peak) { // linear attack, exponential decay (matches the scheduling below)
+  if (dt < A_) return peak * dt / A_;
+  return S * peak + (peak - S * peak) * Math.exp(-(dt - A_) / Math.max(0.001, D / 4));
+}
+function fenvAt(dt, A_, D, base, peak, sus) {
+  if (dt < A_) return base * Math.pow(peak / base, dt / A_);
+  return sus + (peak - sus) * Math.exp(-(dt - A_) / Math.max(0.001, D / 4));
+}
+
+function noteOn(m, vel = 0.85, when) {
+  const c = ac(), P = patch, t = Math.max(when || 0, c.currentTime + 0.004);
+  if (A.voices.size >= 14) [...A.voices][0].kill();
+  const f = mtof(m + P.oct * 12 + P.semi);
+  const v = { m, f, vel, t0: t, P, uni: [], srcs: [], dead: false };
+  const mix = c.createGain(); v.mix = mix;
+  const velAmp = 1 - P.vel + P.vel * vel;
+  // --- sources
+  const n = P.wave === 'noise' ? 0 : Math.max(1, P.uni | 0);
+  const lvl = 0.2 / Math.sqrt(n || 1);
+  let mod = null;
+  if (n && P.fmIndex > 0) {
+    mod = c.createOscillator(); mod.frequency.value = f * P.fmRatio;
+    const mg = c.createGain(), peak = P.fmIndex * f * P.fmRatio;
+    mg.gain.setValueAtTime(peak, t);
+    if (P.fmDecay > 0) mg.gain.setTargetAtTime(peak * P.fmSus, t, P.fmDecay / 3);
+    mod.connect(mg); v.mod = mod; v.mg = mg; v.srcs.push(mod);
+  }
+  for (let u = 0; u < n; u++) {
+    const spreadPos = n > 1 ? (u / (n - 1) - 0.5) * 2 : 0;
+    const pn = c.createStereoPanner(); pn.pan.value = spreadPos * P.width;
+    const g = c.createGain(); g.gain.value = P.wave === 'pulse' ? lvl * 0.5 : lvl; g.connect(pn).connect(mix);
+    const o = c.createOscillator(); o.frequency.value = f; o.detune.value = P.detune + spreadPos * P.spread;
+    const U = { o, g, pn, pos: spreadPos };
+    if (P.wave === 'pulse') { // saw minus a delayed saw = pulse whose width is the delay (so PWM is just delay modulation)
+      o.type = 'sawtooth'; const d = c.createDelay(0.2); d.delayTime.value = clamp(P.pw, 0.02, 0.98) / f; const inv = c.createGain(); inv.gain.value = -1;
+      o.connect(g); o.connect(d).connect(inv).connect(g); U.d = d;
+    } else { setOscWave(o, P); o.connect(g); }
+    if (P.pitchEnv) { o.detune.setValueAtTime(P.detune + spreadPos * P.spread + P.pitchEnv * 100, t); o.detune.setTargetAtTime(P.detune + spreadPos * P.spread, t, P.pitchDecay / 3); }
+    if (v.mg) v.mg.connect(o.frequency);
+    v.uni.push(U); v.srcs.push(o);
+  }
+  if (P.sub > 0) {
+    const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f / 2; const g = c.createGain(); g.gain.value = P.sub * 0.3;
+    o.connect(g).connect(mix); v.subG = g; v.srcs.push(o);
+  }
+  if (P.noise > 0 || P.wave === 'noise') {
+    const s = c.createBufferSource(); s.buffer = makeNoise(P.noiseColor); s.loop = true; const g = c.createGain();
+    g.gain.value = (P.wave === 'noise' ? 1 : P.noise) * 0.35; s.connect(g).connect(mix); v.noiseG = g; v.srcs.push(s); s._off = Math.random() * 2;
+  }
+  // --- shapers
+  let node = mix;
+  const mkDrive = () => { const sh = c.createWaveShaper(); sh.curve = curve(P.driveType, P.drive); sh.oversample = '4x'; const dc = c.createBiquadFilter(); dc.type = 'highpass'; dc.frequency.value = 18; sh.connect(dc); v.shaper = sh; return [sh, dc]; };
+  if (P.drive > 0 && P.driveOrder === 'pre') { const [i, o] = mkDrive(); node.connect(i); node = o; }
+  const f1 = c.createBiquadFilter(); f1.type = P.fType; f1.Q.value = resQ(P, 0);
+  node.connect(f1); node = f1; v.f1 = f1;
+  if (P.slope === 24) { const f2 = c.createBiquadFilter(); f2.type = P.fType; f2.Q.value = resQ(P, 1); node.connect(f2); node = f2; v.f2 = f2; }
+  if (P.drive > 0 && P.driveOrder !== 'pre') { const [i, o] = mkDrive(); node.connect(i); node = o; }
+  const trem = c.createGain(); const amp = c.createGain(); amp.gain.value = 0;
+  const resComp = (P.fType === 'lowpass' || P.fType === 'highpass') ? Math.pow(10, -P.res * 7 / 20) : 1;
+  const out = c.createGain(); out.gain.value = P.level * resComp;
+  node.connect(trem).connect(amp).connect(out).connect(A.synthBus);
+  v.trem = trem; v.amp = amp; v.out = out;
+  // --- filter envelope
+  const base = cutBase(P, m); v.base = base;
+  const fparams = [f1.frequency]; if (v.f2) fparams.push(v.f2.frequency);
+  const fe = P.fEnv * (1 - P.velF + P.velF * vel);
+  v.fpeak = clamp(base * Math.pow(2, fe), 20, 20000); v.fsus = clamp(base * Math.pow(v.fpeak / base, P.fS), 20, 20000);
+  for (const p of fparams) {
+    if (P.fEnv) { p.setValueAtTime(base, t); p.exponentialRampToValueAtTime(v.fpeak, t + Math.max(0.002, P.fA)); p.setTargetAtTime(v.fsus, t + Math.max(0.002, P.fA), Math.max(0.001, P.fD / 4)); }
+    else p.setValueAtTime(base, t);
+  }
+  v.fparams = fparams;
+  // --- amp envelope
+  const pk = velAmp, aA = Math.max(0.002, P.aA);
+  amp.gain.setValueAtTime(0, t); amp.gain.linearRampToValueAtTime(pk, t + aA);
+  amp.gain.setTargetAtTime(P.aS * pk, t + aA, Math.max(0.001, P.aD / 4));
+  v.pk = pk;
+  // --- LFO hookup
+  hookLFO(v);
+  for (const s of v.srcs) s.start(t, s._off || 0);
+  v.release = (when2) => releaseVoice(v, when2);
+  v.kill = () => releaseVoice(v, ctx.currentTime, 0.02);
+  A.voices.add(v);
+  v.srcs[v.srcs.length - 1].onended = () => { A.voices.delete(v); try { v.out.disconnect(); } catch (e) { /* */ } if (v.lfoG) try { v.lfoG.disconnect(); } catch (e) { /* */ } };
+  return v;
+}
+function hookLFO(v) {
+  const c = ctx, P = v.P;
+  if (v.lfoG) { try { v.lfoG.disconnect(); } catch (e) { /* */ } }
+  if (!P.lfoDest || P.lfoDest === 'none' || P.lfoDest === 'pan') { v.lfoG = null; v.trem.gain.value = 1; return; }
+  const g = c.createGain(); g.gain.value = lfoScale(P, v.f); A.lfoOut.connect(g); v.lfoG = g;
+  if (P.lfoDest === 'pitch') v.uni.forEach((U) => g.connect(U.o.detune));
+  if (P.lfoDest === 'cutoff') { g.connect(v.f1.detune); if (v.f2) g.connect(v.f2.detune); }
+  if (P.lfoDest === 'amp') { v.trem.gain.value = 1 - P.lfoDepth * 0.5; g.connect(v.trem.gain); } else v.trem.gain.value = 1;
+  if (P.lfoDest === 'pw') v.uni.forEach((U) => U.d && g.connect(U.d.delayTime));
+}
+function releaseVoice(v, when, forceR) {
+  if (v.dead) return; v.dead = true;
+  const P = v.P, c = ctx, tr = Math.max(when || 0, c.currentTime), R = Math.max(0.006, forceR != null ? forceR : P.aR), dt = tr - v.t0, aA = Math.max(0.002, P.aA);
+  const cur = envAt(Math.max(0, dt), aA, P.aD, P.aS, v.pk);
+  const g = v.amp.gain; g.cancelScheduledValues(tr);
+  if (dt < aA) g.linearRampToValueAtTime(cur, tr); else g.setValueAtTime(cur, tr);
+  g.setTargetAtTime(0, tr, R / 4);
+  if (P.fEnv && forceR == null) {
+    const fA = Math.max(0.002, P.fA), fc = clamp(fenvAt(Math.max(0, dt), fA, P.fD, v.base, v.fpeak, v.fsus), 20, 20000);
+    for (const p of v.fparams) { p.cancelScheduledValues(tr); if (dt < fA) p.exponentialRampToValueAtTime(fc, tr); else p.setValueAtTime(fc, tr); p.setTargetAtTime(v.base, tr, Math.max(0.005, P.fR / 4)); }
+  }
+  const end = tr + R * 1.6 + 0.05;
+  for (const s of v.srcs) { try { s.stop(end); } catch (e) { /* */ } }
+}
+function releaseAll(fast) { for (const v of [...A.voices]) fast ? v.kill() : v.release(); }
+
+// live parameter changes on sounding voices
+function P(k, val) {
+  patch[k] = val;
+  if (!ctx) return;
+  const t = ctx.currentTime, tc = 0.025;
+  if (k === 'lfoDest' || k === 'lfoDepth') applyLfoPan();
+  for (const v of A.voices) {
+    if (v.dead) continue;
+    v.P = { ...v.P, [k]: val }; const Q = v.P;
+    switch (k) {
+      case 'cutoff': case 'key': { v.base = cutBase(Q, v.m); v.fpeak = clamp(v.base * Math.pow(2, Q.fEnv), 20, 20000); v.fsus = clamp(v.base * Math.pow(v.fpeak / v.base, Q.fS), 20, 20000);
+        for (const p of v.fparams) { p.cancelScheduledValues(t); p.setTargetAtTime(Q.fEnv ? v.fsus : v.base, t, tc); } break; }
+      case 'res': case 'fType': v.f1.type = Q.fType; v.f1.Q.setTargetAtTime(resQ(Q, 0), t, tc); if (v.f2) { v.f2.type = Q.fType; v.f2.Q.setTargetAtTime(resQ(Q, 1), t, tc); }
+        v.out.gain.setTargetAtTime(Q.level * ((Q.fType === 'lowpass' || Q.fType === 'highpass') ? Math.pow(10, -Q.res * 7 / 20) : 1), t, tc); break;
+      case 'wave': case 'harm': if (Q.wave !== 'pulse' && Q.wave !== 'noise') v.uni.forEach((U) => { if (!U.d) setOscWave(U.o, Q); }); break;
+      case 'detune': case 'spread': v.uni.forEach((U) => U.o.detune.setTargetAtTime(Q.detune + U.pos * Q.spread, t, tc)); break;
+      case 'width': v.uni.forEach((U) => U.pn.pan.setTargetAtTime(U.pos * Q.width, t, tc)); break;
+      case 'pw': v.uni.forEach((U) => U.d && U.d.delayTime.setTargetAtTime(clamp(Q.pw, 0.02, 0.98) / v.f, t, tc)); break;
+      case 'fmIndex': case 'fmRatio': if (v.mod) { v.mod.frequency.setTargetAtTime(v.f * Q.fmRatio, t, tc); v.mg.gain.cancelScheduledValues(t); v.mg.gain.setTargetAtTime(Q.fmIndex * v.f * Q.fmRatio, t, tc); } break;
+      case 'drive': case 'driveType': if (v.shaper && Q.drive > 0) v.shaper.curve = curve(Q.driveType, Q.drive); break;
+      case 'sub': if (v.subG) v.subG.gain.setTargetAtTime(Q.sub * 0.3, t, tc); break;
+      case 'noise': if (v.noiseG) v.noiseG.gain.setTargetAtTime(Q.noise * 0.35, t, tc); break;
+      case 'lfoDepth': if (v.lfoG) { v.lfoG.gain.setTargetAtTime(lfoScale(Q, v.f), t, tc); if (Q.lfoDest === 'amp') v.trem.gain.setTargetAtTime(1 - Q.lfoDepth * 0.5, t, tc); } else if (Q.lfoDest !== 'none' && Q.lfoDest !== 'pan') hookLFO(v); break;
+      case 'lfoDest': hookLFO(v); break;
+      case 'aS': if (!v.held) break; v.amp.gain.setTargetAtTime(Q.aS * v.pk, t, 0.05); break;
+      case 'level': v.out.gain.setTargetAtTime(val, t, tc); break;
+    }
+  }
+}
+
+/* ---------- drums ---------- */
+function drum(kind, t, vel = 1) {
+  const c = ac(); t = Math.max(t || 0, c.currentTime + 0.002);
+  const out = c.createGain(); out.connect(A.drumBus);
+  if (kind === 'kick') {
+    const o = c.createOscillator(), g = c.createGain(); o.type = 'sine';
+    o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.11);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.9 * vel, t + 0.002); g.gain.setTargetAtTime(0, t + 0.03, 0.11);
+    o.connect(g).connect(out); o.start(t); o.stop(t + 0.7);
+    const n = c.createBufferSource(); n.buffer = makeNoise('white'); const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000; const ng = c.createGain();
+    ng.gain.setValueAtTime(0.25 * vel, t); ng.gain.setTargetAtTime(0, t, 0.004); n.connect(hp).connect(ng).connect(out); n.start(t); n.stop(t + 0.05);
+    if (FX.duck > 0) { const d = A.ducker.gain; d.cancelScheduledValues(t); d.setTargetAtTime(1 - FX.duck, t, 0.004); d.setTargetAtTime(1, t + 0.03, FX.duckRel / 3); }
+  } else if (kind === 'snare') {
+    const n = c.createBufferSource(); n.buffer = makeNoise('white'); n.loop = true; const bp = c.createBiquadFilter(); bp.type = 'highpass'; bp.frequency.value = 1200;
+    const g = c.createGain(); g.gain.setValueAtTime(0.55 * vel, t); g.gain.setTargetAtTime(0, t, 0.05); n.connect(bp).connect(g).connect(out); n.start(t, Math.random()); n.stop(t + 0.4);
+    const o = c.createOscillator(), og = c.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(240, t); o.frequency.exponentialRampToValueAtTime(170, t + 0.05);
+    og.gain.setValueAtTime(0.5 * vel, t); og.gain.setTargetAtTime(0, t, 0.035); o.connect(og).connect(out); o.start(t); o.stop(t + 0.3);
+  } else if (kind === 'hat' || kind === 'open') {
+    const n = c.createBufferSource(); n.buffer = makeNoise('white'); n.loop = true; const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7500;
+    const pk = c.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = 10000; pk.gain.value = 6;
+    const g = c.createGain(); g.gain.setValueAtTime(0.32 * vel, t); g.gain.setTargetAtTime(0, t, kind === 'open' ? 0.09 : 0.016);
+    n.connect(hp).connect(pk).connect(g).connect(out); n.start(t, Math.random()); n.stop(t + (kind === 'open' ? 0.6 : 0.15));
+  }
+}
+
+/* ---------- step sequencer (lookahead scheduler) ---------- */
+// pattern: [{s: step(16ths), n: midi|[midi], d: steps, v: vel, dr: 'kick'|'snare'|'hat'|'open'}]
+const Seq = { bpm: 110, len: 16, pat: [], on: false, timer: 0, next: 0, step: 0, onStep: null };
+function seqStart(pat, opts = {}) {
+  seqStop(); unlock();
+  Seq.pat = pat; Seq.bpm = opts.bpm || 110; Seq.len = opts.len || 16; Seq.on = true; Seq.step = 0; Seq.onStep = opts.onStep || null;
+  Seq.next = ac().currentTime + 0.08;
+  if (FX.lfoSync) restartLFO(Seq.next); applyFX();
+  Seq.timer = setInterval(seqTick, 25); seqTick();
+}
+function seqTick() {
+  if (!Seq.on) return;
+  const sd = 60 / Seq.bpm / 4;
+  while (Seq.next < ctx.currentTime + 0.12) {
+    const st = Seq.step, t = Seq.next;
+    for (const e of Seq.pat) {
+      if (e.s !== st) continue;
+      if (e.dr) drum(e.dr, t, e.v == null ? 1 : e.v);
+      else for (const m of [].concat(e.n)) { const v = noteOn(m, e.v == null ? 0.8 : e.v, t); v.release(t + (e.d || 1) * sd * 0.92); }
+    }
+    if (Seq.onStep) { const s2 = st; setTimeout(() => Seq.on && Seq.onStep && Seq.onStep(s2), Math.max(0, (t - ctx.currentTime) * 1000)); }
+    Seq.next += sd; Seq.step = (st + 1) % Seq.len;
+  }
+}
+function seqStop() { Seq.on = false; clearInterval(Seq.timer); }
+
+/* ---------- held drone (for tweaking while it sounds) ---------- */
+function drone(notes, vel = 0.8) {
+  const vs = [].concat(notes).map((m) => { const v = noteOn(m, vel); v.held = true; return v; });
+  return { stop: () => vs.forEach((v) => v.release()) };
+}
+// bespoke nodes owned by the current chapter
+function own(stopFn) { A.owned.add(stopFn); return stopFn; }
+function stopAll() {
+  seqStop();
+  if (ctx) releaseAll(true);
+  for (const f of [...A.owned]) { try { f(); } catch (e) { /* */ } } A.owned.clear();
+  TRANSPORTS.forEach((b) => b.reset());
+  if (A.ducker) { A.ducker.gain.cancelScheduledValues(ctx.currentTime); A.ducker.gain.setTargetAtTime(1, ctx.currentTime, 0.02); }
+}
+// anything still sounding stops by itself after 30 s without any interaction, so nothing drones on unattended
+let idleT = 0;
+['pointerdown', 'input', 'keydown'].forEach((ev) => document.addEventListener(ev, () => { clearTimeout(idleT); idleT = setTimeout(stopAll, 30000); }, true));
+// a simple tone into the clean bus, with click-free fades
+function tone({ f = 220, type = 'sine', level = 0.2, pan = 0, dest, t, dur, harm } = {}) {
+  const c = ac(); const t0 = Math.max(t || 0, c.currentTime + 0.01);
+  const o = c.createOscillator(); if (harm) { const re = new Float32Array(harm.length + 1), im = new Float32Array(harm.length + 1); harm.forEach((a, i) => (im[i + 1] = a)); o.setPeriodicWave(c.createPeriodicWave(re, im)); } else o.type = type;
+  o.frequency.value = f;
+  const g = c.createGain(); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(level, t0 + 0.02);
+  const pn = c.createStereoPanner(); pn.pan.value = pan;
+  o.connect(g).connect(pn).connect(dest || A.clean); o.start(t0);
+  const stop = (at) => { const ta = Math.max(at || 0, c.currentTime); g.gain.cancelScheduledValues(ta); g.gain.setValueAtTime(g.gain.value, ta); g.gain.linearRampToValueAtTime(0, ta + 0.04); try { o.stop(ta + 0.06); } catch (e) { /* */ } A.owned.delete(stop); };
+  if (dur) { g.gain.setValueAtTime(level, t0 + dur); g.gain.linearRampToValueAtTime(0, t0 + dur + 0.04); o.stop(t0 + dur + 0.06); }
+  else own(stop);
+  return { o, g, pn, stop };
+}
+
+/* ================= visualiser ================= */
+const Viz = { mode: store.get('viz', 'spec'), hidden: store.get('dockHidden', false), auto: 1 };
+const VIZ_MODES = [['scope', 'Wave'], ['spec', 'Spectrum'], ['gram', 'Spectrogram']];
+function vizInit() {
+  const cv = $('#viz'); Viz.cv = cv; Viz.g = cv.getContext('2d');
+  Viz.sg = document.createElement('canvas');
+  const segEl = $('#vizSeg');
+  VIZ_MODES.forEach(([k, l]) => { const b = document.createElement('button'); b.textContent = l; b.dataset.k = k; b.onclick = () => setViz(k); segEl.append(b); });
+  setViz(Viz.mode);
+  $('#dockBtn').onclick = () => { Viz.hidden = !Viz.hidden; store.set('dockHidden', Viz.hidden); dockUI(); };
+  dockUI();
+  addEventListener('resize', vizSize); vizSize();
+  requestAnimationFrame(vizLoop);
+}
+function dockUI() { $('#dock').classList.toggle('collapsed', Viz.hidden); $('#dockBtn').textContent = Viz.hidden ? '▸' : '▾'; vizSize(); }
+function setViz(k) { Viz.mode = k; store.set('viz', k); document.querySelectorAll('#vizSeg button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); }
+function vizSize() {
+  const cv = Viz.cv; if (!cv) return; const dpr = Math.min(2, devicePixelRatio || 1);
+  const w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); Viz.w = cv.width; Viz.h = cv.height; Viz.dpr = dpr;
+  Viz.sg.width = Viz.w; Viz.sg.height = Viz.h; Viz.sgc = Viz.sg.getContext('2d'); Viz.sgc.fillStyle = '#07080b'; Viz.sgc.fillRect(0, 0, Viz.w, Viz.h);
+  Viz.map = null;
+}
+const FMIN = 20, FMAX = 20000;
+const xOfF = (f, w) => Math.log(f / FMIN) / Math.log(FMAX / FMIN) * w;
+const fOfX = (x, w) => FMIN * Math.pow(FMAX / FMIN, x / w);
+const PAL = (() => { const p = []; for (let i = 0; i < 256; i++) { const x = i / 255; const r = Math.round(255 * clamp(1.6 * x - 0.35, 0, 1)), g = Math.round(255 * clamp(1.5 * x * x, 0, 1) * 0.85), b = Math.round(255 * clamp(0.5 + 0.9 * x - 1.6 * x * x, 0, 1) * (x < 0.06 ? x / 0.06 : 1)); p.push([r, g, b]); } return p; })();
+function vizLoop() {
+  requestAnimationFrame(vizLoop);
+  if (Viz.hidden || !Viz.w) return;
+  const g = Viz.g, w = Viz.w, h = Viz.h, dpr = Viz.dpr;
+  if (!ctx || !A.analyser) { g.fillStyle = '#07080b'; g.fillRect(0, 0, w, h); g.fillStyle = '#5d6574'; g.font = `${12 * dpr}px -apple-system, system-ui`; g.fillText('Visualiser: press any ▶ to hear and see sound', 10 * dpr, h / 2); return; }
+  const an = A.analyser, N = an.frequencyBinCount, sr = ctx.sampleRate, binHz = sr / an.fftSize;
+  if (!Viz.fd) { Viz.fd = new Float32Array(N); Viz.td = new Float32Array(an.fftSize); }
+  an.getFloatFrequencyData(Viz.fd);
+  const fd = Viz.fd;
+  // peak readout
+  let bi = -1, bv = -200; const i0 = Math.ceil(30 / binHz), i1 = Math.floor(12000 / binHz);
+  for (let i = i0; i < i1; i++) if (fd[i] > bv) { bv = fd[i]; bi = i; }
+  if (bv > -72 && bi > 0) { const a = fd[bi - 1], b = fd[bi], c2 = fd[bi + 1], p = 0.5 * (a - c2) / (a - 2 * b + c2 || 1); const f = (bi + p) * binHz, m = ftom(f), cents = Math.round((m - Math.round(m)) * 100);
+    $('#peak').textContent = `loudest ${fmtHz(f)} · ${nname(m)} ${cents >= 0 ? '+' : ''}${cents}¢`; } else $('#peak').textContent = '';
+  if (!Viz.map || Viz.map.length !== w) { Viz.map = []; for (let x = 0; x < w; x++) { const a = Math.floor(fOfX(x, w) / binHz), b = Math.max(a, Math.floor(fOfX(x + 1, w) / binHz)); Viz.map.push([clamp(a, 0, N - 1), clamp(b, 0, N - 1)]); } }
+  const dbY = (db) => h - clamp((db + 105) / 95, 0, 1) * h;
+  const colMax = (x) => { const [a, b] = Viz.map[x]; let m = -200; for (let i = a; i <= b; i++) if (fd[i] > m) m = fd[i]; return m; };
+  if (Viz.mode === 'scope') {
+    an.getFloatTimeDomainData(Viz.td); const d = Viz.td, W = 1200; let s = 1;
+    for (let i = 1; i < d.length - W; i++) { if (d[i - 1] < 0 && d[i] >= 0) { s = i; break; } }
+    let pk = 0; for (let i = s; i < s + W; i++) pk = Math.max(pk, Math.abs(d[i]));
+    Viz.auto += ((0.85 / Math.max(pk, 0.04)) - Viz.auto) * 0.15;
+    g.fillStyle = '#07080b'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = 'rgba(255,255,255,.07)'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
+    g.strokeStyle = '#4cc9f0'; g.lineWidth = 1.6 * dpr; g.beginPath();
+    for (let x = 0; x < w; x++) { const i = s + Math.floor(x / w * W); const y = h / 2 - d[i] * Viz.auto * h * 0.45; x ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.stroke(); g.fillStyle = '#5d6574'; g.font = `${10 * dpr}px -apple-system, system-ui`; g.fillText(`${(W / sr * 1000).toFixed(0)} ms window · auto-zoom ×${Viz.auto.toFixed(1)}`, 6 * dpr, 12 * dpr);
+  } else if (Viz.mode === 'spec') {
+    g.fillStyle = '#07080b'; g.fillRect(0, 0, w, h);
+    g.font = `${9.5 * dpr}px -apple-system, system-ui`; g.lineWidth = 1;
+    for (const f of [50, 100, 200, 500, 1000, 2000, 5000, 10000]) { const x = xOfF(f, w); g.strokeStyle = 'rgba(255,255,255,.07)'; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); g.fillStyle = '#5d6574'; g.fillText(f >= 1000 ? f / 1000 + 'k' : f, x + 2 * dpr, h - 3 * dpr); }
+    for (const db of [-20, -40, -60, -80]) { const y = dbY(db); g.strokeStyle = 'rgba(255,255,255,.04)'; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); g.fillStyle = '#3d4350'; g.fillText(db + ' dB', 2 * dpr, y - 2 * dpr); }
+    const grad = g.createLinearGradient(0, 0, w, 0); grad.addColorStop(0, '#ffb547'); grad.addColorStop(0.55, '#ff8a4c'); grad.addColorStop(1, '#4cc9f0');
+    g.beginPath(); g.moveTo(0, h);
+    for (let x = 0; x < w; x++) g.lineTo(x, dbY(colMax(x)));
+    g.lineTo(w, h); g.closePath(); g.globalAlpha = 0.22; g.fillStyle = grad; g.fill(); g.globalAlpha = 1;
+    g.beginPath(); for (let x = 0; x < w; x++) { const y = dbY(colMax(x)); x ? g.lineTo(x, y) : g.moveTo(x, y); } g.strokeStyle = grad; g.lineWidth = 1.5 * dpr; g.stroke();
+  } else {
+    const sg = Viz.sgc, step = Math.max(1, Math.round(dpr));
+    sg.drawImage(Viz.sg, -step, 0);
+    const col = sg.createImageData(step, h);
+    for (let y = 0; y < h; y++) {
+      const f = FMIN * Math.pow(FMAX / FMIN, 1 - y / h), b = clamp(Math.round(f / binHz), 0, N - 1);
+      let v = fd[b]; if (b + 1 < N) v = Math.max(v, fd[b + 1]);
+      const c3 = PAL[clamp(Math.round((v + 100) / 80 * 255), 0, 255)];
+      for (let x = 0; x < step; x++) { const o = (y * step + x) * 4; col.data[o] = c3[0]; col.data[o + 1] = c3[1]; col.data[o + 2] = c3[2]; col.data[o + 3] = 255; }
+    }
+    sg.putImageData(col, w - step, 0);
+    g.drawImage(Viz.sg, 0, 0);
+    g.font = `${9.5 * dpr}px -apple-system, system-ui`; g.fillStyle = 'rgba(255,255,255,.45)';
+    for (const f of [100, 1000, 10000]) { const y = (1 - Math.log(f / FMIN) / Math.log(FMAX / FMIN)) * h; g.fillText(f >= 1000 ? f / 1000 + 'k' : f, 3 * dpr, y); }
+  }
+}
+
+/* ================= UI helpers ================= */
+const TRANSPORTS = new Set();
+function E(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null) continue;
+    if (k === 'class') e.className = v; else if (k === 'html') e.innerHTML = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k instanceof Node ? k : document.createTextNode(k));
+  return e;
+}
+const H = (s) => { const t = document.createElement('template'); t.innerHTML = s.trim(); return t.content; };
+const demo = (title, ...kids) => E('section', { class: 'demo' }, E('div', { class: 'demo-h' }, title), ...kids);
+const row = (...kids) => E('div', { class: 'ctl-row' }, ...kids);
+const btns = (...kids) => E('div', { class: 'btns' }, ...kids);
+const NOTE_H = { listen: '👂 Listen for', ix: '⚡ Interaction effect', gen: '🧭 Beyond synths', phys: '🔬 The physics', warn: '⚠️ Careful' };
+const note = (kind, html, head) => E('div', { class: 'note ' + kind }, E('div', { class: 'nh' }, head || NOTE_H[kind]), E('div', { html }));
+function slider({ label, min, max, step = 0, value, log = false, fmt = (v) => v, on }) {
+  const val = E('b', {}, fmt(value));
+  const inp = E('input', { type: 'range', min: 0, max: 1000, step: 1, 'aria-label': label });
+  const toPos = (v) => log ? 1000 * Math.log(v / min) / Math.log(max / min) : 1000 * (v - min) / (max - min);
+  const fromPos = (p) => { let v = log ? min * Math.pow(max / min, p / 1000) : min + (max - min) * p / 1000; if (step) v = Math.round(v / step) * step; return +v.toPrecision(6); };
+  inp.value = toPos(value);
+  inp.addEventListener('input', () => { unlock(); const v = fromPos(+inp.value); val.textContent = fmt(v); on && on(v); });
+  const wrap = E('label', { class: 'sl' }, E('div', { class: 'sl-top' }, E('span', {}, label), val), inp);
+  wrap.set = (v, fire) => { inp.value = toPos(v); val.textContent = fmt(v); if (fire && on) on(v); };
+  return wrap;
+}
+function seg(opts, value, on) {
+  const s = E('div', { class: 'seg' });
+  opts.forEach(([v, l]) => { const b = E('button', { type: 'button' }, l); b.dataset.v = String(v); if (v === value) b.classList.add('on'); b.onclick = () => { unlock(); s.set(v); on && on(v); }; s.append(b); });
+  s.set = (v) => s.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === String(v)));
+  return s;
+}
+function player(label, start, stop) {
+  const b = E('button', { class: 'play', type: 'button' }); let on = false;
+  const ui = () => { b.textContent = on ? '■ Stop' : '▶ ' + label; b.classList.toggle('on', on); };
+  b.onclick = () => { unlock(); if (on) { stopAll(); } else { stopAll(); on = true; ui(); start(); } };
+  b.reset = () => { on = false; ui(); };
+  b.isOn = () => on;
+  TRANSPORTS.add(b); ui(); return b;
+}
+const hit = (label, fn, cls) => E('button', { type: 'button', class: cls || '', onclick: () => { unlock(); fn(); } }, label);
+function toggle(label, value, on) {
+  const b = E('button', { type: 'button' }, label); let v = value;
+  const ui = () => b.classList.toggle('on', v); ui();
+  b.onclick = () => { unlock(); v = !v; ui(); on(v); }; b.set = (x) => { v = x; ui(); };
+  return b;
+}
+function ask(q, opts, ans, why) {
+  const box = E('div', { class: 'ask' }, E('div', { class: 'ask-q' }, '✓ Check yourself: ' + q));
+  const list = E('div', { class: 'ask-o' });
+  opts.forEach((o, i) => list.append(E('button', { type: 'button', onclick: () => {
+    if (box.done) return; box.done = true;
+    [...list.children].forEach((x, j) => x.classList.add(j === ans ? 'right' : j === i ? 'wrong' : 'dim'));
+    box.append(E('div', { class: 'ask-why', html: (i === ans ? '<b>Right.</b> ' : '<b>Not quite.</b> ') + why }));
+  } }, o)));
+  box.append(list); return box;
+}
+// shared patch knobs: P(key) on input
+const pk = (label, key, min, max, o = {}) => slider({ label, min, max, value: patch[key], log: o.log, step: o.step, fmt: o.fmt || ((v) => v), on: (v) => { P(key, v); o.on && o.on(v); } });
+const fk = (label, key, min, max, o = {}) => slider({ label, min, max, value: FX[key], log: o.log, step: o.step, fmt: o.fmt || ((v) => v), on: (v) => { fx(key, v); o.on && o.on(v); } });
+
+/* ================= chapters registry ================= */
+const CH = [];
+function chapter(def) { CH.push(def); }
+</script>
+
+<script>
+/* ================= chapter 0–1 ================= */
+const ARP = [[0, 45], [2, 57], [4, 60], [6, 64], [8, 45], [10, 57], [12, 62], [14, 65]].map(([s, n]) => ({ s, n, d: 1.7, v: s % 8 === 0 ? 1 : 0.7 }));
+
+chapter({ id: 'map', title: 'The map', min: 2, build(root) {
+  root.append(H(`
+  <div class="kicker">Sound &amp; Synthesis · a ~50-minute course</div>
+  <h1>Every sound is a few decisions</h1>
+  <p class="lede">A synth, a guitar rig, a mixing desk and a sound-design plugin all expose the same five kinds of control. Learn them once, with your ears and eyes, and you can reason about tone anywhere.</p>
+  <svg class="map" viewBox="0 0 700 170" role="img" aria-label="Source to shapers to dynamics to space, with modulators acting on everything">
+    <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5d6574"/></marker></defs>
+    <g font-family="-apple-system,system-ui" font-size="15" text-anchor="middle">
+      <rect x="8" y="22" width="140" height="62" rx="14" fill="#1d2129" stroke="#ffb547"/><text x="78" y="50" fill="#fff" font-weight="700">Source</text><text x="78" y="70" fill="#8d95a5" font-size="12">what vibrates</text>
+      <rect x="186" y="22" width="140" height="62" rx="14" fill="#1d2129" stroke="#ff8a4c"/><text x="256" y="50" fill="#fff" font-weight="700">Shapers</text><text x="256" y="70" fill="#8d95a5" font-size="12">filter · drive · EQ</text>
+      <rect x="364" y="22" width="140" height="62" rx="14" fill="#1d2129" stroke="#34d399"/><text x="434" y="50" fill="#fff" font-weight="700">Dynamics</text><text x="434" y="70" fill="#8d95a5" font-size="12">compress · gate</text>
+      <rect x="542" y="22" width="150" height="62" rx="14" fill="#1d2129" stroke="#4cc9f0"/><text x="617" y="50" fill="#fff" font-weight="700">Space</text><text x="617" y="70" fill="#8d95a5" font-size="12">delay · reverb · width</text>
+      <line x1="150" y1="53" x2="182" y2="53" stroke="#5d6574" stroke-width="2" marker-end="url(#ar)"/><line x1="328" y1="53" x2="360" y2="53" stroke="#5d6574" stroke-width="2" marker-end="url(#ar)"/><line x1="506" y1="53" x2="538" y2="53" stroke="#5d6574" stroke-width="2" marker-end="url(#ar)"/>
+      <rect x="120" y="118" width="460" height="42" rx="14" fill="#1a1630" stroke="#8b9cff" stroke-dasharray="5 4"/><text x="350" y="144" fill="#c7cfff" font-weight="700">Modulators — envelopes, LFOs, velocity — move any knob over time</text>
+      <g stroke="#8b9cff" stroke-width="1.5" stroke-dasharray="3 3"><line x1="78" y1="118" x2="78" y2="88"/><line x1="256" y1="118" x2="256" y2="88"/><line x1="434" y1="118" x2="434" y2="88"/><line x1="617" y1="118" x2="617" y2="88"/></g>
+    </g>
+  </svg>`));
+  root.append(note('phys', `<p>Every box is a function on a pressure wave: the source creates energy at certain frequencies; shapers remove, add or reshape frequencies; dynamics change level over time; space adds delayed copies. Modulators are not in the audio path at all — they are <b>hands on the knobs</b>.</p>`, '🔬 The model'));
+  // build a sound stage by stage
+  // shorter notes and a rest at the end of each bar, so the echoes and reverb tail have room to be heard
+  const MAP_ARP = [[0, 45], [2, 57], [4, 60], [6, 64], [8, 57], [10, 62]].map(([s, n]) => ({ s, n, d: 1.1, v: s % 8 === 0 ? 1 : 0.7 }));
+  const st = { shaper: true, mod: true, dyn: true, space: true };
+  const apply = () => {
+    setPatch({ wave: 'sawtooth', uni: 2, spread: 10, aA: 0.004, aD: st.mod ? 0.35 : 0.1, aS: st.mod ? 0.35 : 1, aR: st.mod ? 0.35 : 0.04,
+      cutoff: st.shaper ? 650 : 18000, res: st.shaper ? 0.45 : 0, slope: st.shaper ? 24 : 12, fEnv: st.mod && st.shaper ? 3.2 : 0, fD: 0.28, fS: 0.1,
+      lfoDest: st.mod ? 'pitch' : 'none', lfoDepth: 0.04, drive: st.dyn ? 0.35 : 0, key: 0.5 });
+    setFX({ lfoRate: 5.5, comp: st.dyn ? 1 : 0, thr: -24, ratio: 4, att: 0.005, rel: 0.12, makeup: 4,
+      dMix: st.space ? 0.42 : 0, dSync: 0.75, dFb: 0.45, dTone: 3200, rMix: st.space ? 0.38 : 0, rDecay: 2.8, rDamp: 0.5 });
+  };
+  apply();
+  const chip = (k, l) => toggle(l, st[k], (v) => { st[k] = v; apply(); });
+  root.append(demo('Build a sound, stage by stage',
+    E('p', { class: 'small muted' }, 'A raw sawtooth arpeggio, then each stage switched on. Toggle any stage off while it plays to hear exactly what it contributed. Space is clearest in the gap at the end of each bar: with it on, echoes and a reverb tail fill the silence; with it off, the gap is dry.'),
+    btns(player('Play the arpeggio', () => { apply(); seqStart(MAP_ARP, { bpm: 112 }); })),
+    E('div', { class: 'chips' }, E('button', { class: 'on', disabled: '' }, 'Source: saw'), chip('shaper', '+ Shaper: filter'), chip('mod', '+ Modulators'), chip('dyn', '+ Dynamics: drive & comp'), chip('space', '+ Space'))));
+  root.append(note('listen', `<p>Turn everything off: a buzzy, static, flat sound. <b>Shaper</b> on: darker, rounder. <b>Modulators</b> on: each note now has a shape — it plucks, the brightness falls, a slight vibrato breathes. <b>Space</b> on: it sits in a room, echoes fill the gaps.</p>`));
+  root.append(H(`<h2>How to use this course</h2>
+  <p>Each chapter teaches one dimension with a live instrument. The strip at the top shows what you hear three ways — switch between <b>Wave</b> (pressure over time), <b>Spectrum</b> (which frequencies, how loud) and <b>Spectrogram</b> (spectrum scrolling through time). Tap 🎹 at the bottom for a keyboard that plays the current chapter's sound. <b>ST/MONO</b> in the top bar sums left and right so you can check what collapses.</p>`));
+  root.append(note('warn', `<p>Use <b>headphones or decent speakers</b>. Phone speakers produce almost nothing below ~200 Hz, so bass lessons will be inaudible on them. Start with the volume low; everything goes through a limiter, but resonance and feedback demos can bite.</p>`));
+  root.append(ask('In this model, where does an LFO belong?', ['In the source', 'In the shapers', 'Nowhere in the audio path — it moves other knobs', 'In the space section'], 2, 'Modulators produce control signals, not sound you listen to. An LFO on filter cutoff makes a wah; on pitch, vibrato; on volume, tremolo.'));
+} });
+
+chapter({ id: 'pressure', title: 'Sound is pressure', min: 3, build(root) {
+  root.append(H(`<div class="kicker">Chapter 1 · Physics</div><h1>Frequency, level, phase</h1>
+  <p class="lede">A speaker cone pushes and pulls air. Your eardrum follows the pressure. Three numbers describe the simplest possible sound, a sine wave: how often it repeats, how big the swing is, and where in its cycle it starts.</p>`));
+  let osc = null;
+  const st = { f: 220, db: -18 };
+  const readout = E('div', { class: 'readout' });
+  const upd = () => { readout.textContent = `${fmtHz(st.f)} · nearest note ${nname(ftom(st.f))} · period ${(1000 / st.f).toFixed(2)} ms · amplitude ×${Math.pow(10, st.db / 20).toFixed(3)}`; if (osc) { osc.o.frequency.setTargetAtTime(st.f, now(), 0.03); osc.g.gain.setTargetAtTime(Math.pow(10, st.db / 20), now(), 0.03); } };
+  const fs = slider({ label: 'Frequency', min: 30, max: 16000, log: true, value: st.f, fmt: fmtHz, on: (v) => { st.f = v; upd(); } });
+  const ls = slider({ label: 'Level', min: -50, max: -8, step: 1, value: st.db, fmt: (v) => v + ' dBFS', on: (v) => { st.db = v; upd(); } });
+  const setF = (f) => { st.f = clamp(f, 30, 16000); fs.set(st.f); upd(); };
+  root.append(demo('Sine generator',
+    btns(player('Play sine', () => { osc = tone({ f: st.f, level: Math.pow(10, st.db / 20) }); setViz('scope'); }, null),
+      hit('÷2 octave down', () => setF(st.f / 2)), hit('×2 octave up', () => setF(st.f * 2)), hit('+1 semitone (×1.0595)', () => setF(st.f * Math.pow(2, 1 / 12))), hit('+6 dB', () => { st.db = Math.min(-8, st.db + 6); ls.set(st.db); upd(); })),
+    row(fs, ls), readout));
+  upd();
+  root.append(note('listen', `<p>Press <b>×2</b> a few times: each press sounds like the <i>same size</i> step even though the Hz jump doubles (220 → 440 → 880). Pitch perception is <b>logarithmic</b> — that's why the spectrum strip uses a log axis and why an octave is the same musical distance at any height. Watch the Wave view squeeze as frequency rises.</p>`));
+  root.append(note('phys', `<p><b>Frequency</b> (Hz) = cycles per second; pitch. Humans hear ~20 Hz–20 kHz (the top drops with age). A semitone multiplies by 2<sup>1/12</sup> ≈ 1.0595, so 100 cents = +5.9%.</p>
+  <p><b>Level</b> is measured in decibels: dB = 20·log<sub>10</sub>(amplitude ratio). +6 dB doubles amplitude; roughly +10 dB is <i>heard</i> as twice as loud. In digital audio, 0 dBFS is the ceiling and everything is negative below it.</p>`));
+  root.append(H(`<h2>Phase: when waves meet</h2><p>Two sounds in the air simply add. If two identical sines are offset by half a cycle (180°), every push meets a pull — they cancel. This one idea explains comb filtering, mic-placement problems, chorus, and why some wide synths vanish in mono.</p>`));
+  let pair = null; const ph = { deg: 0, b: true, nudge: false };
+  const sumTxt = E('div', { class: 'readout' });
+  const pupd = () => {
+    const amp = ph.b ? Math.abs(2 * Math.cos(ph.deg * Math.PI / 360)) : 1;
+    sumTxt.textContent = ph.nudge ? 'B is 1 Hz higher: the phase relationship sweeps 0→360° once per second (beating)' : `sum amplitude ×${amp.toFixed(2)} of one sine  (${amp > 0.01 ? (20 * Math.log10(amp)).toFixed(1) + ' dB' : 'silence'})`;
+    if (pair) { pair.d.delayTime.setTargetAtTime((ph.deg / 360) / 220, now(), 0.02); pair.gb.gain.setTargetAtTime(ph.b ? 0.14 : 0, now(), 0.02); pair.ob.frequency.setTargetAtTime(ph.nudge ? 221 : 220, now(), 0.02); }
+  };
+  const startPair = () => {
+    const c = ac(), t = c.currentTime + 0.02;
+    const oa = c.createOscillator(), ob = c.createOscillator(); oa.frequency.value = ob.frequency.value = 220;
+    const ga = c.createGain(), gb = c.createGain(), d = c.createDelay(0.1), m = c.createGain(); ga.gain.value = 0.14; gb.gain.value = ph.b ? 0.14 : 0; d.delayTime.value = (ph.deg / 360) / 220;
+    m.gain.setValueAtTime(0, t); m.gain.linearRampToValueAtTime(1, t + 0.05);
+    oa.connect(ga).connect(m); ob.connect(d).connect(gb).connect(m); m.connect(A.clean); oa.start(t); ob.start(t);
+    pair = { d, gb, ob }; setViz('scope');
+    own(() => { m.gain.setTargetAtTime(0, ctx.currentTime, 0.01); oa.stop(ctx.currentTime + 0.08); ob.stop(ctx.currentTime + 0.08); pair = null; });
+    pupd();
+  };
+  root.append(demo('Two sines, one phase knob',
+    btns(player('Play A + B', startPair), toggle('B on', true, (v) => { ph.b = v; pupd(); }), toggle('Nudge B +1 Hz', false, (v) => { ph.nudge = v; pupd(); })),
+    row(slider({ label: 'Phase of B', min: 0, max: 360, step: 1, value: 0, fmt: (v) => v + '°', on: (v) => { ph.deg = v; pupd(); } })), sumTxt));
+  pupd();
+  root.append(note('listen', `<p>Drag phase to 180°: near silence. At 0° the two add to +6 dB. Then turn on <b>Nudge</b>: a 1 Hz difference means the phase drifts continuously, so the level swells and vanishes once per second. That pulsing is <b>beating</b>, the basis of detune, chorus and how you tune a guitar by ear.</p>`));
+  root.append(note('gen', `<p>Two mics on one guitar cab at slightly different distances = a phase offset that varies with frequency, which notches out some frequencies (a <b>comb filter</b>). Same reason a stereo synth patch can thin out on a mono phone speaker, and how noise-cancelling headphones work.</p>`));
+  root.append(ask('A3 is 220 Hz. What is A5?', ['440 Hz', '660 Hz', '880 Hz', '1320 Hz'], 2, 'Two octaves up = ×2×2 = ×4 → 880 Hz.'));
+  root.append(ask('Two identical sines, one shifted by 180°. What do you hear?', ['Twice as loud', 'An octave higher', 'Silence', 'A chorus effect'], 2, 'Perfect cancellation: each peak meets a trough. Real sounds rarely cancel fully, but partial cancellation (comb filtering) is everywhere.'));
+} });
+</script>
+
+<script>
+/* ================= chapters 2–9 ================= */
+// drone + loop transport that can restart when a structural parameter changes
+function rig({ notes = [45], pat = null, bpm = 110, len = 16, droneLabel = 'Drone', loopLabel = 'Loop', vel = 0.8 } = {}) {
+  let mode = null;
+  const start = (m) => { mode = m; if (m === 'drone') { const d = drone(notes, vel); own(d.stop); } else seqStart(pat, { bpm, len }); };
+  const bd = player(droneLabel, () => start('drone'));
+  const bl = pat ? player(loopLabel, () => start('loop')) : null;
+  return {
+    el: btns(bd, bl),
+    restart() { if (bd.isOn()) { releaseAll(true); start('drone'); } },
+    playing: () => bd.isOn() || (bl && bl.isOn()),
+  };
+}
+const BASS = [[0, 45, 1, 1], [2, 45, 1, 0.55], [3, 57, 1, 0.9], [4, 45, 1, 0.55], [6, 48, 1, 1], [7, 45, 1, 0.55], [8, 52, 2, 0.7], [10, 45, 1, 1], [11, 55, 1, 0.55], [12, 45, 1, 0.6], [13, 57, 1, 1], [14, 50, 1, 0.7], [15, 52, 1, 0.55]].map(([s, n, d, v]) => ({ s, n, d, v }));
+const ENVPAT = [{ s: 0, n: 57, d: 1 }, { s: 2, n: 60, d: 1 }, { s: 4, n: 64, d: 6 }, { s: 12, n: 62, d: 3 }];
+const SPAN = [{ s: 0, n: 36, d: 3 }, { s: 4, n: 48, d: 3 }, { s: 8, n: 60, d: 3 }, { s: 12, n: 72, d: 3 }];
+const CHORDS = [{ s: 0, n: [57, 60, 64], d: 15 }, { s: 16, n: [53, 57, 60], d: 15 }, { s: 32, n: [55, 59, 62], d: 15 }, { s: 48, n: [52, 55, 59], d: 15 }];
+function envSvg() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'envsvg'); svg.setAttribute('viewBox', '0 0 300 90'); svg.setAttribute('preserveAspectRatio', 'none');
+  svg.draw = (a, d, s, r) => {
+    const seg = [Math.sqrt(a), Math.sqrt(d), 0.9, Math.sqrt(r)], tot = seg.reduce((x, y) => x + y, 0), k = 290 / tot;
+    const x1 = 5 + seg[0] * k, x2 = x1 + seg[1] * k, x3 = x2 + seg[2] * k, x4 = x3 + seg[3] * k, y = (v) => 85 - v * 78;
+    svg.innerHTML = `<path d="M5 85 L${x1} ${y(1)} Q${x1 + (x2 - x1) * 0.25} ${y(s)} ${x2} ${y(s)} L${x3} ${y(s)} Q${x3 + (x4 - x3) * 0.2} 85 ${x4} 85" fill="rgba(255,181,71,.12)" stroke="#ffb547" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    <g font-size="9" fill="#8d95a5" font-family="-apple-system,system-ui"><text x="${(5 + x1) / 2 - 3}" y="80">A</text><text x="${(x1 + x2) / 2 - 3}" y="80">D</text><text x="${(x2 + x3) / 2 - 3}" y="80">S</text><text x="${(x3 + x4) / 2 - 3}" y="80">R</text></g>
+    <line x1="${x3}" y1="5" x2="${x3}" y2="88" stroke="#4cc9f0" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/><text x="${x3 + 3}" y="12" font-size="9" fill="#4cc9f0" font-family="-apple-system,system-ui">key up</text>`;
+  };
+  return svg;
+}
+
+chapter({ id: 'harmonics', title: 'Harmonics & timbre', min: 3,
+  patch: { wave: 'custom', harm: [1, 0.5, 0.33, 0.25, 0.2, 0.17, 0.14, 0.12, 0.11, 0.1, 0.09, 0.08], aA: 0.01, aR: 0.3 },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 2 · Spectrum</div><h1>Harmonics: why a note has a colour</h1>
+  <p class="lede">A guitar, a flute and a synth can all play A at 110 Hz and still sound nothing alike. The difference is which <b>other</b> frequencies ride along — and how loud each one is.</p>
+  <p>Fourier's insight: any repeating waveform, however jagged, is exactly a sum of sine waves at whole-number multiples of its repetition rate. Those multiples are the <b>harmonics</b> (or partials): 110, 220, 330, 440 Hz… The first is the <b>fundamental</b> and sets the pitch; the recipe of the rest is the <b>timbre</b>.</p>`));
+  const bars = E('div', { class: 'drawbars' }); const inputs = [];
+  const r = rig({ notes: [45], pat: CHORDS.map((e) => ({ ...e, n: e.n.map((m) => m - 12) })), bpm: 100, len: 64, droneLabel: 'Drone (A2)', loopLabel: 'Chords' });
+  const push = () => P('harm', patch.harm.slice());
+  patch.harm.forEach((a, i) => {
+    const inp = E('input', { type: 'range', min: 0, max: 100, value: Math.round(a * 100), 'aria-label': 'Harmonic ' + (i + 1) });
+    inp.oninput = () => { unlock(); patch.harm[i] = inp.value / 100; push(); };
+    inputs.push(inp); bars.append(E('div', { class: 'db' }, inp, E('span', {}, String(i + 1))));
+  });
+  const preset = (arr) => { arr = arr.concat(Array(12).fill(0)).slice(0, 12); patch.harm = arr; inputs.forEach((x, i) => (x.value = Math.round(arr[i] * 100))); push(); };
+  const H12 = [...Array(12)].map((_, i) => i + 1);
+  root.append(demo('Additive drawbars — build a wave from 12 harmonics',
+    r.el,
+    bars,
+    btns(hit('Sine', () => preset([1])), hit('Saw recipe (1/n)', () => preset(H12.map((n) => 1 / n))), hit('Square recipe (odd 1/n)', () => preset(H12.map((n) => n % 2 ? 1 / n : 0))),
+      hit('Triangle (odd 1/n²)', () => preset(H12.map((n) => n % 2 ? 1 / (n * n) : 0))), hit('Organ 8′+4′+2⅔′', () => preset([1, 0.8, 0.6, 0.5, 0, 0.4, 0, 0.35])),
+      hit('Hollow (no 2,4)', () => preset([1, 0, 0.6, 0, 0.5, 0.3, 0.3])), hit('Fundamental removed', () => preset([0, 0.8, 0.6, 0.5, 0.4, 0.3, 0.2, 0.15])), hit('Very bright', () => preset([0.4, 0.4, 0.5, 0.6, 0.7, 0.6, 0.7, 0.8, 0.7, 0.8, 0.8, 0.9])))));
+  root.append(note('listen', `<p>Start with <b>Sine</b>, then raise bars 2, 3, 4 one at a time while the drone plays. Each addition is a new <i>colour</i>, not a new note — your brain fuses harmonics into one pitch. Watch the Spectrum: a picket fence of lines at 110, 220, 330… Then try <b>Fundamental removed</b>: the pitch stays at A2. (More on that illusion in Psychoacoustics.)</p>`));
+  // harmonic series table
+  const t = E('table', {}, E('tr', {}, E('th', {}, '#'), E('th', {}, 'Hz (on A2)'), E('th', {}, 'Nearest note'), E('th', {}, 'Interval above the root')));
+  const IV = ['root', 'octave', 'octave + 5th', '2 octaves', '2 oct + major 3rd', '2 oct + 5th', '2 oct + ♭7 (flat)', '3 octaves', '3 oct + 9th', '3 oct + maj 3rd', '3 oct + ♯11 (very flat)', '3 oct + 5th'];
+  H12.forEach((n) => { const f = 110 * n, m = ftom(f), c = Math.round((m - Math.round(m)) * 100); t.append(E('tr', {}, E('td', {}, String(n)), E('td', {}, String(f)), E('td', {}, `${nname(m)} ${c ? (c > 0 ? '+' : '') + c + '¢' : ''}`), E('td', {}, IV[n - 1]))); });
+  root.append(H(`<h2>The harmonic series is a chord</h2><p>Look at the note names. The series spells octave, fifth, octave, major third, fifth, flat seventh… — a dominant chord built into every pitched sound. The cents column shows how far each lies from the equal-tempered piano/guitar note.</p>`));
+  root.append(E('div', { class: 'tw' }, t));
+  root.append(btns(hit('▶ Hear harmonics 1–12 one by one', () => { stopAll(); const t0 = now() + 0.05; H12.forEach((n, i) => tone({ f: 110 * n, level: 0.16, t: t0 + i * 0.32, dur: 0.3 })); })));
+  // consonance
+  root.append(H(`<h2>Why intervals sound consonant</h2><p>Two notes sound smooth when many of their harmonics <b>coincide</b>. A fifth is a 3:2 ratio, so every 3rd harmonic of the low note lands exactly on every 2nd of the upper one. Complex ratios leave harmonics a few Hz apart, and those near-misses <b>beat</b> (Chapter 1) — we hear that as roughness.</p>`));
+  const iv = { r: 3 / 2, et: 7, just: true }; let dy = null;
+  const IVS = [['Octave', 2, 12], ['Fifth', 3 / 2, 7], ['Fourth', 4 / 3, 5], ['Major 3rd', 5 / 4, 4], ['Minor 3rd', 6 / 5, 3], ['Tritone', 45 / 32, 6], ['Minor 2nd', 16 / 15, 1]];
+  const hm = [1, 0.5, 0.33, 0.25, 0.2, 0.16, 0.14, 0.12];
+  const ivTxt = E('div', { class: 'readout' });
+  const ratioF = () => iv.just ? iv.r : Math.pow(2, iv.et / 12);
+  const ivUpd = () => { const cents = 1200 * Math.log2(ratioF()); ivTxt.textContent = `${iv.just ? 'Just' : 'Equal-tempered'} ratio ${ratioF().toFixed(4)} = ${cents.toFixed(1)} cents  (ET vs just: ${(iv.et * 100 - 1200 * Math.log2(iv.r)).toFixed(1)}¢)`; if (dy) dy.b.o.frequency.setTargetAtTime(165 * ratioF(), now(), 0.02); };
+  root.append(demo('Interval lab — just vs equal temperament',
+    btns(player('Play the interval', () => { dy = { a: tone({ f: 165, harm: hm, level: 0.12 }), b: tone({ f: 165 * ratioF(), harm: hm, level: 0.12 }) }; setViz('spec'); }),
+      seg([[true, 'Just (pure ratio)'], [false, 'Equal-tempered']], true, (v) => { iv.just = v; ivUpd(); })),
+    seg(IVS.map(([l, r2, e]) => [l, l]), 'Fifth', (l) => { const x = IVS.find((q) => q[0] === l); iv.r = x[1]; iv.et = x[2]; ivUpd(); }), ivTxt));
+  ivUpd();
+  root.append(note('listen', `<p>Play the <b>Major 3rd</b> and flip between Just and Equal-tempered. The ET third is 14 cents sharp of 5:4, so the 5th harmonic of the root and the 4th of the third sit ~3 Hz apart here: a slow shimmer. The ET fifth is only 2 cents off and stays nearly still. Then try the Minor 2nd: dense, fast beating = dissonance.</p>`));
+  root.append(note('gen', `<p>On guitar, natural harmonics <i>are</i> this series: touch the string at the 12th fret (½ length) for harmonic 2, 7th fret (⅓) for 3, 5th fret (¼) for 4, near the 4th fret (⅕) for 5 — that slightly flat major third. Picking near the bridge excites more upper harmonics (brighter); near the neck fewer (warmer). Pickup position works the same way.</p>`));
+  root.append(ask('You remove the fundamental but keep harmonics 2–8. What happens to the perceived pitch?', ['It jumps up an octave', 'It mostly stays the same; the timbre gets thinner', 'It becomes noise', 'It drops an octave'], 1, 'The brain infers the fundamental from the spacing of the harmonics (all 110 Hz apart). That is the "missing fundamental", which lets small speakers imply bass.'));
+  root.append(ask('Why does a perfect fifth sound smoother than a minor second?', ['It is louder', 'Its 3:2 ratio makes many harmonics coincide, so few beat against each other', 'Fifths have no harmonics', 'Because of equal temperament'], 1, 'Coinciding partials = little beating = smooth. The minor second (16:15) produces many close, rapidly beating pairs.'));
+} });
+
+chapter({ id: 'waves', title: 'Waveforms', min: 2, patch: { wave: 'sawtooth', aA: 0.01, aR: 0.25 }, build(root) {
+  root.append(H(`<div class="kicker">Chapter 3 · Source</div><h1>The classic waveforms are harmonic recipes</h1>
+  <p class="lede">Analog synths offered a few shapes because they were easy to make with circuits. Each is just a particular harmonic recipe — and knowing the recipe tells you what a filter will have to work with.</p>`));
+  const r = rig({ notes: [45], pat: BASS, bpm: 116, droneLabel: 'Drone (A2)', loopLabel: 'Bass loop' });
+  const pw = pk('Pulse width', 'pw', 0.05, 0.5, { fmt: pct });
+  const pwm = toggle('PWM (LFO → width)', false, (v) => { setFX({ ...FX, lfoRate: 0.4, lfoShape: 'triangle' }); P('lfoDest', v ? 'pw' : 'none'); P('lfoDepth', v ? 0.9 : 0); r.restart(); });
+  root.append(demo('Oscillator',
+    r.el,
+    seg([['sine', 'Sine'], ['triangle', 'Triangle'], ['sawtooth', 'Saw'], ['square', 'Square'], ['pulse', 'Pulse']], 'sawtooth', (w) => { P('wave', w); r.restart(); setViz('spec'); }),
+    row(pw), btns(pwm, hit('Show the wave', () => setViz('scope')), hit('Show the spectrum', () => setViz('spec')))));
+  root.append(H(`<div class="tw"><table>
+  <tr><th>Wave</th><th>Harmonics</th><th>Sounds like</th></tr>
+  <tr><td><b>Sine</b></td><td>fundamental only</td><td>pure, flute-ish, sub-bass; nothing for a filter to remove</td></tr>
+  <tr><td><b>Triangle</b></td><td>odd only, falling fast (1/n²)</td><td>soft, mellow, ocarina</td></tr>
+  <tr><td><b>Saw</b></td><td>all, falling as 1/n</td><td>bright, buzzy; strings and brass start here</td></tr>
+  <tr><td><b>Square</b></td><td>odd only, 1/n</td><td>hollow, woody, clarinet, chiptune</td></tr>
+  <tr><td><b>Pulse</b> (width w)</td><td>all, except every 1/w-th is missing</td><td>narrower = thinner, nasal, reedy</td></tr></table></div>`));
+  root.append(note('listen', `<p>Saw → Square: the sound goes <b>hollow</b> because every even harmonic disappears (watch alternate spectral lines vanish). Pulse at 33% removes every 3rd harmonic; at 10% it's thin and nasal. Turn on <b>PWM</b>: the missing harmonics sweep continuously, which sounds like a built-in chorus — the classic string-machine and Juno sound.</p>`));
+  root.append(note('phys', `<p>A clarinet is a tube closed at one end, which physically supports only odd harmonics — the same recipe as a square wave, which is why the two sound related. A bowed or plucked string supports all harmonics, closer to a saw.</p>`));
+  root.append(note('ix', `<p><b>Source × filter:</b> a filter can only remove what is there. A sine through a sweeping lowpass just gets quieter; a saw through the same sweep goes from buzz to growl to whisper. Pick bright sources when you want filters to be expressive.</p>`));
+  root.append(ask('Which wave contains only odd harmonics with amplitudes 1/n?', ['Saw', 'Triangle', 'Square', 'Sine'], 2, 'Square: odd harmonics at 1/n. Triangle is also odd-only but falls much faster (1/n²), so it is mellower.'));
+} });
+
+chapter({ id: 'noise', title: 'Noise & inharmonic sounds', min: 2, build(root) {
+  root.append(H(`<div class="kicker">Chapter 4 · Source</div><h1>Not every sound is a stack of harmonics</h1>
+  <p class="lede">Noise spreads energy across all frequencies at random. Bells, drums and cymbals have partials that are <b>not</b> whole-number multiples. Both matter: noise is the breath, scrape and sizzle in real instruments, and inharmonic partials make metal and skin sound like metal and skin.</p>`));
+  let ns = null, col = 'white';
+  const playNoise = () => { const c = ac(); const s = c.createBufferSource(); s.buffer = makeNoise(col); s.loop = true; const g = c.createGain(); g.gain.setValueAtTime(0, c.currentTime); g.gain.linearRampToValueAtTime(0.35, c.currentTime + 0.05); s.connect(g).connect(A.clean); s.start(); ns = { s, g }; setViz('spec'); own(() => { g.gain.setTargetAtTime(0, ctx.currentTime, 0.02); s.stop(ctx.currentTime + 0.1); ns = null; }); };
+  root.append(demo('Noise colours',
+    btns(player('Play noise', playNoise), seg([['white', 'White'], ['pink', 'Pink'], ['brown', 'Brown']], 'white', (v) => { col = v; if (ns) { stopAll(); } }))));
+  root.append(note('phys', `<p><b>White</b>: equal energy per Hz — flat on a linear axis, but each octave holds twice as many Hz as the one below, so it sounds hissy and tilts <i>up</i> on our log display. <b>Pink</b>: equal energy per octave (−3 dB/octave) — sounds balanced, like rain; engineers tune rooms with it. <b>Brown</b>: −6 dB/octave — a rumble, surf, wind. (After changing colour, press play again.)</p>`));
+  // bell
+  const RISSET = [[0.56, 1, 1], [0.56 * 1.0018, 0.67, 0.9], [0.92, 1, 0.65], [0.92 * 1.0019, 1.8, 0.55], [1.19, 2.67, 0.325], [1.7, 1.67, 0.35], [2, 1.46, 0.25], [2.74, 1.33, 0.2], [3, 1.33, 0.15], [3.76, 1, 0.1], [4.07, 1.33, 0.075]];
+  let harmonise = false;
+  const strike = (base = 330, partials = RISSET, dur = 6) => {
+    const c = ac(), t = c.currentTime + 0.02;
+    partials.forEach(([r2, a, d]) => {
+      const ratio = harmonise ? Math.max(0.5, Math.round(r2 * 2) / 2) : r2;
+      const o = c.createOscillator(); o.frequency.value = base * ratio; const g = c.createGain();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.045 * a, t + 0.004); g.gain.setTargetAtTime(0, t + 0.004, dur * d / 4);
+      o.connect(g).connect(A.clean); o.start(t); o.stop(t + dur * d * 1.4 + 0.1);
+    });
+  };
+  const MEMB = [[1, 1, 0.5], [1.59, 0.8, 0.35], [2.14, 0.65, 0.28], [2.3, 0.55, 0.25], [2.65, 0.5, 0.2], [2.92, 0.4, 0.17], [3.16, 0.35, 0.15], [3.5, 0.3, 0.12]];
+  root.append(demo('Inharmonic partials',
+    btns(hit('🔔 Strike bell (Risset)', () => { setViz('gram'); strike(330, RISSET, 6); }), hit('🥁 Hit drum membrane', () => { setViz('gram'); strike(110, MEMB, 1.2); }),
+      toggle('Force partials to harmonic', false, (v) => { harmonise = v; }))));
+  root.append(note('listen', `<p>Strike the bell, then turn on <b>Force partials to harmonic</b> and strike again. The same amplitudes and decays, snapped to whole multiples, turn the bell into a dull organ-like chime: the <b>ratios</b> are what made it metallic. The bell also has no clear single pitch — your brain hunts for a fundamental that doesn't exist. Its pairs of almost-equal partials beat slowly: the "wah-wah" of a real bell.</p>`));
+  root.append(note('phys', `<p>A string is a 1-D object pinned at both ends, so its modes fall at whole-number ratios. A drumhead is 2-D: its modes follow Bessel functions (1 : 1.59 : 2.14 : 2.30…), and bars and bells have their own stiff-material ratios. Shape and material set the ratios; that is why you can hear what something is made of.</p>`));
+  root.append(H(`<h2>Reading a spectrogram</h2><p>The spectrogram shows frequency (up), time (right) and loudness (brightness). Learn four shapes and you can read any sound: <b>horizontal lines</b> are steady partials; <b>evenly spaced</b> lines mean harmonic, uneven mean inharmonic; <b>vertical smears</b> are transients and noise bursts; <b>slanted lines</b> are pitch glides.</p>`));
+  root.append(btns(hit('▶ Play a tour: pluck · bell · noise burst · glide', () => {
+    stopAll(); setViz('gram'); const c = ac(), t = c.currentTime + 0.05;
+    setPatch({ wave: 'sawtooth', cutoff: 900, fEnv: 3, fD: 0.3, aD: 0.6, aS: 0, aR: 0.3, key: 0.5 }); const v = noteOn(57, 0.9, t); v.release(t + 0.9); setPatch(CH[cur].patch);
+    setTimeout(() => strike(440, RISSET, 2.5), 1100);
+    setTimeout(() => { const s = ctx.createBufferSource(); s.buffer = makeNoise('white'); const g = ctx.createGain(); g.gain.setValueAtTime(0.4, ctx.currentTime); g.gain.setTargetAtTime(0, ctx.currentTime, 0.05); s.connect(g).connect(A.clean); s.start(); s.stop(ctx.currentTime + 0.4); }, 2700);
+    setTimeout(() => { const o = tone({ f: 220, type: 'sawtooth', level: 0.08, dur: 1.4 }); o.o.frequency.setValueAtTime(220, ctx.currentTime + 0.02); o.o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 1.3); }, 3300);
+  })));
+  root.append(ask('Why does a bell sound metallic rather than like an organ pipe?', ['It is louder', 'Its partials are at non-integer ratios', 'It has no attack', 'It contains only odd harmonics'], 1, 'Inharmonic partial ratios are the fingerprint of bars, plates and bells.'));
+} });
+
+chapter({ id: 'filters', title: 'Filters', min: 3, patch: { wave: 'sawtooth', uni: 2, spread: 8, cutoff: 1200, res: 0.3, slope: 24, aA: 0.01, aR: 0.2 }, build(root) {
+  root.append(H(`<div class="kicker">Chapter 5 · Shapers</div><h1>Filters remove frequencies</h1>
+  <p class="lede">Subtractive synthesis — start bright, carve away — is how most synths, wah pedals, guitar tone knobs and EQs work. A filter has a <b>type</b> (which side it removes), a <b>cutoff</b> (where), a <b>slope</b> (how steeply) and a <b>resonance</b> (a boost right at the cutoff).</p>`));
+  const r = rig({ notes: [45, 57], pat: BASS, bpm: 116, droneLabel: 'Drone', loopLabel: 'Bass loop' });
+  const cut = pk('Cutoff', 'cutoff', 40, 18000, { log: true, fmt: fmtHz });
+  let sweeping = false;
+  root.append(demo('Filter',
+    r.el,
+    seg([['sawtooth', 'Saw source'], ['noise', 'Noise source'], ['sine', 'Sine source']], 'sawtooth', (w) => { P('wave', w); r.restart(); }),
+    seg([['lowpass', 'Lowpass'], ['highpass', 'Highpass'], ['bandpass', 'Bandpass'], ['notch', 'Notch']], 'lowpass', (t) => { P('fType', t); }),
+    row(cut, pk('Resonance', 'res', 0, 1, { fmt: pct })),
+    btns(seg([[12, '12 dB/oct'], [24, '24 dB/oct']], 24, (s) => { P('slope', s); r.restart(); }),
+      toggle('Auto-sweep (LFO)', false, (v) => { sweeping = v; FX.lfoShape = 'triangle'; FX.lfoRate = 0.12; restartLFO(); P('lfoDest', v ? 'cutoff' : 'none'); P('lfoDepth', v ? 0.6 : 0); r.restart(); }))));
+  root.append(note('listen', `<p>On the Spectrum, sweep <b>Cutoff</b> down: the harmonics to the right of it sink. Raise <b>Resonance</b>: a peak appears right at the cutoff, and sweeping it sounds vocal ("yow"). Switch to <b>Bandpass</b>: telephone. <b>Highpass</b>: thin, the body is gone. <b>Notch</b>: subtle — a narrow hole — the building block of a phaser. Then choose <b>Sine source</b> and sweep: almost nothing to hear, only volume.</p>`));
+  root.append(note('phys', `<p><b>Cutoff</b> is the −3 dB point. <b>Slope</b>: a 12 dB/octave (2-pole) filter lets more through above cutoff — brighter, gentler; 24 dB/octave (4-pole, the Moog ladder sound) is steeper and more "synthy". <b>Resonance</b> feeds the output back to the input; at high settings analog filters self-oscillate into a sine at the cutoff. An EQ band is the same family of filters with gain controls: a peaking band is a resonant bump you can steer.</p>`));
+  root.append(H(`<h2>Keytracking: filters that follow the note</h2><p>A fixed cutoff makes low notes bright and high notes dull, because their harmonics sit in different places. <b>Keytracking</b> moves the cutoff with the pitch. At 100%, the cutoff rises an octave for every octave played, so every note keeps the same harmonic recipe.</p>`));
+  root.append(demo('Keytracking',
+    btns(player('Play notes over 4 octaves', () => { P('cutoff', 500); cut.set(500); seqStart(SPAN, { bpm: 92 }); })),
+    row(pk('Keytrack', 'key', 0, 1, { fmt: pct }))));
+  root.append(note('listen', `<p>At 0%, the high notes lose almost all their harmonics and sound like sines. Raise keytrack toward 100% and the brightness becomes even across the range. Acoustic instruments behave in between — that's why real high notes are often a little purer.</p>`));
+  root.append(note('ix', `<p><b>Cutoff × resonance × source:</b> resonance only rings when there is energy near the cutoff, so a resonant filter on a bright saw screams while the same setting on a sine does little. Many analog filters also <b>lose bass</b> as resonance rises — producers compensate with a sub oscillator. And <b>slope × cutoff</b>: a 12 dB filter at 800 Hz can sound as bright as a 24 dB filter at 1.5 kHz.</p>`));
+  root.append(note('gen', `<p>Your guitar's tone knob is a passive lowpass; with the cable's capacitance and the pickup's inductance it even has a resonant peak (that's the "voice" of a pickup). A wah pedal is a resonant bandpass swept by your foot. Mixing EQ — cut mud with a highpass, tame harshness with a notch — is the same tool with a different goal.</p>`));
+  root.append(ask('Raising a lowpass filter\'s resonance does what?', ['Lowers the cutoff', 'Adds a peak of emphasis right at the cutoff frequency', 'Adds distortion', 'Makes the slope gentler'], 1, 'Resonance boosts a narrow band at the cutoff; sweep it and you hear that peak move.'));
+  root.append(ask('A bass line sounds dull up high and too bright down low. Which control fixes this?', ['Resonance', 'Keytracking', 'Slope', 'Notch mode'], 1, 'Keytracking moves cutoff with pitch so the harmonic balance stays constant.'));
+} });
+
+chapter({ id: 'env', title: 'Envelopes', min: 2, patch: { wave: 'sawtooth', cutoff: 2600, res: 0.1, slope: 24, key: 0.5, aA: 0.005, aD: 0.4, aS: 0.6, aR: 0.4 }, build(root) {
+  root.append(H(`<div class="kicker">Chapter 6 · Modulators</div><h1>Envelopes: the shape of a note in time</h1>
+  <p class="lede">An envelope generator draws a curve each time a key goes down. On volume, the classic <b>ADSR</b> describes most instruments: <b>Attack</b> (time to reach full level), <b>Decay</b> (time to fall to…), <b>Sustain</b> (a level held while the key is down), <b>Release</b> (time to fade after key up).</p>`));
+  const svg = envSvg(); const redraw = () => svg.draw(patch.aA, patch.aD, patch.aS, patch.aR);
+  const sA = pk('Attack', 'aA', 0.001, 3, { log: true, fmt: fmtS, on: redraw }), sD = pk('Decay', 'aD', 0.01, 3, { log: true, fmt: fmtS, on: redraw });
+  const sS = pk('Sustain', 'aS', 0, 1, { fmt: pct, on: redraw }), sR = pk('Release', 'aR', 0.01, 5, { log: true, fmt: fmtS, on: redraw });
+  const pre = (a, d, s, r) => { patch.aA = a; patch.aD = d; patch.aS = s; patch.aR = r; sA.set(a); sD.set(d); sS.set(s); sR.set(r); redraw(); };
+  root.append(demo('Amplitude envelope',
+    btns(player('Play phrase', () => seqStart(ENVPAT, { bpm: 92 }))),
+    svg, row(sA, sD), row(sS, sR),
+    btns(hit('Pluck', () => pre(0.002, 0.35, 0, 0.3)), hit('Organ', () => pre(0.003, 0.05, 1, 0.03)), hit('Pad', () => pre(0.9, 1.2, 0.8, 2)), hit('Swell', () => pre(2.5, 0.5, 1, 1.2)), hit('Piano-ish', () => pre(0.002, 1.8, 0.0, 0.5)), hit('Staccato brass', () => pre(0.04, 0.15, 0.7, 0.08)))));
+  redraw();
+  root.append(note('listen', `<p>The phrase has short and long notes. With <b>Organ</b>, short and long notes differ only in length. With <b>Pluck</b> and <b>Piano-ish</b> (sustain 0), long notes die away anyway — the Decay decides. <b>Release</b> is what you hear after the key lifts: long releases blur notes together like a sustain pedal. Tap 🎹 and play slowly with <b>Pad</b>.</p>`));
+  root.append(H(`<h2>The attack carries identity</h2><p>Classic experiments that cut the first fraction of a second off instrument recordings found listeners confusing trumpet, violin and clarinet. The transient — a short, noisy, broadband burst — is how we recognise a source.</p>`));
+  const atk = (a) => { stopAll(); const keep = patch; setPatch({ wave: 'sawtooth', cutoff: 1400, fEnv: 2.5, fD: 0.15, fS: 0.3, key: 0.5, aA: a, aD: 0.5, aS: 0.6, aR: 0.4, noise: a < 0.01 ? 0.25 : 0 }); const t = now() + 0.03; [57, 64, 69].forEach((m, i) => noteOn(m, 0.9, t + i * 0.5).release(t + i * 0.5 + 0.45)); patch = keep; };
+  root.append(demo('Same tone, attack on or off', btns(hit('▶ Sharp attack + click', () => atk(0.002)), hit('▶ 120 ms attack', () => atk(0.12)), hit('▶ 400 ms attack', () => atk(0.4)))));
+  root.append(note('phys', `<p>Fast change = many frequencies: a 1 ms attack contains energy far up the spectrum (look for the vertical smear in the Spectrogram). That's why an instant attack on a low sine <b>clicks</b>, and why synths default to a few milliseconds of attack and release.</p>`));
+  root.append(note('gen', `<p>A guitarist rolling the volume knob up after picking ("violining") is a manual slow attack. Compressor attack/release, noise-gate open/close, and a sustain pedal are all envelopes. When a mix sounds "smeared", the culprit is often too much release or reverb tail.</p>`));
+  root.append(ask('A sound keeps its level as long as you hold the key, then fades for 2 seconds after release. Which settings?', ['Sustain 0, release 2 s', 'Sustain 100%, release 2 s', 'Attack 2 s', 'Decay 2 s, sustain 0'], 1, 'Sustain is a level held while the key is down; release is the fade time after key-up.'));
+} });
+
+chapter({ id: 'fenv', title: 'Filter envelope (interaction #1)', min: 3,
+  patch: { wave: 'sawtooth', cutoff: 220, res: 0.55, slope: 24, fEnv: 4, fA: 0.002, fD: 0.22, fS: 0, fR: 0.15, velF: 0.7, aA: 0.002, aD: 0.4, aS: 0.7, aR: 0.08, key: 0.3 },
+  fx: { dMix: 0.15, dSync: 0.75, dFb: 0.3, dTone: 2500 },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 7 · Interaction</div><h1>Envelope → cutoff: where synth sounds come alive</h1>
+  <p class="lede">Send a second envelope to the filter cutoff and each note gets a brightness contour: a bright attack that darkens, like a plucked string. This is the single most important modulation in synthesis — and the clearest example of parameters that only make sense <b>together</b>.</p>`));
+  const pkTxt = E('div', { class: 'readout' });
+  const show = () => { const b = patch.cutoff, hi = clamp(b * Math.pow(2, patch.fEnv), 20, 20000), lo = clamp(b * Math.pow(2, patch.fEnv * (1 - patch.velF + patch.velF * 0.55)), 20, 20000);
+    pkTxt.textContent = `cutoff sweeps ${fmtHz(b)} → ${fmtHz(hi)} on accents, → ${fmtHz(lo)} on soft notes${b * Math.pow(2, patch.fEnv) > 20000 ? '  (hitting the 20 kHz ceiling!)' : ''}`; };
+  const s = {
+    cut: pk('Cutoff (base)', 'cutoff', 40, 6000, { log: true, fmt: fmtHz, on: show }),
+    amt: pk('Env amount', 'fEnv', -4, 7, { step: 0.1, fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(1) + ' oct', on: show }),
+    dec: pk('Filter decay', 'fD', 0.02, 2, { log: true, fmt: fmtS }),
+    res: pk('Resonance', 'res', 0, 1, { fmt: pct }),
+    vel: pk('Velocity → filter', 'velF', 0, 1, { fmt: pct, on: show }),
+    att: pk('Filter attack', 'fA', 0.002, 1.5, { log: true, fmt: fmtS }),
+  };
+  const pre = (o) => { Object.assign(patch, o); s.cut.set(patch.cutoff); s.amt.set(patch.fEnv); s.dec.set(patch.fD); s.res.set(patch.res); s.vel.set(patch.velF); s.att.set(patch.fA); show(); };
+  root.append(demo('Acid-style bass with a filter envelope',
+    btns(player('Play bass loop', () => seqStart(BASS, { bpm: 122 })), player('Play chords', () => seqStart(CHORDS, { bpm: 100, len: 64 }))),
+    row(s.cut, s.amt), row(s.dec, s.res), row(s.vel, s.att), pkTxt,
+    btns(hit('Acid', () => pre({ cutoff: 220, fEnv: 4, fD: 0.22, res: 0.6, fA: 0.002, fS: 0, velF: 0.7, aA: 0.002, aS: 0.7 })), hit('Pluck', () => pre({ cutoff: 300, fEnv: 5, fD: 0.12, res: 0.15, fA: 0.002, fS: 0, velF: 0.3, aS: 0 })),
+      hit('Brass swell', () => pre({ cutoff: 500, fEnv: 2.5, fA: 0.25, fD: 0.6, fS: 0.6, res: 0.1, velF: 0.3, aA: 0.06, aS: 0.9 })), hit('Inverted (−)', () => pre({ cutoff: 4000, fEnv: -3.5, fD: 0.4, fA: 0.002, fS: 0, res: 0.3 })),
+      hit('No envelope', () => pre({ cutoff: 900, fEnv: 0, res: 0.3 })), hit('Ceiling trap', () => pre({ cutoff: 4000, fEnv: 5, fD: 0.3, res: 0.2 })))));
+  show();
+  root.append(note('listen', `<p>Hold the loop and drag <b>Filter decay</b> from short to long: "blip" → "wow" → "waaow". Raise <b>Resonance</b>: the sweep starts to sing — the 303 squelch. Now set <b>Env amount</b> to 0 and the same filter is static and lifeless. Try <b>Ceiling trap</b>: cutoff is already high, so the envelope pushes past 20 kHz and seems to do nothing.</p>`));
+  root.append(note('ix', `<p>The filter actually sees <b>cutoff × 2<sup>(amount × velocity)</sup></b>, shaped over time by the envelope. So:</p>
+  <ul><li><b>Cutoff × amount</b>: low cutoff + big amount = dramatic sweep; high cutoff + any amount = little audible change.</li>
+  <li><b>Amount × decay</b>: how far vs how long. Big amount with short decay = percussive click; small amount with long decay = gentle bloom.</li>
+  <li><b>Resonance × sweep</b>: resonance makes the <i>movement</i> audible, so it matters far more with an envelope than on a static filter.</li>
+  <li><b>Velocity × amount</b>: harder notes open further, like a real instrument played harder.</li>
+  <li><b>Filter env × amp env</b>: if the amp decays faster than the filter, you never hear the filter's tail.</li></ul>`));
+  root.append(note('gen', `<p>Every acoustic instrument does this: a harder pick or bow stroke is both louder <i>and</i> brighter, then the highs die before the lows. That's why "brightness falls during the note" reads as natural, and a static filter reads as synthetic. An auto-wah / envelope filter pedal is exactly this, driven by how hard you play.</p>`));
+  root.append(ask('You raise filter env amount but hear almost no change. Most likely cause?', ['Resonance is too low', 'Base cutoff is already near the top, so the sweep hits the ceiling', 'The amp envelope attack is too slow', 'The slope is 12 dB'], 1, 'Envelope amount is relative to the base cutoff. If the base is high, there is no room left to open.'));
+} });
+
+chapter({ id: 'lfo', title: 'LFOs & the mod matrix', min: 3,
+  patch: { wave: 'sawtooth', cutoff: 1100, res: 0.45, slope: 24, aA: 0.01, aS: 0.9, aR: 0.2, lfoDest: 'pitch', lfoDepth: 0.15 },
+  fx: { lfoRate: 5.5, lfoShape: 'sine' },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 8 · Modulators</div><h1>LFOs: repeating hands on the knobs</h1>
+  <p class="lede">A low-frequency oscillator is a waveform too slow to hear (typically 0.05–20 Hz) used to move a parameter back and forth. Same LFO, different destination, completely different effect.</p>`));
+  const r = rig({ notes: [57], pat: BASS, bpm: 120, droneLabel: 'Drone', loopLabel: 'Bass loop' });
+  const rate = fk('Rate', 'lfoRate', 0.05, 40, { log: true, fmt: (v) => v.toFixed(v < 1 ? 2 : 1) + ' Hz' + (v > 20 ? ' — audio rate!' : '') });
+  const depth = pk('Depth', 'lfoDepth', 0, 1, { fmt: pct });
+  root.append(demo('LFO',
+    r.el,
+    E('div', { class: 'small muted' }, 'Destination'),
+    seg([['pitch', 'Pitch'], ['amp', 'Volume'], ['cutoff', 'Cutoff'], ['pan', 'Pan'], ['pw', 'Pulse width']], 'pitch', (d) => {
+      if (d === 'pw' && patch.wave !== 'pulse') { P('wave', 'pulse'); } else if (d !== 'pw' && patch.wave === 'pulse') P('wave', 'sawtooth');
+      P('lfoDest', d); r.restart(); }),
+    E('div', { class: 'small muted', style: 'margin-top:8px' }, 'Shape'),
+    seg([['sine', 'Sine'], ['triangle', 'Tri'], ['ramp', 'Ramp ↗'], ['saw', 'Saw ↘'], ['square', 'Square'], ['random', 'S&H']], 'sine', (sh) => fx('lfoShape', sh)),
+    row(rate, depth),
+    E('div', { class: 'small muted' }, 'Tempo sync (loop is 120 BPM)'),
+    seg([[0, 'Free'], [4, '1 bar'], [2, '1/2'], [1, '1/4'], [0.5, '1/8'], [1 / 3, '1/8T'], [0.25, '1/16']], 0, (v) => { FX.lfoSync = v; setLfoRate(); restartLFO(); })));
+  root.append(H(`<div class="tw"><table><tr><th>Destination</th><th>Name</th><th>Typical</th></tr>
+  <tr><td>Pitch</td><td>vibrato · trill (square)</td><td>5–7 Hz, 10–40 cents</td></tr>
+  <tr><td>Volume</td><td>tremolo</td><td>3–10 Hz</td></tr>
+  <tr><td>Cutoff</td><td>wah, wobble bass</td><td>tempo-synced 1/4–1/16</td></tr>
+  <tr><td>Pan</td><td>auto-pan</td><td>0.1–2 Hz</td></tr>
+  <tr><td>Pulse width</td><td>PWM, chorus-like</td><td>0.2–1 Hz</td></tr>
+  <tr><td>Any + S&amp;H</td><td>"computer burble"</td><td>random step per cycle</td></tr></table></div>`));
+  root.append(note('listen', `<p>Try Pitch + Sine at 5.5 Hz, depth ~15%: a singer's vibrato. Square on pitch = trill. <b>Cutoff</b> + sync <b>1/8</b> on the bass loop = wobble bass. <b>S&amp;H</b> on cutoff = the random-step burble from 70s sci-fi. Now push Rate past 20 Hz: the wobble stops being a rhythm and becomes a <b>new timbre</b> — sidebands. That's the doorway to FM and AM (Chapter 10).</p>`));
+  root.append(H(`<h2>The modulation matrix</h2><p>Every modern synth is a grid of <b>sources</b> (envelopes, LFOs, velocity, key position, mod wheel, aftertouch, random) routed with an <b>amount</b> to <b>destinations</b> (pitch, cutoff, level, pan, pulse width, effect parameters — even another modulator's rate). Once you see that, every synth is the same synth.</p>`));
+  root.append(note('ix', `<p><b>Depth × base value:</b> an LFO swings the parameter around where the knob is set. With cutoff near the ceiling the upper half of the swing is clipped, so the wobble turns lopsided. <b>LFO on cutoff × resonance:</b> resonance makes the sweep audible as a "voice". <b>Rate × tempo:</b> free-running LFOs drift against the beat (organic); synced ones lock to it (mechanical, groovy). <b>Modulating the modulator</b> — an envelope on LFO depth — is how delayed vibrato works: the note starts straight and the vibrato blooms.</p>`));
+  root.append(note('gen', `<p>Guitar pedals are mostly LFOs: tremolo = LFO → volume; phaser = LFO → a chain of notch filters; flanger/chorus = LFO → a short delay time; uni-vibe = LFO → phase shifters with a lopsided shape. A Leslie speaker is one rotating horn modulating pitch, volume and pan at once.</p>`));
+  root.append(ask('Same LFO, sine at 6 Hz. Routed to volume it\'s called…', ['Vibrato', 'Tremolo', 'Chorus', 'Wah'], 1, 'Tremolo is amplitude modulation; vibrato is pitch modulation. (Fender famously swapped the names on some amps.)'));
+} });
+
+chapter({ id: 'unison', title: 'Detune, unison & width', min: 2,
+  patch: { wave: 'sawtooth', uni: 2, spread: 6, width: 0, cutoff: 7000, slope: 12, aA: 0.01, aS: 0.9, aR: 0.4 },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 9 · Source × time</div><h1>Many slightly-wrong copies sound huge</h1>
+  <p class="lede">Detune two oscillators by a few cents and they drift in and out of phase: beating. Stack seven, spread them across the stereo field, and you get the wall of sound in trance, synthwave and modern pop — the supersaw. A string section works the same way.</p>`));
+  const beat = E('div', { class: 'readout' });
+  const bupd = () => { const f = mtof(57), c = patch.spread * 2; beat.textContent = `two oscillators ${c.toFixed(1)} cents apart at ${nname(57)} (${f.toFixed(0)} Hz) → ${(f * (Math.pow(2, c / 2400) - Math.pow(2, -c / 2400))).toFixed(2)} beats per second`; };
+  const r = rig({ notes: [57], pat: CHORDS, bpm: 100, len: 64, droneLabel: 'Drone (A3)', loopLabel: 'Chords' });
+  const uni = slider({ label: 'Voices', min: 1, max: 9, step: 1, value: patch.uni, fmt: (v) => v, on: (v) => { patch.uni = v; r.restart(); } });
+  root.append(demo('Unison',
+    r.el,
+    row(pk('Detune spread', 'spread', 0, 50, { step: 0.5, fmt: (v) => '±' + v + '¢', on: bupd }), uni),
+    row(pk('Stereo width', 'width', 0, 1, { fmt: pct })),
+    beat,
+    btns(hit('Two oscillators', () => { patch.uni = 2; patch.spread = 6; patch.width = 0; uni.set(2); r.restart(); fx('chorus', 0); }), hit('Supersaw', () => { Object.assign(patch, { uni: 7, spread: 22, width: 1, cutoff: 6000 }); uni.set(7); r.restart(); fx('chorus', 0.3); }))));
+  bupd();
+  root.append(note('listen', `<p>With two voices, push spread from 0 to 3 cents: a slow pulse (watch the Wave view breathe). Further: a fast shimmer, then sourness. Load <b>Supersaw</b> and press the <b>ST</b> button in the top bar to switch to MONO: the width disappears and the sound gets thinner and phasier — the unison voices partly cancel when summed. Phone speakers, club PAs and some streaming playback are mono.</p>`));
+  root.append(H(`<h2>Chorus: detune without more oscillators</h2><p>A chorus effect mixes in a copy delayed by ~15–25 ms, with the delay time slowly modulated. A delay that is getting longer plays back slightly flat; getting shorter, slightly sharp (Doppler). So a moving delay is a moving detune.</p>`));
+  root.append(demo('Chorus effect on one oscillator',
+    btns(player('Play single saw chords', () => { patch.uni = 1; seqStart(CHORDS, { bpm: 100, len: 64 }); })),
+    row(fk('Chorus mix', 'chorus', 0, 1, { fmt: pct }), fk('Rate', 'chorusRate', 0.1, 6, { log: true, fmt: (v) => v.toFixed(2) + ' Hz' }), fk('Depth', 'chorusDepth', 0, 1, { fmt: pct }))));
+  root.append(note('ix', `<p><b>Detune × pitch:</b> a fixed detune in cents produces beats proportional to frequency — high notes shimmer fast, low notes wobble slowly and sound muddy. That's why producers keep basses mono and lightly detuned, or add a clean sub. <b>Width × mono compatibility:</b> the wider the spread, the more you lose when summed. <b>Unison × filter:</b> detuned voices beat in the upper harmonics first, so a lowpass makes heavy unison sound smoother.</p>`));
+  root.append(note('gen', `<p>Double-tracked guitars (two takes panned hard left/right) are natural unison: tiny timing and pitch differences make them wide. A 12-string guitar is unison and octave doubling. Choirs and string sections sound "big" for the same reason.</p>`));
+  root.append(ask('Two oscillators at 440 Hz and 442 Hz. What do you hear?', ['Two separate pitches', 'One pitch pulsing twice per second', 'A chord', 'Silence'], 1, 'The difference frequency (2 Hz) is heard as beating; the ear fuses close frequencies into one pitch.'));
+} });
+</script>
+
+<script>
+/* ================= chapters 10–17 ================= */
+const MELODY = [{ s: 0, n: 69, d: 3 }, { s: 4, n: 72, d: 2 }, { s: 6, n: 71, d: 2 }, { s: 8, n: 69, d: 3 }, { s: 12, n: 64, d: 3 }, { s: 16, n: 67, d: 3 }, { s: 20, n: 65, d: 2 }, { s: 22, n: 64, d: 2 }, { s: 24, n: 62, d: 6 }];
+const STABS = [{ s: 0, n: [57, 60, 64], d: 2 }, { s: 3, n: [57, 60, 64], d: 2 }, { s: 8, n: [55, 59, 62], d: 3 }, { s: 12, n: [53, 57, 60], d: 3 }];
+const SPARSE = [{ s: 0, n: 64, d: 1 }, { s: 3, n: 67, d: 1 }, { s: 8, n: 69, d: 1 }];
+const BEAT = [{ s: 0, dr: 'kick' }, { s: 8, dr: 'kick' }, { s: 10, dr: 'kick', v: 0.8 }, { s: 4, dr: 'snare' }, { s: 12, dr: 'snare' },
+  ...[0, 2, 4, 6, 8, 10, 12].map((s) => ({ s, dr: 'hat', v: s % 4 ? 0.5 : 0.8 })), { s: 14, dr: 'open', v: 0.6 }];
+const DRUMBASS = [...BEAT, ...BASS.map((e) => ({ ...e, v: e.v * 0.8 }))];
+const FOUR = [0, 4, 8, 12].map((s) => ({ s, dr: 'kick' }));
+
+chapter({ id: 'fm', title: 'FM, AM & ring modulation', min: 3,
+  patch: { wave: 'sine', fmRatio: 1, fmIndex: 2, fmDecay: 0, cutoff: 18000, aA: 0.005, aS: 0.9, aR: 0.3 },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 10 · Source</div><h1>Modulation at audio rate creates new frequencies</h1>
+  <p class="lede">Speed an LFO on pitch past ~20 Hz and the wobble disappears into a new timbre. That's <b>frequency modulation</b>: a <i>modulator</i> oscillator pushes a <i>carrier</i>'s frequency up and down hundreds of times a second, creating <b>sidebands</b>. Two sines can make bells, electric pianos, basses and metal.</p>`));
+  const sb = E('div', { class: 'readout' });
+  const sbUpd = () => { const fc = mtof(57), fm = fc * patch.fmRatio; const list = []; for (let k = -3; k <= 3; k++) { const f = Math.abs(fc + k * fm); if (f > 1) list.push(f); }
+    const harmonic = Math.abs(patch.fmRatio * 2 - Math.round(patch.fmRatio * 2)) < 0.02 || Math.abs(1 / patch.fmRatio - Math.round(1 / patch.fmRatio)) < 0.02;
+    sb.textContent = `on A3: carrier ${fc.toFixed(0)} Hz, modulator ${fm.toFixed(0)} Hz → sidebands at ${[...new Set(list.map((f) => Math.round(f)))].sort((a, b) => a - b).slice(0, 7).join(', ')} Hz… ${harmonic ? '(simple ratio → harmonic)' : '(irrational ratio → inharmonic)'}`; };
+  const r = rig({ notes: [57], pat: MELODY, bpm: 100, len: 32, droneLabel: 'Drone (A3)', loopLabel: 'Melody' });
+  const ratio = pk('Ratio (mod : carrier)', 'fmRatio', 0.5, 8, { step: 0.01, fmt: (v) => v.toFixed(2), on: sbUpd });
+  const index = pk('Index (depth)', 'fmIndex', 0, 12, { step: 0.05, fmt: (v) => v.toFixed(2) });
+  const decay = pk('Index decay', 'fmDecay', 0, 4, { step: 0.01, fmt: (v) => v ? fmtS(v) : 'static' });
+  const snap = (v) => { ratio.set(v); P('fmRatio', v); sbUpd(); };
+  const pre = (o, fxo) => { Object.assign(patch, o); ratio.set(patch.fmRatio); index.set(patch.fmIndex); decay.set(patch.fmDecay); sbUpd(); if (fxo) setFX({ ...FX, ...fxo }); r.restart(); };
+  root.append(demo('Two-operator FM',
+    r.el, row(ratio, index), row(decay),
+    btns(...[1, 2, 3, 0.5, 1.414, 3.5, 7.13].map((v) => hit('×' + v, () => snap(v)))),
+    sb,
+    btns(hit('E-piano', () => pre({ fmRatio: 1, fmIndex: 2.4, fmDecay: 0.9, fmSus: 0.1, aD: 2.2, aS: 0, aR: 0.5 }, { chorus: 0.3 })), hit('Bell', () => pre({ fmRatio: 3.5, fmIndex: 4, fmDecay: 2.5, fmSus: 0.2, aD: 4, aS: 0, aR: 2.5 }, { rMix: 0.3, rDecay: 3 })),
+      hit('FM bass', () => pre({ fmRatio: 1, fmIndex: 3.5, fmDecay: 0.2, fmSus: 0.15, aD: 0.5, aS: 0.4, aR: 0.1 })), hit('Metallic', () => pre({ fmRatio: 1.414, fmIndex: 6, fmDecay: 0, aD: 0.5, aS: 0.8, aR: 0.6 })),
+      hit('Static, no FM', () => pre({ fmIndex: 0, fmDecay: 0, aS: 0.9 })))));
+  sbUpd();
+  root.append(note('listen', `<p>On the drone, raise <b>Index</b> from 0: a pure sine grows brighter and brassier — the same job a filter opening does, but by adding rather than removing. Now sweep <b>Ratio</b> slowly: at 1, 2, 3 it sounds like a pitched note; in between it turns clangorous and the pitch gets ambiguous. Load <b>E-piano</b> and <b>Bell</b>: the index decays, so each note starts bright and mellows.</p>`));
+  root.append(note('phys', `<p>Sidebands appear at <b>carrier ± k × modulator</b> (k = 1, 2, 3…). Whole-number ratios put them on a harmonic series; irrational ratios (√2 ≈ 1.414) scatter them inharmonically — bells and metal. The <b>index</b> (peak frequency deviation ÷ modulator frequency) sets how many sidebands are strong, roughly bandwidth ≈ 2 × (deviation + modulator) (Carson's rule). The DX7 (1983) built the decade's sound on this.</p>`));
+  root.append(note('ix', `<p><b>Ratio × index:</b> ratio decides <i>where</i> the energy goes, index decides <i>how much</i>. A small index makes even an odd ratio sound tame; a huge index makes even 1:1 harsh. <b>Index × envelope</b> is FM's equivalent of the filter envelope — the sound evolves because the spectrum is being rebuilt every instant.</p>`));
+  // AM / ring
+  root.append(H(`<h2>AM and ring modulation: multiplying signals</h2><p>Multiply a signal by an oscillator and you get the <b>sum and difference</b> frequencies. <b>Ring modulation</b> keeps only those (the original disappears); <b>amplitude modulation</b> keeps the original too. Below ~20 Hz both are just tremolo.</p>`));
+  let rm = null; const rs = { f: 30, mode: 'ring', src: 'sine' };
+  const rmTxt = E('div', { class: 'readout' });
+  const rmUpd = () => { rmTxt.textContent = rs.src === 'sine' ? `440 Hz × ${rs.f.toFixed(0)} Hz → ${(440 + rs.f).toFixed(0)} Hz and ${Math.abs(440 - rs.f).toFixed(0)} Hz${rs.mode === 'am' ? ' + the 440 Hz original' : ''}` : 'every partial of the chord gets its own sum and difference pair: almost always inharmonic';
+    if (rm) { rm.m.frequency.setTargetAtTime(rs.f, now(), 0.02); rm.vca.gain.setTargetAtTime(rs.mode === 'am' ? 0.5 : 0, now(), 0.02); rm.mg.gain.setTargetAtTime(rs.mode === 'am' ? 0.5 : 1, now(), 0.02); } };
+  const startRM = () => {
+    const c = ac(), vca = c.createGain(); vca.gain.value = rs.mode === 'am' ? 0.5 : 0;
+    const m = c.createOscillator(); m.frequency.value = rs.f; const mg = c.createGain(); mg.gain.value = rs.mode === 'am' ? 0.5 : 1; m.connect(mg).connect(vca.gain); m.start();
+    const out = c.createGain(); out.gain.setValueAtTime(0, c.currentTime); out.gain.linearRampToValueAtTime(1, c.currentTime + 0.05); vca.connect(out).connect(A.clean);
+    let src;
+    if (rs.src === 'sine') { src = [c.createOscillator()]; src[0].frequency.value = 440; src[0].connect(vca); src[0].start(); }
+    else { src = [220, 277.18, 329.63].map((f) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const g = c.createGain(); g.gain.value = 0.3; o.connect(g).connect(vca); o.start(); return o; }); }
+    rm = { m, mg, vca }; setViz('spec');
+    own(() => { out.gain.setTargetAtTime(0, ctx.currentTime, 0.01); [m, ...src].forEach((o) => o.stop(ctx.currentTime + 0.08)); rm = null; });
+  };
+  root.append(demo('Ring / AM',
+    btns(player('Play', startRM), seg([['ring', 'Ring mod'], ['am', 'AM']], 'ring', (v) => { rs.mode = v; rmUpd(); }), seg([['sine', '440 Hz sine'], ['chord', 'Saw chord']], 'sine', (v) => { rs.src = v; if (rm) { stopAll(); } rmUpd(); })),
+    row(slider({ label: 'Modulator frequency', min: 1, max: 2000, log: true, value: rs.f, fmt: fmtHz, on: (v) => { rs.f = v; rmUpd(); } })), rmTxt));
+  rmUpd();
+  root.append(note('listen', `<p>Start the modulator at 1–8 Hz: plain tremolo. Sweep up through 20–40 Hz: the pulsing turns into a growl, then two distinct pitches split away from 440 in opposite directions. On the saw chord, ring mod gives the robotic, bell-like clang of Dalek voices and Moogerfooger guitar.</p>`));
+  root.append(note('gen', `<p>Vibrato and tremolo are FM and AM at slow rates; the boundary is perception, not physics. A ring-modulator pedal on guitar, a radio's AM band, and the "robot voice" are all the same multiplication.</p>`));
+  root.append(ask('Carrier 200 Hz, modulator 200 Hz (ratio 1:1). Where are the FM sidebands?', ['200, 300, 500 Hz', '0, 400, 600, 800 Hz… (a harmonic series on 200)', 'Random inharmonic places', 'Nowhere — there are none'], 1, '200 ± k·200 = 0, 400, 600, 800…: all multiples of 200, so it stays harmonic.'));
+} });
+
+chapter({ id: 'digital', title: 'Digital audio & aliasing', min: 2, build(root) {
+  root.append(H(`<div class="kicker">Chapter 11 · Physics of the computer</div><h1>Sample rate, Nyquist and bit depth</h1>
+  <p class="lede">Digital audio measures the pressure wave thousands of times a second (<b>sample rate</b>) with a certain precision (<b>bit depth</b>). Both limits are audible when pushed — sometimes on purpose.</p>`));
+  root.append(note('phys', `<p>The <b>Nyquist limit</b>: a sample rate f<sub>s</sub> can represent frequencies only up to f<sub>s</sub>/2. Anything above it doesn't vanish — it <b>folds back</b> (aliases) to f<sub>s</sub> − f, an unrelated pitch moving the wrong way. Your device is running at <b>${ac().sampleRate} Hz</b>, so its limit is ${(ac().sampleRate / 2000).toFixed(1)} kHz. CDs use 44.1 kHz because it covers 20 kHz hearing with room for a filter.</p>`));
+  const c = ac(), sr = c.sampleRate;
+  const naive = (() => { const dur = 4, n = sr * dur, b = c.createBuffer(1, n, sr), d = b.getChannelData(0); let ph = 0; for (let i = 0; i < n; i++) { const f = 110 * Math.pow(32, i / n); ph += f / sr; ph -= Math.floor(ph); d[i] = (2 * ph - 1) * 0.12; } return b; })();
+  const sweep = (bl) => { stopAll(); setViz('gram'); const t = c.currentTime + 0.05;
+    if (bl) { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(3520, t + 4); const g = c.createGain(); g.gain.setValueAtTime(0.12, t); g.gain.setValueAtTime(0.12, t + 3.95); g.gain.linearRampToValueAtTime(0, t + 4); o.connect(g).connect(A.clean); o.start(t); o.stop(t + 4.05); }
+    else { const s = c.createBufferSource(); s.buffer = naive; s.connect(A.clean); s.start(t); } };
+  root.append(demo('Hear aliasing: a sawtooth sweeping 110 Hz → 3.5 kHz',
+    btns(hit('▶ Naive saw (aliases)', () => sweep(false)), hit('▶ Band-limited saw', () => sweep(true)))));
+  root.append(note('listen', `<p>In the naive version, listen <i>under</i> the rising pitch for ghost tones falling or warbling — and see them in the Spectrogram as lines slanting downward. The band-limited saw only contains harmonics below Nyquist, so it rises cleanly. Good synths and plugins work hard to avoid aliasing.</p>`));
+  let sw = null;
+  const crushUI = { rate: sr, bits: 16 };
+  const applyC = () => { FX.crushDown = Math.max(1, sr / crushUI.rate); FX.crushBits = crushUI.bits; FX.crushMix = (crushUI.rate < sr || crushUI.bits < 16) ? 1 : 0; applyFX(); };
+  root.append(demo('Bitcrusher: lower the sample rate and the bit depth',
+    btns(player('Sine sweep 200 Hz → 8 kHz', () => { applyC(); setViz('gram'); const o = c.createOscillator(); o.frequency.value = 200; const g = c.createGain(); g.gain.value = 0.25; o.connect(g).connect(A.fxIn); o.start();
+      const loop = () => { const t = c.currentTime; o.frequency.cancelScheduledValues(t); o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(8000, t + 5); };
+      loop(); const id = setInterval(loop, 5000); own(() => { clearInterval(id); g.gain.setTargetAtTime(0, ctx.currentTime, 0.01); o.stop(ctx.currentTime + 0.05); }); }),
+      player('Drum + bass loop', () => { applyC(); seqStart(DRUMBASS, { bpm: 104 }); })),
+    row(slider({ label: 'Effective sample rate', min: 1500, max: sr, log: true, value: sr, fmt: (v) => fmtHz(v), on: (v) => { crushUI.rate = v; applyC(); } }),
+      slider({ label: 'Bit depth', min: 1, max: 16, step: 1, value: 16, fmt: (v) => v + ' bit · ' + (v * 6.02).toFixed(0) + ' dB range', on: (v) => { crushUI.bits = v; applyC(); } }))));
+  root.append(note('listen', `<p>Set the sample rate to ~8 kHz and play the sweep: once the sine passes 4 kHz its alias comes back <b>down</b> as the real tone goes up — a mirror at Nyquist. On the loop, 12 bits and ~26 kHz is the classic gritty sampler sound (SP-1200 era); 4 bits is pure distortion. Each bit is worth about 6 dB of dynamic range: 16-bit ≈ 96 dB, 24-bit ≈ 144 dB.</p>`));
+  root.append(note('ix', `<p><b>Distortion × sample rate:</b> clipping creates harmonics far above the input, and any above Nyquist alias into inharmonic grit. That's why distortion plugins and amp sims <b>oversample</b> (this course's shapers run at 4×). <b>Pitch × aliasing:</b> high notes are the first to alias because their harmonics reach Nyquist soonest.</p>`));
+  root.append(ask('At a 48 kHz sample rate, a 30 kHz tone is generated digitally without filtering. What do you hear?', ['Nothing — it is ultrasonic', 'An 18 kHz alias', 'A 30 kHz tone', 'A 60 kHz tone'], 1, 'It folds around Nyquist (24 kHz): 48 − 30 = 18 kHz.'));
+} });
+
+chapter({ id: 'drive', title: 'Distortion & saturation', min: 3,
+  patch: { wave: 'sine', drive: 0.4, driveType: 'soft', aA: 0.01, aS: 1, aR: 0.2 },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 12 · Shapers</div><h1>Distortion adds harmonics</h1>
+  <p class="lede">A filter only removes. A distortion — any nonlinear transfer curve — <b>creates</b> frequencies that weren't there. Gentle saturation reads as warmth and density; heavy clipping as aggression. The <i>shape</i> of the curve decides which harmonics appear.</p>`));
+  const r = rig({ notes: [45], droneLabel: 'Sine drone (A2)' });
+  root.append(demo('Drive a pure sine',
+    r.el, row(pk('Drive', 'drive', 0.01, 1, { fmt: pct })),
+    seg([['soft', 'Soft clip (tube-ish)'], ['hard', 'Hard clip'], ['asym', 'Asymmetric'], ['fold', 'Wavefolder']], 'soft', (v) => P('driveType', v)),
+    btns(hit('Show spectrum', () => setViz('spec')), hit('Show wave', () => setViz('scope')))));
+  root.append(note('listen', `<p>With the Spectrum showing, raise Drive on <b>Soft clip</b>: lines appear at 3×, 5×, 7× — <b>odd</b> harmonics, because a symmetric curve flattens tops and bottoms equally (it squares the wave off). <b>Asymmetric</b> adds the <b>even</b> harmonics too (2×, 4×) — a smoother, "tube" warmth. <b>Hard clip</b> is brighter and buzzier. The <b>wavefolder</b> reflects the wave back on itself: a West-Coast synth sound with harmonics that dance as drive changes.</p>`));
+  root.append(H(`<h2>Why power chords and distortion are friends</h2><p>Distort <b>two</b> notes together and you get more than each note's harmonics: the curve multiplies them, producing <b>intermodulation</b> — sum and difference tones. With a fifth (3:2) these land on the same harmonic series as the root. With a tempered major third they land between notes: mud.</p>`));
+  const dy = (notes) => { stopAll(); const keep = patch; setPatch({ wave: 'triangle', aA: 0.01, aS: 1, aR: 0.3, level: 0.9 }); FX.busDrive = 0.75; applyFX(); setViz('spec'); const vs = notes.map((m) => noteOn(m, 0.85)); own(() => { vs.forEach((v) => v.release()); FX.busDrive = 0; applyFX(); }); patch = keep; };
+  root.append(demo('Intermodulation: distort a dyad',
+    btns(hit('Single note A2', () => dy([45])), hit('Fifth A2+E3 (power chord)', () => dy([45, 52])), hit('Major 3rd A2+C♯3', () => dy([45, 49])), hit('Minor 2nd', () => dy([45, 46])), hit('■ Stop', () => stopAll()))));
+  root.append(note('listen', `<p>The power chord stays solid; its difference tone (165 − 110 = 55 Hz) is the root an octave down, so it even sounds bigger. The major third grows a gritty, out-of-tune undertow. That's why heavy guitar riffs live on fifths and octaves, and why distorted full chords get voiced carefully.</p>`));
+  root.append(H(`<h2>Order matters: filter → drive vs drive → filter</h2>`));
+  const r2 = rig({ notes: [45], pat: BASS, bpm: 118, droneLabel: 'Drone', loopLabel: 'Bass loop' });
+  root.append(demo('Signal order',
+    r2.el,
+    btns(hit('Set up a resonant saw', () => { Object.assign(patch, { wave: 'sawtooth', cutoff: 700, res: 0.65, slope: 24, fEnv: 2.5, fD: 0.25, fS: 0.1, drive: 0.6, driveType: 'soft', aS: 0.8 }); r2.restart(); })),
+    seg([['post', 'Filter → Drive'], ['pre', 'Drive → Filter']], 'post', (v) => { P('driveOrder', v); r2.restart(); })));
+  root.append(note('listen', `<p>Press "Set up", then play the loop and flip the order. <b>Filter → Drive</b>: the resonant peak slams the distortion, which regenerates harmonics <i>above</i> the cutoff — aggressive, raspy. <b>Drive → Filter</b>: the filter removes the fizz the distortion made — smoother, darker, more controllable. Neither is right; they're different instruments.</p>`));
+  root.append(note('ix', `<p><b>Drive × input level:</b> a nonlinearity responds to how hard it's hit — the same drive knob is cleaner on soft notes and dirtier on loud ones (roll back a guitar's volume to clean up an amp). <b>Drive × compression:</b> clipping caps peaks, so distortion <i>is</i> compression — sustain increases. <b>EQ before vs after:</b> boosting mids into a drive (Tube Screamer into an amp) changes <i>what</i> distorts; EQ after only changes the colour of the result.</p>`));
+  root.append(note('gen', `<p>Overdrive (soft, often asymmetric), distortion (harder), fuzz (near-square), tape and console saturation (subtle soft clipping on mixes) are points on one continuum. Producers saturate bass so its upper harmonics carry it on small speakers.</p>`));
+  root.append(ask('A symmetric soft clipper on a sine mainly adds…', ['Even harmonics', 'Odd harmonics', 'Noise', 'Subharmonics'], 1, 'Symmetric curves add odd harmonics; asymmetry is needed for even ones.'));
+  root.append(ask('Why do distorted power chords sound cleaner than distorted major chords?', ['They are quieter', 'Intermodulation products of a fifth fall on the root\'s harmonic series', 'Distortion removes thirds', 'Fifths have fewer harmonics'], 1, 'Difference and sum tones of a 3:2 dyad reinforce the root; a tempered third\'s products fall between notes.'));
+} });
+
+chapter({ id: 'dyn', title: 'Dynamics: compression', min: 3,
+  patch: { wave: 'sawtooth', cutoff: 500, res: 0.3, slope: 24, fEnv: 2.5, fD: 0.2, aA: 0.003, aD: 0.3, aS: 0.5, aR: 0.08, level: 0.8 },
+  fx: { comp: 1, thr: -24, ratio: 4, att: 0.01, rel: 0.15, makeup: 6 },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 13 · Dynamics</div><h1>Compressors turn loud parts down</h1>
+  <p class="lede">A compressor watches the level. Above the <b>threshold</b>, it reduces gain by the <b>ratio</b> (4:1 = 4 dB in gives 1 dB out). <b>Attack</b> is how fast it clamps down, <b>release</b> how fast it lets go, and <b>makeup gain</b> raises everything back up. The result: smaller differences between loud and quiet — and a sound you can shape in time.</p>`));
+  const meter = E('div', { style: 'height:10px;border-radius:5px;background:var(--panel3);overflow:hidden;margin:6px 0' }, E('i', { style: 'display:block;height:100%;width:0;background:var(--hard);float:right;transition:width .05s' }));
+  const grTxt = E('div', { class: 'readout' });
+  let raf = 0; const tick = () => { raf = requestAnimationFrame(tick); if (!ctx) return; const r2 = A.comp.reduction; const v = typeof r2 === 'number' ? r2 : (r2 && r2.value) || 0; meter.firstChild.style.width = clamp(-v / 24 * 100, 0, 100) + '%'; grTxt.textContent = FX.comp ? `gain reduction ${v.toFixed(1)} dB` : 'compressor bypassed'; };
+  tick(); own(() => cancelAnimationFrame(raf));
+  const s = { thr: fk('Threshold', 'thr', -60, 0, { step: 1, fmt: (v) => v + ' dB' }), ratio: fk('Ratio', 'ratio', 1, 20, { step: 0.5, fmt: (v) => v + ':1' }),
+    att: fk('Attack', 'att', 0.0002, 0.2, { log: true, fmt: (v) => v < 0.001 ? (v * 1000).toFixed(1) + ' ms' : fmtS(v) }), rel: fk('Release', 'rel', 0.01, 1, { log: true, fmt: fmtS }), mk: fk('Makeup', 'makeup', 0, 24, { step: 0.5, fmt: (v) => '+' + v + ' dB' }) };
+  const onoff = toggle('Compressor on', true, (v) => fx('comp', v ? 1 : 0));
+  const pre = (o) => { Object.assign(FX, o, { comp: 1 }); applyFX(); onoff.set(true); s.thr.set(FX.thr); s.ratio.set(FX.ratio); s.att.set(FX.att); s.rel.set(FX.rel); s.mk.set(FX.makeup); };
+  root.append(demo('Compressor on a drum + bass loop',
+    btns(player('Play loop', () => seqStart(DRUMBASS, { bpm: 104 })), onoff),
+    meter, grTxt, row(s.thr, s.ratio), row(s.att, s.rel), row(s.mk),
+    btns(hit('Gentle glue', () => pre({ thr: -18, ratio: 2, att: 0.03, rel: 0.2, makeup: 3 })), hit('Punch (slow attack)', () => pre({ thr: -32, ratio: 6, att: 0.04, rel: 0.1, makeup: 8 })),
+      hit('Squash (fast attack)', () => pre({ thr: -38, ratio: 12, att: 0.0003, rel: 0.06, makeup: 14 })), hit('Pumping (slow release)', () => pre({ thr: -42, ratio: 10, att: 0.003, rel: 0.6, makeup: 14 })))));
+  root.append(note('listen', `<p>Toggle the compressor and <b>level-match by ear with Makeup</b> — otherwise "on" wins just by being louder (Chapter 15). <b>Punch</b>: the slow attack lets each drum's first few milliseconds through before clamping, so hits snap. <b>Squash</b>: the fast attack shaves transients off — flatter, denser, smaller. <b>Pumping</b>: the slow release means the level is still recovering when the next kick arrives; you hear the whole mix breathe.</p>`));
+  root.append(H(`<h2>Sidechain: one sound controls another</h2><p>Feed a compressor's detector from the kick while it compresses a pad, and the pad ducks on every beat — the pulsing pump of house and EDM, and a mixing trick for making room for the kick.</p>`));
+  root.append(demo('Sidechain ducking',
+    btns(player('Play pad + kick', () => { setPatch({ wave: 'sawtooth', uni: 5, spread: 16, width: 0.9, cutoff: 2200, aA: 0.3, aS: 0.9, aR: 1, level: 0.9 }); seqStart([...FOUR, ...CHORDS], { bpm: 120, len: 64 }); })),
+    row(fk('Duck depth', 'duck', 0, 1, { fmt: pct }), fk('Duck release', 'duckRel', 0.05, 0.6, { log: true, fmt: fmtS }))));
+  root.append(note('ix', `<p><b>Threshold × input level:</b> turn up what feeds a compressor and it compresses more — that's why gain staging matters. <b>Attack × transient length:</b> attack slower than the transient = punch; faster = smooth. <b>Release × tempo:</b> release near the beat interval makes groove-locked pumping; too long and it never recovers. <b>Compressor × drive:</b> compress before distortion for even, sustained clipping; after, to tame its peaks.</p>`));
+  root.append(note('gen', `<p>Guitar compressors give sustain and even out picking (country chicken-pickin' lives on them). Streaming services normalise loudness (Spotify and YouTube aim around −14 LUFS), so squashing a master to win the loudness war just costs punch. The real goal is <b>crest factor</b> — the gap between peaks and average — chosen on purpose.</p>`));
+  root.append(ask('You want drums to hit harder, not flatter. Which attack setting helps?', ['Very fast (under 1 ms)', 'Slower (tens of ms) so the transient passes before gain reduction', 'Attack does not matter', 'Infinite'], 1, 'A slower attack lets the initial transient through, exaggerating it relative to the compressed tail.'));
+} });
+
+chapter({ id: 'space', title: 'Space: delay & reverb', min: 3,
+  patch: { wave: 'sawtooth', uni: 2, spread: 8, cutoff: 600, res: 0.2, slope: 24, fEnv: 3.5, fD: 0.18, fS: 0, aA: 0.002, aD: 0.4, aS: 0, aR: 0.3, key: 0.5 },
+  fx: { dMix: 0.35, dSync: 0.75, dFb: 0.45, dTone: 3500, dMode: 'pp', rMix: 0.15, rDecay: 2.2 },
+  build(root) {
+  root.append(H(`<div class="kicker">Chapter 14 · Space</div><h1>Delayed copies create space</h1>
+  <p class="lede">Every room returns your sound as thousands of delayed, filtered copies. A few distinct copies we hear as <b>echo</b>; very short ones fuse into <b>width</b> and <b>colour</b>; a dense, decaying cloud is <b>reverb</b>. It's all delay.</p>`));
+  const tsel = seg([[0, 'Free'], [1, '1/4'], [0.75, 'Dotted 1/8'], [0.5, '1/8'], [1 / 3, '1/8 triplet']], 0.75, (v) => fx('dSync', v));
+  root.append(demo('Delay',
+    btns(player('Play sparse plucks (100 BPM)', () => seqStart(SPARSE, { bpm: 100 }))),
+    row(fk('Mix', 'dMix', 0, 1, { fmt: pct }), fk('Time (when Free)', 'dTime', 0.02, 1.2, { log: true, fmt: fmtS, on: () => { fx('dSync', 0); tsel.set(0); } })),
+    tsel,
+    row(fk('Feedback', 'dFb', 0, 0.92, { fmt: pct }), fk('Repeat tone (lowpass)', 'dTone', 400, 18000, { log: true, fmt: fmtHz })),
+    seg([['pp', 'Ping-pong'], ['mono', 'Mono']], 'pp', (v) => fx('dMode', v))));
+  root.append(note('listen', `<p><b>Dotted 1/8</b> fills the gaps between notes with a galloping rhythm (The Edge's signature). Raise <b>Feedback</b> for more repeats; lower <b>Repeat tone</b> so each echo is darker than the last — the tape/analog sound, which also tucks echoes <i>behind</i> the dry signal. Set Time to ~100 ms Free with low feedback: <b>slapback</b>, the rockabilly vocal and guitar sound.</p>`));
+  // Haas
+  let hz = { ms: 12 };
+  const haasHit = () => { const c = ac(), t = c.currentTime + 0.01; const o = c.createOscillator(); o.type = 'triangle'; o.frequency.value = 392; const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.35, t + 0.002); g.gain.setTargetAtTime(0, t + 0.002, 0.07);
+    const n = c.createBufferSource(); n.buffer = makeNoise('white'); const ng = c.createGain(); ng.gain.setValueAtTime(0.25, t); ng.gain.setTargetAtTime(0, t, 0.006);
+    const mono = c.createGain(); o.connect(g).connect(mono); n.connect(ng).connect(mono);
+    const d = c.createDelay(0.2); d.delayTime.value = hz.ms / 1000; const mg = c.createChannelMerger(2); mono.connect(mg, 0, 0); mono.connect(d).connect(mg, 0, 1); mg.connect(A.clean);
+    o.start(t); o.stop(t + 0.6); n.start(t); n.stop(t + 0.1); };
+  root.append(demo('Haas effect (use headphones)',
+    btns(player('Repeat hits', () => { haasHit(); const id = setInterval(haasHit, 700); own(() => clearInterval(id)); })),
+    row(slider({ label: 'Right channel delay', min: 0, max: 80, step: 0.5, value: hz.ms, fmt: (v) => v + ' ms', on: (v) => { hz.ms = v; } }))));
+  root.append(note('phys', `<p>The <b>precedence effect</b>: below ~1 ms of offset, the image shifts toward the earlier ear. From ~1 to ~30 ms, you hear <i>one</i> sound, located on the earlier side, but wider. Past ~35–40 ms, it splits into a distinct echo. Mixers use 10–25 ms offsets to widen mono sources — and in mono those same offsets become comb filters (try the MONO button).</p>`));
+  // reverb
+  const rv = { mix: fk('Mix', 'rMix', 0, 1, { fmt: pct }), dec: fk('Decay (RT60)', 'rDecay', 0.3, 8, { log: true, fmt: fmtS }), pre: fk('Pre-delay', 'rPre', 0, 0.15, { step: 0.001, fmt: fmtS }), damp: fk('Damping', 'rDamp', 0, 1, { fmt: pct }), low: fk('Low cut on reverb', 'rLow', 20, 800, { log: true, fmt: fmtHz }) };
+  const rpre = (o) => { Object.assign(FX, o); applyFX(); rv.mix.set(FX.rMix); rv.dec.set(FX.rDecay); rv.pre.set(FX.rPre); rv.damp.set(FX.rDamp); rv.low.set(FX.rLow); };
+  root.append(demo('Reverb',
+    btns(player('Play chords', () => { FX.dMix = 0; applyFX(); setPatch({ wave: 'sawtooth', uni: 3, spread: 10, cutoff: 1800, aA: 0.02, aD: 0.6, aS: 0.5, aR: 0.4 }); seqStart(STABS, { bpm: 96 }); }), player('Play drums + bass', () => { FX.dMix = 0; applyFX(); setPatch(CH[cur].patch); seqStart(DRUMBASS, { bpm: 104 }); })),
+    row(rv.mix, rv.dec), row(rv.pre, rv.damp), row(rv.low),
+    btns(hit('Small room', () => rpre({ rMix: 0.3, rDecay: 0.6, rPre: 0.004, rDamp: 0.6, rLow: 150 })), hit('Hall', () => rpre({ rMix: 0.35, rDecay: 2.8, rPre: 0.03, rDamp: 0.5, rLow: 200 })),
+      hit('Cathedral', () => rpre({ rMix: 0.45, rDecay: 6.5, rPre: 0.06, rDamp: 0.35, rLow: 150 })), hit('Bright plate', () => rpre({ rMix: 0.35, rDecay: 1.8, rPre: 0, rDamp: 0.1, rLow: 300 })), hit('Mud (no low cut)', () => rpre({ rMix: 0.6, rDecay: 4, rPre: 0, rDamp: 0.2, rLow: 20 })))));
+  root.append(note('listen', `<p><b>Decay</b> is room size and hardness. <b>Pre-delay</b> is the gap before the reverb starts: 20–60 ms keeps the dry sound clear in front of the tail, like a big hall. <b>Damping</b> models air and soft surfaces absorbing highs. Load <b>Mud</b> on the drum+bass loop, then raise the <b>Low cut</b> to ~250 Hz: the bass stops smearing.</p>`));
+  root.append(note('ix', `<p><b>Decay × tempo:</b> a tail longer than the gap between notes blurs the music; fast parts need short or ducked reverbs. <b>Reverb × low end:</b> bass energy lingering in a reverb muddies everything — high-pass the send. <b>Pre-delay × clarity</b>, <b>feedback × repeat tone</b> (dark repeats can feed back longer without clutter), and <b>delay time × tempo</b> (synced delays become part of the groove).</p>`));
+  root.append(note('gen', `<p>A guitar amp's spring reverb, a room mic, an algorithmic hall plugin and a convolution reverb (a recorded room's impulse response — exactly what this course generates synthetically) all answer one question: how many copies, how late, how filtered.</p>`));
+  root.append(ask('What does reverb pre-delay mainly do?', ['Changes the room size', 'Separates the dry sound from the reverb tail for clarity', 'Removes low frequencies', 'Adds modulation'], 1, 'A short gap before the tail lets the direct sound read clearly, while still sounding like a big space.'));
+} });
+
+chapter({ id: 'psycho', title: 'Psychoacoustics', min: 3, patch: { wave: 'sine', fmRatio: 1, fmIndex: 1.8, fmDecay: 0.8, aD: 1.5, aS: 0.2, aR: 0.5 }, build(root) {
+  root.append(H(`<div class="kicker">Chapter 15 · The listener</div><h1>Your ears are not a measuring device</h1>
+  <p class="lede">Everything so far was physics. What you <i>perceive</i> is physics filtered by an ear and a brain with strong, predictable biases. Knowing them stops you being fooled — and lets you exploit them.</p>`));
+  root.append(H(`<h2>1 · Equal loudness</h2><p>These five sines are played at <b>exactly the same level</b>. Listen to how loud each sounds.</p>`));
+  root.append(demo('Same level, different loudness',
+    btns(hit('▶ 50 Hz · 100 Hz · 1 kHz · 3.5 kHz · 12 kHz', () => { stopAll(); setViz('spec'); const t = now() + 0.05; [50, 100, 1000, 3500, 12000].forEach((f, i) => tone({ f, level: 0.12, t: t + i * 1.1, dur: 0.9 })); }))));
+  root.append(note('phys', `<p>Hearing is most sensitive around <b>2–5 kHz</b> (the ear canal resonates there) and much less sensitive in the bass, especially at low volumes — the equal-loudness (Fletcher–Munson, ISO 226) curves. So turning music up seems to add bass and treble. (On small speakers the 50 Hz tone may be silent for a different reason: the speaker can't move enough air.)</p>`));
+  // A/B trap
+  root.append(H(`<h2>2 · The louder-is-better trap</h2><p>Two takes of the same phrase. Which sounds <b>better</b>?</p>`));
+  let louder = Math.random() < 0.5 ? 'A' : 'B';
+  const res = E('div', { class: 'ask-why' });
+  const phrase = (which) => { stopAll(); const keep = patch; setPatch({ ...CH[cur].patch, level: which === louder ? 1.19 : 1 }); const t = now() + 0.05; [[57, 61, 64], [54, 57, 61]].forEach((ch, i) => ch.forEach((m) => noteOn(m, 0.8, t + i * 0.8).release(t + i * 0.8 + 0.7))); patch = keep; };
+  const pick = (w) => { res.innerHTML = `${louder} was <b>1.5 dB louder</b> — otherwise identical. ${w === louder ? 'You chose the louder one, like most listeners do.' : 'You resisted the louder one — nicely done.'} Small level increases are heard as "fuller, clearer, better", not as "louder". <b>Always level-match before comparing</b> pedals, amps, plugins, mixes.`; };
+  root.append(demo('Blind A/B',
+    btns(hit('▶ A', () => phrase('A')), hit('▶ B', () => phrase('B')), hit('A is better', () => pick('A')), hit('B is better', () => pick('B')), hit('New trial', () => { louder = Math.random() < 0.5 ? 'A' : 'B'; res.textContent = 'Reshuffled.'; })), res));
+  // masking
+  root.append(H(`<h2>3 · Masking</h2><p>A loud sound hides quieter sounds near it in frequency. Here a 1 kHz beep sits under a band of noise you can move.</p>`));
+  const mk = { c: 300, lvl: 0.25, beep: -32 }; let mn = null;
+  const startMask = () => { const c = ac(); const s = c.createBufferSource(); s.buffer = makeNoise('white'); s.loop = true; const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 3; bp.frequency.value = mk.c; const g = c.createGain(); g.gain.value = mk.lvl; s.connect(bp).connect(g).connect(A.clean); s.start(); mn = { bp, g };
+    const beep = () => tone({ f: 1000, level: Math.pow(10, mk.beep / 20), dur: 0.18 }); beep(); const id = setInterval(beep, 600); setViz('spec');
+    own(() => { clearInterval(id); g.gain.setTargetAtTime(0, ctx.currentTime, 0.02); s.stop(ctx.currentTime + 0.1); mn = null; }); };
+  root.append(demo('Masking',
+    btns(player('Play beep + noise', startMask)),
+    row(slider({ label: 'Noise band centre', min: 150, max: 6000, log: true, value: mk.c, fmt: fmtHz, on: (v) => { mk.c = v; if (mn) mn.bp.frequency.setTargetAtTime(v, now(), 0.03); } }),
+      slider({ label: 'Beep level', min: -50, max: -14, step: 1, value: mk.beep, fmt: (v) => v + ' dB', on: (v) => { mk.beep = v; } }))));
+  root.append(note('listen', `<p>Sweep the noise band toward 1 kHz: the beep vanishes even though it's still there (you can see it on the spectrum). Move the band well above or below and it pops back. Masking spreads more <i>upward</i> than downward, so bass instruments mask more than they are masked. Mixing EQ is largely about un-masking: carve a little room for each part.</p>`));
+  // missing fundamental
+  root.append(H(`<h2>4 · The missing fundamental</h2>`));
+  let mf = null, withF = false;
+  const mfStart = () => { mf = tone({ f: 100, harm: withF ? [0.6, 0.6, 0.5, 0.4, 0.3, 0.25] : [0, 0.6, 0.5, 0.4, 0.3, 0.25], level: 0.25 }); setViz('spec'); };
+  root.append(demo('Pitch without the fundamental',
+    btns(player('Play harmonics 2–6 of 100 Hz', mfStart), toggle('Add the 100 Hz fundamental', false, (v) => { withF = v; if (mf) { mf.stop(); mfStart(); } }))));
+  root.append(note('listen', `<p>There is no energy at 100 Hz, yet the pitch is 100 Hz — your brain reads the 100 Hz <i>spacing</i> between harmonics. Adding the real fundamental changes the weight, not the pitch. Try it on a phone speaker: this is how laptops and earbuds suggest bass they can't reproduce, and why saturating a bass helps it translate.</p>`));
+  // roughness
+  root.append(H(`<h2>5 · Beating, roughness, two tones</h2>`));
+  let rp = null; const rr = { d: 4 }; const rTxt = E('div', { class: 'readout' });
+  const rUpd = () => { const d = rr.d; rTxt.textContent = `${d.toFixed(1)} Hz apart → ${d < 15 ? 'beating: one pulsing tone' : d < 70 ? 'roughness: buzzy, dissonant' : d < 110 ? 'emerging into two tones (edge of the critical band)' : 'two smooth, separate tones'}`; if (rp) rp.b.o.frequency.setTargetAtTime(440 + d, now(), 0.02); };
+  root.append(demo('Two sines near 440 Hz',
+    btns(player('Play', () => { rp = { a: tone({ f: 440, level: 0.12 }), b: tone({ f: 440 + rr.d, level: 0.12 }) }; setViz('scope'); })),
+    row(slider({ label: 'Separation', min: 0.5, max: 250, log: true, value: rr.d, fmt: (v) => v.toFixed(1) + ' Hz', on: (v) => { rr.d = v; rUpd(); } })), rTxt));
+  rUpd();
+  root.append(note('phys', `<p>The inner ear analyses sound in overlapping <b>critical bands</b> (roughly 100 Hz wide at low frequencies, ~15–20% of the frequency higher up). Two tones in the same band interfere: slow beating, then roughness. Once they're in separate bands they're heard as two notes. This is the physiological root of dissonance — and why close-voiced chords are muddy down low but fine up high.</p>`));
+  root.append(ask('You compare two overdrive pedals; one is 1 dB louder. What should you do first?', ['Pick the louder one', 'Level-match them', 'Add reverb', 'Compare in mono'], 1, 'Tiny level differences masquerade as quality differences. Match levels, then judge.'));
+  root.append(ask('Why can a bass line still be "heard" on a phone speaker that cannot reproduce 60 Hz?', ['Phones boost bass', 'The brain infers the fundamental from the harmonics', 'Masking', 'Aliasing'], 1, 'The missing-fundamental effect — which is why producers add harmonics to bass.'));
+} });
+
+/* ---------- recipes ---------- */
+const RECIPES = [
+  { name: 'Sub bass', p: { wave: 'sine', oct: -1, aA: 0.005, aD: 0.2, aS: 1, aR: 0.08, drive: 0.15 }, pat: 'bass', why: 'A pure <b>sine</b> one octave down, mono, short release. A little <b>soft drive</b> adds 2nd/3rd harmonics so small speakers imply the low note (missing fundamental).' },
+  { name: 'Acid bass', p: { wave: 'sawtooth', cutoff: 230, res: 0.7, slope: 24, fEnv: 4.2, fD: 0.2, fS: 0, velF: 0.8, aA: 0.002, aD: 0.3, aS: 0.7, aR: 0.06, drive: 0.35 }, fx: { dMix: 0.15, dSync: 0.75, dFb: 0.3 }, pat: 'bass', why: '<b>Saw</b> → resonant <b>24 dB lowpass</b> with a low cutoff, big <b>filter envelope</b>, short decay, and <b>velocity → filter</b> so accents squelch. Drive after the filter for bite.' },
+  { name: 'Reese bass', p: { wave: 'sawtooth', uni: 2, spread: 18, width: 0.3, cutoff: 650, slope: 24, res: 0.2, aA: 0.01, aS: 1, aR: 0.15, lfoDest: 'cutoff', lfoDepth: 0.12, drive: 0.25 }, fx: { lfoRate: 0.3 }, pat: 'long', why: 'Two <b>detuned saws</b> beating slowly against each other, lowpassed. The beating <i>is</i> the sound. A slow LFO on cutoff adds motion. Drum & bass staple.' },
+  { name: 'Pluck', p: { wave: 'sawtooth', uni: 3, spread: 10, width: 0.7, cutoff: 380, res: 0.25, slope: 24, fEnv: 5, fD: 0.14, fS: 0, aA: 0.002, aD: 0.45, aS: 0, aR: 0.3, key: 0.5 }, fx: { dMix: 0.3, dSync: 0.75, dFb: 0.4, dTone: 3000, rMix: 0.2 }, pat: 'arp', why: 'Sustain at 0 on both envelopes: a short <b>filter envelope</b> gives the "pick" and the decay does the rest. A dotted-1/8 <b>delay</b> fills the space.' },
+  { name: 'Warm pad', p: { wave: 'sawtooth', uni: 5, spread: 15, width: 1, cutoff: 1400, res: 0.15, aA: 1.2, aD: 1, aS: 0.85, aR: 2.5, lfoDest: 'cutoff', lfoDepth: 0.15 }, fx: { lfoRate: 0.15, chorus: 0.45, rMix: 0.45, rDecay: 4.5, rPre: 0.03 }, pat: 'chords', why: '<b>Slow attack and long release</b> make it swell and linger; <b>unison + chorus</b> make it wide; a slow <b>LFO on cutoff</b> keeps it alive; big <b>reverb</b> sets it far away.' },
+  { name: 'Brass stab', p: { wave: 'sawtooth', uni: 2, spread: 7, cutoff: 550, slope: 24, fEnv: 2.6, fA: 0.07, fD: 0.35, fS: 0.5, aA: 0.04, aD: 0.3, aS: 0.85, aR: 0.15, pitchEnv: -0.3, pitchDecay: 0.08 }, fx: { rMix: 0.2 }, pat: 'stabs', why: 'Brass gets brighter as it gets louder: a filter envelope with a <b>slight attack</b> (~70 ms) "blooms". A tiny <b>pitch scoop</b> from below adds realism.' },
+  { name: 'FM bell', p: { wave: 'sine', fmRatio: 3.5, fmIndex: 4, fmDecay: 2.5, fmSus: 0.2, aA: 0.002, aD: 4, aS: 0, aR: 2.5 }, fx: { rMix: 0.35, rDecay: 3.5 }, pat: 'melody', why: '<b>Inharmonic ratio</b> (3.5) for metal, high <b>index</b> for brightness, and an <b>index decay</b> so the clang fades into a purer hum, like a real bell.' },
+  { name: 'FM e-piano', p: { wave: 'sine', fmRatio: 1, fmIndex: 2.4, fmDecay: 0.9, fmSus: 0.1, aA: 0.002, aD: 2.2, aS: 0, aR: 0.5, vel: 0.8 }, fx: { chorus: 0.35, rMix: 0.15 }, pat: 'stabs', why: '<b>1:1 ratio</b> keeps it harmonic; the <b>index envelope</b> makes the bark on the attack. Chorus is the classic 80s polish.' },
+  { name: 'Supersaw lead', p: { wave: 'sawtooth', uni: 7, spread: 22, width: 1, cutoff: 5500, slope: 12, aA: 0.01, aS: 0.9, aR: 0.35, lfoDest: 'pitch', lfoDepth: 0.06 }, fx: { lfoRate: 5.5, dMix: 0.25, dSync: 0.5, dFb: 0.35, rMix: 0.3, rDecay: 3 }, pat: 'melody', why: '<b>Seven detuned saws</b> spread wide, gentle vibrato, delay + reverb. Check it in MONO: this is the patch that collapses most.' },
+  { name: 'Wobble bass', p: { wave: 'sawtooth', uni: 2, spread: 8, cutoff: 280, res: 0.55, slope: 24, aA: 0.005, aS: 1, aR: 0.1, lfoDest: 'cutoff', lfoDepth: 0.55, drive: 0.45, sub: 0.6 }, fx: { lfoSync: 0.5, lfoShape: 'sine' }, pat: 'long', why: 'A <b>tempo-synced LFO</b> (1/8) on a resonant lowpass, distorted after the filter. A clean <b>sub</b> holds the low end steady while the top moves.' },
+  { name: 'Kick', p: { wave: 'sine', oct: -1, pitchEnv: 30, pitchDecay: 0.06, aA: 0.001, aD: 0.4, aS: 0, aR: 0.1, drive: 0.2 }, pat: 'kick', why: 'A kick drum is a <b>sine with a very fast pitch envelope</b> (here starting 30 semitones up, falling in ~60 ms) and a short amp decay. The pitch drop is the "thud"; drive adds click.' },
+  { name: 'Snare', p: { wave: 'triangle', noise: 1.6, fType: 'highpass', cutoff: 250, aA: 0.001, aD: 0.18, aS: 0, aR: 0.1, pitchEnv: 3, pitchDecay: 0.03 }, pat: 'snare', why: 'A short <b>tone</b> (the drum shell, ~180 Hz) plus <b>noise</b> (the snares), highpassed, with a fast decay. Balance tone vs noise for fat vs crisp.' },
+  { name: 'Hi-hat', p: { wave: 'noise', fType: 'highpass', cutoff: 7500, res: 0.2, aA: 0.001, aD: 0.05, aS: 0, aR: 0.04 }, pat: 'hats', why: '<b>White noise</b>, <b>highpassed</b> hard, with a very short decay. Longer decay = open hat. Metallic hats add inharmonic square waves (TR-808 used six).' },
+  { name: 'Wind', p: { wave: 'noise', noiseColor: 'pink', fType: 'bandpass', cutoff: 700, res: 0.75, aA: 1.5, aS: 1, aR: 2, lfoDest: 'cutoff', lfoDepth: 0.35 }, fx: { lfoShape: 'random', lfoRate: 1.2, rMix: 0.4, rDecay: 5 }, pat: 'drone', why: '<b>Pink noise</b> through a resonant <b>bandpass</b>, with a slow random LFO moving the centre: gusts. Pure source + shaper + modulator, no pitch at all.' },
+];
+const RPAT = {
+  bass: [BASS, 118, 16], arp: [ARP, 112, 16], chords: [CHORDS, 100, 64], stabs: [STABS, 104, 16], melody: [MELODY, 100, 32],
+  long: [[{ s: 0, n: 33, d: 7 }, { s: 8, n: 33, d: 3 }, { s: 12, n: 36, d: 3 }], 140, 16],
+  kick: [[0, 4, 8, 12].map((s) => ({ s, n: 33, d: 2 })), 120, 16], snare: [[4, 12].map((s) => ({ s, n: 54, d: 2 })), 120, 16],
+  hats: [[0, 2, 4, 6, 8, 10, 12, 14].map((s) => ({ s, n: 60, d: 1, v: s % 4 ? 0.6 : 1 })), 120, 16], drone: [[{ s: 0, n: 57, d: 30 }], 60, 32],
+};
+function loadRecipe(r) { setPatch(r.p); setFX(r.fx); }
+function playRecipe(r) { stopAll(); loadRecipe(r); const [pat, bpm, len] = RPAT[r.pat]; seqStart(pat, { bpm, len }); }
+
+chapter({ id: 'recipes', title: 'Sound-design recipes', min: 2, build(root) {
+  root.append(H(`<div class="kicker">Chapter 16 · Putting it together</div><h1>Classic sounds, decoded</h1>
+  <p class="lede">Each recipe is a handful of decisions from earlier chapters. Tap one to hear it, read which knobs make it, then open it in the playground and break it.</p>`));
+  const info = E('div', { class: 'note gen' }, E('div', { class: 'nh' }, '🧭 Pick a recipe'), E('div', { html: '<p>Tap any card. It loops until you press stop or pick another.</p>' }));
+  const stop = hit('■ Stop', () => stopAll());
+  const grid = E('div', { class: 'grid2' });
+  RECIPES.forEach((r) => grid.append(E('button', { class: 'card', type: 'button', onclick: () => { unlock(); playRecipe(r); [...grid.children].forEach((c) => c.classList.remove('on')); grid.children[RECIPES.indexOf(r)].classList.add('on');
+    info.innerHTML = ''; info.append(E('div', { class: 'nh' }, '🧭 ' + r.name), E('div', { html: '<p>' + r.why + '</p>' }), btns(hit('Open in playground ›', () => { store.set('pg', { p: { ...DEF, ...r.p }, fx: { ...FXDEF, ...(r.fx || {}) }, pat: r.pat }); go(CH.findIndex((c) => c.id === 'play')); }))); } },
+    E('b', {}, r.name), E('small', {}, r.why.replace(/<[^>]+>/g, '').split('. ')[0] + '.'))));
+  root.append(btns(stop), grid, info);
+  root.append(note('gen', `<p>Notice the pattern: <b>source</b> (what kind of energy), <b>shaper</b> (what to keep), <b>envelopes</b> (shape in time), <b>modulation</b> (life), <b>space</b> (where it sits). Describe any sound you hear — a guitar tone, a field recording, a film hit — in those five terms and you can rebuild or tweak it.</p>`));
+} });
+
+/* ---------- playground ---------- */
+function explainPatch(p, f) {
+  const out = [];
+  const W = { sine: 'a pure sine (fundamental only)', triangle: 'a soft triangle (odd harmonics, falling fast)', sawtooth: 'a bright saw (all harmonics)', square: 'a hollow square (odd harmonics)', pulse: `a ${Math.round(p.pw * 100)}% pulse`, noise: `${p.noiseColor} noise (no pitch)`, custom: 'a custom additive wave' };
+  let s = `<b>Source:</b> ${W[p.wave] || p.wave}`;
+  if (p.uni > 1 && p.wave !== 'noise') s += `, ${p.uni} unison voices ±${p.spread}¢ (${p.width > 0.6 ? 'wide' : 'narrow'})`;
+  if (p.fmIndex > 0 && p.wave !== 'noise') s += `, FM at ratio ${p.fmRatio} index ${p.fmIndex}${Math.abs(p.fmRatio - Math.round(p.fmRatio)) > 0.02 && Math.abs(p.fmRatio * 2 - Math.round(p.fmRatio * 2)) > 0.02 ? ' (inharmonic → metallic)' : ''}${p.fmDecay ? ', index decaying over ' + fmtS(p.fmDecay) : ''}`;
+  if (p.sub) s += ', plus a sine sub an octave down'; if (p.noise) s += ', plus noise';
+  out.push(s + '.');
+  const FT = { lowpass: 'lowpass', highpass: 'highpass', bandpass: 'bandpass', notch: 'notch' };
+  s = `<b>Filter:</b> ${p.slope} dB/oct ${FT[p.fType]} at ${fmtHz(p.cutoff)}`;
+  if (p.res > 0.6) s += ', strong resonance (vocal peak)'; else if (p.res > 0.25) s += ', some resonance';
+  if (p.key > 0.2) s += `, ${Math.round(p.key * 100)}% keytracking`;
+  if (p.fEnv) s += `; the envelope sweeps it ${p.fEnv > 0 ? 'up' : 'down'} ${Math.abs(p.fEnv).toFixed(1)} octaves to ~${fmtHz(clamp(p.cutoff * Math.pow(2, p.fEnv), 20, 20000))} and back over ${fmtS(p.fD)}`;
+  out.push(s + '.');
+  const kind = p.aA > 0.3 ? 'a slow swell (pad-like)' : p.aS < 0.12 ? 'percussive: it decays even while held (pluck)' : p.aS > 0.9 && p.aR < 0.1 ? 'organ-like: on/off' : 'a sustaining note';
+  out.push(`<b>Amp envelope:</b> ${kind}, release ${fmtS(p.aR)}.`);
+  if (p.lfoDest !== 'none' && p.lfoDepth > 0) out.push(`<b>LFO:</b> ${f.lfoShape} at ${f.lfoSync ? 'tempo-synced' : f.lfoRate.toFixed(2) + ' Hz'} on ${({ pitch: 'pitch (vibrato)', amp: 'volume (tremolo)', cutoff: 'cutoff (wah/wobble)', pan: 'pan', pw: 'pulse width (PWM)' })[p.lfoDest]}, depth ${pct(p.lfoDepth)}.`);
+  if (p.drive) out.push(`<b>Drive:</b> ${p.driveType} at ${pct(p.drive)}, ${p.driveOrder === 'pre' ? 'before' : 'after'} the filter.`);
+  const sp = []; if (f.chorus) sp.push('chorus'); if (f.dMix) sp.push(`${f.dSync ? 'synced' : fmtS(f.dTime)} delay`); if (f.rMix) sp.push(`${fmtS(f.rDecay)} reverb`); if (f.comp) sp.push('compression'); if (f.crushMix) sp.push('bitcrushing');
+  if (sp.length) out.push(`<b>Effects:</b> ${sp.join(', ')}.`);
+  const warn = [];
+  if (p.fEnv > 0 && p.cutoff * Math.pow(2, p.fEnv) > 20000) warn.push('the filter envelope hits the 20 kHz ceiling — lower the cutoff or the amount to hear the sweep');
+  if (p.wave === 'sine' && p.fType === 'lowpass' && !p.fmIndex && !p.drive) warn.push('a sine has nothing for a lowpass to remove');
+  if (p.uni > 3 && p.width > 0.7) warn.push('wide unison — check it in MONO');
+  if (f.rMix > 0.3 && f.rDecay > 3.5) warn.push('long, loud reverb will blur fast notes');
+  if (p.res > 0.6 && p.drive > 0.4 && p.driveOrder !== 'pre') warn.push('resonance into drive: expect aggressive, raspy peaks');
+  if (p.aA > 0.3 && p.fEnv && p.fA < 0.05) warn.push('the filter envelope finishes before the slow amp attack lets you hear it');
+  if (warn.length) out.push(`<b>Interactions to watch:</b> ${warn.join('; ')}.`);
+  return out.map((x) => `<p>${x}</p>`).join('');
+}
+
+chapter({ id: 'play', title: 'Playground', min: 0, build(root) {
+  const saved = store.get('pg', null);
+  if (saved) { setPatch(saved.p); setFX(saved.fx); }
+  let pat = (saved && saved.pat) || 'bass';
+  root.append(H(`<div class="kicker">Chapter 17 · Free play</div><h1>Playground</h1><p class="lede">Every parameter from the course in one instrument. Start a pattern (or use 🎹), then change anything. "Explain this patch" describes what you've built and flags interactions.</p>`));
+  const save = () => store.set('pg', { p: patch, fx: FX, pat });
+  root.addEventListener('change', save); root.addEventListener('click', () => setTimeout(save, 0));
+  const reload = () => { save(); go(cur, false); };
+  const playPat = () => { const [p2, bpm, len] = RPAT[pat]; seqStart(p2, { bpm, len }); };
+  const pl = player('Play pattern', playPat);
+  const sel = E('select', { style: 'width:auto;flex:1;min-width:150px', onchange: (e) => { const r = RECIPES[+e.target.value]; if (!r) return; store.set('pg', { p: { ...DEF, ...r.p }, fx: { ...FXDEF, ...(r.fx || {}) }, pat: r.pat }); go(cur, false); } },
+    E('option', { value: '' }, 'Load a preset…'), ...RECIPES.map((r, i) => E('option', { value: i }, r.name)));
+  const restart = () => { if (pl.isOn()) { releaseAll(true); } };
+  const expl = E('div', { class: 'note gen hidden' });
+  root.append(demo('Transport',
+    btns(pl, seg([['bass', 'Bass'], ['arp', 'Arp'], ['chords', 'Chords'], ['stabs', 'Stabs'], ['melody', 'Melody'], ['drone', 'Drone']], pat, (v) => { pat = v; save(); if (pl.isOn()) { stopAll(); pl.click(); } })),
+    btns(sel, hit('🎲 Randomise', () => { randomPatch(); reload(); }), hit('Reset', () => { store.set('pg', null); go(cur, false); }), hit('💬 Explain this patch', () => { expl.classList.remove('hidden'); expl.innerHTML = '<div class="nh">💬 This patch</div>' + explainPatch(patch, FX); expl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); })),
+    expl));
+  const sec = (t) => E('h3', {}, t);
+  root.append(demo('Source',
+    seg([['sine', 'Sine'], ['triangle', 'Tri'], ['sawtooth', 'Saw'], ['square', 'Square'], ['pulse', 'Pulse'], ['noise', 'Noise']], patch.wave, (v) => { P('wave', v); restart(); }),
+    row(pk('Pulse width', 'pw', 0.05, 0.5, { fmt: pct }), slider({ label: 'Octave', min: -2, max: 2, step: 1, value: patch.oct, fmt: (v) => (v > 0 ? '+' : '') + v, on: (v) => { patch.oct = v; restart(); } })),
+    row(slider({ label: 'Unison voices', min: 1, max: 9, step: 1, value: patch.uni, fmt: (v) => v, on: (v) => { patch.uni = v; restart(); } }), pk('Detune spread', 'spread', 0, 50, { step: 0.5, fmt: (v) => '±' + v + '¢' })),
+    row(pk('Stereo width', 'width', 0, 1, { fmt: pct }), pk('Sub osc', 'sub', 0, 1, { fmt: pct })),
+    row(pk('Noise', 'noise', 0, 1, { fmt: pct }), pk('FM ratio', 'fmRatio', 0.5, 8, { step: 0.01, fmt: (v) => v.toFixed(2) })),
+    row(pk('FM index', 'fmIndex', 0, 12, { step: 0.05, fmt: (v) => v.toFixed(2) }), pk('FM index decay', 'fmDecay', 0, 4, { step: 0.01, fmt: (v) => v ? fmtS(v) : 'static' }))));
+  root.append(demo('Filter',
+    seg([['lowpass', 'Lowpass'], ['highpass', 'Highpass'], ['bandpass', 'Bandpass'], ['notch', 'Notch']], patch.fType, (v) => P('fType', v)),
+    row(pk('Cutoff', 'cutoff', 40, 18000, { log: true, fmt: fmtHz }), pk('Resonance', 'res', 0, 1, { fmt: pct })),
+    row(pk('Keytrack', 'key', 0, 1, { fmt: pct }), pk('Env amount', 'fEnv', -4, 7, { step: 0.1, fmt: (v) => (v > 0 ? '+' : '') + v.toFixed(1) + ' oct' })),
+    row(pk('Velocity → filter', 'velF', 0, 1, { fmt: pct }), E('div', { class: 'sl' }, E('div', { class: 'sl-top' }, E('span', {}, 'Slope')), seg([[12, '12 dB'], [24, '24 dB']], patch.slope, (v) => { patch.slope = v; restart(); })))));
+  const envs = (pre, label) => demo(label,
+    row(pk('Attack', pre + 'A', 0.001, 3, { log: true, fmt: fmtS }), pk('Decay', pre + 'D', 0.01, 3, { log: true, fmt: fmtS })),
+    row(pk('Sustain', pre + 'S', 0, 1, { fmt: pct }), pk('Release', pre + 'R', 0.01, 5, { log: true, fmt: fmtS })));
+  root.append(envs('a', 'Amp envelope'), envs('f', 'Filter envelope'));
+  root.append(demo('LFO',
+    seg([['none', 'Off'], ['pitch', 'Pitch'], ['amp', 'Volume'], ['cutoff', 'Cutoff'], ['pan', 'Pan'], ['pw', 'PW']], patch.lfoDest, (v) => { if (v === 'pw' && patch.wave !== 'pulse') patch.wave = 'pulse'; P('lfoDest', v); restart(); }),
+    seg([['sine', 'Sine'], ['triangle', 'Tri'], ['ramp', 'Ramp'], ['saw', 'Saw'], ['square', 'Square'], ['random', 'S&H']], FX.lfoShape, (v) => fx('lfoShape', v)),
+    row(fk('Rate', 'lfoRate', 0.05, 40, { log: true, fmt: (v) => v.toFixed(2) + ' Hz' }), pk('Depth', 'lfoDepth', 0, 1, { fmt: pct })),
+    seg([[0, 'Free'], [4, '1 bar'], [1, '1/4'], [0.5, '1/8'], [0.25, '1/16']], FX.lfoSync, (v) => { FX.lfoSync = v; setLfoRate(); restartLFO(); })));
+  root.append(demo('Drive',
+    row(pk('Drive', 'drive', 0, 1, { fmt: pct, on: () => restart() })),
+    seg([['soft', 'Soft'], ['hard', 'Hard'], ['asym', 'Asym'], ['fold', 'Fold']], patch.driveType, (v) => P('driveType', v)),
+    seg([['post', 'Filter → Drive'], ['pre', 'Drive → Filter']], patch.driveOrder, (v) => { P('driveOrder', v); restart(); })));
+  root.append(demo('Effects',
+    row(fk('Chorus', 'chorus', 0, 1, { fmt: pct }), fk('Delay mix', 'dMix', 0, 1, { fmt: pct })),
+    row(fk('Delay time', 'dTime', 0.02, 1.2, { log: true, fmt: fmtS, on: () => fx('dSync', 0) }), fk('Delay feedback', 'dFb', 0, 0.92, { fmt: pct })),
+    row(fk('Delay tone', 'dTone', 400, 18000, { log: true, fmt: fmtHz }), fk('Reverb mix', 'rMix', 0, 1, { fmt: pct })),
+    row(fk('Reverb decay', 'rDecay', 0.3, 8, { log: true, fmt: fmtS }), fk('Reverb damping', 'rDamp', 0, 1, { fmt: pct })),
+    row(fk('Crush: bits', 'crushBits', 1, 16, { step: 1, fmt: (v) => v + ' bit', on: () => fx('crushMix', FX.crushBits < 16 || FX.crushDown > 1 ? 1 : 0) }), fk('Crush: downsample', 'crushDown', 1, 32, { step: 0.5, fmt: (v) => '÷' + v, on: () => fx('crushMix', FX.crushBits < 16 || FX.crushDown > 1 ? 1 : 0) })),
+    btns(toggle('Compressor', !!FX.comp, (v) => fx('comp', v ? 1 : 0))),
+    row(fk('Comp threshold', 'thr', -60, 0, { step: 1, fmt: (v) => v + ' dB' }), fk('Comp ratio', 'ratio', 1, 20, { step: 0.5, fmt: (v) => v + ':1' }))));
+  root.append(note('gen', `<p>Challenges: make a sound that is bright but not loud. Make the same patch sound near, then far, using only effects. Make a bass that works on a phone speaker. Make a pad that collapses badly in MONO, then fix it.</p>`, '🎯 Try this'));
+} });
+function randomPatch() {
+  const R = (a, b) => a + Math.random() * (b - a), pickR = (xs) => xs[Math.floor(Math.random() * xs.length)], logR = (a, b) => a * Math.pow(b / a, Math.random());
+  const perc = Math.random() < 0.5;
+  const p = { ...DEF, wave: pickR(['sawtooth', 'sawtooth', 'square', 'pulse', 'triangle', 'sine']), pw: R(0.1, 0.5), uni: pickR([1, 1, 2, 3, 5, 7]), spread: R(4, 25), width: R(0, 1),
+    cutoff: logR(150, 5000), res: R(0, 0.75), slope: pickR([12, 24]), key: R(0, 0.8), fEnv: R(-1, 5), fD: logR(0.05, 1.5), fS: R(0, 0.5),
+    aA: perc ? 0.003 : logR(0.003, 1.5), aD: logR(0.1, 1.5), aS: perc ? 0 : R(0.4, 1), aR: logR(0.05, 2),
+    lfoDest: pickR(['none', 'none', 'pitch', 'cutoff', 'amp', 'pan']), lfoDepth: R(0.05, 0.4), drive: Math.random() < 0.4 ? R(0.1, 0.7) : 0,
+    fmIndex: Math.random() < 0.25 ? R(0.5, 5) : 0, fmRatio: pickR([1, 2, 3, 0.5, 1.414, 3.5]), sub: Math.random() < 0.3 ? R(0.2, 0.7) : 0 };
+  if (p.lfoDest === 'pitch') p.lfoDepth = R(0.02, 0.12);
+  const f = { ...FXDEF, lfoRate: logR(0.1, 8), lfoShape: pickR(['sine', 'triangle', 'square', 'random']), chorus: Math.random() < 0.4 ? R(0.2, 0.6) : 0,
+    dMix: Math.random() < 0.5 ? R(0.1, 0.4) : 0, dSync: pickR([0.75, 0.5, 1]), dFb: R(0.2, 0.6), dTone: logR(1500, 8000), rMix: R(0.05, 0.45), rDecay: logR(0.6, 5) };
+  store.set('pg', { p, fx: f, pat: store.get('pg', {})?.pat || (perc ? 'arp' : 'chords') });
+}
+</script>
+
+<script>
+/* ================= future + quiz ================= */
+chapter({ id: 'future', title: 'The future: AI and music', min: 3, build(root) {
+  root.append(H(`<div class="kicker">Chapter 18 · Where this is going · researched November 2026</div><h1>AI music: what's real, what's next</h1>
+  <p class="lede">Two very different things get called "AI music": <b>whole-song generators</b> that turn a text prompt into a finished track, and <b>AI inside the tools</b> — separating stems, transferring timbre, modelling gear. The first is reshaping the music business; the second is quietly changing how sound gets made. Tags: <span class="fact">FACT</span> reported events · <span class="spec">SPECULATION</span> informed guesses.</p>
+  <h2>1 · Song generators went from lawsuits to licences</h2>
+  <p><span class="fact">FACT</span> In 2024 the major labels sued Suno and Udio for training on their recordings. By late 2025 the fight had turned into deals: Universal settled with Udio in October 2025 and agreed to build a licensed platform for 2026, trained only on authorised music with artists opting in; Udio disabled downloads and moved its existing product into a "walled garden" during the transition, which angered paying users. Warner settled with both Suno and Udio in November 2025. Udio later added Merlin and Kobalt; Sony remains the major without a Udio deal.</p>
+  <p><span class="fact">FACT</span> Suno launched its V6 model family on 9 September 2026, which it says was trained from scratch on music licensed from Warner, BMG and Believe, and retired its older models. Nine days later Sony and Universal filed a new suit arguing V6 still inherits the earlier models' alleged infringement through their outputs and "distillation". No court has ruled on that theory yet.</p>
+  <p><span class="fact">FACT</span> ElevenLabs launched Eleven Music in August 2025 with licences from Merlin and Kobalt already signed (opt-in for rights holders), and in 2026 expanded it into a creation-and-streaming app. Google DeepMind put <b>Lyria 3</b> into the Gemini app in February 2026 (30-second tracks from text or images, watermarked with SynthID), followed in March by <b>Lyria 3 Pro</b>: up to three-minute songs with sections (intro, verse, chorus, bridge) you can specify, also offered to developers through Vertex AI.</p>
+  <h2>2 · The flood, and the listening gap</h2>
+  <p><span class="fact">FACT</span> Deezer, which detects and labels fully AI-generated tracks, reported in July 2026 that they passed <b>50% of its daily uploads</b> for the first time (up from ~10% in January 2025). Yet they draw only <b>1–3% of streams</b>, and Deezer found up to 85% of those streams were fraudulent (bots farming royalties) and excluded them from payouts. Billboard uses Deezer's detector to identify AI tracks on its charts. Spotify signed a deal with Sony, Universal, Warner, Merlin and Believe in October 2025 to build "responsible" AI music products around artist consent and credit, and adopted the DDEX standard for disclosing AI involvement in track credits.</p>
+  <h2>3 · AI inside the tools</h2>
+  <p><span class="fact">FACT</span> <b>Stem separation</b> — unmixing a finished song into vocals, drums, bass and the rest — is now built into Logic Pro, Ableton Live 12 and Studio One, and runs offline in plugins such as LALAL.AI's (Feb 2026) and zplane's PEEL STEMS. For musicians that means isolating a guitar part from a record to learn it, or remixing anything.</p>
+  <p><span class="fact">FACT</span> <b>Neural synthesis</b> connects directly to this course. Google Magenta's <b>DDSP</b> (2020) put the very blocks you've learned — harmonic oscillators, filtered noise, reverb — inside a neural network, which learns to <i>drive their parameters</i> from audio; that's how "tone transfer" turns your humming into a convincing violin. IRCAM's <b>RAVE</b> (2021) is a real-time model that encodes any sound into a compact latent space and decodes it as another timbre; you can run such models in a DAW through hosts like Neutone FX, or in Max/Pd. Most text-to-music systems sit on <b>neural audio codecs</b> (SoundStream, EnCodec) that compress audio into tokens a language-model-style network can predict. Neural amp modelling — capturing a real amp or pedal as a trained network — is the guitar-world version (see the guitar-tone course).</p>
+  <h2>4 · Where it's heading</h2>
+  <p><span class="spec">SPECULATION</span> <b>Licensed, walled gardens become the default</b> for consumer generators: you can make and remix inside the platform, with exports, commercial use and voice likeness gated by licence. The open legal question — can a "clean" model inherit liability from a dirty predecessor? — will shape who can compete.</p>
+  <p><span class="spec">SPECULATION</span> <b>Parameter-level AI</b> grows faster than song-level AI for working musicians: "make this pad warmer and further away" turned into actual cutoff, envelope and reverb moves you can see and tweak; patch generation from a reference sound; mix assistants that flag masking and loudness traps. The vocabulary in this course is exactly the interface those tools expose.</p>
+  <p><span class="spec">SPECULATION</span> <b>Detection, provenance and labelling</b> (watermarks like SynthID, DDEX credits, upload filters) become infrastructure, because the volume of generated audio already outstrips human output on some platforms. Expect the arms race to continue.</p>
+  <p><span class="spec">SPECULATION</span> As generated music becomes abundant, value tilts toward what's scarce: live performance, recognisable human voices and styles (and the licences on them), and the taste to judge and shape sound — which is to say, ears trained on exactly the dimensions you just learned.</p>`));
+  root.append(note('gen', `<p>Whatever the tool — a prompt box, a stem splitter, a neural amp — the questions you can now ask are the same: What's the source? What's being removed or added? How does it move in time? How dense are the dynamics? Where does it sit in space? Are my ears being fooled by level?</p>`, '🧭 Why this course still matters'));
+  root.append(H(`<h3>Sources</h3><ul class="src">
+  <li><a href="https://www.musicbusinessworldwide.com/universal-music-settles-udio-lawsuit-strikes-deal-for-licensed-ai-music-platform" target="_blank" rel="noopener">Music Business Worldwide — Universal settles with Udio, licensed platform (Oct 2025)</a></li>
+  <li><a href="https://www.digitalmusicnews.com/2025/10/29/umg-udio-deal-everything-we-know/" target="_blank" rel="noopener">Digital Music News — UMG/Udio deal: walled garden, downloads disabled (Oct 2025)</a></li>
+  <li><a href="https://news.bloomberglaw.com/ip-law/warner-music-settles-lawsuit-with-ai-music-startup-suno" target="_blank" rel="noopener">Bloomberg Law — Warner settles with Suno (Nov 2025)</a></li>
+  <li><a href="https://tech-insider.org/suno-v6-warner-bmg-licensing-deal-2026/" target="_blank" rel="noopener">Tech Insider — Suno V6 licensed from Warner, BMG, Believe (Sep 2026)</a></li>
+  <li><a href="https://runtimewire.com/article/sony-umg-suno-v6-copyright-lawsuit" target="_blank" rel="noopener">Runtime Wire — Sony and UMG sue Suno again over V6 (Sep 2026)</a></li>
+  <li><a href="https://musicbusinessworldwide.com/eleven-music-new-ai-rival-to-suno-launches-with-merlin-kobalt-licensing-deals-in-the-bag" target="_blank" rel="noopener">Music Business Worldwide — Eleven Music launches with Merlin and Kobalt deals (Aug 2025)</a></li>
+  <li><a href="https://www.musicbusinessworldwide.com/elevenlabs-officially-launches-elevenmusic-as-streaming-and-ai-creation-platform-with-licensed-remix-model/" target="_blank" rel="noopener">Music Business Worldwide — ElevenMusic streaming and creation platform (2026)</a></li>
+  <li><a href="https://rightstech.com/2026/02/google-brings-lyria-3-into-gemini-expands-synthid-support/" target="_blank" rel="noopener">RightsTech — Lyria 3 in Gemini, SynthID (Feb 2026)</a></li>
+  <li><a href="https://www.bestaitools.com/google-deepmind-rolls-out-lyria-3-pro-for-longer-structured-ai-music-tracks" target="_blank" rel="noopener">Lyria 3 Pro: three-minute structured tracks (Mar 2026)</a></li>
+  <li><a href="https://newsroom-deezer.com/2026/07/ai-music-exceeds-50-percent-daily-uploads-deezer/" target="_blank" rel="noopener">Deezer Newsroom — AI music passes 50% of daily uploads (Jul 2026)</a> · <a href="https://techcrunch.com/2026/07/21/music-streamer-deezer-says-more-than-50-of-daily-uploads-are-ai-generated/" target="_blank" rel="noopener">TechCrunch</a></li>
+  <li><a href="https://digitalmusicnews.com/2026/03/06/ai-rules-at-major-streaming-platforms" target="_blank" rel="noopener">Digital Music News — AI rules at the major streaming platforms (Mar 2026)</a></li>
+  <li><a href="https://weraveyou.com/2026/02/lalal-ai-launches-its-first-stem-separation-plugin/" target="_blank" rel="noopener">We Rave You — LALAL.AI stem-separation plugin (Feb 2026)</a> · <a href="https://www.production-expert.com/production-expert-1/6-stem-separation-tools-compared-for-audio-pros-in-2026" target="_blank" rel="noopener">Production Expert — stem tools compared (2026)</a></li>
+  <li><a href="https://arxiv.org/abs/2001.04643" target="_blank" rel="noopener">Engel et al. — DDSP: Differentiable Digital Signal Processing (2020)</a> · <a href="https://arxiv.org/abs/2103.07220" target="_blank" rel="noopener">Ganis et al. — real-time DDSP timbre-transfer plugin (2021)</a></li>
+  <li><a href="https://arxiv.org/abs/2111.05011" target="_blank" rel="noopener">Caillon &amp; Esling — RAVE: a real-time audio variational autoencoder (2021)</a></li>
+  </ul><p class="small muted">Some 2026 details come from trade press rather than primary filings; the legal situations were still moving when this was written.</p>`));
+} });
+
+/* ---------- final quiz ---------- */
+function quizBank() {
+  const pickR = (xs) => xs[Math.floor(Math.random() * xs.length)];
+  const qs = [];
+  const play = (p, notes = [57], dur = 1.1, fxo) => { stopAll(); const keep = patch, kf = FX; setPatch(p); if (fxo) setFX({ ...FX, ...fxo }); const t = now() + 0.05; notes.forEach((m) => noteOn(m, 0.85, t).release(t + dur)); patch = keep; setTimeout(() => { if (fxo) setFX(kf); }, (dur + 1) * 1000); };
+  // ear questions
+  { const W = [['sine', 'Sine'], ['triangle', 'Triangle'], ['sawtooth', 'Saw'], ['square', 'Square']]; const a = Math.floor(Math.random() * 4);
+    qs.push({ ear: true, q: 'Which waveform is this?', o: W.map((w) => w[1]), a, play: () => play({ wave: W[a][0], aA: 0.01, aS: 1, aR: 0.1 }, [57], 1.4), why: 'Sine is pure, triangle soft, square hollow (odd harmonics), saw bright and buzzy (all harmonics). The Spectrum view shows the recipe.' }); }
+  { const C = [['Cutoff lowered', { cutoff: 600 }], ['Slower attack', { aA: 0.35 }], ['Detune / unison added', { uni: 3, spread: 18, width: 0.8 }], ['Vibrato added', { lfoDest: 'pitch', lfoDepth: 0.12 }]]; const a = Math.floor(Math.random() * 4);
+    const base = { wave: 'sawtooth', cutoff: 4000, slope: 12, aA: 0.005, aS: 0.9, aR: 0.15 };
+    qs.push({ ear: true, q: 'You hear A, then B. What changed?', o: C.map((c) => c[0]), a, play: () => { play(base, [57], 0.9); setTimeout(() => play({ ...base, ...C[a][1] }, [57], 1.2, { lfoRate: 5.5 }), 1300); }, why: 'Cutoff = darker; attack = softer start; unison = wider and shimmery; vibrato = wavering pitch.' }); }
+  { const F = [['lowpass', 'Lowpass'], ['highpass', 'Highpass'], ['bandpass', 'Bandpass']]; const a = Math.floor(Math.random() * 3);
+    qs.push({ ear: true, q: 'Noise through which filter type?', o: F.map((f) => f[1]), a, play: () => { play({ wave: 'noise', noiseColor: 'white', fType: 'highpass', cutoff: 20, aS: 1, aR: 0.1 }, [57], 0.8); setTimeout(() => play({ wave: 'noise', noiseColor: 'white', fType: F[a][0], cutoff: 900, res: F[a][0] === 'bandpass' ? 0.5 : 0.1, aS: 1, aR: 0.1 }, [57], 1.2), 1100); },
+      why: 'First you hear the unfiltered noise, then the filtered one. Lowpass = dark rumble, highpass = thin hiss, bandpass = a narrow "shhh" in the middle.' }); }
+  { const L = [['pitch', 'Pitch (vibrato)'], ['amp', 'Volume (tremolo)'], ['cutoff', 'Cutoff (wah)']]; const a = Math.floor(Math.random() * 3);
+    qs.push({ ear: true, q: 'Where is the LFO routed?', o: L.map((l) => l[1]), a, play: () => play({ wave: 'sawtooth', cutoff: 1200, res: 0.4, slope: 24, aS: 1, aR: 0.2, lfoDest: L[a][0], lfoDepth: L[a][0] === 'pitch' ? 0.15 : 0.6 }, [57], 2.2, { lfoRate: 4, lfoShape: 'sine' }), why: 'Pitch wavers for vibrato, loudness pulses for tremolo, brightness sweeps for wah.' }); }
+  { const a = Math.random() < 0.5 ? 0 : 1;
+    qs.push({ ear: true, q: 'FM tone: harmonic ratio or inharmonic ratio?', o: ['Harmonic (whole-number ratio)', 'Inharmonic (irrational ratio)'], a, play: () => play({ wave: 'sine', fmRatio: a ? 1.414 : 2, fmIndex: 3, aD: 1.5, aS: 0.3, aR: 0.4 }, [57], 1.6), why: 'Whole-number ratios give a clear pitch; irrational ratios sound metallic and pitch-ambiguous.' }); }
+  // concept questions
+  const C = (q, o, a, why) => qs.push({ q, o, a, why });
+  C('Going up one octave does what to frequency?', ['Adds 100 Hz', 'Doubles it', 'Multiplies by 1.5', 'Adds 12 Hz'], 1, 'Octave = ×2. Pitch is perceived logarithmically.');
+  C('+6 dB means the amplitude has…', ['Doubled', 'Increased 6%', 'Increased tenfold', 'Halved'], 0, '20·log10(2) ≈ 6 dB. (Perceived "twice as loud" is closer to +10 dB.)');
+  C('Which source gives a lowpass filter the most to work with?', ['Sine', 'Triangle', 'Saw', 'They are equal'], 2, 'Saw has every harmonic at 1/n, so filtering changes it dramatically.');
+  C('Filter env amount is high but you barely hear a sweep. Most likely?', ['Resonance too low', 'Base cutoff already near the top', 'Sustain too high', 'Slope too steep'], 1, 'The envelope multiplies the base cutoff; if it\'s near 20 kHz, there is no room to open.');
+  C('Same detune in cents on a low note and a high note. Which beats faster?', ['Low', 'High', 'Same', 'Neither beats'], 1, 'Beat rate is a frequency difference, and the same cents is more Hz at higher pitch.');
+  C('FM sidebands appear at…', ['carrier × modulator', 'carrier ± multiples of the modulator frequency', 'only odd harmonics', 'the modulator frequency only'], 1, 'fc ± k·fm. Ratio decides where; index decides how many are strong.');
+  C('The Nyquist limit at a 44.1 kHz sample rate is…', ['44.1 kHz', '22.05 kHz', '20 kHz', '88.2 kHz'], 1, 'Half the sample rate. Content above it folds back as aliasing.');
+  C('Asymmetric clipping, compared with symmetric, adds…', ['Only odd harmonics', 'Even harmonics as well', 'Fewer harmonics', 'Subharmonics'], 1, 'Asymmetry breaks half-wave symmetry, producing even harmonics — the "warm" tube character.');
+  C('Distorted major-chord voicings often sound muddy because of…', ['Aliasing', 'Intermodulation tones that fall between notes', 'Masking', 'Phase cancellation'], 1, 'Sum and difference tones of tempered thirds land off the harmonic series; fifths reinforce the root.');
+  C('A guitar amp with the gain stage before the tone stack is like which synth order?', ['Filter → Drive', 'Drive → Filter', 'Neither', 'Drive in parallel'], 1, 'The tone stack (a filter) shapes the already-distorted signal — it tames fizz rather than feeding distortion.');
+  C('For punchier drums, a compressor\'s attack should be…', ['As fast as possible', 'Slow enough to let the transient through', 'Irrelevant', 'Linked to the release'], 1, 'A slower attack lets the first milliseconds pass before gain reduction kicks in.');
+  C('A reverb is muddying the bass. Best fix?', ['More pre-delay', 'High-pass (low cut) the reverb', 'Longer decay', 'More damping only'], 1, 'Low-frequency energy lingering in the tail is the mud; cut it from the reverb send.');
+  C('The ear is most sensitive around…', ['50–100 Hz', '2–5 kHz', '12–16 kHz', 'Equal everywhere'], 1, 'The ear canal resonance boosts that range; the equal-loudness curves dip there.');
+  C('You A/B two plugins and prefer the one that is 1 dB louder. What is the lesson?', ['Louder is better', 'Level-match before judging', 'Use mono', 'Add compression'], 1, 'Small level differences are heard as quality differences.');
+  C('A wah pedal is best described as…', ['A source', 'A resonant bandpass filter whose cutoff your foot modulates', 'A compressor', 'A delay'], 1, 'Shaper (filter) + modulator (your foot). An auto-wah swaps your foot for an envelope follower.');
+  return qs;
+}
+chapter({ id: 'quiz', title: 'Final quiz', min: 4, build(root) {
+  root.append(H(`<div class="kicker">Final</div><h1>Final quiz</h1><p class="lede">Twenty questions: five are <b>ear tests</b> (press ▶, use headphones), the rest check concepts. Answers randomise each time you retake it.</p>`));
+  const best = store.get('quizBest', null);
+  if (best != null) root.append(E('p', { class: 'muted small' }, `Your best so far: ${best}/20`));
+  const box = E('div'); root.append(box);
+  let qs, i, score, misses;
+  const start = () => { qs = quizBank(); qs = [...qs.filter((q) => q.ear), ...qs.filter((q) => !q.ear).sort(() => Math.random() - 0.5)]; i = 0; score = 0; misses = []; show(); };
+  const show = () => {
+    box.innerHTML = '';
+    if (i >= qs.length) {
+      const prev = store.get('quizBest', 0); if (score > prev) store.set('quizBest', score);
+      box.append(demo('Result', E('div', { class: 'score' }, `${score} / ${qs.length}`),
+        E('p', { style: 'text-align:center' }, score >= 18 ? 'Excellent — you can reason about sound in any context.' : score >= 14 ? 'Solid. Revisit the chapters behind the misses below.' : 'Worth a second pass through the chapters below.'),
+        ...misses.map((m) => E('div', { class: 'ask-why', html: `<b>${m.q}</b><br>Answer: ${m.o[m.a]} — ${m.why}` })),
+        btns(hit('Retake', start, 'primary'))));
+      return;
+    }
+    const q = qs[i];
+    const card = demo(`Question ${i + 1} of ${qs.length}${q.ear ? ' · 👂 ear test' : ''}`, E('div', { class: 'ask-q' }, q.q));
+    if (q.ear) card.append(btns(hit('▶ Play', q.play, 'play')));
+    const list = E('div', { class: 'ask-o' }); let answered = false;
+    q.o.forEach((o, j) => list.append(E('button', { type: 'button', onclick: () => {
+      if (answered) return; answered = true; const ok = j === q.a; if (ok) score++; else misses.push(q);
+      [...list.children].forEach((x, k) => x.classList.add(k === q.a ? 'right' : k === j ? 'wrong' : 'dim'));
+      card.append(E('div', { class: 'ask-why', html: (ok ? '<b>Right.</b> ' : '<b>Not quite.</b> ') + q.why }), btns(hit(i + 1 < qs.length ? 'Next question ›' : 'See result', () => { i++; show(); }, 'primary')));
+    } }, o)));
+    card.append(list); box.append(card);
+  };
+  start();
+} });
+</script>
+
+<script id="boot">
+/* ================= navigation + boot ================= */
+let cur = 0;
+const done = new Set(store.get('done', []));
+function go(i, scroll = true) {
+  i = clamp(i, 0, CH.length - 1);
+  stopAll();
+  if (ctx) { setPatch(CH[i].patch); setFX(CH[i].fx); } else { setPatch(CH[i].patch); FX = { ...FXDEF, ...(CH[i].fx || {}) }; }
+  if (ctx) { A.monoG.gain.value = 0; A.stG.gain.value = 1; } monoOn = false; $('#monoBtn').textContent = 'ST';
+  cur = i; store.set('cur', i); done.add(CH[i].id); store.set('done', [...done]);
+  const main = $('#main'); main.innerHTML = ''; TRANSPORTS.clear();
+  const root = E('article', {}); main.append(root);
+  try { CH[i].build(root); } catch (e) { root.append(E('p', { class: 'muted' }, 'This chapter failed to load: ' + e.message)); console.error(e); }
+  const nx = CH[i + 1];
+  if (nx) root.append(E('div', { class: 'btns', style: 'margin-top:26px' }, E('button', { class: 'primary', onclick: () => go(i + 1) }, `Next: ${nx.title} ›`)));
+  $('#ttl').textContent = CH[i].title;
+  $('#prev').disabled = i === 0; $('#next').disabled = i === CH.length - 1;
+  const total = CH.reduce((a, c) => a + c.min, 0), before = CH.slice(0, i).reduce((a, c) => a + c.min, 0);
+  $('#progTxt').textContent = `${i + 1}/${CH.length} · ${CH[i].title} · ~${total - before} min left`;
+  $('#pfill').style.width = ((i + 1) / CH.length * 100) + '%';
+  if (scroll) scrollTo({ top: 0 });
+  buildMenu();
+}
+function buildMenu() {
+  const m = $('#menuIn'); m.innerHTML = '';
+  const total = CH.reduce((a, c) => a + c.min, 0);
+  m.append(E('div', { class: 'row', style: 'display:flex;justify-content:space-between;align-items:center' }, E('b', {}, `Chapters · ~${total} min`), E('button', { class: 'iconb', onclick: () => $('#menu').classList.add('hidden') }, '✕')));
+  CH.forEach((c, i) => m.append(E('button', { class: 'mi' + (i === cur ? ' cur' : ''), onclick: () => { $('#menu').classList.add('hidden'); go(i); } },
+    E('span', { class: 'n' }, done.has(c.id) ? '✓' : String(i)), E('span', { class: 't' }, c.title), E('span', { class: 'm' }, c.min ? c.min + ' min' : 'open'))));
+}
+let monoOn = false;
+$('#monoBtn').onclick = () => { unlock(); monoOn = !monoOn; $('#monoBtn').textContent = monoOn ? 'MONO' : 'ST'; $('#monoBtn').style.color = monoOn ? 'var(--accent)' : ''; A.monoG.gain.setTargetAtTime(monoOn ? 1 : 0, now(), 0.02); A.stG.gain.setTargetAtTime(monoOn ? 0 : 1, now(), 0.02); };
+$('#menuBtn').onclick = () => $('#menu').classList.toggle('hidden');
+$('#menu').onclick = (e) => { if (e.target.id === 'menu') $('#menu').classList.add('hidden'); };
+$('#prev').onclick = () => go(cur - 1);
+$('#next').onclick = () => go(cur + 1);
+document.addEventListener('pointerdown', () => unlock(), { once: false, passive: true });
+
+/* ---------- keyboard ---------- */
+let kbOct = store.get('kbOct', 48); const held = new Map();
+function buildKbd() {
+  const k = $('#kbd'); k.innerHTML = '';
+  const W = k.clientWidth || 340, whites = clamp(Math.floor(W / 34), 8, 22), ww = W / whites;
+  const WH = [0, 2, 4, 5, 7, 9, 11];
+  let wi = 0, m = kbOct;
+  while (wi < whites) {
+    const pc = m % 12;
+    if (WH.includes(pc)) { const el = E('div', { class: 'k w', style: `left:${wi * ww}px;width:${ww}px` }, pc === 0 ? E('span', { class: 'lbl' }, nname(m)) : null); el.dataset.m = m; k.append(el); wi++; }
+    else { const el = E('div', { class: 'k b', style: `left:${wi * ww - ww * 0.3}px;width:${ww * 0.6}px` }); el.dataset.m = m; k.append(el); }
+    m++;
+  }
+  $('#octLbl').textContent = nname(kbOct);
+}
+function kOn(id, m) { unlock(); if (held.has(id)) return; const v = noteOn(m, 0.85); v.held = true; held.set(id, v); const el = $(`#kbd [data-m="${m}"]`); if (el) el.classList.add('down'); }
+function kOff(id) { const v = held.get(id); if (!v) return; v.release(); held.delete(id); const el = $(`#kbd [data-m="${v.m}"]`); if (el) el.classList.remove('down'); }
+$('#kbd').addEventListener('pointerdown', (e) => { const el = e.target.closest('.k'); if (!el) return; e.preventDefault(); kOn('p' + e.pointerId, +el.dataset.m); });
+['pointerup', 'pointercancel', 'pointerleave'].forEach((t) => $('#kbd').addEventListener(t, (e) => kOff('p' + e.pointerId)));
+$('#kbd').addEventListener('pointermove', (e) => { if (!held.has('p' + e.pointerId)) return; const el = document.elementFromPoint(e.clientX, e.clientY); const k = el && el.closest && el.closest('#kbd .k'); if (k && +k.dataset.m !== held.get('p' + e.pointerId).m) { kOff('p' + e.pointerId); kOn('p' + e.pointerId, +k.dataset.m); } });
+$('#kbdBtn').onclick = () => { unlock(); const w = $('#kbdWrap'); w.classList.toggle('hidden'); document.body.classList.toggle('kbd-open', !w.classList.contains('hidden')); $('#kbdBtn').classList.toggle('on', !w.classList.contains('hidden')); buildKbd(); };
+$('#octDn').onclick = () => { kbOct = Math.max(24, kbOct - 12); store.set('kbOct', kbOct); buildKbd(); };
+$('#octUp').onclick = () => { kbOct = Math.min(84, kbOct + 12); store.set('kbOct', kbOct); buildKbd(); };
+addEventListener('resize', () => { if (!$('#kbdWrap').classList.contains('hidden')) buildKbd(); });
+const KEYMAP = { a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7, y: 8, h: 9, u: 10, j: 11, k: 12, o: 13, l: 14, p: 15, ';': 16 };
+addEventListener('keydown', (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { if (tag === 'INPUT') return; e.preventDefault(); go(cur + (e.key === 'ArrowRight' ? 1 : -1)); return; }
+  if (e.repeat) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z') { kbOct = Math.max(24, kbOct - 12); buildKbd(); return; }
+  if (k === 'x') { kbOct = Math.min(84, kbOct + 12); buildKbd(); return; }
+  if (k in KEYMAP) kOn('k' + k, kbOct + KEYMAP[k]);
+});
+addEventListener('keyup', (e) => { const k = e.key.toLowerCase(); if (k in KEYMAP) kOff('k' + k); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopAll(); });
+
+vizInit();
+go(clamp(store.get('cur', 0), 0, CH.length - 1), false);
+</script>
+</body>
+</html>

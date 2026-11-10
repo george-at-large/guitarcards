@@ -1,0 +1,1942 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0b0f">
+<title>Guitar Tone</title>
+<style>
+:root {
+  --bg: #0a0b0f; --bg2: #101219;
+  --panel: #15181f; --panel2: #1d2129; --panel3: #262b35;
+  --line: rgba(255, 255, 255, 0.07); --line2: rgba(255, 255, 255, 0.12);
+  --text: #f4f5f8; --muted: #8d95a5; --dim: #5d6574;
+  --accent: #ffb547; --accent2: #4cc9f0;
+  --grad: linear-gradient(135deg, #ffc35c 0%, #ff8a4c 100%);
+  --good: #34d399; --bad: #f87171; --hard: #fb923c; --easy: #8b9cff;
+  --r: 18px;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; color: var(--text); font: 16px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { min-height: 100dvh; background: radial-gradient(120% 60% at 50% -10%, #1b1f2b 0%, var(--bg) 55%) fixed, var(--bg); overflow-x: hidden; }
+a { color: var(--accent2); }
+.top { position: sticky; top: 0; z-index: 30; background: rgba(10, 11, 15, 0.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); padding: calc(env(safe-area-inset-top) + 8px) 16px 0; }
+.top-in { max-width: 720px; margin: 0 auto; display: flex; align-items: center; gap: 6px; min-height: 40px; }
+.back { color: var(--muted); text-decoration: none; font-size: 14px; white-space: nowrap; }
+.ttl { flex: 1; min-width: 0; font-weight: 700; font-size: 15px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbtn { background: var(--panel2); border: 1px solid var(--line2); color: var(--text); border-radius: 12px; padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.tbtn.on { background: rgba(76, 201, 240, 0.16); border-color: rgba(76, 201, 240, 0.6); color: #bfefff; }
+.tbtn.stop { background: rgba(248, 113, 113, 0.14); border-color: rgba(248, 113, 113, 0.5); }
+.prog { max-width: 720px; margin: 8px auto 0; height: 3px; background: var(--panel3); border-radius: 2px; overflow: hidden; }
+.prog i { display: block; height: 100%; background: var(--grad); width: 0; transition: width .3s; }
+main { max-width: 720px; margin: 0 auto; padding: 14px 16px calc(env(safe-area-inset-bottom) + 110px); }
+.foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: rgba(10, 11, 15, 0.9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 10px 16px calc(env(safe-area-inset-bottom) + 10px); }
+.foot-in { max-width: 720px; margin: 0 auto; display: flex; gap: 10px; align-items: center; }
+.foot-in .mid { flex: 1; text-align: center; color: var(--muted); font-size: 13px; }
+h1 { font: 800 30px/1.1 -apple-system, "SF Pro Display", system-ui, sans-serif; letter-spacing: -0.03em; margin: 4px 0 10px; background: linear-gradient(180deg, #fff 30%, #c9cdd6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h2 { font: 750 21px/1.25 -apple-system, "SF Pro Display", system-ui, sans-serif; letter-spacing: -0.02em; margin: 26px 0 8px; }
+h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin: 22px 0 8px; }
+h4 { font-size: 15.5px; margin: 0; color: var(--accent); letter-spacing: -0.01em; }
+p { margin: 8px 0; }
+ul, ol { padding-left: 22px; margin: 8px 0; } li { margin: 4px 0; }
+.ch-k { color: var(--muted); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+.lede { font-size: 17.5px; color: #dfe3ea; }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+code { background: var(--panel3); padding: 1px 6px; border-radius: 6px; font-size: 0.9em; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 10px 0; }
+td, th { border-bottom: 1px solid var(--line); padding: 7px 6px; text-align: left; vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+button { font: inherit; color: inherit; background: var(--panel2); border: 1px solid var(--line2); border-radius: 14px; padding: 10px 14px; cursor: pointer; touch-action: manipulation; transition: transform .08s ease, background .15s ease, border-color .15s ease; }
+button:active { transform: scale(0.97); }
+button.primary { background: var(--grad); color: #1d1206; border-color: transparent; font-weight: 750; }
+button[disabled] { opacity: 0.35; pointer-events: none; }
+.panel { background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)), var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; margin: 14px 0; box-shadow: var(--shadow); }
+.demo.active { border-color: rgba(255, 181, 71, 0.35); }
+.demo-head { display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-bottom: 8px; }
+.play { min-width: 92px; font-weight: 700; }
+.play.on { background: rgba(255, 181, 71, 0.18); border-color: rgba(255, 181, 71, 0.7); color: #ffd79a; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+.chip { padding: 6px 11px; border-radius: 999px; font-size: 13px; background: var(--panel2); border: 1px solid var(--line2); color: #cfd4dd; }
+.chip.on { background: rgba(255, 181, 71, 0.14); border-color: rgba(255, 181, 71, 0.6); color: #ffd79a; }
+canvas.scope, canvas.plot { width: 100%; height: 150px; display: block; border-radius: 12px; background: #07080b; border: 1px solid var(--line); margin: 6px 0 10px; }
+canvas.plot { height: 130px; }
+.ctls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+@media (max-width: 540px) { .ctls { grid-template-columns: 1fr; } }
+.ctl.wide { grid-column: 1 / -1; }
+.ctl .lab { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 2px; }
+.ctl .lab b { color: var(--text); font-weight: 600; }
+.ctl .val { color: #ffd79a; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ctl .hint { font-size: 12px; color: var(--dim); margin-top: 2px; }
+.seg { display: flex; flex-wrap: wrap; background: var(--bg2); border-radius: 12px; padding: 3px; border: 1px solid var(--line); gap: 2px; }
+.seg button { flex: 1 1 auto; border: none; background: transparent; padding: 7px 8px; font-size: 13px; border-radius: 9px; color: var(--muted); }
+.seg button.on { background: var(--panel3); color: var(--text); font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: transparent; margin: 0; touch-action: pan-y; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgba(255,181,71,.55) var(--p, 50%), var(--panel3) var(--p, 50%)); }
+input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--panel3); }
+input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: rgba(255,181,71,.55); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #f4f1ea; margin-top: -8px; box-shadow: 0 2px 8px rgba(0,0,0,.5); border: 2px solid #ffb547; }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #f4f1ea; border: 2px solid #ffb547; }
+.tog { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 0; }
+.switch { width: 46px; height: 28px; border-radius: 14px; background: var(--panel3); position: relative; border: none; padding: 0; flex: none; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 11px; background: #fff; transition: left .15s; }
+.switch.on { background: var(--good); } .switch.on::after { left: 21px; }
+.meter { height: 8px; background: var(--panel3); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.meter i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4cc9f0, #ffb547, #f87171); transition: width .06s linear; }
+.callout { border-left: 3px solid var(--line2); padding: 10px 12px; border-radius: 4px 12px 12px 4px; background: rgba(255,255,255,0.03); margin: 12px 0; font-size: 15px; }
+.callout > b:first-child { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+.callout.phys { border-color: var(--accent2); } .callout.phys > b:first-child { color: var(--accent2); }
+.callout.inter { border-color: var(--accent); background: rgba(255,181,71,0.05); } .callout.inter > b:first-child { color: var(--accent); }
+.callout.listen { border-color: var(--good); } .callout.listen > b:first-child { color: var(--good); }
+.callout.warn { border-color: var(--bad); } .callout.warn > b:first-child { color: var(--bad); }
+.callout.big { border-color: var(--easy); } .callout.big > b:first-child { color: var(--easy); }
+.listen-in { font-size: 14px; color: #cfe9dc; margin-top: 10px; border-top: 1px dashed var(--line2); padding-top: 8px; }
+.listen-in b { color: var(--good); }
+.q .q-k { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--easy); font-weight: 700; }
+.q .q-text { font-weight: 600; margin: 4px 0 8px; }
+.opts button { display: block; width: 100%; text-align: left; margin: 6px 0; padding: 10px 12px; font-size: 15px; }
+.opts button.right { border-color: var(--good); background: rgba(52,211,153,.13); }
+.opts button.wrong { border-color: var(--bad); background: rgba(248,113,113,.12); }
+.why { font-size: 14.5px; color: #d5dae3; background: var(--bg2); border-radius: 12px; padding: 10px 12px; margin-top: 6px; }
+.hidden { display: none !important; }
+.earbtns { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 6px; }
+.chain { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+.chain .blk { padding: 7px 10px; border-radius: 10px; background: var(--panel2); border: 1px solid var(--line2); font-size: 13px; }
+.chain .blk.on { border-color: rgba(255,181,71,.6); color: #ffd79a; background: rgba(255,181,71,.1); }
+.chain .arr { color: var(--dim); font-size: 12px; }
+.menu { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.55); display: flex; justify-content: center; }
+.menu-in { width: 100%; max-width: 560px; margin: calc(env(safe-area-inset-top) + 20px) 12px 20px; background: var(--panel); border: 1px solid var(--line2); border-radius: 20px; padding: 14px; overflow-y: auto; max-height: calc(100dvh - 40px); }
+.menu-in .item { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; margin: 4px 0; padding: 10px 12px; }
+.menu-in .item .n { color: var(--dim); width: 22px; font-variant-numeric: tabular-nums; }
+.menu-in .item .t { flex: 1; } .menu-in .item .m { color: var(--muted); font-size: 12.5px; }
+.menu-in .item.cur { border-color: rgba(255,181,71,.6); }
+.menu-in .item .ok { color: var(--good); width: 16px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 540px) { .grid2 { grid-template-columns: 1fr; } }
+.card { background: var(--panel2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; font-size: 14.5px; }
+.card b { color: var(--accent); }
+.tag { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; padding: 1px 7px; border-radius: 6px; vertical-align: 1px; }
+.tag.fact { background: rgba(52,211,153,0.15); color: var(--good); } .tag.spec { background: rgba(139,156,255,0.15); color: var(--easy); }
+.src { font-size: 13px; color: var(--muted); }
+.src li { margin: 6px 0; }
+.score { font-size: 28px; font-weight: 800; }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; background: var(--panel3); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; vertical-align: middle; }
+.badge.fact { background: rgba(52,211,153,.15); color: var(--good); } .badge.claim { background: rgba(255,181,71,.15); color: var(--accent); } .badge.spec { background: rgba(139,156,255,.16); color: var(--easy); }
+.order-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.order-row .blk { cursor: pointer; }
+.order-row .blk.sel { outline: 2px solid var(--accent2); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="back" href="../index.html">‹ Guitar Cards</a>
+    <div class="ttl" id="ttl">Guitar Tone</div>
+    <button class="tbtn hidden stop" id="stopall" aria-label="Stop sound">■</button>
+    <button class="tbtn" id="mic" title="Play your own guitar through the chain">🎸 Mine</button>
+    <button class="tbtn" id="menubtn" aria-label="Chapters">☰</button>
+  </div>
+  <div class="prog"><i id="progbar"></i></div>
+</header>
+<main id="main"></main>
+<nav class="foot"><div class="foot-in">
+  <button id="prev">‹ Back</button>
+  <div class="mid" id="footmid"></div>
+  <button id="next" class="primary">Next ›</button>
+</div></nav>
+<div id="menu" class="menu hidden"><div class="menu-in" id="menuin"></div></div>
+
+<script>
+'use strict';
+/* ===================== utilities ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+const dB = (d) => Math.pow(10, d / 20);
+const softMin = (a, b) => -10 * Math.log10(Math.pow(10, -a / 10) + Math.pow(10, -b / 10));
+const clone = (o) => JSON.parse(JSON.stringify(o));
+function deepMerge(a, b) {
+  if (!b) return a;
+  for (const k of Object.keys(b)) {
+    if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && a[k] && typeof a[k] === 'object' && !Array.isArray(a[k])) deepMerge(a[k], b[k]);
+    else a[k] = Array.isArray(b[k]) ? b[k].slice() : b[k];
+  }
+  return a;
+}
+function setPath(o, path, v) { const ks = path.split('.'); let t = o; for (let i = 0; i < ks.length - 1; i++) t = t[ks[i]]; t[ks[ks.length - 1]] = v; }
+function getPath(o, path) { return path.split('.').reduce((t, k) => (t == null ? t : t[k]), o); }
+function mulberry(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const KEY = 'tonecourse.v1';
+const S = (() => { let s = {}; try { s = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { /* */ } return Object.assign({ ch: 0, done: {}, ans: {}, vol: 0.8, trim: 2 }, s); })();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* */ } }
+
+/* ===================== audio context + iOS unlock ===================== */
+let ctx = null;
+const AU = {};
+function audio() {
+  if (!ctx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    ctx = new AC({ latencyHint: 'interactive' });
+    buildGraph();
+  }
+  return ctx;
+}
+// iOS home-screen apps: a looping silent <audio> element puts the page in the "media playback" audio session,
+// so Web Audio isn't muted by the ring/silent switch.
+let keepAlive = null;
+function silentWavUrl() {
+  const sr = 8000, n = sr;
+  const buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+  const w = (o, str) => [...str].forEach((ch, i) => v.setUint8(o + i, ch.charCodeAt(0)));
+  w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+  for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+  return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+async function unlock() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* */ }
+  try {
+    if (!keepAlive) { keepAlive = new Audio(silentWavUrl()); keepAlive.loop = true; keepAlive.setAttribute('playsinline', ''); keepAlive.volume = 0.01; }
+    if (keepAlive.paused) keepAlive.play().catch(() => {});
+  } catch (e) { /* */ }
+  const c = audio();
+  if (c.state !== 'running') { try { await c.resume(); } catch (e) { /* */ } }
+  const b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0);
+}
+function setP(p, v, t = 0.03) {
+  const now = ctx.currentTime;
+  try { p.cancelScheduledValues(now); p.setValueAtTime(p.value, now); p.setTargetAtTime(v, now, t / 3); } catch (e) { p.value = v; }
+}
+function bq(type, f = 1000, Q = 0.707, g = 0) { const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = Q; b.gain.value = g; return b; }
+function gn(v = 1) { const g = ctx.createGain(); g.gain.value = v; return g; }
+function chainNodes(...ns) { for (let i = 0; i < ns.length - 1; i++) ns[i].connect(ns[i + 1]); return ns[ns.length - 1]; }
+function mkCurve(fn, R, n = 4096) { const a = new Float32Array(n); for (let i = 0; i < n; i++) { const u = (i / (n - 1)) * 2 - 1; a[i] = fn(u * R); } return a; }
+
+/* ===================== the guitar (Karplus–Strong string + pickup physics) ===================== */
+const TUN = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4, index 0 = low E
+const SCALE_MM = 648;
+const PICKUP_MM = { sc: { neck: 160, mid: 98, bridge: 41 }, p90: { neck: 152, mid: 98, bridge: 40 }, hb: { neck: 152, mid: 98, bridge: 40 } };
+function pickupTaps(type, d) {
+  if (type === 'p90') return [[d - 7, 0.25], [d - 2.5, 0.25], [d + 2.5, 0.25], [d + 7, 0.25]];
+  if (type === 'hb') return [[d - 11, 0.25], [d - 7, 0.25], [d + 7, 0.25], [d + 11, 0.25]];
+  return [[d - 3, 1 / 3], [d, 1 / 3], [d + 3, 1 / 3]];
+}
+function selectorTaps(g) {
+  if (g.pickup === 'none') return null;
+  const P = PICKUP_MM[g.type] || PICKUP_MM.sc;
+  const combos = { neck: ['neck'], nm: ['neck', 'mid'], mid: ['mid'], mb: ['mid', 'bridge'], bridge: ['bridge'], nb: ['neck', 'bridge'] };
+  const list = combos[g.pickup] || ['bridge'];
+  const taps = [];
+  list.forEach((name, i) => {
+    const sign = (i === 1 && g.phase === 'out') ? -1 : 1;
+    for (const [d, w] of pickupTaps(g.type, P[name])) taps.push([Math.max(4, d), (w * sign) / list.length]);
+  });
+  return taps;
+}
+function herm(xm1, x0, x1, x2, t) { const c = (x1 - xm1) * 0.5, v = x0 - x1, w = c + v, a = w + v + (x2 - x0) * 0.5, b = w + a; return ((((a * t) - b) * t + c) * t + x0); }
+function renderNote(no, g, sr, taps) {
+  const midi = TUN[no.s] + no.f, f0 = hz(midi), P0 = sr / f0, Ls = SCALE_MM * Math.pow(2, -no.f / 12);
+  const n = Math.ceil((no.d + 0.012) * sr);
+  const rnd = mulberry(no.seed);
+  const vel = clamp(no.v * g.dyn, 0.02, 1);
+  const hard = clamp(g.hard * 0.75 + vel * 0.35 - 0.1, 0, 1) * (no.mute ? 0.55 : 1);
+  const fc = 450 * Math.pow(26, hard), a = Math.exp(-2 * Math.PI * fc / sr);
+  const beta = clamp(g.pluck / Ls, 0.02, 0.5), bOff = Math.max(1, Math.round(beta * P0));
+  const exLen = Math.ceil(P0), ex = new Float32Array(exLen + bOff + 1);
+  let l1 = 0, l2 = 0, mean = 0;
+  for (let i = 0; i < exLen; i++) { const r = rnd() * 2 - 1; l1 = (1 - a) * r + a * l1; l2 = (1 - a) * l1 + a * l2; ex[i] = l2; mean += l2; }
+  mean /= exLen; let pk = 1e-9;
+  for (let i = 0; i < exLen; i++) { ex[i] -= mean; pk = Math.max(pk, Math.abs(ex[i])); }
+  const amp = Math.pow(vel, 1.25) / pk;
+  for (let i = 0; i < exLen; i++) ex[i] *= amp;
+  for (let i = ex.length - 1; i >= bOff; i--) ex[i] -= ex[i - bOff];
+  const fresh = g.strings !== 'dead';
+  const T60 = no.mute ? 0.1 + 0.09 * (1 - hard) : (fresh ? 5.5 : 2.4) * Math.pow(110 / f0, 0.55);
+  const gL = Math.pow(10, -3 / (T60 * f0));
+  const Sb = no.mute ? 0.5 : (fresh ? 0.2 : 0.42);
+  const L = 4096, dl = new Float32Array(L);
+  const str = new Float32Array(n), per = new Float32Array(n);
+  let w = 0, prev = 0;
+  const bend = no.bend;
+  for (let i = 0; i < n; i++) {
+    const P = bend ? P0 / Math.pow(2, bend(i / sr) / 12) : P0;
+    per[i] = P;
+    let rp = w - (P - Sb); if (rp < 0) rp += L;
+    const ip = rp | 0, fr = rp - ip;
+    const y = herm(dl[(ip - 1 + L) & 4095], dl[ip & 4095], dl[(ip + 1) & 4095], dl[(ip + 2) & 4095], fr);
+    const f = gL * ((1 - Sb) * y + Sb * prev); prev = y;
+    dl[w] = f + (i < ex.length ? ex[i] : 0);
+    str[i] = y;
+    w = (w + 1) & 4095;
+  }
+  const out = new Float32Array(n);
+  if (!taps) { // no pickup: the bare string, heard acoustically
+    for (let i = 0; i < n; i++) out[i] = str[i] * 2.4;
+  } else {
+    const K = sr / (2 * Math.PI * 900);
+    let lastY = 0;
+    for (let i = 0; i < n; i++) {
+      let y = 0;
+      for (let k = 0; k < taps.length; k++) {
+        const tau = (taps[k][0] / Ls) * per[i];
+        let j = i - tau; let s2 = 0;
+        if (j >= 0) { const ji = j | 0, jf = j - ji; s2 = str[ji] + (str[ji + 1 < n ? ji + 1 : ji] - str[ji]) * jf; }
+        y += taps[k][1] * (str[i] - s2);
+      }
+      out[i] = (y - lastY) * K; lastY = y; // magnetic pickups sense string velocity
+    }
+  }
+  const fade = Math.floor(0.008 * sr);
+  for (let i = 0; i < fade && i < n; i++) out[n - 1 - i] *= i / fade;
+  return out;
+}
+// phrases: n(beat, string, fret, durBeats, velocity, opts) / chord(beat, frets[6], dir, vel, durBeats, opts)
+const n = (b, s, f, d, v, o = {}) => Object.assign({ b, s, f, d, v }, o);
+const chd = (b, frets, dir, v, d, o = {}) => Object.assign({ b, frets, dir, v, d }, o);
+const vibUp = (start, depth = 0.22, rate = 5.4) => (t) => t > start ? depth * (1 - Math.cos(2 * Math.PI * rate * (t - start))) * 0.5 * Math.min(1, (t - start) / 0.35) : 0;
+const bendTo = (at, rise, semi, vibStart, vibDepth = 0.3, rate = 5.2) => (t) => {
+  let s = t < at ? 0 : t < at + rise ? semi * (1 - Math.cos(Math.PI * (t - at) / rise)) / 2 : semi;
+  if (vibStart != null && t > vibStart) s -= vibDepth * (1 - Math.cos(2 * Math.PI * rate * (t - vibStart))) * 0.5 * Math.min(1, (t - vibStart) / 0.4);
+  return s;
+};
+const GMAJ = [3, 2, 0, 0, 3, 3], CMAJ = [null, 3, 2, 0, 1, 0], DMAJ = [null, null, 0, 2, 3, 2], EMIN = [0, 2, 2, 0, 0, 0];
+const strumBar = (b0, fr) => [chd(b0, fr, 'd', 0.85, 4), chd(b0 + 1, fr, 'd', 0.7, 4), chd(b0 + 1.5, fr, 'u', 0.5, 4), chd(b0 + 2.5, fr, 'u', 0.55, 4), chd(b0 + 3, fr, 'd', 0.72, 4), chd(b0 + 3.5, fr, 'u', 0.5, 4)];
+const E5 = [0, 2, 2], G5 = [3, 5, 5], A5 = [5, 7, 7], D5 = [null, 5, 7, 7], C5 = [null, 3, 5, 5];
+const M = (b, fr) => chd(b, fr, 'd', 0.75, 0.5, { mute: true });
+const O = (b, fr, v = 0.95, d = 1) => chd(b, fr, 'd', v, d);
+const PHRASES = {
+  lick: { name: 'Blues lick', bpm: 96, beats: 8, ev: [n(0, 5, 8, .5, .8), n(.5, 5, 5, .5, .7), n(1, 4, 8, .5, .75), n(1.5, 4, 5, .5, .7), n(2, 3, 7, 1, .85, { bend: bendTo(0.05, 0.16, 2, 0.32, 0.25) }), n(3, 3, 5, .5, .7), n(3.5, 2, 7, .5, .75), n(4, 2, 5, .5, .7), n(4.5, 1, 7, .5, .75), n(5, 2, 5, .5, .7), n(5.5, 2, 7, 2.5, .85, { bend: vibUp(0.35, 0.25) })] },
+  chords: { name: 'Open chords', bpm: 100, beats: 16, ev: [...strumBar(0, GMAJ), ...strumBar(4, CMAJ), ...strumBar(8, DMAJ), ...strumBar(12, EMIN)] },
+  chug: { name: 'Palm-mute chug', bpm: 112, beats: 8, ev: [O(0, E5), M(.5, E5), M(1, E5), M(1.5, E5), M(2, E5), M(2.5, E5), O(3, G5, .9, .5), O(3.5, A5, .9, .5), O(4, E5), M(4.5, E5), M(5, E5), M(5.5, E5), M(6, E5), O(6.5, D5, .9, .5), O(7, C5, .9, .5), M(7.5, E5)] },
+  lead: { name: 'Sustained bend', bpm: 80, beats: 8, ev: [n(0, 3, 7, 3.6, .9, { bend: bendTo(0.06, 0.18, 2, 0.6, 0.35) }), n(4, 4, 5, .5, .8), n(4.5, 4, 8, .5, .8), n(5, 5, 5, 3, .9, { bend: vibUp(0.3, 0.32) })] },
+  arp: { name: 'Clean arpeggio', bpm: 88, beats: 8, ev: [[1, 3], [2, 2], [3, 0], [4, 0], [5, 0], [4, 0], [3, 0], [2, 2], [1, 0], [2, 2], [3, 0], [4, 1], [5, 0], [4, 1], [3, 0], [2, 2]].map(([s, f], i) => n(i * 0.5, s, f, 4, 0.62 + (i % 4 === 0 ? 0.15 : 0))) },
+  dyn: { name: 'Soft → hard', bpm: 92, beats: 8, ev: [0, 1, 2, 3, 4, 5, 6, 7].map((b) => chd(b, [null, 0, 2, 2], 'd', 0.08 + 0.92 * Math.pow(b / 7, 1.6), 1)) },
+  power: { name: 'Power chord', bpm: 80, beats: 8, ev: [chd(0, A5, 'd', 0.9, 4), chd(4, A5, 'd', 0.9, 4)] },
+  third: { name: 'Root + major 3rd', bpm: 80, beats: 8, ev: [chd(0, [5, 4], 'd', 0.9, 4), chd(4, [5, 4], 'd', 0.9, 4)] },
+  major: { name: 'Full major barre', bpm: 80, beats: 8, ev: [chd(0, [5, 7, 7, 6, 5, 5], 'd', 0.9, 4), chd(4, [5, 7, 7, 6, 5, 5], 'd', 0.9, 4)] },
+};
+function compilePhrase(P) {
+  const spb = 60 / P.bpm, notes = [];
+  let seed = 1;
+  for (const e of P.ev) {
+    if (e.frets) {
+      const strs = e.frets.map((f, s) => (f == null ? null : s)).filter((s) => s != null);
+      const order = e.dir === 'u' ? strs.filter((s) => s >= 2).reverse() : strs;
+      const spread = (e.dir === 'u' ? 0.007 : 0.011) * (1.25 - e.v * 0.5);
+      order.forEach((s, k) => { const jitter = 0.92 + 0.16 * mulberry(seed * 7 + k)(); notes.push({ t: e.b * spb + k * spread, s, f: e.frets[s], d: e.d * spb, v: e.v * jitter * (e.dir === 'u' ? 0.85 : 1), mute: !!e.mute, seed: seed * 31 + k }); });
+    } else notes.push({ t: e.b * spb, s: e.s, f: e.f, d: e.d * spb, v: e.v, mute: !!e.mute, bend: e.bend, seed: seed * 31 });
+    seed++;
+  }
+  notes.sort((a, b) => a.t - b.t);
+  for (let i = 0; i < notes.length; i++) {
+    const no = notes[i];
+    for (let j = i + 1; j < notes.length; j++) if (notes[j].s === no.s) { no.d = Math.min(no.d, notes[j].t - no.t); break; }
+    if (no.mute) no.d = Math.min(no.d, 0.4);
+  }
+  return { notes, loopS: P.beats * spb };
+}
+const bufCache = new Map();
+const SYNTH_KEYS = ['pickup', 'type', 'phase', 'pluck', 'hard', 'dyn', 'strings'];
+function phraseBuffer(name, g) {
+  const key = name + '|' + SYNTH_KEYS.map((k) => g[k]).join('|');
+  if (bufCache.has(key)) return bufCache.get(key);
+  const sr = ctx.sampleRate, P = PHRASES[name], { notes, loopS } = compilePhrase(P);
+  const taps = selectorTaps(g);
+  const Ln = Math.round(loopS * sr), total = Ln + Math.ceil(3 * sr);
+  const mix = new Float32Array(total);
+  for (const no of notes) {
+    const y = renderNote(no, g, sr, taps), off = Math.round(no.t * sr);
+    for (let i = 0; i < y.length && off + i < total; i++) mix[off + i] += y[i];
+  }
+  const buf = ctx.createBuffer(1, Ln, sr), d = buf.getChannelData(0);
+  for (let i = 0; i < total; i++) d[i % Ln] += mix[i]; // fold the ringing tail into the start: seamless loop
+  const scale = 0.11;
+  for (let i = 0; i < Ln; i++) d[i] *= scale;
+  if (bufCache.size > 24) bufCache.delete(bufCache.keys().next().value);
+  bufCache.set(key, buf);
+  return buf;
+}
+
+/* ===================== player ===================== */
+const PL = { playing: false, phrase: 'lick', src: null, gain: null, buf: null, t0: 0, listeners: new Set(), timer: 0 };
+function emitPlay() { PL.listeners.forEach((f) => f()); $('#stopall').classList.toggle('hidden', !PL.playing && !AU.customOn); bumpIdle(); }
+function startSource(buf, offset) {
+  const s = ctx.createBufferSource(), g = gn(0);
+  s.buffer = buf; s.loop = true; s.connect(g).connect(AU.srcBus);
+  const now = ctx.currentTime;
+  g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(1, now + 0.02);
+  s.start(now, offset % buf.duration);
+  if (PL.src) { const os = PL.src, og = PL.gain; og.gain.cancelScheduledValues(now); og.gain.setValueAtTime(og.gain.value, now); og.gain.linearRampToValueAtTime(0, now + 0.03); try { os.stop(now + 0.05); } catch (e) { /* */ } }
+  PL.src = s; PL.gain = g; PL.buf = buf; PL.t0 = now - (offset % buf.duration);
+}
+async function play(name) {
+  await unlock();
+  stopCustom();
+  PL.phrase = name;
+  const buf = phraseBuffer(name, rig.cfg.guitar);
+  startSource(buf, 0);
+  PL.playing = true; emitPlay();
+}
+function refreshSource() {
+  if (!PL.playing) return;
+  clearTimeout(PL.timer);
+  PL.timer = setTimeout(() => {
+    const buf = phraseBuffer(PL.phrase, rig.cfg.guitar);
+    if (buf !== PL.buf) startSource(buf, ctx.currentTime - PL.t0);
+  }, 90);
+}
+function stop() {
+  if (PL.src && ctx) { const now = ctx.currentTime; PL.gain.gain.cancelScheduledValues(now); PL.gain.gain.setValueAtTime(PL.gain.gain.value, now); PL.gain.gain.linearRampToValueAtTime(0, now + 0.06); try { PL.src.stop(now + 0.08); } catch (e) { /* */ } }
+  PL.src = null; PL.playing = false; emitPlay();
+}
+// custom sources (sine lab etc.) register a stopper
+let customStop = null;
+function setCustom(stopFn) { stopCustom(); customStop = stopFn; AU.customOn = true; emitPlay(); }
+function stopCustom() { if (customStop) { const f = customStop; customStop = null; try { f(); } catch (e) { /* */ } } AU.customOn = false; }
+function stopAll() { stop(); stopCustom(); emitPlay(); }
+// demo loops stop by themselves after 30 s without any interaction, so nothing drones on unattended
+let idleT = 0;
+function bumpIdle() { clearTimeout(idleT); if (PL.playing || AU.customOn) idleT = setTimeout(stopAll, 30000); }
+['pointerdown', 'input', 'keydown'].forEach((ev) => document.addEventListener(ev, bumpIdle, true));
+
+/* ===================== effect blocks ===================== */
+function wrap(name, coreIn, coreOut, set) {
+  const b = { name, in: gn(1), out: gn(1), dry: gn(1), wet: gn(0), set, on: false, coreIn, linked: false, t: 0 };
+  b.in.connect(b.dry).connect(b.out); coreOut.connect(b.wet).connect(b.out);
+  b.setOn = (on) => {
+    if (on === b.on) return; b.on = on;
+    clearTimeout(b.t);
+    if (on && !b.linked) { b.in.connect(coreIn); b.linked = true; }
+    setP(b.wet.gain, on ? 1 : 0, 0.025); setP(b.dry.gain, on ? 0 : 1, 0.025);
+    if (!on) b.t = setTimeout(() => { if (!b.on && b.linked) { try { b.in.disconnect(coreIn); } catch (e) { /* */ } b.linked = false; } }, name === 'reverb' || name === 'delay' ? 6000 : 300);
+  };
+  return b;
+}
+// --- compressor
+function makeComp() {
+  const inp = gn(), out = gn(), comp = ctx.createDynamicsCompressor(), mk = gn(1), wet = gn(1), dry = gn(0);
+  chainNodes(inp, comp, mk, wet, out); inp.connect(dry).connect(out);
+  const b = wrap('comp', inp, out, (p) => {
+    comp.threshold.value = p.thr; comp.ratio.value = p.ratio; comp.attack.value = p.att / 1000; comp.release.value = p.rel / 1000; comp.knee.value = p.knee;
+    setP(mk.gain, dB(p.makeup)); setP(wet.gain, p.blend); setP(dry.gain, 1 - p.blend);
+  });
+  b.node = comp; return b;
+}
+// --- drive pedals
+const R_DRV = 10;
+const CURVES = {
+  soft: (v) => Math.tanh(v),
+  diode: (v) => v / Math.pow(1 + Math.pow(Math.abs(v), 2.5), 1 / 2.5),
+  hard: (v) => 0.9 * v / Math.pow(1 + Math.pow(Math.abs(v), 7), 1 / 7),
+  germ: (v) => v >= 0 ? v / Math.pow(1 + Math.pow(v, 4), 0.25) : 0.8 * Math.tanh(v / 0.8),
+  muff: (v) => Math.tanh(3.2 * Math.tanh(v * 1.1)) / Math.tanh(3.2),
+  fuzz: (v, bias = 0) => { const dz = bias * 0.6; const u = Math.sign(v) * Math.max(0, Math.abs(v) - dz); return u >= 0 ? 0.75 * Math.tanh(u * 1.6) : Math.tanh(u * 0.55) * 1.05; },
+};
+const DRIVES = {
+  boost: { name: 'Clean boost', curve: 'soft', preHP: 35, gain: (g) => 1 + g * 7, clean: () => 0, trim: (d) => 0.8 * Math.pow(d, -0.5) },
+  ts: { name: 'Tube Screamer-style', curve: 'diode', preHP: 720, gain: (g) => 3 + g * g * 120, clean: () => 1, trim: (d) => 0.33 * Math.pow(d, -0.19) },
+  klon: { name: 'Klon-style (transparent)', curve: 'germ', preHP: 220, gain: (g) => 2 + g * g * 70, clean: (g) => 0.15 + 0.9 * Math.pow(1 - g, 1.5), trim: (d) => 0.58 * Math.pow(d, -0.35) },
+  rat: { name: 'Rat-style distortion', curve: 'hard', preHP: 90, gain: (g) => 3 + g * g * 450, clean: () => 0, trim: (d) => 0.277 * Math.pow(d, -0.12) },
+  muff: { name: 'Big Muff-style fuzz', curve: 'muff', preHP: 110, gain: (g) => 20 + g * g * 500, clean: () => 0, trim: () => 0.166 },
+  fuzz: { name: 'Fuzz Face-style', curve: 'fuzz', preHP: 25, gain: (g) => 6 + g * g * 260, clean: () => 0, trim: (d) => 0.476 * Math.pow(d, -0.24) },
+};
+function makeDrive(name) {
+  const inp = gn(), out = gn();
+  const preHP = bq('highpass', 720, 0.5), pre = gn(1), sh = ctx.createWaveShaper(); sh.oversample = '4x';
+  const join = gn(1), dc = bq('highpass', 20, 0.7), lp = bq('lowpass', 8000, 0.6), scoop = bq('peaking', 950, 0.6, 0), lo = bq('lowshelf', 250, 0.7, 0), hi = bq('highshelf', 2200, 0.7, 0), lvl = gn(0.5), clean = gn(0);
+  chainNodes(inp, preHP, pre, sh, join, dc, lp, scoop, lo, hi, lvl, out); inp.connect(clean).connect(join);
+  let last = '';
+  const b = wrap(name, inp, out, (p) => {
+    const T = DRIVES[p.type] || DRIVES.ts;
+    const ck = p.type + '|' + (p.type === 'fuzz' ? p.bias : 0);
+    if (ck !== last) { last = ck; sh.curve = mkCurve((v) => CURVES[T.curve](v, p.bias), R_DRV); }
+    const d = T.gain(p.gain);
+    setP(preHP.frequency, T.preHP); setP(pre.gain, d / R_DRV); setP(clean.gain, T.clean(p.gain));
+    const tone = p.tone;
+    let f = 12000, sc = 0, lg = 0, hg = 0;
+    if (p.type === 'ts') f = 700 * Math.pow(9, tone);
+    else if (p.type === 'klon') { f = 9000; hg = (tone - 0.5) * 18; }
+    else if (p.type === 'rat') f = 600 * Math.pow(22, tone);
+    else if (p.type === 'muff') { f = 7000; sc = -9; lg = (0.5 - tone) * 16; hg = (tone - 0.5) * 16; }
+    else if (p.type === 'fuzz') f = 3500 * Math.pow(2.6, tone);
+    else f = 9000 * Math.pow(2, tone);
+    setP(lp.frequency, Math.min(f, 20000)); setP(scoop.gain, sc); setP(lo.gain, lg); setP(hi.gain, hg);
+    setP(lvl.gain, p.level * 2 * T.trim(d)); // trims fitted so level 5 is roughly loudness-matched to bypass
+  });
+  b.shaper = sh; return b;
+}
+// --- the amp: preamp stages, real FMV tone stack, power amp with sag
+const STACKS = { fender: { C1: 250e-12, C2: 20e-9, C3: 20e-9, R1: 250e3, R2: 1e6, R3: 25e3, R4: 56e3 }, marshall: { C1: 470e-12, C2: 22e-9, C3: 22e-9, R1: 220e3, R2: 1e6, R3: 25e3, R4: 33e3 } };
+function toneStackS(model, bass, m, t) {
+  const { C1, C2, C3, R1, R2, R3, R4 } = STACKS[model]; const l = Math.exp((bass - 1) * 3.4);
+  const b1 = t * C1 * R1 + m * C3 * R3 + l * (C1 * R2 + C2 * R2) + (C1 * R3 + C2 * R3);
+  const b2 = t * (C1 * C2 * R1 * R4 + C1 * C3 * R1 * R4) - m * m * (C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + m * (C1 * C3 * R1 * R3 + C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * (C1 * C2 * R1 * R2 + C1 * C2 * R2 * R4 + C1 * C3 * R2 * R4) + l * m * (C1 * C3 * R2 * R3 + C2 * C3 * R2 * R3) + (C1 * C2 * R1 * R3 + C1 * C2 * R3 * R4 + C1 * C3 * R3 * R4);
+  const b3 = l * m * (C1 * C2 * C3 * R1 * R2 * R3 + C1 * C2 * C3 * R2 * R3 * R4) - m * m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + t * C1 * C2 * C3 * R1 * R3 * R4 - t * m * C1 * C2 * C3 * R1 * R3 * R4 + t * l * C1 * C2 * C3 * R1 * R2 * R4;
+  const a1 = (C1 * R1 + C1 * R3 + C2 * R3 + C2 * R4 + C3 * R4) + m * C3 * R3 + l * (C1 * R2 + C2 * R2);
+  const a2 = m * (C1 * C3 * R1 * R3 - C2 * C3 * R3 * R4 + C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * m * (C1 * C3 * R2 * R3 + C2 * C3 * R2 * R3) - m * m * (C1 * C3 * R3 * R3 + C2 * C3 * R3 * R3) + l * (C1 * C2 * R2 * R4 + C1 * C2 * R1 * R2 + C1 * C3 * R2 * R4 + C2 * C3 * R2 * R4) + (C1 * C2 * R1 * R4 + C1 * C3 * R1 * R4 + C1 * C2 * R3 * R4 + C1 * C2 * R1 * R3 + C1 * C3 * R3 * R4 + C2 * C3 * R3 * R4);
+  const a3 = l * m * (C1 * C2 * C3 * R1 * R2 * R3 + C1 * C2 * C3 * R2 * R3 * R4) - m * m * (C1 * C2 * C3 * R1 * R3 * R3 + C1 * C2 * C3 * R3 * R3 * R4) + m * (C1 * C2 * C3 * R3 * R3 * R4 + C1 * C2 * C3 * R1 * R3 * R3 - C1 * C2 * C3 * R1 * R3 * R4) + l * C1 * C2 * C3 * R1 * R2 * R4 + C1 * C2 * C3 * R1 * R3 * R4;
+  return { B: [0, b1, b2, b3], A: [1, a1, a2, a3] };
+}
+function polyMul(a, b) { const r = new Array(a.length + b.length - 1).fill(0); a.forEach((x, i) => b.forEach((y, j) => { r[i + j] += x * y; })); return r; }
+function polyPow(p, k) { let r = [1]; for (let i = 0; i < k; i++) r = polyMul(r, p); return r; }
+function bilinear3({ B, A }, fs) {
+  const c = 2 * fs, num = [0, 0, 0, 0], den = [0, 0, 0, 0];
+  for (let k = 0; k <= 3; k++) { const p = polyMul(polyPow([1, -1], k), polyPow([1, 1], 3 - k)); for (let i = 0; i < 4; i++) { num[i] += B[k] * Math.pow(c, k) * p[i]; den[i] += A[k] * Math.pow(c, k) * p[i]; } }
+  return { ff: num.map((x) => x / den[0]), fb: den.map((x) => x / den[0]) };
+}
+function sMagDb({ B, A }, f) {
+  const w = 2 * Math.PI * f; let nr = 0, ni = 0, dr = 0, di = 0;
+  const re = [1, 0, -1, 0], im = [0, 1, 0, -1];
+  for (let k = 0; k < 4; k++) { const wk = Math.pow(w, k); nr += B[k] * re[k] * wk; ni += B[k] * im[k] * wk; dr += A[k] * re[k] * wk; di += A[k] * im[k] * wk; }
+  return 10 * Math.log10((nr * nr + ni * ni) / (dr * dr + di * di) + 1e-20);
+}
+const AMPS = {
+  fender: { name: 'American clean (blackface-style)', stack: 'fender', pre: 14, tight: 60, bright: 3, mid: null, power: 'pp', presF: 4000, cut: 9000 },
+  vox: { name: 'British chime (AC30-style)', stack: 'marshall', pre: 45, tight: 90, bright: 2, mid: 0.55, power: 'classA', presF: 2600, cut: 7500 },
+  marshall: { name: 'British crunch (Plexi-style)', stack: 'marshall', pre: 110, tight: 110, bright: 2, mid: null, power: 'pp', presF: 3500, cut: 7000 },
+  modern: { name: 'Modern high-gain', stack: 'marshall', pre: 900, tight: 200, bright: 0, mid: null, power: 'pp', presF: 3500, cut: 6500 },
+};
+const AMP_CURVES = {
+  triode: (v) => v >= 0 ? v / Math.pow(1 + Math.pow(v / 0.9, 4), 0.25) : 1.25 * Math.tanh(v / 1.25),
+  pp: (v) => v / Math.pow(1 + Math.pow(Math.abs(v), 2.4), 1 / 2.4),
+  classA: (v) => v >= 0 ? Math.tanh(v) : 1.3 * Math.tanh(v / 1.3),
+};
+function makeAmp() {
+  const inp = gn(), out = gn();
+  const inHP = bq('highpass', 70, 0.6), bright = bq('highshelf', 2200, 0.7, 3), g1 = gn(0.2), sh1 = ctx.createWaveShaper(), hp2 = bq('highpass', 60, 0.6), g2 = gn(1), sh2 = ctx.createWaveShaper();
+  sh1.oversample = sh2.oversample = '4x'; sh1.curve = sh2.curve = mkCurve(AMP_CURVES.triode, 6);
+  const preStack = gn(1), mk = gn(3.2), mv = gn(0.3), sag = ctx.createDynamicsCompressor(), shP = ctx.createWaveShaper(); shP.oversample = '4x';
+  const pres = bq('highshelf', 3500, 0.7, 0), depth = bq('peaking', 105, 1.1, 0), cut = bq('lowpass', 9000, 0.6), lvl = gn(0.6);
+  sag.knee.value = 10; sag.attack.value = 0.015; sag.release.value = 0.25;
+  chainNodes(inp, inHP, bright, g1, sh1, hp2, g2, sh2, preStack);
+  chainNodes(mk, mv, sag, shP, pres, depth, cut, lvl, out);
+  const slots = [{ g: gn(0), f: null }, { g: gn(0), f: null }]; let cur = 0, lastStack = '', stTimer = 0, lastPower = '';
+  slots.forEach((s) => s.g.connect(mk));
+  function rebuild(model, b, m, t) {
+    const { ff, fb } = bilinear3(toneStackS(model, b, m, t), ctx.sampleRate);
+    let f; try { f = ctx.createIIRFilter(ff, fb); } catch (e) { return; }
+    const nx = 1 - cur, s = slots[nx];
+    if (s.f) { try { preStack.disconnect(s.f); s.f.disconnect(); } catch (e) { /* */ } }
+    s.f = f; preStack.connect(f); f.connect(s.g);
+    setP(s.g.gain, 1, 0.04); setP(slots[cur].g.gain, 0, 0.04); cur = nx;
+  }
+  const b = wrap('amp', inp, out, (p) => {
+    const A = AMPS[p.model] || AMPS.fender;
+    const D = 1 + Math.pow(p.gain, 2.2) * A.pre;
+    setP(g1.gain, Math.pow(D, 0.55) * 1.1 / 6); setP(g2.gain, Math.pow(D, 0.45) / 6);
+    setP(hp2.frequency, A.tight); setP(bright.gain, A.bright * (1 - p.gain));
+    const mid = A.mid != null ? A.mid : p.mid;
+    const key = A.stack + [p.bass, mid, p.treble].map((x) => x.toFixed(3)).join(',');
+    if (key !== lastStack) { lastStack = key; clearTimeout(stTimer); stTimer = setTimeout(() => rebuild(A.stack, p.bass, mid, p.treble), 25); }
+    if (A.power !== lastPower) { lastPower = A.power; shP.curve = mkCurve(AMP_CURVES[A.power], 4); }
+    const pd = 0.25 + Math.pow(p.master, 2) * 6;
+    setP(mv.gain, pd / 4);
+    sag.threshold.value = -6 - p.sag * 26; sag.ratio.value = 1 + p.sag * 5;
+    setP(pres.frequency, A.presF); setP(pres.gain, (p.presence - 0.4) * 14); setP(depth.gain, p.depth * 10); setP(cut.frequency, A.cut);
+    // estimate the stage levels (dB RMS) so the output stays roughly level-matched as gain and master move
+    const pre = softMin(-21 + 20 * Math.log10(D), -2), post = softMin(pre + 20 * Math.log10(pd) + 3, -1);
+    setP(lvl.gain, dB(-19 - post) * p.level / 0.6);
+  });
+  b.dbg = { bright, sh1, sh2, preStack, mk, mv, sag, shP, cut, lvl, slots };
+  b.stackResp = (p) => { const A = AMPS[p.model] || AMPS.fender; return toneStackS(A.stack, p.bass, A.mid != null ? A.mid : p.mid, p.treble); };
+  return b;
+}
+// --- speaker cabinet + microphone
+const CABS = {
+  none: null,
+  '1x8': { name: 'Small 1×8 practice', hp: 160, res: 190, resG: 3, resQ: 1.4, box: 900, boxG: 3, brk: 1500, brkG: 3, lp: 3800 },
+  '1x12': { name: '1×12 open back', hp: 85, res: 110, resG: 3, resQ: 1.2, box: 450, boxG: -1, brk: 2600, brkG: 4, lp: 5600 },
+  '2x12': { name: '2×12 open back', hp: 78, res: 100, resG: 4, resQ: 1.3, box: 450, boxG: -2, brk: 2400, brkG: 4, lp: 5200 },
+  '4x12': { name: '4×12 closed back', hp: 68, res: 95, resG: 6.5, resQ: 1.8, box: 500, boxG: -3.5, brk: 2200, brkG: 3, lp: 4600 },
+};
+function makeCab() {
+  const inp = gn(), out = gn();
+  const hp = bq('highpass', 80, 0.7), res = bq('peaking', 100, 1.3, 0), box = bq('peaking', 450, 1, 0), brk = bq('peaking', 2500, 1.4, 0), lp1 = bq('lowpass', 5000, 0.7), lp2 = bq('lowpass', 5000, 1.0), notch = bq('peaking', 7500, 3, 0), prox = bq('lowshelf', 220, 0.7, 0), dry = gn(1);
+  chainNodes(inp, hp, res, box, brk, lp1, lp2, notch, prox, dry, out);
+  // room sound for distant mics
+  const room = ctx.createConvolver(), roomG = gn(0);
+  prox.connect(roomG).connect(room).connect(out);
+  let roomMade = false;
+  const b = wrap('cab', inp, out, (p) => {
+    const T = CABS[p.type];
+    if (!T) { setP(hp.frequency, 20); setP(res.gain, 0); setP(box.gain, 0); setP(brk.gain, 0); setP(lp1.frequency, 20000); setP(lp2.frequency, 20000); setP(notch.gain, 0); setP(prox.gain, 0); setP(roomG.gain, 0); setP(dry.gain, 1); return; }
+    if (!roomMade) { room.buffer = genIR('room', 0.5); roomMade = true; }
+    const m = p.mic, dist = p.dist;
+    setP(hp.frequency, T.hp); setP(res.frequency, T.res); setP(res.gain, T.resG); res.Q.value = T.resQ;
+    setP(box.frequency, T.box); setP(box.gain, T.boxG);
+    setP(brk.frequency, T.brk * (1 - 0.35 * m)); setP(brk.gain, T.brkG * (1.3 - m) - dist * 2);
+    const lpF = T.lp * Math.pow(0.5, m) * (1 - 0.25 * dist);
+    setP(lp1.frequency, lpF); setP(lp2.frequency, lpF * 1.08);
+    setP(notch.gain, -5 * (1 - m)); setP(prox.gain, (1 - dist) * 6 - 2);
+    setP(dry.gain, 0.55 * (1 - 0.5 * dist)); setP(roomG.gain, dist * 0.6);
+  });
+  b.nodes = [hp, res, box, brk, lp1, lp2, notch, prox];
+  return b;
+}
+// --- graphic EQ
+const EQF = [80, 160, 320, 640, 1250, 2500, 5000];
+function makeEQ() {
+  const inp = gn(), out = gn();
+  const hp = bq('highpass', 20, 0.7), lp = bq('lowpass', 20000, 0.7), bands = EQF.map((f) => bq('peaking', f, 1.4, 0));
+  chainNodes(inp, hp, ...bands, lp, out);
+  const b = wrap('eq', inp, out, (p) => { bands.forEach((bd, i) => setP(bd.gain, p.b[i] || 0)); setP(hp.frequency, p.hp); setP(lp.frequency, p.lp); if (p.sweep) { /* handled by sweep */ } });
+  b.nodes = [hp, ...bands, lp];
+  return b;
+}
+// --- wah / auto-wah / envelope filter
+function makeWah() {
+  const inp = gn(), out = gn();
+  const f = bq('bandpass', 380, 5), wet = gn(1.9), dry = gn(0.16);
+  inp.connect(f).connect(wet).connect(out); inp.connect(dry).connect(out);
+  const lfo = ctx.createOscillator(); lfo.type = 'triangle'; const lfoG = gn(0); lfo.connect(lfoG).connect(f.detune); lfo.start();
+  const abs = ctx.createWaveShaper(); abs.curve = mkCurve((v) => Math.abs(v), 1, 1025);
+  const s1 = bq('lowpass', 14, 0.6), s2 = bq('lowpass', 14, 0.6), envG = gn(0);
+  chainNodes(inp, abs, s1, s2, envG); envG.connect(f.detune);
+  const b = wrap('wah', inp, out, (p) => {
+    setP(f.Q, p.q);
+    if (p.mode === 'manual') { setP(f.detune, p.pos * 3300, 0.04); setP(lfoG.gain, 0); setP(envG.gain, 0); }
+    else if (p.mode === 'auto') { setP(f.detune, 1650); setP(lfoG.gain, 1500); setP(lfo.frequency, 0.3 * Math.pow(20, p.rate)); setP(envG.gain, 0); }
+    else { setP(f.detune, 0); setP(lfoG.gain, 0); setP(envG.gain, 2000 + p.sens * 30000); }
+  });
+  b.filter = f; return b;
+}
+// --- modulation
+function makeMod() {
+  const inp = gn(), out = gn(), dry = gn(1);
+  inp.connect(dry).connect(out);
+  const lfo = ctx.createOscillator(); lfo.frequency.value = 1; lfo.start();
+  const lfoS = bq('lowpass', 40, 0.7); lfo.connect(lfoS); // smoothing for square-wave tremolo
+  const inv = gn(-1); lfoS.connect(inv);
+  // delay-line effects (chorus / flanger / vibrato), stereo
+  const dIn = gn(0), dL = ctx.createDelay(0.05), dR = ctx.createDelay(0.05), depL = gn(0), depRp = gn(0), depRn = gn(0);
+  lfoS.connect(depL).connect(dL.delayTime); lfoS.connect(depRp).connect(dR.delayTime); inv.connect(depRn).connect(dR.delayTime);
+  const fbL = gn(0), fbR = gn(0), fLP = bq('lowpass', 7000), fLP2 = bq('lowpass', 7000);
+  inp.connect(dIn); dIn.connect(dL); dIn.connect(dR);
+  dL.connect(fLP).connect(fbL).connect(dL); dR.connect(fLP2).connect(fbR).connect(dR);
+  const mrg = ctx.createChannelMerger(2), dWet = gn(0); dL.connect(mrg, 0, 0); dR.connect(mrg, 0, 1); mrg.connect(dWet).connect(out);
+  // allpass chain (phaser / uni-vibe)
+  const apIn = gn(0), ap = [0, 1, 2, 3, 4, 5].map(() => bq('allpass', 400, 0.5)), apDep = gn(0), ap4 = gn(0), ap6 = gn(0);
+  inp.connect(apIn); chainNodes(apIn, ...ap); ap[3].connect(ap4).connect(out); ap[5].connect(ap6).connect(out);
+  lfoS.connect(apDep); ap.forEach((a) => apDep.connect(a.detune));
+  // tremolo
+  const trIn = gn(0), trG = gn(1), trDep = gn(0); inp.connect(trIn).connect(trG).connect(out); lfoS.connect(trDep).connect(trG.gain);
+  // harmonic tremolo: lows and highs pulse in opposition
+  const hIn = gn(0), hLo = bq('lowpass', 700, 0.6), hHi = bq('highpass', 700, 0.6), gLo = gn(0.5), gHi = gn(0.5), hDp = gn(0), hDn = gn(0);
+  inp.connect(hIn); hIn.connect(hLo).connect(gLo).connect(out); hIn.connect(hHi).connect(gHi).connect(out);
+  lfoS.connect(hDp).connect(gLo.gain); inv.connect(hDn).connect(gHi.gain);
+  const ALL = [dIn, dWet, apIn, ap4, ap6, trIn, hIn, depL, depRp, depRn, apDep, trDep, hDp, hDn, fbL, fbR];
+  const b = wrap('mod', inp, out, (p) => {
+    const r = (lo, hi) => lo * Math.pow(hi / lo, p.rate);
+    const set = (node, v) => setP(node.gain, v, 0.04);
+    ALL.forEach((x) => set(x, 0));
+    let dryV = 1;
+    lfo.type = p.type === 'tremolo' && p.shape === 'square' ? 'square' : (p.type === 'univibe' ? 'triangle' : 'sine');
+    lfoS.frequency.value = p.type === 'tremolo' ? 30 : 200;
+    if (p.type === 'chorus') { setP(lfo.frequency, r(0.15, 3)); dL.delayTime.value = dR.delayTime.value = 0.014; set(dIn, 1); set(dWet, p.mix); set(depL, 0.0045 * p.depth); set(depRn, 0.0045 * p.depth); }
+    else if (p.type === 'vibrato') { setP(lfo.frequency, r(1, 9)); dL.delayTime.value = dR.delayTime.value = 0.007; set(dIn, 1); set(dWet, 1); set(depL, 0.0035 * p.depth); set(depRp, 0.0035 * p.depth); dryV = 0; }
+    else if (p.type === 'flanger') { setP(lfo.frequency, r(0.05, 2)); dL.delayTime.value = dR.delayTime.value = 0.0046; set(dIn, 1); set(dWet, p.mix); set(depL, 0.0018 * p.depth); set(depRp, 0.0018 * p.depth); set(fbL, p.fb); set(fbR, p.fb); }
+    else if (p.type === 'phaser' || p.type === 'univibe') {
+      const vibe = p.type === 'univibe';
+      setP(lfo.frequency, vibe ? r(0.6, 9) : r(0.1, 6));
+      const base = vibe ? [90, 260, 700, 1700] : [300, 300, 300, 300, 300, 300];
+      ap.forEach((a, i) => { a.frequency.value = base[i % base.length] || 300; a.Q.value = vibe ? 0.4 : 0.6; });
+      set(apIn, 1); set(vibe ? ap4 : (p.stages === 6 ? ap6 : ap4), p.mix); set(apDep, (vibe ? 1500 : 2600) * p.depth);
+      if (vibe) { set(trIn, 0); }
+    }
+    else if (p.type === 'tremolo') { setP(lfo.frequency, r(1.5, 12)); set(trIn, 1); trG.gain.value = 1 - p.depth * 0.5; set(trDep, p.depth * 0.5); dryV = 0; }
+    else if (p.type === 'harmtrem') { setP(lfo.frequency, r(1.5, 10)); set(hIn, 1); gLo.gain.value = gHi.gain.value = 0.5; set(hDp, p.depth * 0.5); set(hDn, p.depth * 0.5); dryV = 0; }
+    set(dry, dryV);
+  });
+  return b;
+}
+// --- delay
+function makeDelay() {
+  const inp = gn(), out = gn();
+  const dl = ctx.createDelay(2.5), hp = bq('highpass', 80, 0.6), lp = bq('lowpass', 20000, 0.6), sat = ctx.createWaveShaper(), fb = gn(0.3), wet = gn(0.3);
+  inp.connect(dl); chainNodes(dl, hp, lp, sat); sat.connect(fb).connect(dl); sat.connect(wet).connect(out); inp.connect(out);
+  const wow = ctx.createOscillator(), wowG = gn(0), flut = ctx.createOscillator(), flutG = gn(0);
+  wow.frequency.value = 0.55; flut.frequency.value = 6.5; wow.connect(wowG).connect(dl.delayTime); flut.connect(flutG).connect(dl.delayTime); wow.start(); flut.start();
+  const satCurve = mkCurve((v) => Math.tanh(v), 1.6);
+  let lastMode = '';
+  const b = wrap('delay', inp, out, (p) => {
+    const spb = 60 / (PHRASES[PL.phrase] || PHRASES.lick).bpm;
+    const syncT = { q: spb, d8: spb * 0.75, e: spb * 0.5, t8: spb / 3 }[p.sync];
+    const t = syncT || p.time / 1000;
+    setP(dl.delayTime, t, p.mode === 'digital' ? 0.02 : 0.25);
+    if (p.mode !== lastMode) { lastMode = p.mode; sat.curve = p.mode === 'digital' ? null : satCurve; }
+    if (p.mode === 'digital') { setP(lp.frequency, 18000); setP(hp.frequency, 20); setP(wowG.gain, 0); setP(flutG.gain, 0); }
+    else if (p.mode === 'analog') { setP(lp.frequency, 2600); setP(hp.frequency, 120); setP(wowG.gain, 0.0004); setP(flutG.gain, 0); }
+    else { setP(lp.frequency, 4800); setP(hp.frequency, 90); setP(wowG.gain, 0.0016); setP(flutG.gain, 0.00025); }
+    setP(fb.gain, p.mode === 'digital' ? Math.min(p.fb, 0.92) : Math.min(p.fb, 1.12)); setP(wet.gain, p.mix * 1.1);
+  });
+  return b;
+}
+// --- reverb with procedurally generated impulse responses
+function genIR(type, decay) {
+  const sr = ctx.sampleRate, len = Math.floor(sr * Math.min(6, decay * 1.25 + 0.15));
+  const buf = ctx.createBuffer(2, len, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch), rnd = mulberry(1234 + ch * 77 + type.length);
+    let lp = 0;
+    const f0 = { room: 9000, plate: 14000, hall: 8000, spring: 4500 }[type] || 9000, f1 = { room: 3000, plate: 6000, hall: 1400, spring: 1800 }[type] || 3000;
+    for (let i = 0; i < len; i++) {
+      const t = i / sr;
+      let env = Math.exp(-6.9 * t / decay);
+      if (type === 'hall') env *= Math.min(1, t / 0.07);
+      if (type === 'plate') env *= Math.min(1, t / 0.004);
+      if (type === 'room') env *= Math.min(1, t / 0.012) * 0.8;
+      const fc = f1 + (f0 - f1) * Math.exp(-t / (decay * 0.35)), a = Math.exp(-2 * Math.PI * fc / sr);
+      lp = (1 - a) * (rnd() * 2 - 1) + a * lp;
+      d[i] = lp * env;
+    }
+    if (type === 'room') for (let k = 0; k < 12; k++) { const at = Math.floor(sr * (0.003 + rnd() * 0.045)); if (at < len) d[at] += (rnd() > 0.5 ? 1 : -1) * (0.9 - k * 0.05); }
+    if (type === 'spring') {
+      const per = ch ? 0.037 : 0.031; // two springs with different transit times
+      for (let r = 0; r * per < Math.min(decay * 1.2, 5); r++) {
+        const start = Math.floor(sr * (0.008 + r * per)), amp = Math.exp(-6.9 * r * per / decay) * 0.9 * (r % 2 ? -1 : 1);
+        const L = Math.floor(sr * 0.022); let ph = 0;
+        for (let i = 0; i < L && start + i < len; i++) { const x = i / L; const f = 3200 * Math.pow(0.08, x); ph += 2 * Math.PI * f / sr; d[start + i] += amp * Math.sin(ph) * Math.sin(Math.PI * x) * 0.6; }
+      }
+    }
+  }
+  return buf;
+}
+function makeReverb() {
+  const inp = gn(), out = gn();
+  const pre = ctx.createDelay(0.5), conv = ctx.createConvolver(), lp = bq('lowpass', 8000, 0.6), hp = bq('highpass', 150, 0.6), wet = gn(0.3);
+  inp.connect(out); chainNodes(inp, pre, conv, hp, lp, wet, out);
+  let lastIR = '', t = 0;
+  const b = wrap('reverb', inp, out, (p) => {
+    const k = p.type + p.decay.toFixed(2);
+    if (k !== lastIR) { lastIR = k; clearTimeout(t); t = setTimeout(() => { conv.buffer = genIR(p.type, p.decay); }, conv.buffer ? 140 : 0); }
+    setP(pre.delayTime, p.pre / 1000); setP(lp.frequency, 1500 * Math.pow(9, p.tone)); setP(wet.gain, p.mix * 1.4);
+  });
+  return b;
+}
+// --- pickup electrics: coil inductance + cable capacitance resonance, tone & volume pots
+const PU_ELEC = { sc: { L: 2.6, Cp: 120e-12, Q: 2.6, out: 1.0 }, p90: { L: 4.0, Cp: 150e-12, Q: 2.2, out: 1.35 }, hb: { L: 4.4, Cp: 250e-12, Q: 1.9, out: 1.7 } };
+function pickupElectrics(g) {
+  const E = PU_ELEC[g.type] || PU_ELEC.sc, t = g.tone;
+  const C = E.Cp + g.cable * 100e-12 + 22e-9 * Math.pow(1 - t, 3);
+  const f = 1 / (2 * Math.PI * Math.sqrt(E.L * C));
+  const Q = 0.75 + (E.Q - 0.75) * t * t + 0.6 * Math.pow(1 - t, 4);
+  const v = g.vol, Rs = 250e3 * v * (1 - v), Cc = g.cable * 100e-12 + 200e-12;
+  const volF = g.bleed || v >= 0.999 ? 20000 : Math.min(20000, 1 / (2 * Math.PI * Math.max(Rs, 1) * Cc));
+  return { f, Q, volF, gain: E.out * Math.pow(v, 2.2) };
+}
+function makePickup() {
+  const inp = gn(), res = bq('lowpass', 5000, 2.5), vlp = bq('lowpass', 20000, 0.5), out = gn(1);
+  chainNodes(inp, res, vlp, out);
+  return { in: inp, out, set(g, mic) {
+    if (mic || g.pickup === 'none') { setP(res.frequency, 20000); res.Q.value = 0.7; setP(vlp.frequency, 20000); setP(out.gain, g.pickup === 'none' ? 1 : 1); return; }
+    const e = pickupElectrics(g); setP(res.frequency, e.f); setP(res.Q, e.Q); setP(vlp.frequency, e.volF); setP(out.gain, e.gain);
+  }, nodes: [res, vlp] };
+}
+
+/* ===================== the rig ===================== */
+const DEF = {
+  guitar: { pickup: 'bridge', type: 'sc', phase: 'in', pluck: 110, hard: 0.6, dyn: 0.85, strings: 'fresh', tone: 1, vol: 1, cable: 3, bleed: false },
+  order: ['comp', 'wah', 'drive', 'drive2', 'amp', 'cab', 'eq', 'mod', 'delay', 'reverb'],
+  comp: { on: false, thr: -30, ratio: 4, att: 10, rel: 180, knee: 6, makeup: 8, blend: 1 },
+  wah: { on: false, mode: 'manual', pos: 0.5, q: 5, rate: 0.4, sens: 0.5 },
+  drive: { on: false, type: 'ts', gain: 0.5, tone: 0.5, level: 0.5, bias: 0 },
+  drive2: { on: false, type: 'boost', gain: 0.4, tone: 0.5, level: 0.5, bias: 0 },
+  amp: { on: true, model: 'fender', gain: 0.25, bass: 0.5, mid: 0.5, treble: 0.6, master: 0.35, presence: 0.5, depth: 0.25, sag: 0.3, level: 0.6 },
+  cab: { on: true, type: '2x12', mic: 0.3, dist: 0.15 },
+  eq: { on: false, b: [0, 0, 0, 0, 0, 0, 0], hp: 20, lp: 20000 },
+  mod: { on: false, type: 'chorus', rate: 0.35, depth: 0.5, mix: 0.5, fb: 0, shape: 'sine', stages: 4 },
+  delay: { on: false, mode: 'analog', time: 380, sync: 'off', fb: 0.35, mix: 0.3 },
+  reverb: { on: false, type: 'room', decay: 1.2, pre: 10, mix: 0.25, tone: 0.6 },
+};
+let rig = null;
+function buildGraph() {
+  AU.master = gn(S.vol);
+  AU.lim = ctx.createDynamicsCompressor();
+  AU.lim.threshold.value = -4; AU.lim.knee.value = 2; AU.lim.ratio.value = 20; AU.lim.attack.value = 0.002; AU.lim.release.value = 0.15;
+  AU.ana = ctx.createAnalyser(); AU.ana.fftSize = 4096; AU.ana.smoothingTimeConstant = 0.72;
+  AU.probe = ctx.createAnalyser(); AU.probe.fftSize = 4096; AU.probe.smoothingTimeConstant = 0.72;
+  AU.master.connect(AU.lim); AU.lim.connect(ctx.destination); AU.lim.connect(AU.ana);
+  AU.srcBus = gn(1); AU.micBus = gn(0); AU.testBus = gn(1); AU.testBus.connect(AU.master);
+  rig = buildRig();
+}
+function buildRig() {
+  const R = { cfg: clone(DEF), pickup: makePickup(), chainIn: gn(1), out: gn(1), probeAt: null, curOrder: '' };
+  AU.srcBus.connect(R.pickup.in); R.pickup.out.connect(R.chainIn); AU.micBus.connect(R.chainIn);
+  R.blocks = { comp: makeComp(), wah: makeWah(), drive: makeDrive('drive'), drive2: makeDrive('drive2'), amp: makeAmp(), cab: makeCab(), eq: makeEQ(), mod: makeMod(), delay: makeDelay(), reverb: makeReverb() };
+  R.out.connect(AU.master);
+  R.connect = () => {
+    const key = R.cfg.order.join(',');
+    if (key === R.curOrder) return;
+    const first = !R.curOrder; R.curOrder = key;
+    const doIt = () => {
+      R.chainIn.disconnect(); Object.values(R.blocks).forEach((b) => b.out.disconnect());
+      let prev = R.chainIn;
+      for (const k of R.cfg.order) { prev.connect(R.blocks[k].in); prev = R.blocks[k].out; }
+      prev.connect(R.out);
+      if (R.probeAt) R.probe(R.probeAt, true);
+      if (!first) setP(R.out.gain, 1, 0.03);
+    };
+    if (first) doIt(); else { setP(R.out.gain, 0, 0.015); setTimeout(doIt, 30); }
+  };
+  R.pushGuitar = () => { R.pickup.set(R.cfg.guitar, false); refreshSource(); };
+  R.pushBlock = (k) => { const b = R.blocks[k]; b.set(R.cfg[k]); b.setOn(!!R.cfg[k].on); };
+  R.apply = (cfg, state) => {
+    R.cfg = deepMerge(clone(DEF), cfg || {});
+    if (state) for (const [k, v] of Object.entries(state)) setPath(R.cfg, k, v);
+    R.connect(); R.pushGuitar(); Object.keys(R.blocks).forEach(R.pushBlock);
+  };
+  R.set = (path, v) => {
+    setPath(R.cfg, path, v);
+    const top = path.split('.')[0];
+    if (top === 'guitar') R.pushGuitar(); else if (top === 'order') R.connect(); else if (R.blocks[top]) R.pushBlock(top);
+  };
+  R.probe = (k, force) => {
+    if (!force && R.probeAt) { const n0 = R.probeAt === 'pickup' ? R.pickup.out : (R.blocks[R.probeAt] || {}).out; try { n0 && n0.disconnect(AU.probe); } catch (e) { /* */ } }
+    R.probeAt = k || null;
+    if (!k) return;
+    const node = k === 'pickup' ? R.pickup.out : R.blocks[k].out; node.connect(AU.probe);
+  };
+  R.connect(); R.pushGuitar(); Object.keys(R.blocks).forEach(R.pushBlock);
+  return R;
+}
+
+/* ===================== live guitar input ===================== */
+async function toggleMic() {
+  await unlock();
+  if (!AU.micOn) {
+    if (!AU.micSrc) {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert('This browser does not allow audio input here.'); return; }
+      if (!S.micWarned) { alert('Plug your guitar into an audio interface (or play near the mic) and use HEADPHONES so the speakers don\'t feed back. Every demo\'s chain will process your playing; the synthetic-guitar controls (pickups, pick, strings) only affect the built-in guitar.'); S.micWarned = true; save(); }
+      try {
+        const st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, latency: 0 } });
+        AU.micSrc = ctx.createMediaStreamSource(st); AU.micSrc.connect(AU.micBus);
+      } catch (e) { alert('No audio input: ' + e.message); return; }
+    }
+    AU.micOn = true; setP(AU.micBus.gain, S.trim);
+  } else { AU.micOn = false; setP(AU.micBus.gain, 0); }
+  $('#mic').classList.toggle('on', !!AU.micOn);
+  $('#mic').textContent = AU.micOn ? '🎸 Live' : '🎸 Mine';
+}
+
+/* ===================== visualisers ===================== */
+const SCOPES = new Set();
+function fitCanvas(cv) { const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1); const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } return { w, h, dpr }; }
+const FMIN = 40, FMAX = 16000;
+const fx = (f, w) => Math.log(f / FMIN) / Math.log(FMAX / FMIN) * w;
+function drawFreqGrid(g, w, h, dpr, fmin = FMIN, fmax = FMAX) {
+  g.strokeStyle = 'rgba(255,255,255,0.06)'; g.fillStyle = 'rgba(255,255,255,0.32)'; g.font = `${10 * dpr}px -apple-system, system-ui`; g.lineWidth = 1;
+  for (const f of [50, 100, 200, 500, 1000, 2000, 5000, 10000]) { if (f < fmin || f > fmax) continue; const x = Math.log(f / fmin) / Math.log(fmax / fmin) * w; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); g.fillText(f >= 1000 ? f / 1000 + 'k' : f, x + 3 * dpr, h - 4 * dpr); }
+}
+let fbuf = null, tbuf = null;
+function drawScope(sc) {
+  const cv = sc.cv, { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d');
+  g.clearRect(0, 0, w, h);
+  const ana = rig && rig.probeAt ? AU.probe : AU.ana;
+  if (!ana) return;
+  const mode = sc.mode, split = mode === 'both';
+  const sw = split ? w * 0.36 : w;
+  if (mode === 'wave' || split) {
+    if (!tbuf || tbuf.length !== ana.fftSize) tbuf = new Float32Array(ana.fftSize);
+    ana.getFloatTimeDomainData(tbuf);
+    let st = 0; for (let i = 1; i < tbuf.length / 2; i++) if (tbuf[i - 1] < 0 && tbuf[i] >= 0) { st = i; break; }
+    const N = 1200; g.strokeStyle = '#4cc9f0'; g.lineWidth = 1.5 * dpr; g.beginPath();
+    for (let i = 0; i < N; i++) { const x = i / N * sw, y = h / 2 - clamp(tbuf[st + i] || 0, -1, 1) * h * 0.46; i ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.moveTo(0, h / 2); g.lineTo(sw, h / 2); g.stroke();
+  }
+  if (mode === 'spec' || split) {
+    const x0 = split ? sw + 8 * dpr : 0, W = w - x0;
+    g.save(); g.translate(x0, 0);
+    drawFreqGrid(g, W, h, dpr);
+    if (!fbuf || fbuf.length !== ana.frequencyBinCount) fbuf = new Float32Array(ana.frequencyBinCount);
+    ana.getFloatFrequencyData(fbuf);
+    const binHz = ctx.sampleRate / ana.fftSize;
+    const grad = g.createLinearGradient(0, 0, 0, h); grad.addColorStop(0, 'rgba(255,181,71,0.85)'); grad.addColorStop(1, 'rgba(255,138,76,0.08)');
+    g.beginPath(); g.moveTo(0, h);
+    for (let x = 0; x <= W; x += dpr) {
+      const f = FMIN * Math.pow(FMAX / FMIN, x / W), f2 = FMIN * Math.pow(FMAX / FMIN, (x + dpr) / W);
+      let i0 = Math.floor(f / binHz), i1 = Math.max(i0 + 1, Math.floor(f2 / binHz)); let m = -200;
+      for (let i = i0; i < i1 && i < fbuf.length; i++) m = Math.max(m, fbuf[i]);
+      const y = h - clamp((m + 100) / 90, 0, 1) * h; g.lineTo(x, y);
+    }
+    g.lineTo(W, h); g.closePath(); g.fillStyle = grad; g.fill();
+    if (sc.marks) sc.marks(g, W, h, dpr);
+    g.restore();
+  }
+}
+function scopeLoop() {
+  requestAnimationFrame(scopeLoop);
+  if (!ctx || (!PL.playing && !AU.customOn && !AU.micOn)) return;
+  for (const sc of SCOPES) { if (!sc.cv.isConnected) { SCOPES.delete(sc); continue; } drawScope(sc); }
+}
+requestAnimationFrame(scopeLoop);
+function plotResp(cv, dbAt, opt = {}) {
+  const { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'), lo = opt.lo || 20, hi = opt.hi || 20000, rng = opt.range || 24, top = opt.top != null ? opt.top : rng / 2;
+  g.clearRect(0, 0, w, h); drawFreqGrid(g, w, h, dpr, lo, hi);
+  g.strokeStyle = 'rgba(255,255,255,0.12)'; const y0 = (top / rng) * h; g.beginPath(); g.moveTo(0, y0); g.lineTo(w, y0); g.stroke();
+  g.fillStyle = 'rgba(255,255,255,0.3)'; g.fillText(`${top > 0 ? '+' : ''}${top} dB`, 4 * dpr, 12 * dpr); g.fillText(`${top - rng} dB`, 4 * dpr, h - 16 * dpr);
+  const curves = Array.isArray(dbAt) ? dbAt : [dbAt]; const cols = ['#ffb547', '#4cc9f0', '#34d399'];
+  curves.forEach((fn, ci) => {
+    g.strokeStyle = cols[ci % 3]; g.lineWidth = 2 * dpr; g.beginPath();
+    for (let x = 0; x <= w; x += 2 * dpr) { const f = lo * Math.pow(hi / lo, x / w), y = clamp((top - fn(f)) / rng, 0, 1) * h; x ? g.lineTo(x, y) : g.moveTo(x, y); }
+    g.stroke();
+  });
+}
+function nodesDb(nodes) { // combined magnitude response of biquads, as f => dB
+  const N = 256, fr = new Float32Array(N), lo = 20, hi = 20000;
+  for (let i = 0; i < N; i++) fr[i] = lo * Math.pow(hi / lo, i / (N - 1));
+  const tot = new Float32Array(N).fill(0), mag = new Float32Array(N), ph = new Float32Array(N);
+  for (const nd of nodes) { nd.getFrequencyResponse(fr, mag, ph); for (let i = 0; i < N; i++) tot[i] += 20 * Math.log10(mag[i] + 1e-9); }
+  return (f) => { const x = Math.log(f / lo) / Math.log(hi / lo) * (N - 1), i = clamp(Math.floor(x), 0, N - 2), t = x - i; return tot[i] * (1 - t) + tot[i + 1] * t; };
+}
+function plotCurve(cv, fn, opt = {}) {
+  const { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'); g.clearRect(0, 0, w, h);
+  g.strokeStyle = 'rgba(255,255,255,0.1)'; g.beginPath(); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
+  g.fillStyle = 'rgba(255,255,255,0.35)'; g.font = `${10 * dpr}px system-ui`; g.fillText('input →', w - 46 * dpr, h / 2 - 5 * dpr); g.fillText('output', w / 2 + 4 * dpr, 12 * dpr);
+  g.strokeStyle = 'rgba(255,255,255,0.25)'; g.setLineDash([4 * dpr, 4 * dpr]); g.beginPath(); g.moveTo(0, h); g.lineTo(w, 0); g.stroke(); g.setLineDash([]);
+  g.strokeStyle = '#ffb547'; g.lineWidth = 2.2 * dpr; g.beginPath();
+  for (let x = 0; x <= w; x += dpr) { const u = (x / w) * 2 - 1, y = h / 2 - clamp(fn(u), -1.1, 1.1) * h * 0.45; x ? g.lineTo(x, y) : g.moveTo(x, y); }
+  g.stroke();
+  if (opt.label) { g.fillStyle = '#ffd79a'; g.fillText(opt.label, 6 * dpr, h - 6 * dpr); }
+}
+
+/* ===================== UI: demos, quizzes, chapters ===================== */
+const CH = [];
+let ACTIVE = null;
+function cfgOf(spec) { return typeof spec.cfg === 'function' ? spec.cfg() : (spec.cfg || {}); }
+function activate(D) {
+  audio();
+  if (ACTIVE !== D) { if (ACTIVE && ACTIVE.el) ACTIVE.el.classList.remove('active'); ACTIVE = D; if (D.el) D.el.classList.add('active'); }
+  rig.apply(cfgOf(D.spec), D.state);
+  rig.probe(D.spec.probe || null);
+  if (D.spec.onActivate) D.spec.onActivate(D);
+}
+const fmtPct = (v) => Math.round(v * 10 * 10) / 10;
+function ctlHTML(c, i) {
+  const t = c.type || 'range';
+  if (t === 'range') return `<div class="ctl${c.wide ? ' wide' : ''}" data-i="${i}"><div class="lab"><b>${c.label}</b><span class="val"></span></div><input type="range" min="${c.min ?? 0}" max="${c.max ?? 1}" step="${c.step ?? 0.01}">${c.hint ? `<div class="hint">${c.hint}</div>` : ''}</div>`;
+  if (t === 'seg' || t === 'ab') return `<div class="ctl${c.wide !== false ? ' wide' : ''}" data-i="${i}"><div class="lab"><b>${c.label}</b>${c.hint ? `<span class="hint">${c.hint}</span>` : ''}</div><div class="seg">${c.opts.map((o, j) => `<button data-j="${j}">${t === 'ab' ? o.name : o[1]}</button>`).join('')}</div></div>`;
+  if (t === 'toggle') return `<div class="ctl" data-i="${i}"><div class="tog"><b style="font-size:14px">${c.label}</b><button class="switch" aria-label="${c.label}"></button></div></div>`;
+  if (t === 'meter') return `<div class="ctl" data-i="${i}"><div class="lab"><b>${c.label}</b><span class="val"></span></div><div class="meter"><i></i></div></div>`;
+  if (t === 'btn') return `<div class="ctl" data-i="${i}"><button style="width:100%">${c.label}</button></div>`;
+  return '';
+}
+function mountDemo(el, spec) {
+  const D = { spec, el, state: {}, phrase: spec.phrase || (spec.phrases && spec.phrases[0]) || 'lick', ctl: [] };
+  const ctls = spec.controls || [];
+  ctls.forEach((c) => {
+    if (c.type === 'ab') { const o = c.opts[c.v || 0]; Object.assign(D.state, o.set); }
+    else if (c.k && c.v !== undefined) D.state[c.k] = c.v;
+  });
+  el.classList.add('demo', 'panel');
+  const phr = spec.phrases && spec.phrases.length > 1 ? `<div class="chips">${spec.phrases.map((p) => `<button class="chip" data-p="${p}">${PHRASES[p].name}</button>`).join('')}</div>` : '';
+  el.innerHTML = `<div class="demo-head"><h4>${spec.title}</h4><button class="play">▶ Play</button></div>${spec.intro ? `<p class="small muted" style="margin-top:0">${spec.intro}</p>` : ''}${phr}${spec.scope ? '<canvas class="scope"></canvas>' : ''}${spec.plot ? '<canvas class="plot"></canvas>' : ''}<div class="ctls">${ctls.map(ctlHTML).join('')}</div>${spec.listen ? `<div class="listen-in"><b>Listen for:</b> ${spec.listen}</div>` : ''}`;
+  if (spec.scope) SCOPES.add({ cv: $('canvas.scope', el), mode: spec.scope, marks: spec.marks });
+  const playBtn = $('.play', el);
+  const refreshPlay = () => { if (playBtn) { const on = spec.custom ? !!D.customOn : PL.playing && ACTIVE === D; playBtn.classList.toggle('on', on); playBtn.textContent = on ? '■ Stop' : '▶ Play'; } $$('.chip', el).forEach((b) => b.classList.toggle('on', b.dataset.p === D.phrase)); };
+  PL.listeners.add(refreshPlay); D.refreshPlay = refreshPlay;
+  if (playBtn && spec.custom) playBtn.onclick = async () => {
+    if (D.customOn) { stopCustom(); return; }
+    await unlock(); stop(); if (ACTIVE && ACTIVE.el) ACTIVE.el.classList.remove('active'); ACTIVE = D; el.classList.add('active'); rig.probe(null);
+    spec.start(D); D.customOn = true; setCustom(() => { spec.stop(D); D.customOn = false; refreshPlay(); }); refreshPlay();
+  };
+  else if (playBtn) playBtn.onclick = async () => { if (PL.playing && ACTIVE === D) { stop(); return; } await unlock(); activate(D); play(D.phrase); };
+  $$('.chip', el).forEach((b) => { b.onclick = async () => { D.phrase = b.dataset.p; await unlock(); if (ACTIVE !== D) activate(D); if (spec.onPhrase) spec.onPhrase(D); play(D.phrase); }; });
+  const redraw = () => { if (spec.plot) { try { spec.plot($('canvas.plot', el), D); } catch (e) { console.warn(e); } } ctls.forEach((c, i) => { if (c.show) { const box = $(`.ctl[data-i="${i}"]`, el); box.classList.toggle('hidden', !c.show(D.state, D)); } }); };
+  D.redraw = redraw;
+  const touch = () => { audio(); if (spec.custom) return; if (ACTIVE !== D) activate(D); };
+  ctls.forEach((c, i) => {
+    const box = $(`.ctl[data-i="${i}"]`, el), t = c.type || 'range';
+    if (t === 'range') {
+      const inp = $('input', box), val = $('.val', box);
+      const cur = D.state[c.k] !== undefined ? D.state[c.k] : (c.v !== undefined ? c.v : getPath(DEF, c.k));
+      inp.value = cur;
+      const show = () => { const v = +inp.value; val.textContent = c.fmt ? c.fmt(v) : (Math.abs(c.max ?? 1) <= 1 ? fmtPct(v) : v); inp.style.setProperty('--p', ((v - inp.min) / (inp.max - inp.min) * 100) + '%'); };
+      show();
+      inp.addEventListener('input', () => { const v = +inp.value; touch(); if (c.k) { D.state[c.k] = v; rig.set(c.k, v); } if (c.on) c.on(v, D); show(); redraw(); });
+    } else if (t === 'seg' || t === 'ab') {
+      const btns = $$('button', box);
+      const curIdx = () => t === 'ab' ? (D.abIdx = D.abIdx || {}, D.abIdx[i] ?? (c.v || 0)) : c.opts.findIndex((o) => o[0] === (c.k ? (D.state[c.k] !== undefined ? D.state[c.k] : getPath(DEF, c.k)) : c.v));
+      const mark = () => { const ci = curIdx(); btns.forEach((b, j) => b.classList.toggle('on', j === ci)); };
+      mark();
+      btns.forEach((b, j) => b.onclick = () => {
+        touch();
+        if (t === 'ab') { D.abIdx[i] = j; for (const [k, v] of Object.entries(c.opts[j].set)) { D.state[k] = v; rig.set(k, v); } if (c.on) c.on(j, D); }
+        else { const v = c.opts[j][0]; if (c.k) { D.state[c.k] = v; rig.set(c.k, v); } else c.v = v; if (c.on) c.on(v, D); }
+        mark(); syncCtls(); redraw();
+      });
+      c.mark = mark;
+    } else if (t === 'toggle') {
+      const sw = $('.switch', box);
+      const cur = () => (D.state[c.k] !== undefined ? D.state[c.k] : getPath(DEF, c.k));
+      const mark = () => sw.classList.toggle('on', !!cur());
+      mark(); c.mark = mark;
+      sw.onclick = () => { touch(); const v = !cur(); D.state[c.k] = v; rig.set(c.k, v); if (c.on) c.on(v, D); mark(); redraw(); };
+    } else if (t === 'meter') {
+      const bar = $('i', box), val = $('.val', box);
+      const tick = () => { if (!box.isConnected) return; requestAnimationFrame(tick); const v = ctx && ACTIVE === D ? c.read() : 0; bar.style.width = clamp(v / (c.max || 20) * 100, 0, 100) + '%'; val.textContent = c.fmt ? c.fmt(v) : v.toFixed(1); };
+      tick();
+    } else if (t === 'btn') { $('button', box).onclick = () => { touch(); c.on(D); }; }
+  });
+  // keep range sliders in sync after an A/B or preset changes state
+  function syncCtls() {
+    ctls.forEach((c, i) => {
+      const box = $(`.ctl[data-i="${i}"]`, el); const t = c.type || 'range';
+      if (t === 'range' && c.k && D.state[c.k] !== undefined) { const inp = $('input', box); if (+inp.value !== D.state[c.k]) { inp.value = D.state[c.k]; inp.dispatchEvent(new Event('sync')); const val = $('.val', box); const v = +inp.value; val.textContent = c.fmt ? c.fmt(v) : (Math.abs(c.max ?? 1) <= 1 ? fmtPct(v) : v); inp.style.setProperty('--p', ((v - inp.min) / (inp.max - inp.min) * 100) + '%'); } }
+      if ((t === 'seg' || t === 'toggle') && c.mark) c.mark();
+    });
+  }
+  D.sync = syncCtls;
+  D.setState = (obj) => { touch(); for (const [k, v] of Object.entries(obj)) { D.state[k] = v; rig.set(k, v); } syncCtls(); redraw(); };
+  requestAnimationFrame(redraw);
+  refreshPlay();
+  if (spec.mount) spec.mount(D);
+  return D;
+}
+function earPlayer(cfg, phrase) { return { spec: { cfg }, state: {}, el: null, phrase }; }
+function mountQ(el, q, qid) {
+  el.classList.add('q', 'panel');
+  const prev = S.ans[qid];
+  const ears = q.ears || (q.ear ? [Object.assign({ label: '▶ Play the clip' }, q.ear)] : []);
+  el.innerHTML = `<div class="q-k">${q.kind || 'Checkpoint'}</div><p class="q-text">${q.q}</p>${ears.length ? `<div class="earbtns">${ears.map((e, i) => `<button data-e="${i}">${e.label}</button>`).join('')}<button data-e="stop">■</button></div>` : ''}<div class="opts">${q.opts.map((o, i) => `<button data-i="${i}">${o}</button>`).join('')}</div><div class="why hidden"></div>`;
+  const players = ears.map((e) => earPlayer(e.cfg, e.phrase || 'lick'));
+  $$('[data-e]', el).forEach((b) => b.onclick = async () => {
+    if (b.dataset.e === 'stop') { stop(); return; }
+    const P = players[+b.dataset.e]; await unlock(); activate(P); play(P.phrase);
+  });
+  const show = (i) => {
+    $$('.opts button', el).forEach((b, j) => { b.classList.toggle('right', j === q.a); b.classList.toggle('wrong', j === i && i !== q.a); });
+    const w = $('.why', el); w.classList.remove('hidden'); w.innerHTML = `<b style="color:${i === q.a ? 'var(--good)' : 'var(--bad)'}">${i === q.a ? 'Right.' : 'Not quite.'}</b> ${q.why}`;
+  };
+  $$('.opts button', el).forEach((b) => b.onclick = () => { const i = +b.dataset.i; S.ans[qid] = { i, ok: i === q.a }; save(); show(i); if (window.onAnswer) window.onAnswer(); });
+  if (prev) show(prev.i);
+}
+function render() {
+  const ch = CH[S.ch];
+  ACTIVE = null; PL.listeners.clear(); SCOPES.clear();
+  const main = $('#main');
+  main.innerHTML = `<div class="ch-k">Chapter ${S.ch + 1} of ${CH.length} · ${ch.mins} min</div><h1>${ch.title}</h1>${typeof ch.body === 'function' ? ch.body() : ch.body}`;
+  $$('[data-demo]', main).forEach((el) => mountDemo(el, ch.demos[el.dataset.demo]));
+  $$('[data-q]', main).forEach((el) => mountQ(el, ch.qs[el.dataset.q], ch.id + ':' + el.dataset.q));
+  if (ch.after) ch.after(main);
+  $('#ttl').textContent = ch.short || ch.title;
+  $('#prev').disabled = S.ch === 0;
+  $('#next').textContent = S.ch === CH.length - 1 ? 'Done ✓' : 'Next ›';
+  $('#footmid').textContent = `${S.ch + 1} / ${CH.length}`;
+  updateProgress();
+}
+function updateProgress() { const n = CH.filter((c) => S.done[c.id]).length; $('#progbar').style.width = (n / CH.length * 100) + '%'; }
+function go(i) {
+  stopAll();
+  S.ch = clamp(i, 0, CH.length - 1); save(); render(); window.scrollTo(0, 0);
+}
+function openMenu() {
+  const m = $('#menu'), tot = CH.reduce((a, c) => a + c.mins, 0);
+  $('#menuin').innerHTML = `<div class="row" style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:4px 0">Chapters</h2><button id="mclose">✕</button></div>
+  <p class="small muted" style="margin-top:0">About ${tot} minutes. Progress is saved on this device.</p>
+  ${CH.map((c, i) => `<button class="item${i === S.ch ? ' cur' : ''}" data-i="${i}"><span class="ok">${S.done[c.id] ? '✓' : ''}</span><span class="n">${i + 1}</span><span class="t">${c.title}</span><span class="m">${c.mins}′</span></button>`).join('')}
+  <h3>Sound</h3>
+  <div class="ctl"><div class="lab"><b>Master volume</b></div><input type="range" id="mvol" min="0" max="1.2" step="0.01" value="${S.vol}"></div>
+  <div class="ctl" style="margin-top:8px"><div class="lab"><b>Live input trim (🎸 Mine)</b></div><input type="range" id="mtrim" min="0.25" max="8" step="0.05" value="${S.trim}"></div>
+  <p class="small muted">Tip: on iPhone, use headphones for the deepest bass and the stereo effects.</p>`;
+  m.classList.remove('hidden');
+  $('#mclose').onclick = () => m.classList.add('hidden');
+  m.onclick = (e) => { if (e.target === m) m.classList.add('hidden'); };
+  $$('.item', m).forEach((b) => b.onclick = () => { m.classList.add('hidden'); go(+b.dataset.i); });
+  $('#mvol').oninput = (e) => { S.vol = +e.target.value; save(); if (ctx) setP(AU.master.gain, S.vol); };
+  $('#mtrim').oninput = (e) => { S.trim = +e.target.value; save(); if (ctx && AU.micOn) setP(AU.micBus.gain, S.trim); };
+}
+// shared snippets for chapter bodies
+const demo = (id) => `<div data-demo="${id}"></div>`;
+const qz = (id) => `<div data-q="${id}"></div>`;
+const call = (kind, title, html) => `<div class="callout ${kind}"><b>${title}</b>${html}</div>`;
+const pct = (v) => Math.round(v * 100) + '%';
+const knob10 = (v) => (v * 10).toFixed(1);
+</script>
+
+<script>
+/* ===================== Chapters 1–5 ===================== */
+const CLEAN = { amp: { on: true, model: 'fender', gain: 0.22, master: 0.3 }, cab: { on: true, type: '2x12' } };
+
+CH.push({
+  id: 'map', title: 'What “tone” actually is', short: 'What tone is', mins: 3,
+  body: () => `
+  <p class="lede">Tone is everything about a note <i>except which note it is</i>. Two guitars playing the same A sit on the same fundamental (110 Hz); what differs is the recipe of overtones above it, how that recipe changes over the life of the note, how it reacts to your hands, and the space around it.</p>
+  <p>Every knob on every guitar, pedal and amp moves one or more of four dimensions. Learn to hear those four and you can reason about gear you have never seen.</p>
+  <div class="grid2">
+    <div class="card"><b>1 · Spectrum</b><br>Where the energy sits: lows, low-mids, mids, presence, air. Pickups, tone knobs, tone stacks, cabinets and EQ all reshape it. They <i>filter</i>.</div>
+    <div class="card"><b>2 · Saturation</b><br>How many new harmonics are created and how hard peaks are squashed. Drive, fuzz and amp gain <i>add</i> frequencies that weren't in the input.</div>
+    <div class="card"><b>3 · Envelope &amp; dynamics</b><br>Attack, sustain and decay, and how much your picking strength changes the sound. Compressors, gain and sag live here.</div>
+    <div class="card"><b>4 · Space &amp; motion</b><br>Reverb, delay and modulation: copies of the signal shifted in time or pitch. They place the sound in a room and make it move.</div>
+  </div>
+  <h2>The chain is three kinds of processor</h2>
+  <p>Strip away the brand names and every stage is one of three things:</p>
+  <ul>
+    <li><b>Linear filters</b>: pickups, tone knobs, the amp's tone stack, the speaker cabinet, EQ. They turn frequencies up or down but never invent new ones. Two filters in a row give the same result in either order.</li>
+    <li><b>Nonlinear stages</b>: anything that distorts or compresses. They <i>create</i> harmonics, and what comes out depends on how loud the input is. Order matters because of these.</li>
+    <li><b>Time-based effects</b>: delay, reverb, chorus, flanger, phaser. They mix the signal with copies of itself shifted in time.</li>
+  </ul>
+  ${call('phys', 'The physics in one line', 'A plucked string vibrates at its fundamental and at whole-number multiples of it (2×, 3×, 4×…) all at once. Those are the <b>harmonics</b>. Their relative levels set the waveform\'s shape and your sense of timbre. On the spectrum display they show up as evenly spaced spikes.')}
+  ${demo('chain')}
+  ${call('big', 'How to read the display', 'Left: the <b>waveform</b>, air pressure over a few milliseconds. Right: the <b>spectrum</b>, energy per frequency on a log axis, so each octave gets the same width, like a piano keyboard. A tall, bright, spiky spectrum that reaches past 5 kHz reads as bright or harsh. Energy piled up under 300 Hz reads as warm or muddy.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    chain: {
+      title: 'Build the chain one stage at a time', phrases: ['lick', 'chords', 'chug'], scope: 'both',
+      intro: 'Press play, then step through the stages while it loops.',
+      cfg: { amp: { on: false }, cab: { on: false } },
+      controls: [
+        { type: 'ab', label: 'Signal so far', opts: [
+          { name: 'Bare string', set: { 'guitar.pickup': 'none', 'amp.on': false, 'cab.on': false, 'reverb.on': false } },
+          { name: '+ pickup (DI)', set: { 'guitar.pickup': 'bridge', 'amp.on': false, 'cab.on': false, 'reverb.on': false } },
+          { name: '+ amp, no cab', set: { 'guitar.pickup': 'bridge', 'amp.on': true, 'amp.model': 'marshall', 'amp.gain': 0.55, 'cab.on': false, 'reverb.on': false } },
+          { name: '+ cabinet', set: { 'guitar.pickup': 'bridge', 'amp.on': true, 'amp.model': 'marshall', 'amp.gain': 0.55, 'cab.on': true, 'cab.type': '4x12', 'reverb.on': false } },
+          { name: '+ room', set: { 'guitar.pickup': 'bridge', 'amp.on': true, 'amp.model': 'marshall', 'amp.gain': 0.55, 'cab.on': true, 'cab.type': '4x12', 'reverb.on': true, 'reverb.type': 'room', 'reverb.mix': 0.3 } },
+        ] },
+      ],
+      listen: 'the jump from <i>amp, no cab</i> (a fizzy, angry-bee buzz up past 5 kHz) to <i>+ cabinet</i>, where that fizz is gone. The speaker cabinet is the biggest filter in the whole chain. The bare string is dull because no pickup is emphasising anything yet.',
+    },
+  },
+  qs: {
+    q1: { q: 'A Strat and a Les Paul both play A at 110 Hz. What mainly makes them sound different?', opts: ['Their fundamental frequency is slightly different', 'The relative levels of the harmonics above 110 Hz, and how those change over time', 'One produces harmonics and the other does not', 'Only the loudness'], a: 1, why: 'Pitch is set by the fundamental, and both are at 110 Hz. Timbre is the harmonic recipe and its envelope. Pickup position and type, scale length and construction all reshape that recipe.' },
+    q2: { q: 'Which stage creates frequencies that were not in its input?', opts: ['A graphic EQ', 'A speaker cabinet', 'An overdrive pedal', 'A reverb'], a: 2, why: 'Distortion is nonlinear, so it generates new harmonics and intermodulation products. EQ and cabinets are linear filters. Reverb adds delayed copies but no new frequencies.' },
+  },
+});
+
+CH.push({
+  id: 'hands', title: 'Hands, pick and strings', short: 'Hands & strings', mins: 3,
+  body: () => `
+  <p class="lede">The first tone control is the excitation: where, how hard and with what you strike the string. Everything downstream can only reshape what your hands put in.</p>
+  <h2>Where you pick is a filter</h2>
+  <p>When you pluck at a point, the string can't have a vibration mode with a still point (a node) there. Picking at <b>1/n</b> of the string's length cancels the n-th harmonic and its multiples. Over the 12th fret (½) every even harmonic disappears, giving a hollow, flute-like sound. Near the bridge (1/10 or less) the cancellations sit high up, so most harmonics survive: thin, bright and snappy.</p>
+  <h2>What you pick with is a filter</h2>
+  <p>A thin, stiff, pointed pick leaves the string almost instantly, a short impulse with lots of high harmonics. A thumb or fingertip is wide and soft, so the release is slow and the highs never get going (think of Wes Montgomery's thumb). Picking <b>harder</b> makes the note louder <i>and</i> brighter, because a faster release excites more high harmonics.</p>
+  <h2>Strings age</h2>
+  <p>Fresh strings are uniform, so their upper harmonics sustain and stay in tune with each other: shimmer. Dirt and corrosion add uneven mass and damping, so highs die within a second and the note goes dull and slightly out of tune with itself. Heavier gauges carry more output and a stronger fundamental (not modelled here).</p>
+  ${demo('pluck')}
+  ${call('inter', 'Interaction: hands × gain', 'Your dynamics only become <i>timbre</i> when something nonlinear sits downstream. Into a clean amp, harder means louder and a bit brighter. Into an amp at the edge of breakup, harder means dirtier, so the picking hand becomes a gain knob. High gain and heavy compression flatten this: everything comes out the same size.')}
+  ${demo('touch')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    pluck: {
+      title: 'The picking hand', phrases: ['lick', 'arp', 'chords'], scope: 'spec', cfg: CLEAN, plot: (cv, D) => {
+        const beta = (D.state['guitar.pluck'] ?? 110) / 648, hard = D.state['guitar.hard'] ?? 0.6;
+        const { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'); g.clearRect(0, 0, w, h);
+        g.fillStyle = 'rgba(255,255,255,0.35)'; g.font = `${10 * dpr}px system-ui`; g.fillText(`Harmonics 1–24 of an open string, picked ${Math.round(beta * 648)} mm from the bridge (1/${(1 / beta).toFixed(1)} of its length)`, 6 * dpr, 13 * dpr);
+        const N = 24, bw = w / N;
+        for (let k = 1; k <= N; k++) { const a = Math.abs(Math.sin(k * Math.PI * beta)) / Math.pow(k, 1.4 - hard * 0.9); const y = clamp(1 + Math.log10(a + 1e-4) / 2.5, 0, 1); g.fillStyle = a < 0.08 ? '#f87171' : '#ffb547'; g.fillRect((k - 1) * bw + 2 * dpr, h - y * (h - 22 * dpr), bw - 4 * dpr, y * (h - 22 * dpr)); }
+      },
+      controls: [
+        { k: 'guitar.pluck', label: 'Pick position (mm from bridge)', min: 25, max: 324, step: 1, v: 110, fmt: (v) => v + ' mm', hint: '324 mm is over the 12th fret' },
+        { k: 'guitar.hard', label: 'Pick: soft thumb → hard thin pick', min: 0, max: 1, v: 0.6 },
+        { k: 'guitar.dyn', label: 'Picking strength', min: 0.2, max: 1, v: 0.85 },
+        { k: 'guitar.strings', label: 'Strings', type: 'seg', opts: [['fresh', 'Fresh'], ['dead', '6 months old']] },
+        { k: 'guitar.pickup', label: 'Pickup', type: 'seg', v: 'neck', opts: [['neck', 'Neck'], ['mid', 'Middle'], ['bridge', 'Bridge']] },
+      ],
+      listen: 'slide the pick position to 324 mm and back to 30 mm. The red bars on the graph are harmonics your pick position cancels. Then try “thumb” at full strength against a hard pick at half strength: the soft pick at full strength is louder but still darker.',
+    },
+    touch: {
+      title: 'Touch-sensitive amp: the same crescendo, two amps', phrases: ['dyn', 'lick'], scope: 'wave',
+      cfg: { amp: { on: true, model: 'marshall', gain: 0.32, master: 0.5, sag: 0.5 }, cab: { type: '4x12' }, guitar: { pickup: 'bridge' } },
+      controls: [
+        { type: 'ab', label: 'Amp', opts: [{ name: 'Clean, lots of headroom', set: { 'amp.model': 'fender', 'amp.gain': 0.15, 'amp.master': 0.25 } }, { name: 'Edge of breakup', set: { 'amp.model': 'marshall', 'amp.gain': 0.5, 'amp.master': 0.55 } }, { name: 'High gain', set: { 'amp.model': 'modern', 'amp.gain': 0.75, 'amp.master': 0.4 } }], v: 1 },
+      ],
+      listen: 'on <i>Edge of breakup</i>, the first soft strums are clean and the last ones growl. On <i>High gain</i> even the softest strum is fully distorted and the dynamics have flattened.',
+    },
+  },
+  qs: {
+    q1: { q: 'You pick exactly over the 12th fret, the midpoint of the string. Which harmonics vanish?', opts: ['The fundamental', 'All the odd harmonics', 'All the even harmonics (2nd, 4th, 6th…)', 'Only harmonics above 5 kHz'], a: 2, why: 'Every even-numbered mode has a node at the midpoint, so a pluck there can\'t excite it. What remains is odd harmonics only: hollow, flute-like, close to a square wave.' },
+    q2: { q: 'Why does an edge-of-breakup amp feel “touch sensitive” when a high-gain amp doesn\'t?', opts: ['High-gain amps ignore the guitar\'s volume', 'Near breakup, small changes in input level move the signal between the linear and clipping parts of the curve; at high gain everything is already clipped', 'Breakup amps have a special sensor', 'High-gain amps have no tone stack'], a: 1, why: 'Touch sensitivity is your input level crossing the clipping threshold. When the gain is so high that even soft notes clip, picking strength barely changes the timbre.' },
+  },
+});
+
+CH.push({
+  id: 'pickups', title: 'Pickups, knobs and the cable', short: 'Pickups', mins: 4,
+  body: () => `
+  <p class="lede">A pickup shapes tone in two independent ways. <b>Where</b> it sits is a geometric comb filter, the same physics as pick position. <b>What</b> it is, an inductor wired to capacitance, makes a resonant low-pass filter.</p>
+  <h2>Position: the comb</h2>
+  <p>A pickup senses the string's motion at one spot. The <b>bridge pickup</b> (about 4 cm from the saddle) sits where the string barely moves for low modes, so the fundamental is weak relative to the upper harmonics: thin, cutting, “bite”. The <b>neck pickup</b> (about 16 cm, roughly ¼ of the open string) hears a strong fundamental and notches the 4th harmonic: round, vocal, fat. Fretting higher shortens the string, so the same pickup sits at a larger <i>fraction</i> of it and the comb moves.</p>
+  <p>Strat positions 2 and 4 run two pickups in parallel. Their combs interfere and scoop the low-mids, giving the hollow, glassy “quack”. Wire one pickup <b>out of phase</b> and everything both pickups hear alike, mostly the lows, cancels. What's left is thin and nasal, a sound associated with late-60s British blues.</p>
+  <h2>Type: the resonance</h2>
+  <p>A coil of wire is an inductor (L, measured in henries). With the cable's and pickup's capacitance (C) it forms a resonant low-pass at <code>f = 1 / (2π√LC)</code>, with a peak just below the cutoff. The peak frequency and height are a large part of a pickup's character:</p>
+  <div class="tablewrap"><table><tr><th>Type</th><th>Inductance</th><th>Resonant peak (with a 3 m cable)</th><th>Character</th></tr>
+  <tr><td>Single coil</td><td>≈ 2.5 H</td><td>≈ 4.5–5 kHz, tall</td><td>Glassy, sparkly, articulate, hums</td></tr>
+  <tr><td>P-90</td><td>≈ 4 H</td><td>≈ 3.5 kHz</td><td>Gritty, punchy mids, hums</td></tr>
+  <tr><td>Humbucker</td><td>≈ 4–5 H (two coils in series)</td><td>≈ 2.5–3.5 kHz, broader</td><td>Thick, warm, loud, hum-cancelling. Its two coils sense two points, which smears the highs</td></tr></table></div>
+  <p>Hotter pickups also put out more voltage, so they push every later gain stage harder.</p>
+  ${demo('sel')}
+  <h2>The knobs and the cable are filters too</h2>
+  <p><b>Tone knob:</b> a capacitor (22–47 nF) to ground through a variable resistor. Rolling it back first flattens the resonant peak, then pulls the resonance down to around 700 Hz with a honky bump. Neck humbucker, tone on 0, loud amp: that's the classic <i>woman tone</i>.</p>
+  <p><b>Volume knob:</b> turning it down adds resistance in series with the cable's capacitance, which makes a low-pass, so the sound gets darker as well as quieter. A <i>treble-bleed</i> capacitor across the pot fixes this. <b>Cable:</b> about 100 pF per metre. A 6 m cable pulls a single coil's peak down by roughly a kilohertz. A buffer (in many pedals) isolates the pickup from the cable, one reason “true bypass vs buffered” is a real debate.</p>
+  ${demo('knobs')}
+  ${call('inter', 'Interactions', '<b>Pickup output × amp gain:</b> swap a single coil for a humbucker and the amp distorts more with the same settings. <b>Volume knob × overdrive:</b> the guitar\'s volume is your remote gain control. Roll back to clean up, but expect it to darken unless you have treble bleed. <b>Tone knob × gain:</b> distortion amplifies whatever is left, so a rolled-off tone into high gain gives a smooth, violin-like lead.')}
+  ${call('listen', 'Using your own guitar?', 'With 🎸 on, your real pickups replace the simulated ones and the pickup controls here only affect the built-in guitar. Try the real thing: roll your volume back into the crunch preset below.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    sel: {
+      title: 'Pickup selector lab', phrases: ['chords', 'lick', 'arp'], scope: 'spec', cfg: CLEAN,
+      plot: (cv, D) => {
+        const g = Object.assign({}, DEF.guitar, rig ? rig.cfg.guitar : {}), st = D.state;
+        for (const k of ['guitar.pickup', 'guitar.type', 'guitar.phase']) if (st[k] !== undefined) g[k.split('.')[1]] = st[k];
+        const taps = selectorTaps(g), e = pickupElectrics(g), f0 = 110, Ls = 648;
+        const comb = (f) => { let re = 0, im = 0; for (const [d, w] of taps) { const tau = (d / Ls) / f0; re += w * (1 - Math.cos(2 * Math.PI * f * tau)); im += w * Math.sin(2 * Math.PI * f * tau); } return 20 * Math.log10(Math.hypot(re, im) + 1e-4) + 6; };
+        const res = (f) => { const x = f / e.f; return 20 * Math.log10(e.gain / Math.sqrt(Math.pow(1 - x * x, 2) + Math.pow(x / e.Q, 2))); };
+        plotResp(cv, [comb, res], { range: 48, top: 18, lo: 40, hi: 16000 });
+        const c = cv.getContext('2d'), dpr = Math.min(2, window.devicePixelRatio || 1); c.font = `${10 * dpr}px system-ui`; c.fillStyle = '#ffb547'; c.fillText('position comb (open A string)', 60 * dpr, 13 * dpr); c.fillStyle = '#4cc9f0'; c.fillText(`electrical resonance ≈ ${(e.f / 1000).toFixed(1)} kHz`, 60 * dpr, 26 * dpr);
+      },
+      controls: [
+        { k: 'guitar.pickup', label: 'Selector', type: 'seg', v: 'bridge', opts: [['neck', 'Neck'], ['nm', 'N+M'], ['mid', 'Mid'], ['mb', 'M+B'], ['bridge', 'Bridge'], ['nb', 'N+B']] },
+        { k: 'guitar.type', label: 'Pickup type', type: 'seg', v: 'sc', opts: [['sc', 'Single coil'], ['p90', 'P-90'], ['hb', 'Humbucker']] },
+        { k: 'guitar.phase', label: 'Second pickup (two-pickup positions only)', type: 'seg', v: 'in', opts: [['in', 'In phase'], ['out', 'Out of phase']] },
+      ],
+      listen: 'Neck → Bridge on single coils: the fundamental drops away and the attack sharpens. Then N+M and M+B: the in-between “quack” is a scooped, glassy sound neither pickup makes alone. Then N+B with out-of-phase: thin and nasal, because the shared lows cancel. Finally switch type to Humbucker on the bridge: louder, thicker, peak moved down.',
+    },
+    knobs: {
+      title: 'Tone, volume and cable into a crunchy amp', phrases: ['lick', 'chords', 'lead'], scope: 'spec',
+      cfg: { amp: { on: true, model: 'marshall', gain: 0.6, master: 0.5 }, cab: { type: '4x12' }, guitar: { type: 'hb', pickup: 'neck' } },
+      plot: (cv, D) => { const g = Object.assign({}, DEF.guitar, { type: 'hb' }); for (const [k, v] of Object.entries(D.state)) if (k.startsWith('guitar.')) g[k.slice(7)] = v; const e = pickupElectrics(g); plotResp(cv, (f) => { const x = f / e.f; let d = 20 * Math.log10(e.gain / Math.sqrt(Math.pow(1 - x * x, 2) + Math.pow(x / e.Q, 2))); d += -10 * Math.log10(1 + Math.pow(f / e.volF, 2)); return d; }, { range: 48, top: 18, lo: 40, hi: 16000 }); },
+      controls: [
+        { k: 'guitar.type', label: 'Pickup', type: 'seg', v: 'hb', opts: [['sc', 'Single coil'], ['hb', 'Humbucker']] },
+        { k: 'guitar.pickup', label: 'Position', type: 'seg', v: 'neck', opts: [['neck', 'Neck'], ['bridge', 'Bridge']] },
+        { k: 'guitar.tone', label: 'Tone knob', min: 0, max: 1, v: 1, fmt: knob10 },
+        { k: 'guitar.vol', label: 'Volume knob', min: 0.2, max: 1, v: 1, fmt: knob10 },
+        { k: 'guitar.cable', label: 'Cable length', min: 1, max: 9, step: 0.5, v: 3, fmt: (v) => v + ' m' },
+        { k: 'guitar.bleed', label: 'Treble-bleed cap', type: 'toggle', v: false },
+      ],
+      listen: 'roll the volume to 6 or 7: the amp cleans up and darkens. Turn on treble bleed and repeat: still cleaner, no longer dark. Then tone to 0 on the neck humbucker for the <i>woman tone</i>: a smooth honk around 700 Hz with the fizz gone.',
+    },
+  },
+  qs: {
+    q1: { q: 'Which pickup hears the weakest fundamental relative to its upper harmonics, and why?', opts: ['Neck, because it is closest to the fretboard', 'Bridge, because the string barely moves near its fixed end for the low modes', 'Middle, because of hum', 'They all hear the same, only the electronics differ'], a: 1, why: 'Near a fixed end, low modes have tiny amplitude while high modes still move. So the bridge pickup gets proportionally more harmonics: thin and bright.' },
+    q2: { q: 'You roll your guitar volume from 10 to 6 into a crunchy amp. What happens, and why?', opts: ['Only quieter', 'Cleaner (less input into the clipping stages) and darker (pot resistance plus cable capacitance make a low-pass)', 'Brighter and dirtier', 'Nothing until 3'], a: 1, why: 'Less voltage means less clipping downstream. The pot\'s series resistance and the cable capacitance form a low-pass filter, which a treble-bleed cap compensates for.' },
+  },
+});
+
+CH.push({
+  id: 'comp', title: 'Compression: shaping the envelope', short: 'Compression', mins: 3,
+  body: () => `
+  <p class="lede">A compressor is an automatic volume knob. When the signal goes above the <b>threshold</b>, it turns the signal down by the <b>ratio</b>. Then <b>makeup gain</b> brings everything back up, so the quiet tail of each note ends up louder: sustain.</p>
+  <ul>
+    <li><b>Ratio</b> 4:1 means 4 dB over the threshold comes out as 1 dB over. Above about 10:1 it's limiting.</li>
+    <li><b>Attack</b> is how quickly it clamps down. <i>Slow</i> (20–40 ms) lets the pick click through first: snap and “spank”, chicken-picking. <i>Fast</i> (under 2 ms) flattens the transient: smooth, but flat.</li>
+    <li><b>Release</b> is how quickly it lets go. Too fast and you hear the level pump. Slow gives a steady, glued sound.</li>
+    <li><b>Blend</b> mixes the dry signal back in (parallel compression): the natural attack plus the compressed sustain.</li>
+  </ul>
+  ${demo('comp')}
+  ${call('inter', 'Interactions', '<b>Compressor → drive:</b> the drive gets a steadier input, so it clips more evenly and sustains longer, but your picking dynamics go away. <b>Drive → compressor:</b> distortion already compresses heavily, so a compressor afterwards mostly evens out levels. <b>Distortion is a compressor.</b> Clipping caps the peaks, which is why high-gain notes sustain with no pedal at all.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    comp: {
+      title: 'Compressor', phrases: ['arp', 'lick', 'chords'], scope: 'wave', cfg: Object.assign({ comp: { on: true }, guitar: { pickup: 'mb' } }, CLEAN),
+      controls: [
+        { k: 'comp.on', label: 'Compressor on', type: 'toggle', v: true },
+        { type: 'meter', label: 'Gain reduction', read: () => -rig.blocks.comp.node.reduction, max: 20, fmt: (v) => '−' + v.toFixed(1) + ' dB' },
+        { k: 'comp.thr', label: 'Threshold', min: -60, max: 0, step: 1, v: -36, fmt: (v) => v + ' dB' },
+        { k: 'comp.ratio', label: 'Ratio', min: 1, max: 20, step: 0.5, v: 6, fmt: (v) => v + ':1' },
+        { k: 'comp.att', label: 'Attack', min: 0.5, max: 80, step: 0.5, v: 25, fmt: (v) => v + ' ms' },
+        { k: 'comp.rel', label: 'Release', min: 20, max: 1000, step: 5, v: 220, fmt: (v) => v + ' ms' },
+        { k: 'comp.makeup', label: 'Makeup gain', min: 0, max: 24, step: 0.5, v: 12, fmt: (v) => '+' + v + ' dB' },
+        { k: 'comp.blend', label: 'Blend (dry ← → wet)', min: 0, max: 1, v: 1, fmt: pct },
+      ],
+      listen: 'on the arpeggio, toggle the compressor and watch the waveform: the tails swell and every note ends up the same height. Set attack to 0.5 ms, then 40 ms, and listen for the pick click coming back. Release at 20 ms with ratio 20:1 shows you pumping.',
+    },
+  },
+  qs: {
+    q1: { q: 'You want the pick\'s snap to cut through while the notes ring longer. Which settings?', opts: ['Very fast attack, high ratio', 'Slower attack (≈20–30 ms), moderate ratio, makeup gain', 'Threshold at 0 dB', 'Fast release only'], a: 1, why: 'A slow attack lets the transient through before the gain drops. The compression then holds down the body of the note, and makeup gain raises the decaying tail.' },
+    q2: { q: 'Why do high-gain sounds sustain even without a compressor?', opts: ['Thicker strings', 'Clipping caps the peaks, so as the string decays the output level stays nearly constant until the input falls below the clipping threshold', 'The tone stack adds sustain', 'Reverb'], a: 1, why: 'A saturated stage outputs about the same level whatever the input level, which is extreme compression. The note only dies when the input drops below where clipping starts.' },
+  },
+});
+
+CH.push({
+  id: 'clip', title: 'Gain and clipping physics', short: 'Clipping physics', mins: 4,
+  body: () => `
+  <p class="lede">Every overdrive, distortion, fuzz and cranked amp is a <b>transfer curve</b>: output as a function of input. A straight diagonal line is clean. Any bend in it is distortion. The shape of the bend decides which harmonics come out.</p>
+  <ul>
+    <li><b>Soft clipping</b> (tubes, diodes in an op-amp's feedback loop): the curve rounds off gradually. Mostly low-order harmonics, smooth compression, “warm”.</li>
+    <li><b>Hard clipping</b> (diodes to ground, transistors at their limits): a sharp corner and flat tops. Strong high-order harmonics, buzzy and aggressive.</li>
+    <li><b>Symmetric</b> curves (the same above and below zero) produce <b>odd harmonics only</b> (3rd, 5th, 7th): square-ish, hollow, reedy.</li>
+    <li><b>Asymmetric</b> curves add <b>even harmonics</b> (2nd, 4th). The 2nd is an octave up and the 4th two octaves up, so they thicken without clashing. Single-ended tube stages and germanium fuzz are asymmetric.</li>
+  </ul>
+  ${demo('lab')}
+  <h2>Intermodulation: why power chords love distortion</h2>
+  <p>Put two notes through a nonlinearity and you get more than their harmonics. You also get <b>sum and difference tones</b> (f₁+f₂, f₁−f₂, 2f₁−f₂…). For a perfect fifth (ratio 3:2), every product lands on the harmonic series of a note an octave below the root, so the chord just gets bigger. For a major third (≈5:4, and 14 cents off in equal temperament), the products crowd the low end, beat against each other, and blur. A full six-string chord makes dozens of clashing products: mush. That's why heavy styles live on root–fifth power chords and jazz voicings stay clean.</p>
+  ${demo('im')}
+  ${call('inter', 'Interaction: gain × bass × chord complexity', 'Low frequencies hold most of a guitar\'s energy. Clip them and the clipping is driven by the bass, so the whole sound starts to flub and fart, and the intermodulation turns the low end to mud. That’s why good high-gain designs <b>cut bass before the clipping</b> and add it back afterwards (the next two chapters). More gain also means less dynamic range, more noise and more sustain, all at once.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    lab: {
+      title: 'Harmonic lab: a pure sine through a clipper', custom: true, scope: 'spec',
+      intro: 'A pure sine has one spike. Raise the drive and watch new harmonics appear at exact multiples (the dashed markers are numbered).',
+      plot: (cv, D) => { const st = D.lab; plotCurve(cv, (u) => LAB.shape(st.type, u * st.drive * 1.2) * LAB.norm(st), { label: `${st.type} · drive ${st.drive.toFixed(1)}×` }); },
+      controls: [
+        { type: 'seg', label: 'Curve', v: 'soft', opts: [['soft', 'Soft symmetric'], ['hard', 'Hard symmetric'], ['asym', 'Soft asymmetric'], ['none', 'Clean']], on: (v, D) => { D.lab.type = v; LAB.update(D); } },
+        { type: 'range', label: 'Drive', min: 0.2, max: 30, step: 0.1, v: 1, fmt: (v) => v.toFixed(1) + '×', on: (v, D) => { D.lab.drive = v; LAB.update(D); } },
+        { type: 'seg', label: 'Input', v: 'one', opts: [['one', 'One note'], ['fifth', '+ perfect 5th'], ['fourth', '+ perfect 4th'], ['third', '+ major 3rd'], ['tritone', '+ tritone']], on: (v, D) => { D.lab.iv = v; LAB.update(D); } },
+      ],
+      mount: (D) => { D.lab = { type: 'soft', drive: 1, iv: 'one' }; },
+      start: (D) => LAB.start(D), stop: (D) => LAB.stopIt(D),
+      marks: (g, W, h, dpr) => { const f0 = LAB.f0; g.font = `${9 * dpr}px system-ui`; for (let k = 1; k <= 14; k++) { const f = f0 * k; if (f > FMAX) break; const x = fx(f, W); g.strokeStyle = 'rgba(76,201,240,0.35)'; g.setLineDash([3 * dpr, 3 * dpr]); g.beginPath(); g.moveTo(x, 14 * dpr); g.lineTo(x, h); g.stroke(); g.setLineDash([]); g.fillStyle = k % 2 ? '#4cc9f0' : '#34d399'; g.fillText(k, x - 3 * dpr, 11 * dpr); } },
+      listen: 'Soft symmetric at high drive shows only odd numbers (blue): hollow, square-ish. Asymmetric brings in the green even ones and sounds fatter. Then set drive around 10 and switch the input between <i>+ perfect 5th</i> and <i>+ major 3rd</i>. The fifth stays a clean, bigger chord; the third grows low growls and beating.',
+    },
+    im: {
+      title: 'Same distortion, three chords', phrases: ['power', 'third', 'major'], scope: 'spec',
+      cfg: { drive: { on: true, type: 'rat', gain: 0.6, tone: 0.45, level: 0.5 }, amp: { on: true, model: 'marshall', gain: 0.25, master: 0.4 }, cab: { type: '4x12' }, guitar: { type: 'hb', pickup: 'bridge' } },
+      controls: [
+        { k: 'drive.on', label: 'Distortion on', type: 'toggle', v: true },
+        { k: 'drive.gain', label: 'Distortion gain', min: 0, max: 1, v: 0.6, fmt: knob10 },
+      ],
+      listen: 'Power chord, then the full major barre, at the same gain. The barre turns to a dense roar where you can\'t pick out the notes. Turn the gain down until the barre is clear again: that\'s your gain budget for full chords.',
+    },
+  },
+  qs: {
+    q1: { q: 'A perfectly symmetric clipper fed a pure sine produces which harmonics?', opts: ['Only even harmonics', 'Only odd harmonics', 'All harmonics equally', 'No harmonics, only compression'], a: 1, why: 'A curve with f(−x) = −f(x) keeps the waveform\'s half-wave symmetry, and such waveforms contain only odd harmonics. Asymmetry is what lets even harmonics in.' },
+    q2: { q: 'Why does a root-and-fifth power chord stay clear under heavy distortion when a major triad turns to mush?', opts: ['Power chords are louder', 'Intermodulation products of a 3:2 ratio fall on one harmonic series; a third\'s products beat and crowd the low end', 'Distortion removes thirds', 'Major chords have no fundamental'], a: 1, why: 'Sum and difference tones from 3:2 are all multiples of half the root frequency, so they reinforce one implied bass note. With 5:4 (worse still in equal temperament), and more so in six-note chords, the products clash and beat.' },
+  },
+});
+
+// sine-through-clipper engine for the harmonic lab
+const LAB = {
+  f0: 196,
+  shape(t, v) { if (t === 'none') return v; if (t === 'hard') return CURVES.hard(v) / 0.9; if (t === 'asym') return CURVES.germ(v); return Math.tanh(v); },
+  norm(st) { return st.type === 'none' ? 1 / Math.max(1, st.drive) : 1; },
+  ratio: { one: 0, fifth: 7, fourth: 5, third: 4, tritone: 6 },
+  start(D) {
+    audio();
+    const st = D.lab, sh = ctx.createWaveShaper(); sh.oversample = '4x';
+    const pre = gn(1), dc = bq('highpass', 25, 0.7), out = gn(0);
+    const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g2 = gn(0);
+    o1.frequency.value = LAB.f0; o1.connect(pre); o2.connect(g2).connect(pre);
+    chainNodes(pre, sh, dc, out); out.connect(AU.testBus);
+    o1.start(); o2.start();
+    D.labNodes = { sh, pre, out, o2, g2, o1 };
+    LAB.update(D);
+    setP(out.gain, 0.32, 0.05);
+  },
+  update(D) {
+    D.redraw && D.redraw();
+    const N = D.labNodes; if (!N) return;
+    const st = D.lab, semi = LAB.ratio[st.iv];
+    N.o2.frequency.value = LAB.f0 * Math.pow(2, semi / 12);
+    setP(N.g2.gain, st.iv === 'one' ? 0 : 1);
+    const amp = st.iv === 'one' ? 1 : 0.55;
+    N.sh.curve = mkCurve((v) => LAB.shape(st.type, v), 10);
+    setP(N.pre.gain, st.drive * amp * 1.2 / 10);
+    setP(N.out.gain, st.type === 'none' ? 0.32 / Math.max(1, st.drive * amp * 1.2) : 0.32);
+  },
+  stopIt(D) {
+    const N = D.labNodes; if (!N) return; D.labNodes = null;
+    setP(N.out.gain, 0, 0.05); setTimeout(() => { try { N.o1.stop(); N.o2.stop(); N.out.disconnect(); } catch (e) { /* */ } }, 120);
+  },
+};
+</script>
+
+<script>
+/* ===================== Chapters 6–10 ===================== */
+const CRUNCH = { amp: { on: true, model: 'marshall', gain: 0.3, master: 0.45 }, cab: { on: true, type: '4x12' } };
+
+CH.push({
+  id: 'drives', title: 'The drive family', short: 'Drive pedals', mins: 4,
+  body: () => `
+  <p class="lede">Overdrive, distortion and fuzz aren’t three separate things. Each one is a clipper with filters around it, and the filters matter as much as the clipping: <i>what</i> reaches the clipper, and what is done to the result.</p>
+  <div class="tablewrap"><table>
+  <tr><th>Circuit</th><th>Clipping</th><th>The filter trick</th><th>Sound</th></tr>
+  <tr><td><b>Clean boost</b></td><td>Barely any</td><td>None. It just pushes the amp harder.</td><td>The amp’s own breakup, only more of it</td></tr>
+  <tr><td><b>Tube Screamer</b></td><td>Soft, symmetric (diodes in the op-amp feedback)</td><td>Only frequencies above ≈720 Hz get gain. The lows pass clean.</td><td>Mid hump, smooth, tight low end</td></tr>
+  <tr><td><b>Klon-style</b></td><td>Germanium, slightly asymmetric</td><td>A clean path is blended with the dirty one, and the blend shifts as gain rises</td><td>“Transparent”: your guitar plus hair</td></tr>
+  <tr><td><b>Rat</b></td><td>Hard (silicon diodes to ground), huge gain</td><td>A sweepable low-pass “filter” knob</td><td>Raspy, aggressive, can go to fuzz</td></tr>
+  <tr><td><b>Big Muff</b></td><td>Two cascaded clipping stages</td><td>The tone knob blends a low-pass and a high-pass, which scoops ≈1 kHz</td><td>Violin sustain, huge, scooped “wall”</td></tr>
+  <tr><td><b>Fuzz Face</b></td><td>Asymmetric, transistor saturation, gated when starved</td><td>No tone knob. Very low input impedance, so it reacts to the guitar.</td><td>Woolly, then glassy clean as you roll back the guitar’s volume</td></tr></table></div>
+  ${demo('pedal')}
+  ${call('warn', 'Louder always sounds better', 'Your ear hears louder as fuller and brighter, because hearing is more sensitive to bass and treble at higher levels (equal-loudness contours). When you compare pedals or settings, match their levels first. The demos here roughly compensate, and the Level knob is there to fine-tune.')}
+  <h2>The Tube Screamer trick</h2>
+  <p>Metal players put a Tube Screamer in front of an already high-gain amp, with the pedal’s drive near zero and its level up. It adds little distortion. What it does is <b>filter</b>: it cuts lows before the amp’s clipping stages and pushes the mids, so palm mutes go from flubby to tight and percussive. Clipping is driven by the strongest frequencies, so take the bass away before the clipper and add it back after (the amp’s tone stack, the cab’s thump).</p>
+  ${demo('tight')}
+  <h2>Fuzz and the volume knob</h2>
+  ${demo('fuzz')}
+  ${call('inter', 'Interactions', '<b>Pickup output × pedal gain:</b> a humbucker can push a pedal into clipping at settings where a single coil stays clean. <b>Pedal tone × amp EQ:</b> the pedal shapes what gets distorted, the amp shapes what you hear. <b>Gain stacking:</b> two moderate drives in series sound smoother than one at full gain, because each stage clips a little and you get a gentler overall curve.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    pedal: {
+      title: 'Pedalboard: one drive at a time', phrases: ['lick', 'chords', 'power', 'lead'], scope: 'both', cfg: Object.assign({ drive: { on: true } }, CRUNCH, { amp: { on: true, model: 'fender', gain: 0.3, master: 0.4 } }),
+      plot: (cv, D) => { const t = D.state['drive.type'] || 'ts', T = DRIVES[t], d = T.gain(D.state['drive.gain'] ?? 0.5), bias = D.state['drive.bias'] || 0; plotCurve(cv, (u) => CURVES[T.curve](u * d * 0.4, bias) + (T.clean(D.state['drive.gain'] ?? 0.5) * u * 0.4), { label: `${T.name}: transfer curve for a typical pick` }); },
+      controls: [
+        { k: 'drive.type', label: 'Pedal', type: 'seg', v: 'ts', opts: [['boost', 'Boost'], ['ts', 'TS'], ['klon', 'Klon'], ['rat', 'Rat'], ['muff', 'Muff'], ['fuzz', 'Fuzz Face']] },
+        { k: 'drive.on', label: 'Pedal on', type: 'toggle', v: true },
+        { k: 'drive.gain', label: 'Gain / drive', v: 0.5, fmt: knob10 },
+        { k: 'drive.tone', label: 'Tone / filter', v: 0.5, fmt: knob10 },
+        { k: 'drive.level', label: 'Level', v: 0.5, fmt: knob10 },
+        { k: 'drive.bias', label: 'Fuzz bias (starve)', v: 0, fmt: knob10, show: (s) => s['drive.type'] === 'fuzz' },
+      ],
+      listen: 'TS against Rat at the same gain: the TS is thinner in the low end (that 720 Hz high-pass) and smoother; the Rat is wider and buzzier. Then Muff on chords: huge, but listen to the mids sag. In a band it would vanish behind the bass and vocals.',
+    },
+    tight: {
+      title: 'Tube Screamer as a tightener for a high-gain amp', phrases: ['chug', 'power'], scope: 'spec',
+      cfg: { amp: { on: true, model: 'modern', gain: 0.62, master: 0.45, bass: 0.6, depth: 0.5 }, cab: { type: '4x12' }, guitar: { type: 'hb', pickup: 'bridge' }, drive: { on: false, type: 'ts', gain: 0.05, tone: 0.55, level: 0.75 } },
+      controls: [
+        { type: 'ab', label: 'Front end', opts: [{ name: 'Amp alone', set: { 'drive.on': false } }, { name: 'TS, drive 0, level high', set: { 'drive.on': true, 'drive.type': 'ts', 'drive.gain': 0.05, 'drive.level': 0.75 } }, { name: 'Clean boost instead', set: { 'drive.on': true, 'drive.type': 'boost', 'drive.gain': 0.6, 'drive.level': 0.5 } }] },
+        { k: 'amp.gain', label: 'Amp gain', v: 0.62, fmt: knob10 },
+      ],
+      listen: 'on the chug, <i>Amp alone</i> sounds loose and boomy on the palm mutes. With the TS the mutes tighten and the low end stops smearing. The clean boost adds gain across the whole band, bass included, so it gets more saturated but not tighter.',
+    },
+    fuzz: {
+      title: 'Fuzz Face: guitar volume as the gain knob', phrases: ['lick', 'chords', 'lead'], scope: 'wave',
+      cfg: { drive: { on: true, type: 'fuzz', gain: 0.75, tone: 0.5, level: 0.5, bias: 0 }, amp: { on: true, model: 'fender', gain: 0.35, master: 0.5 }, cab: { type: '2x12' }, guitar: { pickup: 'neck' } },
+      controls: [
+        { k: 'guitar.vol', label: 'Guitar volume', min: 0.2, max: 1, v: 1, fmt: knob10 },
+        { k: 'drive.bias', label: 'Bias: healthy → starved', v: 0, fmt: knob10 },
+        { k: 'drive.gain', label: 'Fuzz', v: 0.75, fmt: knob10 },
+      ],
+      listen: 'roll the guitar volume to about 5: the fuzz turns into a glassy, slightly hairy clean, all without touching the pedal. Then push the bias up: notes sputter and gate as they decay, the “dying battery” sound. (A real Fuzz Face cleans up even more than this model, because its low input impedance loads the pickups.)',
+    },
+  },
+  qs: {
+    q1: { q: 'Why does a Tube Screamer with drive at 0 and level high tighten a high-gain amp?', opts: ['It adds lots of distortion', 'It cuts lows and boosts mids before the amp’s clipping stages, so less bass drives the clipping', 'It compresses the output', 'It lowers the amp’s volume'], a: 1, why: 'Clipping is dominated by the strongest frequencies, and on a guitar that’s the bass. Removing bass before the clipper keeps palm mutes tight. The amp and cab put the low end back afterwards, cleanly.' },
+    q2: { q: 'What makes a Klon-style pedal sound “transparent”?', opts: ['It has no clipping', 'A clean path is blended with the clipped path, so your dry tone stays in the mix', 'It uses tubes', 'It has a high-pass at 720 Hz'], a: 1, why: 'The summed clean signal keeps the attack, low end and pickup character, while the clipped path adds harmonics and compression.' },
+  },
+});
+
+CH.push({
+  id: 'amp', title: 'The amplifier', short: 'The amp', mins: 4,
+  body: () => `
+  <p class="lede">A guitar amp is two distortion boxes with a filter between them. The <b>preamp</b> (gain stages) feeds a passive <b>tone stack</b>, which feeds the <b>power amp</b> (master volume, power tubes, output transformer), which drives the speaker.</p>
+  <h2>Preamp gain vs power-amp distortion</h2>
+  <p><b>Preamp distortion</b> comes from small triode stages, often several in a row. It’s tight, fizzy and very saturated, and it’s the modern high-gain sound. <b>Power-amp distortion</b> comes from turning up the master until the output tubes clip. It’s looser and bigger, with more compression and “bloom”. The supply voltage also droops under load (<b>sag</b>), so chords swell after the attack. Old amps with no master volume only got there at stage volume, which is why “cranked” has its own sound.</p>
+  <p>Most amps are <b>push-pull</b>: a pair of tubes each handle half the wave, which cancels even harmonics, so the result is mostly odd-order and punchy. A cathode-biased <b>class-A-style</b> amp like an AC30 compresses differently and keeps more even harmonics: the “chime”.</p>
+  <h2>The tone stack is not a graphic EQ</h2>
+  <p>The Fender/Marshall stack is a passive network of three capacitors and four resistors, the bass, mid and treble pots among them. It can only <b>cut</b>, and the knobs <b>interact</b>: the treble pot sets how much signal reaches the bass and mid controls, and the mid pot shifts the whole curve up and down. With everything at 5, a Fender has a deep scoop around 400–800 Hz. The curve below is computed from the real circuit equations and updates as you turn the knobs.</p>
+  ${demo('amp')}
+  ${call('phys', 'Presence and depth', 'Both work in the power amp’s negative-feedback loop. <b>Presence</b> reduces feedback at high frequencies, so it lifts about 3–5 kHz <i>after</i> the distortion: edge and cut without more fizz from the preamp. <b>Depth/resonance</b> does the same around 100 Hz: the thump of a closed 4×12.')}
+  ${demo('prepost')}
+  ${call('inter', 'Interactions', '<b>Where EQ sits relative to distortion</b> is the big one. EQ before clipping changes <i>what</i> distorts: more mids into the clipper gives a more mid-saturated, vocal tone. EQ after clipping changes the <i>colour</i> of the distortion. The tone stack sits between preamp and power amp, so with the master up its settings also change how the power tubes clip. <b>Gain × treble:</b> high gain amplifies the top end’s fizz, so you usually lower treble and presence as gain goes up. <b>Sag × attack:</b> more sag means a softer attack and more swell.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    amp: {
+      title: 'Amp head', phrases: ['chords', 'lick', 'chug', 'lead'], scope: 'spec', cfg: { amp: { on: true }, cab: { type: '2x12' }, guitar: { pickup: 'bridge' } },
+      plot: (cv, D) => { const p = Object.assign({}, DEF.amp); for (const [k, v] of Object.entries(D.state)) if (k.startsWith('amp.')) p[k.slice(4)] = v; const s = rig ? rig.blocks.amp.stackResp(p) : toneStackS('fender', p.bass, p.mid, p.treble); plotResp(cv, (f) => sMagDb(s, f), { range: 36, top: 6, lo: 30, hi: 16000 }); const c = cv.getContext('2d'), dpr = Math.min(2, window.devicePixelRatio || 1); c.fillStyle = '#ffb547'; c.font = `${10 * dpr}px system-ui`; c.fillText(`tone stack (${AMPS[p.model].stack === 'fender' ? 'Fender' : 'Marshall'} values)${AMPS[p.model].mid != null ? ', no mid knob on this amp' : ''}`, 60 * dpr, 13 * dpr); },
+      controls: [
+        { k: 'amp.model', label: 'Amp', type: 'seg', v: 'fender', opts: [['fender', 'US clean'], ['vox', 'UK chime'], ['marshall', 'UK crunch'], ['modern', 'Modern high gain']] },
+        { k: 'amp.gain', label: 'Gain (preamp)', v: 0.3, fmt: knob10 },
+        { k: 'amp.master', label: 'Master (power amp)', v: 0.35, fmt: knob10 },
+        { k: 'amp.bass', label: 'Bass', v: 0.5, fmt: knob10 },
+        { k: 'amp.mid', label: 'Middle', v: 0.5, fmt: knob10, show: (s) => (s['amp.model'] || 'fender') !== 'vox' },
+        { k: 'amp.treble', label: 'Treble', v: 0.6, fmt: knob10 },
+        { k: 'amp.presence', label: 'Presence', v: 0.5, fmt: knob10 },
+        { k: 'amp.depth', label: 'Depth / resonance', v: 0.25, fmt: knob10 },
+        { k: 'amp.sag', label: 'Sag', v: 0.3, fmt: knob10 },
+        { k: 'amp.level', label: 'Output level', v: 0.6, fmt: knob10 },
+      ],
+      listen: 'on <i>US clean</i>, set treble to 0 and move the middle knob: the whole curve moves, not one band. Then treble to 10 and do it again; the mid knob behaves differently. On <i>Modern high gain</i>, turn presence to 10 and then treble to 10: presence adds cut, treble adds fizz.',
+    },
+    prepost: {
+      title: 'Same loudness, different distortion', phrases: ['chords', 'power', 'lick'], scope: 'wave', cfg: { amp: { on: true, model: 'marshall', sag: 0.7 }, cab: { type: '4x12' }, guitar: { type: 'hb' } },
+      controls: [
+        { type: 'ab', label: 'Where the distortion happens', opts: [{ name: 'Preamp: gain 8, master 2', set: { 'amp.gain': 0.8, 'amp.master': 0.2 } }, { name: 'Power amp: gain 2, master 9', set: { 'amp.gain': 0.2, 'amp.master': 0.92 } }] },
+        { k: 'amp.sag', label: 'Sag', v: 0.7, fmt: knob10 },
+      ],
+      listen: 'the preamp version is tighter and fizzier, with a hard, even wall. The power-amp version is looser and more open: chords keep their separation, the attack is softer and the notes bloom, more so with sag up.',
+    },
+  },
+  qs: {
+    q1: { q: 'A Fender amp with bass, mid and treble all on 5. What does the tone stack do?', opts: ['Nothing; 5 is flat', 'Scoops the mids around 400–800 Hz', 'Boosts the mids', 'Cuts only the treble'], a: 1, why: 'A passive FMV stack only cuts, and at noon its natural shape is a deep mid scoop. “Flat” on the dial is not flat in frequency.' },
+    q2: { q: 'Compared with preamp distortion, power-amp distortion tends to be…', opts: ['Tighter and fizzier', 'Looser and bigger, with more compression and bloom from sag', 'Identical', 'Cleaner'], a: 1, why: 'Power tubes clipping into a transformer, plus supply sag, give a softer, more dynamic compression. Cascaded preamp stages give dense, tight saturation.' },
+  },
+});
+
+CH.push({
+  id: 'cab', title: 'Speaker, cabinet and microphone', short: 'Cab & mic', mins: 3,
+  body: () => `
+  <p class="lede">The speaker is the biggest filter in the chain. A 12-inch paper cone is too heavy to follow anything much above about 5–6 kHz, it resonates around 80–120 Hz, and between those it breaks up into peaks and dips. Those peaks and dips are each speaker’s fingerprint.</p>
+  <ul>
+    <li><b>Low-pass:</b> it removes the harsh harmonics the distortion created. Plug a distortion straight into a PA or interface with no cab simulation and you hear raw <i>fizz</i>.</li>
+    <li><b>Resonance:</b> a closed-back 4×12 traps air behind the cones, giving the low thump of palm mutes. An open back leaks the rear wave: less bass, more air and room.</li>
+    <li><b>Cone breakup</b> (≈1.5–4 kHz): the peaks that make one speaker sound “woody”, another “aggressive”.</li>
+  </ul>
+  <h2>The microphone is another filter</h2>
+  <p>Aimed at the dust cap, a mic hears the bright centre of the cone. Moved toward the edge, it hears the darker outer cone. Off-axis is smoother still. Close up, the mic’s <b>proximity effect</b> boosts bass. Pull it back and you get less bass and more room.</p>
+  ${demo('cab')}
+  ${call('phys', 'Impulse responses (IRs)', 'Speaker, cabinet, mic and room together are close to a <b>linear</b> system, so they can be captured exactly as an <i>impulse response</i>: record a click (or a sweep) through the cab and convolve your signal with the result. That’s what IR loaders do. An IR can’t capture anything nonlinear, like speaker compression at high volume, power-amp distortion or sag. Capturing those needs the neural modelling in the last chapter.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    cab: {
+      title: 'Cab and mic', phrases: ['lick', 'chug', 'chords'], scope: 'spec', cfg: Object.assign({}, CRUNCH, { amp: { on: true, model: 'marshall', gain: 0.6, master: 0.45 } }),
+      plot: (cv, D) => { if (!rig) { plotResp(cv, () => 0, { range: 48, top: 12 }); return; } const t = D.state['cab.type'] || '4x12'; plotResp(cv, t === 'none' ? () => 0 : nodesDb(rig.blocks.cab.nodes), { range: 48, top: 12, lo: 30, hi: 20000 }); },
+      controls: [
+        { k: 'cab.type', label: 'Cabinet', type: 'seg', v: '4x12', opts: [['none', 'None (direct)'], ['1x8', '1×8 practice'], ['1x12', '1×12 open'], ['2x12', '2×12 open'], ['4x12', '4×12 closed']], on: (v, D) => setTimeout(D.redraw, 120) },
+        { k: 'cab.mic', label: 'Mic: centre cap → cone edge', v: 0.3, on: (v, D) => setTimeout(D.redraw, 120) },
+        { k: 'cab.dist', label: 'Mic distance: close → room', v: 0.15, on: (v, D) => setTimeout(D.redraw, 120) },
+      ],
+      listen: 'switch to <i>None (direct)</i>: angry-bee fizz above 5 kHz. That’s what the speaker normally removes. Then 1×8 against 4×12 on the chug: the small speaker is boxy and nasal with no thump. Slide the mic from centre to edge and the top end rounds off.',
+    },
+  },
+  qs: {
+    q1: { q: 'You plug a distortion pedal straight into an audio interface and it sounds harsh and buzzy. Most likely reason?', opts: ['The pedal is broken', 'There’s no speaker/cab filtering, so the distortion’s harmonics above ~5 kHz go straight through', 'The interface is clipping', 'The cable is too long'], a: 1, why: 'Distortion creates a lot of high-frequency energy that a guitar speaker never reproduces. Recording direct needs a cab simulation or IR.' },
+    q2: { q: 'Which part of an amp rig can an impulse response capture accurately?', opts: ['Power-tube saturation', 'Speaker, cabinet, mic and room as a linear filter', 'Sag', 'The preamp’s distortion'], a: 1, why: 'Convolution reproduces linear, time-invariant systems. Anything level-dependent, like clipping, compression or sag, falls outside it.' },
+  },
+});
+
+CH.push({
+  id: 'eq', title: 'The EQ map: hearing frequencies', short: 'EQ map', mins: 3,
+  body: () => `
+  <p class="lede">Describing tone in words gets easier once you can name frequency regions by ear. Here is a working map for electric guitar. The edges are fuzzy, but the words people use land in these regions surprisingly consistently.</p>
+  <div class="tablewrap"><table>
+  <tr><th>Region</th><th>Too little</th><th>Just right</th><th>Too much</th></tr>
+  <tr><td>80–150 Hz</td><td>thin</td><td>body, thump (low E fundamental is 82 Hz)</td><td>boomy, fights the bass and kick</td></tr>
+  <tr><td>200–400 Hz</td><td>cold</td><td>warmth, fullness</td><td>mud, boxiness</td></tr>
+  <tr><td>500–900 Hz</td><td>scooped, hollow</td><td>body of the note, “meat”</td><td>honky, nasal</td></tr>
+  <tr><td>1–2 kHz</td><td>distant, buried</td><td>bite, pick attack, cut</td><td>tinny, telephone-like</td></tr>
+  <tr><td>2.5–4 kHz</td><td>dull</td><td>presence, edge (the ear is most sensitive here)</td><td>harsh, painful</td></tr>
+  <tr><td>5–8 kHz</td><td>dark</td><td>sparkle (clean), sizzle (dirty)</td><td>fizz, ice-pick</td></tr>
+  <tr><td>8 kHz +</td><td>(not much lost)</td><td>air, string noise</td><td>hiss, mostly noise for guitar</td></tr></table></div>
+  ${demo('geq')}
+  <h2>Ear training: guess the boosted band</h2>
+  <p>Engineers find problem frequencies with a narrow boost: sweep it until the ugly part leaps out, then cut there. Learning what a +12 dB bump at each region sounds like is the fastest way to build this map in your ears.</p>
+  ${demo('game')}
+  ${call('inter', 'Interactions', '<b>EQ before vs after distortion</b> (again): bass boosted before a drive gives flub, while bass boosted after gives a big, clean low end. <b>Solo vs mix:</b> a tone that sounds huge alone usually has too much 80–300 Hz to sit in a band. A high-pass around 80–120 Hz and a little less gain makes the guitar sound bigger in context, because the bass player isn’t masked.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    geq: {
+      title: 'Graphic EQ (after the cab)', phrases: ['chords', 'lick', 'chug'], scope: 'spec', cfg: Object.assign({ eq: { on: true } }, CRUNCH),
+      plot: (cv, D) => { if (!rig) return; plotResp(cv, nodesDb(rig.blocks.eq.nodes), { range: 36, top: 18, lo: 30, hi: 20000 }); },
+      controls: [...EQF.map((f, i) => ({ k: `eq.b.${i}`, label: f >= 1000 ? f / 1000 + ' kHz' : f + ' Hz', min: -12, max: 12, step: 0.5, v: 0, fmt: (v) => (v > 0 ? '+' : '') + v + ' dB', on: (v, D) => setTimeout(D.redraw, 60) })),
+        { k: 'eq.hp', label: 'High-pass (low cut)', min: 20, max: 400, step: 1, v: 20, fmt: (v) => v + ' Hz', on: (v, D) => setTimeout(D.redraw, 60) },
+        { k: 'eq.lp', label: 'Low-pass (high cut)', min: 2000, max: 20000, step: 100, v: 20000, fmt: (v) => (v / 1000).toFixed(1) + ' kHz', on: (v, D) => setTimeout(D.redraw, 60) },
+        { type: 'btn', label: 'Flatten', on: (D) => { const o = {}; EQF.forEach((f, i) => { o[`eq.b.${i}`] = 0; }); o['eq.hp'] = 20; o['eq.lp'] = 20000; D.setState(o); } }],
+      listen: 'boost 320 Hz to +12: mud and box. Cut it instead and the chords open up. Boost 640 Hz: honk, like a cocked wah. Boost 2.5 kHz: presence, then harshness. Raise the high-pass to about 120 Hz: thinner alone, but this is roughly what a guitar sounds like in a finished mix.',
+    },
+    game: {
+      title: 'Which band is boosted?', phrases: ['chords', 'lick'], scope: 'spec', cfg: Object.assign({ eq: { on: true } }, CRUNCH),
+      controls: [{ k: 'eq.on', label: 'Boost in (toggle to compare with flat)', type: 'toggle', v: true }],
+      mount: (D) => {
+        const box = document.createElement('div');
+        box.innerHTML = `<div class="row" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><button class="new">🎲 New mystery boost</button><span class="small muted sc"></span></div><div class="seg ans">${EQF.map((f, i) => `<button data-i="${i}">${f >= 1000 ? f / 1000 + 'k' : f}</button>`).join('')}</div><div class="why hidden"></div>`;
+        $('.ctls', D.el).before(box);
+        let target = -1, tries = 0, right = 0;
+        const newOne = async () => { target = Math.floor(Math.random() * EQF.length); const o = {}; EQF.forEach((f, i) => { o[`eq.b.${i}`] = i === target ? 12 : 0; }); o['eq.on'] = true; await unlock(); D.setState(o); if (!PL.playing || ACTIVE !== D) play(D.phrase); $('.why', box).classList.add('hidden'); $$('.ans button', box).forEach((b) => b.classList.remove('on')); };
+        $('.new', box).onclick = newOne;
+        $$('.ans button', box).forEach((b) => b.onclick = () => {
+          if (target < 0) { newOne(); return; }
+          const i = +b.dataset.i; tries++; if (i === target) right++;
+          $$('.ans button', box).forEach((x, j) => x.classList.toggle('on', j === target));
+          const w = $('.why', box); w.classList.remove('hidden'); w.innerHTML = i === target ? `<b style="color:var(--good)">Yes, ${b.textContent} Hz.</b> Hit 🎲 for another.` : `<b style="color:var(--bad)">It was ${EQF[target] >= 1000 ? EQF[target] / 1000 + 'k' : EQF[target]} Hz.</b> Toggle the boost off and on to hear it, then 🎲.`;
+          $('.sc', box).textContent = `${right} / ${tries} correct`; target = -1;
+        });
+      },
+      listen: 'look at the spectrum, then close your eyes and use your ears. Neighbouring bands are an octave apart, so being one band off is a near miss, not a failure.',
+    },
+  },
+  qs: {
+    q1: { q: 'A rhythm tone sounds “muddy” and “boxy”. Where do you cut first?', opts: ['80 Hz', '200–400 Hz', '2.5 kHz', '8 kHz'], a: 1, why: 'Mud and boxiness live in the low-mids. Cutting a few dB around 250–400 Hz clears chords without thinning the low end.' },
+    q2: { q: 'Your tone is huge alone but disappears in the band. The usual fix?', opts: ['More bass and more gain', 'High-pass around 100 Hz, a bit less gain, more upper mids', 'More reverb', 'Scoop the mids further'], a: 1, why: 'In a mix the bass guitar owns the lows and the vocal owns the mids. Guitars cut through with low-cut, less gain (clearer note definition) and upper-mid presence.' },
+  },
+});
+
+CH.push({
+  id: 'mod', title: 'Modulation: making it move', short: 'Modulation', mins: 3,
+  body: () => `
+  <p class="lede">Every modulation effect is a <b>low-frequency oscillator (LFO)</b> slowly moving one parameter. Which parameter it moves defines the effect.</p>
+  <div class="tablewrap"><table>
+  <tr><th>Effect</th><th>What the LFO moves</th><th>Typical numbers</th></tr>
+  <tr><td><b>Tremolo</b></td><td>Volume</td><td>2–10 Hz. Square shape gives a chop.</td></tr>
+  <tr><td><b>Harmonic tremolo</b></td><td>Lows and highs, in opposite directions</td><td>Early-60s brown Fender. Phasey, swirling.</td></tr>
+  <tr><td><b>Vibrato</b></td><td>Pitch (a short delay, 100% wet)</td><td>Sounds like a warbling tape or a rotating speaker</td></tr>
+  <tr><td><b>Chorus</b></td><td>A 10–25 ms delay mixed with dry</td><td>The copy drifts slightly in pitch, so it sounds like two players</td></tr>
+  <tr><td><b>Flanger</b></td><td>A 1–10 ms delay with feedback</td><td>A sweeping comb filter: the jet plane</td></tr>
+  <tr><td><b>Phaser</b></td><td>The frequency of all-pass stages</td><td>Unevenly spaced notches, softer and vocal. Four stages give two notches.</td></tr>
+  <tr><td><b>Uni-Vibe</b></td><td>A phaser with unequal stages plus a throb</td><td>Late-60s, liquid and pulsing</td></tr></table></div>
+  ${call('phys', 'Comb filtering', 'Mix a signal with a copy delayed by τ and every frequency where the copy arrives half a cycle late cancels: notches at 1/(2τ), 3/(2τ), 5/(2τ)… A 1 ms delay notches 500, 1500, 2500 Hz… Sweep τ and the notches sweep: that’s a flanger. Feedback deepens and sharpens them into resonant peaks. A phaser’s notches aren’t evenly spaced, which is why it sounds smoother and less metallic.')}
+  ${demo('mod')}
+  ${call('inter', 'Interactions', '<b>Before or after the drive?</b> Modulation into distortion gets squashed and smeared: a phaser or Uni-Vibe in front of a dirty amp is the classic swirly, vocal 70s sound. After the drive (or in the amp’s effects loop) it stays lush and obvious. Tremolo before distortion is partly erased by the clipping, so put it after. <b>Rate × tempo:</b> modulation that ignores the song’s tempo sounds seasick. <b>Depth × mix:</b> chorus at 50/50 gives the deepest shimmer, while vibrato needs 100% wet.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    mod: {
+      title: 'Modulation box (after the amp)', phrases: ['arp', 'chords', 'lick'], scope: 'spec', cfg: Object.assign({ mod: { on: true }, guitar: { pickup: 'nm' } }, CLEAN),
+      controls: [
+        { k: 'mod.type', label: 'Effect', type: 'seg', v: 'chorus', opts: [['chorus', 'Chorus'], ['flanger', 'Flanger'], ['phaser', 'Phaser'], ['univibe', 'Uni-Vibe'], ['vibrato', 'Vibrato'], ['tremolo', 'Tremolo'], ['harmtrem', 'Harmonic trem']] },
+        { k: 'mod.on', label: 'Effect on', type: 'toggle', v: true },
+        { k: 'mod.rate', label: 'Rate', v: 0.35, fmt: knob10 },
+        { k: 'mod.depth', label: 'Depth', v: 0.6, fmt: knob10 },
+        { k: 'mod.mix', label: 'Mix', v: 0.5, fmt: pct, show: (s) => ['chorus', 'flanger', 'phaser'].includes(s['mod.type'] || 'chorus') },
+        { k: 'mod.fb', label: 'Feedback (regeneration)', min: -0.85, max: 0.85, v: 0.5, fmt: (v) => Math.round(v * 100) + '%', show: (s) => s['mod.type'] === 'flanger' },
+        { k: 'mod.shape', label: 'Shape', type: 'seg', v: 'sine', opts: [['sine', 'Smooth'], ['square', 'Choppy']], show: (s) => s['mod.type'] === 'tremolo' },
+        { k: 'mod.stages', label: 'Stages', type: 'seg', v: 4, opts: [[4, '4 (two notches)'], [6, '6 (three notches)']], show: (s) => s['mod.type'] === 'phaser' },
+      ],
+      listen: 'with flanger at feedback 70% and slow rate, watch the spectrum: the comb’s teeth sweep up and down. Try negative feedback; the peaks move to different frequencies and it sounds hollower. Chorus with headphones: the two sides are modulated in opposite directions, so it spreads wide.',
+    },
+  },
+  qs: {
+    q1: { q: 'What separates a flanger from a chorus?', opts: ['Flangers modulate volume', 'Flanger: shorter delay (1–10 ms) with feedback, giving a resonant sweeping comb. Chorus: longer delay (10–25 ms), little or no feedback, giving doubling.', 'Chorus is only stereo', 'They are identical'], a: 1, why: 'Delay time decides whether you hear a comb filter (very short) or a second voice (longer). Feedback turns the comb’s notches into resonant peaks.' },
+    q2: { q: 'Where does a tremolo usually go, and why?', opts: ['First, before the drive, so the clipping exaggerates it', 'After the distortion, because clipping flattens volume changes and would erase the effect', 'It doesn’t matter', 'Between the pickups'], a: 1, why: 'A saturated stage outputs about the same level whatever goes in, so a volume LFO in front of it mostly disappears. After the drive, the pulsing comes through intact.' },
+  },
+});
+</script>
+
+<script>
+/* ===================== Chapters 11–17 ===================== */
+const HIGAIN = { amp: { on: true, model: 'modern', gain: 0.62, master: 0.4, bass: 0.55, mid: 0.45, treble: 0.6 }, cab: { on: true, type: '4x12' } };
+const ORD = {
+  std: ['comp', 'wah', 'drive', 'drive2', 'amp', 'cab', 'eq', 'mod', 'delay', 'reverb'],
+  delayFirst: ['comp', 'wah', 'delay', 'drive', 'drive2', 'amp', 'cab', 'eq', 'mod', 'reverb'],
+  revFirst: ['comp', 'wah', 'reverb', 'drive', 'drive2', 'amp', 'cab', 'eq', 'mod', 'delay'],
+  fuzzWah: ['comp', 'drive', 'wah', 'drive2', 'amp', 'cab', 'eq', 'mod', 'delay', 'reverb'],
+  compLast: ['wah', 'drive', 'comp', 'drive2', 'amp', 'cab', 'eq', 'mod', 'delay', 'reverb'],
+};
+// a whole rig as one flat A/B "set": every block off unless the preset turns it on
+const ALLOFF = { comp: { on: false }, wah: { on: false }, drive: { on: false }, drive2: { on: false }, eq: { on: false }, mod: { on: false }, delay: { on: false }, reverb: { on: false } };
+function flat(o, pre = '', out = {}) { for (const [k, v] of Object.entries(o)) { const p = pre ? pre + '.' + k : k; if (v && typeof v === 'object' && !Array.isArray(v)) flat(v, p, out); else out[p] = Array.isArray(v) ? v.slice() : v; } return out; }
+const rigSet = (cfg) => flat(deepMerge(deepMerge(clone(DEF), clone(ALLOFF)), clone(cfg)));
+const rigCfg = (cfg) => deepMerge(clone(ALLOFF), clone(cfg));
+
+CH.push({
+  id: 'time', title: 'Time: delay and reverb', short: 'Delay & reverb', mins: 4,
+  body: () => `
+  <p class="lede">Delay and reverb are the same physics at different densities: copies of your signal arriving later. A few distinct copies read as <b>echo</b>. Thousands of overlapping copies read as a <b>room</b>.</p>
+  <h2>Delay: four numbers</h2>
+  <ul>
+    <li><b>Time.</b> Under ~35 ms the copy fuses with the note (doubling, comb filtering). 60–130 ms is <b>slapback</b>, the rockabilly and country sound. 300–600 ms reads as a distinct echo, and tempo-synced times make it part of the rhythm.</li>
+    <li><b>Feedback</b> (regeneration): how much of each echo is fed back in, so how many repeats you get. Near 100% it builds on itself into self-oscillation.</li>
+    <li><b>Mix</b>: how loud the repeats sit under the dry note. Ambient players often use 30–50%; most rhythm parts sit at 10–20%.</li>
+    <li><b>Character</b>: what happens to each repeat. <b>Digital</b> repeats are exact copies. <b>Analog</b> (bucket-brigade) repeats lose highs and lows each pass and get darker and murkier. <b>Tape</b> repeats wobble slightly in pitch (wow and flutter) and saturate as they build.</li>
+  </ul>
+  ${call('phys', 'Why the dotted eighth works', 'At tempo T, a dotted-eighth delay lands ¾ of a beat after each note. Play straight eighths and the echoes fall exactly between your notes, so one picked note becomes a cascading sixteenth-note pattern. That is the whole trick behind the U2/Edge sound, and it only works when the delay time is locked to the tempo.')}
+  ${demo('delay')}
+  <h2>Reverb: the room</h2>
+  <p>A real room returns a few distinct <b>early reflections</b> from nearby walls in the first 5–80 ms, then a dense, decaying <b>tail</b>. Your ears read the size of the room from the early-reflection timing and the length of the tail. They read the wall materials from how fast the highs die away.</p>
+  <ul>
+    <li><b>Decay (RT60)</b>: the time for the tail to fall 60 dB. A small room is about 0.3–0.8 s, a hall 1.8–3 s, a cathedral 5 s or more.</li>
+    <li><b>Pre-delay</b>: the gap before the reverb starts. 20–40 ms keeps your pick attack clean and dry in front of the wash. It's the single most useful reverb setting.</li>
+    <li><b>Tone/damping</b>: a darker tail sits behind the guitar, a brighter one competes with it.</li>
+    <li><b>Type.</b> <b>Spring</b>: the boingy, drippy tank in a Fender amp; surf guitar. <b>Plate</b>: a dense, bright, smooth metal sheet; classic on vocals and leads. <b>Hall</b>: slow build, big and dark. <b>Room</b>: short and natural, makes a close-miked amp sound like it's in a real space.</li>
+  </ul>
+  ${demo('verb')}
+  ${call('inter', 'Interactions', '<b>Gain × space.</b> Distortion compresses, so every echo and tail comes out as loud as the note and turns to mush. High-gain players use less mix, shorter decays, and often duck the delay so it only blooms between phrases. <b>Low end × reverb.</b> Reverb on bass frequencies muddies everything, which is why studio reverbs are high-passed at 150–300 Hz (this one is). <b>Tempo × delay.</b> A delay that ignores the song’s tempo fights the drummer. <b>Order</b>: put delay and reverb before a distorted amp and the amp distorts the echoes too; more on that in the Order chapter.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    delay: {
+      title: 'Delay pedal (end of the chain)', phrases: ['lick', 'arp', 'chug'], scope: 'wave', cfg: Object.assign({ delay: { on: true } }, CLEAN),
+      controls: [
+        { k: 'delay.mode', label: 'Character', type: 'seg', v: 'analog', opts: [['digital', 'Digital'], ['analog', 'Analog'], ['tape', 'Tape']] },
+        { k: 'delay.sync', label: 'Time', type: 'seg', v: 'off', opts: [['off', 'Free'], ['q', '1/4'], ['d8', 'Dotted 1/8'], ['e', '1/8'], ['t8', '1/8 triplet']] },
+        { k: 'delay.time', label: 'Free time', min: 20, max: 1200, step: 1, v: 380, fmt: (v) => v + ' ms', show: (s) => (s['delay.sync'] || 'off') === 'off' },
+        { k: 'delay.fb', label: 'Feedback', min: 0, max: 1.05, v: 0.35, fmt: pct },
+        { k: 'delay.mix', label: 'Mix', v: 0.3, fmt: pct },
+        { k: 'delay.on', label: 'Delay on', type: 'toggle', v: true },
+        { type: 'ab', label: 'Classic settings', opts: [
+          { name: 'Slapback', set: { 'delay.sync': 'off', 'delay.time': 95, 'delay.fb': 0.05, 'delay.mix': 0.4, 'delay.mode': 'tape' } },
+          { name: 'Dotted-8th shimmer', set: { 'delay.sync': 'd8', 'delay.fb': 0.4, 'delay.mix': 0.45, 'delay.mode': 'digital' } },
+          { name: 'Dark analog wash', set: { 'delay.sync': 'off', 'delay.time': 520, 'delay.fb': 0.65, 'delay.mix': 0.4, 'delay.mode': 'analog' } },
+          { name: 'Tape runaway', set: { 'delay.sync': 'off', 'delay.time': 330, 'delay.fb': 1.02, 'delay.mix': 0.45, 'delay.mode': 'tape' } },
+        ] },
+      ],
+      listen: 'switch Character while the repeats ring: digital repeats stay crisp, analog ones get darker each time round, and tape ones wobble. With the clean arpeggio, Dotted 1/8 turns eighth notes into a rippling sixteenth pattern. “Tape runaway” sets feedback past 100%: the repeats grow and saturate. Stop it once you’ve heard it.',
+    },
+    verb: {
+      title: 'Reverb', phrases: ['chords', 'lick', 'arp'], scope: 'wave', cfg: Object.assign({ reverb: { on: true, type: 'spring', decay: 2, mix: 0.35 } }, CLEAN),
+      controls: [
+        { k: 'reverb.type', label: 'Type', type: 'seg', v: 'spring', opts: [['room', 'Room'], ['spring', 'Spring'], ['plate', 'Plate'], ['hall', 'Hall']] },
+        { k: 'reverb.decay', label: 'Decay (RT60)', min: 0.3, max: 6, step: 0.05, v: 2, fmt: (v) => v.toFixed(1) + ' s' },
+        { k: 'reverb.pre', label: 'Pre-delay', min: 0, max: 120, step: 1, v: 10, fmt: (v) => v + ' ms' },
+        { k: 'reverb.tone', label: 'Tone (dark ↔ bright)', v: 0.6, fmt: knob10 },
+        { k: 'reverb.mix', label: 'Mix', v: 0.35, fmt: pct },
+        { k: 'reverb.on', label: 'Reverb on', type: 'toggle', v: true },
+      ],
+      listen: 'spring on the lick: the “drip” on every pick attack. Switch to hall and raise decay to 4 s: lovely on the chords, smeared on the lick. Then set pre-delay to about 60 ms and hear the dry attack step out in front of the wash.',
+    },
+  },
+  qs: {
+    q1: { q: 'You want rippling U2-style echoes from simple eighth notes. What’s the setting?', opts: ['Slapback, about 100 ms', 'A dotted-eighth delay synced to tempo, moderate feedback, fairly high mix', 'A long hall reverb', 'Feedback above 100%'], a: 1, why: 'Echoes ¾ of a beat later fall between straight eighth notes, turning them into a sixteenth-note pattern. It has to be locked to the tempo to work.' },
+    q2: { q: 'A big reverb makes your fast lead lines blurry. Which single setting helps most without making it smaller?', opts: ['Pre-delay of 30–60 ms', 'More mix', 'Brighter tone', 'More gain'], a: 0, why: 'Pre-delay holds the reverb back so each note’s attack is heard dry and clear before the tail arrives. The space stays big; the articulation comes back.' },
+  },
+});
+
+CH.push({
+  id: 'wah', title: 'Filters you move: wah and envelope filter', short: 'Wah & filters', mins: 2,
+  body: () => `
+  <p class="lede">A wah is one <b>resonant bandpass filter</b>: a narrow peak that boosts a band and cuts the rest. Rocking the pedal sweeps the peak from about 400 Hz (heel down, dark: “uuu”) to about 2 kHz (toe down, bright: “eee”). Our mouths do the same thing when we move from one vowel to another, which is why a wah sounds like it’s talking.</p>
+  <ul>
+    <li><b>Manual</b>: your foot is the modulator. Rocking in time with the beat is the funk “wacka”. Parking it half-open is the “cocked wah” honk, a fixed nasal midrange.</li>
+    <li><b>Auto-wah</b>: an LFO rocks it for you.</li>
+    <li><b>Envelope filter</b> (auto-wah triggered by your picking): the harder you pick, the higher the filter jumps, then it falls as the note decays. The classic “quack”.</li>
+  </ul>
+  ${call('phys', 'Q is the sharpness', 'The filter’s Q sets how narrow and peaky the band is. Higher Q gives a more vocal, more dramatic sweep but a thinner sound in between. Vintage wahs sit around Q 3–6.')}
+  ${demo('wah')}
+  ${call('inter', 'Interactions', '<b>Wah × fuzz.</b> Wah before a fuzz: the fuzz squashes the level changes but keeps the moving resonance, giving a vocal, singing sweep (the Hendrix order). Wah after a fuzz sounds more extreme, synthy and thin. Try both in the Order chapter. <b>Envelope filter × compressor.</b> A compressor before an envelope filter evens out your picking, so the filter opens the same amount every note, which defeats the point.')}
+  ${qz('q1')}`,
+  demos: {
+    wah: {
+      title: 'Wah / auto-wah / envelope filter', phrases: ['lick', 'chug', 'chords'], scope: 'spec', cfg: Object.assign({ wah: { on: true } }, CRUNCH),
+      controls: [
+        { k: 'wah.mode', label: 'Mode', type: 'seg', v: 'manual', opts: [['manual', 'Pedal (manual)'], ['auto', 'Auto (LFO)'], ['env', 'Envelope filter']] },
+        { k: 'wah.pos', label: 'Pedal position (heel ↔ toe)', v: 0.5, fmt: knob10, show: (s) => (s['wah.mode'] || 'manual') === 'manual', hint: 'Drag back and forth while it plays: you are the LFO.' },
+        { k: 'wah.rate', label: 'Auto rate', v: 0.4, fmt: knob10, show: (s) => s['wah.mode'] === 'auto' },
+        { k: 'wah.sens', label: 'Sensitivity', v: 0.5, fmt: knob10, show: (s) => s['wah.mode'] === 'env' },
+        { k: 'wah.q', label: 'Q (peak sharpness)', min: 1, max: 12, step: 0.1, v: 5, fmt: (v) => v.toFixed(1) },
+        { k: 'wah.on', label: 'Wah on', type: 'toggle', v: true },
+      ],
+      listen: 'watch the peak travel across the spectrum as you move the pedal. Park it at about 3 for the honky “cocked wah”. In envelope mode with the soft-to-hard phrase picked, quiet notes stay dark and hard ones quack.',
+    },
+  },
+  qs: {
+    q1: { q: 'Physically, what is a wah pedal?', opts: ['A volume pedal', 'A resonant bandpass filter whose centre frequency your foot sweeps', 'A pitch shifter', 'A fast tremolo'], a: 1, why: 'One narrow, resonant peak swept between about 400 Hz and 2 kHz. It mimics the formant shifts of a mouth changing vowels.' },
+  },
+});
+
+CH.push({
+  id: 'order', title: 'Order and interaction', short: 'Order', mins: 4,
+  body: () => `
+  <p class="lede">Linear stages (EQ, cab, filters) can be swapped with no audible difference. Nonlinear stages (drive, compressor, fuzz) can’t: <b>whatever sits before a nonlinear stage gets processed by it</b>. That one idea answers almost every “which order?” question.</p>
+  <div class="grid2">
+    <div class="card"><b>Delay → drive</b><br>Echoes are distorted too and pile up into a wash. Each repeat is as loud as the note. Chaotic, sometimes great.</div>
+    <div class="card"><b>Drive → delay</b><br>The distorted note is echoed cleanly. Repeats decay naturally under the playing. The usual choice.</div>
+    <div class="card"><b>Comp → drive</b><br>Even level going into the clipping: more sustain, consistent breakup. Standard.</div>
+    <div class="card"><b>Drive → comp</b><br>The distortion is already squashed, so the compressor mostly raises noise and hiss.</div>
+    <div class="card"><b>Wah → fuzz</b><br>Vocal sweep, thick. The classic order.</div>
+    <div class="card"><b>Fuzz → wah</b><br>Extreme, synthy, thinner sweep.</div>
+  </div>
+  ${demo('ord')}
+  <h2>Gain staging: where the distortion comes from</h2>
+  <p>A drive pedal into an amp is two clipping stages in series. You choose which one does the work:</p>
+  <ul>
+    <li><b>Boost into a clean amp</b>: the pedal provides most of the dirt, and the amp just amplifies it.</li>
+    <li><b>Boost into an amp at the edge of breakup</b>: the pedal mostly adds level, so the amp’s own preamp distorts. Usually the most “amp-like” and dynamic result.</li>
+    <li><b>Tube Screamer with low gain, high level into a high-gain amp</b>: the pedal cuts lows before the amp’s distortion, so palm mutes tighten instead of flubbing. That’s the standard metal trick.</li>
+  </ul>
+  ${demo('stack')}
+  ${call('inter', 'The general rule', 'Think of every nonlinear stage as asking: <i>how loud is the input, and what frequencies does it contain?</i> Anything that changes level or spectrum before it (volume knob, EQ, boost, wah, compression) changes how it distorts. Anything after it just reshapes the result. That is why a guitar’s volume knob cleans up an amp but an EQ after the amp doesn’t.')}
+  ${call('big', 'Solo vs in the mix', 'A tone that sounds huge alone is usually wrong in a band: too much low end, too much gain, scooped mids. Players who record well use <b>less gain than they think</b> (notes stay defined), <b>a high-pass around 80–120 Hz</b> (leave room for bass and kick) and <b>more 1–3 kHz</b> (cut through). Judge tone at band volume, with the band, whenever you can.')}
+  ${qz('q1')}${qz('q2')}`,
+  demos: {
+    ord: {
+      title: 'Same pedals, different order', phrases: ['lick', 'chords', 'chug'], scope: 'wave',
+      cfg: Object.assign({ drive: { on: true, type: 'rat', gain: 0.6, level: 0.5 }, delay: { on: true, mode: 'digital', time: 360, fb: 0.45, mix: 0.4 } }, CLEAN),
+      controls: [
+        { type: 'ab', label: 'Order', opts: [
+          { name: 'Drive → delay', set: { order: ORD.std, 'drive.type': 'rat', 'drive.on': true, 'delay.on': true, 'wah.on': false, 'comp.on': false, 'reverb.on': false } },
+          { name: 'Delay → drive', set: { order: ORD.delayFirst, 'drive.type': 'rat', 'drive.on': true, 'delay.on': true, 'wah.on': false, 'comp.on': false, 'reverb.on': false } },
+          { name: 'Reverb → fuzz', set: { order: ORD.revFirst, 'drive.type': 'muff', 'drive.on': true, 'delay.on': false, 'reverb.on': true, 'reverb.type': 'hall', 'reverb.decay': 3, 'reverb.mix': 0.5, 'wah.on': false } },
+          { name: 'Wah → fuzz', set: { order: ORD.std, 'drive.type': 'fuzz', 'drive.on': true, 'delay.on': false, 'reverb.on': false, 'wah.on': true, 'wah.mode': 'auto', 'wah.rate': 0.35 } },
+          { name: 'Fuzz → wah', set: { order: ORD.fuzzWah, 'drive.type': 'fuzz', 'drive.on': true, 'delay.on': false, 'reverb.on': false, 'wah.on': true, 'wah.mode': 'auto', 'wah.rate': 0.35 } },
+        ] },
+      ],
+      listen: 'Drive → delay vs Delay → drive on the lick: the second piles the echoes into a roaring, sustained wash. Reverb → fuzz is the shoegaze trick: the fuzz turns the reverb tail into a wall. Wah → fuzz sounds thick and vocal; Fuzz → wah is thinner and sharper.',
+    },
+    stack: {
+      title: 'Gain staging: who does the distortion?', phrases: ['chug', 'chords', 'lick'], scope: 'spec', cfg: HIGAIN,
+      controls: [
+        { type: 'ab', label: 'Rig', opts: [
+          { name: 'High-gain amp alone', set: { 'drive.on': false, 'amp.model': 'modern', 'amp.gain': 0.75 } },
+          { name: '+ TS (gain 0, level max)', set: { 'drive.on': true, 'drive.type': 'ts', 'drive.gain': 0.05, 'drive.level': 0.9, 'drive.tone': 0.55, 'amp.model': 'modern', 'amp.gain': 0.55 } },
+          { name: 'Clean amp + Rat', set: { 'drive.on': true, 'drive.type': 'rat', 'drive.gain': 0.7, 'drive.level': 0.5, 'drive.tone': 0.4, 'amp.model': 'fender', 'amp.gain': 0.2 } },
+          { name: 'Edge-of-breakup amp + boost', set: { 'drive.on': true, 'drive.type': 'boost', 'drive.gain': 0.7, 'drive.level': 0.6, 'amp.model': 'marshall', 'amp.gain': 0.45 } },
+        ] },
+        { k: 'amp.gain', label: 'Amp gain', v: 0.62, fmt: knob10 },
+      ],
+      listen: 'on the palm-mute chug, compare the amp alone with “+ TS”: the low-end flub tightens and the chugs get percussive, and the spectrum shows less energy under 150 Hz going into the distortion. “Clean amp + Rat” is pedal distortion: buzzier and flatter. “Edge-of-breakup + boost” is the amp’s own crunch: rounder and more touch-sensitive.',
+    },
+  },
+  qs: {
+    q1: { q: 'Why does EQ placed before an overdrive change the sound more than the same EQ after it?', opts: ['It doesn’t; EQ is linear, so order never matters', 'The overdrive is nonlinear: what it receives sets how and where it clips, while EQ after only reshapes the result', 'EQ after a drive is always bypassed', 'Because of cable capacitance'], a: 1, why: 'Swapping two linear stages changes nothing. Once a nonlinear stage is involved, anything before it changes what gets distorted. Bass cut before the drive gives tight distortion; bass cut after just gives thinner distortion.' },
+    q2: { q: 'What does a Tube Screamer set to low gain and high level do in front of a high-gain amp?', opts: ['Adds lots more distortion', 'Cuts lows and adds level going in, so the amp’s distortion tightens and palm mutes become percussive', 'Turns the amp clean', 'Adds reverb'], a: 1, why: 'Its pre-clipping high-pass cuts low end before the amp distorts it, and its mid hump focuses the input. The amp does the distorting, just on a tighter signal.' },
+  },
+});
+
+const ARCH = [
+  { name: 'Glassy clean', words: 'glassy, sparkly, chimey', cfg: { guitar: { pickup: 'mb', type: 'sc' }, comp: { on: true, thr: -32, ratio: 4, att: 25, makeup: 8 }, amp: { on: true, model: 'fender', gain: 0.18, bass: 0.45, mid: 0.35, treble: 0.7, master: 0.3 }, cab: { on: true, type: '2x12' }, reverb: { on: true, type: 'spring', decay: 2, mix: 0.25 } }, phrase: 'arp', why: 'Single coils in the in-between position (out of phase-ish, hollow), compressor for sustain and even level, clean Fender headroom, bright treble, mids lowered, spring reverb.' },
+  { name: 'Warm jazz', words: 'warm, round, woody, dark', cfg: { guitar: { pickup: 'neck', type: 'hb', tone: 0.45 }, amp: { on: true, model: 'fender', gain: 0.2, bass: 0.6, mid: 0.6, treble: 0.35, master: 0.3 }, cab: { on: true, type: '1x12' }, reverb: { on: true, type: 'room', decay: 0.8, mix: 0.2 } }, phrase: 'lick', why: 'Neck humbucker with the tone knob rolled back (the resonant peak drops), low treble, full mids, small room. Warm means energy below ~1 kHz and little above 3 kHz.' },
+  { name: 'Spanky funk', words: 'spanky, quacky, percussive', cfg: { guitar: { pickup: 'nm', type: 'sc' }, comp: { on: true, thr: -36, ratio: 8, att: 3, rel: 120, makeup: 10 }, amp: { on: true, model: 'fender', gain: 0.15, treble: 0.65, mid: 0.4, master: 0.3 }, cab: { on: true, type: '2x12' }, wah: { on: true, mode: 'env', sens: 0.5, q: 5 } }, phrase: 'chords', why: 'Single coils, fast hard compression for snap, clean amp, envelope filter for the quack.' },
+  { name: 'Woman tone', words: 'creamy, vocal, singing, dark lead', cfg: { guitar: { pickup: 'neck', type: 'hb', tone: 0.1 }, drive: { on: true, type: 'muff', gain: 0.35, tone: 0.4, level: 0.5 }, amp: { on: true, model: 'marshall', gain: 0.6, master: 0.55, mid: 0.7 }, cab: { on: true, type: '4x12' }, reverb: { on: true, type: 'plate', decay: 1.6, mix: 0.18 } }, phrase: 'lead', why: 'Neck humbucker with the tone knob almost off, into a cranked British amp: thick, smooth, almost no highs. The late-60s Clapton description.' },
+  { name: 'Brown sound', words: 'brown, saggy, thick crunch', cfg: { guitar: { pickup: 'bridge', type: 'hb' }, amp: { on: true, model: 'marshall', gain: 0.75, master: 0.85, sag: 0.7, mid: 0.65, presence: 0.55 }, cab: { on: true, type: '4x12' }, mod: { on: true, type: 'phaser', rate: 0.15, depth: 0.4, mix: 0.3 }, delay: { on: true, mode: 'analog', time: 420, fb: 0.2, mix: 0.15 } }, phrase: 'chug', why: 'A cranked Plexi-style amp with power-amp saturation and sag (the master is high), bridge humbucker, rich mids, a slow phaser, short dark delay. Early Van Halen is the usual reference.' },
+  { name: 'Tight modern metal', words: 'tight, djenty, percussive, aggressive', cfg: { guitar: { pickup: 'bridge', type: 'hb' }, drive: { on: true, type: 'ts', gain: 0.05, level: 0.9, tone: 0.55 }, amp: { on: true, model: 'modern', gain: 0.65, bass: 0.5, mid: 0.5, treble: 0.6, presence: 0.6 }, cab: { on: true, type: '4x12', mic: 0.25 }, eq: { on: true, hp: 90, b: [0, -2, -3, 0, 2, 1, -2] } }, phrase: 'chug', why: 'TS boost tightening a high-gain amp, a high-pass at 90 Hz and a low-mid cut for definition, upper mids up. Djent is this pushed further: even tighter low end, more upper-mid attack, a gate.' },
+  { name: 'Shoegaze wall', words: 'washy, wall, dreamy, huge', cfg: { order: ORD.revFirst, guitar: { pickup: 'nb', type: 'sc' }, drive: { on: true, type: 'muff', gain: 0.75, tone: 0.55, level: 0.45 }, reverb: { on: true, type: 'hall', decay: 4.5, mix: 0.55, pre: 0 }, amp: { on: true, model: 'fender', gain: 0.3 }, cab: { on: true, type: '2x12' }, mod: { on: true, type: 'chorus', rate: 0.2, depth: 0.7, mix: 0.5 } }, phrase: 'chords', why: 'Reverb before a fuzz (the fuzz sustains the tail into a wall), chorus to blur pitch, big hall. Note definition is deliberately sacrificed.' },
+  { name: 'Surf', words: 'drippy, twangy, wet', cfg: { guitar: { pickup: 'bridge', type: 'sc' }, amp: { on: true, model: 'fender', gain: 0.25, treble: 0.7, bass: 0.4 }, cab: { on: true, type: '2x12' }, reverb: { on: true, type: 'spring', decay: 3, mix: 0.6 }, mod: { on: true, type: 'tremolo', rate: 0.45, depth: 0.4 } }, phrase: 'lick', why: 'A bright single coil and clean Fender into a very wet spring reverb: every attack splashes. Optional tremolo.' },
+];
+
+CH.push({
+  id: 'vocab', title: 'Tone vocabulary, decoded', short: 'Tone words', mins: 3,
+  body: () => `
+  <p class="lede">Tone words feel vague, but most of them point at a specific combination of the four dimensions. Once you can translate a word into settings, you can chase a sound you’ve only heard described.</p>
+  <div class="tablewrap"><table>
+  <tr><th>Word</th><th>Usually means</th></tr>
+  <tr><td>Warm / round</td><td>Energy below ~1 kHz, gentle top: neck pickup, tone knob down, darker cab</td></tr>
+  <tr><td>Bright / glassy / chimey</td><td>Strong 2–6 kHz with clean headroom; single coils; Vox-style top end</td></tr>
+  <tr><td>Thin</td><td>Missing 100–300 Hz: bridge single coil, too much high-pass</td></tr>
+  <tr><td>Muddy / boxy</td><td>Too much 200–500 Hz, or bass going <i>into</i> the distortion</td></tr>
+  <tr><td>Honky / nasal</td><td>A peak around 600–1000 Hz (cocked wah, mid-boosted drive)</td></tr>
+  <tr><td>Scooped</td><td>Mids cut, lows and highs up. Huge alone, vanishes in a band</td></tr>
+  <tr><td>Fizzy</td><td>Distortion harmonics above 5 kHz with no cab filtering them, or a harsh mic</td></tr>
+  <tr><td>Tight</td><td>Low end cut before the distortion; fast transient recovery</td></tr>
+  <tr><td>Saggy / spongy / touch-sensitive</td><td>Power-amp compression, rectifier sag, lower gain; dynamics preserved</td></tr>
+  <tr><td>Compressed / squishy</td><td>Fast compression or lots of gain: every note the same level</td></tr>
+  <tr><td>Articulate / defined</td><td>Each note in a chord audible: less gain, less low-mid, fast attack</td></tr>
+  <tr><td>Spanky / snappy</td><td>Pick attack emphasised, fast envelope, single coils, little gain</td></tr>
+  <tr><td>Wet / dry</td><td>How much reverb and delay</td></tr></table></div>
+  ${demo('arch')}
+  <div id="archwhy" class="callout big"></div>
+  ${call('inter', 'How to use this', 'When you hear a tone you love, describe it in these words, map the words to dimensions, and you know which knobs to reach for first. The archetypes are “in the style of”: real records add the room, the player’s hands and the mix.')}
+  ${qz('q1')}`,
+  demos: {
+    arch: {
+      title: 'Archetypes: one click each', scope: 'spec', phrases: ['chords', 'lick', 'chug', 'lead', 'arp'],
+      cfg: () => rigCfg(ARCH[0].cfg),
+      controls: [
+        { type: 'ab', label: 'Archetype', opts: ARCH.map((a) => ({ name: a.name, set: rigSet(a.cfg) })), on: (j, D) => { const a = ARCH[j]; D.phrase = a.phrase; const w = $('#archwhy'); if (w) w.innerHTML = `<b>${a.name}: ${a.words}</b> ${a.why}`; if (PL.playing && ACTIVE === D) play(D.phrase); else D.refreshPlay(); } },
+      ],
+      mount: () => { setTimeout(() => { const w = $('#archwhy'); if (w) w.innerHTML = `<b>${ARCH[0].name}: ${ARCH[0].words}</b> ${ARCH[0].why}`; }, 0); },
+      listen: 'switch archetypes while it plays (each one also chooses a fitting phrase). Read the recipe, then use the full rig in the next chapter to change one ingredient at a time.',
+    },
+  },
+  qs: {
+    q1: { q: 'A band-mate says your rhythm tone is “fizzy and scooped”. What do you change?', opts: ['Add bass and treble', 'Bring the mids back up (500 Hz–2 kHz) and cut above ~5 kHz, or check the cab sim is on', 'More gain', 'More reverb'], a: 1, why: 'Scooped means missing mids, and fizzy means harsh distortion harmonics above 5 kHz. Restore the mids, tame the top (usually the cab and mic do this) and often reduce the gain.' },
+  },
+});
+
+const RIGCTL = (blk, ctl) => Object.assign({ show: (s, D) => (D.ed || 'amp') === blk }, ctl);
+CH.push({
+  id: 'rig', title: 'The full rig', short: 'Full rig', mins: 3,
+  body: () => `
+  <p class="lede">Everything at once. Load an archetype or start clean, choose a block, change one thing at a time and listen. If you have an audio interface, press <b>🎸 Mine</b> at the top and play your own guitar through it, with headphones.</p>
+  ${demo('rig')}
+  ${call('inter', 'A method for dialling in any tone', '<ol style="margin:6px 0 0 18px;padding:0"><li><b>Start with the source</b>: pickup and how you play. No pedal fixes the wrong pickup.</li><li><b>Set the gain as low as the part allows.</b> Most people use too much.</li><li><b>Choose the cab/speaker</b>, then fix the amp EQ. Adjust the mids first.</li><li><b>Add space last</b>, at the smallest mix that still sounds good.</li><li><b>Check it at volume, in context.</b> Cut lows, add upper mids if it disappears.</li></ol>')}`,
+  demos: {
+    rig: {
+      title: 'Rig', phrases: ['lick', 'chords', 'chug', 'lead', 'arp', 'dyn'], scope: 'both', cfg: CRUNCH,
+      controls: [
+        { type: 'ab', label: 'Load', opts: [{ name: 'Clean start', set: rigSet(CLEAN) }, { name: 'Crunch start', set: rigSet(CRUNCH) }, ...ARCH.map((a) => ({ name: a.name, set: rigSet(a.cfg) }))], v: 1 },
+        { label: 'Order', type: 'seg', v: 'std', opts: [['std', 'Standard'], ['delayFirst', 'Delay → drive'], ['revFirst', 'Reverb → drive'], ['fuzzWah', 'Drive → wah'], ['compLast', 'Drive → comp']], on: (v, D) => D.setState({ order: ORD[v] }) },
+        { label: 'Edit block', type: 'seg', v: 'amp', opts: [['guitar', 'Guitar'], ['comp', 'Comp'], ['wah', 'Wah'], ['drive', 'Drive'], ['amp', 'Amp'], ['cab', 'Cab'], ['mod', 'Mod'], ['delay', 'Delay'], ['reverb', 'Reverb']], on: (v, D) => { D.ed = v; } },
+        RIGCTL('guitar', { k: 'guitar.pickup', label: 'Pickup', type: 'seg', opts: [['neck', 'Neck'], ['nm', 'N+M'], ['mid', 'Mid'], ['mb', 'M+B'], ['bridge', 'Bridge'], ['nb', 'N+B']] }),
+        RIGCTL('guitar', { k: 'guitar.type', label: 'Type', type: 'seg', opts: [['sc', 'Single coil'], ['p90', 'P-90'], ['hb', 'Humbucker']] }),
+        RIGCTL('guitar', { k: 'guitar.tone', label: 'Tone knob', fmt: knob10 }),
+        RIGCTL('guitar', { k: 'guitar.vol', label: 'Volume knob', fmt: knob10 }),
+        RIGCTL('comp', { k: 'comp.on', label: 'Compressor on', type: 'toggle' }),
+        RIGCTL('comp', { k: 'comp.thr', label: 'Threshold', min: -60, max: 0, step: 1, fmt: (v) => v + ' dB' }),
+        RIGCTL('comp', { k: 'comp.ratio', label: 'Ratio', min: 1, max: 20, step: 0.5, fmt: (v) => v + ':1' }),
+        RIGCTL('comp', { k: 'comp.att', label: 'Attack', min: 0.5, max: 80, step: 0.5, fmt: (v) => v + ' ms' }),
+        RIGCTL('wah', { k: 'wah.on', label: 'Wah on', type: 'toggle' }),
+        RIGCTL('wah', { k: 'wah.mode', label: 'Mode', type: 'seg', opts: [['manual', 'Pedal'], ['auto', 'Auto'], ['env', 'Envelope']] }),
+        RIGCTL('wah', { k: 'wah.pos', label: 'Pedal position', fmt: knob10 }),
+        RIGCTL('drive', { k: 'drive.on', label: 'Drive on', type: 'toggle' }),
+        RIGCTL('drive', { k: 'drive.type', label: 'Pedal', type: 'seg', opts: [['boost', 'Boost'], ['ts', 'TS'], ['klon', 'Klon'], ['rat', 'Rat'], ['muff', 'Muff'], ['fuzz', 'Fuzz Face']] }),
+        RIGCTL('drive', { k: 'drive.gain', label: 'Gain', fmt: knob10 }),
+        RIGCTL('drive', { k: 'drive.tone', label: 'Tone', fmt: knob10 }),
+        RIGCTL('drive', { k: 'drive.level', label: 'Level', fmt: knob10 }),
+        RIGCTL('amp', { k: 'amp.model', label: 'Amp', type: 'seg', opts: [['fender', 'US clean'], ['vox', 'Brit chime'], ['marshall', 'Brit crunch'], ['modern', 'Modern hi-gain']] }),
+        RIGCTL('amp', { k: 'amp.gain', label: 'Gain', fmt: knob10 }),
+        RIGCTL('amp', { k: 'amp.bass', label: 'Bass', fmt: knob10 }),
+        RIGCTL('amp', { k: 'amp.mid', label: 'Middle', fmt: knob10 }),
+        RIGCTL('amp', { k: 'amp.treble', label: 'Treble', fmt: knob10 }),
+        RIGCTL('amp', { k: 'amp.presence', label: 'Presence', fmt: knob10 }),
+        RIGCTL('amp', { k: 'amp.master', label: 'Master (power-amp drive)', fmt: knob10 }),
+        RIGCTL('amp', { k: 'amp.sag', label: 'Sag', fmt: knob10 }),
+        RIGCTL('cab', { k: 'cab.type', label: 'Cabinet', type: 'seg', opts: [['none', 'None (DI)'], ['1x8', '1×8'], ['1x12', '1×12'], ['2x12', '2×12'], ['4x12', '4×12']] }),
+        RIGCTL('cab', { k: 'cab.mic', label: 'Mic position (centre ↔ edge)', fmt: knob10 }),
+        RIGCTL('cab', { k: 'cab.dist', label: 'Mic distance', fmt: knob10 }),
+        RIGCTL('mod', { k: 'mod.on', label: 'Modulation on', type: 'toggle' }),
+        RIGCTL('mod', { k: 'mod.type', label: 'Effect', type: 'seg', opts: [['chorus', 'Chorus'], ['flanger', 'Flanger'], ['phaser', 'Phaser'], ['univibe', 'Vibe'], ['vibrato', 'Vibrato'], ['tremolo', 'Tremolo']] }),
+        RIGCTL('mod', { k: 'mod.rate', label: 'Rate', fmt: knob10 }),
+        RIGCTL('mod', { k: 'mod.depth', label: 'Depth', fmt: knob10 }),
+        RIGCTL('mod', { k: 'mod.mix', label: 'Mix', fmt: pct }),
+        RIGCTL('delay', { k: 'delay.on', label: 'Delay on', type: 'toggle' }),
+        RIGCTL('delay', { k: 'delay.mode', label: 'Character', type: 'seg', opts: [['digital', 'Digital'], ['analog', 'Analog'], ['tape', 'Tape']] }),
+        RIGCTL('delay', { k: 'delay.sync', label: 'Time', type: 'seg', opts: [['off', 'Free'], ['q', '1/4'], ['d8', 'Dotted 1/8'], ['e', '1/8']] }),
+        RIGCTL('delay', { k: 'delay.time', label: 'Free time', min: 20, max: 1200, step: 1, fmt: (v) => v + ' ms' }),
+        RIGCTL('delay', { k: 'delay.fb', label: 'Feedback', min: 0, max: 0.95, fmt: pct }),
+        RIGCTL('delay', { k: 'delay.mix', label: 'Mix', fmt: pct }),
+        RIGCTL('reverb', { k: 'reverb.on', label: 'Reverb on', type: 'toggle' }),
+        RIGCTL('reverb', { k: 'reverb.type', label: 'Type', type: 'seg', opts: [['room', 'Room'], ['spring', 'Spring'], ['plate', 'Plate'], ['hall', 'Hall']] }),
+        RIGCTL('reverb', { k: 'reverb.decay', label: 'Decay', min: 0.3, max: 6, step: 0.05, fmt: (v) => v.toFixed(1) + ' s' }),
+        RIGCTL('reverb', { k: 'reverb.pre', label: 'Pre-delay', min: 0, max: 120, step: 1, fmt: (v) => v + ' ms' }),
+        RIGCTL('reverb', { k: 'reverb.mix', label: 'Mix', fmt: pct }),
+      ],
+      mount: (D) => { D.ed = 'amp'; Object.assign(D.state, rigSet(CRUNCH)); D.sync(); },
+      listen: 'pick one block and sweep one control at a time. Then load an archetype and break it: what happens to “Woman tone” with the tone knob at 10? To “Tight metal” with the drive off?',
+    },
+  },
+  qs: {},
+});
+
+CH.push({
+  id: 'future', title: 'The future: AI and guitar', short: 'AI & guitar', mins: 3,
+  body: () => `
+  <p class="lede">The deepest change in guitar tone this decade is machine learning applied to <b>capturing gear</b>: instead of engineers modelling every circuit by hand, a neural network listens to a real amp and learns to imitate it. Here is the state of play as of November 2026. Tags: <span class="tag fact">FACT</span> reported, <span class="tag spec">SPECULATION</span> informed guess.</p>
+  <h2>1 · Captures ate amp modelling</h2>
+  <p><span class="tag fact">FACT</span> A <b>capture</b> (also called a profile or a model) is made by playing test signals through a real amp or pedal, recording the output, and training a network to reproduce the input→output relationship, including the distortion. Everything you heard in this course is hand-built physics. Captures skip that and learn the device directly from a recording.</p>
+  <p><span class="tag fact">FACT</span> <b>Neural Amp Modeler (NAM)</b>, Steven Atkinson’s open-source project, became the de facto open standard. Its code is free and MIT-licensed. <b>TONE3000</b> hosts the community library: in September 2026 it released a free, open-source NAM plugin and standalone app with access to over 700,000 amp and pedal captures (<a href="https://sonicstate.com/news/2026/09/02/get-access-to-the-worlds-largest-library-of-guitar-tone" target="_blank" rel="noopener">Sonicstate, 2 Sep 2026</a>). The second-generation <b>A2</b> architecture launched in 2026; A2 files need updated plugins and firmware (<a href="https://www.tone3000.com/blog/a2-next-generation-neural-amp-modeler" target="_blank" rel="noopener">TONE3000</a>, <a href="https://www.gearnews.com/neural-amp-modeler-guide-guitar/" target="_blank" rel="noopener">gearnews</a>).</p>
+  <p><span class="tag fact">FACT</span> Hardware makers now load NAM files natively: HeadRush across its multi-effects line, Blackstar’s Beam Mini, and others (<a href="https://www.tone3000.com/blog/headrush-nam-tone3000" target="_blank" rel="noopener">TONE3000/HeadRush</a>). The big commercial platforms each have their own capture system: Neural DSP’s cloud-trained <b>Neural Capture V2</b> covers amps, cabs, drives, fuzzes and compressors, and its <b>Quad Cortex mini</b> launched at NAMM in January 2026 (<a href="https://www.soundonsound.com/news/namm-2026-neural-dsp-introduce-quad-cortex-mini" target="_blank" rel="noopener">Sound On Sound</a>). Line 6 added cloud-based <b>Proxy</b> cloning to Helix Stadium in firmware 1.3 in March 2026 as “phase one” (<a href="https://musicplayers.com/?p=67139" target="_blank" rel="noopener">MusicPlayers</a>). IK Multimedia continues with <b>TONEX</b>, including the tiny TONEX Plug (<a href="https://www.recordingmag.com/resources/featured-reviews/april-2026-ik-multimedia-tonex-plug/" target="_blank" rel="noopener">Recording, Apr 2026</a>).</p>
+  ${call('phys', 'What a capture can and can’t do', 'A capture is a snapshot of one amp at one set of knob positions. Turn the knobs on the real amp and you need a new capture. Most captures don’t respond to your guitar’s volume knob or to power-amp sag at different volumes exactly like the real thing. Newer approaches (parametric models, “full-rig” captures) are attacking exactly this. Notice that this course’s chapters map onto it: the capture learns the <b>nonlinear</b> stages; the cab is often a separate impulse response (a linear filter).')}
+  <h2>2 · “Make it sound like this record”</h2>
+  <p><span class="tag fact">FACT</span> Tone matching from a reference recording is now a product category. <b>Positive Grid BIAS X</b> (launched late 2025, about $149) lets you attach a song and builds an amp and pedal chain that approximates its guitar sound (<a href="https://www.guitarworld.com/gear/plugins-apps/positive-grid-bias-x-launch" target="_blank" rel="noopener">Guitar World</a>). MusicRadar’s hands-on test got close to a Kinks track but missed a slapback delay until asked (<a href="https://www.musicradar.com/guitars/guitar-plugins/project_bias_x" target="_blank" rel="noopener">MusicRadar</a>). Web services such as TonesMatch suggest settings for your own gear from a song title; treat their claims as vendor marketing.</p>
+  <p><span class="tag spec">SPECULATION</span> Expect this to merge with captures: describe or play a reference, get a capture-based rig that’s editable with normal knobs. The vocabulary you learned in chapter 14 is exactly the interface these tools use: they turn “warmer, less fizzy, more slapback” into parameter changes.</p>
+  <h2>3 · Learning and practice tools</h2>
+  <p><span class="tag fact">FACT</span> Stem separation now isolates electric and acoustic guitar as separate stems (<a href="https://www.lalal.ai/blog/lalalai-perseus-supports-piano-guitars/" target="_blank" rel="noopener">LALAL.AI</a>), and it increasingly runs on-device. Automatic tab transcription is common in practice apps, but it still usually runs in the cloud, and accuracy claims are mostly unverified vendor statements (<a href="https://www.aimusicpreneur.com/ai-tools-news/lalal-ai-neko-offline-real-time-stem-separation/" target="_blank" rel="noopener">AI Musicpreneur</a>).</p>
+  <h2>4 · Generative music and the guitarist</h2>
+  <p><span class="tag fact">FACT</span> Song generators like Suno produce convincing guitar parts. In 2026 string maker D’Addario published a demo that musicians suspected was AI-generated. It first denied it, then admitted Suno was used and apologised, promising disclosure rules (<a href="https://jackrighteous.com/blogs/ai-music-distribution-guide/daddario-suno-ai-music-controversy-creator-lessons" target="_blank" rel="noopener">summary</a>). Session players in Nashville report clients sending AI-generated guitar parts as references (<a href="https://www.nashvillescene.com/music/features/ai-music-nashville/article_2ce229d0-d7e0-4dc3-8fc9-f35eb4a0f88c.html" target="_blank" rel="noopener">Nashville Scene</a>).</p>
+  <p><span class="tag spec">SPECULATION</span> The likely split: gear and tone become nearly free and infinitely available (every famous amp, in your pocket, matched to any record), while what stays scarce is the <b>player</b>: touch, timing, phrasing and taste. Everything in this course that depends on your hands (picking position, dynamics into a touch-sensitive amp, volume-knob cleanup, the wah foot) is the part no capture replaces. Knowing <i>why</i> a tone works is what lets you direct these tools instead of scrolling presets.</p>
+  ${qz('q1')}`,
+  demos: {},
+  qs: {
+    q1: { q: 'What does a neural “capture” of an amp actually learn?', opts: ['The amp’s schematic', 'The input→output behaviour of one amp at one set of knob positions, learned from test signals', 'Every possible knob setting automatically', 'Just its EQ curve'], a: 1, why: 'Training compares what went in with what came out and fits a network to that mapping, including the nonlinear distortion. It’s a snapshot. Change the real amp’s knobs and you need another capture, unless the model is parametric.' },
+  },
+});
+
+/* ---------- final quiz ---------- */
+const EQ_FLAT = { b: [0, 0, 0, 0, 0, 0, 0] };
+const FINAL = [
+  { kind: '👂 Ear test', q: 'Which pickup is this: neck or bridge?', ears: [{ label: '▶ Clip', cfg: rigCfg(Object.assign({ guitar: { pickup: 'neck', type: 'sc' } }, CLEAN)), phrase: 'lick' }], opts: ['Neck', 'Bridge'], a: 0, why: 'The neck pickup sits near the string’s antinode for the lower harmonics, so it’s rounder and fuller. The bridge pickup is thinner and brighter, with a nasal bite.' },
+  { kind: '👂 Ear test', q: 'Something is missing from this distorted tone. What?', ears: [{ label: '▶ Clip', cfg: rigCfg({ amp: { on: true, model: 'marshall', gain: 0.65 }, cab: { on: false } }), phrase: 'chug' }], opts: ['The speaker cabinet', 'The amp', 'Reverb', 'The pickup'], a: 0, why: 'That fizzy, buzzing top end above 5 kHz is a distorted amp heard without a speaker. The cab is a steep low-pass filter that removes it.' },
+  { kind: '👂 Ear test', q: 'Which modulation effect is this?', ears: [{ label: '▶ Clip', cfg: rigCfg(Object.assign({ guitar: { pickup: 'nm' }, mod: { on: true, type: 'flanger', rate: 0.25, depth: 0.8, mix: 0.5, fb: 0.7 } }, CLEAN)), phrase: 'chords' }], opts: ['Chorus', 'Flanger', 'Tremolo', 'Vibrato'], a: 1, why: 'A sweeping, metallic “jet” resonance is a short delay with feedback, so a moving comb filter: a flanger.' },
+  { kind: '👂 Ear test', q: 'And this one?', ears: [{ label: '▶ Clip', cfg: rigCfg(Object.assign({ guitar: { pickup: 'nm' }, mod: { on: true, type: 'tremolo', rate: 0.45, depth: 0.85, shape: 'sine' } }, CLEAN)), phrase: 'chords' }], opts: ['Phaser', 'Chorus', 'Tremolo', 'Uni-Vibe'], a: 2, why: 'Only the volume pulses; the pitch and tone colour don’t move. That’s tremolo.' },
+  { kind: '👂 Ear test', q: 'Which pedal is this: Tube Screamer-style or Big Muff-style?', ears: [{ label: '▶ Clip', cfg: rigCfg(Object.assign({ drive: { on: true, type: 'muff', gain: 0.7, tone: 0.5, level: 0.5 } }, CLEAN)), phrase: 'chords' }], opts: ['Tube Screamer-style', 'Big Muff-style'], a: 1, why: 'A thick, sustaining, fuzzy wall with a scooped midrange is a Big Muff. A Tube Screamer is milder, mid-humped and less bassy.' },
+  { kind: '👂 Ear test', q: 'Is the delay before or after the distortion?', ears: [{ label: '▶ Clip', cfg: rigCfg(Object.assign({ order: ORD.delayFirst, drive: { on: true, type: 'rat', gain: 0.65 }, delay: { on: true, mode: 'digital', time: 360, fb: 0.45, mix: 0.45 } }, CLEAN)), phrase: 'lick' }], opts: ['Delay before the distortion', 'Delay after the distortion'], a: 0, why: 'The echoes are as loud and distorted as the notes and smear together: they were distorted along with the playing. Delay after the drive gives clean repeats that fade under the notes.' },
+  { kind: '👂 Ear test', q: 'Which reverb?', ears: [{ label: '▶ Clip', cfg: rigCfg(Object.assign({ reverb: { on: true, type: 'spring', decay: 2.5, mix: 0.55 } }, CLEAN)), phrase: 'lick' }], opts: ['Spring', 'Hall', 'Small room'], a: 0, why: 'The boingy, metallic “drip” on every attack is the dispersion of a spring tank. Halls are smooth and slow, rooms short and natural.' },
+  { kind: '👂 Ear test', q: 'Which delay character?', ears: [{ label: '▶ Clip', cfg: rigCfg(Object.assign({ delay: { on: true, mode: 'tape', time: 420, fb: 0.6, mix: 0.45 } }, CLEAN)), phrase: 'lick' }], opts: ['Digital', 'Tape'], a: 1, why: 'The repeats wobble in pitch (wow and flutter) and get softer at the edges each time round. Digital repeats are exact copies.' },
+  { kind: 'Concept', q: 'Picking right over the 12th fret makes a hollow sound because…', opts: ['the string is looser there', 'plucking at the midpoint cancels every even harmonic', 'the pickup can’t hear it', 'it adds compression'], a: 1, why: 'A pluck at 1/n of the length suppresses the n-th harmonic and its multiples. At ½, every even harmonic vanishes.' },
+  { kind: 'Concept', q: 'Why do power chords sound great with heavy distortion while full major chords turn to mush?', opts: ['Power chords are louder', 'Distortion creates intermodulation (sum and difference) tones. With a perfect fifth they line up with the harmonic series; with a third and other intervals they are dissonant', 'Major chords have no harmonics', 'It’s purely cultural'], a: 1, why: 'Two notes through a nonlinearity create f1±f2 and higher-order products. For a 3:2 fifth these land on the same harmonic series; for more complex ratios they clash.' },
+  { kind: 'Concept', q: 'Turning down the guitar’s volume knob cleans up a cranked amp, but a cut on an EQ pedal after the amp doesn’t. Why?', opts: ['EQ pedals are weaker', 'The volume knob is before the nonlinear stage, so it changes how hard the amp clips; the EQ after only reshapes the result', 'The volume knob adds compression', 'They are the same'], a: 1, why: 'Level going into a nonlinear stage sets how much it distorts. After the distortion, you can only filter what has already been created.' },
+  { kind: 'Concept', q: 'What does a compressor before an overdrive do?', opts: ['Removes all distortion', 'Evens out the level going in: more sustain, and consistent breakup whatever your pick strength', 'Adds echo', 'Nothing audible'], a: 1, why: 'The drive sees a steadier input, so quiet and loud notes distort more evenly and notes sustain longer. You trade away some dynamic touch.' },
+  { kind: 'Concept', q: 'Which part of the chain is the biggest single tone-shaping filter?', opts: ['The tone knob', 'The speaker cabinet and microphone', 'The cable', 'The reverb'], a: 1, why: 'Guitar speakers roll off steeply above about 5 kHz and have strong resonances and breakup peaks. The speaker and mic choice changes the sound more than any EQ.' },
+  { kind: 'Concept', q: 'A modern high-gain rhythm tone flubs on palm mutes. The classic fix?', opts: ['More amp bass', 'A Tube Screamer-style pedal with low gain and high level in front, and a high-pass around 80–100 Hz', 'More reverb', 'A chorus'], a: 1, why: 'Cutting lows before the amp’s distortion keeps the low end from modulating everything. Mutes become tight and percussive.' },
+  { kind: 'Concept', q: 'What sets a phaser apart from a flanger?', opts: ['Phasers use all-pass stages, which give a few unevenly spaced notches; flangers use a short delay, which gives many evenly spaced comb notches', 'Phasers are louder', 'Flangers only work on bass', 'Nothing'], a: 0, why: 'Few uneven notches give a smoother, vocal swirl. Many harmonically spaced notches give a metallic, pitched jet sound.' },
+  { kind: 'Concept', q: 'Your tone sounds massive alone and disappears in the band. Most likely?', opts: ['Too little gain', 'Too much low end and gain, scooped mids', 'Not enough reverb', 'The pickup height'], a: 1, why: 'The bass and kick own the lows and the vocal owns the mids. A guitar that cuts through has a high-pass, more 1–3 kHz and enough clarity to hear notes.' },
+];
+CH.push({
+  id: 'quiz', title: 'Final quiz', short: 'Quiz', mins: 5,
+  body: () => `
+  <p class="lede">${FINAL.length} questions: ${FINAL.filter((q) => q.kind.includes('Ear')).length} ear tests (use headphones) and the rest concepts. Each one explains itself when you answer.</p>
+  <div class="panel" id="score" style="text-align:center"></div>
+  ${FINAL.map((q, i) => qz('f' + i)).join('')}
+  <div class="row" style="display:flex;gap:8px;justify-content:center;margin:16px 0"><button id="retake">↺ Retake</button></div>`,
+  demos: {},
+  qs: Object.fromEntries(FINAL.map((q, i) => ['f' + i, q])),
+  after: () => {
+    const upd = () => { const ids = FINAL.map((q, i) => 'quiz:f' + i), got = ids.filter((id) => S.ans[id]).length, ok = ids.filter((id) => S.ans[id] && S.ans[id].ok).length; const el = $('#score'); if (el) el.innerHTML = got ? `<b style="font-size:22px">${ok} / ${FINAL.length}</b><div class="small muted">${got < FINAL.length ? `${FINAL.length - got} to go` : ok >= 13 ? 'You can reason about tone. Go play.' : ok >= 9 ? 'Solid. Revisit the chapters behind the misses.' : 'Worth a second pass through the chapters you missed.'}</div>` : '<span class="muted small">Your score appears here as you answer.</span>'; };
+    window.onAnswer = upd; upd();
+    $('#retake').onclick = () => { FINAL.forEach((q, i) => delete S.ans['quiz:f' + i]); save(); render(); window.scrollTo(0, 0); };
+  },
+});
+</script>
+
+
+
+<script>
+/* ===================== boot ===================== */
+$('#prev').onclick = () => go(S.ch - 1);
+$('#next').onclick = () => { S.done[CH[S.ch].id] = true; save(); if (S.ch < CH.length - 1) go(S.ch + 1); else { updateProgress(); openMenu(); } };
+$('#menubtn').onclick = openMenu;
+$('#mic').onclick = toggleMic;
+$('#stopall').onclick = stopAll;
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
+  if (e.key === 'ArrowRight' && !e.target.matches('input[type=range]')) $('#next').click();
+  if (e.key === 'ArrowLeft' && !e.target.matches('input[type=range]')) $('#prev').click();
+  if (e.key === 'Escape') $('#menu').classList.add('hidden');
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopAll(); });
+S.ch = clamp(S.ch || 0, 0, CH.length - 1);
+render();
+</script>
+</body>
+</html>
