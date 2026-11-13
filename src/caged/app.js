@@ -22,10 +22,12 @@ const STORE = 'caged-changes';
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; } };
 const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
-  colour: 'sev', pcolour: 'as', names: false, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
+  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
 }, load());
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
+if (D.diagram === 'off') { D.neck = false; D.diagram = 'now'; } // older setting: "never" is now the neck toggle
+if (!D.nums && !D.names) D.nums = true;
 
 const MAJOR_KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 const MINOR_KEYS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
@@ -57,7 +59,16 @@ const posLabel = (S) => (D.mode === 'pos' ? `${shapeWord(S)} · frets ${S.pos.lo
 
 // a grip for a chord: in position, or this shape nearest the last chord; a colour chord with no grip here steps
 // down to its plainer cousin
+const usesArea = () => D.mode === 'pos' || D.voicing !== 'caged';
+// a chord's quality as the voicing set plays it: triad sets play the triad, drop sets need four notes
+function adaptQ(q, spec, S) {
+  const v = G.voicingById(D.voicing);
+  if (v.fam === 'tri') return H.toTriad(q);
+  if (v.fam && T.getChord(q).ivs.length < 4) return H.toSeventh(q, spec.iv, { dominant: !!spec.rel, minorKey: S.minor });
+  return q;
+}
 function gripFor(S, root, q, prev, vl) {
+  if (D.voicing !== 'caged') return G.voiceLeadPick(root, q, D.voicing, S.pos, prev);
   if (D.mode === 'pos') return G.gripInPosition(root, q, S.pos, prev, vl ? 0.6 : 0.12);
   // one shape everywhere: follow the last chord, but stay anchored to the key's position so it doesn't drift up the neck
   const near = prev ? (prev.center + S.pos.mid) / 2 : S.pos.mid;
@@ -66,9 +77,10 @@ function gripFor(S, root, q, prev, vl) {
 }
 function realise(S, spec, q, prev, extra = {}) {
   const root = H.spell(S.tonic, spec.iv);
+  q = adaptQ(q, spec, S);
   let qq = q, grip = gripFor(S, root, qq, prev, extra.vl), plainer = null;
   while (!grip && H.simpler(qq)) { qq = H.simpler(qq); grip = gripFor(S, root, qq, prev, extra.vl); plainer = q; }
-  if (!grip && D.mode === 'one') { qq = q; grip = G.gripInPosition(root, qq, { lo: Math.max(0, (prev?.center ?? S.pos.mid) - 3), hi: (prev?.center ?? S.pos.mid) + 3, mid: prev?.center ?? S.pos.mid }); }
+  if (!grip && D.mode === 'one' && D.voicing === 'caged') { qq = q; grip = G.gripInPosition(root, qq, { lo: Math.max(0, (prev?.center ?? S.pos.mid) - 3), hi: (prev?.center ?? S.pos.mid) + 3, mid: prev?.center ?? S.pos.mid }); }
   return { spec, q: qq, root, name: H.chordName(root, qq), rn: H.label(spec, qq), grip, plainer, ...extra };
 }
 
@@ -195,7 +207,7 @@ function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, sm
 }
 const LEGEND = '<div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">colour</span></div>';
 function windowFor(S, grip) {
-  if (D.mode === 'pos') return { lo: Math.max(0, S.pos.lo - (S.pos.lo > 0 ? 1 : 0)), hi: S.pos.hi + 1, band: S.pos };
+  if (usesArea()) return { lo: Math.max(0, S.pos.lo - (S.pos.lo > 0 ? 1 : 0)), hi: S.pos.hi + 1, band: S.pos };
   return { lo: Math.max(0, (grip?.lo ?? 1) - 1), hi: (grip?.lo ?? 1) + 4, band: null };
 }
 
@@ -215,12 +227,12 @@ function progOptions() {
     return `<option value="${p.id}" ${p.id === D.prog ? 'selected' : ''}>${done ? '✓ ' : ''}${esc(p.name)}${p.minor ? ' (minor)' : ''}</option>`;
   }).join('')}</optgroup>`).join('');
 }
-function chartHTML(slots, { cur = -1 } = {}) {
+function chartHTML(slots, { cur = -1, tonic = null } = {}) {
   const bars = [];
   slots.forEach((x, i) => { (bars[x.bar] ||= []).push({ x, i }); });
   return `<div class="chart">${bars.map((b) => `<div class="bar">${(b || []).map(({ x, i }) => {
-    const lab = H.label(x.spec);
-    return `<span class="ch${i === cur ? ' cur' : ''}${x.sub ? ' sub' : ''}" ${x.sub ? `title="${esc(x.sub)}"` : ''}>${fmt(lab)}</span>`;
+    const nm = tonic ? `<span class="cname">${fmt(H.chordName(H.spell(tonic, x.spec.iv), x.spec.q))}</span>` : '';
+    return `<span class="ch${i === cur ? ' cur' : ''}${x.sub ? ' sub' : ''}" ${x.sub ? `title="${esc(x.sub)}"` : ''}><span class="cnum">${fmt(H.label(x.spec))}</span>${nm}</span>`;
   }).join('')}</div>`).join('')}</div>`;
 }
 
@@ -254,6 +266,12 @@ function setup() {
   </section>
 
   <section class="card">
+    <h2>Voicings</h2>
+    <select id="voicing" class="select" aria-label="Voicing set">${G.VOICINGS.map((v) => `<option value="${v.id}" ${v.id === D.voicing ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>
+    <p class="note">${D.voicing === 'caged' || D.voicing === 'any' ? esc(G.voicingById(D.voicing).blurb) : `Every chord as a ${esc(G.voicingById(D.voicing).name.split(' · ')[0].toLowerCase().replace(/s$/, ''))} on strings ${G.voicingById(D.voicing).set.join('-')}, in whichever inversion is closest to the last chord, so the voices move as little as possible. ${G.voicingById(D.voicing).fam === 'tri' ? 'Seventh and colour chords are played as their triads.' : 'Triads are played as seventh chords; bigger chords keep their most telling four notes.'}`}</p>
+  </section>
+
+  <section class="card">
     <h2>Chords</h2>
     ${seg('src', [['set', 'Chord sets'], ['prog', 'Progressions']], D.src)}
     ${D.src === 'set' ? `
@@ -264,7 +282,7 @@ function setup() {
     : `
       <select id="prog" class="select" aria-label="Progression">${progOptions()}</select>
       <p class="note"><b>${esc(p.name)}</b> · ${esc(p.by)}${p.vl ? ' · a voice-leading study: the grips are chosen to move as little as possible' : ''}${conv ? ` · <i>written in ${p.minor ? 'minor' : 'major'}, converted to ${D.kt}</i>` : ''}</p>
-      ${chartHTML(progSlots(minor))}
+      ${chartHTML(progSlots(minor), { tonic: S0.tonic })}
       <h3>Colour</h3>
       ${seg('pcolour', [['as', 'As written'], ['tri', 'Triads'], ['sev', 'Sevenths'], ['col', 'Colour tones']], D.pcolour)}
       <button class="toggle ${D.evolve ? 'on' : ''}" data-act="evolve"><b>Evolving mode ${D.evolve ? 'on' : 'off'}</b><small>Each time round, one chord is swapped for another with the same job (iii or vi for I, ii for IV, ♭II7 for V7), or a ii–V, secondary dominant or passing diminished slips in. Old swaps drift back.</small></button>`}
@@ -272,10 +290,10 @@ function setup() {
 
   <section class="card">
     <h2>Show</h2>
-    <div class="chips"><button class="chip ${D.names ? 'on' : ''}" data-act="names">Chord names</button></div>
-    <p class="note">The numeral is always shown. Chord names can also be switched on and off during a run.</p>
-    <h3>Diagram</h3>
-    ${seg('diagram', [['now', 'Right away'], ['half', 'Halfway'], ['tap', 'On tap'], ['off', 'Never']], D.diagram)}
+    <div class="chips"><button class="chip ${D.nums ? 'on' : ''}" data-act="nums">Numerals</button><button class="chip ${D.names ? 'on' : ''}" data-act="names">Chord names</button><button class="chip ${D.neck ? 'on' : ''}" data-act="neck">Neck diagram</button></div>
+    <p class="note">At least one of numeral and name stays on. All three can be switched during a run too. With the neck off it’s just the beat and the chord.</p>
+    ${D.neck ? `<h3>Show the neck</h3>
+    ${seg('diagram', [['now', 'Right away'], ['half', 'Halfway'], ['tap', 'On tap']], D.diagram)}` : ''}
     <h3>Dots show</h3>
     ${seg('labels', [['iv', 'Intervals'], ['finger', 'Fingers'], ['note', 'Notes']], D.labels)}
     <div class="chips"><button class="chip ${D.hint ? 'on' : ''}" data-act="hint">Name the shape</button><button class="chip ${D.moves ? 'on' : ''}" data-act="moves">Show held notes</button></div>
@@ -308,7 +326,8 @@ function setup() {
     for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
     const a = d.act;
-    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'names', 'pair'].includes(a)) { D[a] = !D[a]; return redraw(); }
+    if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
+    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair'].includes(a)) { D[a] = !D[a]; return redraw(); }
     if (a === 'bpm-' || a === 'bpm+') { D.bpm = Math.max(30, Math.min(220, D.bpm + (a === 'bpm+' ? 2 : -2))); return redraw(); }
     if (a === 'go') { save(); run(); }
     if (a === 'walk') { save(); walkthrough(); }
@@ -317,6 +336,8 @@ function setup() {
   const r = $app.querySelector('#bpm');
   r.oninput = () => { D.bpm = Number(r.value); $app.querySelector('.tempo b').innerHTML = `${D.bpm}<small> bpm</small>`; };
   r.onchange = () => save();
+  const vsel = $app.querySelector('#voicing');
+  vsel.onchange = () => { D.voicing = vsel.value; save(); setup(); };
   const sel = $app.querySelector('#prog');
   if (sel) sel.onchange = () => { D.prog = sel.value; D.kt = prog().minor ? 'minor' : 'major'; save(); setup(); };
 }
@@ -386,7 +407,8 @@ function beat(t) {
   if (R.sound) A.click(t, b === 0 ? 2 : 1);
   at(t, () => {
     document.querySelectorAll('#beats i').forEach((el, i) => el.classList.toggle('on', i === b));
-    if (D.diagram === 'half' && b === Math.floor(c.beats / 2)) revealNeck();
+    document.getElementById('next')?.classList.toggle('soon', b === c.beats - 1); // the change is on the next beat
+    if (D.neck && D.diagram === 'half' && b === Math.floor(c.beats / 2)) revealNeck();
   });
   R.beatIn++;
   if (R.beatIn >= c.beats) { R.beatIn = 0; R.count++; }
@@ -395,15 +417,15 @@ function beat(t) {
 function drawRun() {
   const { S } = R;
   $app.innerHTML = `
-  <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where">${fmt(keyLabel(S))}<small>${fmt(posLabel(S))}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
+  <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where">${fmt(keyLabel(S))}<small>${fmt(posLabel(S))}${D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
   <div class="now" id="now"></div>
   <div class="beats" id="beats"></div>
-  <div class="stage" id="stage"></div>
   <div class="nextline" id="next"></div>
+  <div class="stage" id="stage"></div>
   <div class="evo" id="evo"></div>
   <div id="chart"></div>
   <div class="runctl"><button data-r="bpm-" aria-label="Slower">−</button><b id="bpmnow">${R.bpm} bpm</b><button data-r="bpm+" aria-label="Faster">+</button></div>
-  <div class="runbtns"><button class="sheet-btn" data-r="sheet">Chord set</button>${namesButton('r')}</div>
+  <div class="runbtns"><button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button><button class="sheet-btn" data-r="sheet">Chord set</button></div>
   <div class="sheet" id="sheet" hidden></div>`;
   applyNames();
   window.scrollTo(0, 0);
@@ -411,7 +433,8 @@ function drawRun() {
     const b = e.target.closest('button, #stage'); if (!b) return;
     const r = b.dataset?.r || (b.id === 'stage' ? 'reveal' : null);
     if (r === 'stop') return finish();
-    if (r === 'names') return toggleNames();
+    if (r === 'names' || r === 'nums') { flipLabel(r); save(); return applyNames(); }
+    if (r === 'neck') { D.neck = !D.neck; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
     if (r === 'close-sheet') return closeSheet();
     if (r === 'pause') return togglePause(b);
@@ -431,37 +454,53 @@ function togglePause(btn) {
   if (R.paused) { clearTimeout(R.timer); R.ui.forEach(clearTimeout); R.ui = []; if (R.sound) A.hush(); }
   else { R.nextTime = now() + 0.1; pump(); }
 }
-// the numeral is the chord; its name is there to check against, shown or hidden with one toggle
+// numeral and name are both always in the page; classes on the app decide which show (at least one does), and
+// with the numeral off the name takes its place and size
 function labelsFor(c) { return { main: c.rn, sub: c.name }; }
+function flipLabel(which) {
+  const other = which === 'nums' ? 'names' : 'nums';
+  if (D[which] && !D[other]) D[other] = true;
+  D[which] = !D[which];
+}
 function namesButton(attr) {
-  return `<button class="names-toggle ${D.names ? 'on' : ''}" data-${attr}="names" aria-pressed="${D.names}">${D.names ? 'Hide chord names' : 'Show chord names'}</button>`;
+  return `<div class="runbtns"><button class="rt" data-${attr}="nums">Numeral</button><button class="rt" data-${attr}="names">Name</button></div>`;
 }
 function applyNames() {
   $app.classList.toggle('hide-names', !D.names);
-  $app.querySelectorAll('.names-toggle').forEach((b) => { b.classList.toggle('on', D.names); b.setAttribute('aria-pressed', D.names); b.textContent = D.names ? 'Hide chord names' : 'Show chord names'; });
+  $app.classList.toggle('hide-nums', !D.nums);
+  $app.classList.toggle('no-neck', !D.neck);
+  const on = { nums: D.nums, names: D.names, neck: D.neck };
+  $app.querySelectorAll('.rt').forEach((b) => { const k = b.dataset.r || b.dataset.w; b.classList.toggle('on', !!on[k]); b.setAttribute('aria-pressed', !!on[k]); });
 }
-function toggleNames() { D.names = !D.names; save(); applyNames(); }
+const gripTag = (g) => (g ? (g.shape ? `${g.shape} shape` : g.label) : '');
 function showChord(c, { next = null, prev = null, counting = false, note = null } = {}) {
   if (!R) return;
   const { main, sub } = labelsFor(c);
   const tags = [];
-  if (D.hint && c.grip) tags.push(`<span class="tag shape">${c.grip.shape} shape</span>`);
+  if (D.hint && c.grip) tags.push(`<span class="tag shape">${esc(gripTag(c.grip))}</span>`);
   if (c.tag) tags.push(`<span class="tag">${esc(c.tag)}</span>`);
   if (c.plainer) tags.push(`<span class="tag warn" title="No ${esc(c.plainer)} grip here">plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</span>`);
   if (c.grip?.outside) tags.push('<span class="tag warn">stretches out of position</span>');
   document.getElementById('now').innerHTML = counting
-    ? `<div class="count" id="count"></div><div class="first">first: <b>${fmt(main)}</b> <span class="cname">${fmt(sub)}</span></div>`
-    : `<div class="main">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${c.fn ? `<div class="fn">${esc(c.fn)}</div>` : ''}${c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
+    ? `<div class="count" id="count"></div><div class="first">first: <b class="cnum">${fmt(main)}</b> <b class="cname">${fmt(sub)}</b></div>`
+    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${c.fn ? `<div class="fn">${esc(c.fn)}</div>` : ''}${c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
   document.getElementById('beats').innerHTML = counting ? '' : Array.from({ length: c.beats }, () => '<i></i>').join('');
-  R.shown = { c, prev };
-  if (counting || D.diagram === 'now') revealNeck();
-  else document.getElementById('stage').innerHTML = `<div class="hidden">${D.diagram === 'half' ? 'Find it… the grip shows halfway through' : 'Find it. Tap here to check.'}</div>`;
-  if (next) { const l = labelsFor(next); document.getElementById('next').innerHTML = `next <b>${fmt(l.main)}</b> <span class="cname">${fmt(l.sub)}</span>${D.hint && next.grip ? ` <span class="muted">${next.grip.shape} shape</span>` : ''}`; }
+  R.shown = { c, prev, counting };
+  renderStage();
+  if (next) { const l = labelsFor(next); document.getElementById('next').innerHTML = `<span class="lbl">next</span> <b class="cnum">${fmt(l.main)}</b> <b class="cname">${fmt(l.sub)}</b>${D.hint && next.grip ? ` <span class="muted">${esc(gripTag(next.grip))}</span>` : ''}`; }
   if (note) document.getElementById('evo').innerHTML = `<span>Evolved:</span> ${esc(note)}`;
-  if (D.src === 'prog' && c.slots) document.getElementById('chart').innerHTML = chartHTML(c.slots, { cur: c.slot });
+  if (D.src === 'prog' && c.slots) document.getElementById('chart').innerHTML = chartHTML(c.slots, { cur: c.slot, tonic: R.S.tonic });
+}
+// the neck: off, shown, or waiting (halfway / on tap)
+function renderStage() {
+  const st = document.getElementById('stage');
+  if (!st || !R?.shown) return;
+  if (!D.neck) { st.innerHTML = ''; return; }
+  if (R.shown.counting || D.diagram === 'now') return revealNeck();
+  st.innerHTML = `<div class="hidden">${D.diagram === 'half' ? 'Find it… the voicing shows halfway through' : 'Find it. Tap here to check.'}</div>`;
 }
 function revealNeck() {
-  if (!R?.shown) return;
+  if (!R?.shown || !D.neck) return;
   const { c, prev } = R.shown;
   const w = windowFor(R.S, c.grip);
   document.getElementById('stage').innerHTML = neckSVG(c.grip, { ...w, prev }) + LEGEND;
@@ -549,21 +588,22 @@ function sheetChords(S) {
   return groups;
 }
 function versionsFor(S, root, q) {
+  if (D.voicing !== 'caged') return G.familyVoicings(root, q, D.voicing, S.pos).inside;
   if (D.mode === 'pos') return G.versionsIn(root, q, S.pos);
   return S.shapes.flatMap((sh) => G.placements(root, q, sh).map((p) => ({ ...p, label: `${sh} shape · fret ${p.rootFret}` })));
 }
 function sheetHTML(S) {
-  const w = D.mode === 'pos' ? windowFor(S, null) : null;
+  const w = usesArea() ? windowFor(S, null) : null;
   const bg = w ? bgFor(S, w.lo, w.hi) : null;
   let html = '';
   for (const grp of sheetChords(S)) {
     html += `<h2 class="sgroup">${fmt(grp.title)}</h2>`;
     for (const c of grp.list) {
       const root = H.spell(S.tonic, c.spec.iv);
-      let q = c.q, vs = versionsFor(S, root, q), plainer = null;
+      let q = adaptQ(c.q, c.spec, S), vs = versionsFor(S, root, q), plainer = null;
       while (!vs.length && H.simpler(q)) { q = H.simpler(q); vs = versionsFor(S, root, q); plainer = c.q; }
       if (c.one) vs = vs.slice(0, 1);
-      html += `<div class="schord"><div class="shead"><b>${fmt(H.label(c.spec, q))}</b><span class="cname">${fmt(H.chordName(root, q))}</span>${c.note ? `<small>${esc(c.note)}</small>` : ''}${plainer ? `<small class="warn">no ${fmt(T.pretty(T.getChord(plainer).sym))} grip here</small>` : ''}</div>`;
+      html += `<div class="schord"><div class="shead"><b class="cnum">${fmt(H.label(c.spec, q))}</b><span class="cname">${fmt(H.chordName(root, q))}</span>${c.note ? `<small>${esc(c.note)}</small>` : ''}${plainer ? `<small class="warn">no ${fmt(T.pretty(T.getChord(plainer).sym))} grip here</small>` : ''}</div>`;
       html += vs.length ? `<div class="sgrid">${vs.map((v) => {
         const win = w || { lo: Math.max(0, v.lo - 1), hi: v.lo + 4 };
         return `<figure class="sv${v.kind === 'caged' || !v.kind ? ' caged' : ''}">${neckSVG(v, { lo: win.lo, hi: win.hi, band: w ? S.pos : null, tiny: true, bg, labels: 'iv' })}<figcaption>${esc(v.label)}</figcaption></figure>`;
@@ -578,7 +618,7 @@ function openSheet() {
   if (!el || !R) return;
   if (!R.sheet) R.sheet = sheetHTML(R.S);
   el.innerHTML = `<div class="sheet-head"><div><b>Chord set</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
-  <p class="note">Every chord that can come up, and every version of it ${D.mode === 'pos' ? 'inside the area' : 'in the shape'}: the CAGED grip${D.mode === 'pos' ? ', then triads or drop voicings on each string set and inversion. The key’s own shape is the faint dots behind.' : ' wherever it lands.'}</p>${LEGEND}${R.sheet}`;
+  <p class="note">Every chord that can come up, and ${D.voicing === 'caged' || D.voicing === 'any' ? `every version of it ${usesArea() ? 'inside the area' : 'in the shape'}: the CAGED grip${usesArea() ? ', then triads or drop voicings on each string set and inversion' : ' wherever it lands'}` : `every ${esc(G.voicingById(D.voicing).name.toLowerCase())} voicing of it inside the area (the run picks the one nearest the last chord)`}.${usesArea() ? ' The key’s own shape is the faint dots behind.' : ''}</p>${LEGEND}${R.sheet}`;
   el.hidden = false;
   el.scrollTop = 0;
   document.body.classList.add('locked');
@@ -626,13 +666,13 @@ function walkthrough() {
   items.forEach((c, i) => {
     if (c.group && c.group !== group) { if (group !== null) html += '</div>'; html += `<h2 class="wgroup">${esc(c.group)}</h2><div class="cards">`; group = c.group; }
     else if (i === 0) html += '<div class="cards">';
-    html += `<button class="wcard" data-i="${i}"><div class="wtop"><b>${fmt(c.rn)}</b><span class="cname">${fmt(c.name)}</span></div>${neckSVG(c.grip, { ...windowFor(S, c.grip), small: true })}<div class="wmeta">${c.grip ? `${c.grip.shape} shape` : ''}${c.tag ? ` · ${esc(c.tag)}` : ''}${c.plainer ? ` · <i>plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</i>` : ''}</div>${c.fn ? `<div class="wfn">${esc(c.fn)}</div>` : ''}</button>`;
+    html += `<button class="wcard" data-i="${i}"><div class="wtop"><b class="cnum">${fmt(c.rn)}</b><span class="cname">${fmt(c.name)}</span></div>${neckSVG(c.grip, { ...windowFor(S, c.grip), small: true })}<div class="wmeta">${esc(gripTag(c.grip))}${c.tag ? ` · ${esc(c.tag)}` : ''}${c.plainer ? ` · <i>plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</i>` : ''}</div>${c.fn ? `<div class="wfn">${esc(c.fn)}</div>` : ''}</button>`;
   });
   html += '</div>';
   $app.innerHTML = `
   <header class="chead"><button class="icon" data-w="back" aria-label="Back">‹</button><h1>Walkthrough</h1><span></span></header>
   <p class="lead"><b>${esc(title)}</b> · ${fmt(keyLabel(S))} · ${fmt(posLabel(S))}${D.src === 'set' ? ` · ${esc(H.COLOURS.find((c) => c.id === D.colour).name.toLowerCase())}` : ''}. Play through steps along at your tempo.</p>
-  ${D.src === 'prog' ? chartHTML(progSlots(S.minor)) : ''}
+  ${D.src === 'prog' ? chartHTML(progSlots(S.minor), { tonic: S.tonic }) : ''}
   <div class="actions"><button class="primary" data-w="play">▶ Play through</button></div>
   ${namesButton('w')}
   ${LEGEND}
@@ -645,7 +685,7 @@ function walkthrough() {
   $app.onclick = async (e) => {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.w === 'back') { clearTimeout(playing); return setup(); }
-    if (b.dataset.w === 'names') return toggleNames();
+    if (b.dataset.w === 'names' || b.dataset.w === 'nums') { flipLabel(b.dataset.w); save(); return applyNames(); }
     if (b.dataset.w === 'play') {
       if (playing !== null) { clearTimeout(playing); playing = null; b.textContent = '▶ Play through'; return; }
       b.textContent = '■ Stop';

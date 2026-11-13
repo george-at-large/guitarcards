@@ -105,10 +105,14 @@ input[type=range] { width: 100%; margin: 12px 0 0; accent-color: var(--amber); }
 @media (prefers-reduced-motion: reduce) { .beats i.on { animation: none; } }
 .stage { display: flex; flex-direction: column; align-items: center; min-height: 240px; cursor: pointer; }
 .hidden { margin: 70px auto; color: var(--muted); border: 1px dashed var(--line2); border-radius: 16px; padding: 18px 22px; }
-.nextline { text-align: center; color: var(--muted); margin: 8px 0 0; font-size: 15px; }
-.nextline b { font: 600 20px var(--f-num); color: var(--soft); }
-.nextline span { font-family: var(--f-num); }
-.nextline .muted { font-family: var(--f-ui); font-size: 12.5px; }
+.nextline { display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 0 auto 14px; padding: 8px 16px; width: fit-content; max-width: 100%; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); transition: background .1s, border-color .1s; }
+.nextline:empty { display: none; }
+.nextline .lbl { font: 600 11.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; }
+.nextline b { font: 600 28px/1.1 var(--f-num); color: var(--text); }
+.nextline b.cname { font-size: 20px; color: var(--soft); }
+.nextline .muted { font-size: 12.5px; }
+.nextline.soon { background: rgba(255, 181, 71, 0.16); border-color: rgba(255, 181, 71, 0.55); }
+.nextline.soon .lbl { color: var(--amber); }
 .evo { text-align: center; color: var(--violet); font-size: 13.5px; min-height: 20px; margin: 6px 0 0; }
 .evo span { color: var(--muted); }
 .runctl { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 14px 0 0; }
@@ -196,3 +200,19 @@ svg.neck.tiny .fnum.big { font-size: 26px; fill: #d8cdbd; }
 svg.neck.tiny .mute { font-size: 22px; }
 svg.neck .bg { fill: rgba(255, 255, 255, 0.07); stroke: rgba(255, 255, 255, 0.22); stroke-width: 1.5; }
 svg.neck .bg.root { fill: rgba(255, 181, 71, 0.12); stroke: rgba(255, 181, 71, 0.45); }
+
+/* numeral / name / neck toggles: the name takes the numeral's place when numerals are off */
+#caged.hide-nums .cnum { display: none !important; }
+#caged.hide-names .cname { display: none !important; }
+.chart .ch .cname { display: none; }
+#caged.hide-nums .chart .ch .cname { display: inline; }
+#caged.hide-nums .now .sub { font: 600 64px/1.05 var(--f-num); color: var(--text); margin: 0; }
+#caged.hide-nums .nextline b.cname { font-size: 28px; color: var(--text); }
+#caged.hide-nums .wtop span, #caged.hide-nums .shead span { font: 600 20px var(--f-num); color: var(--text); }
+#caged .rt { padding: 8px 14px; border-radius: 999px; font: 600 14px var(--f-display); color: var(--muted); }
+#caged .rt.on { color: var(--text); background: rgba(255, 255, 255, 0.12); border-color: var(--line2); }
+#caged.no-neck .stage { display: none; }
+#caged.no-neck .now { padding-top: 12vh; }
+#caged.no-neck .now .main, #caged.no-neck.hide-nums .now .sub { font-size: 96px; }
+#caged.no-neck .beats i { width: 26px; height: 26px; }
+#caged.no-neck .beats { gap: 16px; margin: 18px 0 22px; }

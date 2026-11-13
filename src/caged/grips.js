@@ -297,3 +297,44 @@ export function versionsIn(root, q, pos) {
   }
   return out;
 }
+
+// ---------- voicing sets: one family of voicings, voice-led ----------
+// 'tri' = close triads, 'd2' = drop 2, 'd3' = drop 3, each on one string set; 'any' = every version in the area
+export const VOICINGS = [
+  { id: 'caged', name: 'CAGED grips', blurb: 'One grip per chord, in whichever CAGED shape of it lives in the area.' },
+  { id: 'any', name: 'Any voicing, voice-led', blurb: 'From every grip, triad and drop voicing in the area, the one closest to the last chord.' },
+  { id: 'tri:321', name: 'Triads · strings 3-2-1', fam: 'tri', set: [3, 2, 1] },
+  { id: 'tri:432', name: 'Triads · strings 4-3-2', fam: 'tri', set: [4, 3, 2] },
+  { id: 'tri:543', name: 'Triads · strings 5-4-3', fam: 'tri', set: [5, 4, 3] },
+  { id: 'tri:654', name: 'Triads · strings 6-5-4', fam: 'tri', set: [6, 5, 4] },
+  { id: 'd2:4321', name: 'Drop 2 · strings 4-3-2-1', fam: 'd2', set: [4, 3, 2, 1] },
+  { id: 'd2:5432', name: 'Drop 2 · strings 5-4-3-2', fam: 'd2', set: [5, 4, 3, 2] },
+  { id: 'd2:6543', name: 'Drop 2 · strings 6-5-4-3', fam: 'd2', set: [6, 5, 4, 3] },
+  { id: 'd3:6432', name: 'Drop 3 · strings 6-4-3-2', fam: 'd3', set: [6, 4, 3, 2] },
+  { id: 'd3:5321', name: 'Drop 3 · strings 5-3-2-1', fam: 'd3', set: [5, 3, 2, 1] },
+];
+export const voicingById = (id) => VOICINGS.find((v) => v.id === id) || VOICINGS[0];
+const FAM = { tri: ['close', 'triad'], d2: ['drop2', 'drop 2'], d3: ['drop3', 'drop 3'] };
+function asVersion(notes, label, kind) {
+  const placed = assignFingers(notes.map((n) => ({ ...n }))).sort((a, b) => b.string - a.string);
+  const fr = placed.filter((n) => n.fret > 0).map((n) => n.fret);
+  return { notes: placed, label, kind, lo: fr.length ? Math.min(...fr) : 0, hi: Math.max(...placed.map((n) => n.fret)), center: fr.length ? fr.reduce((a, b) => a + b, 0) / fr.length : 0 };
+}
+// every voicing of this family for the chord; those inside the area first-class, the rest only as a fallback
+export function familyVoicings(root, q, vid, pos) {
+  const v = voicingById(vid);
+  if (v.id === 'any') return { inside: versionsIn(root, q, pos), outside: [] };
+  const [voicing, kind] = FAM[v.fam];
+  let list = [];
+  try { list = F.chordVoicings({ root, quality: q, voicing, stringSet: v.set, inversion: 'all' }); } catch (e) { /* none */ }
+  const all = list.map((x) => asVersion(x.notes, `${INV[x.inversion] || `${x.bassIv} bass`}`, kind));
+  return { inside: all.filter((x) => fits(x.notes, pos)), outside: all.filter((x) => !fits(x.notes, pos)) };
+}
+// the voicing nearest the last one (or the middle of the area to start), staying inside the area when it can
+export function voiceLeadPick(root, q, vid, pos, prev) {
+  const { inside, outside } = familyVoicings(root, q, vid, pos);
+  const pool = inside.length ? inside : outside;
+  if (!pool.length) return null;
+  const score = (x) => (prev ? movement(prev, x) : 0) + Math.abs(x.center - pos.mid) * (prev ? 0.25 : 1) + (inside.length ? 0 : 3);
+  return pool.reduce((a, b) => (score(a) <= score(b) ? a : b));
+}
