@@ -1,0 +1,17 @@
+{
+  "id": "./ear.html",
+  "name": "Ear",
+  "short_name": "Ear",
+  "description": "Hear chord progressions and audiate chords: a level game and guided sessions.",
+  "start_url": "./ear.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0b0f",
+  "theme_color": "#0a0b0f",
+  "icons": [
+    { "src": "icons/ear-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/ear-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/ear-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

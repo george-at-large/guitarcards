@@ -1,0 +1,150 @@
+/* Ear: the progression game and guided audiation. Rounded titles, Roman numerals and chord names in a serif (they read
+   like a score), plain text in the system face; quiet surfaces, amber for what to press. */
+:root {
+  --e-bg: #0b0c10;
+  --e-surface: rgba(255, 255, 255, 0.035);
+  --e-surface2: rgba(255, 255, 255, 0.065);
+  --e-line: rgba(255, 255, 255, 0.075);
+  --e-line2: rgba(255, 255, 255, 0.14);
+  --e-text: #f3f1ec;
+  --e-soft: #c9c6bf;
+  --e-muted: #8c8a93;
+  --e-amber: #ffb547;
+  --e-cyan: #5ccdf2;
+  --e-good: #7ddc97;
+  --e-bad: #ff8a96;
+  --f-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --f-display: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --f-num: "New York", ui-serif, "Iowan Old Style", "Palatino", Georgia, serif;
+}
+body { background: radial-gradient(90% 45% at 15% -5%, rgba(255, 181, 71, 0.09), transparent 60%), radial-gradient(80% 40% at 95% 0%, rgba(92, 205, 242, 0.06), transparent 60%), var(--e-bg) fixed; }
+#ear [hidden] { display: none !important; }
+#ear { max-width: 560px; margin: 0 auto; padding: env(safe-area-inset-top) 18px calc(24px + env(safe-area-inset-bottom)); font: 15.5px/1.55 var(--f-ui); color: var(--e-text); letter-spacing: -0.005em; }
+#ear button { font-family: inherit; color: var(--e-text); background: var(--e-surface2); border: 1px solid var(--e-line); border-radius: 14px; padding: 10px 14px; box-shadow: none; transition: background .15s, border-color .15s, transform .08s; }
+#ear button:active { transform: scale(0.97); }
+#ear button:disabled { opacity: 0.35; }
+
+/* header and tabs */
+.ehead { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; gap: 8px; padding: 14px 0 8px; position: sticky; top: 0; z-index: 3;
+  background: linear-gradient(180deg, var(--e-bg) 72%, rgba(11, 12, 16, 0)); }
+.ehead h1 { font: 650 21px/1.2 var(--f-display); margin: 0; text-align: center; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ehead > span { color: var(--e-muted); font-size: 13.5px; text-align: right; white-space: nowrap; }
+#ear .eback { width: 40px; height: 40px; padding: 0; font-size: 24px; line-height: 38px; border-radius: 50%; text-align: center; text-decoration: none; color: var(--e-text); background: var(--e-surface2); border: 1px solid var(--e-line); }
+.etabs { display: flex; gap: 4px; background: var(--e-surface); border: 1px solid var(--e-line); border-radius: 999px; padding: 4px; margin: 6px 0 18px; }
+#ear .etabs button { flex: 1; border: 0; background: transparent; padding: 9px; border-radius: 999px; color: var(--e-muted); font: 600 15px var(--f-display); }
+#ear .etabs button.on { background: rgba(255, 255, 255, 0.1); color: var(--e-text); }
+
+/* home */
+.elead { color: var(--e-soft); margin: 0 0 18px; }
+.emuted { color: var(--e-muted); font-size: 13.5px; }
+#ear .ebig { display: block; width: 100%; text-align: left; padding: 16px 18px; margin: 0 0 22px; border-radius: 20px; font: 650 19px/1.3 var(--f-display);
+  background: linear-gradient(135deg, rgba(255, 181, 71, 0.22), rgba(255, 122, 154, 0.08) 60%, rgba(92, 205, 242, 0.08)); border: 1px solid rgba(255, 181, 71, 0.32); }
+.ebig small { display: block; font: 600 11.5px var(--f-ui); color: var(--e-amber); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2px; }
+.etier h2 { font: 600 11.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.13em; color: var(--e-muted); margin: 24px 2px 10px; }
+#ear .erow { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 12px 14px; margin: 0 0 8px; border-radius: 16px; background: var(--e-surface); border: 1px solid var(--e-line); }
+.erow.locked { opacity: 0.5; }
+.enum { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, 0.07); font: 600 14px var(--f-display); color: var(--e-soft); }
+.erow.done .enum { background: rgba(125, 220, 151, 0.16); color: var(--e-good); }
+.etitle { display: flex; flex-direction: column; min-width: 0; font: 600 16px/1.3 var(--f-display); }
+.etitle small { font: 400 13px/1.4 var(--f-ui); color: var(--e-muted); display: flex; gap: 3px; flex-wrap: wrap; align-items: center; margin-top: 2px; }
+.etitle small i, .edots i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); }
+i.y { background: var(--e-good) !important; } i.n { background: var(--e-bad) !important; }
+.etrophy { padding: 14px 16px; border-radius: 16px; background: rgba(255, 181, 71, 0.12); border: 1px solid rgba(255, 181, 71, 0.3); margin: 10px 0 16px; font: 600 15.5px var(--f-display); }
+.econf { margin: -8px 0 18px; }
+.econf b { font-family: var(--f-num); font-weight: 600; color: var(--e-soft); }
+.eopts { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin: -8px 0 8px; font-size: 14.5px; color: var(--e-soft); }
+.eopts select, .econtrols select { background: var(--e-surface2); color: var(--e-text); border: 1px solid var(--e-line); border-radius: 12px; padding: 7px 10px; font: inherit; }
+.echeck { display: flex; gap: 8px; align-items: center; }
+.later .erow { pointer-events: none; }
+
+/* the game */
+.etip { background: var(--e-surface); border: 1px solid var(--e-line); border-radius: 16px; padding: 10px 14px; margin: 4px 0 12px; font-size: 14.5px; color: var(--e-soft); }
+.etip summary { cursor: pointer; color: var(--e-cyan); font: 600 14px var(--f-display); }
+.etip p { margin: 8px 0 4px; }
+.emeter { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; color: var(--e-muted); font-size: 13px; margin: 2px 0 14px; }
+.edots { display: flex; gap: 5px; }
+.econtrols { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 6px; }
+.econtrols button, .econtrols select { flex: 1; min-width: 0; height: 42px; padding: 0 10px; font-size: 14.5px; }
+.econtrols select { flex: 1.7; }
+#ear .eprimary { background: linear-gradient(180deg, #ffc76f, #f6a52b); color: #1d1405; border-color: transparent; font: 650 17px var(--f-display); }
+#eplay { flex-basis: 100%; height: 54px !important; border-radius: 999px !important; font-size: 18px !important; }
+#ear .econtrols button.on { border-color: rgba(92, 205, 242, 0.6); background: rgba(92, 205, 242, 0.14); color: #c9f0ff; }
+#ear .eaccent { background: rgba(92, 205, 242, 0.13); border-color: rgba(92, 205, 242, 0.45); color: #d3f3ff; font-weight: 600; }
+.estatus { text-align: center; color: var(--e-cyan); font: italic 14px var(--f-num); min-height: 22px; margin: 4px 0 8px; }
+.eslots { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; margin: 0 0 18px; }
+#ear .eslot { min-height: 74px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; border: 1px dashed var(--e-line2); background: rgba(255, 255, 255, 0.02); }
+.eslot b { font: 600 25px/1.1 var(--f-num); letter-spacing: 0.01em; }
+.eslot small { font-size: 11.5px; color: var(--e-muted); line-height: 1.25; text-align: center; margin-top: 4px; }
+#ear .eslot.given { border-style: solid; opacity: 0.7; }
+#ear .eslot.sel { border: 1.5px solid var(--e-amber); background: rgba(255, 181, 71, 0.07); box-shadow: 0 0 0 4px rgba(255, 181, 71, 0.08); }
+#ear .eslot.ok { border: 1px solid rgba(125, 220, 151, 0.55); background: rgba(125, 220, 151, 0.08); }
+#ear .eslot.bad { border: 1px solid rgba(255, 138, 150, 0.55); background: rgba(255, 138, 150, 0.07); }
+.eslot.bad small { color: #ffc2c8; }
+#ear .eslot.half { border: 1px solid rgba(255, 181, 71, 0.55); background: rgba(255, 181, 71, 0.07); }
+.eslot.half small { color: #ffdca6; }
+#ear .eslot.now { box-shadow: 0 0 0 2px var(--e-cyan) inset, 0 0 22px rgba(92, 205, 242, 0.25); }
+.epad { margin: 0 0 10px; }
+.erowlabel { font: 600 11px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--e-muted); margin: 10px 2px 6px; }
+.ebtns { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 7px; }
+.ebtns.deg { grid-template-columns: repeat(6, 1fr); }
+.ebtns.col { grid-template-columns: 1fr; }
+.efuncs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+#ear .ebtns button { height: 50px; padding: 0 4px; font: 600 20px var(--f-num); border-radius: 14px; }
+#ear .ebtns:not(.deg) button[data-q], #ear .ebtns button[data-bass] { font: 600 16px var(--f-ui); }
+#ear .ebtns button.on { border-color: var(--e-amber); background: rgba(255, 181, 71, 0.14); }
+.eactions { display: flex; gap: 10px; margin: 14px -18px 0; padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); position: sticky; bottom: 0;
+  background: rgba(11, 12, 16, 0.78); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--e-line); }
+#ear .eactions button { height: 52px; }
+.eactions button:first-child { flex: 0 0 64px; font-size: 20px; }
+.eactions .eprimary { flex: 1; border-radius: 999px !important; }
+.eresult { margin: 4px 0; }
+.everdict { font: 500 17px/1.45 var(--f-display); margin: 6px 0 2px; }
+.everdict b { font-weight: 650; }
+.eok { color: var(--e-good); } .eno { color: var(--e-bad); }
+.elearn { background: var(--e-surface); border: 1px solid var(--e-line); border-radius: 18px; padding: 16px 16px 6px; margin: 12px 0; }
+.elearn h3 { font: 650 19px var(--f-display); color: var(--e-text); margin: 0 0 2px; }
+.elearn .eby { color: var(--e-amber); font-size: 13.5px; margin: 0 0 8px; }
+.elearn > p { color: var(--e-soft); margin: 0 0 12px; }
+.ewalk { list-style: none; margin: 0; padding: 0; }
+.ewalk li { display: grid; grid-template-columns: 62px 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid var(--e-line); cursor: pointer; font-size: 14px; color: var(--e-soft); line-height: 1.5; }
+.ewalk li:first-child { border-top: 0; }
+.ewalk b { color: var(--e-text); font: 600 15px var(--f-num); margin-right: 4px; }
+.ernum { font: 600 21px/1.2 var(--f-num); color: var(--e-amber); }
+
+/* the neck (audiation) */
+.eneckwrap { margin: 10px -6px; }
+.eneckwrap.eyes { visibility: hidden; height: 40px; }
+.eneck { width: 100%; height: auto; display: block; overflow: visible; }
+.enfn { fill: var(--e-muted); font-size: 13px; text-anchor: middle; }
+.endot { transition: transform 0.55s cubic-bezier(.4, 0, .2, 1), opacity 0.4s ease; opacity: 0; }
+.endot .encirc { fill: var(--c); stroke: var(--c); stroke-width: 2.5; transition: fill-opacity 0.35s, stroke-opacity 0.35s; }
+.endot .englow { fill: var(--c); opacity: 0; transition: opacity 0.35s; }
+.endot .entxt { font: 700 16px -apple-system, system-ui, sans-serif; text-anchor: middle; fill: #171310; transition: fill 0.3s; }
+.endot.on { opacity: 1; }
+.endot.on .englow { opacity: 0.55; animation: ebreathe 5.5s ease-in-out infinite; }
+.endot.boost .englow { opacity: 0.95; }
+.endot.boost .encirc { transform: scale(1.12); }
+.endot.ring, .endot.ghost { opacity: 0.95; }
+.endot.ring .encirc, .endot.ghost .encirc { fill: #0b0806; fill-opacity: 0.85; }
+.endot.ring .entxt, .endot.ghost .entxt { fill: var(--c); }
+.endot.ghost .encirc { stroke-dasharray: 4.5 4; stroke-opacity: 0.8; }
+.endot.ghost { opacity: 0.75; }
+.endot.dim { opacity: 0.22; }
+@keyframes ebreathe { 50% { opacity: 0.3; } }
+
+/* a session */
+.ses .ecue { min-height: 22px; text-align: center; color: var(--e-muted); font-size: 14.5px; margin: 10px 0 2px; letter-spacing: 0.01em; }
+.echord { text-align: center; margin: 4px 0; }
+.echord summary { list-style: none; cursor: pointer; font: 400 40px/1.2 var(--f-num); letter-spacing: -0.01em; }
+.echord summary::-webkit-details-marker { display: none; }
+.echord summary::after { content: ' ⌄'; font: 16px var(--f-ui); color: var(--e-muted); vertical-align: middle; }
+.echord p { color: var(--e-soft); font-size: 14px; margin: 2px 0 6px; }
+.eline { text-align: center; font: 400 21px/1.4 var(--f-num); min-height: 62px; margin: 12px 0; color: var(--e-text); }
+.etaps { display: flex; gap: 8px; justify-content: center; align-items: center; color: var(--e-muted); font-size: 14px; margin: -4px 0 10px; }
+#ear .etaps button { padding: 7px 18px; border-radius: 999px; }
+.ses .econtrols button { height: 50px; border-radius: 999px; font: 600 16px var(--f-display); }
+.ehint { text-align: center; }
+.efuncs .erowlabel { white-space: nowrap; letter-spacing: 0.08em; overflow: hidden; text-overflow: ellipsis; }
+.acc { font-family: var(--f-ui); font-size: 0.8em; font-weight: 500; position: relative; top: -0.1em; margin-right: 0.02em; }
+#ear .eslot.long b { font-size: 19px; }
+.ebasshint { margin: 6px 2px 0; font-size: 12.5px; }

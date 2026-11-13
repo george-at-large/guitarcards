@@ -299,6 +299,7 @@ function renderHome() {
 
   <h3>Learn</h3>
   <div class="navgrid">
+    <a class="navlink" href="ear.html" style="grid-column:1/-1"><b>👂 Ear: progressions and audiation</b><small>A level game from I→IV to any progression at all, and guided sessions that build chords in your head</small></a>
     <a class="navlink" href="guide/guitar-mastery.pdf" target="_blank" rel="noopener" style="grid-column:1/-1"><b>📘 The mastery guide (PDF)</b><small>Cheat sheets first, then every chord, scale and arpeggio on the neck</small></a>
     <a class="navlink" href="guide/memory-essentials.pdf" target="_blank" rel="noopener" style="grid-column:1/-1"><b>🧠 Memory essentials (PDF)</b><small>Every key, mode, borrowed chord, guide-tone line and superimposition, in all 12 keys</small></a>
     <a class="navlink" href="courses/guitar-tone.html"><b>🎛️ Guitar tone course</b><small>About an hour, hands-on: pickups, drive, amps, cabs, effects, order — then AI and guitar</small></a>

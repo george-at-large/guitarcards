@@ -9,3 +9,12 @@ tg/
 private/
 guide/guitar-mastery.html
 guide/memory-essentials.html
+
+# audiation video builder: local env, speech cache and renders
+tools/audiation/.venv/
+tools/audiation/cache/
+tools/audiation/out/
+
+# drill video builder: speech cache and renders
+tools/drillvideo/cache/
+tools/drillvideo/out/

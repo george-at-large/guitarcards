@@ -1,0 +1,196 @@
+# Session 1: Cmaj7, built fast (predict, then check), worked in the mind (notes in and out on instruction, then a
+# check), then moved to Am7 and back: G and E stay, the bass falls C→A, the seventh rises B→C.
+# Grips on the same four strings: Cmaj7 x3545x (C3 G3 B3 E4), Am7 x0555x (A2 G3 C4 E4).
+id: 01-build-and-hold
+title: Cmaj7 and Am7 · build, hold, move
+neck: {frets: 7}
+groups:
+  all-c: [c3, g3, b3, e4]
+  all-am: [a2, g3, c4, e4]
+voices:
+  c3: {string: 5, fret: 3}
+  a2: {string: 5, fret: 0}
+  g3: {string: 4, fret: 5}
+  b3: {string: 3, fret: 4}
+  c4: {string: 3, fret: 5}
+  e4: {string: 2, fret: 5}
+steps:
+  # the chord, then built note by note: imagine, then hear
+  - chord: &C {name: Cmaj7, root: C, ivs: ['1', '3', '5', '7'], about: 'major seventh · Imaj7 in C major, IVmaj7 in G major'}
+    sound: [c3, g3, b3, e4]
+    say: C major seven.
+    hold: 2.5
+  - stop: all
+    say: Now note by note. Imagine each one before it sounds.
+    hold: 1.5
+  - sound: c3
+    say: The root.
+    hold: 1
+  - imagine: e4
+    say: The third, up high.
+    cue: Imagine the 3rd
+    hold: 2.5
+  - sound: e4
+    cue: ''
+    hold: 1.5
+  - imagine: g3
+    say: The fifth.
+    cue: Imagine the 5th
+    hold: 2.5
+  - sound: g3
+    cue: ''
+    hold: 1.5
+  - imagine: b3
+    say: The major seventh.
+    cue: Imagine the 7th
+    hold: 2.5
+  - sound: b3
+    cue: ''
+    hold: 2.5
+
+  # in the mind: notes in and out on instruction, each followed by a check
+  - drop: all
+    say: Hold the chord.
+    cue: Hold Cmaj7
+    hold: 5
+  - sound: all-c
+    say: Check.
+    hold: 2
+  - drop: all
+    hear: [c3, b3]
+    say: Now hear only the root and the seventh.
+    cue: Root and 7th
+    hold: 4
+  - hear: [c3, b3, e4]
+    say: Add the third.
+    cue: Root, 3rd and 7th
+    hold: 4
+  - sound: [c3, b3, e4]
+    say: Check.
+    hold: 2
+  - drop: all
+    hear: [g3, e4]
+    say: Only the third and the fifth.
+    cue: 3rd and 5th
+    hold: 4
+  - hear: [b3]
+    say: Just the seventh.
+    cue: The 7th alone
+    hold: 4
+  - sound: b3
+    say: Check.
+    hold: 2
+  - drop: all
+    hear: [c3, g3, b3, e4]
+    say: Bring back the whole chord.
+    cue: All of Cmaj7
+    hold: 4
+  - sound: all-c
+    say: Check.
+    hold: 2.5
+
+  # moving to A minor seven: watch what moves and what stays
+  - move: {c3: a2, b3: c4}
+    chord: &Am {name: Am7, root: A, ivs: ['1', 'b3', '5', 'b7'], about: 'minor seventh · vi7 in C major, ii7 in G, iii7 in F'}
+    say: A minor seven. The bass falls to A, the seventh rises to C. G and E stay.
+    cue: What moves, what stays
+    hold: 2.5
+  - move: {a2: c3, c4: b3}
+    chord: *C
+    say: And back.
+    hold: 2.5
+  - move: {c3: a2, b3: c4}
+    chord: *Am
+    hold: 3
+  - move: {a2: c3, c4: b3}
+    chord: *C
+    hold: 3
+
+  # the move in the mind
+  - drop: all
+    say: Hold C major seven.
+    cue: Hold Cmaj7
+    hold: 4
+  - imagine: [a2, c4]
+    clear: [c3, b3]
+    chord: *Am
+    say: Now move it to A minor seven, in your mind.
+    cue: Move to Am7
+    hold: 4.5
+  - sound: all-am
+    clear: all
+    say: Check.
+    hold: 2
+  - drop: all
+    imagine: [c3, b3]
+    clear: [a2, c4]
+    chord: *C
+    say: Back to C.
+    cue: Move to Cmaj7
+    hold: 4
+  - sound: all-c
+    clear: all
+    say: Check.
+    hold: 2
+
+  # faster, with nothing on the neck to help
+  - drop: all
+    clear: all
+    chord: *Am
+    say: Now on your own. A minor.
+    cue: Am7
+    hold: 3.5
+  - chord: *C
+    say: C.
+    cue: Cmaj7
+    hold: 3.5
+  - chord: *Am
+    say: A minor.
+    cue: Am7
+    hold: 3.5
+  - chord: *C
+    say: C.
+    cue: Cmaj7
+    hold: 3.5
+  - sound: all-c
+    say: Check.
+    cue: ''
+    hold: 2.5
+
+  # only the voices that move
+  - drop: all
+    hear: [c3, b3]
+    say: Now only the moving voices. The root and the seventh of C.
+    cue: C and B
+    hold: 3.5
+  - imagine: [a2, c4]
+    clear: [c3, b3]
+    hear: [a2, c4]
+    chord: *Am
+    say: Move them. The bass down, the seventh up.
+    cue: A and C
+    hold: 3.5
+  - sound: [a2, c4]
+    clear: all
+    say: Check.
+    hold: 2
+  - drop: all
+    imagine: [c3, b3]
+    clear: [a2, c4]
+    hear: [c3, b3]
+    chord: *C
+    say: And back.
+    cue: C and B
+    hold: 3.5
+  - sound: [c3, b3]
+    clear: all
+    say: Check.
+    hold: 2
+  - sound: [g3, e4]
+    say: And the full chord.
+    cue: ''
+    hold: 3
+  - stop: all
+    chord: null
+    say: That's the end of this session.
+    hold: 0.5

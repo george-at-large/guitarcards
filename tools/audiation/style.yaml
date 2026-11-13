@@ -1,0 +1,53 @@
+# How every audiation video looks, sounds and is paced. A session (sessions/<id>.yaml) says what happens; this file says
+# how. Change a value here and re-render: speech is cached line by line, so only a change to the voice or a line's words
+# costs speech. Modelled on the Mila module-video house style (mind-at-large-prototype protocols/module-videos).
+
+visual:
+  size: [1920, 1080]
+  fps: 24
+  background: '#000000'
+  font: /System/Library/Fonts/HelveticaNeue.ttc
+  font_light: 7            # face indexes in the .ttc
+  font_medium: 10
+  ink: '#f2f0ea'
+  caption: {size: 44, margin_bottom: 92, linger_s: 2.5, fade_s: 0.8}
+  cue: {size: 32, alpha: 0.42, margin_top: 84, fade_s: 0.3}
+  chord: {size: 76, ivs_size: 40, about_size: 30, y: 250, fade_s: 0.4}
+  neck:
+    frets: 12              # nut to this fret
+    x: [250, 1700]         # nut and the last fret drawn
+    y: [470, 760]          # high E string and low E string
+    dim: 0.62              # the neck's brightness: a quiet stage for the notes
+  dot: {radius: 31, glow: 2.6, breathe_s: 5.5, fade_in_s: 0.35, fade_out_s: 0.7, ring_fade_s: 0.5, glide_s: 0.6}
+  # interval families, as the mode scroller colours them (styles.css .msdot)
+  colours: {r: '#ffb547', t3: '#ff7a9a', t5: '#5ccdf2', t7: '#b49cff', tx: '#efe8da'}
+
+voice:
+  provider: elevenlabs
+  voice: UmQN7jS1Ee8B1czsUtQh      # Theo Silk, the Mila house voice
+  name: Theo Silk
+  model: eleven_multilingual_v2
+  settings: {stability: 0.65, similarity_boost: 0.75, style: 0, use_speaker_boost: true, speed: 0.9}
+  seed: 7
+
+sound:
+  rate: 48000
+  # each chord tone: a warm sustained voice (a few soft harmonics, three slightly detuned copies, a slow swell),
+  # started by a soft guitar-like pluck so it sounds like a note on the neck before it blooms into a held tone
+  attack_s: 0.3
+  release_s: 1.1
+  level: 0.11              # each tone, before the mix is normalised
+  detune_cents: 3.5
+  swell: {depth: 0.07, period_s: 11}
+  pluck: {level: 0.55, decay_s: 2.2, position: 0.14}
+  reverb: {seconds: 3.0, rt60: 2.1, rt60_high: 1.0, predelay_ms: 22, wet_tones: 0.32, wet_voice: 0.06}
+  voice_db: 1.5            # the voice's speaking level against the fullest second of the chord
+  room_db: -64             # a faint unpitched room tone under everything
+  peak: 0.89
+
+pacing:
+  lead_in_s: 1.5
+  tail_s: 3.0
+  gap_after_line_s: 0.5    # after any spoken line
+  after_sound_s: 0.5       # a step that brings a tone in or drops one: the line starts this long after
+  roll_s: 0.07             # several voices sounding at once roll up from the lowest, like a slow strum
