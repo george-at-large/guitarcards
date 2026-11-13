@@ -299,42 +299,130 @@ export function versionsIn(root, q, pos) {
 }
 
 // ---------- voicing sets: one family of voicings, voice-led ----------
-// 'tri' = close triads, 'd2' = drop 2, 'd3' = drop 3, each on one string set; 'any' = every version in the area
+// fam: tri (close triads), spread (open triads), shell (1-3-7 / 1-7-3), d2, d3, d24 (drop 2, 3, 2&4), each over
+// one or more string sets; 'any' = every version in the area; 'open' = as many open strings as possible
+const SPREAD_SETS = [[6, 4, 3], [5, 3, 2], [4, 2, 1], [6, 5, 3], [5, 4, 2], [6, 4, 2], [5, 3, 1]];
 export const VOICINGS = [
-  { id: 'caged', name: 'CAGED grips', blurb: 'One grip per chord, in whichever CAGED shape of it lives in the area.' },
-  { id: 'any', name: 'Any voicing, voice-led', blurb: 'From every grip, triad and drop voicing in the area, the one closest to the last chord.' },
-  { id: 'tri:321', name: 'Triads · strings 3-2-1', fam: 'tri', set: [3, 2, 1] },
-  { id: 'tri:432', name: 'Triads · strings 4-3-2', fam: 'tri', set: [4, 3, 2] },
-  { id: 'tri:543', name: 'Triads · strings 5-4-3', fam: 'tri', set: [5, 4, 3] },
-  { id: 'tri:654', name: 'Triads · strings 6-5-4', fam: 'tri', set: [6, 5, 4] },
-  { id: 'd2:4321', name: 'Drop 2 · strings 4-3-2-1', fam: 'd2', set: [4, 3, 2, 1] },
-  { id: 'd2:5432', name: 'Drop 2 · strings 5-4-3-2', fam: 'd2', set: [5, 4, 3, 2] },
-  { id: 'd2:6543', name: 'Drop 2 · strings 6-5-4-3', fam: 'd2', set: [6, 5, 4, 3] },
-  { id: 'd3:6432', name: 'Drop 3 · strings 6-4-3-2', fam: 'd3', set: [6, 4, 3, 2] },
-  { id: 'd3:5321', name: 'Drop 3 · strings 5-3-2-1', fam: 'd3', set: [5, 3, 2, 1] },
+  { id: 'caged', name: 'CAGED grips', group: 'Grips', blurb: 'One grip per chord, in whichever CAGED shape of it lives in the area.' },
+  { id: 'any', name: 'Any voicing, voice-led', group: 'Grips', blurb: 'From every grip, triad and drop voicing in the area, the one closest to the last chord.' },
+  { id: 'open', name: 'Open strings: as many as possible', group: 'Grips', blurb: 'For every chord, the playable voicing anywhere on the neck with the most open strings ringing; ties go to the smallest move. Keys with no open strings to offer fall back to the CAGED grip.' },
+  { id: 'tri:321', name: 'Triads · strings 3-2-1', group: 'Triads', fam: 'tri', sets: [[3, 2, 1]] },
+  { id: 'tri:432', name: 'Triads · strings 4-3-2', group: 'Triads', fam: 'tri', sets: [[4, 3, 2]] },
+  { id: 'tri:543', name: 'Triads · strings 5-4-3', group: 'Triads', fam: 'tri', sets: [[5, 4, 3]] },
+  { id: 'tri:654', name: 'Triads · strings 6-5-4', group: 'Triads', fam: 'tri', sets: [[6, 5, 4]] },
+  { id: 'spread', name: 'Spread triads · any string set', group: 'Triads', fam: 'spread', sets: SPREAD_SETS },
+  { id: 'shell:6', name: 'Shells · root on the 6th string', group: 'Shells', fam: 'shell', sets: [[6, 5, 4], [6, 4, 3]] },
+  { id: 'shell:5', name: 'Shells · root on the 5th string', group: 'Shells', fam: 'shell', sets: [[5, 4, 3], [5, 3, 2]] },
+  { id: 'shell:any', name: 'Shells · root on either', group: 'Shells', fam: 'shell', sets: [[6, 5, 4], [6, 4, 3], [5, 4, 3], [5, 3, 2]] },
+  { id: 'd2:4321', name: 'Drop 2 · strings 4-3-2-1', group: 'Drop voicings', fam: 'd2', sets: [[4, 3, 2, 1]] },
+  { id: 'd2:5432', name: 'Drop 2 · strings 5-4-3-2', group: 'Drop voicings', fam: 'd2', sets: [[5, 4, 3, 2]] },
+  { id: 'd2:6543', name: 'Drop 2 · strings 6-5-4-3', group: 'Drop voicings', fam: 'd2', sets: [[6, 5, 4, 3]] },
+  { id: 'd3:6432', name: 'Drop 3 · strings 6-4-3-2', group: 'Drop voicings', fam: 'd3', sets: [[6, 4, 3, 2]] },
+  { id: 'd3:5321', name: 'Drop 3 · strings 5-3-2-1', group: 'Drop voicings', fam: 'd3', sets: [[5, 3, 2, 1]] },
+  { id: 'd24', name: 'Drop 2&4 · wide open, 6-5-3-2 or 5-4-2-1', group: 'Drop voicings', fam: 'd24', sets: [[6, 5, 3, 2], [5, 4, 2, 1]] },
 ];
 export const voicingById = (id) => VOICINGS.find((v) => v.id === id) || VOICINGS[0];
-const FAM = { tri: ['close', 'triad'], d2: ['drop2', 'drop 2'], d3: ['drop3', 'drop 3'] };
+const FAM = { tri: ['close', 'triad'], spread: ['spread', 'spread triad'], shell: ['shell', 'shell'], d2: ['drop2', 'drop 2'], d3: ['drop3', 'drop 3'], d24: ['drop24', 'drop 2&4'] };
 function asVersion(notes, label, kind) {
   const placed = assignFingers(notes.map((n) => ({ ...n }))).sort((a, b) => b.string - a.string);
   const fr = placed.filter((n) => n.fret > 0).map((n) => n.fret);
-  return { notes: placed, label, kind, lo: fr.length ? Math.min(...fr) : 0, hi: Math.max(...placed.map((n) => n.fret)), center: fr.length ? fr.reduce((a, b) => a + b, 0) / fr.length : 0 };
+  return { notes: placed, label, kind, lo: fr.length ? Math.min(...fr) : 0, hi: Math.max(...placed.map((n) => n.fret)), center: fr.length ? fr.reduce((a, b) => a + b, 0) / fr.length : 0, opens: placed.filter((n) => n.fret === 0).length };
 }
 // every voicing of this family for the chord; those inside the area first-class, the rest only as a fallback
 export function familyVoicings(root, q, vid, pos) {
   const v = voicingById(vid);
   if (v.id === 'any') return { inside: versionsIn(root, q, pos), outside: [] };
+  if (v.id === 'open') { const o = openVoicings(root, q); return { inside: o, outside: [] }; }
   const [voicing, kind] = FAM[v.fam];
-  let list = [];
-  try { list = F.chordVoicings({ root, quality: q, voicing, stringSet: v.set, inversion: 'all' }); } catch (e) { /* none */ }
-  const all = list.map((x) => asVersion(x.notes, `${INV[x.inversion] || `${x.bassIv} bass`}`, kind));
+  const all = [], seen = new Set();
+  for (const set of v.sets) {
+    let list = [];
+    try { list = F.chordVoicings({ root, quality: q, voicing, stringSet: set, inversion: 'all' }); } catch (e) { /* none */ }
+    for (const x of list) {
+      if (v.fam === 'shell' && x.bassIv !== '1') continue; // a shell has the root in the bass
+      const sig = x.notes.map((n) => `${n.string}:${n.fret}`).sort().join();
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      const strings = set.join('');
+      const what = v.fam === 'shell' ? x.label.split('-').map(T.prettyIv).join('–') : INV[x.inversion] || `${x.bassIv} bass`;
+      all.push(asVersion(x.notes, v.sets.length > 1 ? `${what} · ${strings}` : what, kind));
+    }
+  }
   return { inside: all.filter((x) => fits(x.notes, pos)), outside: all.filter((x) => !fits(x.notes, pos)) };
 }
-// the voicing nearest the last one (or the middle of the area to start), staying inside the area when it can
+// the voicing nearest the last one (or the middle of the area to start), staying inside the area when it can;
+// in open-string mode, the most open strings first and the smallest move second
 export function voiceLeadPick(root, q, vid, pos, prev) {
   const { inside, outside } = familyVoicings(root, q, vid, pos);
   const pool = inside.length ? inside : outside;
   if (!pool.length) return null;
+  if (vid === 'open') {
+    const most = Math.max(...pool.map((x) => x.opens));
+    if (!most) return null; // nothing open in this key: the caller falls back to a CAGED grip
+    const best = pool.filter((x) => x.opens === most);
+    const sc = (x) => (prev ? movement(prev, x) : x.center) + x.cost;
+    return best.reduce((a, b) => (sc(a) <= sc(b) ? a : b));
+  }
   const score = (x) => (prev ? movement(prev, x) : 0) + Math.abs(x.center - pos.mid) * (prev ? 0.25 : 1) + (inside.length ? 0 : 3);
   return pool.reduce((a, b) => (score(a) <= score(b) ? a : b));
+}
+
+// ---------- open strings: every playable voicing with at least one open string ----------
+// Fretted notes stay within four frets (one finger each, a barre allowed), the root is the lowest note, every
+// essential chord tone is there, no two voices a half step apart, at most one muted string inside the voicing.
+// Sorted by open strings, then fullness. Cached per root and quality.
+const openCache = new Map();
+export function openVoicings(root, q) {
+  const key = `${T.notePc(root)}:${q}`;
+  if (openCache.has(key)) return openCache.get(key);
+  const nd = needs(q);
+  const rootPc = T.notePc(root);
+  const label = new Map();
+  for (const iv of nd.ivs) { const s = semisOf(iv); if (!label.has(s)) label.set(s, iv); }
+  const reqS = nd.req.map(semisOf), optS = nd.opt.map(semisOf);
+  const relOf = (midi) => ((midi - rootPc) % 12 + 12) % 12;
+  const found = new Map();
+  for (let base = 1; base <= 12; base++) {
+    const opts = [6, 5, 4, 3, 2, 1].map((s) => {
+      const o = [null];
+      if (label.has(relOf(OPEN[s]))) o.push(0);
+      for (let f = base; f <= base + 3; f++) if (label.has(relOf(OPEN[s] + f))) o.push(f);
+      return o;
+    });
+    const pick = [];
+    const walk = (i) => {
+      if (i < 6) { for (const o of opts[i]) { pick[i] = o; walk(i + 1); } return; }
+      const notes = [];
+      pick.forEach((f, j) => { if (f !== null) notes.push({ string: 6 - j, fret: f }); });
+      if (notes.length < 3) return;
+      const opens = notes.filter((n) => n.fret === 0).length;
+      if (!opens) return;
+      const midis = notes.map((n) => OPEN[n.string] + n.fret);
+      if (relOf(Math.min(...midis)) !== 0) return; // root in the bass
+      const have = new Set(midis.map(relOf));
+      if (!reqS.every((x) => have.has(x))) return;
+      if (nd.alt && optS.filter((x) => have.has(x)).length < nd.alt) return;
+      const sorted = [...midis].sort((a, b) => a - b);
+      for (let k = 1; k < sorted.length; k++) if (sorted[k] - sorted[k - 1] === 1) return;
+      const strings = notes.map((n) => n.string);
+      const hi = Math.max(...strings), lo = Math.min(...strings);
+      let gaps = 0;
+      for (let s2 = lo + 1; s2 < hi; s2++) if (!strings.includes(s2)) gaps++;
+      if (gaps > 1) return;
+      if (fingersFor(notes) > 4 || !fingeringOk(notes)) return;
+      const sig = notes.map((n) => `${n.string}:${n.fret}`).join();
+      if (found.has(sig)) return;
+      const fr = notes.filter((n) => n.fret > 0).map((n) => n.fret);
+      const cost = gaps * 1.5 + (fr.length ? Math.max(...fr) - Math.min(...fr) : 0) * 0.2 - optS.filter((x) => have.has(x)).length * 0.3 - notes.length * 0.2;
+      found.set(sig, { notes, opens, cost });
+    };
+    walk(0);
+  }
+  const out = [...found.values()].map((v) => {
+    const notes = v.notes.map((n) => ({ ...n, midi: OPEN[n.string] + n.fret, iv: label.get(relOf(OPEN[n.string] + n.fret)), note: T.transpose(root, F.simpleIv(label.get(relOf(OPEN[n.string] + n.fret)))) }));
+    const x = asVersion(notes, `${v.opens} open string${v.opens > 1 ? 's' : ''}`, 'open');
+    return { ...x, cost: v.cost };
+  }).sort((a, b) => b.opens - a.opens || a.cost - b.cost);
+  openCache.set(key, out);
+  return out;
 }

@@ -65,11 +65,19 @@ const usesArea = () => D.mode === 'pos' || D.voicing !== 'caged' || scaleMode();
 // a chord's quality as the voicing set plays it: triad sets play the triad, drop sets need four notes
 function adaptQ(q, spec, S) {
   const v = G.voicingById(D.voicing);
-  if (v.fam === 'tri') return H.toTriad(q);
-  if (v.fam && T.getChord(q).ivs.length < 4) return H.toSeventh(q, spec.iv, { dominant: !!spec.rel, minorKey: S.minor });
+  if (v.fam === 'tri' || v.fam === 'spread') return H.toTriad(q);
+  if (v.fam && T.getChord(q).ivs.length < 4) q = H.toSeventh(q, spec.iv, { dominant: !!spec.rel, minorKey: S.minor });
+  // a shell is root, 3rd and 7th: colour chords are reduced to their seventh
+  if (v.fam === 'shell') while (T.getChord(q).ivs.length > 4 && H.simpler(q)) q = H.simpler(q);
   return q;
 }
 function gripFor(S, root, q, prev, vl) {
+  if (D.voicing === 'open') {
+    const g = G.voiceLeadPick(root, q, 'open', S.pos, prev);
+    if (g) return g;
+    const c = G.gripInPosition(root, q, S.pos, prev); // nothing open in this key: the CAGED grip instead
+    return c ? { ...c, noOpen: true } : null;
+  }
   if (D.voicing !== 'caged') return G.voiceLeadPick(root, q, D.voicing, S.pos, prev);
   if (D.mode === 'pos') return G.gripInPosition(root, q, S.pos, prev, vl ? 0.6 : 0.12);
   // one shape everywhere: follow the last chord, but stay anchored to the key's position so it doesn't drift up the neck
@@ -216,9 +224,28 @@ function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, sm
   return `<svg viewBox="0 0 ${W} ${H}" class="neck${small ? ' small' : ''}${tiny ? ' tiny' : ''}" role="img" aria-label="Chord diagram">${g}</svg>`;
 }
 const LEGEND = '<div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">colour</span></div>';
+// open-string voicings: from the nut when they sit low, else around the fretted notes (opens drawn above)
+const openWindow = (g) => (g.lo <= 5 ? { lo: 0, hi: Math.max(4, g.hi), band: null } : { lo: g.lo - 1, hi: g.lo + 3, band: null });
 function windowFor(S, grip) {
+  if (D.voicing === 'open' && grip && !grip.noOpen && !scaleMode()) return openWindow(grip);
   if (usesArea()) return { lo: Math.max(0, S.pos.lo - (S.pos.lo > 0 ? 1 : 0)), hi: S.pos.hi + 1, band: S.pos };
   return { lo: Math.max(0, (grip?.lo ?? 1) - 1), hi: (grip?.lo ?? 1) + 4, band: null };
+}
+
+// what a voicing set does, in a sentence or two
+function voicingBlurb() {
+  const v = G.voicingById(D.voicing);
+  if (v.blurb) return esc(v.blurb);
+  const sets = v.sets.map((x) => x.join('-')).join(', ');
+  const led = 'whichever one is closest to the last chord, so the voices move as little as possible';
+  return esc({
+    tri: `Every chord as a close triad on strings ${sets}, in ${led}. Seventh and colour chords are played as their triads.`,
+    spread: `Every chord as a spread (open) triad, one voice lifted an octave so it skips a string, on any of ${v.sets.length} string sets, in ${led}. Sevenths and colour chords become triads.`,
+    shell: `Root, 3rd and 7th (1–3–7 or 1–7–3) with the root ${v.id === 'shell:6' ? 'on the 6th string' : v.id === 'shell:5' ? 'on the 5th string' : 'on the 6th or 5th string'}: the jazz comping skeleton, in ${led}. Triads become seventh chords; colour chords are reduced to their seventh.`,
+    d2: `Every chord as a drop 2 voicing on strings ${sets}, in ${led}. Triads become seventh chords; bigger chords keep their four most telling notes.`,
+    d3: `Every chord as a drop 3 voicing on strings ${sets}, in ${led}. Triads become seventh chords; bigger chords keep their four most telling notes.`,
+    d24: `Drop 2&4: the widest four-note voicing, spread over six strings (${sets}), in ${led}. Triads become seventh chords.`,
+  }[v.fam]);
 }
 
 // ---------- setup ----------
@@ -284,8 +311,8 @@ function setup() {
     <p class="note">${{ 1: 'Pentatonics, blues and the key’s own mode for each chord: inside sounds.', 2: 'One or two notes outside the key, and the everyday jazz scales: Lydian dominant, altered, Phrygian dominant, diminished, bebop.', 3: 'Rarer melodic- and harmonic-minor modes, harmonic major, and modes that bend three or more notes.', 4: 'Double harmonic, Hungarian, Neapolitan, Persian, enigmatic, Japanese pentatonics: wherever they genuinely fit.', any: 'Anything that works, any level.' }[D.scaleLevel]} Only scales that hold every chord tone (or, for pentatonics, leave the clashing ones out) are offered. When a chord has nothing at your level, the nearest level is used.</p>
   </section>` : `  <section class="card">
     <h2>Voicings</h2>
-    <select id="voicing" class="select" aria-label="Voicing set">${G.VOICINGS.map((v) => `<option value="${v.id}" ${v.id === D.voicing ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>
-    <p class="note">${D.voicing === 'caged' || D.voicing === 'any' ? esc(G.voicingById(D.voicing).blurb) : `Every chord as a ${esc(G.voicingById(D.voicing).name.split(' · ')[0].toLowerCase().replace(/s$/, ''))} on strings ${G.voicingById(D.voicing).set.join('-')}, in whichever inversion is closest to the last chord, so the voices move as little as possible. ${G.voicingById(D.voicing).fam === 'tri' ? 'Seventh and colour chords are played as their triads.' : 'Triads are played as seventh chords; bigger chords keep their most telling four notes.'}`}</p>
+    <select id="voicing" class="select" aria-label="Voicing set">${[...new Set(G.VOICINGS.map((v) => v.group))].map((g) => `<optgroup label="${esc(g)}">${G.VOICINGS.filter((v) => v.group === g).map((v) => `<option value="${v.id}" ${v.id === D.voicing ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</optgroup>`).join('')}</select>
+    <p class="note">${voicingBlurb()}</p>
   </section>`}
 
   <section class="card">
@@ -499,6 +526,7 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   if (c.tag) tags.push(`<span class="tag">${esc(c.tag)}</span>`);
   if (c.plainer) tags.push(`<span class="tag warn" title="No ${esc(c.plainer)} grip here">plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</span>`);
   if (c.grip?.outside) tags.push('<span class="tag warn">stretches out of position</span>');
+  if (c.grip?.noOpen) tags.push('<span class="tag warn">no open strings fit this one</span>');
   const solo = c.solo ? soloHTML(c) : '';
   document.getElementById('now').innerHTML = counting
     ? `<div class="count" id="count"></div><div class="first">first: <b class="cnum">${fmt(main)}</b> <b class="cname">${fmt(sub)}</b></div>`
@@ -613,12 +641,13 @@ function sheetChords(S) {
   return groups;
 }
 function versionsFor(S, root, q) {
+  if (D.voicing === 'open') return G.openVoicings(root, q).slice(0, 8);
   if (D.voicing !== 'caged') return G.familyVoicings(root, q, D.voicing, S.pos).inside;
   if (D.mode === 'pos') return G.versionsIn(root, q, S.pos);
   return S.shapes.flatMap((sh) => G.placements(root, q, sh).map((p) => ({ ...p, label: `${sh} shape · fret ${p.rootFret}` })));
 }
 function sheetHTML(S) {
-  const w = usesArea() ? windowFor(S, null) : null;
+  const w = usesArea() && D.voicing !== 'open' ? windowFor(S, null) : null;
   const bg = w ? bgFor(S, w.lo, w.hi) : null;
   let html = '';
   for (const grp of sheetChords(S)) {
@@ -630,7 +659,7 @@ function sheetHTML(S) {
       if (c.one) vs = vs.slice(0, 1);
       html += `<div class="schord"><div class="shead"><b class="cnum">${fmt(H.label(c.spec, q))}</b><span class="cname">${fmt(H.chordName(root, q))}</span>${c.note ? `<small>${esc(c.note)}</small>` : ''}${plainer ? `<small class="warn">no ${fmt(T.pretty(T.getChord(plainer).sym))} grip here</small>` : ''}</div>`;
       html += vs.length ? `<div class="sgrid">${vs.map((v) => {
-        const win = w || { lo: Math.max(0, v.lo - 1), hi: v.lo + 4 };
+        const win = w || (D.voicing === 'open' ? openWindow(v) : { lo: Math.max(0, v.lo - 1), hi: v.lo + 4 });
         return `<figure class="sv${v.kind === 'caged' || !v.kind ? ' caged' : ''}">${neckSVG(v, { lo: win.lo, hi: win.hi, band: w ? S.pos : null, tiny: true, bg, labels: 'iv' })}<figcaption>${esc(v.label)}</figcaption></figure>`;
       }).join('')}</div>` : '<p class="note">Nothing fits here.</p>';
       html += '</div>';
@@ -646,7 +675,7 @@ function openSheet() {
     el.innerHTML = `<div class="sheet-head"><div><b>Scale options</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
     <p class="note">Every chord that can come up and every scale that works over it, easiest first. Your level is highlighted; the run picks from it.</p>${R.sheet}`;
   } else el.innerHTML = `<div class="sheet-head"><div><b>Chord set</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
-  <p class="note">Every chord that can come up, and ${D.voicing === 'caged' || D.voicing === 'any' ? `every version of it ${usesArea() ? 'inside the area' : 'in the shape'}: the CAGED grip${usesArea() ? ', then triads or drop voicings on each string set and inversion' : ' wherever it lands'}` : `every ${esc(G.voicingById(D.voicing).name.toLowerCase())} voicing of it inside the area (the run picks the one nearest the last chord)`}.${usesArea() ? ' The key’s own shape is the faint dots behind.' : ''}</p>${LEGEND}${R.sheet}`;
+  <p class="note">Every chord that can come up, and ${D.voicing === 'caged' || D.voicing === 'any' ? `every version of it ${usesArea() ? 'inside the area' : 'in the shape'}: the CAGED grip${usesArea() ? ', then triads or drop voicings on each string set and inversion' : ' wherever it lands'}` : D.voicing === 'open' ? 'its voicings with the most open strings, anywhere on the neck (the run picks the most open, then the nearest)' : `every ${esc(G.voicingById(D.voicing).name.toLowerCase())} voicing of it inside the area (the run picks the one nearest the last chord)`}.${usesArea() ? ' The key’s own shape is the faint dots behind.' : ''}</p>${LEGEND}${R.sheet}`;
   el.hidden = false;
   el.scrollTop = 0;
   document.body.classList.add('locked');
