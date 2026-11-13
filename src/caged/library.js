@@ -116,6 +116,22 @@ export const LIBRARY = [
     P('ii–Vs down a half step', 'ii–V, then the same a half step lower, then home', '| ii:m7 V:7 | bii:m7 bV:7 | I:maj7 | I:maj7 |'),
     P('Pachelbel in sevenths', 'the bass falls, the upper voices barely move', '| I:maj7 | V:7 | vi:m7 | iii:m7 | IV:maj7 | I:maj7 | IV:maj7 | V:7 |'),
   ] },
+  { cat: 'Bass lines and slash chords', bass: true, items: [
+    P('Descending major bass', 'the bass walks down the scale (A Whiter Shade of Pale shape)', '| I:maj | V:maj/3 | vi:min | I:maj/5 | IV:maj | I:maj/3 | ii:min | V:maj |'),
+    P('Ascending major bass', 'the bass climbs 1 to 8', '| I:maj | ii:min | I:maj/3 | IV:maj | V:maj | vi:min | V:maj/3 | I:maj |'),
+    P('Lament bass', 'the descending minor tetrachord', '| i:min | v:min/b3 | iv:min/b3 | V:maj |', M),
+    P('Chromatic minor descent', 'the bass falls by half steps under a minor chord', '| i:min | i:min/7 | i:min/b7 | IV:maj/3 | bVI:maj7 | V:7 |', M),
+    P('Chromatic major descent', '1 7 ♭7 6 ♭6 5 ♯4 5 in the bass', '| I:maj | I:maj/7 | I:7/b7 | IV:maj/3 | iv:min/b3 | I:maj/5 | II:7/3 | V:7 |'),
+    P('Gospel walk-up with inversions', 'bass 1 3 4 ♯4 5 6 2 5', '| I:maj | I:maj/3 | IV:maj | #iv:dim7 | I:maj/5 | VI:7 | ii:m7 | V:7 |'),
+    P('Cadential six-four', 'I over its 5th before V', '| I:maj | IV:maj | I:maj/5 | V:7 | I:maj | I:maj |'),
+    P('ii over its 3rd', 'the common-practice cadence', '| I:maj | ii:min/b3 | V:7 | I:maj |'),
+    P('Tonic pedal', 'IV and V over a held tonic bass', '| I:maj | IV:maj/5 | V:maj/4 | I:maj |'),
+    P('Dominant pedal', 'everything over the 5th in the bass', '| V:maj | I:maj/5 | IV:maj/2 | V:7 |'),
+    P('Pop inversion loop', 'I–V/3–vi–IV: the bass steps 1 7 6 4', '| I:maj | V:maj/3 | vi:min | IV:maj |'),
+    P('Canon with stepwise bass', '1 7 6 5 4 3 4 5', '| I:maj V:maj/3 | vi:min I:maj/5 | IV:maj I:maj/3 | IV:maj V:maj |'),
+    P('Minor line cliché in the bass', '1 7 ♭7 6 under the minor tonic', '| i:min | i:min/7 | i:min/b7 | i:min/6 |', M),
+    P('Rising diminished bass', 'I–♯I°7–ii–♯II°7–iii', '| I:maj7 | #i:dim7 | ii:m7 | #ii:dim7 | iii:m7 | VI:7 | ii:m7 | V:7 |'),
+  ] },
   { cat: 'Classical patterns', items: [
     P('Diatonic circle of fifths', 'the Baroque sequence', '| I:maj | IV:maj | vii:dim | iii:min | vi:min | ii:min | V:maj | I:maj |'),
     P('Circle of fifths in sevenths', 'Autumn-Leaves-style', '| I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 | V:7 | I:maj7 |'),
@@ -174,12 +190,13 @@ export function resolve(item) {
     const c = T.parseChordToken(tok, tonic);
     const iv = ivFrom(tonic, c.root);
     const head = c.roman || '';
-    if (!head.includes('/')) return { iv, q: c.quality };
+    const bass = c.bassIv ? { bass: c.bassIv } : {}; // a slash chord: the bass as an interval above the chord's root
+    if (!head.includes('/')) return { iv, q: c.quality, ...bass };
     const [fn, ...to] = head.split('/');
-    return { iv, q: c.quality, rel: { fn, to: to.join('/') } };
+    return { iv, q: c.quality, rel: { fn, to: to.join('/') }, ...bass };
   }));
 }
 
 const slug = (s) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-export const ALL = LIBRARY.flatMap((g) => g.items.map((it) => ({ ...it, cat: g.cat, vl: !!g.vl, id: slug(it.name) })));
+export const ALL = LIBRARY.flatMap((g) => g.items.map((it) => ({ ...it, cat: g.cat, vl: !!g.vl, bassLine: !!g.bass, id: slug(it.name) })));
 export const byId = (id) => ALL.find((p) => p.id === id) || ALL[0];

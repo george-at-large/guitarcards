@@ -46,11 +46,19 @@ export function numeral(iv, q) {
   return acc + rn + T.pretty(suf).trim();
 }
 // a chord's numeral; secondary chords read as function + quality / target (V7/ii, ii7/V)
-export function label(spec, q = spec.q) {
-  if (!spec.rel) return numeral(spec.iv, q);
-  const suf = numeral('1', q).replace(/^[IiVv]+/, '');
-  return T.prettyRoman(spec.rel.fn) + suf + '/' + T.prettyRoman(spec.rel.to);
+export function label(spec, q = spec.q, bassIv = spec.bass) {
+  let rn;
+  if (!spec.rel) rn = numeral(spec.iv, q);
+  else rn = T.prettyRoman(spec.rel.fn) + numeral('1', q).replace(/^[IiVv]+/, '') + '/' + T.prettyRoman(spec.rel.to);
+  return bassIv && bassIv !== '1' ? `${rn}/${bassDegree(spec.iv, bassIv)}` : rn;
 }
+// a slash chord's bass as a degree of the key (Nashville style: G/B in C is V/7, D/F♯ is II/♯4)
+const C0 = T.parseNote('C');
+export function bassDegree(iv, bassIv) {
+  const n = T.transpose(T.transpose(C0, iv), bassIv);
+  return T.prettyIv(ivFrom(C0, n));
+}
+export const slashName = (root, q, bassIv) => (bassIv && bassIv !== '1' ? `${chordName(root, q)}/${T.noteName(T.transpose(root, bassIv), true)}` : chordName(root, q));
 export const chordName = (root, q) => T.pretty(T.chordSymbol(root, q)).replace(/\s+/g, '');
 
 // ---------- colour tiers ----------
@@ -58,6 +66,7 @@ export const COLOURS = [
   { id: 'tri', name: 'Triads', blurb: 'Three-note chords: the CAGED shapes as you first learned them.' },
   { id: 'sev', name: 'Sevenths', blurb: 'maj7, m7, 7, ø7, °7: the same shapes with one finger moved.' },
   { id: 'col', name: 'Colour tones', blurb: '9ths, 11ths, 13ths, 6/9, ♯11, altered dominants: real jazz and soul grips in the shape.' },
+  { id: 'var', name: 'Variations', blurb: 'Related chord types that keep each chord’s job: 6, sus, add9, 9, 13, m6, m11…' },
 ];
 const TRIAD = { maj: 'maj', min: 'min', dim: 'dim', aug: 'aug', sus4: 'sus4', sus2: 'sus2', '5': 'maj', maj7: 'maj', '6': 'maj', 'maj9': 'maj', '6/9': 'maj', add9: 'maj', 'maj7#11': 'maj', 'maj9#11': 'maj', maj13: 'maj', m7: 'min', m6: 'min', m9: 'min', m11: 'min', m13: 'min', mMaj7: 'min', mMaj9: 'min', madd9: 'min', 'm6/9': 'min', m7b5: 'dim', dim7: 'dim', '7': 'maj', '9': 'maj', '13': 'maj', '7b9': 'maj', '7#9': 'maj', '7#11': 'maj', '7alt': 'maj', '7b13': 'maj', '13b9': 'maj', '13#11': 'maj', '7b9b13': 'maj', '7sus4': 'sus4', '9sus4': 'sus4', '13sus4': 'sus4', '7#5': 'aug', 'maj7#5': 'aug', '11': 'sus4' };
 export const toTriad = (q) => TRIAD[q] || 'maj';
@@ -186,3 +195,29 @@ export function setPool(kt, setId) {
   return PALETTE[kt].filter((e) => set.groups.includes(e.group));
 }
 export const GROUP_NAMES = { dia: 'Diatonic', mi: 'Modal interchange', chr: 'Chromatic' };
+
+// ---------- variations: related chord types that keep the chord's job and stay in the key ----------
+const VAR = {
+  maj: ['maj', 'maj7', '6', 'add9', '6/9', 'maj9', 'sus2', 'maj7#11'],
+  min: ['min', 'm7', 'm6', 'madd9', 'm9', 'm11', 'm6/9'],
+  dom: ['7', '9', '13', '7sus4', '9sus4', '13sus4', '7b9', '7#9', '7b13', '13b9'],
+  hd: ['m7b5'], dim: ['dim7', 'dim'], aug: ['aug', '7#5', 'maj7#5'], sus: ['sus4', '7sus4', '9sus4', 'sus2', '13sus4'],
+};
+const pcsQ = (q) => [...new Set(T.getChord(q).ivs.map((x) => T.intervalSemis(x.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n])) % 12))];
+function famOf(q) {
+  const iv = T.getChord(q).ivs, h = (x) => iv.includes(x);
+  if (h('b3') && h('b5') && h('bb7')) return 'dim';
+  if (h('b3') && h('b5')) return 'hd';
+  if (h('4') && !h('3') && !h('b3')) return 'sus';
+  if (h('#5') && h('3') && !h('b7')) return 'aug';
+  if (h('b7') && h('3')) return 'dom';
+  if (h('b3')) return 'min';
+  return 'maj';
+}
+export function variations(q, iv, minor) {
+  const r = semisOf(iv);
+  const key = new Set((minor ? ['1', '2', 'b3', '4', '5', 'b6', 'b7', '7'] : ['1', '2', '3', '4', '5', '6', '7']).map((x) => T.intervalSemis(x) % 12));
+  const own = new Set(pcsQ(q).map((p) => (p + r) % 12));
+  const out = (VAR[famOf(q)] || [q]).filter((v) => { try { T.getChord(v); } catch (e) { return false; } return pcsQ(v).every((p) => key.has((p + r) % 12) || own.has((p + r) % 12)); });
+  return out.length ? out : [q];
+}

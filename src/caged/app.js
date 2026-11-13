@@ -23,7 +23,7 @@ const STORE = 'caged-changes';
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; } };
 const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
-  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
+  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
 }, load());
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
@@ -62,22 +62,68 @@ const posLabel = (S) => (D.mode === 'pos' ? `${shapeWord(S)} · frets ${S.pos.lo
 // down to its plainer cousin
 const scaleMode = () => D.play === 'scales';
 const usesArea = () => D.mode === 'pos' || D.voicing !== 'caged' || scaleMode();
-// a chord's quality as the voicing set plays it: triad sets play the triad, drop sets need four notes
-function adaptQ(q, spec, S) {
-  const v = G.voicingById(D.voicing);
+// a chord's quality as one voicing family plays it: triad sets play the triad, drop sets and shells need a seventh,
+// shells cut colour chords back to their seventh
+function adaptQFor(vid, q, spec, S) {
+  const v = G.voicingById(vid);
   if (v.fam === 'tri' || v.fam === 'spread') return H.toTriad(q);
   if (v.fam && T.getChord(q).ivs.length < 4) q = H.toSeventh(q, spec.iv, { dominant: !!spec.rel, minorKey: S.minor });
-  // a shell is root, 3rd and 7th: colour chords are reduced to their seventh
   if (v.fam === 'shell') while (T.getChord(q).ivs.length > 4 && H.simpler(q)) q = H.simpler(q);
   return q;
 }
-function gripFor(S, root, q, prev, vl) {
+const adaptQ = (q, spec, S) => adaptQFor(D.voicing, q, spec, S);
+// every voicing the current set offers for this chord; a mix pools its families, each in its own chord weight
+function familyPool(S, root, q, spec) {
+  const v = G.voicingById(D.voicing);
+  const pool = [];
+  for (const id of v.mix || [D.voicing]) {
+    const qq = adaptQFor(id, q, spec, S);
+    const f = G.familyVoicings(root, qq, id, S.pos);
+    pool.push(...(f.inside.length ? f.inside : f.outside.map((x) => ({ ...x, far: true }))).map((x) => ({ ...x, q: qq })));
+  }
+  return pool;
+}
+const lowMidi = (g) => Math.min(...g.notes.map((n) => n.midi));
+const toneRels = (q) => [...new Set(T.getChord(q).ivs.map((iv) => H.semisOf(iv.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n]))))];
+// bass-line steering: smooth = smallest bass move; walk down / up = a step the right way, and when the walk runs out
+// of room, one big jump back to start again
+function bassScore(prev, g) {
+  const b = lowMidi(g);
+  if (!prev) return D.bassline === 'down' ? -b * 0.3 : D.bassline === 'up' ? b * 0.3 : 0;
+  const d = b - lowMidi(prev);
+  if (D.bassline === 'smooth') return Math.abs(d) * 0.6;
+  const s = D.bassline === 'down' ? -d : d;
+  if (s > 0) return s <= 2 ? (s - 1) * 0.5 : s <= 4 ? 1.5 : 3;
+  if (s === 0) return 2.5;
+  return 5 - Math.min(-s, 12) * 0.1;
+}
+function choose(pool, S, prev) {
+  const sc = (x) => (D.bassline !== 'off' ? bassScore(prev, x) + (prev ? G.movement(prev, x) * 0.15 : 0) : prev ? G.movement(prev, x) : Math.abs(x.center - S.pos.mid)) + (x.far ? 3 : 0) + (x.cost || 0) * 0.2 - Math.min(x.notes.length, 5) * 0.25; // fuller grips win ties
+  return pool.reduce((a, b) => (sc(a) <= sc(b) ? a : b));
+}
+// a grip for a chord in the current voicing set
+function gripFor(S, root, q, prev, vl, spec = {}) {
+  // a slash chord: a grip with that note in the bass, in the area (widened a little if it has to be)
+  if (spec.bass && spec.bass !== '1') {
+    const rel = H.semisOf(spec.bass);
+    let pool = G.bassGrips(root, q, rel, S.pos);
+    if (!pool.length) pool = G.bassGrips(root, q, rel, { lo: Math.max(0, S.pos.lo - 2), hi: Math.min(17, S.pos.hi + 2), mid: S.pos.mid }).map((x) => ({ ...x, far: true }));
+    if (pool.length) return choose(pool, S, prev);
+  }
+  // bass-line mode: any version in the area with any chord tone in the bass, steered by the line
+  if (D.bassline !== 'off' && D.voicing !== 'open') {
+    const pool = D.voicing === 'caged' || D.voicing === 'any'
+      ? [...G.versionsIn(root, q, S.pos), ...toneRels(q).flatMap((rel) => G.bassGrips(root, q, rel, S.pos).slice(0, 6))]
+      : familyPool(S, root, q, spec);
+    if (pool.length) return choose(pool, S, prev);
+  }
   if (D.voicing === 'open') {
     const g = G.voiceLeadPick(root, q, 'open', S.pos, prev);
     if (g) return g;
     const c = G.gripInPosition(root, q, S.pos, prev); // nothing open in this key: the CAGED grip instead
     return c ? { ...c, noOpen: true } : null;
   }
+  if (G.voicingById(D.voicing).mix) { const pool = familyPool(S, root, q, spec); return pool.length ? choose(pool, S, prev) : null; }
   if (D.voicing !== 'caged') return G.voiceLeadPick(root, q, D.voicing, S.pos, prev);
   if (D.mode === 'pos') return G.gripInPosition(root, q, S.pos, prev, vl ? 0.6 : 0.12);
   // one shape everywhere: follow the last chord, but stay anchored to the key's position so it doesn't drift up the neck
@@ -85,6 +131,16 @@ function gripFor(S, root, q, prev, vl) {
   const gs = S.shapes.map((sh) => G.gripNear(root, q, sh, near)).filter(Boolean);
   return gs.length ? gs.reduce((a, b) => (Math.abs(a.center - near) <= Math.abs(b.center - near) ? a : b)) : null;
 }
+// the grip and the quality actually played; a colour chord with no grip here steps down to its plainer cousin
+function voice(S, root, q, spec, prev, vl) {
+  q = adaptQ(q, spec, S);
+  let qq = q, grip = gripFor(S, root, qq, prev, vl, spec), plainer = null;
+  while (!grip && H.simpler(qq)) { qq = H.simpler(qq); grip = gripFor(S, root, qq, prev, vl, spec); plainer = q; }
+  if (!grip && D.mode === 'one' && D.voicing === 'caged') grip = G.gripInPosition(root, qq, { lo: Math.max(0, (prev?.center ?? S.pos.mid) - 3), hi: (prev?.center ?? S.pos.mid) + 3, mid: prev?.center ?? S.pos.mid });
+  if (grip?.q) qq = grip.q;
+  return { q: qq, grip, plainer };
+}
+const varyOn = () => (D.src === 'prog' ? D.pcolour === 'var' : D.colour === 'var');
 function realise(S, spec, q, prev, extra = {}) {
   const root = H.spell(S.tonic, spec.iv);
   // scale mode: the chord as written, and a scale to solo over it at the chosen level (not the same one twice running)
@@ -93,19 +149,29 @@ function realise(S, spec, q, prev, extra = {}) {
     const k = `${spec.iv}:${q}`;
     const solo = SC.pickScale(spec.iv, q, S.minor, D.scaleLevel, S.lastScale[k], T.notePc(S.tonic));
     S.lastScale[k] = solo;
-    return { spec, q, root, name: H.chordName(root, q), rn: H.label(spec, q), grip: null, solo, ...extra };
+    return { spec, q, root, name: H.slashName(root, q, spec.bass), rn: H.label(spec, q), grip: null, solo, ...extra };
   }
-  q = adaptQ(q, spec, S);
-  let qq = q, grip = gripFor(S, root, qq, prev, extra.vl), plainer = null;
-  while (!grip && H.simpler(qq)) { qq = H.simpler(qq); grip = gripFor(S, root, qq, prev, extra.vl); plainer = q; }
-  if (!grip && D.mode === 'one' && D.voicing === 'caged') { qq = q; grip = G.gripInPosition(root, qq, { lo: Math.max(0, (prev?.center ?? S.pos.mid) - 3), hi: (prev?.center ?? S.pos.mid) + 3, mid: prev?.center ?? S.pos.mid }); }
-  return { spec, q: qq, root, name: H.chordName(root, qq), rn: H.label(spec, qq), grip, plainer, ...extra };
+  let v;
+  if (varyOn()) {
+    // variations: a related chord type in the key; with "smoothest" on, the one whose voicing moves least
+    const cands = H.variations(q, spec.iv, S.minor);
+    if (D.varVL && prev) {
+      const tries = cands.map((qc) => voice(S, root, qc, spec, prev, extra.vl)).filter((x) => x.grip);
+      v = tries.length ? tries.reduce((a, b) => (G.movement(prev, a.grip) + Math.random() * 0.4 <= G.movement(prev, b.grip) + Math.random() * 0.4 ? a : b)) : voice(S, root, q, spec, prev, extra.vl);
+    } else v = voice(S, root, pickOne(cands), spec, prev, extra.vl);
+  } else v = voice(S, root, q, spec, prev, extra.vl);
+  const { grip, plainer } = v;
+  const qq = v.q;
+  // the bass actually played: a slash chord's own, or an inversion the bass line chose
+  let bass = spec.bass && spec.bass !== '1' ? spec.bass : null;
+  if (!bass && grip && D.bassline !== 'off') { const low = grip.notes.reduce((a, b) => (a.midi <= b.midi ? a : b)); if (low.iv && low.iv !== '1') bass = low.iv.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n]); }
+  return { spec, q: qq, root, name: H.slashName(root, qq, bass), rn: H.label(spec, qq, bass), grip, plainer, ...extra };
 }
 
 // sets: a random chord from the pool, never the same twice running
 function colourFor(e) {
   if (D.colour === 'tri') return e.tri;
-  if (D.colour === 'sev') return e.sev;
+  if (D.colour === 'sev' || D.colour === 'var') return e.sev;
   return pickOne(e.col);
 }
 function setStream(S) {
@@ -139,7 +205,7 @@ function colourise(spec, next, i, minor) {
   const tri = H.toTriad(spec.q);
   if (c === 'tri') return tri;
   const sev = T.getChord(spec.q).ivs.length >= 4 ? spec.q : H.toSeventh(tri, spec.iv, { dominant: !!spec.rel, minorKey: minor });
-  if (c === 'sev') return sev;
+  if (c === 'sev' || c === 'var') return sev;
   const opts = H.colourOptions(sev, spec.iv, { toMinor: next ? H.isMinorish(next.q) || E.cls(next.q) === 'hd' : false, minorKey: minor });
   return opts[i % opts.length];
 }
@@ -232,10 +298,14 @@ function windowFor(S, grip) {
   return { lo: Math.max(0, (grip?.lo ?? 1) - 1), hi: (grip?.lo ?? 1) + 4, band: null };
 }
 
+function varNote() {
+  return `<div class="chips"><button class="chip ${D.varVL ? 'on' : ''}" data-act="varVL">Smoothest variations</button></div><p class="note">Each chord becomes a related type that keeps its job and stays in the key: I as 6, add9, sus2, 6/9, maj9; ii as m6, m9, m11; V7 as 7sus4, 9, 13 (♭9 and ♯9 in minor). ${D.varVL ? 'With “smoothest” on, it picks the type whose voicing moves least from the last chord.' : 'Picked at random.'} Triad voicing sets flatten these back to triads.</p>`;
+}
 // what a voicing set does, in a sentence or two
 function voicingBlurb() {
   const v = G.voicingById(D.voicing);
   if (v.blurb) return esc(v.blurb);
+  if (v.mix) return esc(`Chord by chord, whichever of ${v.mix.map((m) => G.voicingById(m).name.split(' · ')[0].toLowerCase()).filter((x, i, a) => a.indexOf(x) === i).join(', ').replace(/, ([^,]*)$/, ' or $1')} moves least from the last chord, so the type changes to keep the voice leading smooth. Each is played in its own weight (triads as triads, shells and drops as sevenths).`);
   const sets = v.sets.map((x) => x.join('-')).join(', ');
   const led = 'whichever one is closest to the last chord, so the voices move as little as possible';
   return esc({
@@ -270,7 +340,7 @@ function chartHTML(slots, { cur = -1, tonic = null } = {}) {
   const bars = [];
   slots.forEach((x, i) => { (bars[x.bar] ||= []).push({ x, i }); });
   return `<div class="chart">${bars.map((b) => `<div class="bar">${(b || []).map(({ x, i }) => {
-    const nm = tonic ? `<span class="cname">${fmt(H.chordName(H.spell(tonic, x.spec.iv), x.spec.q))}</span>` : '';
+    const nm = tonic ? `<span class="cname">${fmt(H.slashName(H.spell(tonic, x.spec.iv), x.spec.q, x.spec.bass))}</span>` : '';
     return `<span class="ch${i === cur ? ' cur' : ''}${x.sub ? ' sub' : ''}" ${x.sub ? `title="${esc(x.sub)}"` : ''}><span class="cnum">${fmt(H.label(x.spec))}</span>${nm}</span>`;
   }).join('')}</div>`).join('')}</div>`;
 }
@@ -313,6 +383,9 @@ function setup() {
     <h2>Voicings</h2>
     <select id="voicing" class="select" aria-label="Voicing set">${[...new Set(G.VOICINGS.map((v) => v.group))].map((g) => `<optgroup label="${esc(g)}">${G.VOICINGS.filter((v) => v.group === g).map((v) => `<option value="${v.id}" ${v.id === D.voicing ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</optgroup>`).join('')}</select>
     <p class="note">${voicingBlurb()}</p>
+    <h3>Bass line</h3>
+    ${seg('bassline', [['off', 'Off'], ['smooth', 'Smooth'], ['down', 'Walk down'], ['up', 'Walk up']], D.bassline)}
+    <p class="note">${{ off: 'Each chord in its usual voicing; slash chords in a progression still get their bass.', smooth: 'Inversions are chosen so the bass moves as little as possible.', down: 'Inversions are chosen so the bass walks down by step; when it runs out of room it jumps back up and starts again.', up: 'Inversions are chosen so the bass climbs by step; when it runs out of room it drops back and starts again.' }[D.bassline]} Inversions show as slash chords: C/E, numeral I/3 (the bass as a degree of the key).${D.bassline !== 'off' && !D.pair ? ' Bass lines need room: try “Two shapes at once”.' : ''}</p>
   </section>`}
 
   <section class="card">
@@ -322,13 +395,14 @@ function setup() {
       <div class="sets">${sets.map((s) => `<button class="set ${D.set === s.id ? 'on' : ''}" data-set="${s.id}"><b>${esc(s.name)}</b><small>${esc(s.blurb)}</small></button>`).join('')}</div>
       <h3>Colour</h3>
       ${seg('colour', H.COLOURS.map((c) => [c.id, c.name]), D.colour)}
-      <p class="note">${esc(H.COLOURS.find((c) => c.id === D.colour).blurb)}</p>`
+      <p class="note">${esc(H.COLOURS.find((c) => c.id === D.colour).blurb)}</p>${D.colour === 'var' ? varNote() : ''}`
     : `
       <select id="prog" class="select" aria-label="Progression">${progOptions()}</select>
-      <p class="note"><b>${esc(p.name)}</b> · ${esc(p.by)}${p.vl ? ' · a voice-leading study: the grips are chosen to move as little as possible' : ''}${conv ? ` · <i>written in ${p.minor ? 'minor' : 'major'}, converted to ${D.kt}</i>` : ''}</p>
+      <p class="note"><b>${esc(p.name)}</b> · ${esc(p.by)}${p.vl ? ' · a voice-leading study: the grips are chosen to move as little as possible' : ''}${p.bassLine ? ' · slash chords: each gets a grip with that bass note; “Two shapes at once” gives the line room' : ''}${conv ? ` · <i>written in ${p.minor ? 'minor' : 'major'}, converted to ${D.kt}</i>` : ''}</p>
       ${chartHTML(progSlots(minor), { tonic: S0.tonic })}
       <h3>Colour</h3>
-      ${seg('pcolour', [['as', 'As written'], ['tri', 'Triads'], ['sev', 'Sevenths'], ['col', 'Colour tones']], D.pcolour)}
+      ${seg('pcolour', [['as', 'As written'], ['tri', 'Triads'], ['sev', 'Sevenths'], ['col', 'Colour tones'], ['var', 'Variations']], D.pcolour)}
+      ${D.pcolour === 'var' ? varNote() : ''}
       <button class="toggle ${D.evolve ? 'on' : ''}" data-act="evolve"><b>Evolving mode ${D.evolve ? 'on' : 'off'}</b><small>Each time round, one chord is swapped for another with the same job (iii or vi for I, ii for IV, ♭II7 for V7), or a ii–V, secondary dominant or passing diminished slips in. Old swaps drift back.</small></button>`}
   </section>
 
@@ -367,12 +441,12 @@ function setup() {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     const redraw = () => { save(); setup(); };
-    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
+    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
     if (d.scaleLevel !== undefined) { D.scaleLevel = d.scaleLevel === 'any' ? 'any' : Number(d.scaleLevel); return redraw(); }
     const a = d.act;
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
-    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair'].includes(a)) { D[a] = !D[a]; return redraw(); }
+    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL'].includes(a)) { D[a] = !D[a]; return redraw(); }
     if (a === 'bpm-' || a === 'bpm+') { D.bpm = Math.max(30, Math.min(220, D.bpm + (a === 'bpm+' ? 2 : -2))); return redraw(); }
     if (a === 'go') { save(); run(); }
     if (a === 'walk') { save(); walkthrough(); }
@@ -452,7 +526,6 @@ function beat(t) {
   if (R.sound) A.click(t, b === 0 ? 2 : 1);
   at(t, () => {
     document.querySelectorAll('#beats i').forEach((el, i) => el.classList.toggle('on', i === b));
-    document.getElementById('next')?.classList.toggle('soon', b === c.beats - 1); // the change is on the next beat
     if (D.neck && D.diagram === 'half' && b === Math.floor(c.beats / 2)) revealNeck();
   });
   R.beatIn++;
@@ -470,7 +543,7 @@ function drawRun() {
   <div class="evo" id="evo"></div>
   <div id="chart"></div>
   <div class="runctl"><button data-r="bpm-" aria-label="Slower">−</button><b id="bpmnow">${R.bpm} bpm</b><button data-r="bpm+" aria-label="Faster">+</button></div>
-  <div class="runbtns"><button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : 'Chord set'}</button></div>
+  <div class="runbtns"><button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button><button class="rt" data-r="allv">All voicings</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : 'Chord set'}</button></div>
   <div class="sheet" id="sheet" hidden></div>`;
   applyNames();
   window.scrollTo(0, 0);
@@ -480,6 +553,7 @@ function drawRun() {
     if (r === 'stop') return finish();
     if (r === 'names' || r === 'nums') { flipLabel(r); save(); return applyNames(); }
     if (r === 'neck') { D.neck = !D.neck; save(); applyNames(); return renderStage(); }
+    if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
     if (r === 'close-sheet') return closeSheet();
     if (r === 'pause') return togglePause(b);
@@ -514,7 +588,7 @@ function applyNames() {
   $app.classList.toggle('hide-names', !D.names);
   $app.classList.toggle('hide-nums', !D.nums);
   $app.classList.toggle('no-neck', !D.neck);
-  const on = { nums: D.nums, names: D.names, neck: D.neck };
+  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv };
   $app.querySelectorAll('.rt').forEach((b) => { const k = b.dataset.r || b.dataset.w; b.classList.toggle('on', !!on[k]); b.setAttribute('aria-pressed', !!on[k]); });
 }
 const gripTag = (g) => (g ? (g.shape ? `${g.shape} shape` : g.label) : '');
@@ -546,10 +620,25 @@ function renderStage() {
   if (R.shown.counting || D.diagram === 'now') return revealNeck();
   st.innerHTML = `<div class="hidden">${D.diagram === 'half' ? `Find it… the ${scaleMode() ? 'scale' : 'voicing'} shows halfway through` : 'Find it. Tap here to check.'}</div>`;
 }
+// every fingering of the chord on screen that works here, small, the one the run chose ringed
+function allVoicings(c) {
+  const S = R.S;
+  const w = usesArea() && D.voicing !== 'open' ? windowFor(S, null) : null;
+  const bg = w ? bgFor(S, w.lo, w.hi) : null;
+  const sig = (g) => g.notes.map((n) => `${n.string}:${n.fret}`).sort().join();
+  const chosen = c.grip ? sig(c.grip) : '';
+  let vs = versionsFor(S, c.root, c.q, { ...c.spec, bass: c.spec.bass });
+  if (c.grip && !vs.some((v) => sig(v) === chosen)) vs = [{ ...c.grip, label: gripTag(c.grip) }, ...vs];
+  document.getElementById('stage').innerHTML = `<div class="allv"><div class="sgrid">${vs.map((v) => {
+    const win = w || (D.voicing === 'open' ? openWindow(v) : { lo: Math.max(0, v.lo - 1), hi: v.lo + 4 });
+    return `<figure class="sv${sig(v) === chosen ? ' chosen' : ''}${v.kind === 'caged' || !v.kind ? ' caged' : ''}">${neckSVG(v, { lo: win.lo, hi: win.hi, band: w ? S.pos : null, tiny: true, bg })}<figcaption>${esc(v.label || '')}</figcaption></figure>`;
+  }).join('')}</div><p class="note">${vs.length} way${vs.length === 1 ? '' : 's'} to play it here${chosen ? '; the ringed one is the run’s pick' : ''}.</p></div>${LEGEND}`;
+}
 function revealNeck() {
   if (!R?.shown || !D.neck) return;
   const { c, prev } = R.shown;
   const w = windowFor(R.S, c.grip);
+  if (D.allv && !c.solo) return allVoicings(c);
   if (c.solo) {
     // the scale across the area, chord tones in their colours, the rest of the scale as quiet dots
     const notes = SC.scaleNotesIn(c.solo, c.root, c.q, R.S.pos.lo, R.S.pos.hi).map((n) => ({ ...n, kind: n.chord ? KIND(n.iv) : 'sc' }));
@@ -608,6 +697,10 @@ function sheetChords(S) {
       const sev = T.getChord(q).ivs.length >= 4 ? q : H.toSeventh(tri, spec.iv, { dominant: !!spec.rel, minorKey: S.minor });
       return H.colourOptions(sev, spec.iv, { toMinor: next ? H.isMinorish(next.q) || E.cls(next.q) === 'hd' : false, minorKey: S.minor });
     }
+    if (varyOn()) {
+      const base = D.src === 'prog' ? colourise(spec, next, 0, S.minor) : q;
+      return H.variations(base, spec.iv, S.minor);
+    }
     return [D.src === 'prog' ? colourise(spec, next, 0, S.minor) : q];
   };
   if (D.src === 'prog') {
@@ -615,7 +708,7 @@ function sheetChords(S) {
     slots.forEach((x, i) => {
       const next = slots[(i + 1) % slots.length].spec;
       for (const q of qsFor(x.spec.q, x.spec, next)) {
-        const k = `${x.spec.iv}:${q}:${x.spec.rel ? x.spec.rel.to : ''}`;
+        const k = `${x.spec.iv}:${q}:${x.spec.rel ? x.spec.rel.to : ''}:${x.spec.bass || ''}`;
         if (!seen.has(k)) { seen.add(k); own.push({ spec: x.spec, q }); }
       }
     });
@@ -633,14 +726,17 @@ function sheetChords(S) {
   } else {
     const byGroup = {};
     for (const e of H.setPool(S.minor ? 'minor' : 'major', D.set)) {
-      const qs = D.colour === 'tri' ? [e.tri] : D.colour === 'sev' ? [e.sev] : e.col;
+      const qs = D.colour === 'tri' ? [e.tri] : D.colour === 'sev' ? [e.sev] : D.colour === 'var' ? H.variations(e.sev, e.iv, S.minor) : e.col;
       for (const q of qs) (byGroup[e.group] ||= []).push({ spec: { iv: e.iv, q, rel: e.rel }, q, note: e.tag ? `${e.tag}: ${e.fn}` : e.fn });
     }
     for (const g of ['dia', 'mi', 'chr']) if (byGroup[g]) add(H.GROUP_NAMES[g], byGroup[g]);
   }
   return groups;
 }
-function versionsFor(S, root, q) {
+function versionsFor(S, root, q, spec = {}) {
+  if (spec.bass && spec.bass !== '1') return G.bassGrips(root, q, H.semisOf(spec.bass), S.pos);
+  if (D.bassline !== 'off' && D.voicing !== 'open' && (D.voicing === 'caged' || D.voicing === 'any')) return [...G.versionsIn(root, q, S.pos), ...toneRels(q).filter((r) => r).flatMap((rel) => G.bassGrips(root, q, rel, S.pos).slice(0, 3))];
+  if (G.voicingById(D.voicing).mix) return familyPool(S, root, q, spec).filter((x) => !x.far);
   if (D.voicing === 'open') return G.openVoicings(root, q).slice(0, 8);
   if (D.voicing !== 'caged') return G.familyVoicings(root, q, D.voicing, S.pos).inside;
   if (D.mode === 'pos') return G.versionsIn(root, q, S.pos);
@@ -654,13 +750,13 @@ function sheetHTML(S) {
     html += `<h2 class="sgroup">${fmt(grp.title)}</h2>`;
     for (const c of grp.list) {
       const root = H.spell(S.tonic, c.spec.iv);
-      let q = adaptQ(c.q, c.spec, S), vs = versionsFor(S, root, q), plainer = null;
-      while (!vs.length && H.simpler(q)) { q = H.simpler(q); vs = versionsFor(S, root, q); plainer = c.q; }
+      let q = adaptQ(c.q, c.spec, S), vs = versionsFor(S, root, q, c.spec), plainer = null;
+      while (!vs.length && H.simpler(q)) { q = H.simpler(q); vs = versionsFor(S, root, q, c.spec); plainer = c.q; }
       if (c.one) vs = vs.slice(0, 1);
-      html += `<div class="schord"><div class="shead"><b class="cnum">${fmt(H.label(c.spec, q))}</b><span class="cname">${fmt(H.chordName(root, q))}</span>${c.note ? `<small>${esc(c.note)}</small>` : ''}${plainer ? `<small class="warn">no ${fmt(T.pretty(T.getChord(plainer).sym))} grip here</small>` : ''}</div>`;
+      html += `<div class="schord"><div class="shead"><b class="cnum">${fmt(H.label(c.spec, q))}</b><span class="cname">${fmt(H.slashName(root, q, c.spec.bass))}</span>${c.note ? `<small>${esc(c.note)}</small>` : ''}${plainer ? `<small class="warn">no ${fmt(T.pretty(T.getChord(plainer).sym))} grip here</small>` : ''}</div>`;
       html += vs.length ? `<div class="sgrid">${vs.map((v) => {
         const win = w || (D.voicing === 'open' ? openWindow(v) : { lo: Math.max(0, v.lo - 1), hi: v.lo + 4 });
-        return `<figure class="sv${v.kind === 'caged' || !v.kind ? ' caged' : ''}">${neckSVG(v, { lo: win.lo, hi: win.hi, band: w ? S.pos : null, tiny: true, bg, labels: 'iv' })}<figcaption>${esc(v.label)}</figcaption></figure>`;
+        return `<figure class="sv${v.kind === 'caged' || !v.kind ? ' caged' : ''}">${neckSVG(v, { lo: win.lo, hi: win.hi, band: w ? S.pos : null, tiny: true, bg, labels: 'iv' })}<figcaption>${esc(v.label)}${v.q && v.q !== q ? ` · ${fmt(T.pretty(T.getChord(v.q).sym) || 'triad')}` : ''}</figcaption></figure>`;
       }).join('')}</div>` : '<p class="note">Nothing fits here.</p>';
       html += '</div>';
     }
@@ -742,7 +838,7 @@ function walkItems(S) {
     const seen = new Set();
     slots.forEach((x, i) => {
       const q = colourise(x.spec, slots[(i + 1) % slots.length].spec, x.oid, S.minor);
-      const key = `${x.spec.iv}:${q}:${x.spec.rel ? x.spec.rel.to : ''}`;
+      const key = `${x.spec.iv}:${q}:${x.spec.rel ? x.spec.rel.to : ''}:${x.spec.bass || ''}`;
       const c = realise(S, x.spec, q, prev, { vl: prog().vl });
       prev = c.grip;
       if (seen.has(key)) return;

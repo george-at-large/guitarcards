@@ -25,7 +25,7 @@ export const anchorOf = (shape) => SHAPE[shape].anchor;
 const semisOf = (iv) => T.intervalSemis(F.simpleIv(iv)) % 12;
 
 // which chord tones a grip must have; the rest are welcome but optional
-function needs(q) {
+export function needs(q) {
   const ivs = T.getChord(q).ivs;
   const opt = new Set(['5']);
   if (/13/.test(q) || q === '11' || q === 'm11' || q === '7#11') opt.add('9');
@@ -310,6 +310,8 @@ export const VOICINGS = [
   { id: 'tri:432', name: 'Triads · strings 4-3-2', group: 'Triads', fam: 'tri', sets: [[4, 3, 2]] },
   { id: 'tri:543', name: 'Triads · strings 5-4-3', group: 'Triads', fam: 'tri', sets: [[5, 4, 3]] },
   { id: 'tri:654', name: 'Triads · strings 6-5-4', group: 'Triads', fam: 'tri', sets: [[6, 5, 4]] },
+  { id: 'tri:adj', name: 'Triads · any adjacent strings', group: 'Triads', fam: 'tri', sets: [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]] },
+  { id: 'tri:every', name: 'Triads · close and spread, any strings', group: 'Triads', mix: ['tri:adj', 'spread'] },
   { id: 'spread', name: 'Spread triads · any string set', group: 'Triads', fam: 'spread', sets: SPREAD_SETS },
   { id: 'shell:6', name: 'Shells · root on the 6th string', group: 'Shells', fam: 'shell', sets: [[6, 5, 4], [6, 4, 3]] },
   { id: 'shell:5', name: 'Shells · root on the 5th string', group: 'Shells', fam: 'shell', sets: [[5, 4, 3], [5, 3, 2]] },
@@ -317,9 +319,17 @@ export const VOICINGS = [
   { id: 'd2:4321', name: 'Drop 2 · strings 4-3-2-1', group: 'Drop voicings', fam: 'd2', sets: [[4, 3, 2, 1]] },
   { id: 'd2:5432', name: 'Drop 2 · strings 5-4-3-2', group: 'Drop voicings', fam: 'd2', sets: [[5, 4, 3, 2]] },
   { id: 'd2:6543', name: 'Drop 2 · strings 6-5-4-3', group: 'Drop voicings', fam: 'd2', sets: [[6, 5, 4, 3]] },
+  { id: 'd2:all', name: 'Drop 2 · any string set', group: 'Drop voicings', fam: 'd2', sets: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]] },
   { id: 'd3:6432', name: 'Drop 3 · strings 6-4-3-2', group: 'Drop voicings', fam: 'd3', sets: [[6, 4, 3, 2]] },
   { id: 'd3:5321', name: 'Drop 3 · strings 5-3-2-1', group: 'Drop voicings', fam: 'd3', sets: [[5, 3, 2, 1]] },
+  { id: 'd3:all', name: 'Drop 3 · either string set', group: 'Drop voicings', fam: 'd3', sets: [[6, 4, 3, 2], [5, 3, 2, 1]] },
   { id: 'd24', name: 'Drop 2&4 · wide open, 6-5-3-2 or 5-4-2-1', group: 'Drop voicings', fam: 'd24', sets: [[6, 5, 3, 2], [5, 4, 2, 1]] },
+  // mixes: each chord takes whichever voicing type moves least from the last chord
+  { id: 'mix:d2shell', name: 'Drop 2 + shells', group: 'Mixes (type changes for the smoothest move)', mix: ['d2:all', 'shell:any'] },
+  { id: 'mix:d3shell', name: 'Drop 3 + shells', group: 'Mixes (type changes for the smoothest move)', mix: ['d3:all', 'shell:any'] },
+  { id: 'mix:d2d3', name: 'Drop 2 + drop 3', group: 'Mixes (type changes for the smoothest move)', mix: ['d2:all', 'd3:all'] },
+  { id: 'mix:trishell', name: 'Triads + shells', group: 'Mixes (type changes for the smoothest move)', mix: ['tri:adj', 'shell:any'] },
+  { id: 'mix:four', name: 'Every four-note type: drop 2, drop 3, drop 2&4, shells', group: 'Mixes (type changes for the smoothest move)', mix: ['d2:all', 'd3:all', 'd24', 'shell:any'] },
 ];
 export const voicingById = (id) => VOICINGS.find((v) => v.id === id) || VOICINGS[0];
 const FAM = { tri: ['close', 'triad'], spread: ['spread', 'spread triad'], shell: ['shell', 'shell'], d2: ['drop2', 'drop 2'], d3: ['drop3', 'drop 3'], d24: ['drop24', 'drop 2&4'] };
@@ -424,5 +434,82 @@ export function openVoicings(root, q) {
     return { ...x, cost: v.cost };
   }).sort((a, b) => b.opens - a.opens || a.cost - b.cost);
   openCache.set(key, out);
+  return out;
+}
+
+// ---------- a general grip search: any bass, any area ----------
+// Every grip whose lowest note is `bassRel` semitones above the root (0 = root position; a non-chord bass for
+// pedals and slash chords), with the chord's essential tones above it, fretted notes within four frets of one of
+// `bases`, at most four fingers, no two voices a half step apart, at most one muted string inside.
+function searchGrips(root, q, { bassRel = 0, bases, allowOpen = true, needOpen = false }) {
+  const nd = needs(q);
+  const rootPc = T.notePc(root);
+  const label = new Map();
+  for (const iv of nd.ivs) { const s2 = semisOf(iv); if (!label.has(s2)) label.set(s2, iv); }
+  const bassIsTone = label.has(bassRel);
+  const reqS = nd.req.map(semisOf).filter((x) => !(bassRel !== 0 && x === 0 && false)), optS = nd.opt.map(semisOf);
+  const relOf = (midi) => ((midi - rootPc) % 12 + 12) % 12;
+  const ok = (rel) => label.has(rel) || rel === bassRel;
+  const found = new Map();
+  for (const base of bases) {
+    const opts = [6, 5, 4, 3, 2, 1].map((s2) => {
+      const o = [null];
+      if (allowOpen && ok(relOf(OPEN[s2]))) o.push(0);
+      for (let f = Math.max(1, base); f <= base + 3; f++) if (f <= MAX && ok(relOf(OPEN[s2] + f))) o.push(f);
+      return o;
+    });
+    const pick = [];
+    const walk = (i) => {
+      if (i < 6) { for (const o of opts[i]) { pick[i] = o; walk(i + 1); } return; }
+      const notes = [];
+      pick.forEach((f, j) => { if (f !== null) notes.push({ string: 6 - j, fret: f }); });
+      if (notes.length < 3) return;
+      const opens = notes.filter((n) => n.fret === 0).length;
+      if (needOpen && !opens) return;
+      const midis = notes.map((n) => OPEN[n.string] + n.fret);
+      const low = Math.min(...midis);
+      if (relOf(low) !== bassRel) return;
+      // a non-chord bass appears only in the bass
+      if (!bassIsTone && midis.filter((m) => relOf(m) === bassRel).length > 1) return;
+      const have = new Set(midis.map(relOf));
+      if (!reqS.every((x) => have.has(x))) return;
+      if (nd.alt && optS.filter((x) => have.has(x)).length < nd.alt) return;
+      const sorted = [...midis].sort((a, b) => a - b);
+      for (let k = 1; k < sorted.length; k++) if (sorted[k] - sorted[k - 1] === 1) return;
+      const strings = notes.map((n) => n.string);
+      const hi = Math.max(...strings), lo = Math.min(...strings);
+      let gaps = 0;
+      for (let s2 = lo + 1; s2 < hi; s2++) if (!strings.includes(s2)) gaps++;
+      if (gaps > 1) return;
+      if (fingersFor(notes) > 4 || !fingeringOk(notes)) return;
+      const sig = notes.map((n) => `${n.string}:${n.fret}`).join();
+      if (found.has(sig)) return;
+      const fr = notes.filter((n) => n.fret > 0).map((n) => n.fret);
+      const cost = gaps * 1.5 + (fr.length ? Math.max(...fr) - Math.min(...fr) : 0) * 0.2 - optS.filter((x) => have.has(x)).length * 0.3 - Math.min(notes.length, 5) * 0.2;
+      found.set(sig, { notes, opens, cost });
+    };
+    walk(0);
+  }
+  return [...found.values()].map((v) => {
+    const notes = v.notes.map((n) => {
+      const rel = relOf(OPEN[n.string] + n.fret);
+      const iv = label.get(rel) || T.prettyIv(['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7'][rel]).replace('♭', 'b').replace('♯', '#');
+      return { ...n, midi: OPEN[n.string] + n.fret, iv, note: T.transposeSemis(root, rel) };
+    });
+    return { ...asVersion(notes, '', 'grip'), cost: v.cost, opens: v.opens };
+  });
+}
+// grips in an area with a given bass (slash chords, inversions, pedals): best first
+const bassCache = new Map();
+export function bassGrips(root, q, bassRel, pos) {
+  const key = `${T.notePc(root)}:${q}:${bassRel}:${pos.lo}:${pos.hi}`;
+  if (bassCache.has(key)) return bassCache.get(key);
+  const bases = [];
+  for (let b = Math.max(1, pos.lo - 1); b <= Math.max(1, pos.hi - 2); b++) bases.push(b);
+  const out = searchGrips(root, q, { bassRel, bases, allowOpen: pos.lo <= 1 })
+    .filter((x) => fits(x.notes, pos))
+    .map((x) => ({ ...x, label: bassRel ? `${['1', '♭2', '2', '♭3', '3', '4', '♯4', '5', '♭6', '6', '♭7', '7'][bassRel]} in the bass` : 'root in the bass' }))
+    .sort((a, b) => a.cost - b.cost);
+  bassCache.set(key, out);
   return out;
 }
