@@ -216,3 +216,28 @@ svg.neck .bg.root { fill: rgba(255, 181, 71, 0.12); stroke: rgba(255, 181, 71, 0
 #caged.no-neck .now .main, #caged.no-neck.hide-nums .now .sub { font-size: 96px; }
 #caged.no-neck .beats i { width: 26px; height: 26px; }
 #caged.no-neck .beats { gap: 16px; margin: 18px 0 22px; }
+
+/* scale mode: the scale to solo with, under the chord */
+.solo { margin: 12px auto 0; max-width: 460px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--cyan); border-radius: 14px; padding: 10px 14px; }
+.solo.lv2 { border-left-color: var(--amber); } .solo.lv3 { border-left-color: var(--rose); } .solo.lv4 { border-left-color: var(--violet); }
+.solo-top { display: flex; justify-content: space-between; align-items: center; }
+.solo-top small { font: 600 11px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.solo b { display: block; font: 600 26px/1.2 var(--f-num); margin: 2px 0; }
+.solo i { display: block; font-style: normal; font-size: 13px; color: var(--soft); }
+.solo p { margin: 6px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--soft); }
+.lvl { font: 700 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 999px; background: var(--surface2); color: var(--soft); }
+.lv1 .lvl, .slevel:nth-child(1) .lvl { color: var(--cyan); }
+.lv2 .lvl { color: var(--amber); } .lv3 .lvl { color: var(--rose); } .lv4 .lvl { color: var(--violet); }
+#caged.no-neck .solo b { font-size: 34px; }
+.nextline .nsolo { flex-basis: 100%; text-align: center; font: 500 14px var(--f-num); color: var(--soft); }
+svg.neck .dot.sc circle { fill: #4a3a2e; stroke: rgba(255, 255, 255, 0.18); }
+svg.neck .dot.sc text { fill: #e9dccd; font-size: 11px; }
+.legend .sc::before { background: #4a3a2e; border: 1px solid rgba(255, 255, 255, 0.3); }
+.slevel { margin: 6px 0 10px; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.slevel.cur { border-color: rgba(255, 181, 71, 0.45); background: rgba(255, 181, 71, 0.06); }
+.slevel > .lvl { display: inline-block; margin-bottom: 4px; }
+.sopt { padding: 5px 0; border-top: 1px solid var(--line); }
+.slevel > .lvl + .sopt { border-top: 0; }
+.sopt b { font: 600 16px var(--f-num); }
+.sopt i { font-style: normal; font-size: 12.5px; color: var(--muted); }
+.sopt p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--soft); }

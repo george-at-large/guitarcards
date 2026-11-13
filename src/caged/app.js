@@ -10,6 +10,7 @@ import * as G from './grips.js';
 import * as H from './harmony.js';
 import * as L from './library.js';
 import * as E from './evolve.js';
+import * as SC from './scales.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -22,7 +23,7 @@ const STORE = 'caged-changes';
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; } };
 const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
-  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
+  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
 }, load());
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
@@ -37,7 +38,7 @@ const isMinor = () => D.kt === 'minor';
 // a progression counts as done at this tempo (normalised to 4 beats a bar): 120, or 100 when bars hold two chords
 const progBars = () => L.resolve(prog());
 const target = () => (D.src === 'prog' ? (progBars().some((b) => b.length > 1) ? 100 : 120) : 120);
-const doneKey = () => (D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`);
+const doneKey = () => (D.play === 'scales' ? 'x:' : '') + (D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`);
 const record = (k = doneKey()) => D.done[k] || {};
 const complete = (k, tgt) => G.SHAPES.every((s) => (record(k)[s] || 0) >= tgt);
 const normBpm = (bpm) => Math.round(D.src === 'prog' ? bpm * 4 / D.barBeats : bpm * 4 / D.beats);
@@ -59,7 +60,8 @@ const posLabel = (S) => (D.mode === 'pos' ? `${shapeWord(S)} · frets ${S.pos.lo
 
 // a grip for a chord: in position, or this shape nearest the last chord; a colour chord with no grip here steps
 // down to its plainer cousin
-const usesArea = () => D.mode === 'pos' || D.voicing !== 'caged';
+const scaleMode = () => D.play === 'scales';
+const usesArea = () => D.mode === 'pos' || D.voicing !== 'caged' || scaleMode();
 // a chord's quality as the voicing set plays it: triad sets play the triad, drop sets need four notes
 function adaptQ(q, spec, S) {
   const v = G.voicingById(D.voicing);
@@ -77,6 +79,14 @@ function gripFor(S, root, q, prev, vl) {
 }
 function realise(S, spec, q, prev, extra = {}) {
   const root = H.spell(S.tonic, spec.iv);
+  // scale mode: the chord as written, and a scale to solo over it at the chosen level (not the same one twice running)
+  if (scaleMode()) {
+    S.lastScale ||= {};
+    const k = `${spec.iv}:${q}`;
+    const solo = SC.pickScale(spec.iv, q, S.minor, D.scaleLevel, S.lastScale[k], T.notePc(S.tonic));
+    S.lastScale[k] = solo;
+    return { spec, q, root, name: H.chordName(root, q), rn: H.label(spec, q), grip: null, solo, ...extra };
+  }
   q = adaptQ(q, spec, S);
   let qq = q, grip = gripFor(S, root, qq, prev, extra.vl), plainer = null;
   while (!grip && H.simpler(qq)) { qq = H.simpler(qq); grip = gripFor(S, root, qq, prev, extra.vl); plainer = q; }
@@ -197,9 +207,9 @@ function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, sm
   }
   for (let s = 1; s <= 6; s++) if (!at.has(s)) g += `<text x="${x(s)}" y="${top - 12}" class="mute">×</text>`;
   for (const n of grip.notes) {
-    const lab = labels === 'finger' ? (n.finger || '○') : labels === 'note' ? T.noteName(n.note, true) : T.prettyIv(n.iv);
+    const lab = labels === 'finger' && n.finger !== undefined ? (n.finger || '○') : labels === 'note' ? T.noteName(n.note, true) : T.prettyIv(n.iv);
     const held = prev && D.moves && prev.notes.some((p) => p.string === n.string && p.fret === n.fret);
-    const cls = `dot ${KIND(n.iv)}${n.fret === 0 ? ' open' : ''}${held ? ' held' : ''}`;
+    const cls = `dot ${n.kind || KIND(n.iv)}${n.fret === 0 ? ' open' : ''}${held ? ' held' : ''}`;
     const r = tiny ? (n.fret === 0 ? 13 : 18) : n.fret === 0 ? 12 : 16;
     g += `<g class="${cls}"><circle cx="${x(n.string)}" cy="${y(n.fret)}" r="${r}"/>${tiny ? '' : `<text x="${x(n.string)}" y="${y(n.fret) + 4.5}">${esc(lab)}</text>`}</g>`;
   }
@@ -213,7 +223,9 @@ function windowFor(S, grip) {
 
 // ---------- setup ----------
 function seg(name, opts, cur) {
-  return `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-${name}="${v}" class="${String(cur) === String(v) ? 'on' : ''}" role="radio" aria-checked="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
+  // data-bar-beats reads back as dataset.barBeats (HTML lowercases data-barBeats)
+  const attr = name.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
+  return `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${String(cur) === String(v) ? 'on' : ''}" role="radio" aria-checked="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
 }
 function shapeProgress(k, tgt) {
   const r = D.done[k] || {};
@@ -250,7 +262,8 @@ function setup() {
   const conv = D.src === 'prog' && !!p.minor !== minor;
   $app.innerHTML = `
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
-  <p class="lead">Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.</p>
+  <p class="lead">${scaleMode() ? 'Pick a key and a shape. The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.' : 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.'}</p>
+  ${seg('play', [['chords', 'Play the chords'], ['scales', 'Solo with scales']], D.play)}
 
   <section class="card">
     <h2>Key</h2>
@@ -265,11 +278,15 @@ function setup() {
       : `Every chord in the ${D.pair ? `${S0.shapeKey} shapes (whichever is nearer)` : `${S0.shape} shape`}, moving up and down the neck to find its root.`}</p>
   </section>
 
-  <section class="card">
+  ${scaleMode() ? `<section class="card">
+    <h2>Scales</h2>
+    ${seg('scaleLevel', [[1, 'Easy'], [2, 'Medium'], [3, 'Hard'], [4, 'Exotic'], ['any', 'Mix']], D.scaleLevel)}
+    <p class="note">${{ 1: 'Pentatonics, blues and the key’s own mode for each chord: inside sounds.', 2: 'One or two notes outside the key, and the everyday jazz scales: Lydian dominant, altered, Phrygian dominant, diminished, bebop.', 3: 'Rarer melodic- and harmonic-minor modes, harmonic major, and modes that bend three or more notes.', 4: 'Double harmonic, Hungarian, Neapolitan, Persian, enigmatic, Japanese pentatonics: wherever they genuinely fit.', any: 'Anything that works, any level.' }[D.scaleLevel]} Only scales that hold every chord tone (or, for pentatonics, leave the clashing ones out) are offered. When a chord has nothing at your level, the nearest level is used.</p>
+  </section>` : `  <section class="card">
     <h2>Voicings</h2>
     <select id="voicing" class="select" aria-label="Voicing set">${G.VOICINGS.map((v) => `<option value="${v.id}" ${v.id === D.voicing ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>
     <p class="note">${D.voicing === 'caged' || D.voicing === 'any' ? esc(G.voicingById(D.voicing).blurb) : `Every chord as a ${esc(G.voicingById(D.voicing).name.split(' · ')[0].toLowerCase().replace(/s$/, ''))} on strings ${G.voicingById(D.voicing).set.join('-')}, in whichever inversion is closest to the last chord, so the voices move as little as possible. ${G.voicingById(D.voicing).fam === 'tri' ? 'Seventh and colour chords are played as their triads.' : 'Triads are played as seventh chords; bigger chords keep their most telling four notes.'}`}</p>
-  </section>
+  </section>`}
 
   <section class="card">
     <h2>Chords</h2>
@@ -317,14 +334,15 @@ function setup() {
     ${complete(doneKey(), tgt) ? '<p class="done">✓ Done in every shape</p>' : ''}
   </section>
 
-  <div class="actions"><button class="primary" data-act="go">▶ Start</button><button data-act="walk">Walkthrough</button></div>`;
+  <div class="actions"><button class="primary" data-act="go">▶ Start</button><button data-act="walk">${scaleMode() ? 'Scale options' : 'Walkthrough'}</button></div>`;
 
   $app.onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     const redraw = () => { save(); setup(); };
-    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
+    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
+    if (d.scaleLevel !== undefined) { D.scaleLevel = d.scaleLevel === 'any' ? 'any' : Number(d.scaleLevel); return redraw(); }
     const a = d.act;
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
     if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair'].includes(a)) { D[a] = !D[a]; return redraw(); }
@@ -337,7 +355,7 @@ function setup() {
   r.oninput = () => { D.bpm = Number(r.value); $app.querySelector('.tempo b').innerHTML = `${D.bpm}<small> bpm</small>`; };
   r.onchange = () => save();
   const vsel = $app.querySelector('#voicing');
-  vsel.onchange = () => { D.voicing = vsel.value; save(); setup(); };
+  if (vsel) vsel.onchange = () => { D.voicing = vsel.value; save(); setup(); };
   const sel = $app.querySelector('#prog');
   if (sel) sel.onchange = () => { D.prog = sel.value; D.kt = prog().minor ? 'minor' : 'major'; save(); setup(); };
 }
@@ -417,7 +435,7 @@ function beat(t) {
 function drawRun() {
   const { S } = R;
   $app.innerHTML = `
-  <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where">${fmt(keyLabel(S))}<small>${fmt(posLabel(S))}${D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
+  <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where">${fmt(keyLabel(S))}<small>${fmt(posLabel(S))}${scaleMode() ? ` · scales: ${LEVEL_NAME[D.scaleLevel] || 'mix'}` : D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
   <div class="now" id="now"></div>
   <div class="beats" id="beats"></div>
   <div class="nextline" id="next"></div>
@@ -425,7 +443,7 @@ function drawRun() {
   <div class="evo" id="evo"></div>
   <div id="chart"></div>
   <div class="runctl"><button data-r="bpm-" aria-label="Slower">−</button><b id="bpmnow">${R.bpm} bpm</b><button data-r="bpm+" aria-label="Faster">+</button></div>
-  <div class="runbtns"><button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button><button class="sheet-btn" data-r="sheet">Chord set</button></div>
+  <div class="runbtns"><button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : 'Chord set'}</button></div>
   <div class="sheet" id="sheet" hidden></div>`;
   applyNames();
   window.scrollTo(0, 0);
@@ -481,13 +499,14 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   if (c.tag) tags.push(`<span class="tag">${esc(c.tag)}</span>`);
   if (c.plainer) tags.push(`<span class="tag warn" title="No ${esc(c.plainer)} grip here">plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</span>`);
   if (c.grip?.outside) tags.push('<span class="tag warn">stretches out of position</span>');
+  const solo = c.solo ? soloHTML(c) : '';
   document.getElementById('now').innerHTML = counting
     ? `<div class="count" id="count"></div><div class="first">first: <b class="cnum">${fmt(main)}</b> <b class="cname">${fmt(sub)}</b></div>`
-    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${c.fn ? `<div class="fn">${esc(c.fn)}</div>` : ''}${c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
+    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${solo}${c.fn && !solo ? `<div class="fn">${esc(c.fn)}</div>` : ''}${c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
   document.getElementById('beats').innerHTML = counting ? '' : Array.from({ length: c.beats }, () => '<i></i>').join('');
   R.shown = { c, prev, counting };
   renderStage();
-  if (next) { const l = labelsFor(next); document.getElementById('next').innerHTML = `<span class="lbl">next</span> <b class="cnum">${fmt(l.main)}</b> <b class="cname">${fmt(l.sub)}</b>${D.hint && next.grip ? ` <span class="muted">${esc(gripTag(next.grip))}</span>` : ''}`; }
+  if (next) { const l = labelsFor(next); document.getElementById('next').innerHTML = `<span class="lbl">next</span> <b class="cnum">${fmt(l.main)}</b> <b class="cname">${fmt(l.sub)}</b>${D.hint && next.grip ? ` <span class="muted">${esc(gripTag(next.grip))}</span>` : ''}${next.solo ? ` <span class="nsolo">${fmt(SC.scaleTitle(next.solo, next.root))}</span>` : ''}`; }
   if (note) document.getElementById('evo').innerHTML = `<span>Evolved:</span> ${esc(note)}`;
   if (D.src === 'prog' && c.slots) document.getElementById('chart').innerHTML = chartHTML(c.slots, { cur: c.slot, tonic: R.S.tonic });
 }
@@ -497,12 +516,18 @@ function renderStage() {
   if (!st || !R?.shown) return;
   if (!D.neck) { st.innerHTML = ''; return; }
   if (R.shown.counting || D.diagram === 'now') return revealNeck();
-  st.innerHTML = `<div class="hidden">${D.diagram === 'half' ? 'Find it… the voicing shows halfway through' : 'Find it. Tap here to check.'}</div>`;
+  st.innerHTML = `<div class="hidden">${D.diagram === 'half' ? `Find it… the ${scaleMode() ? 'scale' : 'voicing'} shows halfway through` : 'Find it. Tap here to check.'}</div>`;
 }
 function revealNeck() {
   if (!R?.shown || !D.neck) return;
   const { c, prev } = R.shown;
   const w = windowFor(R.S, c.grip);
+  if (c.solo) {
+    // the scale across the area, chord tones in their colours, the rest of the scale as quiet dots
+    const notes = SC.scaleNotesIn(c.solo, c.root, c.q, R.S.pos.lo, R.S.pos.hi).map((n) => ({ ...n, kind: n.chord ? KIND(n.iv) : 'sc' }));
+    document.getElementById('stage').innerHTML = neckSVG({ notes, lo: w.lo, hi: w.hi }, { ...w, labels: D.labels === 'finger' ? 'iv' : D.labels }) + LEGEND_SCALE;
+    return;
+  }
   document.getElementById('stage').innerHTML = neckSVG(c.grip, { ...w, prev }) + LEGEND;
 }
 function finish() {
@@ -616,8 +641,11 @@ function sheetHTML(S) {
 function openSheet() {
   const el = document.getElementById('sheet');
   if (!el || !R) return;
-  if (!R.sheet) R.sheet = sheetHTML(R.S);
-  el.innerHTML = `<div class="sheet-head"><div><b>Chord set</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
+  if (!R.sheet) R.sheet = scaleMode() ? scaleListHTML(R.S) : sheetHTML(R.S);
+  if (scaleMode()) {
+    el.innerHTML = `<div class="sheet-head"><div><b>Scale options</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
+    <p class="note">Every chord that can come up and every scale that works over it, easiest first. Your level is highlighted; the run picks from it.</p>${R.sheet}`;
+  } else el.innerHTML = `<div class="sheet-head"><div><b>Chord set</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
   <p class="note">Every chord that can come up, and ${D.voicing === 'caged' || D.voicing === 'any' ? `every version of it ${usesArea() ? 'inside the area' : 'in the shape'}: the CAGED grip${usesArea() ? ', then triads or drop voicings on each string set and inversion' : ' wherever it lands'}` : `every ${esc(G.voicingById(D.voicing).name.toLowerCase())} voicing of it inside the area (the run picks the one nearest the last chord)`}.${usesArea() ? ' The key’s own shape is the faint dots behind.' : ''}</p>${LEGEND}${R.sheet}`;
   el.hidden = false;
   el.scrollTop = 0;
@@ -627,6 +655,53 @@ function closeSheet() {
   const el = document.getElementById('sheet');
   if (el) el.hidden = true;
   document.body.classList.remove('locked');
+}
+
+// ---------- scale mode ----------
+const LEVEL_NAME = { 1: 'Easy', 2: 'Medium', 3: 'Hard', 4: 'Exotic' };
+const LEGEND_SCALE = '<div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">chord colour</span><span class="k sc">rest of the scale</span></div>';
+function soloHTML(c) {
+  const x = c.solo;
+  const from = [x.scale.alias, x.note].filter(Boolean).join(' · ');
+  return `<div class="solo lv${x.level}"><div class="solo-top"><small>Solo with</small><span class="lvl">${LEVEL_NAME[x.level]}</span></div><b>${fmt(SC.scaleTitle(x, c.root))}</b>${from ? `<i>${fmt(from)}</i>` : ''}<p>${fmt(x.sentence)}</p></div>`;
+}
+function scaleListHTML(S) {
+  let html = '';
+  const tpc = T.notePc(S.tonic);
+  for (const grp of sheetChords(S)) {
+    html += `<h2 class="sgroup">${fmt(grp.title)}</h2>`;
+    for (const c of grp.list) {
+      const root = H.spell(S.tonic, c.spec.iv);
+      const all = SC.scalesFor(c.spec.iv, c.q, S.minor, tpc);
+      html += `<div class="schord"><div class="shead"><b class="cnum">${fmt(H.label(c.spec, c.q))}</b><span class="cname">${fmt(H.chordName(root, c.q))}</span>${c.note ? `<small>${esc(c.note)}</small>` : ''}</div>`;
+      for (const lv of [1, 2, 3, 4]) {
+        const xs = all.filter((x) => x.level === lv);
+        if (!xs.length) continue;
+        html += `<div class="slevel${D.scaleLevel === 'any' || Number(D.scaleLevel) === lv ? ' cur' : ''}"><span class="lvl">${LEVEL_NAME[lv]}</span>${xs.map((x) => {
+          const from = [x.scale.alias, x.note].filter(Boolean).join(' · ');
+          return `<div class="sopt"><b>${fmt(SC.scaleTitle(x, root))}</b>${from ? ` <i>${fmt(from)}</i>` : ''}<p>${fmt(x.sentence)}</p></div>`;
+        }).join('')}</div>`;
+      }
+      html += '</div>';
+    }
+  }
+  return html;
+}
+function scaleWalkthrough(S) {
+  const title = D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
+  $app.innerHTML = `
+  <header class="chead"><button class="icon" data-w="back" aria-label="Back">‹</button><h1>Scale options</h1><span></span></header>
+  <p class="lead"><b>${esc(title)}</b> · ${fmt(keyLabel(S))}. Every scale that works over each chord, from easy to exotic, with what it sounds like here.</p>
+  ${D.src === 'prog' ? chartHTML(progSlots(S.minor), { tonic: S.tonic }) : ''}
+  ${namesButton('w')}
+  <div class="scalelist">${scaleListHTML(S)}</div>`;
+  applyNames();
+  $app.onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.w === 'back') return setup();
+    if (b.dataset.w === 'names' || b.dataset.w === 'nums') { flipLabel(b.dataset.w); save(); applyNames(); }
+  };
+  window.scrollTo(0, 0);
 }
 
 // ---------- walkthrough: every chord in the set or progression, with its grip ----------
@@ -660,6 +735,7 @@ function walkItems(S) {
 function walkthrough() {
   stop();
   const S = session();
+  if (scaleMode()) return scaleWalkthrough(S);
   const items = walkItems(S);
   const title = D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
   let html = '', group = null;
