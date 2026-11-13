@@ -1,0 +1,17 @@
+{
+  "id": "./caged.html",
+  "name": "CAGED Changes",
+  "short_name": "CAGED",
+  "description": "Play chord changes in one CAGED shape on a click: chord sets, colour tones, and a library of progressions and standards.",
+  "start_url": "./caged.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c10",
+  "theme_color": "#0b0c10",
+  "icons": [
+    { "src": "icons/caged-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/caged-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/caged-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
