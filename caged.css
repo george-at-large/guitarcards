@@ -337,12 +337,15 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 /* ---------- Workouts ---------- */
 .wklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .wkrow { display: flex; gap: 6px; align-items: stretch; }
-.wkpick { flex: 1; text-align: left; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; color: var(--text); display: grid; gap: 3px; }
+.wkrow { flex-wrap: wrap; }
+#caged .wkpick { flex: 1; text-align: left; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; color: var(--text); display: grid; gap: 3px; }
 .wkpick b { font: 600 15px var(--f-ui); }
 .wkpick small { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
-.wkrow.on .wkpick { border-color: var(--amber); background: rgba(255, 181, 71, 0.08); }
-.wkinc { width: 40px; flex: none; border-radius: 12px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.2); color: var(--amber); font-size: 18px; }
-.wkinc.on { border-color: rgba(255, 181, 71, 0.45); }
+#caged .wkrow.on .wkpick { border: 2px solid var(--amber); background: rgba(255, 181, 71, 0.1); padding: 9px 11px; }
+.wksel { color: var(--amber); font: 600 12px var(--f-ui); }
+#caged .wkinc { width: 52px; flex: none; border-radius: 12px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.2); color: var(--muted); font: 600 12px var(--f-ui); padding: 0; }
+#caged .wkinc.on { color: #7fd8a4; border-color: rgba(127, 216, 164, 0.35); }
+#caged .wkgo { flex: 1 0 100%; margin-top: 2px; background: var(--amber); color: #1a1407; border-color: transparent; font: 650 15px var(--f-display); padding: 11px; }
 .wkp { font-size: 11.5px; color: var(--muted); }
 .wkp.part { color: var(--amber); } .wkp.ok { color: #7fd8a4; }
 .wkbar, .roamprog { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 2px 0 6px; }
@@ -354,9 +357,9 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 .wknow .sub { font-size: 17px; margin-top: 4px; }
 .wktip { text-align: center; margin: 6px auto 10px; max-width: 34em; }
 .wkctl { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 6px 0 12px; }
-.wkctl button { min-height: 46px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: 600 15px var(--f-ui); }
-.wkctl button.primary { background: var(--amber); color: #1a1407; border-color: transparent; padding: 0 22px; }
-.wkctl button.soft { color: var(--soft); }
+#caged .wkctl button { min-height: 46px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: 600 15px var(--f-ui); }
+#caged .wkctl button.primary { background: var(--amber); color: #1a1407; border-color: transparent; padding: 0 22px; }
+#caged .wkctl button.soft { color: var(--soft); }
 .wkdone p { line-height: 1.5; }
 
 /* the roamer's banner: which progression is playing */

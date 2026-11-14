@@ -212,6 +212,71 @@ def({
   },
 });
 
+// ----- chord morphing: hold the voicing, change the type, one note moving a half step at a time -----
+const MORPHS = [
+  { fam: 'tri', voicing: 'close', kind: 'triad', chain: ['aug', 'maj', 'min', 'dim'], sets: [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]] },
+  { fam: 'sev', voicing: 'drop2', kind: 'drop 2', chain: ['maj7', '7', 'm7', 'm7b5', 'dim7'], sets: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]] },
+  { fam: 'sev', voicing: 'drop3', kind: 'drop 3', chain: ['maj7', '7', 'm7', 'm7b5', 'dim7'], sets: [[6, 4, 3, 2], [5, 3, 2, 1]] },
+];
+// what moved between two voicings of the same shape: "7 → ♭7"
+function moved(a, b) {
+  const out = [];
+  for (const n of b.notes) {
+    const o = a.notes.find((x) => x.string === n.string);
+    if (o && o.midi !== n.midi) out.push(`${T.prettyIv(o.iv)} → ${T.prettyIv(n.iv)} ${n.midi < o.midi ? 'down' : 'up'} a ${Math.abs(n.midi - o.midi) === 1 ? 'half step' : 'whole step'}`);
+  }
+  return out;
+}
+// one voicing morphed through the chain: the same inversion on the same strings, as close as it can stay
+function morphRun(k, m, set, base, where) {
+  const r = k.root('1'), steps = [];
+  let prev = base;
+  m.chain.forEach((q, i) => {
+    let v = base;
+    if (i) {
+      const vs = voicings(r, q, m.voicing, set).filter((x) => x.inversion === base.inversion);
+      if (!vs.length) return;
+      const cost = (x) => x.notes.reduce((t, n) => { const o = prev.notes.find((y) => y.string === n.string); return t + (o ? Math.abs(o.fret - n.fret) : 3); }, 0);
+      v = vs.reduce((a, b) => (cost(a) <= cost(b) ? a : b));
+    }
+    const g = grip(v.notes), mv = i ? moved(prev, v) : [];
+    const view = where ? areaView(where) : around(Math.min(g.lo, base.notes.length ? Math.min(...base.notes.filter((n) => n.fret > 0).map((n) => n.fret), g.lo) : g.lo), g.hi);
+    steps.push({
+      title: i ? `${k.name('1', m.chain[i - 1])} → ${k.name('1', q)}` : `${k.name('1', q)}`,
+      sub: `${m.kind} · ${INV[base.inversion] || 'inversion'} · strings ${strings(set)}`,
+      tip: i ? `Only ${mv.length === 1 ? 'one note moves' : `${mv.length} notes move`}: ${mv.join(', ')}. Keep the rest of the hand still.` : `Start here, then change the chord type one note at a time: ${m.chain.map((x) => T.pretty(T.chordSymbol(r, x))).join(' → ')}.`,
+      necks: [{ ...g, ...view, prev: i ? grip(prev.notes) : null }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: k.name('1', q) }] },
+    });
+    prev = v;
+  });
+  return steps;
+}
+const morphFams = (o) => MORPHS.filter((m) => (m.fam === 'tri' ? o.qs.includes('maj') || o.qs.includes('min') : o.qs.some((q) => ['maj7', '7', 'm7', 'm7b5', 'dim7'].includes(q))));
+def({
+  id: 'morph-sets', group: 'Chords', name: 'Chord morphing up the neck', area: false, types: true,
+  blurb: 'One string set at a time: each inversion, from the bottom of the neck up, morphed through the types (maj7 → 7 → m7 → m7♭5 → °7, or aug → major → minor → diminished), one note moving at a time.',
+  build(k, o) {
+    const steps = [], r = k.root('1');
+    for (const m of morphFams(o)) for (const set of m.sets) {
+      const bases = voicings(r, m.chain[0], m.voicing, set).filter((v) => Math.max(...v.notes.map((n) => n.fret)) <= 15 && Math.min(...v.notes.map((n) => n.fret)) >= 2).sort((a, b) => avg(a.notes) - avg(b.notes));
+      for (const b of bases) steps.push(...morphRun(k, m, set, b, null));
+    }
+    return steps;
+  },
+});
+def({
+  id: 'morph-caged', group: 'Chords', name: 'Chord morphing in the CAGED shapes', area: true, types: true,
+  blurb: 'Across the string sets inside the shape: every voicing that lives there, morphed through the types, one note moving at a time.',
+  build(k, o) {
+    const steps = [], r = k.root('1');
+    for (const m of morphFams(o)) for (const set of m.sets) {
+      const bases = voicings(r, m.chain[0], m.voicing, set).filter((v) => fits(v.notes, k.pos) && Math.min(...v.notes.map((n) => n.fret)) >= 2).sort((a, b) => avg(a.notes) - avg(b.notes));
+      for (const b of bases) steps.push(...morphRun(k, m, set, b, k.pos));
+    }
+    return steps;
+  },
+});
+
 // ----- arpeggios -----
 def({
   id: 'caged-arps', group: 'Arpeggios', name: 'Arpeggios in the CAGED shapes', area: true, types: true,
