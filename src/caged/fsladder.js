@@ -86,6 +86,35 @@ LADDERS.push(
   P('p-andal', 'Andalusian: i – ♭VII – ♭VI – V', 'aeolian', [['aeolian', 0, 'm'], ['mixolydian', 10, ''], ['lydian', 8, ''], ['phryg-dom', 7, '7']], 'The flamenco and rock descent. The V is major, so its mode is Phrygian dominant: the 7th of the key rises for that chord only.'),
   P('p-m251', 'Minor jazz: iiø – V7♭9 – i', 'harm-min', [['locrian', 2, 'm7b5'], ['phryg-dom', 7, '7b9'], ['mel-min', 0, 'm6'], ['mel-min', 0, 'm6']], 'The minor ii – V – i: Locrian on the half-diminished ii, Phrygian dominant on the V7♭9, melodic minor on the i (two bars).'),
 );
+// the ultimate ladder: the seven modes brightest to darkest over one root, one note flattened per rung, with detours
+// to a related mode that changes one note (then back to the rung). Each mode with its chord, the tensions to use and
+// the ones to avoid. walk: [mode, 'rung' n | 'detour' | 'back']
+export const ULT_INFO = {
+  lydian: { q: 'maj7', use: ['9', '#11', '13'], avoid: [] },
+  ionian: { q: 'maj7', use: ['9', '13'], avoid: ['11'] },
+  'mel-min': { q: 'mMaj7', use: ['9', '11', '13'], avoid: [] },
+  mixolydian: { q: '7', use: ['9', '13'], avoid: ['11'] },
+  'lyd-dom': { q: '7', use: ['9', '#11', '13'], avoid: [] },
+  dorian: { q: 'm7', use: ['9', '11', '13'], avoid: [] },
+  aeolian: { q: 'm7', use: ['9', '11'], avoid: ['b13'] },
+  'harm-min': { q: 'mMaj7', use: ['9', '11'], avoid: ['b13'] },
+  'locrian-n2': { q: 'm7b5', use: ['9', '11', 'b13'], avoid: [] },
+  phrygian: { q: 'm7', use: ['11'], avoid: ['b9', 'b13'] },
+  'phryg-dom': { q: '7', use: ['b9', 'b13'], avoid: ['11'] },
+  locrian: { q: 'm7b5', use: ['11', 'b13'], avoid: ['b9'] },
+  altered: { q: '7alt', use: ['b9', '#9', '#11', 'b13'], avoid: [], note: 'Read it as a dominant: its ♭4 sounds as the major 3rd and its ♭3 as the ♯9.' },
+  'dim-hw': { q: '7b9', use: ['b9', '#9', '#11', '13'], avoid: [], note: 'The one exception to the one-note rule: eight notes, the altered scale with a natural 5 and 13 in place of the ♭13.' },
+};
+const ULT_WALK = [
+  ['lydian', 1], ['ionian', 2], ['mel-min', 'detour'], ['ionian', 'back'],
+  ['mixolydian', 3], ['lyd-dom', 'detour'], ['mixolydian', 'back'],
+  ['dorian', 4], ['aeolian', 5], ['harm-min', 'detour'], ['aeolian', 'back'], ['locrian-n2', 'detour'], ['aeolian', 'back'],
+  ['phrygian', 6], ['phryg-dom', 'detour'], ['phrygian', 'back'],
+  ['locrian', 7], ['altered', 'detour'], ['dim-hw', 'detour'], ['locrian', 'back'],
+];
+LADDERS.push({ id: 'ult', group: 'Ladder with detours', land: true, walk: ULT_WALK, loop: true, name: 'The ultimate ladder', ids: ['lydian'],
+  blurb: 'The seven modes from brightest to darkest over one root, one note flattened per rung, with detours to a related mode that changes one note, then back to the rung. Stay in one CAGED shape a session (C, A, G, E, D over five days). With “Extended arpeggio first” each mode is heard as a chord before you play it, and again on a detour that changes the chord’s 3rd, 5th or 7th. Finish with a few minutes improvising over a rung and its detour.' });
+
 // for progressions: what to do in each mode, whatever chord of the key it sits on
 export const MODE_ROLES = {
   ionian: 'Land {1}, {3} and {5}; {4} and {7} are the tension notes, resolving to {3} and {1}.',
@@ -147,7 +176,8 @@ export function moved(fromId, toId) {
     if (c < bs) { bs = c; best = p; }
   }
   const pairs = out.map((o, i) => [o[1], best[i] === undefined ? null : inn[best[i]][1]]);
-  for (let j = 0; j < inn.length; j++) if (!best.includes(j)) pairs.push([null, inn[j][1]]);
+  const used = best.slice(0, out.length);
+  for (let j = 0; j < inn.length; j++) if (!used.includes(j)) pairs.push([null, inn[j][1]]);
   return { pairs, added: inn.map((x) => x[0]) };
 }
 

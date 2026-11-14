@@ -616,3 +616,8 @@ details.fssolo li b { color: var(--text, #fff); }
 .cstips { margin: 6px 0 0; padding-left: 18px; font-size: 13.5px; line-height: 1.45; }
 .cstips li { margin-bottom: 5px; }
 .csplay { margin-top: 8px; }
+.fsultmap { margin: 0 0 4px; font-size: 12.5px; line-height: 1.7; color: var(--muted); }
+.fsultmap b { color: var(--text, #fff); font-weight: 650; margin-right: 2px; }
+.fsultmap i { font-style: normal; color: var(--amber); margin-right: 4px; }
+.fschords b.fschg { color: #fff; background: rgba(255, 181, 71, 0.3); border-radius: 4px; padding: 0 3px; margin-left: 0; }
+.fschords b.fsavoid { color: var(--muted); }
