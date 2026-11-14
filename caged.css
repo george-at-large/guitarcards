@@ -527,3 +527,8 @@ details.fsopts[open] > summary { margin-bottom: 8px; }
 .fstempo input[type=range] { flex: 1; min-width: 60px; }
 .fstempo .fsbpm { margin-left: 0; }
 .fstempo .fsbpm small { color: var(--muted); font-size: 11px; margin-left: -4px; }
+.fsglance dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 6px 0 10px; font-size: 14px; line-height: 1.4; }
+.fsglance dt { font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding-top: 3px; }
+.fsglance dd { margin: 0; }
+.fsglance dd ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
+@media (max-width: 420px) { .fsglance dl { grid-template-columns: 1fr; gap: 1px; } .fsglance dd { margin-bottom: 6px; } }

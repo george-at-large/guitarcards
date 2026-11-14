@@ -39,15 +39,15 @@ const FACTS = {
   phrygian: ['Minor with a ♭2: dark, Spanish, metal.', 'The ♭2 a half step above the root is everything: lean on it and fall to the root.', 'Use it over a minor chord vamping with ♭II.', 'Flamenco and metal riffs often sit on i–♭II.'],
   'harm-min': ['Minor with a major 7th: classical drama, the leading tone pulling home.', 'The gap between ♭6 and 7 (an augmented 2nd) gives it its exotic sound.', 'Its 5th mode, Phrygian dominant, is the V7 of a minor key.', 'Use it over the i chord, or over V7 heading to a minor chord.'],
   'mel-min': ['Minor with a major top half: the jazz minor.', 'Use it over minor-major and m6 chords, and as a tonic minor in jazz.', 'Its modes give Lydian dominant, altered and Locrian ♮2: much of modern jazz.', 'Bittersweet: minor 3rd, major 6th and 7th.'],
-  altered: ['Every tension bent: ♭9, ♯9, ♯11, ♭13 over a dominant.', 'Use it over V7 just before it resolves: maximum tension, then release.', 'It’s melodic minor from a half step above the root.', 'Resolve each altered note by half step into the next chord.'],
-  'lyd-dom': ['A dominant with a ♯11: bright tension that doesn’t need to resolve.', 'Use it over IV7, ♭VII7 and tritone subs (♭II7).', 'It’s melodic minor from the 5th.', 'The Simpsons theme and a lot of fusion live here.'],
+  altered: ['Every tension bent: ♭9, ♯9, ♯11, ♭13 over a dominant.', 'Use it over V7 just before it resolves: maximum tension, then release.', 'It’s the 7th mode of melodic minor: the melodic minor whose root is a half step above this one.', 'Resolve each altered note by half step into the next chord.'],
+  'lyd-dom': ['A dominant with a ♯11: bright tension that doesn’t need to resolve.', 'Use it over IV7, ♭VII7 and tritone subs (♭II7).', 'It’s the 4th mode of melodic minor: the melodic minor whose root is a 5th above this one.', 'The Simpsons theme and a lot of fusion live here.'],
   'dim-hw': ['Half step, whole step: the 7♭9 dominant scale.', 'Use it over 7♭9 and 13♭9 chords.', 'Symmetric: the same scale repeats every three frets, so one fingering moves.', 'Only three of these exist; each fits four dominant chords a minor 3rd apart.'],
   'whole-tone': ['Six whole steps: dreamlike, no centre.', 'Use it over 7♯5 and 9♯5 chords.', 'Only two whole-tone scales exist; the fingering repeats every two frets.', 'Debussy and Thelonious Monk loved it.'],
   locrian: ['The darkest mode: ♭2 and ♭5, no stable 5th.', 'Use it over half-diminished chords (often Locrian ♮2 sounds smoother).', 'Rare as a tonic: it’s mostly a colour over m7♭5.'],
-  'locrian-n2': ['Half-diminished made smoother: Locrian with a natural 9.', 'Use it over m7♭5 chords, the ii of a minor ii–V–i.', 'It’s melodic minor from the ♭3.'],
+  'locrian-n2': ['Half-diminished made smoother: Locrian with a natural 9.', 'Use it over m7♭5 chords, the ii of a minor ii–V–i.', 'It’s the 6th mode of melodic minor: the melodic minor whose root is a minor 3rd above this one.'],
   'bebop-dom': ['Mixolydian plus a passing major 7th.', 'In eighth-note runs the extra note puts chord tones on the beat.', 'Use it over dominant chords in swing and bebop.'],
-  'mixo-b6': ['Major turning wistful: a ♭6 in a major scale.', 'Use it over a dominant heading to a minor chord.', 'It’s melodic minor from the 4th.'],
-  'phryg-dom': ['Flamenco and klezmer: a major 3rd over ♭2 and ♭6.', 'Use it over V7 in a minor key.', 'It’s harmonic minor from the 5th.'],
+  'mixo-b6': ['Major turning wistful: a ♭6 in a major scale.', 'Use it over a dominant heading to a minor chord.', 'It’s the 5th mode of melodic minor: the melodic minor whose root is a 4th above this one.'],
+  'phryg-dom': ['Flamenco and klezmer: a major 3rd over ♭2 and ♭6.', 'Use it over V7 in a minor key.', 'It’s the 5th mode of harmonic minor: the harmonic minor whose root is a 4th above this one.'],
   'maj-blues': ['Major pentatonic plus the ♭3 sliding into the 3.', 'Country and soul sweetness over major and dominant chords.'],
   'dom-pent': ['Mixolydian boiled down: 1 2 3 5 ♭7.', 'A clean dominant sound with no avoid note.'],
 };
@@ -162,6 +162,58 @@ export function tipsFor(id, tonic) {
   tips.push({ title: 'Long notes against the drone', how: 'One note every four clicks: let each note ring over the drone and listen to how it sits. The colour notes will jump out.', search: q('long tones drone'), rhythm: R4(1, [0], [0]), pic: null });
   tips.push({ title: 'Two bars on, two bars off', how: 'Play a two-bar phrase, rest two bars, play another that answers it: question and answer. Silence is half of phrasing.', search: q('call and response phrasing'), rhythm: R4(2, [0, 1, 2, 3, 4, 5], [0]), pic: null });
   return tips;
+}
+
+// ---------- a scale at a glance: system and degree, how common, brightness, its chord, its tensions and avoid notes ----------
+const COMMON = [
+  [5, 'Everywhere: learn it first'], [4, 'Very common: rock, pop, funk, jazz'], [3, 'Common, for a particular colour'],
+  [3, 'Common in jazz'], [2, 'Specialist: jazz, fusion, film'], [1, 'Rare in Western pop and jazz; central in its own tradition'],
+];
+const CHORD_BY = { '0,4,7,11': 'maj7', '0,4,7,10': '7', '0,3,7,10': 'm7', '0,3,6,10': 'm7♭5', '0,3,6,9': '°7', '0,3,7,11': 'm(maj7)', '0,4,8,11': 'maj7♯5', '0,4,8,10': '7♯5', '0,4,6,10': '7♭5', '0,3,6,11': '°(maj7)', '0,4,10': '7 (no 5th: an altered dominant)', '0,4,7,9': '6', '0,3,7,9': 'm6', '0,4,7': '', '0,3,7': 'm', '0,3,5,7': 'm(add 11)', '0,5,7,10': '7sus4', '0,4,6,11': 'maj7♭5', '0,3,8,10': 'm7♯5', '0,4,7,8': 'major (♭6)', '0,3,7,8': 'm(♭6)', '0,7,10': '7 (no 3rd)', '0,4,7,10,11': '7' };
+export function glance(id, tonic) {
+  const s = BY[id], p = pcs(id), semi = (iv) => T.intervalSemis(F.simpleIv(iv)) % 12;
+  const rows = [];
+  // the system it comes from, and which degree
+  const par = parentOf(id);
+  rows.push(['System', par ? `${par.deg === 0 ? `${par.pname} itself` : `the ${ORD[par.deg]} mode of ${par.pname}`}: ${KEYNAME(T.notePc(tonic) - par.offset)} ${par.pname} played from ${T.noteName(tonic, true)}` : `${FAMILY[s.fam] ? `${/^[aeiou]/.test(FAMILY[s.fam]) ? 'an' : 'a'} ${FAMILY[s.fam]} scale` : 'its own scale'}, ${p.length} notes${s.alias ? `: ${s.alias}` : ''}`]);
+  // how common: its place in the usefulness tiers
+  const ti = TIERS.findIndex(([, ids]) => ids.includes(id));
+  const [dots, words] = COMMON[ti < 0 ? 5 : ti];
+  rows.push(['How common', `${'●'.repeat(dots)}${'○'.repeat(5 - dots)} ${words}`]);
+  // brightness, for seven-note scales: how many half steps above or below plain major its notes sit in all
+  if (p.length === 7) {
+    const d = p.reduce((a, b) => a + b, 0) - 38;
+    rows.push(['Brightness', d === 0 ? 'the same as major' : `${Math.abs(d)} half step${Math.abs(d) === 1 ? '' : 's'} ${d > 0 ? 'brighter' : 'darker'} than major in all${d >= 1 ? ' (Lydian is +1)' : d <= -6 ? ' (Locrian is −5)' : ''}`]);
+  }
+  rows.push(['Notes', s.ivs.map((iv) => `${T.noteName(T.transpose(tonic, F.simpleIv(iv)), true)}`).join(' ') + `  (${s.ivs.map((iv) => T.prettyIv(iv)).join(' ')})`]);
+  // its chord (stacked in 3rds from the root), then its tensions: a tension a half step above a chord tone is an avoid
+  // note, except ♭9 and ♭13 on a dominant (altered tensions)
+  const arp = FL.modeArp(id, false), cps = arp.map(semi);
+  const key = [...new Set(cps)].sort((a, b) => a - b).join();
+  const cname = CHORD_BY[key];
+  if (cname !== undefined) rows.push(['Its chord', `${T.noteName(tonic, true)}${cname} (${arp.map((x) => T.prettyIv(x)).join(' ')}): play these on the strong beats`]);
+  if (p.length >= 7) {
+    const dom = cps.includes(4) && cps.includes(10);
+    const tens = s.ivs.filter((iv) => [2, 4, 6].includes(FL.numberOf(iv)) && !cps.includes(semi(iv)));
+    const ok = [], avoid = [];
+    for (const iv of tens) {
+      const x = semi(iv), under = cps.find((c) => (x - c + 12) % 12 === 1);
+      const name = T.prettyIv(FL.asExt(FL.asSimple(iv)));
+      if (under !== undefined && !(dom && (under === 0 || under === 7))) avoid.push(`${name} (a half step above the ${T.prettyIv(arp[cps.indexOf(under)])})`);
+      else ok.push(name);
+    }
+    if (ok.length) rows.push(['Tensions', `${ok.join(', ')}: safe to sit on over its chord`]);
+    if (avoid.length) rows.push(['Avoid notes', `${avoid.join('; ')}: pass through, don’t hold`]);
+  }
+  // the colour note: what it has that plain major or minor doesn't
+  const ref = p.includes(4) ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10];
+  const colour = p.length === 7 ? p.filter((x) => !ref.includes(x)) : [];
+  if (colour.length) rows.push(['Colour note', `${colour.map((x) => T.prettyIv(s.ivs.find((iv) => semi(iv) === x) || IVN[x])).join(' and ')}: what sets it apart from plain ${p.includes(4) ? 'major' : 'minor'}`]);
+  if (par) rows.push(['Same notes as', `${KEYNAME(T.notePc(tonic) - par.offset)} ${par.pname} and its other modes`]);
+  const inside = FL.congruent(id).filter((c) => c.why === 'inside' && !(c.id === id && c.start === 0)).slice(0, 4);
+  if (inside.length) rows.push(['Inside it', inside.map((c) => `${T.noteName(T.transposeSemis(tonic, c.start), true)} ${BY[c.id].name}`).join(', ')]);
+  rows.push(['Feel', s.feel]);
+  return rows;
 }
 
 // ---------- where a mode comes from: its parent scale and degree, found by rotating the parents ----------
@@ -452,6 +504,7 @@ export function renderFreeScale($app, ctx) {
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
+    ${isArp ? '' : `<section class="card fsglance"><h2>${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)} at a glance</h2><dl>${glance(O.scale, tonic()).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join('')}<dt>Used for</dt><dd><ul>${(FACTS[O.scale] || [BY[O.scale].feel]).map((f) => `<li>${fmt(f)}</li>`).join('')}</ul></dd></dl><button class="linkish" data-f="about">More: its family, its triads, ways to practise it</button></section>`}
     ${isArp ? '' : `<section class="card fstipcard" id="fstips">${tipsHTML()}</section>`}
     <div class="sheet" id="fsabout" hidden></div>
     ${R.on ? '' : `<div class="actions"><button class="primary" data-f="play">▶ ${O.go === 'auto' ? 'Start' : O.drone ? 'Start the drone' : 'Start'}</button></div>`}`;

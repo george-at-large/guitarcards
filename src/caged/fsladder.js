@@ -89,7 +89,8 @@ export function moved(fromId, toId) {
 // ---------- arpeggios ----------
 // the arpeggio inside a mode: 1 3 5 7 (or 6 when it has no 7th), and stacked on to 9, 11 and 13 when extended
 export function modeArp(id, ext) {
-  const ivs = BY[id].ivs, pick = (n) => ivs.find((iv) => numberOf(iv) === n);
+  // (a natural 5th wins over an altered one when the scale has both, as in the blues scale)
+  const ivs = BY[id].ivs, pick = (n) => (n === 5 && ivs.includes('5') ? '5' : ivs.find((iv) => numberOf(iv) === n));
   const out = [];
   for (const n of [1, 3, 5]) { const iv = pick(n); if (iv) out.push(asSimple(iv)); }
   const sev = pick(7) || pick(6);
