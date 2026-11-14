@@ -66,10 +66,141 @@ function factsFor(id, tonic) {
   return out;
 }
 
+// ---------- practice tips: ways to practise the mode, each with a picture of the pattern in this key ----------
+// the scale climbing from its root on the 6th string, laid out a few notes per string
+function climb(tonic, id, perString) {
+  const pc = T.notePc(tonic), rel = pcs(id);
+  let f0 = ((pc - 4) % 12 + 12) % 12; if (f0 === 0) f0 = 12;
+  const m0 = 40 + f0, seq = [];
+  for (let m = m0; m <= m0 + 30; m++) if (rel.includes(((m - pc) % 12 + 12) % 12)) seq.push(m);
+  const out = [];
+  let i = 0;
+  for (let st = 6; st >= 1 && i < seq.length; st--) for (let k = 0; k < perString && i < seq.length; k++, i++) out.push({ string: st, fret: seq[i] - F.OPEN[st], midi: seq[i], rel: ((seq[i] - pc) % 12 + 12) % 12 });
+  return { notes: out.filter((n) => n.fret >= 0), f0 };
+}
+const label = (n, txt, kind) => ({ string: n.string, fret: n.fret, midi: n.midi, iv: String(txt), kind });
+const relKind = (rel) => (rel === 0 ? 'r' : [3, 4].includes(rel) ? 't3' : [6, 7, 8].includes(rel) ? 't5' : [10, 11].includes(rel) ? 't7' : 'sc');
+function pic(notes, extra = 1) {
+  if (!notes.length) return null;
+  const fr = notes.map((n) => n.fret), lo = Math.max(0, Math.min(...fr.filter((f) => f > 0).concat([99])) - extra), hi = Math.max(...fr) + extra;
+  return { notes, lo: Math.min(lo, Math.min(...fr)), hi: Math.max(hi, lo + 4) };
+}
+export function tipsFor(id, tonic) {
+  const s = BY[id], p = pcs(id), n7 = p.length >= 7, gapped = p.length <= 6, sym = s.fam === 'sym', bebop = s.fam === 'bebop';
+  const name = `${s.name.replace(/\s*\(.*\)/, '')}`;
+  const q = (t) => `https://www.google.com/search?q=${encodeURIComponent(`${t} ${name} scale guitar`)}`;
+  const tips = [];
+  const per = gapped ? 2 : 3, c = climb(tonic, id, per);
+  tips.push({ title: gapped ? 'Two notes per string' : 'Three notes per string', how: gapped ? `The box shape: two notes on every string, from the root on the 6th string up two octaves. Play it up and back down, then find the four other boxes up the neck.` : `Three notes on every string, from the root on the 6th string up two octaves: the hand shifts as it climbs, so the whole mode runs on a diagonal. Alternate pick, slowly, with the drone.`, search: q(gapped ? 'box shapes' : '3 notes per string'), pic: pic(c.notes.map((n, i) => label(n, i + 1, relKind(n.rel)))) });
+  if (n7 || gapped) {
+    const seq = c.notes, steps = [];
+    for (let i = 0; i + 2 < seq.length && steps.length < 12; i++) steps.push(seq[i], seq[i + (gapped ? 1 : 2)]);
+    const order = new Map(); steps.forEach((n, i) => { const k = `${n.string}:${n.fret}`; if (!order.has(k)) order.set(k, i + 1); });
+    tips.push({ title: gapped ? 'In 4ths and 5ths' : 'In 3rds', how: gapped ? 'Skip one note each time: up one, back, up two (1-3, 2-4, 3-5…). In a pentatonic that makes 4ths and 5ths: an open, modern sound.' : 'Skip a note each time: 1-3, 2-4, 3-5 and so on, up and back down. It turns the scale into a melody and trains your eye to see the chords inside it.', search: q(gapped ? 'intervals 4ths' : 'in 3rds'), pic: pic(seq.filter((n) => order.has(`${n.string}:${n.fret}`)).slice(0, 12).map((n) => label(n, order.get(`${n.string}:${n.fret}`), relKind(n.rel)))) });
+    const lad = c.notes.slice(0, 6).map((n, i) => label(n, i + 1, relKind(n.rel)));
+    tips.push({ title: 'Ladders: groups of 3 and 4', how: 'Play 1-2-3, 2-3-4, 3-4-5… then 1-2-3-4, 2-3-4-5… up the scale and back. The classic way to make a scale fluent in every direction. Numbers show the first notes.', search: q('sequences groups of 3 4'), pic: pic(lad) });
+  }
+  // string skipping: the 6th and 4th strings, then the 5th and 3rd
+  {
+    const pc = T.notePc(tonic), rel = p, out = [];
+    const lo = c.f0, hi = c.f0 + 5;
+    for (const st of [6, 4]) for (let f = lo; f <= hi; f++) { const r = ((F.OPEN[st] + f - pc) % 12 + 12) % 12; if (rel.includes(r)) out.push({ string: st, fret: f, midi: F.OPEN[st] + f, rel: r }); }
+    out.sort((a, b) => a.midi - b.midi);
+    tips.push({ title: 'String skipping', how: 'Play the scale on two strings that aren’t next to each other (6th and 4th, then 5th and 3rd), jumping across the gap: wide intervals that sound nothing like running the scale.', search: q('string skipping'), pic: pic(out.map((n, i) => label(n, i + 1, relKind(n.rel)))) });
+  }
+  // double stops on the 3rd and 2nd strings
+  {
+    const pc = T.notePc(tonic), out = [];
+    let k = 1;
+    for (let f = Math.max(0, c.f0 - 1); f <= c.f0 + 7 && k <= 6; f++) {
+      const r3 = ((F.OPEN[3] + f - pc) % 12 + 12) % 12;
+      if (!p.includes(r3)) continue;
+      for (let g = f - 2; g <= f + 2; g++) {
+        if (g < 0) continue;
+        const r2 = ((F.OPEN[2] + g - pc) % 12 + 12) % 12, iv = (F.OPEN[2] + g) - (F.OPEN[3] + f);
+        if (p.includes(r2) && (gapped ? iv === 5 || iv === 7 : iv === 3 || iv === 4)) { out.push(label({ string: 3, fret: f, midi: F.OPEN[3] + f }, k, relKind(r3)), label({ string: 2, fret: g, midi: F.OPEN[2] + g }, k, relKind(r2))); k++; break; }
+      }
+    }
+    tips.push({ title: gapped ? 'Double stops in 4ths' : 'Double stops in 3rds', how: gapped ? 'Two notes at once on neighbouring strings, a 4th apart: the rock and blues double stop. Slide each pair up to the next.' : 'Two notes at once on the 3rd and 2nd strings, a 3rd apart, moving up the scale together: pairs 1, 2, 3… Instant harmony, and it shows you the chords hiding in the mode.', search: q(gapped ? 'double stops 4ths' : 'double stops 3rds'), pic: pic(out) });
+  }
+  // one string up the neck
+  {
+    const pc = T.notePc(tonic), out = [];
+    for (let f = 0; f <= 12; f++) { const r = ((F.OPEN[3] + f - pc) % 12 + 12) % 12; if (p.includes(r)) out.push(label({ string: 3, fret: f, midi: F.OPEN[3] + f }, IVN[r], relKind(r))); }
+    tips.push({ title: 'One string up the neck', how: 'The whole mode on the 3rd string alone, sliding up and down. You see the half and whole steps as distances, and the mode stops being a box.', search: q('one string'), pic: { notes: out, lo: 0, hi: 12 } });
+  }
+  // the colour note
+  if (n7) {
+    const ref = p.includes(4) ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10], col = p.filter((x) => !ref.includes(x));
+    if (col.length && col.length <= 2) tips.push({ title: 'Target the colour note', how: `Over the drone, make every phrase end on the ${col.map((x) => IVN[x]).join(' or ')}: it’s what makes ${name} sound like itself. Then resolve it to the nearest chord tone. Highlighted: where it sits.`, search: q('characteristic note'), pic: pic(c.notes.map((n) => label(n, col.includes(n.rel) ? IVN[n.rel] : n.rel === 0 ? '1' : '', col.includes(n.rel) ? 'tx' : n.rel === 0 ? 'r' : 'sc'))) });
+  }
+  if (sym) tips.push({ title: id === 'whole-tone' ? 'It repeats every two frets' : 'It repeats every three frets', how: id === 'whole-tone' ? 'Whole steps all the way: the same fingering slid up two frets is the same scale. Learn one small shape and move it.' : 'Half and whole steps alternating: the same fingering slid up three frets (a minor 3rd) is the same scale. Learn one shape on two strings and move it in minor 3rds.', search: q('symmetrical pattern'), pic: pic(c.notes.slice(0, 8).map((n, i) => label(n, i + 1, relKind(n.rel)))) });
+  if (bebop) tips.push({ title: 'Chord tones on the beat', how: 'Run it in eighth notes down from the root: the extra passing note makes every chord tone land on a beat. Start on a chord tone, on the beat.', search: q('bebop scale eighth notes'), pic: pic(c.notes.slice().reverse().slice(0, 8).map((n, i) => label(n, i + 1, relKind(n.rel)))) });
+  if (id === 'blues' || id === 'maj-blues') tips.push({ title: 'Slide into the blue note', how: 'Slide or bend into the blue note from a fret below and resolve it: it’s a passing colour, not a place to stop.', search: q('blue note bends'), pic: pic(c.notes.map((n, i) => label(n, i + 1, [3, 6].includes(n.rel) ? 'tx' : relKind(n.rel)))) });
+  // rhythm: the same notes, different feels (the picture is one bar of four beats: where the notes fall, accents bigger)
+  const R4 = (div, hits, acc = []) => ({ div, hits, acc });
+  const all = (div) => Array.from({ length: div * 4 }, (_, i) => i);
+  tips.push({ title: 'Triplets', how: 'Three notes to every click: up the scale in triplets, accenting the first of each three. Then turn it into a sequence: 1-2-3, 2-3-4, 3-4-5, one group per beat.', search: q('triplets'), rhythm: R4(3, all(3), [0, 3, 6, 9]), pic: null });
+  tips.push({ title: 'Sixteenths', how: 'Four notes to every click, alternate picking, evenly. Start at half the tempo you think you can manage; speed comes from evenness.', search: q('sixteenth notes'), rhythm: R4(4, all(4), [0, 4, 8, 12]), pic: null });
+  tips.push({ title: 'Groups of 3 over 4', how: 'Sixteenth notes, but accent every third note: the accent drifts across the beat and comes home after three beats. The classic way to make a scale sound like a phrase.', search: q('groups of three over four'), rhythm: R4(4, all(4), [0, 3, 6, 9, 12, 15]), pic: null });
+  tips.push({ title: 'Swing', how: 'Long–short eighth notes, as if in triplets with the middle one silent. Accent the off-beats lightly: jazz and blues phrasing.', search: q('swing eighth notes'), rhythm: R4(3, [0, 2, 3, 5, 6, 8, 9, 11], [2, 5, 8, 11]), pic: null });
+  tips.push({ title: 'Start on the “and”', how: 'Begin every phrase on an off-beat: rest on the click, play on the “and”. Off-beat starts are what make lines groove instead of march.', search: q('offbeat phrasing'), rhythm: R4(2, [1, 2, 3, 5, 6, 7], [1, 5]), pic: null });
+  tips.push({ title: 'Quintuplets', how: 'Five notes to a click: count “un-i-ver-si-ty”. Hard at first; it breaks the habit of thinking in twos and fours.', search: q('quintuplets'), rhythm: R4(5, all(5), [0, 5, 10, 15]), pic: null });
+  tips.push({ title: 'Long notes against the drone', how: 'One note every four clicks: let each note ring over the drone and listen to how it sits. The colour notes will jump out.', search: q('long tones drone'), rhythm: R4(1, [0], [0]), pic: null });
+  tips.push({ title: 'Two bars on, two bars off', how: 'Play a two-bar phrase, rest two bars, play another that answers it: question and answer. Silence is half of phrasing.', search: q('call and response phrasing'), rhythm: R4(2, [0, 1, 2, 3, 4, 5], [0]), pic: null });
+  return tips;
+}
+
+// ---------- where a mode comes from: its parent scale and degree, found by rotating the parents ----------
+const PARENTS = [['ionian', 'major'], ['mel-min', 'melodic minor'], ['harm-min', 'harmonic minor'], ['harm-maj', 'harmonic major']];
+const ORD = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
+const KEYNAME = (pc) => T.noteName(T.parseNote(KEYS[((pc % 12) + 12) % 12]), true);
+export function parentOf(id) {
+  const mine = pcs(id).slice().sort((a, b) => a - b).join();
+  if (pcs(id).length !== 7) return null;
+  for (const [pid, pname] of PARENTS) {
+    const pp = pcs(pid).slice().sort((a, b) => a - b);
+    for (let d = 0; d < 7; d++) {
+      const rot = pp.map((x) => (x - pp[d] + 12) % 12).sort((a, b) => a - b).join();
+      if (rot === mine) {
+        // its brothers and sisters: the parent from each degree, the ones the app knows by name
+        const sibs = [];
+        for (let e = 0; e < 7; e++) {
+          const r = pp.map((x) => (x - pp[e] + 12) % 12).sort((a, b) => a - b).join();
+          const sc = SC.SCALES.find((x) => pcs(x.id).length === 7 && pcs(x.id).slice().sort((a, b) => a - b).join() === r);
+          sibs.push({ deg: e, offset: pp[e], id: sc ? sc.id : null });
+        }
+        return { pid, pname, deg: d, offset: pp[d], sibs };
+      }
+    }
+  }
+  return null;
+}
+// the triads inside a seven-note mode, on each of its degrees
+function triadsIn(id, tonic) {
+  const p = pcs(id).slice().sort((a, b) => a - b);
+  if (p.length !== 7) return [];
+  const Q = { '4,7': '', '3,7': 'm', '3,6': '°', '4,8': '+' };
+  return p.map((r, i) => { const t = (p[(i + 2) % 7] - r + 12) % 12, f = (p[(i + 4) % 7] - r + 12) % 12, q = Q[`${t},${f}`]; return q === undefined ? null : `${T.noteName(T.transposeSemis(tonic, r), true)}${q}`; }).filter(Boolean);
+}
+
+// one bar of four beats: the beat lines, a dot for each note, bigger on the accents
+function rhythmSVG({ div, hits, acc }) {
+  const W = 320, H = 70, x0 = 14, bw = (W - 2 * x0) / 4, n = div * 4, step = bw / div;
+  let g = '';
+  for (let b = 0; b <= 4; b++) g += `<line x1="${x0 + b * bw}" y1="10" x2="${x0 + b * bw}" y2="${H - 10}" class="rbeat"/>`;
+  for (let b = 0; b < 4; b++) g += `<text x="${x0 + b * bw + 4}" y="${H - 2}" class="rnum">${b + 1}</text>`;
+  for (let i = 0; i < n; i++) {
+    const x = x0 + i * step + step / 2;
+    g += hits.includes(i) ? `<circle cx="${x}" cy="${H / 2}" r="${acc.includes(i) ? 9 : 5.5}" class="${acc.includes(i) ? 'racc' : 'rhit'}"/>` : `<circle cx="${x}" cy="${H / 2}" r="2.5" class="rrest"/>`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" class="rhythmpic" role="img" aria-label="Rhythm">${g}</svg>`;
+}
+
 export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12 }, D.fs || {});
-  let R = { on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [] };
+  let R = { on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [], tip: 0 };
 
   const tonic = () => T.parseNote(O.key);
   function neck() {
@@ -89,7 +220,31 @@ export function renderFreeScale($app, ctx) {
     return neckSVG({ notes, lo: 0, hi: O.frets }, { lo: 0, hi: O.frets, labels: 'iv' });
   }
   const facts = () => factsFor(O.scale, tonic());
-  function factHTML() { const f = facts(); return `<span class="lbl">when it’s useful · ${(R.fact % f.length) + 1} of ${f.length}</span><p>${fmt(f[R.fact % f.length])}</p>`; }
+  function factHTML() { const f = facts(); return `<span class="lbl">when it’s useful · ${(R.fact % f.length) + 1} of ${f.length} <i>tap to read it all</i></span><p>${fmt(f[R.fact % f.length])}</p>`; }
+  // practice tips: one at a time, its picture and a link to look it up
+  function tipsHTML() {
+    const tips = tipsFor(O.scale, tonic()), t = tips[R.tip % tips.length];
+    const picSvg = t.pic ? neckSVG({ notes: t.pic.notes, lo: t.pic.lo, hi: t.pic.hi }, { lo: t.pic.lo, hi: t.pic.hi, labels: 'iv', small: true }) : t.rhythm ? rhythmSVG(t.rhythm) : '';
+    return `<h2>Practice tips</h2>
+      <div class="chips fstips">${tips.map((x, i) => `<button class="chip ${i === R.tip % tips.length ? 'on' : ''}" data-tip="${i}">${esc(x.title)}</button>`).join('')}</div>
+      <p>${fmt(t.how)}</p>
+      ${picSvg ? `<div class="fstippic${t.rhythm ? ' wide' : ''}">${picSvg}<p class="note">${t.rhythm ? 'One bar of four beats: each dot a note, the big ones accented.' : t.pic.notes.some((n) => /^\d+$/.test(n.iv)) ? 'Numbers: the order to play them in.' : ''}</p></div>` : ''}
+      <a class="fslook" href="${t.search}" target="_blank" rel="noopener">Look it up ↗</a>`;
+  }
+  // everything about the mode, to read at leisure
+  function aboutHTML() {
+    const s = BY[O.scale], t = tonic(), par = parentOf(O.scale), tri = triadsIn(O.scale, t);
+    const parent = par ? `<p><b>${fmt(T.noteName(t, true))} ${esc(s.name)}</b> is <b>${fmt(KEYNAME(T.notePc(t) - par.offset))} ${esc(par.pname)}</b> played from its ${ORD[par.deg]} degree: the same seven notes, centred on ${fmt(T.noteName(t, true))}.</p>
+      <h3>Its family: the modes of ${esc(par.pname)}</h3><ul class="fssibs">${par.sibs.map((x) => `<li${x.id === O.scale ? ' class="on"' : ''}>${ORD[x.deg]}: ${x.id ? `<button class="linkish" data-goto="${x.id}" data-gokey="${KEYS[((T.notePc(t) - par.offset + x.offset) % 12 + 12) % 12]}">${fmt(T.noteName(T.transpose(T.parseNote(KEYS[((T.notePc(t) - par.offset) % 12 + 12) % 12]), F.simpleIv(BY[par.pid].ivs[x.deg])), true))} ${esc(BY[x.id].name)}</button>` : '—'}</li>`).join('')}</ul><p class="note">All seven use the same notes; each puts a different one at home.</p>`
+      : `<p>${esc(FAMILY[s.fam] ? `A ${FAMILY[s.fam]} scale` : 'A scale')} of ${pcs(O.scale).length} notes${s.alias ? `: ${esc(s.alias)}` : ''}. It isn’t a mode of major, melodic minor, harmonic minor or harmonic major.</p>`;
+    return `<div class="sheet-head"><div><b>${fmt(T.noteName(t, true))} ${esc(s.name)}</b><small>${esc(FAMILY[s.fam] || '')}</small></div><button class="icon" data-f="closeabout" aria-label="Close">✕</button></div>
+      <section class="why"><h3>Where it comes from</h3>${parent}</section>
+      <section class="why"><h3>Its notes</h3><p>${fmt(s.ivs.map((x) => T.prettyIv(x)).join(' '))}</p><p class="note">${fmt(s.feel)}</p>${tri.length ? `<p>The triads inside it: ${fmt(tri.join(' · '))}</p>` : ''}</section>
+      <section class="why"><h3>When it’s used</h3><ul>${facts().map((f) => `<li>${fmt(f)}</li>`).join('')}</ul></section>
+      <section class="why"><h3>Ways to practise it</h3><ul>${tipsFor(O.scale, t).map((x) => `<li><b>${esc(x.title)}</b>: ${fmt(x.how)}</li>`).join('')}</ul></section>`;
+  }
+  function openAbout() { const el = document.getElementById('fsabout'); el.innerHTML = aboutHTML(); el.hidden = false; el.scrollTop = 0; document.body.classList.add('locked'); }
+  function closeAbout() { const el = document.getElementById('fsabout'); if (el) el.hidden = true; document.body.classList.remove('locked'); }
 
   // ---------- sound: the drone and the metronome ----------
   function drone() { if (R.on && O.drone) A.startDrone(36 + T.notePc(tonic()) + (T.notePc(tonic()) < 4 ? 12 : 0), O.fifth); else A.stopDrone(); }
@@ -142,27 +297,34 @@ export function renderFreeScale($app, ctx) {
       </div>
       <input type="range" id="fsbpmr" min="30" max="200" step="2" value="${O.bpm}" aria-label="Tempo">
     </div>
-    <h2 class="fstitle">${fmt(T.noteName(tonic(), true))} ${esc(s.name)} <small>${esc(FAMILY[s.fam] || '')}${s.alias ? ` · ${esc(s.alias)}` : ''}</small></h2>
+    <h2 class="fstitle">${fmt(T.noteName(tonic(), true))} ${esc(s.name)} <small>${(() => { const par = parentOf(O.scale); return par ? `${par.deg === 0 ? esc(par.pname) : `mode ${par.deg + 1} of ${esc(par.pname)}`}: ${fmt(KEYNAME(T.notePc(tonic()) - par.offset))} ${esc(par.pname)} from its ${ORD[par.deg]}` : esc(FAMILY[s.fam] || ''); })()} · <button class="linkish" data-f="about">about this mode</button></small></h2>
     <div class="beats" id="fsbeats">${O.metro ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     <div class="fsfact in" id="fsfact">${factHTML()}</div>
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">colour note</span><span class="k sc">rest of the scale</span></div>
     <div class="chips" style="justify-content:center">${[12, 15].map((n) => `<button class="chip ${O.frets === n ? 'on' : ''}" data-frets="${n}">Frets 0–${n}</button>`).join('')}</div>
+    <section class="card fstipcard" id="fstips">${tipsHTML()}</section>
+    <div class="sheet" id="fsabout" hidden></div>
     ${R.on ? '' : '<div class="actions"><button class="primary" data-f="play">▶ Start the drone</button></div>'}`;
     const sel = $app.querySelector('#fsscale');
-    sel.onchange = () => { O.scale = sel.value; R.fact = 0; save(); draw(); };
+    sel.onchange = () => { O.scale = sel.value; R.fact = 0; R.tip = 0; save(); draw(); };
     const r = $app.querySelector('#fsbpmr');
     r.oninput = () => { O.bpm = Number(r.value); document.getElementById('fsbpmv').textContent = O.bpm; };
     r.onchange = () => save();
   }
   $app.onclick = (e) => {
-    if (e.target.closest('#fsfact')) { R.fact++; const el = document.getElementById('fsfact'); if (el) el.innerHTML = factHTML(); return; } // tap the fact to move on
+    if (e.target.closest('#fsfact')) return openAbout(); // tap the facts to read them all
+    const g = e.target.closest('[data-goto]');
+    if (g) { O.scale = g.dataset.goto; O.key = g.dataset.gokey; R.fact = 0; R.tip = 0; save(); closeAbout(); if (R.on) drone(); return draw(); }
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     if (d.key) { O.key = d.key; save(); if (R.on) drone(); return draw(); }
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
+    if (d.tip !== undefined) { R.tip = Number(d.tip); document.getElementById('fstips').innerHTML = tipsHTML(); return; }
     const a = d.f; if (!a) return;
-    if (a === 'back') { stopAll(); return onBack(); }
+    if (a === 'back') { stopAll(); closeAbout(); return onBack(); }
+    if (a === 'about') return openAbout();
+    if (a === 'closeabout') return closeAbout();
     if (a === 'play') { if (R.on) { stopAll(); return draw(); } return play(); }
     if (a === 'drone' || a === 'fifth') { O[a] = !O[a]; save(); if (R.on) drone(); return draw(); }
     if (a === 'metro') { O.metro = !O.metro; save(); return draw(); }

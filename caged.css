@@ -473,3 +473,18 @@ svg.neck .dot.extra circle { stroke: var(--violet); stroke-width: 2.5; stroke-da
 .fsfact p { margin: 4px 0 0; line-height: 1.45; font-size: 14.5px; }
 .fsfact.in { animation: fsin .6s ease-out; }
 @keyframes fsin { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fsfact .lbl i { font-style: normal; color: var(--muted); text-transform: none; letter-spacing: 0; margin-left: 6px; }
+#caged .linkish { background: none; border: 0; padding: 0; color: var(--amber); font: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.fstipcard p { line-height: 1.45; }
+#caged .fstips .chip { font-size: 12.5px; padding: 6px 10px; }
+.fstippic { max-width: 220px; margin: 6px auto; text-align: center; }
+.fslook { display: inline-block; margin-top: 4px; color: var(--amber); font-weight: 600; }
+.fssibs { list-style: none; padding: 0; display: grid; gap: 4px; }
+.fssibs li.on { color: var(--amber); font-weight: 650; }
+.fstippic.wide { max-width: 340px; }
+svg.rhythmpic { width: 100%; height: auto; }
+svg.rhythmpic .rbeat { stroke: var(--line); stroke-width: 1.5; }
+svg.rhythmpic .rnum { fill: var(--muted); font: 600 10px var(--f-ui); }
+svg.rhythmpic .rhit { fill: var(--soft); }
+svg.rhythmpic .racc { fill: var(--amber); }
+svg.rhythmpic .rrest { fill: rgba(255, 255, 255, 0.15); }
