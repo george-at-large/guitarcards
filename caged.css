@@ -511,3 +511,6 @@ svg.rhythmpic .rlab { fill: #1a1407; font: 700 10px var(--f-ui); text-anchor: mi
 .fsopt .chip { justify-self: start; }
 .fsblurb { margin: -2px 0 2px; }
 @media (max-width: 420px) { .fsopt { grid-template-columns: 1fr; gap: 4px; } }
+.wkwhy { max-width: 34em; margin: 4px auto 8px; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 13.5px; line-height: 1.4; }
+.wkwhy dt { font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.1em; color: var(--violet); padding-top: 3px; }
+.wkwhy dd { margin: 0; color: var(--text); }

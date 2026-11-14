@@ -7,6 +7,7 @@ import * as F from '../fretboard.js';
 import * as G from './grips.js';
 import * as H from './harmony.js';
 import * as SC from './scales.js';
+import * as XM from './xmorph.js';
 
 // ---------- the key loops ----------
 export const MAJOR_KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -368,6 +369,42 @@ def({
   },
 });
 
+// ----- the extended chord morpher: one root, every sound on it, brightest to darkest, the hand moving least -----
+export const XM_DEFAULT = { fams: ['maj', 'dom', 'min', 'hd'], slash: true, size: 'both', order: 'both' };
+export const XM_ORDERS = [['down', 'Bright → dark'], ['up', 'Dark → bright'], ['both', 'There and back'], ['shuffle', 'Shuffled']];
+const XM_FAM = { maj: 'major', dom: 'dominant', min: 'minor', hd: 'half-diminished' };
+def({
+  id: 'xmorph', group: 'Chords', name: 'Extended chord morpher', area: true,
+  blurb: 'One root, every sound on it: extended, altered, sus and slash chords, from the brightest (maj7♯5, Lydian) to the darkest (°7), each the chord of a mode. Each root place in the shape is a lane; along a lane each chord takes the voicing that moves your hand least, across whatever strings it needs. Under each chord: when it’s used and where it comes from.',
+  build(k, o) {
+    const x = { ...XM_DEFAULT, ...(o.xm || {}) }, r = k.root('1'), p = k.pos, steps = [];
+    let list = XM.ladder({ fams: x.fams, slash: x.slash });
+    if (x.order === 'up') list = list.slice().reverse();
+    if (x.order === 'both') list = list.concat(list.slice(1, -1).reverse());
+    if (x.order === 'shuffle') { list = list.slice(); for (let i = list.length - 1; i > 0; i--) { const j = (i * 7919 + list.length * 31) % (i + 1); [list[i], list[j]] = [list[j], list[i]]; } }
+    for (const lane of XM.lanes(r, list.filter((s, i) => list.indexOf(s) === i), p, x.size)) {
+      // the lane's sounds in the chosen order (there and back visits each twice)
+      const have = new Map(lane.per);
+      const path = XM.morph({ ...lane, per: list.filter((s) => have.has(s)).map((s) => [s, have.get(s)]) });
+      const where = `root on string ${lane.bass}, fret ${lane.rootFret}`;
+      path.forEach(({ s, v, prev }, i) => {
+        const nm = XM.nameOn(r, s), mv = prev ? XM.movedText(prev, v) : [];
+        const fam = XM_FAM[XM.famOf(s)];
+        steps.push({
+          block: `xm|${lane.bass}|${lane.size}|${lane.rootFret}`,
+          title: nm,
+          sub: `${s.fam === 'slash' ? `slash chord (${fam})` : fam} · ${lane.size === 'compact' ? 'compact' : 'full'} · strings ${strings(v.strings)} · ${where}`,
+          tip: i === 0 ? `A new lane: ${lane.size === 'compact' ? 'three or four notes' : 'five or six notes'}, ${where}. Each chord from here takes the voicing nearest the last.` : mv.length ? `Moves: ${mv.join(', ')}.` : 'Nothing moves: same notes, new name.',
+          when: s.use, from: s.from,
+          necks: [{ ...grip(v.notes), ...areaView(p), prev: prev ? grip(prev.notes) : null }],
+          legend: 'chord', sound: { seq: [{ midis: midis(v), name: nm }] },
+        });
+      });
+    }
+    return steps;
+  },
+});
+
 // ----- arpeggios -----
 def({
   id: 'caged-arps', group: 'Arpeggios', name: 'Arpeggios in the CAGED shapes', area: true, types: true,
@@ -599,8 +636,8 @@ export const GROUPS = [...new Set(W.map((w) => w.group))];
 export const byId = (id) => W.find((w) => w.id === id);
 
 // the steps for one unit: a workout in a key, in an area (or across the neck)
-export function steps(w, key, { shape = 'E', pair = false, qs = typesFor({ tri: true, sev: true }), cw = null, neck = false } = {}) {
+export function steps(w, key, { shape = 'E', pair = false, qs = typesFor({ tri: true, sev: true }), cw = null, xm = null, neck = false } = {}) {
   const tonic = T.parseNote(key);
   const pos = w.area && !(neck && w.neck) ? (pair ? G.positionOfPair(tonic, shape) : G.positionOf(tonic, shape)) : null;
-  return w.build(keyCtx(key, pos), { qs, cw });
+  return w.build(keyCtx(key, pos), { qs, cw, xm });
 }
