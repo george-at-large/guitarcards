@@ -148,7 +148,7 @@ export function renderWorkouts($app, ctx) {
   // ---------- drawing the run ----------
   const areaName = (u) => (u.shape ? (u.pair ? `${u.shape}+${G.nextShape(u.shape)} shapes` : `${u.shape} shape`) : 'the whole neck');
   function neckHTML(n) {
-    const svg = neckSVG({ notes: n.notes, lo: n.lo, hi: n.hi }, { lo: n.lo, hi: n.hi, band: n.band || null, prev: n.prev || null, labels: 'iv' });
+    const svg = neckSVG({ notes: n.notes, lo: n.lo, hi: n.hi }, { lo: n.lo, hi: n.hi, band: n.band || null, prev: n.prev || null, bg: n.bg || null, labels: 'iv' });
     return n.cap ? `<figure>${svg}<figcaption>${fmt(n.cap)}</figcaption></figure>` : svg;
   }
   function drawRun(u, st) {
@@ -156,7 +156,7 @@ export function renderWorkouts($app, ctx) {
     const total = R.units.length;
     const pct = ((R.ui + (R.si + 1) / R.steps.length) / total) * 100;
     $app.innerHTML = `
-    <header class="chead run"><button class="icon" data-w="stop" aria-label="Stop">■</button><div class="where">${esc(u.w.name)}<small>${fmt(T.pretty(u.key))} ${u.w.minor ? 'minor' : 'major'} · ${esc(areaName(u))}</small></div><button class="icon" data-w="pause" aria-label="Pause">${R.paused ? '▶' : '❚❚'}</button></header>
+    <header class="chead run"><button class="icon" data-w="stop" aria-label="Stop">■</button><div class="where">${esc(u.w.name)}<small>${fmt(T.pretty(u.key))} ${esc(u.w.mode || (u.w.minor ? 'minor' : 'major'))} · ${esc(areaName(u))}</small></div><button class="icon" data-w="pause" aria-label="Pause">${R.paused ? '▶' : '❚❚'}</button></header>
     <div class="wkbar"><i style="width:${pct.toFixed(1)}%"></i></div>
     <p class="wkcount">${total > 1 ? `Part ${R.ui + 1} of ${total} · ` : ''}step ${R.si + 1} of ${R.steps.length}${R.flash ? ` <span class="wkflash">${esc(R.flash)}</span>` : ''}</p>
     <div class="now wknow"><div class="main">${fmt(T.pretty(st.title))}</div><div class="sub">${fmt(T.pretty(st.sub || ''))}</div></div>
@@ -171,6 +171,7 @@ export function renderWorkouts($app, ctx) {
       <button data-w="next" class="primary" aria-label="Next">Next ▶</button>
     </div>
     <div class="runctl"><button data-w="bpm-" aria-label="Slower">−</button><b id="wbpm">${O.bpm} bpm</b><button data-w="bpm+" aria-label="Faster">+</button></div>
+    ${O.pace === 'auto' ? `<div class="wkbeats"><span class="lbl">beats a step</span>${seg('beats', [[4, '4'], [8, '8'], [16, '16'], [32, '32']], O.beats)}</div>` : ''}
     <div class="runbtns">${liveBtn('click', 'Metronome', O.click)}${liveBtn('sound', 'Chord sound', O.sound)}${liveBtn('auto', O.pace === 'auto' ? `Auto: next every ${O.beats} beats` : 'Auto: off, tap Next', O.pace === 'auto')}${O.sound ? liveBtn('hold', 'Hold the chord', O.hold) : ''}${liveBtn('mute', 'Mute all', O.mute)}<button class="rt" data-w="skip">Skip this part</button></div>`;
   }
   const liveBtn = (k, l, on) => `<button class="rt ${on ? 'on' : ''}" data-w="t:${k}" aria-pressed="${!!on}">${esc(l)}</button>`;
@@ -237,7 +238,7 @@ export function renderWorkouts($app, ctx) {
       <h2>Pace</h2>
       ${seg('pace', [['tap', 'Tap through'], ['auto', 'On the beat']], O.pace)}
       <div class="tempo"><button data-w="bpm-" aria-label="Slower">−</button><b>${O.bpm}<small> bpm</small></b><button data-w="bpm+" aria-label="Faster">+</button></div>
-      ${O.pace === 'auto' ? `<h3>Beats a step</h3>${seg('beats', [[4, '4'], [8, '8'], [16, '16'], [32, '32']], O.beats)}` : ''}
+      <h3>Beats a step (on Auto)</h3>${seg('beats', [[4, '4'], [8, '8'], [16, '16'], [32, '32']], O.beats)}
       <div class="chips">${chip('click', 'Metronome', O.click)}${chip('sound', 'Chord sounds', O.sound)}${chip('hold', 'Hold the chord', O.hold)}</div>
       <p class="note">${O.pace === 'auto' ? `Each step lasts ${O.beats} beats at ${O.bpm} bpm, then moves on on the beat. Scales want 16 or 32.` : 'Tap Next when you’ve played the step; the metronome keeps time meanwhile.'} Metronome, chord sound and Auto are separate switches, so you can keep the click with the chords silent, and let it move on by itself or tap through; all of them, the tempo and Mute all can be changed during a run.</p>
     </section>`}
@@ -250,6 +251,7 @@ export function renderWorkouts($app, ctx) {
     const d = b.dataset;
     if (d.pick) { O.sel = d.pick; save(); return setup(); }
     if (d.inc) { O.skip = O.skip.includes(d.inc) ? O.skip.filter((x) => x !== d.inc) : [...O.skip, d.inc]; save(); return setup(); }
+    if (d.o === 'beats' && R) { O.beats = Number(d.v); save(); return drawRun(R.units[R.ui], R.steps[R.si]); }
     if (d.o) {
       O[d.o] = ['beats'].includes(d.o) ? Number(d.v) : d.v;
       if (d.o === 'loop' && d.v === 'rand') O.seed = 1 + Math.floor(Math.random() * 9999);

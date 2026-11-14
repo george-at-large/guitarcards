@@ -381,3 +381,6 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 /* the next grip, tiny, beside the next chord */
 .nextline .nextpic { display: inline-flex; align-self: center; width: 58px; margin: -4px 2px -4px -6px; }
 .nextline .nextpic svg.neck.tiny { width: 58px; height: auto; }
+.wkbeats { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 10px auto 0; max-width: 340px; }
+.wkbeats .lbl { font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); white-space: nowrap; }
+.wkbeats .seg { flex: 1; }

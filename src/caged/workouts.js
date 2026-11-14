@@ -188,23 +188,40 @@ def({
 const DEG = ['1', '2', '3', '4', '5', '6', '7'];
 const TRI_Q = ['maj', 'min', 'min', 'maj', 'maj', 'min', 'dim'];
 const SEV_Q = ['maj7', 'm7', 'm7', 'maj7', '7', 'm7', 'm7b5'];
-def({
-  id: 'chord-scales', group: 'Chords', name: 'Chord scales', area: false,
-  blurb: 'The key’s seven chords up one string set (I, ii, iii… to I an octave up), in triads and in drop 2: from knowing shapes to knowing the key.',
+// chord scales: the seven chords of a parent scale up one string set, the parent scale faint behind them
+const TRI_BY = { '4,7': 'maj', '3,7': 'min', '3,6': 'dim', '4,8': 'aug' };
+const SEV_BY = { '4,7,11': 'maj7', '4,7,10': '7', '3,7,10': 'm7', '3,6,10': 'm7b5', '3,6,9': 'dim7', '3,7,11': 'mMaj7', '4,8,11': 'maj7#5', '4,6,10': '7b5' };
+function stacked(ivs, d, n) {
+  const sem = ivs.map((iv) => T.intervalSemis(F.simpleIv(iv)) % 12);
+  const sig = [2, 4, 6].slice(0, n - 1).map((j) => ((sem[(d + j) % 7] - sem[d]) % 12 + 12) % 12).join(',');
+  return (n === 3 ? TRI_BY : SEV_BY)[sig] || null;
+}
+const PARENTS = [
+  { id: 'chord-scales', scale: 'ionian', mode: 'major', name: 'Chord scales: major', blurb: 'The key’s seven chords up one string set (I, ii, iii… to I an octave up), in triads and in drop 2, the major scale faint behind them: from knowing shapes to knowing the key.' },
+  { id: 'cs-melmin', scale: 'mel-min', mode: 'melodic minor', name: 'Chord scales: melodic minor', blurb: 'i mMaj7, ii m7, ♭III maj7♯5, IV7, V7, vi ø, vii ø: the jazz minor’s chords, in triads and drop 2, the scale faint behind them.' },
+  { id: 'cs-harmmin', scale: 'harm-min', mode: 'harmonic minor', name: 'Chord scales: harmonic minor', blurb: 'i mMaj7, ii ø, ♭III maj7♯5, iv m7, V7, ♭VI maj7, vii °7: the classical minor’s chords, the scale faint behind them.' },
+  { id: 'cs-harmmaj', scale: 'harm-maj', mode: 'harmonic major', name: 'Chord scales: harmonic major', blurb: 'Major with a ♭6: Imaj7, ii ø, iii m7, iv mMaj7, V7, ♭VI maj7♯5, vii °7. The minor iv’s sigh inside a major key.' },
+];
+for (const P of PARENTS) def({
+  id: P.id, group: 'Chord scales', name: P.name, area: false, mode: P.mode, blurb: P.blurb,
   build(k) {
-    const steps = [];
-    const runs = [...[[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]].map((s) => ['close', 'triads', s, TRI_Q]), ...[[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]].map((s) => ['drop2', 'drop 2', s, SEV_Q])];
-    for (const [voicing, kind, set, Q] of runs) {
+    const steps = [], ivs = SCALE[P.scale].ivs, rel = relOf(ivs);
+    const runs = [...[[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]].map((s) => ['close', 'triads', s, 3]), ...[[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]].map((s) => ['drop2', 'drop 2', s, 4])];
+    for (const [voicing, kind, set, n] of runs) {
       let prev = null;
       for (let d = 0; d <= 7; d++) {
-        const iv = DEG[d % 7], q = Q[d % 7];
-        const vs = voicings(k.root(iv), q, voicing, set).filter((v) => Math.max(...v.notes.map((n) => n.fret)) <= 17);
+        const iv = ivs[d % 7], q = stacked(ivs, d % 7, n);
+        if (!q) continue;
+        const vs = voicings(k.root(iv), q, voicing, set).filter((v) => Math.max(...v.notes.map((x) => x.fret)) <= 17);
         if (!vs.length) continue;
         let v;
         if (!prev) v = vs.reduce((a, b) => (avg(a.notes) <= avg(b.notes) ? a : b));
         else { const up = vs.filter((x) => avg(x.notes) > avg(prev.notes)); v = up.length ? up.reduce((a, b) => (avg(a.notes) <= avg(b.notes) ? a : b)) : vs.reduce((a, b) => (avg(a.notes) <= avg(b.notes) ? a : b)); }
-        const g = grip(v.notes);
-        steps.push({ title: `${k.rn(iv, q)} · ${k.name(iv, q)}`, sub: `${kind} · strings ${strings(set)} · chord ${d + 1} of 8`, tip: d === 0 ? 'Up the key one chord at a time; each voice steps up to the next note of the scale.' : 'Every voice moves up one step of the scale.', necks: [{ ...g, ...around(g.lo, g.hi), prev: prev ? grip(prev.notes) : null }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: k.name(iv, q) }] } });
+        const g = grip(v.notes), w = around(g.lo, g.hi);
+        const bg = SC.scaleNotesIn({ rel }, k.tonic, 'maj', w.lo, w.hi).map((x) => ({ string: x.string, fret: x.fret, root: x.iv === '1' }));
+        steps.push({ title: `${k.rn(iv, q)} · ${k.name(iv, q)}`, sub: `${P.mode} · ${kind} · strings ${strings(set)} · chord ${d + 1} of 8`,
+          tip: d === 0 ? `The faint dots are ${T.noteName(k.tonic, true)} ${P.mode}: every chord here is built from them. Up one chord at a time; each voice steps up to the next note of the scale.` : 'Every voice moves up one step of the scale: find each new note among the faint ones.',
+          necks: [{ ...g, ...w, bg, prev: prev ? grip(prev.notes) : null }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: k.name(iv, q) }] } });
         prev = v;
       }
     }
