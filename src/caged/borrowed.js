@@ -21,8 +21,12 @@ const spcs = (id) => [...new Set(SBY[id].ivs.map(FL.semisOf))].sort((a, b) => a 
 const SOURCES = ['aeolian', 'mixolydian', 'dorian', 'lydian', 'phrygian', 'harm-min', 'mel-min', 'phryg-dom', 'locrian'];
 export function sourcesOf(c, minor, prefer = []) {
   const r = FL.semisOf(c.iv), tones = T.getChord(c.q).ivs.map((iv) => (r + FL.semisOf(iv)) % 12);
-  return SOURCES.filter((id) => (minor ? id !== 'aeolian' && (spcs(id).includes(3) || id === 'phryg-dom') : true))
-    .filter((id) => tones.every((t) => spcs(id).includes(t)))
+  const fits = ['ionian', ...SOURCES].filter((id) => id !== (minor ? 'aeolian' : 'ionian') && tones.every((t) => spcs(id).includes(t)));
+  // in a minor key, the minor-flavoured sources when there are any; otherwise (the Picardy I) the major ones
+  const minorish = fits.filter((id) => spcs(id).includes(3) || id === 'phryg-dom');
+  const pool = minor && minorish.length ? minorish : fits;
+  for (const id of prefer) if (fits.includes(id) && !pool.includes(id)) pool.push(id); // the source the text names always shows
+  return pool
     .map((id) => { const rot = spcs(id).map((p) => (p - r + 12) % 12).sort((a, b) => a - b).join(); const over = SC.SCALES.find((s) => s.ivs.length === 7 && spcs(s.id).join() === rot); return over ? { src: id, over: over.id } : null; })
     .filter(Boolean).sort((a, b) => (prefer.includes(b.src) ? 1 : 0) - (prefer.includes(a.src) ? 1 : 0)).slice(0, 3);
 }
@@ -84,7 +88,7 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
   }
   // each chord's sources in this key, and the scale to play over it from each
   // the source the text names first ('from Mixolydian') leads the list
-  const NAMED = [['Mixolydian', 'mixolydian'], ['Lydian', 'lydian'], ['Dorian', 'dorian'], ['Phrygian', 'phrygian'], ['armonic minor', 'harm-min'], ['atural minor', 'aeolian'], ['Aeolian', 'aeolian'], ['elodic minor', 'mel-min']];
+  const NAMED = [['Mixolydian', 'mixolydian'], ['Lydian', 'lydian'], ['Dorian', 'dorian'], ['Phrygian', 'phrygian'], ['armonic minor', 'harm-min'], ['atural minor', 'aeolian'], ['Aeolian', 'aeolian'], ['elodic minor', 'mel-min'], ['parallel major', 'ionian'], ['Ionian', 'ionian']];
   function fromHTML(b, t) {
     const one = chordsOf(b).length === 1;
     const prefer = NAMED.filter(([w]) => b.from.includes(w)).sort((x, y) => b.from.indexOf(x[0]) - b.from.indexOf(y[0])).map(([, id]) => id);
