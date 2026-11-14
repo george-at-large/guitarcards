@@ -296,3 +296,18 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 .gguide h3 { margin: 14px 2px 4px; }
 .gguide p { margin: 0 2px; font-size: 14.5px; line-height: 1.5; color: var(--soft); }
 .rhythm.demo { justify-content: flex-start; margin: 8px 0 0; }
+
+/* call and response */
+.crhead { text-align: center; color: var(--soft); margin: 4px 0 6px; font-size: 14px; }
+.crhead b { font: 600 17px var(--f-num); color: var(--text); }
+.crphase { text-align: center; font: 650 30px/1.2 var(--f-display); margin: 6px 0 12px; padding: 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+.crphase small { display: block; font-size: 18px; letter-spacing: 0.25em; color: var(--muted); margin-top: 4px; }
+.crphase.q { border-color: rgba(92, 205, 242, 0.5); background: rgba(92, 205, 242, 0.08); }
+.crphase.a { border-color: rgba(255, 181, 71, 0.6); background: rgba(255, 181, 71, 0.12); color: #ffe2b3; }
+.crphase.m { border-color: rgba(185, 162, 255, 0.5); background: rgba(185, 162, 255, 0.08); }
+.crnotes { display: flex; gap: 4px; margin: 0 0 6px; }
+.crn { flex-basis: 0; min-width: 26px; text-align: center; padding: 8px 2px; border-radius: 10px; font: 600 15px var(--f-num); background: var(--surface2); border: 1px solid var(--line); }
+.crn.r { color: var(--amber); } .crn.t3 { color: var(--cyan); } .crn.t5 { color: var(--bone); } .crn.t7 { color: var(--rose); } .crn.tx { color: var(--violet); }
+.crn.on { background: #fff; color: #111; transform: scale(1.06); }
+.crsteps { text-align: center; font-size: 12px; }
+#crneck .dot.playing circle { stroke: #fff; stroke-width: 4; }
