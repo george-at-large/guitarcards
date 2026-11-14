@@ -369,37 +369,38 @@ def({
   },
 });
 
-// ----- the extended chord morpher: one root, every sound on it, brightest to darkest, the hand moving least -----
-export const XM_DEFAULT = { fams: ['maj', 'dom', 'min', 'hd'], slash: true, size: 'both', order: 'both' };
-export const XM_ORDERS = [['down', 'Bright → dark'], ['up', 'Dark → bright'], ['both', 'There and back'], ['shuffle', 'Shuffled']];
-const XM_FAM = { maj: 'major', dom: 'dominant', min: 'minor', hd: 'half-diminished' };
+// ----- the extended chord morpher (Ted Greene's way): four-note voicing groups on their string sets, short chains on
+// one root changing one voice at a time -----
+export const XM_ORDERS = XM.ORDERS;
+export const XM_DEFAULT = { chains: XM.CHAINS.map((c) => c.id), groups: [2, 4], bass: 'root', back: true, soprano: false, order: 'ted' };
 def({
   id: 'xmorph', group: 'Chords', name: 'Extended chord morpher', area: true,
-  blurb: 'One root, every sound on it: extended, altered, sus and slash chords, from the brightest (maj7♯5, Lydian) to the darkest (°7), each the chord of a mode. Each root place in the shape is a lane; along a lane each chord takes the voicing that moves your hand least, across whatever strings it needs. Under each chord: when it’s used and where it comes from.',
+  blurb: 'One root, every sound worth knowing on it, the way Ted Greene taught it: four-note voicings in one voicing group on one string set (drop 2, drop 3…), and short chains (his chord subfamilies) in which one voice moves at a time, so the hand stays put while the chord turns from 6 to maj9, 7 to 13, 7♭9 to 7♯9♯5. Each chord says when it’s used, where it comes from, and its other name.',
   build(k, o) {
     const x = { ...XM_DEFAULT, ...(o.xm || {}) }, r = k.root('1'), p = k.pos, steps = [];
-    let list = XM.ladder({ fams: x.fams, slash: x.slash });
-    if (x.order === 'up') list = list.slice().reverse();
-    if (x.order === 'both') list = list.concat(list.slice(1, -1).reverse());
-    if (x.order === 'shuffle') { list = list.slice(); for (let i = list.length - 1; i > 0; i--) { const j = (i * 7919 + list.length * 31) % (i + 1); [list[i], list[j]] = [list[j], list[i]]; } }
-    for (const lane of XM.lanes(r, list.filter((s, i) => list.indexOf(s) === i), p, x.size)) {
-      // the lane's sounds in the chosen order (there and back visits each twice)
-      const have = new Map(lane.per);
-      const path = XM.morph({ ...lane, per: list.filter((s) => have.has(s)).map((s) => [s, have.get(s)]) });
-      const where = `root on string ${lane.bass}, fret ${lane.rootFret}`;
-      path.forEach(({ s, v, prev }, i) => {
-        const nm = XM.nameOn(r, s), mv = prev ? XM.movedText(prev, v) : [];
-        const fam = XM_FAM[XM.famOf(s)];
-        steps.push({
-          block: `xm|${lane.bass}|${lane.size}|${lane.rootFret}`,
-          title: nm,
-          sub: `${s.fam === 'slash' ? `slash chord (${fam})` : fam} · ${lane.size === 'compact' ? 'compact' : 'full'} · strings ${strings(v.strings)} · ${where}`,
-          tip: i === 0 ? `A new lane: ${lane.size === 'compact' ? 'three or four notes' : 'five or six notes'}, ${where}. Each chord from here takes the voicing nearest the last.` : mv.length ? `Moves: ${mv.join(', ')}.` : 'Nothing moves: same notes, new name.',
-          when: s.use, from: s.from,
-          necks: [{ ...grip(v.notes), ...areaView(p), prev: prev ? grip(prev.notes) : null }],
-          legend: 'chord', sound: { seq: [{ midis: midis(v), name: nm }] },
+    const rpc = T.notePc(r);
+    for (const chain of XM.chainsIn(x.chains, x.order)) {
+      for (const lane of XM.lanes(r, chain, x.groups, p, { rootBass: x.bass === 'root', back: x.back, soprano: x.soprano })) {
+        lane.path.forEach(({ q, v, prev }, i) => {
+          const nm = XM.nameOn(r, q), mv = prev ? XM.movedText(prev, v) : [];
+          const g = grip(v.notes);
+          // the missing root, as a hollow ring on the strings around the grip (Ted Greene's "visual root")
+          const bg = [];
+          // (one ring, on the lowest string it can sit on near the grip: where a bass player would put it)
+          if (q.rootless) for (let st = 6; st >= 1 && !bg.length; st--) for (let f = Math.max(0, g.lo - 1); f <= g.hi + 1; f++) if ((F.OPEN[st] + f) % 12 === rpc && !v.notes.some((n) => n.string === st && n.fret === f)) { bg.push({ string: st, fret: f, root: true }); break; }
+          const res = chain.resolve && q.dom ? (q.tones.some((t) => ['b9', '#5', 'b13'].includes(t)) ? 'm9' : 'maj9') : null;
+          steps.push({
+            block: `xm|${chain.id}|${lane.group.g}|${lane.set}|${lane.path[0].v.lo}`,
+            title: nm,
+            sub: `${chain.name} · ${lane.group.name} · strings ${strings(lane.set)}${q.rootless ? ' · no root' : ''}`,
+            tip: i === 0 ? `A new lane: ${lane.group.name} on strings ${strings(lane.set)}. From here one voice moves at a time; keep the rest of the hand where it is.` : mv.length ? `${mv.length === 1 ? 'One voice moves' : 'Two voices move'}: ${mv.join(', ')}.` : 'Nothing moves: same notes, new name.',
+            when: q.use, from: q.from, also: XM.alsoOn(r, q), co: XM.coMinor(r, q),
+            necks: [{ ...g, ...areaView(p), prev: prev ? grip(prev.notes) : null, bg }],
+            legend: 'chord',
+            sound: { seq: [{ midis: midis(v), name: nm }], ...(res ? { resolve: { midis: k.voiced('4', res), name: k.name('4', res) } } : {}) },
+          });
         });
-      });
+      }
     }
     return steps;
   },

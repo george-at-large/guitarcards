@@ -6,6 +6,7 @@ import * as T from '../theory.js';
 import * as A from '../audio.js';
 import * as G from './grips.js';
 import * as W from './workouts.js';
+import { CHAINS as XMC, GROUPS as XMG } from './xmorph.js';
 
 const LEGEND_SCALE = '<div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">colour note</span><span class="k sc">rest of the scale</span></div>';
 const LEGEND_GUIDE = '<div class="legend"><span class="k t3">3rd</span><span class="k t7">7th</span><span class="k sc">other 3rds and 7ths here</span></div>';
@@ -17,6 +18,7 @@ export function renderWorkouts($app, ctx) {
   if (!O.v2) { O.click = true; O.v2 = 1; } // the metronome is on unless switched off
   O.cw = { ...W.CW_DEFAULT, ...(O.cw || {}) };
   O.xm = { ...W.XM_DEFAULT, ...(O.xm || {}) };
+  if (!Array.isArray(O.xm.chains) || !Array.isArray(O.xm.groups) || !['ted', 'bright'].includes(O.xm.order)) O.xm = { ...W.XM_DEFAULT };
   if (!O.metro) O.metro = O.click === false ? 'silent' : 'on'; // on: click and dots; silent: dots only; off: no beat
   const METRO = [['on', 'Metronome: on'], ['silent', 'Metronome: silent'], ['off', 'Metronome: off']];
   let R = null;
@@ -213,12 +215,15 @@ export function renderWorkouts($app, ctx) {
     const c = O.xm;
     let n = 0, lanes = 0;
     try { const st = W.steps(W.byId('xmorph'), O.key, { shape: O.shape, pair: O.area === 'pair', xm: c }); n = st.length; lanes = new Set(st.map((x) => x.block)).size; } catch (e) { /* */ }
+    const chip = (attr, v, l, on) => `<button class="chip ${on ? 'on' : ''}" data-${attr}="${v}">${fmt(l)}</button>`;
     return `<section class="card">
       <h2>Extended chord morpher</h2>
-      <h3>Families</h3><div class="chips">${[['maj', 'Major'], ['dom', 'Dominant'], ['min', 'Minor'], ['hd', 'Half-diminished and °7']].map(([v, l]) => `<button class="chip ${c.fams.includes(v) ? 'on' : ''}" data-xmf="${v}">${l}</button>`).join('')}<button class="chip ${c.slash ? 'on' : ''}" data-xmslash="1">Slash chords</button></div>
-      <h3>Voicings</h3>${seg('xmsize', [['compact', 'Compact: 3–4 notes'], ['full', 'Full: 5–6 notes'], ['both', 'Both']], c.size)}
+      <h3>Chord families</h3><div class="chips">${XMC.map((ch) => chip('xmc', ch.id, ch.name, c.chains.includes(ch.id))).join('')}</div>
+      <h3>Voicing groups (V-System)</h3><div class="chips">${XMG.map((g) => chip('xmg', g.g, g.name, c.groups.includes(g.g))).join('')}</div>
+      <h3>Start each lane</h3>${seg('xmbass', [['root', 'Root in the bass'], ['all', 'In every inversion']], c.bass)}
+      <div class="chips">${chip('xmt', 'back', 'There and back', c.back)}${chip('xmt', 'soprano', 'Keep the top note', c.soprano)}</div>
       <h3>Order</h3>${seg('xmorder', W.XM_ORDERS, c.order)}
-      <p class="note"><b>${n} chords in ${lanes} lanes</b> in ${fmt(T.pretty(O.key))}${O.area === 'pair' ? ` in the ${O.shape}+${G.nextShape(O.shape)} shapes` : ` in the ${O.shape} shape`}${O.area === 'all' ? ' (and the same in each of the five shapes)' : ''}. The order is the modes’ brightness ladder: major (Lydian augmented, Lydian, Ionian), then dominant, minor and half-diminished, each family a note darker than the last. A lane is one root note in the shape (on the 6th, 5th or 4th string) and a size; Next block moves to the next lane. Sounds with no clean voicing in the shape are left out there.</p>
+      <p class="note"><b>${n} chords in ${lanes} lanes</b> in ${fmt(T.pretty(O.key))}${O.area === 'pair' ? ` in the ${O.shape}+${G.nextShape(O.shape)} shapes` : ` in the ${O.shape} shape`}${O.area === 'all' ? ' (and the same in each of the five shapes)' : ''}. Built on Ted Greene’s V-System: a lane is one voicing group on one string set (drop 2 on 4-3-2-1, drop 3 on 6-4-3-2…), and the chords along it are one of his chord subfamilies, each changing a single voice. Roots are often left out, as in most jazz voicings: the root shows as a hollow ring. Next block moves to the next lane.</p>
     </section>`;
   }
   function neckHTML(n) {
@@ -236,7 +241,7 @@ export function renderWorkouts($app, ctx) {
     <div class="now wknow"><div class="main">${fmt(T.pretty(st.title))}</div><div class="sub">${fmt(T.pretty(st.sub || ''))}</div></div>
     ${O.metro !== 'off' ? '<div class="beats wkdots" id="wbeats"><i></i><i></i><i></i><i></i></div><p class="wkbeatn" id="wbeatn"></p>' : ''}
     ${st.tip ? `<p class="note wktip">${fmt(st.tip)}</p>` : ''}
-    ${st.when ? `<dl class="wkwhy"><dt>When</dt><dd>${fmt(st.when)}</dd><dt>From</dt><dd>${fmt(st.from)}</dd></dl>` : ''}
+    ${st.when ? `<dl class="wkwhy"><dt>When</dt><dd>${fmt(st.when)}</dd><dt>From</dt><dd>${fmt(st.from)}</dd>${st.also ? `<dt>Also</dt><dd>${fmt(st.also)}: the same four notes</dd>` : ''}${st.co ? `<dt>Co-minor</dt><dd>${fmt(st.co)}: its ii, the minor 7th a 5th above</dd>` : ''}</dl>` : ''}
     <div class="lnecks ${st.necks.length > 1 ? '' : 'one'}">${st.necks.map(neckHTML).join('')}</div>
     ${st.legend === 'scale' ? LEGEND_SCALE : st.legend === 'guide' ? LEGEND_GUIDE : legend}
     <div class="nextline">${nx ? `${nextPic(nx)}<span class="lbl">next</span> <span class="wknext">${fmt(T.pretty(nx.title))}</span>` : R.ui + 1 < total ? `<span class="lbl">next</span> <span class="muted">${esc(R.units[R.ui + 1].w.name)} · ${fmt(T.pretty(R.units[R.ui + 1].key))} · ${esc(areaName(R.units[R.ui + 1]))}</span>` : '<span class="lbl">last step</span>'}</div>
@@ -345,9 +350,14 @@ export function renderWorkouts($app, ctx) {
       if (!(has && O.cw[k].length === 1)) O.cw = { ...O.cw, [k]: has ? O.cw[k].filter((x) => x !== v) : [...O.cw[k], v] };
       save(); return setup();
     }
-    if (d.xmf) { const has = O.xm.fams.includes(d.xmf); if (!(has && O.xm.fams.length === 1)) O.xm = { ...O.xm, fams: has ? O.xm.fams.filter((x) => x !== d.xmf) : [...O.xm.fams, d.xmf] }; save(); return setup(); }
-    if (d.xmslash) { O.xm = { ...O.xm, slash: !O.xm.slash }; save(); return setup(); }
-    if (d.o === 'xmsize' || d.o === 'xmorder') { O.xm = { ...O.xm, [d.o === 'xmsize' ? 'size' : 'order']: d.v }; save(); return setup(); }
+    if (d.xmc || d.xmg) {
+      const [k, v] = d.xmc ? ['chains', d.xmc] : ['groups', Number(d.xmg)];
+      const has = O.xm[k].includes(v);
+      if (!(has && O.xm[k].length === 1)) O.xm = { ...O.xm, [k]: has ? O.xm[k].filter((x) => x !== v) : [...O.xm[k], v] };
+      save(); return setup();
+    }
+    if (d.xmt) { O.xm = { ...O.xm, [d.xmt]: !O.xm[d.xmt] }; save(); return setup(); }
+    if (d.o === 'xmbass' || d.o === 'xmorder') { O.xm = { ...O.xm, [d.o === 'xmbass' ? 'bass' : 'order']: d.v }; save(); return setup(); }
     if (d.o === 'cwstrings' || d.o === 'cworder') { O.cw = { ...O.cw, [d.o === 'cwstrings' ? 'strings' : 'order']: d.v }; save(); return setup(); }
     if (d.o === 'beats' && R) { O.beats = Number(d.v); save(); return drawRun(R.units[R.ui], R.steps[R.si]); }
     if (d.o) {

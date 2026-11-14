@@ -1,208 +1,202 @@
-// The extended chord morpher: one root, in one CAGED area, morphed through every sound worth knowing on that root
-// (extended, altered, sus and slash chords), in order of brightness. The order is the modes' brightness ladder: each
-// sound is the characteristic chord of a mode, and the families step down one note at a time (major: 3 and 7;
-// dominant: the 7th drops; minor: the 3rd drops; half-diminished: the 5th drops; diminished: the 7th drops again).
-// Each sound is voiced inside the area by a search over every string combination (adjacent sets, skipped strings,
-// five and six-string grips) with the root in the bass, kept only if it's playable and clean, and each morph picks the
-// voicing on the same strings that moves the hand least. Pure: no screen, no sound.
+// The extended chord morpher, built the way Ted Greene taught chord vocabulary: four-note voicings sorted by his
+// V-System (the voicing group: drop 2 is V-2, drop 3 is V-4…), one group on one of its natural string sets at a time
+// (a lane), and short "chord evolution" chains on one root in which each step changes exactly one voice, so the hand
+// keeps its place while the sound changes. The chains follow his chord subfamilies (major, major ♯11, minor 7ths, the
+// m6 / m(maj7) / m7♭5 cluster, plain dominants, sus, ♯11 and ♭5, augmented, ♭9, ♯9, diminished), simple to complex,
+// or bright to dark. Roots may be left out (as in most jazz voicings; the root is drawn as a hollow ring), each grip
+// gives its homonym (the same four notes under another name), dominants give their co-minor and can be heard
+// resolving. Pure: no screen, no sound.
 import * as T from '../theory.js';
 import * as F from '../fretboard.js';
 
 const semis = (iv) => T.intervalSemis(F.simpleIv(String(iv))) % 12;
+// an interval's degree number: 9 → 2, 11 → 4, 13 → 6
+const degOf = (iv) => { const n = Number(String(iv).replace(/\D/g, '')); return n > 7 ? n - 7 : n; };
 
-// every sound, brightest first within each family. need: the notes that make it that sound; opt: notes it may add.
-// over: a slash chord's upper triad (its root as an interval above the bass, and m for a minor triad).
-export const FAMS = [
-  ['maj', 'Major'], ['dom', 'Dominant'], ['min', 'Minor'], ['hd', 'Half-diminished and diminished'], ['slash', 'Slash chords'],
+// ---------- the V-System: which voicing group a four-note voicing belongs to ----------
+// Lay the chord's four tones out as a repeating scale; between each pair of neighbouring voices (bass up), count the
+// chord tones skipped. The three counts name the group.
+const GROUP_BY_SKIPS = { '000': 1, '101': 2, '012': 3, '210': 4, '121': 5, '400': 6, '501': 7, '222': 8, '105': 9, '141': 10, '214': 11, '412': 12, '040': 13, '004': 14 };
+export function vGroup(notes, rootPc) {
+  if (notes.length !== 4) return 0;
+  const tones = notes.map((n) => degOf(n.iv));
+  if (new Set(tones).size !== 4) return 0;
+  const h = notes.map((n) => { const oct = Math.round((n.midi - rootPc - semis(n.iv)) / 12); return degOf(n.iv) - 1 + 7 * oct; });
+  const skips = [];
+  for (let i = 0; i < 3; i++) {
+    let c = 0;
+    for (const t of tones) for (let o = -2; o < 12; o++) { const x = t - 1 + 7 * o; if (x > h[i] && x < h[i + 1]) c++; }
+    skips.push(c);
+  }
+  return GROUP_BY_SKIPS[skips.join('')] || 0;
+}
+// the groups to practise, each on its natural string sets (bass string first)
+export const GROUPS = [
+  { g: 2, name: 'V-2 (drop 2)', sets: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]] },
+  { g: 4, name: 'V-4 (drop 3)', sets: [[6, 4, 3, 2], [5, 3, 2, 1]] },
+  { g: 1, name: 'V-1 (close)', sets: [[4, 3, 2, 1], [5, 4, 3, 2]] },
+  { g: 3, name: 'V-3 (drop 2 and 3)', sets: [[5, 4, 3, 1], [6, 5, 4, 2]] },
+  { g: 5, name: 'V-5 (drop 2 and 4)', sets: [[5, 4, 2, 1], [6, 5, 3, 2]] },
 ];
-export const SOUNDS = [
-  // ----- major: Lydian augmented, Lydian, Ionian, harmonic major -----
-  { id: 'maj7#5', fam: 'maj', sym: 'maj7#5', need: ['3', '#5', '7'], opt: ['9'], from: 'Lydian augmented, the 3rd mode of melodic minor', use: 'The brightest major sound: a maj7 with its 5th pushed up. ♭III in a minor key, or a floating, unresolved tonic in film and fusion.' },
-  { id: 'maj7#11', fam: 'maj', sym: 'maj7#11', need: ['3', '7', '#11'], opt: ['5', '9', '13'], from: 'Lydian, the 4th mode of major', use: 'IV in a major key, or a dreamy tonic: the raised 4th floats where the plain 4th would rub. Film scores, Satriani, Steely Dan.' },
-  { id: 'B/A', fam: 'slash', sym: '/', over: ['9', ''], need: ['9', '#11', '13'], opt: [], from: 'Lydian: the major triad a whole step up, over the root', use: 'II over I: Lydian with no 3rd or 7th, airy and wide. Fusion, film, worship pads.' },
-  { id: 'maj13', fam: 'maj', sym: 'maj13', need: ['3', '7', '13'], opt: ['5', '9'], from: 'Ionian, the major scale', use: 'The fullest major tonic: I or IV in jazz and soul, the 13 sweetening the top.' },
-  { id: 'maj9', fam: 'maj', sym: 'maj9', need: ['3', '7', '9'], opt: ['5'], from: 'Ionian, the major scale', use: 'The lush tonic of soul, neo-soul and jazz ballads: I and IV in a major key.' },
-  { id: '69', fam: 'maj', sym: '69', need: ['3', '6', '9'], opt: ['5'], from: 'the major pentatonic (Ionian without its 4th and 7th)', use: 'The ending chord of jazz and bossa nova: no 7th, so nothing leans. The major pentatonic stacked up.' },
-  { id: 'E/A', fam: 'slash', sym: '/', over: ['5', ''], need: ['5', '7', '9'], opt: [], from: 'Ionian: the V triad over the root', use: 'V over I: a maj9 with no 3rd, open and modern. Fusion, film, ambient guitar.' },
-  { id: 'D/A', fam: 'slash', sym: '/', over: ['4', ''], need: ['4', '6'], opt: [], from: 'Ionian or Mixolydian: the IV triad over the root', use: 'IV over I: the gospel and rock lean (the plagal neighbour) that wants to fall straight back to the major chord.' },
-  { id: 'maj7b13', fam: 'maj', sym: 'maj7b13', need: ['3', '7', 'b13'], opt: ['5', '9'], from: 'harmonic major (major with a ♭6)', use: 'Major with the minor iv’s sigh built in: dark, romantic, a little exotic. A tonic in film and late-Romantic harmony.' },
-  // ----- dominant: Lydian dominant, Mixolydian, sus, Mixolydian ♭6, Phrygian dominant, diminished, altered, whole tone -----
-  { id: '9#11', fam: 'dom', sym: '9#11', need: ['3', 'b7', '#11'], opt: ['9', '13', '5'], from: 'Lydian dominant, the 4th mode of melodic minor', use: 'A dominant that doesn’t resolve down a 5th: IV7 in blues and funk, ♭VII7 in rock, the tritone sub ♭II7. Bright and shimmering.' },
-  { id: '13', fam: 'dom', sym: '13', need: ['3', 'b7', '13'], opt: ['5', '9'], from: 'Mixolydian, the 5th mode of major', use: 'The sweet dominant of blues, funk and soul; V7 going to a major I. The 13 often holds over as the 3rd of I.' },
-  { id: '9', fam: 'dom', sym: '9', need: ['3', 'b7', '9'], opt: ['5'], from: 'Mixolydian, the 5th mode of major', use: 'Funk’s chord (James Brown’s grip), and a plain V7 dressed up.' },
-  { id: 'G/A', fam: 'slash', sym: '/', over: ['b7', ''], need: ['b7', '9', '11'], opt: [], from: 'Mixolydian: the ♭VII triad over the root', use: '♭VII over I: a 9sus4, the soul and gospel dominant (Maiden Voyage, Burt Bacharach). It can sit or fall to the major chord.' },
-  { id: '13sus4', fam: 'dom', sym: '13sus4', need: ['4', 'b7', '13'], opt: ['9', '5'], from: 'Mixolydian, with the 4th in place of the 3rd', use: 'The suspended dominant: tension held without the leading tone. Modal vamps and the V of a gospel cadence.' },
-  { id: 'Gm/A', fam: 'slash', sym: '/', over: ['b7', 'm'], need: ['b7', 'b9', '11'], opt: [], from: 'Phrygian or Dorian ♭2 (the 2nd mode of melodic minor): the ♭VII minor triad over the root', use: 'The sus♭9 chord: dark and modal, Herbie Hancock and Coltrane-era vamps, and a V to a minor chord.' },
-  { id: '9b13', fam: 'dom', sym: '9b13', need: ['3', 'b7', 'b13'], opt: ['9'], from: 'Mixolydian ♭6, the 5th mode of melodic minor', use: 'V7 going to a minor chord: the ♭13 is already the 3rd of where it’s going, with the 9 keeping it soft.' },
-  { id: '7b9b13', fam: 'dom', sym: '7b9b13', need: ['3', 'b7', 'b9', 'b13'], opt: ['5'], from: 'Phrygian dominant, the 5th mode of harmonic minor', use: 'V7 in a minor key: the classical, Spanish and klezmer dominant. Both tensions fall a half step into the minor chord.' },
-  { id: '13b9', fam: 'dom', sym: '13b9', need: ['3', 'b7', 'b9', '13'], opt: ['5'], from: 'the half-whole diminished scale', use: 'The diminished-scale dominant: a bright 13 against a dark ♭9. Big band, bebop, and V7 to a major I.' },
-  { id: 'F#/A', fam: 'slash', sym: '/', over: ['13', ''], need: ['13', 'b9', '3'], opt: [], from: 'the half-whole diminished scale: the VI triad over the root', use: 'An upper structure: the major triad on the 6th over the bass is a 13♭9 without its 7th. Jazz piano’s favourite dominant colour, on guitar.' },
-  { id: '7#9', fam: 'dom', sym: '7#9', need: ['3', 'b7', '#9'], opt: ['5'], from: 'the blues, and the altered scale', use: 'The Hendrix chord (Purple Haze): the blues ♭3 sounding against the major 3rd. Funk, rock, and an altered V7.' },
-  { id: '7alt', fam: 'dom', sym: '7#9b13', need: ['3', 'b7', '#9', 'b13'], opt: [], from: 'the altered scale (super-Locrian), the 7th mode of melodic minor', use: 'The jazz V7 at full pull: every tension altered, each a half step from a note of the chord it resolves to.' },
-  { id: '7b9#5', fam: 'dom', sym: '7b9#5', need: ['3', 'b7', 'b9', '#5'], opt: [], from: 'the altered scale (super-Locrian), the 7th mode of melodic minor', use: 'Another altered V7: ♭9 and ♯5 both resolve down by a half step into a minor or major I.' },
-  { id: '9#5', fam: 'dom', sym: '9#5', need: ['3', 'b7', '#5'], opt: ['9'], from: 'the whole-tone scale', use: 'The whole-tone dominant: augmented and dreamy (Debussy, Monk, Stevie Wonder), its ♯5 rising into the next chord’s 3rd.' },
-  // ----- minor: melodic minor, Dorian, Aeolian, Phrygian -----
-  { id: 'mMaj9', fam: 'min', sym: 'mMaj9', need: ['b3', '7', '9'], opt: ['5'], from: 'melodic minor (also harmonic minor without the 9)', use: 'The film-noir minor tonic (the Bond chord), and the middle of the minor line cliché.' },
-  { id: 'mMaj7', fam: 'min', sym: 'mMaj7', need: ['b3', '7'], opt: ['5'], from: 'melodic and harmonic minor', use: 'The minor-major chord: a minor tonic with its leading tone, tense and cinematic. The line cliché’s second chord.' },
-  { id: 'm6', fam: 'min', sym: 'm6', need: ['b3', '6'], opt: ['5', '9'], from: 'Dorian and melodic minor', use: 'The minor tonic of jazz and gypsy jazz: the natural 6 makes it bittersweet. Also iv6 in a minor key.' },
-  { id: 'm13', fam: 'min', sym: 'm13', need: ['b3', 'b7', '13'], opt: ['5', '9', '11'], from: 'Dorian, the 2nd mode of major', use: 'ii in a major key, or a Dorian vamp (Oye Como Va, So What): the natural 13 is Dorian’s bright spot.' },
-  { id: 'm11', fam: 'min', sym: 'm11', need: ['b3', 'b7', '11'], opt: ['5', '9'], from: 'Dorian or Aeolian', use: 'Stacked 4ths, the open modal minor: neo-soul, fusion, and the So What voicing’s sound.' },
-  { id: 'm9', fam: 'min', sym: 'm9', need: ['b3', 'b7', '9'], opt: ['5'], from: 'Dorian or Aeolian', use: 'The smooth minor: ii in jazz, vi in soul ballads, a minor tonic in R&B.' },
-  { id: 'F/A', fam: 'slash', sym: '/', over: ['b13', ''], need: ['b3', 'b13'], opt: [], from: 'Aeolian (natural minor): the ♭VI triad over the root', use: '♭VI over i: the ♭6 hanging over the minor chord, sad and cinematic. Also a step in the minor line cliché.' },
-  { id: 'Bb/A', fam: 'slash', sym: '/', over: ['b9', ''], need: ['b9', '11', 'b13'], opt: [], from: 'Phrygian, the 3rd mode of major: the ♭II triad over the root', use: '♭II over i: the flamenco and metal sound, the Phrygian half step on top of the bass.' },
-  // ----- half-diminished and diminished: Locrian ♮2, Locrian, diminished -----
-  { id: 'm9b5', fam: 'hd', sym: 'm9b5', need: ['b3', 'b5', 'b7', '9'], opt: [], from: 'Locrian ♮2, the 6th mode of melodic minor', use: 'ii in a minor ii–V, the smooth version: the natural 9 softens the half-diminished chord.' },
-  { id: 'm11b5', fam: 'hd', sym: 'm11b5', need: ['b3', 'b5', 'b7', '11'], opt: [], from: 'Locrian, the 7th mode of major', use: 'Half-diminished with a 4th on top: modern jazz (Wayne Shorter) and dark modal pads.' },
-  { id: 'm7b5', fam: 'hd', sym: 'm7b5', need: ['b3', 'b5', 'b7'], opt: [], from: 'Locrian, the 7th mode of major', use: 'ii of a minor ii–V, or vii in a major key. Its upper three notes are a minor triad, a minor 3rd above the root.' },
-  { id: 'dim7', fam: 'hd', sym: 'dim7', need: ['b3', 'b5', 'bb7'], opt: [], from: 'the whole-half diminished scale', use: 'The passing chord between neighbours, and V7♭9 without its root: four notes a minor 3rd apart, the same grip every three frets.' },
-];
-export const byId = (id) => SOUNDS.find((s) => s.id === id);
-const FAM_ORDER = ['maj', 'dom', 'min', 'hd'];
-// the family a slash chord sits in, for the brightness order
-const SLASH_FAM = { 'B/A': 'maj', 'E/A': 'maj', 'D/A': 'maj', 'G/A': 'dom', 'Gm/A': 'dom', 'F#/A': 'dom', 'F/A': 'min', 'Bb/A': 'min' };
-export const famOf = (s) => (s.fam === 'slash' ? SLASH_FAM[s.id] : s.fam);
 
-// the sounds to morph through, in order: brightest to darkest, the chosen families (slash chords where they belong)
-export function ladder({ fams = FAM_ORDER, slash = true } = {}) {
-  return SOUNDS.filter((s) => (s.fam === 'slash' ? slash && fams.includes(SLASH_FAM[s.id]) : fams.includes(s.fam)));
+// ---------- the chords: four different notes each ----------
+// also: a homonym, the same four notes named from another root ([interval of its root, quality]): over the root as a
+// slash chord when the root is in the chord, the grip's other name when it isn't
+const Q = {};
+const q = (id, sym, tones, from, use, also = null) => { Q[id] = { id, sym, tones, from, use, also, rootless: !tones.includes('1'), dom: tones.includes('3') && tones.includes('b7') || tones.includes('4') && tones.includes('b7') }; };
+// major
+q('6', '6', ['1', '3', '5', '6'], 'the major scale, or the major pentatonic', 'The warm, settled major: the swing-era and gypsy-jazz tonic, no 7th to lean on.', ['6', 'm7']);
+q('69', '6/9', ['9', '3', '5', '6'], 'the major pentatonic', 'The ending chord of jazz and bossa nova: nothing leans, nothing clashes.');
+q('maj9', 'maj9', ['9', '3', '5', '7'], 'Ionian, the major scale', 'The lush tonic of soul, neo-soul and jazz ballads: I and IV in a major key.', ['3', 'm7']);
+q('maj7', 'maj7', ['1', '3', '5', '7'], 'Ionian, the major scale', 'The major 7th: I and IV in a major key, cool and settled.');
+q('maj9no3', 'maj9 (no 3)', ['1', '5', '7', '9'], 'Ionian: the V triad over the root', 'Open and modern, neither happy nor sad: a pedal colour in fusion, ambient and film guitar.', ['5', '']);
+q('maj7#5', 'maj7♯5', ['1', '3', '#5', '7'], 'Lydian augmented, the 3rd mode of melodic minor', 'The brightest major sound: ♭III in a minor key, or a floating, unresolved tonic.', ['3', '']);
+q('maj7#11', 'maj7♯11', ['1', '3', '#11', '7'], 'Lydian, the 4th mode of major', 'IV in a major key, or a dreamy tonic: the raised 4th floats where the plain 4th would rub.');
+q('maj9#11', 'maj9♯11', ['9', '3', '#11', '7'], 'Lydian, the 4th mode of major', 'The Lydian chord at its fullest: film scores, Satriani, Steely Dan.');
+q('maj13', 'maj13', ['9', '3', '13', '7'], 'Ionian, the major scale', 'The fullest major tonic: I or IV in jazz and soul, the 13 sweetening the top.');
+// minor 7ths and their extensions
+q('m7', 'm7', ['1', 'b3', '5', 'b7'], 'Dorian or Aeolian', 'The minor 7th: ii in a major key, i in a minor groove. Its upper notes are the major 6 chord on the ♭3.', ['b3', '6']);
+q('m9', 'm9', ['9', 'b3', '5', 'b7'], 'Dorian or Aeolian', 'The smooth minor: ii in jazz, vi in soul ballads. Rootless, it’s the major 7th on the ♭3.', ['b3', 'maj7']);
+q('m11', 'm11', ['9', 'b3', '11', 'b7'], 'Dorian or Aeolian', 'The So What sound: stacked 4ths, neo-soul, modal jazz.');
+q('m7_11', 'm7/11', ['1', 'b3', '11', 'b7'], 'Dorian or Aeolian', 'The minor 7th with its 4th added: open and modal, with the root still in the bass.');
+q('m7_6', 'm7/6', ['1', 'b3', '13', 'b7'], 'Dorian, the 2nd mode of major', 'Ted Greene’s name for a minor 13 without its 9: Dorian’s bright natural 6 on a minor 7th.');
+q('m13', 'm13', ['9', 'b3', '13', 'b7'], 'Dorian, the 2nd mode of major', 'ii in a major key, or a Dorian vamp: the natural 13 is Dorian’s bright spot.');
+// the m6 / m(maj7) / m7♭5 cluster
+q('mMaj7', 'm(maj7)', ['1', 'b3', '5', '7'], 'melodic and harmonic minor', 'The minor chord with its leading tone, tense and cinematic: the line cliché’s second chord.', ['b3', 'maj7#5']);
+q('m6', 'm6', ['1', 'b3', '5', '6'], 'Dorian and melodic minor', 'The minor tonic of jazz and gypsy jazz, bittersweet; iv6 going to V. The same grip as the half-diminished on the 6th.', ['6', 'm7b5']);
+q('mb6', 'm♭6', ['1', 'b3', '5', 'b13'], 'Aeolian, natural minor', 'The ♭6 hanging over the minor chord: sad and cinematic, the line cliché’s last step.', ['b13', 'maj7']);
+q('m69', 'm6/9', ['9', 'b3', '5', '6'], 'Dorian and melodic minor', 'The richest minor tonic: Dorian’s 6th and the 9th together.');
+q('mMaj9', 'm(maj9)', ['9', 'b3', '5', '7'], 'melodic minor', 'The film-noir minor tonic (the Bond chord).', ['b3', 'maj7#5']);
+// dominants: plain, sus, ♯11/♭5, augmented, ♭9, ♯9
+q('7', '7', ['1', '3', '5', 'b7'], 'Mixolydian, the 5th mode of major', 'The dominant 7th: V7 pulling home, and the blues I7 and IV7.');
+q('9', '9', ['9', '3', '5', 'b7'], 'Mixolydian, the 5th mode of major', 'Funk’s chord, and a plain V7 dressed up. Rootless, it’s the half-diminished chord on the 3rd.', ['3', 'm7b5']);
+q('13', '13', ['9', '3', '13', 'b7'], 'Mixolydian, the 5th mode of major', 'The sweet dominant of blues, funk and soul; the 13 often holds over as the 3rd of I.');
+q('7/6', '7/6', ['1', '3', '13', 'b7'], 'Mixolydian (Ted Greene’s name for a 13 without its 9)', 'The 13th sound with the root kept: blues and swing comping, V7 to a major I.');
+q('13sus4', '7/6sus4', ['1', '4', '13', 'b7'], 'Mixolydian, with the 4th in place of the 3rd', 'The suspended 13th: the tension held without its leading tone. Modal vamps, gospel.');
+q('7sus4', '7sus4', ['1', '4', '5', 'b7'], 'Mixolydian, with the 4th in place of the 3rd', 'The suspended V7: the 4 wants to fall to the 3rd, or to be left floating.');
+q('9sus4', '11', ['1', '4', 'b7', '9'], 'Mixolydian: the ♭VII triad over the root', 'The 11 chord (9sus4, no 5): the soul and gospel dominant (Maiden Voyage, Bacharach). It can sit, or fall to the major chord.', ['b7', '']);
+q('susb9', '7sus4♭9', ['1', '4', 'b7', 'b9'], 'Phrygian, or Dorian ♭2 (the 2nd mode of melodic minor)', 'The sus♭9 chord: dark and modal, Herbie Hancock and Coltrane-era vamps, a V to a minor chord.', ['b7', 'm']);
+q('9#11', '9♯11', ['9', '3', '#11', 'b7'], 'Lydian dominant, the 4th mode of melodic minor', 'A dominant that doesn’t resolve down a 5th: IV7 in blues and funk, ♭VII7, the tritone sub ♭II7.');
+q('7b5', '7♭5', ['1', '3', 'b5', 'b7'], 'the whole-tone scale', 'The French sixth: the same four notes as the dominant a tritone away, so it can resolve either way.', ['b5', '7b5']);
+q('7b9b5', '7♭9♭5', ['b9', '3', 'b5', 'b7'], 'the half-whole diminished scale', 'The tritone sub hiding in V7: this grip is also the plain 7th a tritone away, so it resolves down a 5th or down a half step.', ['b5', '7']);
+q('7#5', '7♯5', ['1', '3', '#5', 'b7'], 'the whole-tone scale', 'The augmented dominant (Ted Greene’s 7+): the ♯5 rises into the next chord’s 3rd. Dreamy, Debussy and Monk.');
+q('9#5', '9♯5', ['9', '3', '#5', 'b7'], 'the whole-tone scale', 'The whole-tone dominant with its 9th: Stevie Wonder, Monk, the dream sequence.');
+q('7b9#5', '7♭9♯5', ['b9', '3', '#5', 'b7'], 'the altered scale, the 7th mode of melodic minor', 'The altered V7 to a minor chord: ♭9 and ♯5 both fall a half step into it.');
+q('7#9#5', '7♯9♯5', ['#9', '3', '#5', 'b7'], 'the altered scale, the 7th mode of melodic minor', 'The darkest altered V7: the full “alt” sound of modern jazz.');
+q('7b9', '7♭9', ['b9', '3', '5', 'b7'], 'Phrygian dominant (harmonic minor) or the half-whole diminished scale', 'V7 to a minor chord: the ♭9 falls a half step into its 5th. Rootless, it’s a diminished 7th grip.', ['3', 'dim7']);
+q('13b9', '13♭9', ['b9', '3', '13', 'b7'], 'the half-whole diminished scale', 'A bright 13 against a dark ♭9: big band and bebop, V7 to a major I.');
+q('7#9', '7♯9', ['#9', '3', '5', 'b7'], 'the blues, and the altered scale', 'The Hendrix chord: the blues ♭3 against the major 3rd. Bluesy on V and I; careful on IV with the ♯9 on top.');
+q('13#9', '13♯9', ['#9', '3', '13', 'b7'], 'the half-whole diminished scale', 'The bluesy 13: the ♯9’s grit with the 13’s sweetness, a funk and organ-trio sound.');
+q('7#9b5', '7♯9♭5', ['#9', '3', 'b5', 'b7'], 'the altered scale, the 7th mode of melodic minor', 'An altered V7: both tensions a half step from notes of the chord it resolves to.');
+// half-diminished and diminished
+q('m7b5', 'm7♭5', ['1', 'b3', 'b5', 'b7'], 'Locrian, the 7th mode of major', 'ii of a minor ii–V, or vii in a major key. The same grip as the minor 6th on the ♭3.', ['b3', 'm6']);
+q('m9b5', 'm9♭5', ['9', 'b3', 'b5', 'b7'], 'Locrian ♮2, the 6th mode of melodic minor', 'ii in a minor key, the smooth version: the natural 9 softens the half-diminished chord.');
+q('dim9', '°7 add 9', ['9', 'b3', 'b5', 'bb7'], 'the whole-half diminished scale', 'A diminished 7th with the note a whole step above its root: it colours the chord without changing its job.');
+q('dim7', '°7', ['1', 'b3', 'b5', 'bb7'], 'the whole-half diminished scale', 'The passing chord between neighbours, and V7♭9 without its root: the same grip every three frets.');
+q('dimMaj7', '°(maj7)', ['1', 'b3', 'b5', '7'], 'the whole-half diminished scale', 'The diminished chord with its major 7th: eerie and floating.');
+export const QUALS = Q;
+
+// the chains (Ted Greene's chord subfamilies), one voice changing at each step. ted: his teaching order; fam: for
+// the bright-to-dark order (major, dominant, minor, diminished)
+export const CHAINS = [
+  { id: 'maj', ted: 0, fam: 0, name: 'Major', ids: ['6', '69', 'maj9', 'maj7', 'maj9no3'] },
+  { id: 'lyd', ted: 1, fam: 0, name: 'Major ♯11 (Lydian)', ids: ['maj7#5', 'maj7', 'maj7#11', 'maj9#11', 'maj13', 'maj9'] },
+  { id: 'm7', ted: 2, fam: 2, name: 'Minor 7ths and extensions', ids: ['m7', 'm9', 'm11', 'm7_11', 'm7_6', 'm13'] },
+  { id: 'cliche', ted: 3, fam: 2, name: 'm6, m(maj7): the line cliché', ids: ['mMaj7', 'm7', 'm6', 'mb6'] },
+  { id: 'm6', ted: 4, fam: 2, name: 'm6 and m(maj7) colours', ids: ['m6', 'm69', 'mMaj9', 'mMaj7'] },
+  { id: 'dom', ted: 5, fam: 1, name: 'Dominant: 7, 9, 13, 7/6', ids: ['7', '9', '13', '7/6'], resolve: true },
+  { id: 'sus', ted: 6, fam: 1, name: 'Dominant sus and 11', ids: ['7/6', '13sus4', '7sus4', '9sus4', 'susb9'], resolve: true },
+  { id: 's11', ted: 7, fam: 1, name: 'Dominant ♯11 and ♭5', ids: ['7', '7b5', '7b9b5', '9#11', '9'], resolve: true },
+  { id: 'aug', ted: 8, fam: 1, name: 'Augmented dominants (7+)', ids: ['7#5', '9#5', '7b9#5', '7#9#5'], resolve: true },
+  { id: 'b9', ted: 9, fam: 1, name: 'Altered: ♭9', ids: ['7', '7b9', '13b9', '7/6'], resolve: true },
+  { id: 's9', ted: 10, fam: 1, name: 'Altered: ♯9', ids: ['7', '7#9', '13#9', '7#9#5', '7#9b5'], resolve: true },
+  { id: 'dim', ted: 11, fam: 3, name: 'Half-diminished and diminished', ids: ['m7b5', 'm9b5', 'dim9', 'dim7', 'dimMaj7'] },
+];
+export const ORDERS = [['ted', 'Ted Greene’s order'], ['bright', 'Bright to dark']];
+export function chainsIn(ids, order = 'ted') {
+  return CHAINS.filter((c) => ids.includes(c.id)).sort((a, b) => (order === 'bright' ? a.fam - b.fam || a.ted - b.ted : a.ted - b.ted));
 }
 
-// a sound's name on a root: Amaj7♯11, or B/A for a slash chord
-export function nameOn(root, s) {
-  const r = T.noteName(root, true);
-  if (s.fam !== 'slash') return `${r}${s.sym.replace(/b(?=\d)/g, '♭').replace(/#/g, '♯').replace('mMaj', 'm(maj').replace(/m\(maj(\d+)/, 'm(maj$1)')}`;
-  return `${T.noteName(T.transpose(root, F.simpleIv(s.over[0])), true)}${s.over[1]}/${r}`;
+// names on a root
+const SYM = { '': '', m: 'm', m7: 'm7', m7b5: 'm7♭5', dim7: '°7', 6: '6', m6: 'm6', maj7: 'maj7', 'maj7#5': 'maj7♯5', 7: '7', '7b5': '7♭5' };
+export const nameOn = (root, qq) => `${T.noteName(root, true)}${qq.sym}`;
+export function alsoOn(root, qq) {
+  if (!qq.also) return '';
+  const [iv, k] = qq.also, other = T.noteName(T.transpose(root, F.simpleIv(iv)), true);
+  return qq.rootless ? `${other}${SYM[k] ?? k}` : `${other}${SYM[k] ?? k}/${T.noteName(root, true)}`;
 }
+// a dominant's co-minor: the minor 7th a 5th above its root (A7 and Em7), the ii it pairs with
+export const coMinor = (root, qq) => (qq.dom ? `${T.noteName(T.transpose(root, '5'), true)}m7` : '');
 
-// ---------- voicing search ----------
-// every clean, playable voicing of a sound on this root, inside the area (pos: lo..hi, a fret either side allowed
-// once), root in the bass
-export function voicings(root, s, pos) {
-  const rpc = T.notePc(root);
-  const tones = [['1', 0], ...[...s.need, ...s.opt].map((iv) => [iv, semis(iv)])];
-  const ivAt = new Map(); for (const [iv, x] of tones) if (!ivAt.has(x)) ivAt.set(x, iv);
-  const needPcs = s.need.map(semis);
-  const hasB9 = needPcs.includes(1);
+// ---------- voicings ----------
+// every voicing of a chord on a string set, in one voicing group, inside the area (a fret either side allowed once),
+// clean in the low register (no close intervals at the bottom of the neck)
+export function voicingsOn(root, qq, set, group, pos) {
+  const rpc = T.notePc(root), out = [];
   const lo = Math.max(0, pos.lo - 1), hi = pos.hi + 1;
-  const cand = {};
-  for (let st = 1; st <= 6; st++) {
-    cand[st] = [];
-    for (let f = lo; f <= hi; f++) {
-      if (f === 0 && pos.lo > 1) continue;
-      const rel = ((F.OPEN[st] + f - rpc) % 12 + 12) % 12;
-      if (ivAt.has(rel)) cand[st].push({ string: st, fret: f, midi: F.OPEN[st] + f, rel, iv: ivAt.get(rel) });
-    }
+  const perms = (a) => (a.length <= 1 ? [a] : a.flatMap((x, i) => perms(a.slice(0, i).concat(a.slice(i + 1))).map((r) => [x, ...r])));
+  for (const order of perms(qq.tones)) {
+    const opts = set.map((st, i) => {
+      const want = (rpc + semis(order[i])) % 12, fs = [];
+      for (let f = lo; f <= hi; f++) { if (f === 0 && pos.lo > 1) continue; if ((F.OPEN[st] + f) % 12 === want) fs.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv: order[i] }); }
+      return fs;
+    });
+    const rec = (i, acc) => {
+      if (i === set.length) {
+        for (let j = 1; j < acc.length; j++) if (acc[j].midi <= acc[j - 1].midi) return;
+        const fr = acc.filter((n) => n.fret > 0).map((n) => n.fret);
+        if (fr.length && Math.max(...fr) - Math.min(...fr) > 4) return;
+        let outside = 0; for (const f of fr) outside += Math.max(0, pos.lo - f, f - pos.hi);
+        if (outside > 1) return;
+        const d = acc[1].midi - acc[0].midi;
+        if ((acc[0].midi < 45 && d < 7) || (acc[0].midi < 50 && d < 5)) return; // muddy low down
+        if (vGroup(acc, rpc) !== group) return;
+        out.push({ notes: acc.map((n) => ({ ...n, note: T.transpose(root, F.simpleIv(n.iv)) })), set, group, bassIv: acc[0].iv, lo: fr.length ? Math.min(...fr) : 0, hi: Math.max(...acc.map((n) => n.fret)) });
+        return;
+      }
+      for (const o of opts[i]) rec(i + 1, [...acc, o]);
+    };
+    rec(0, []);
   }
-  const out = [];
-  const pick = [];
-  const rec = (st) => {
-    if (st === 0) { const v = check(pick.slice()); if (v) out.push(v); return; }
-    rec(st - 1); // string muted
-    for (const c of cand[st]) { pick.push(c); rec(st - 1); pick.pop(); }
-  };
-  const check = (notes) => {
-    if (notes.length < 3) return null;
-    notes.sort((a, b) => b.string - a.string); // bass first
-    if (notes[0].rel !== 0) return null; // the root in the bass
-    const rels = notes.map((n) => n.rel);
-    for (const x of needPcs) if (!rels.includes(x)) return null;
-    // doubles: only the root or 5th, at most two extra notes
-    const count = new Map(); for (const r of rels) count.set(r, (count.get(r) || 0) + 1);
-    let extra = 0; for (const [r, c] of count) if (c > 1) { if (r !== 0 && r !== 7) return null; extra += c - 1; }
-    if (extra > 2) return null;
-    // the hand: a span of four frets at most, four fingers (or a barre for the rest), inside the area
-    const fr = notes.filter((n) => n.fret > 0).map((n) => n.fret);
-    if (fr.length) {
-      const mn = Math.min(...fr), mx = Math.max(...fr);
-      if (mx - mn > 3 + (fr.length <= 3 ? 1 : 0)) return null;
-      if (fr.length > 4 && fr.filter((f) => f === mn).length < fr.length - 3) return null;
-      let outside = 0; for (const f of fr) outside += Math.max(0, pos.lo - f, f - pos.hi);
-      if (outside > 1) return null;
-    }
-    // strings: no two muted strings in a row inside the voicing, at most two muted inside
-    const used = notes.map((n) => n.string), top = Math.min(...used), bot = Math.max(...used);
-    let gaps = 0, run = 0;
-    for (let x = bot; x >= top; x--) { if (used.includes(x)) run = 0; else { gaps++; run++; if (run > 1) return null; } }
-    if (gaps > 2) return null;
-    // the sound: no unisons, no muddy close intervals low down, no ♭9 rubs (except the ♭9 over the root), no
-    // half step at the top
-    const m = notes.map((n) => n.midi).slice().sort((a, b) => a - b);
-    for (let i = 1; i < m.length; i++) {
-      const d = m[i] - m[i - 1];
-      if (d === 0) return null;
-      if (m[i - 1] < 47 && d < 7) return null;
-      if (m[i - 1] < 52 && d < 3) return null;
-    }
-    if (m[m.length - 1] - m[m.length - 2] === 1) return null;
-    for (let i = 0; i < m.length; i++) for (let j = i + 1; j < m.length; j++) if (m[j] - m[i] === 13) {
-      const a = ((m[i] - rpc) % 12 + 12) % 12;
-      if (!(hasB9 && a === 0)) return null;
-    }
-    const g = notes.map((n) => ({ string: n.string, fret: n.fret, midi: n.midi, iv: n.iv, note: T.transpose(root, F.simpleIv(n.iv)) }));
-    const strings = used.slice().sort((a, b) => b - a);
-    return { notes: g, strings, bass: notes[0].string, top, size: notes.length, lo: fr.length ? Math.min(...fr) : 0, hi: Math.max(...notes.map((n) => n.fret)), span: fr.length ? Math.max(...fr) - Math.min(...fr) : 0, topIv: notes[notes.length - 1].iv };
-  };
-  rec(6);
   return out;
 }
-
-// how far the hand travels: frets moved per string, a string joining or leaving counts 1.5
-export function cost(a, b) {
-  let d = 0;
-  for (let s = 1; s <= 6; s++) {
-    const x = a.notes.find((n) => n.string === s), y = b.notes.find((n) => n.string === s);
-    if (x && y) d += Math.abs(x.fret - y.fret); else if (x || y) d += 1.5;
-  }
-  return d;
-}
-// which notes moved, by pitch (whichever string they're on): "7 → ♭7 down a half step"; notes held aren't mentioned
+// how many voices changed, and how far the hand travels (voices compared string by string)
+export const changed = (a, b) => b.notes.filter((n, i) => a.notes[i].midi !== n.midi).length;
+export const travel = (a, b) => b.notes.reduce((t, n, i) => t + Math.abs(n.fret - a.notes[i].fret), 0);
 export function movedText(a, b) {
-  const am = a.notes.filter((n) => !b.notes.some((x) => x.midi === n.midi));
-  const bm = b.notes.filter((n) => !a.notes.some((x) => x.midi === n.midi));
-  const out = [], used = new Set();
-  for (const n of bm.slice().sort((x, y) => x.midi - y.midi)) {
-    let best = null;
-    for (const o of am) if (!used.has(o) && (!best || Math.abs(o.midi - n.midi) < Math.abs(best.midi - n.midi))) best = o;
-    if (best && Math.abs(best.midi - n.midi) <= 4) {
-      used.add(best);
-      const d = n.midi - best.midi;
-      out.push(`${T.prettyIv(best.iv)} → ${T.prettyIv(n.iv)} ${d < 0 ? 'down' : 'up'} ${Math.abs(d) === 1 ? 'a half step' : Math.abs(d) === 2 ? 'a whole step' : `${Math.abs(d)} frets`}`);
-    } else out.push(`${T.prettyIv(n.iv)} added`);
-  }
-  for (const o of am) if (!used.has(o)) out.push(`${T.prettyIv(o.iv)} dropped`);
-  return out;
+  return b.notes.map((n, i) => [a.notes[i], n]).filter(([o, n]) => o.midi !== n.midi).map(([o, n]) => {
+    const d = n.midi - o.midi;
+    return `${T.prettyIv(o.iv)} → ${T.prettyIv(n.iv)} ${d < 0 ? 'down' : 'up'} ${Math.abs(d) === 1 ? 'a half step' : Math.abs(d) === 2 ? 'a whole step' : `${Math.abs(d)} frets`}`;
+  });
 }
 
-// the lanes to morph in: compact (3 or 4 notes) or full (5 or 6), with the root on the 6th, 5th or 4th string
-export const SIZES = [['compact', 'Compact: 3–4 notes'], ['full', 'Full: 5–6 notes'], ['both', 'Both']];
-export function lanes(root, list, pos, size = 'both') {
-  const all = new Map(list.map((s) => [s.id, voicings(root, s, pos)]));
+// the lanes in an area for one chain: each chosen voicing group on each of its string sets, starting from each voicing
+// of the chain's first chord that lives there (root in the bass only, if asked). Each next chord takes the voicing on
+// the same strings and in the same group that changes fewest voices and moves least (keeping the top note, if asked).
+// back: the chain then runs back to its start.
+export function lanes(root, chain, groups, pos, { rootBass = true, back = true, soprano = false } = {}) {
   const out = [];
-  for (const bass of [6, 5, 4]) for (const sz of size === 'both' ? ['compact', 'full'] : [size]) {
-    const ok = (v) => v.bass === bass && (sz === 'compact' ? v.size <= 4 : v.size >= 5);
-    // the root's place on this string: one lane per root fret in the area
-    const roots = [...new Set(list.flatMap((s) => all.get(s.id).filter(ok).map((v) => v.notes[0].fret)))];
-    for (const rf of roots) {
-      const per = list.map((s) => [s, all.get(s.id).filter((v) => ok(v) && v.notes[0].fret === rf)]).filter(([, vs]) => vs.length);
-      if (per.length >= Math.min(6, Math.ceil(list.length / 2))) out.push({ bass, size: sz, rootFret: rf, per });
+  const ids = back ? chain.ids.concat(chain.ids.slice(0, -1).reverse()) : chain.ids;
+  const cache = new Map();
+  for (const G of GROUPS.filter((x) => groups.includes(x.g))) for (const set of G.sets) {
+    const on = (id) => { const k = `${id}|${set}`; if (!cache.has(k)) cache.set(k, voicingsOn(root, Q[id], set, G.g, pos)); return cache.get(k); };
+    let starts = on(chain.ids[0]);
+    if (rootBass) starts = starts.filter((v) => v.bassIv === '1');
+    for (const s0 of starts.slice().sort((a, b) => a.lo - b.lo)) {
+      const path = [{ q: Q[ids[0]], v: s0, prev: null }];
+      let prev = s0;
+      for (const id of ids.slice(1)) {
+        const cands = on(id);
+        if (!cands.length) continue;
+        const top = (v) => v.notes[3].midi;
+        const sc = (v) => changed(prev, v) * 10 + travel(prev, v) + (soprano && top(v) !== top(prev) ? 6 : 0);
+        const v = cands.reduce((a, b) => (sc(a) <= sc(b) ? a : b));
+        if (changed(prev, v) > 2) continue; // too far: leave this chord out here
+        path.push({ q: Q[id], v, prev });
+        prev = v;
+      }
+      if (path.length >= Math.min(3, ids.length)) out.push({ chain, group: G, set, path });
     }
   }
   return out;
-}
-// one lane, morphed: start on the first sound's tidiest voicing, then each next sound on the voicing that moves least
-// (staying on the same strings when it can, the colour note on top as a tie-break)
-export function morph(lane) {
-  const path = [];
-  let prev = null;
-  for (const [s, vs] of lane.per) {
-    let v;
-    if (!prev) v = vs.slice().sort((a, b) => a.span - b.span || b.size - a.size || a.lo - b.lo)[0];
-    else {
-      const sc = (x) => cost(prev, x) + (String(x.strings) === String(prev.strings) ? 0 : 0.75) + x.span * 0.15 + (s.need.includes(x.topIv) ? -0.2 : 0);
-      v = vs.reduce((a, b) => (sc(a) <= sc(b) ? a : b));
-    }
-    path.push({ s, v, prev });
-    prev = v;
-  }
-  return path;
 }
