@@ -421,3 +421,8 @@ svg.neck .dot.extra circle { stroke: var(--violet); stroke-width: 2.5; stroke-da
 .tag.tgx { background: rgba(185, 162, 255, 0.12); color: var(--violet); border-color: rgba(185, 162, 255, 0.3); }
 .note.tgok { color: var(--soft); }
 .chip.filechip { cursor: pointer; display: inline-block; }
+/* paused: step through the chords */
+.now { position: relative; }
+#caged .stepb { display: none; position: absolute; top: 14px; width: 48px; height: 56px; border-radius: 14px; font-size: 20px; padding: 0; z-index: 2; }
+#caged .stepb.prev { left: 0; } #caged .stepb.next { right: 0; }
+#caged.paused .stepb { display: block; }

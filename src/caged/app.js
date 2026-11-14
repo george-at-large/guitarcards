@@ -843,6 +843,7 @@ function setup() {
 // ---------- the run ----------
 let R = null;
 function stop() {
+  $app.classList.remove('paused');
   if (!R) return;
   clearTimeout(R.timer);
   R.ui.forEach(clearTimeout);
@@ -974,6 +975,8 @@ function tick(t) {
   if (R.e === 0) {
     R.prevGrip = R.cur ? R.cur.grip : null;
     R.cur = R.queue.shift();
+    (R.hist ||= []).push(R.cur); if (R.hist.length > 64) R.hist.shift();
+    R.ptr = R.hist.length - 1;
     R.queue.push(R.stream.next());
     if (!R.first) R.first = R.cur;
     const c = R.cur, nx = R.queue[0], prev = R.prevGrip, note = R.pendingNote;
@@ -1149,6 +1152,7 @@ function drawRun() {
     }
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'nextshape') return nextShapeNow();
+    if (r === 'step-' || r === 'step+') return stepChord(r === 'step+' ? 1 : -1);
     if (r === 'tgExtras') { D.tgExtras = !D.tgExtras; save(); applyNames(); return renderStage(); }
     if (r && r.startsWith('ar-')) { D.around = r.slice(3); save(); document.getElementById('arlive').innerHTML = arLive(); return; }
     if (r === 'click' || r === 'hearRhythm' || r === 'mute') { D[r] = !D[r]; if (r === 'mute' && D.mute) A.hush(); save(); return applyNames(); }
@@ -1198,8 +1202,34 @@ function togglePause(btn) {
   if (!R) return;
   R.paused = !R.paused;
   btn.textContent = R.paused ? '▶' : '❚❚';
+  $app.classList.toggle('paused', R.paused);
   if (R.paused) { clearTimeout(R.timer); R.ui.forEach(clearTimeout); R.ui = []; if (R.sound || D.pad) A.hush(); }
-  else { R.nextTime = now() + 0.1; pump(); }
+  else {
+    // stepped while paused: play on from the chord on screen, the ones after it in order
+    if (R.stepped && R.hist) {
+      R.queue = [...R.hist.slice(R.ptr), ...R.queue];
+      R.hist = R.hist.slice(0, R.ptr);
+      R.cur = R.hist[R.hist.length - 1] || null;
+      R.e = 0; R.stepped = false;
+    }
+    R.nextTime = now() + 0.1; pump();
+  }
+}
+// paused: step through the chords, back through the ones played, forward through what's coming
+function stepChord(d) {
+  if (!R || !R.paused || !R.hist || !R.hist.length) return;
+  if (d < 0) { if (R.ptr <= 0) return; R.ptr--; }
+  else if (R.ptr < R.hist.length - 1) R.ptr++;
+  else {
+    const c = R.queue[0];
+    if (!c || c.end) return;
+    R.queue.shift(); R.queue.push(R.stream.next());
+    R.hist.push(c); R.ptr = R.hist.length - 1;
+  }
+  R.stepped = true;
+  const c = R.hist[R.ptr];
+  showChord(c, { next: R.hist[R.ptr + 1] || R.queue[0], prev: R.hist[R.ptr - 1]?.grip || null });
+  if (D.neck && D.diagram !== 'now') revealNeck();
 }
 // numeral and name are both always in the page; classes on the app decide which show (at least one does), and
 // with the numeral off the name takes its place and size
@@ -1241,7 +1271,7 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   const solo = ch ? '' : D.play === 'scales' ? (c.solo ? soloHTML(c) : '') : linePanel(c);
   document.getElementById('now').innerHTML = counting
     ? `<div class="count" id="count"></div><div class="first">first: <b class="cnum">${fmt(main)}</b> <b class="cname">${fmt(sub)}</b></div>`
-    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${solo}${c.fn && !solo ? `<div class="fn">${esc(c.fn)}${c.tag ? '' : ''}</div>` : ''}${c.role ? `<div class="fn subnote"><b>${fmt(T.prettyRoman(c.role.text))}</b> · ${esc(c.role.why)}</div>` : c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
+    : `<button class="stepb prev" data-r="step-" aria-label="Previous chord">◀</button><button class="stepb next" data-r="step+" aria-label="Next chord">▶</button><div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${solo}${c.fn && !solo ? `<div class="fn">${esc(c.fn)}${c.tag ? '' : ''}</div>` : ''}${c.role ? `<div class="fn subnote"><b>${fmt(T.prettyRoman(c.role.text))}</b> · ${esc(c.role.why)}</div>` : c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
   const wr = document.getElementById('written');
   if (wr && R.orig && c.oid !== undefined && !counting) wr.innerHTML = `<span class="lbl">as written</span> ${R.orig.map((o, j) => `<span class="${j === c.oid ? 'on' : ''}${j === c.oid && c.role ? ` ${c.role.kind}` : ''}">${fmt(T.prettyRoman(H.label(o.spec)))}</span>`).join('<i>·</i>')}`;
   document.getElementById('beats').innerHTML = counting ? '' : Array.from({ length: c.beats }, () => '<i></i>').join('');
