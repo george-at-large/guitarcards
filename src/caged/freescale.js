@@ -77,12 +77,50 @@ function climb(tonic, id, perString, startDeg = 0) {
   const pc = T.notePc(tonic), rel = pcs(id), sorted = rel.slice().sort((a, b) => a - b);
   let f0 = ((pc + sorted[startDeg % sorted.length] - 4) % 12 + 12) % 12; if (f0 === 0 && startDeg === 0) f0 = 12; // the root position up at 12, other positions may start open
   const m0 = 40 + f0, seq = [];
-  for (let m = m0; m <= m0 + 36; m++) if (rel.includes(((m - pc) % 12 + 12) % 12)) seq.push(m);
+  for (let m = m0; m <= m0 + 50; m++) if (rel.includes(((m - pc) % 12 + 12) % 12)) seq.push(m);
   const out = [];
   let i = 0;
   for (let st = 6; st >= 1 && i < seq.length; st--) for (let k = 0; k < perString && i < seq.length; k++, i++) out.push({ string: st, fret: seq[i] - F.OPEN[st], midi: seq[i], rel: ((seq[i] - pc) % 12 + 12) % 12 });
-  return { notes: out.filter((n) => n.fret >= 0), f0 };
+  return { notes: out.filter((n) => n.fret >= 0 && n.fret <= 19), f0 };
 }
+// ---------- climbing the neck: the standard ways up it ----------
+// two strings only, k notes on each in turn, from the root on the lower string up to fret 19
+function twoString(tonic, id, low, k) {
+  const pc = T.notePc(tonic), rel = pcs(id), high = low - 1;
+  const m0 = F.OPEN[low]; // from the nut: the first scale note on the lower string
+  const out = [];
+  let st = low, n = 0;
+  for (let m = m0; m <= m0 + 50; m++) {
+    const r = ((m - pc) % 12 + 12) % 12;
+    if (!rel.includes(r)) continue;
+    const fr = m - F.OPEN[st];
+    if (fr > 19 || fr < 0) break;
+    out.push({ string: st, fret: fr, midi: m, rel: r });
+    if (++n === k) { n = 0; st = st === low ? high : low; }
+  }
+  return out;
+}
+// one string, the whole scale from the nut to fret 17
+function oneString(tonic, id, st) {
+  const pc = T.notePc(tonic), rel = pcs(id), out = [];
+  for (let f = 0; f <= 17; f++) { const r = ((F.OPEN[st] + f - pc) % 12 + 12) % 12; if (rel.includes(r)) out.push({ string: st, fret: f, midi: F.OPEN[st] + f, rel: r }); }
+  return out;
+}
+const STR = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high E' };
+// the climbs a scale offers, each with its positions (what you swipe through)
+export function climbsFor(id, tonic) {
+  const p = pcs(id), sorted = p.slice().sort((a, b) => a - b), n = p.length, pent = n === 5;
+  const out = [];
+  const startName = (d) => T.prettyIv(BY[id].ivs.find((iv) => T.intervalSemis(F.simpleIv(iv)) % 12 === sorted[d]) || IVN[sorted[d]]);
+  const perPositions = (k) => sorted.map((_, d) => { const c = climb(tonic, id, k, d); return { notes: c.notes, f0: c.f0, title: `Starts on the ${startName(d)}`, sub: c.f0 === 0 ? 'the open 6th string' : `fret ${c.f0} on the 6th string`, root: d === 0 }; }).filter((x) => x.notes.length >= k * 5).sort((a, b) => a.f0 - b.f0); // (only the ones that fit on the neck)
+  if (pent) out.push({ id: 'box', name: 'Boxes: 2 per string', blurb: 'The five pentatonic boxes, two notes on every string: the shapes most players learn first. Each box is one hand position; the next box starts where this one’s top notes are.', positions: perPositions(2) });
+  if (n === 5 || n === 7) out.push({ id: 'nps3', name: '3 per string', blurb: pent ? 'The extended (diagonal) pentatonic: three notes on every string, so each string pair climbs into the next box. One of the most recommended ways to travel the neck with a pentatonic, and the backbone of fast legato and alternate-picked runs.' : 'Three notes on every string: the hand shifts up as it climbs, so the scale runs on a diagonal. Even picking (three down-up-down on each string) and the most recommended way to see a mode across the whole neck.', positions: perPositions(3) });
+  if (n === 7) out.push({ id: 'nps4', name: '4 per string', blurb: 'Four notes on every string, with a slide or a stretch on each: a steep diagonal that covers two octaves and more in one sweep. The fusion and legato way up the neck.', positions: perPositions(4) });
+  out.push({ id: 'two', name: 'Two strings', blurb: `The ladder on a pair of strings: ${pent ? 'two' : 'three'} notes on the lower string, ${pent ? 'two' : 'three'} on the upper, then shift up and repeat, all the way up the neck. It joins the positions horizontally, which the boxes don’t.`, positions: [[6, 5], [5, 4], [4, 3], [3, 2], [2, 1]].map(([lo, hi]) => ({ notes: twoString(tonic, id, lo, pent ? 2 : 3), title: `Strings ${lo} and ${hi}`, sub: `${STR[lo]} and ${STR[hi]}, from the nut up` })) });
+  out.push({ id: 'one', name: 'One string', blurb: 'The whole scale on one string, nut to fret 17: you hear the steps as distances, and learn the neck horizontally. Say the degree names out loud as you go.', positions: [6, 5, 4, 3, 2, 1].map((st) => ({ notes: oneString(tonic, id, st), title: `The ${STR[st]} string`, sub: `string ${st}, frets 0–17` })) });
+  return out;
+}
+
 const label = (n, txt, kind) => ({ string: n.string, fret: n.fret, midi: n.midi, iv: String(txt), kind });
 const relKind = (rel) => (rel === 0 ? 'r' : [3, 4].includes(rel) ? 't3' : [6, 7, 8].includes(rel) ? 't5' : [10, 11].includes(rel) ? 't7' : 'sc');
 function pic(notes, extra = 1) {
@@ -358,6 +396,24 @@ export function renderFreeScale($app, ctx) {
   const facts = () => factsFor(O.scale, tonic());
   function factHTML() { const f = facts(); return `<span class="lbl">when it’s useful · ${(R.fact % f.length) + 1} of ${f.length} <i>tap to read it all</i></span><p>${fmt(f[R.fact % f.length])}</p>`; }
   // practice tips: one at a time, its picture and a link to look it up
+  // climbing the neck: the chosen way up, one position at a time, swipeable
+  function climbHTML() {
+    const cs = climbsFor(O.scale, tonic());
+    const c = cs.find((x) => x.id === R.climb) || cs[0];
+    const n = c.positions.length;
+    if (!n) return '';
+    if (R.cpos === undefined) R.cpos = Math.max(0, c.positions.findIndex((x) => x.root));
+    const k = (R.cpos % n + n) % n, ps = c.positions[k], sc = BY[O.scale];
+    const notes = ps.notes.map((nn, i) => ({ string: nn.string, fret: nn.fret, midi: nn.midi, iv: R.corder ? String(i + 1) : T.prettyIv(sc.ivs.find((iv) => T.intervalSemis(F.simpleIv(iv)) % 12 === nn.rel) || IVN[nn.rel]), kind: relKind(nn.rel) }));
+    const fr = notes.map((x) => x.fret), lo = Math.max(0, Math.min(...fr) - (Math.min(...fr) > 0 ? 1 : 0)), hi = Math.max(...fr) + 1;
+    return `<h2>Climb the neck</h2>
+      <div class="chips">${cs.map((x) => `<button class="chip ${x.id === c.id ? 'on' : ''}" data-climb="${x.id}">${esc(x.name)}</button>`).join('')}</div>
+      <p>${fmt(c.blurb)}</p>
+      <div class="fspos3"><button class="icon" data-f="cpos-" aria-label="Previous">‹</button><div><b>${esc(ps.title)}</b><small>${esc(ps.sub)} · ${k + 1} of ${n}</small></div><button class="icon" data-f="cpos+" aria-label="Next">›</button></div>
+      <div class="chips" style="justify-content:center"><button class="chip ${R.corder ? '' : 'on'}" data-f="corder0">Degrees</button><button class="chip ${R.corder ? 'on' : ''}" data-f="corder1">Play order</button></div>
+      <div class="stage fsclimbpic" id="fsclimbpic">${neckSVG({ notes, lo, hi }, { lo, hi, labels: 'iv' })}</div>
+      <p class="note" style="text-align:center">Swipe sideways for the next ${c.id === 'one' ? 'string' : c.id === 'two' ? 'pair of strings' : 'position'}. Up, then back down the same way.</p>`;
+  }
   function tipsHTML() {
     const tips = tipsFor(O.scale, tonic()), t = tips[R.tip % tips.length];
     if (t.positions && t.positions.length) {
@@ -521,12 +577,13 @@ export function renderFreeScale($app, ctx) {
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
     ${isArp ? '' : `<section class="card fsglance"><h2>${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)} at a glance</h2><dl>${glance(O.scale, tonic()).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join('')}<dt>Used for</dt><dd><ul>${(FACTS[O.scale] || [BY[O.scale].feel]).map((f) => `<li>${fmt(f)}</li>`).join('')}</ul></dd></dl><button class="linkish" data-f="about">More: its family, its triads, ways to practise it</button></section>`}
+    ${isArp ? '' : `<section class="card fsclimb" id="fsclimb">${climbHTML()}</section>`}
     ${isArp ? '' : `<section class="card fstipcard" id="fstips">${tipsHTML()}</section>`}
     <div class="sheet" id="fsabout" hidden></div>
     ${R.on ? '' : `<div class="actions"><button class="primary" data-f="play">▶ ${O.go === 'auto' ? 'Start' : O.drone ? 'Start the drone' : 'Start'}</button></div>`}`;
     const sel = $app.querySelector('#fsscale');
     if (sel) sel.onchange = () => {
-      O.scale = sel.value; R.fact = 0; R.tip = 0; R.prev = null; R.pos = undefined;
+      O.scale = sel.value; R.fact = 0; R.tip = 0; R.prev = null; R.pos = undefined; R.cpos = undefined;
       // on a ladder that has it: go to it there; otherwise just this one
       const d2 = def();
       if (d2 && d2.cong) { O.home = O.scale; O.wi = 0; save(); return draw(); }
@@ -544,18 +601,20 @@ export function renderFreeScale($app, ctx) {
   }
   // swipe the position picture sideways to change position
   let sx = null;
-  $app.ontouchstart = (e) => { sx = e.target.closest('#fsswipe') ? e.touches[0].clientX : null; };
+  let swipeOn = null;
+  $app.ontouchstart = (e) => { swipeOn = e.target.closest('#fsswipe') ? 'tip' : e.target.closest('#fsclimbpic') ? 'climb' : null; sx = swipeOn ? e.touches[0].clientX : null; };
   $app.ontouchend = (e) => {
     if (sx === null) return;
     const dx = e.changedTouches[0].clientX - sx; sx = null;
     if (Math.abs(dx) < 40) return;
+    if (swipeOn === 'climb') { R.cpos = (R.cpos ?? 0) + (dx < 0 ? 1 : -1); const el = document.getElementById('fsclimb'); if (el) el.innerHTML = climbHTML(); return; }
     R.pos = (R.pos ?? 0) + (dx < 0 ? 1 : -1);
     const el = document.getElementById('fstips'); if (el) el.innerHTML = tipsHTML();
   };
   $app.onclick = (e) => {
     if (e.target.closest('#fsfact')) return openAbout(); // tap the facts to read them all
     const g = e.target.closest('[data-goto]');
-    if (g) { O.scale = g.dataset.goto; O.key = g.dataset.gokey; O.seq = 'hold'; O.wi = 0; R.prev = null; R.fact = 0; R.tip = 0; R.pos = undefined; save(); closeAbout(); if (R.on) drone(); return draw(); }
+    if (g) { O.scale = g.dataset.goto; O.key = g.dataset.gokey; O.seq = 'hold'; O.wi = 0; R.prev = null; R.fact = 0; R.tip = 0; R.pos = undefined; R.cpos = undefined; save(); closeAbout(); if (R.on) drone(); return draw(); }
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     if (d.key) { O.key = d.key; save(); if (R.on) drone(); return draw(); }
@@ -567,9 +626,12 @@ export function renderFreeScale($app, ctx) {
     if (d.area) { O.area = d.area; save(); return draw(); }
     if (d.shape) { O.shape = d.shape; save(); return draw(); }
     if (d.shapego) { O.shapeGo = d.shapego; save(); return draw(); }
+    if (d.climb) { R.climb = d.climb; R.cpos = undefined; document.getElementById('fsclimb').innerHTML = climbHTML(); return; }
     if (d.tip !== undefined) { R.tip = Number(d.tip); document.getElementById('fstips').innerHTML = tipsHTML(); return; }
     const a = d.f; if (!a) return;
     if (a === 'back') { stopAll(); closeAbout(); return onBack(); }
+    if (a === 'cpos+' || a === 'cpos-') { R.cpos = (R.cpos ?? 0) + (a === 'cpos+' ? 1 : -1); document.getElementById('fsclimb').innerHTML = climbHTML(); return; }
+    if (a === 'corder0' || a === 'corder1') { R.corder = a === 'corder1'; document.getElementById('fsclimb').innerHTML = climbHTML(); return; }
     if (a === 'pos+' || a === 'pos-') { R.pos = (R.pos ?? 0) + (a === 'pos+' ? 1 : -1); document.getElementById('fstips').innerHTML = tipsHTML(); return; }
     if (a === 'about') return openAbout();
     if (a === 'closeabout') return closeAbout();

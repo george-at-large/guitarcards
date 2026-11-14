@@ -536,3 +536,4 @@ details.fsopts[open] > summary { margin-bottom: 8px; }
 .fspos3 b { display: block; font-size: 15px; }
 .fspos3 small { display: block; color: var(--muted); font-size: 12.5px; }
 #fsswipe { touch-action: pan-y; }
+#fsclimbpic { touch-action: pan-y; }
