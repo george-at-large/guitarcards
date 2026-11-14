@@ -537,3 +537,13 @@ details.fsopts[open] > summary { margin-bottom: 8px; }
 .fspos3 small { display: block; color: var(--muted); font-size: 12.5px; }
 #fsswipe { touch-action: pan-y; }
 #fsclimbpic { touch-action: pan-y; }
+.fsland { flex-wrap: nowrap; }
+.fsland .lbl { font: 600 11px var(--f-ui); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); min-width: 74px; }
+.fsland .seg, .fsland .select { flex: 1; min-width: 0; }
+.fsrole { text-align: center; margin: 4px 12px 0; }
+.fslandpick { align-items: flex-start; }
+.fslandpick .lbl { padding-top: 8px; }
+.fslandpick .chips { flex: 1; flex-wrap: wrap; overflow: visible; }
+.fsland small.note { font-size: 11px; }
+.fsland > .chip { white-space: nowrap; flex: none; }
+.fsland > small.note { flex: 1; min-width: 0; }

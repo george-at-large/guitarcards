@@ -309,7 +309,7 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual' }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {} }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
   let R = { on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [], tip: 0, since: 0, order: null, prev: null };
 
@@ -319,8 +319,16 @@ export function renderFreeScale($app, ctx) {
   const items = () => {
     const d = def();
     if (d && d.cong) { const home = O.home || O.scale; return [{ mode: home, start: 0 }, ...FL.congruent(home).slice(0, 12).map((c) => ({ mode: c.id, start: c.start, why: c.why, as: c.as, also: c.also }))]; }
+    if (d && d.land) return landPicked(d).map((mode) => ({ mode }));
     return d ? FL.itemsOf(d) : [{ mode: O.scale }];
   };
+  // a landscape: scales side by side over one root, each shown against its home scale
+  // you choose which of its scales are in (two at least); the home scale is its own home if chosen, else the first chosen
+  const land = () => (def()?.land ? def() : null);
+  const landAll = (l) => (l.big || l.ids).filter((id) => BY[id]);
+  function landPicked(l) { const p = (O.landPick || {})[l.id] || l.ids; const out = landAll(l).filter((id) => p.includes(id)); return out.length >= 2 ? out : l.ids.slice(); }
+  const landHome = (l) => { const p = landPicked(l), h = FL.homeOf(l); return p.includes(h) ? h : p[0]; };
+  const landDiff = () => { const l = land(), it = cur(); return l && it.mode ? FL.moved(landHome(l), it.mode) : null; };
   function walk() {
     const d = def(), n = items().length;
     if (!d) return [0];
@@ -380,8 +388,10 @@ export function renderFreeScale($app, ctx) {
   }
   function neck() {
     const tp = T.notePc(tonic()), win = areaWin(), { tones: tt, bg: bgp } = tones(), it = cur();
-    const mv = R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
-    const mark = new Set(mv && mv.pairs.length <= 2 ? mv.added : []);
+    const l = land(), mv = l ? landDiff() : R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
+    const mark = new Set(mv && (l || mv.pairs.length <= 2) ? mv.added : []);
+    // in a landscape, the home notes this scale replaced or drops stay as faint rings
+    const ghost = l && it.mode ? pcs(landHome(l)).filter((r) => !pcs(it.mode).includes(r)) : [];
     // the note that just moved is always shown (ringed), even when the pattern or arpeggio leaves it out
     for (const pc of mark) if (!tt.some((x) => x.pc === pc)) { const iv = BY[O.scale].ivs.find((x) => FL.semisOf(x) === pc); if (iv) tt.push({ pc, iv, kind: 'sc' }); }
     const notes = [], bg = [];
@@ -389,7 +399,7 @@ export function renderFreeScale($app, ctx) {
       const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12;
       const t = tt.find((x) => x.pc === r);
       if (t) notes.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv: t.iv, kind: t.kind, mark: mark.has(r) || !!t.ring });
-      else if (bgp.includes(r)) bg.push({ string: st, fret: f, root: r === 0 });
+      else if (bgp.includes(r) || ghost.includes(r)) bg.push({ string: st, fret: f, root: r === 0 });
     }
     return neckSVG({ notes, lo: win.lo, hi: win.hi }, { lo: win.lo, hi: win.hi, labels: 'iv', bg, band: win.band ? { lo: win.lo, hi: win.hi } : null });
   }
@@ -523,6 +533,11 @@ export function renderFreeScale($app, ctx) {
     const mv = R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
     const moved = mv && mv.pairs.length <= 2 ? `<p class="fsmoved">${mv.pairs.length === 1 ? 'One note moved' : 'Two notes moved'}: ${mv.pairs.map(([a, b]) => `<b>${fmt(a ? T.prettyIv(a) : '–')} → ${fmt(b ? T.prettyIv(b) : '–')}</b>`).join(', ')} <i>(ringed)</i></p>` : '';
     if (!d) return O.go === 'auto' && R.on ? `<p class="fspos"><span id="fscount"></span></p>` : '';
+    if (d.land) {
+      const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = landText(hm, it.mode);
+      const ch = !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
+      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span id="fscount"></span></p>${ch}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fmt(d.roles[it.mode])}</p>` : ''}`;
+    }
     return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span id="fscount"></span></p>${moved}`;
   }
   function patHTML() {
@@ -533,6 +548,27 @@ export function renderFreeScale($app, ctx) {
       <p class="fsnums">${O.cell.c.map((n) => `<b>${n}</b>`).join('')}</p>
       ${O.hint ? `<p class="note">In ${esc(BY[O.scale].name)}: ${fmt(sp.map((x) => (x ? T.prettyIv(x) : '–')).join(' '))}${missing.length ? ` (it has no ${missing.join(', ')})` : ''}</p>` : '<p class="note">Play these degrees up and down, in every mode, on the same rhythm. Hint shows them on the neck.</p>'}
       <button class="chip" data-f="newpat">New pattern</button></div>`;
+  }
+  // the landscape picker: which family, how big, and whether it changes on its own
+  // how a scale differs from the landscape's home: a degree altered (♭7 → 7, 2 → ♭9), or a note added or dropped
+  function landText(homeId, id) {
+    if (!id || homeId === id) return null;
+    const A = BY[homeId].ivs, B = BY[id].ivs, sa = new Set(A.map(FL.semisOf)), sb = new Set(B.map(FL.semisOf));
+    const out = A.filter((x) => !sb.has(FL.semisOf(x))), inn = B.filter((x) => !sa.has(FL.semisOf(x))), used = new Set(), parts = [];
+    for (const o of out) { const m = inn.find((x) => !used.has(x) && FL.numberOf(x) === FL.numberOf(o)); if (m) { used.add(m); parts.push(`${T.prettyIv(o)} → ${T.prettyIv(m)}`); } }
+    for (const o of out) if (!parts.some((p) => p.startsWith(`${T.prettyIv(o)} →`))) parts.push(`no ${T.prettyIv(o)}`);
+    for (const x of inn) if (!used.has(x)) parts.push(`+ ${T.prettyIv(x)}`);
+    return parts.length ? { parts, added: inn.length, gone: out.length } : null;
+  }
+  function landHTML() {
+    const l = land();
+    const opts = `<option value="hold">Off</option>${FL.LADDERS.filter((x) => x.land).map((x) => `<option value="${x.id}" ${l && l.id === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}`;
+    return `<div class="fsrow fsland"><span class="lbl">Landscape</span><select id="fsland" class="select" aria-label="Landscape">${opts}</select></div>
+      ${l ? `<div class="fsrow fsland fslandpick"><span class="lbl">Scales</span><div class="chips">${landAll(l).map((id) => `<button class="chip ${landPicked(l).includes(id) ? 'on' : ''}" data-landpick="${id}">${esc(BY[id].name)}</button>`).join('')}</div></div>
+      <div class="fsrow fsland"><span class="lbl"></span><button class="chip" data-landset="core">Core ${l.ids.length}</button><button class="chip" data-landset="all">All ${landAll(l).length}</button><small class="note">tap scales to leave them out or put them in (two at least)</small></div>
+      <div class="fsrow fsland"><span class="lbl">Change</span>${seg('go', O.go, [['manual', 'Manual'], ['auto', 'Auto']])}</div>
+      ${O.go === 'auto' ? `<div class="fsrow fsland"><span class="lbl">Every</span>${seg('every', O.every, [[4, '4 beats'], [8, '8'], [16, '16'], [32, '32']])}</div>` : ''}
+      <p class="note fsblurb">${fmt(l.blurb)}</p>` : ''}`;
   }
   function optsHTML() {
     const d = def();
@@ -564,6 +600,7 @@ export function renderFreeScale($app, ctx) {
       <div class="fsrow">
         <button class="chip ${O.drone ? 'on' : ''}" data-f="drone">Drone</button><button class="chip ${O.fifth ? 'on' : ''}" data-f="fifth">+ 5th</button>
       </div>
+      ${landHTML()}
       <div class="fsrow fsmetro"><span class="lbl">Metronome</span>${seg('metro', O.metro, [['click', 'Click'], ['silent', 'Dots only'], ['off', 'Off']])}</div>
       <div class="fsrow fstempo"><span class="lbl">Tempo</span><input type="range" id="fsbpmr" min="30" max="200" step="2" value="${O.bpm}" aria-label="Tempo"><span class="fsbpm"><button data-f="bpm-" aria-label="Slower">−</button><b id="fsbpmv">${O.bpm}</b><small>bpm</small><button data-f="bpm+" aria-label="Faster">+</button></span></div>
     </div>
@@ -595,6 +632,8 @@ export function renderFreeScale($app, ctx) {
     od.ontoggle = () => { R.optsOpen = od.open; };
     const sq = $app.querySelector('#fsseq');
     sq.onchange = () => { if (sq.value === 'cong') O.home = O.scale; O.seq = sq.value; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; save(); draw(); };
+    const ls = $app.querySelector('#fsland');
+    ls.onchange = () => { O.seq = ls.value; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; R.pos = undefined; R.cpos = undefined; save(); draw(); if (R.on) drone(); };
     const r = $app.querySelector('#fsbpmr');
     r.oninput = () => { O.bpm = Number(r.value); document.getElementById('fsbpmv').textContent = O.bpm; };
     r.onchange = () => save();
@@ -620,6 +659,15 @@ export function renderFreeScale($app, ctx) {
     if (d.key) { O.key = d.key; save(); if (R.on) drone(); return draw(); }
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
     if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
+    if (d.landpick || d.landset) {
+      const l = land(); if (!l) return;
+      const was = cur().mode, p = new Set(landPicked(l));
+      if (d.landset) { O.landPick = { ...O.landPick, [l.id]: d.landset === 'all' ? landAll(l) : l.ids.slice() }; }
+      else { if (p.has(d.landpick)) { if (p.size <= 2) return; p.delete(d.landpick); } else p.add(d.landpick); O.landPick = { ...O.landPick, [l.id]: [...p] }; }
+      R.prev = null;
+      const k = walk().findIndex((x) => items()[x].mode === was); O.wi = Math.max(0, k);
+      save(); return draw();
+    }
     if (d.metro) { O.metro = d.metro; save(); return draw(); }
     if (d.go) { O.go = d.go; R.since = 0; save(); return draw(); }
     if (d.every) { O.every = Number(d.every); R.since = Math.min(R.since, O.every); save(); return draw(); }
