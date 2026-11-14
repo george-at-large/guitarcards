@@ -319,7 +319,7 @@ export function renderFreeScale($app, ctx) {
   const items = () => {
     const d = def();
     if (d && d.cong) { const home = O.home || O.scale; return [{ mode: home, start: 0 }, ...FL.congruent(home).slice(0, 12).map((c) => ({ mode: c.id, start: c.start, why: c.why, as: c.as, also: c.also }))]; }
-    if (d && d.land) return landPicked(d).map((mode) => ({ mode }));
+    if (d && d.land) return landPicked(d).map((mode) => ({ mode, shift: d.shifts?.[mode] || 0 }));
     return d ? FL.itemsOf(d) : [{ mode: O.scale }];
   };
   // a landscape: scales side by side over one root, each shown against its home scale
@@ -331,8 +331,8 @@ export function renderFreeScale($app, ctx) {
   // chord backing: in a landscape, each scale over the chords that call for it, on a pad that only moves the notes that move
   const ctxOf = (mode) => { const l = land(); return l && mode ? FL.contextOf(l.id, mode) : null; };
   const chordsWanted = () => !!land() && O.backing === 'chords';
-  function chordMidis(off, q) {
-    const root = (T.notePc(tonic()) + off) % 12, bass = 40 + ((root - 4 + 12) % 12);
+  function chordMidis(off, q, it = cur()) {
+    const root = (T.notePc(keyTonic()) + shiftOf(it) + off) % 12, bass = 40 + ((root - 4 + 12) % 12);
     let up = T.getChord(q).ivs.filter((iv) => iv !== '1');
     if (up.length > 4) up = up.filter((iv) => iv !== '5');
     const top = up.map((iv) => { const pc = (root + FL.semisOf(iv)) % 12; return 55 + ((pc - 7 + 12) % 12); });
@@ -341,7 +341,7 @@ export function renderFreeScale($app, ctx) {
   // beats per chord: a bar, or less when the scale changes before the progression would finish
   const chordBeats = (n) => (O.go === 'auto' && n * 4 > O.every ? Math.max(1, Math.floor(O.every / n)) : 4);
   const chordName = (off, q) => T.chordSymbol(T.transposeSemis(tonic(), off), q);
-  const landDiff = () => { const l = land(), it = cur(); return l && it.mode ? FL.moved(landHome(l), it.mode) : null; };
+  const landDiff = () => { const l = land(), it = cur(); return l && !l.drift && it.mode ? FL.moved(landHome(l), it.mode) : null; };
   function walk() {
     const d = def(), n = items().length;
     if (!d) return [0];
@@ -358,7 +358,7 @@ export function renderFreeScale($app, ctx) {
     if (O.area === 'shape' && O.shapeGo === 'auto') O.shape = G.nextShape(O.shape);
   }
   function step(dir, auto = false) {
-    const before = cur(), w = walk();
+    const before = cur(), w = walk(), pc0 = T.notePc(tonic());
     if (w.length < 2) { if (dir > 0) passDone(); R.prev = null; }
     else {
       let wi = O.wi + dir;
@@ -370,6 +370,7 @@ export function renderFreeScale($app, ctx) {
       if (now.mode !== before.mode) R.fact = 0;
     }
     if (!auto) { R.since = 0; R.cb = 0; }
+    if (R.on && T.notePc(tonic()) !== pc0) drone();
     save(); draw();
   }
   // the piece of neck to show
@@ -380,7 +381,10 @@ export function renderFreeScale($app, ctx) {
     return { lo: 0, hi: O.frets, name: '' };
   }
 
-  const tonic = () => T.parseNote(O.key);
+  // the 1: the key, or in a drift, the key moved up to the current mode's own root
+  const keyTonic = () => T.parseNote(O.key);
+  const shiftOf = (it) => (land()?.drift && it ? it.shift || 0 : 0);
+  const tonic = () => (shiftOf(cur()) ? T.transposeSemis(keyTonic(), shiftOf(cur())) : keyTonic());
   const scaleKind = (s, r, iv) => {
     const p = pcs(s.id), ref = p.includes(4) ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10];
     const colour = p.length >= 7 ? p.filter((x) => !ref.includes(x)) : [];
@@ -401,10 +405,10 @@ export function renderFreeScale($app, ctx) {
   }
   function neck() {
     const tp = T.notePc(tonic()), win = areaWin(), { tones: tt, bg: bgp } = tones(), it = cur();
-    const l = land(), mv = l ? landDiff() : R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
+    const l = land(), mv = l ? (l.drift ? null : landDiff()) : R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
     const mark = new Set(mv && (l || mv.pairs.length <= 2) ? mv.added : []);
     // in a landscape, the home notes this scale replaced or drops stay as faint rings
-    const ghost = l && it.mode ? pcs(landHome(l)).filter((r) => !pcs(it.mode).includes(r)) : [];
+    const ghost = l && !l.drift && it.mode ? pcs(landHome(l)).filter((r) => !pcs(it.mode).includes(r)) : [];
     // the note that just moved is always shown (ringed), even when the pattern or arpeggio leaves it out
     for (const pc of mark) if (!tt.some((x) => x.pc === pc)) { const iv = BY[O.scale].ivs.find((x) => FL.semisOf(x) === pc); if (iv) tt.push({ pc, iv, kind: 'sc' }); }
     const notes = [], bg = [];
@@ -497,7 +501,7 @@ export function renderFreeScale($app, ctx) {
         // the chord for this beat: the scale about to sound (the next one, on a change), its progression from the top
         if (change) R.cb = 0;
         const c2 = ctxOf(change ? (upNext() || cur()).mode : cur().mode);
-        if (c2) { const nb = chordBeats(c2.prog.length); if (R.cb % nb === 0) { const [off, q] = c2.prog[Math.floor(R.cb / nb) % c2.prog.length]; R.pad.chord(chordMidis(off, q), t); } }
+        if (c2) { const nb = chordBeats(c2.prog.length); if (R.cb % nb === 0) { const [off, q] = c2.prog[Math.floor(R.cb / nb) % c2.prog.length]; R.pad.chord(chordMidis(off, q, change ? upNext() || cur() : cur()), t); } }
         R.cb++;
       }
       R.vis.push(setTimeout(() => {
@@ -558,11 +562,12 @@ export function renderFreeScale($app, ctx) {
     const moved = mv && mv.pairs.length <= 2 ? `<p class="fsmoved">${mv.pairs.length === 1 ? 'One note moved' : 'Two notes moved'}: ${mv.pairs.map(([a, b]) => `<b>${fmt(a ? T.prettyIv(a) : '–')} → ${fmt(b ? T.prettyIv(b) : '–')}</b>`).join(', ')} <i>(ringed)</i></p>` : '';
     if (!d) return O.go === 'auto' && R.on ? `<p class="fspos"><span class="fscount"></span></p>` : '';
     if (d.land) {
-      const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = landText(hm, it.mode);
-      const ch = !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
+      const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = d.drift ? null : landText(hm, it.mode);
+      const kn = fmt(T.noteName(keyTonic(), true)), deg = d.drift ? BY[d.ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === (it.shift || 0)) : -1;
+      const ch = d.drift ? `<p class="fsmoved">${it.shift ? `Same notes as ${kn} ${esc(BY[d.ids[0]].name)}, heard from its ${ORD[deg]}: <b>${t} is the 1</b> <i>(the drone moved)</i>` : `Home: ${kn} ${esc(BY[d.ids[0]].name)}`}</p>` : !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
       const cx = ctxOf(it.mode);
       const over = cx && O.backing === 'chords' ? `<p class="fsover"><span class="lbl">over</span> <b>${fmt(cx.prog.map(([o, q]) => chordName(o, q)).join(' – '))}</b><small>${fmt(cx.why)}</small></p>` : '';
-      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${over}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fmt(d.roles[it.mode])}</p>` : ''}`;
+      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${over}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fillRole(d.roles[it.mode])}</p>` : ''}`;
     }
     return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${moved}`;
   }
@@ -584,6 +589,18 @@ export function renderFreeScale($app, ctx) {
     </div>`;
   }
   // the landscape picker: which family, how big, and whether it changes on its own
+  // a role's {degree} tokens become that note from the current 1, with its degree: {3} → F♯ (3)
+  // (in a drift the notes keep the parent scale's spelling: F♯ altered's ♯9 is A, as in G melodic minor, not G𝄪)
+  function fillRole(txt) {
+    const l = land(), par = l && l.drift ? BY[l.ids[0]].ivs.map((iv) => T.transpose(keyTonic(), F.simpleIv(iv))) : null;
+    return fmt(txt).replace(/\{([^}]+)\}/g, (m, iv) => {
+      try {
+        let n = T.transpose(tonic(), F.simpleIv(iv));
+        if (par) n = par.find((x) => T.notePc(x) === T.notePc(n)) ?? n;
+        return `<b>${fmt(T.noteName(n, true))}</b> (${fmt(T.prettyIv(iv))})`;
+      } catch (e) { return fmt(T.prettyIv(iv)); }
+    });
+  }
   // how a scale differs from the landscape's home: a degree altered (♭7 → 7, 2 → ♭9), or a note added or dropped
   function landText(homeId, id) {
     if (!id || homeId === id) return null;
@@ -596,7 +613,8 @@ export function renderFreeScale($app, ctx) {
   }
   function landHTML() {
     const l = land();
-    const opts = `<option value="hold">Off</option>${FL.LADDERS.filter((x) => x.land).map((x) => `<option value="${x.id}" ${l && l.id === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}`;
+    const og = (label, ls) => `<optgroup label="${esc(label)}">${ls.map((x) => `<option value="${x.id}" ${l && l.id === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</optgroup>`;
+    const opts = `<option value="hold">Off</option>${og('Same 1, the notes change', FL.LADDERS.filter((x) => x.land && !x.drift))}${og('Same notes, the 1 moves', FL.LADDERS.filter((x) => x.drift))}`;
     return `<div class="fsrow fsland"><span class="lbl">Landscape</span><select id="fsland" class="select" aria-label="Landscape">${opts}</select></div>
       ${l ? `<div class="fsrow fsland fslandpick"><span class="lbl">Scales</span><div class="chips">${landAll(l).map((id) => `<button class="chip ${landPicked(l).includes(id) ? 'on' : ''}" data-landpick="${id}">${esc(BY[id].name)}</button>`).join('')}</div></div>
       <div class="fsrow fsland"><span class="lbl"></span><button class="chip" data-landset="core">Core ${l.ids.length}</button><button class="chip" data-landset="all">All ${landAll(l).length}</button><small class="note">tap scales to leave them out or put them in (two at least)</small></div>
