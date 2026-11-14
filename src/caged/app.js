@@ -17,6 +17,7 @@ import * as PR from './practice.js';
 import * as GN from './genres.js';
 import * as CR from './callresp.js';
 import * as LS from './listen.js';
+import * as WK from './wkrun.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -31,7 +32,10 @@ const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
   colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, pad: false, genre: 'blues', diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
+  roam: { cat: 'all', times: 2, tour5: false, done: {} }, hearRhythm: true, mute: false,
 }, load());
+// the beat and the rhythm are heard now (they were silent by default): turn the click on once for everyone
+if (!D.soundV2) { D.click = true; D.hearRhythm = true; D.soundV2 = 1; }
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
 if (D.diagram === 'off') { D.neck = false; D.diagram = 'now'; } // older setting: "never" is now the neck toggle
 if (!D.nums && !D.names) D.nums = true;
@@ -42,13 +46,13 @@ const keysFor = (minor) => (minor ? MINOR_KEYS : MAJOR_KEYS);
 // your own progressions live in the settings, alongside the library
 // (charts are stored as numerals; `writtenIn` is only the key chord names were typed in, never the library's `key`)
 const mine = () => (D.mine || []).map((m) => ({ ...m, key: undefined, writtenIn: m.writtenIn || m.key || 'C', by: m.by || 'yours', cat: 'My progressions' }));
-const prog = () => mine().find((p) => p.id === D.prog) || L.byId(D.prog);
+const prog = () => (D.src === 'roam' && R?.roam ? R.roam : mine().find((p) => p.id === D.prog) || L.byId(D.prog));
 const isMinor = () => D.kt === 'minor';
 // a progression counts as done at this tempo (normalised to 4 beats a bar): 120, or 100 when bars hold two chords
 const progBars = () => L.resolve(prog());
-const progLike = () => D.src === 'prog' || D.src === 'genre';
-const target = () => (D.src === 'genre' ? 110 : D.src === 'prog' ? (progBars().some((b) => b.length > 1) ? 100 : 120) : 120);
-const doneKey = () => (D.play === 'modal' ? `m:${D.modal}:${D.modalSrc}` : ({ scales: 'x:', arps: 'a:', guide: 'g:' }[D.play] || '') + (D.src === 'genre' ? `gn:${D.genre}:${D.kt}` : D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`));
+const progLike = () => D.src === 'prog' || D.src === 'genre' || D.src === 'roam';
+const target = () => (D.src === 'genre' || D.src === 'roam' ? 110 : D.src === 'prog' ? (progBars().some((b) => b.length > 1) ? 100 : 120) : 120);
+const doneKey = () => (D.play === 'modal' ? `m:${D.modal}:${D.modalSrc}` : ({ scales: 'x:', arps: 'a:', guide: 'g:' }[D.play] || '') + (D.src === 'roam' ? `r:${D.roam.cat}` : D.src === 'genre' ? `gn:${D.genre}:${D.kt}` : D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`));
 const record = (k = doneKey()) => D.done[k] || {};
 const complete = (k, tgt) => G.SHAPES.every((s) => (record(k)[s] || 0) >= tgt);
 const normBpm = (bpm) => Math.round(progLike() ? bpm * 4 / D.barBeats : bpm * 4 / D.beats);
@@ -66,6 +70,7 @@ function session() {
 }
 // the tour: on to the next CAGED shape (or pair) up the neck
 function advanceShape(S) {
+  if (D.tourSlow && D.mode === 'pos') return; // the slow tour glides instead (drift)
   S.shape = G.nextShape(S.shape);
   S.pos = D.pair ? G.positionOfPair(S.tonic, S.shape) : G.positionOf(S.tonic, S.shape);
   S.shapes = D.pair ? S.pos.shapes : [S.shape];
@@ -166,7 +171,25 @@ function realise(S, spec, q, prev, extra = {}) {
   const c = realiseCore(S, spec, q, prev, extra);
   c.snap = { pos: S.pos, shapes: S.shapes, shapeKey: S.shapeKey, shape: S.shape };
   c.place = D.tour ? posLabel(S) : null;
+  drift(S);
   return c;
+}
+// the slow tour: after each chord the area slides a fret, up the neck to the top and back down, so the shapes
+// blend into each other instead of jumping; it's named after the key's CAGED shape it overlaps most
+function drift(S) {
+  if (!D.tour || !D.tourSlow || D.mode !== 'pos' || !S.pos) return;
+  const span = Math.min(4, S.pos.hi - S.pos.lo);
+  S.dir ||= 1;
+  let lo = S.pos.lo + S.dir;
+  if (lo + span > 15) { S.dir = -1; lo = S.pos.lo - 1; }
+  if (lo < 0) { S.dir = 1; lo = S.pos.lo + 1; }
+  let best = S.shape, bd = Infinity;
+  for (const sh of G.SHAPES) {
+    const w = G.positionOf(S.tonic, sh);
+    for (const o of [-12, 0, 12]) { const d = Math.abs(w.lo + o - lo); if (d < bd) { bd = d; best = sh; } }
+  }
+  S.pos = { lo, hi: lo + span, shape: best, mid: lo + span / 2 };
+  S.shape = best; S.shapes = [best]; S.shapeKey = best; S.toured.add(best);
 }
 // guide tones: the chord's 3rd and 7th inside the area, as two voices that each move as little as possible
 function guideFor(S, root, q) {
@@ -318,7 +341,13 @@ function progStream(S, R) {
   const orig = progSlots(S.minor);
   const vl = prog().vl;
   let cur = orig, i = 0, pass = 0, prev = null;
-  R.slots = cur;
+  R.slots = cur; R.orig = orig;
+  // what an evolved chord is doing: standing in for the written chord, or a chord on the way to the next one
+  const roleOf = (x) => {
+    if (!x.sub) return null;
+    const lab = (o) => H.label(o.spec);
+    return x.half ? { kind: 'way', text: `on the way to ${lab(orig[(x.oid + 1) % orig.length])}`, why: x.sub } : { kind: 'swap', text: `in place of ${lab(orig[x.oid])}`, why: x.sub };
+  };
   return {
     next() {
       if (i >= cur.length) {
@@ -329,11 +358,88 @@ function progStream(S, R) {
       }
       const x = cur[i], nx = cur[(i + 1) % cur.length];
       const q = colourise(x.spec, nx.spec, x.oid + pass, S.minor);
-      const c = realise(S, x.spec, q, prev, { beats: x.beats, bar: x.bar, slot: i, pass, sub: x.sub, vl, slots: cur });
+      const c = realise(S, x.spec, q, prev, { beats: x.beats, bar: x.bar, slot: i, pass, sub: x.sub, vl, slots: cur, oid: x.oid, role: roleOf(x) });
       prev = c.grip;
       i++;
       return c;
     },
+  };
+}
+
+// ---------- the roamer: the library's progressions in a shuffled order, a few times round each, until all are done ----------
+// Major ones play in the major key, minor ones in the minor key on the same tonic. Done ones are remembered, so it
+// carries on where it left off. Once in every shape: each progression goes round five times, a shape further up
+// each time.
+const roamMode = () => (D.roam.tour5 ? 'tour' : 'times');
+const roamList = () => L.ALL.filter((p) => D.roam.cat === 'all' || p.cat === D.roam.cat);
+const roamDone = () => ((D.roam.done ||= {})[`${D.roam.cat}|${roamMode()}`] ||= {});
+const roamLeft = () => { const d = roamDone(); return roamList().filter((p) => !d[p.id]); };
+const RESPELL = { minor: { Db: 'C#', Ab: 'G#', Gb: 'F#' }, major: { 'C#': 'Db', 'G#': 'Ab', 'D#': 'Eb', 'A#': 'Bb' } };
+function roamStream(S, R) {
+  const done = roamDone(), list = roamList();
+  const todo = roamLeft();
+  for (let k = todo.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [todo[k], todo[j]] = [todo[j], todo[k]]; }
+  const rounds = D.roam.tour5 ? 5 : D.roam.times;
+  let item = null, cur = null, i = 0, pass = 0, prev = null, last = null, idx = list.length - todo.length;
+  function load() {
+    item = todo.shift(); idx++;
+    const minor = !!item.minor;
+    if (minor !== S.minor) {
+      const nm = T.noteName(S.tonic), re = RESPELL[minor ? 'minor' : 'major'][nm];
+      if (re) S.tonic = T.parseNote(re);
+      S.minor = minor; S.lastScale = {};
+      S.pos = D.pair ? G.positionOfPair(S.tonic, S.shape) : G.positionOf(S.tonic, S.shape);
+    }
+    cur = slotsFor(item, minor); i = 0; pass = 0; prev = null;
+    R.roam = item; R.slots = cur;
+  }
+  if (todo.length) load();
+  return {
+    next() {
+      if (!item) return { ...last, end: true };
+      if (i >= cur.length) {
+        i = 0; pass++;
+        if (pass >= rounds) {
+          done[item.id] = Date.now(); save();
+          if (!todo.length) { item = null; return { ...last, end: true }; }
+          load();
+          if (D.roam.tour5) advanceShape(S);
+        } else if (D.roam.tour5 || D.tour) { advanceShape(S); prev = null; }
+        R.slots = cur;
+      }
+      const x = cur[i], nx = cur[(i + 1) % cur.length];
+      const q = colourise(x.spec, nx.spec, x.oid + pass, S.minor);
+      const c = realise(S, x.spec, q, prev, { beats: x.beats, bar: x.bar, slot: i, pass, sub: x.sub, vl: item.vl, slots: cur });
+      c.roam = { name: item.name, by: item.by, cat: item.cat, round: pass + 1, rounds, idx, total: list.length, key: keyLabel(S) };
+      prev = c.grip;
+      last = c;
+      i++;
+      return c;
+    },
+  };
+}
+function roamCard() {
+  const list = roamList(), left = roamLeft().length, n = list.length - left;
+  return `
+      <div class="chips">${[['all', 'Everything'], ...L.LIBRARY.map((g) => [g.cat, g.cat])].map(([v, l]) => `<button class="chip ${D.roam.cat === v ? 'on' : ''}" data-roamcat="${esc(v)}">${esc(l)}</button>`).join('')}</div>
+      <h3>Each progression</h3>
+      <div class="seg" role="radiogroup">${[[1, 'Once'], [2, 'Twice'], [3, '3 times'], ['tour', 'Once in every shape']].map(([v, l]) => { const on = v === 'tour' ? D.roam.tour5 : !D.roam.tour5 && D.roam.times === v; return `<button data-roamtimes="${v}" class="${on ? 'on' : ''}" role="radio" aria-checked="${on}">${l}</button>`; }).join('')}</div>
+      <p class="note">It roams through ${D.roam.cat === 'all' ? 'every progression and cadence in the library' : `the ${esc(D.roam.cat.toLowerCase())}`} in a shuffled order, ${D.roam.tour5 ? 'each once round in every CAGED shape, moving up a shape each time round' : `${D.roam.times === 1 ? 'once' : D.roam.times === 2 ? 'twice' : `${D.roam.times} times`} round each`}, then moves on; the one playing is named at the top. Major ones play in ${fmt(T.pretty(D.key === 'rand' ? 'C' : D.key))} major, minor ones in ${fmt(T.pretty(D.key === 'rand' ? 'C' : D.key))} minor. It finishes when every one has been played, and remembers where it got to.</p>
+      <div class="roamprog"><i style="width:${list.length ? (n / list.length) * 100 : 0}%"></i></div>
+      <p class="note"><b>${n} of ${list.length}</b> done.${n ? ' <button class="chip" data-act="roamreset">Start the list over</button>' : ''}</p>`;
+}
+function roamFinished() {
+  const list = roamList();
+  stop(); R = null;
+  window.scrollTo(0, 0);
+  $app.innerHTML = `
+  <header class="chead"><span></span><h1>Roamed them all</h1><span></span></header>
+  <section class="card end"><p>Every one of the <b>${list.length}</b> ${D.roam.cat === 'all' ? 'progressions and cadences' : esc(D.roam.cat.toLowerCase())} has been played${D.roam.tour5 ? ', each in all five shapes' : ''}.</p>
+  <div class="actions"><button class="primary" data-e="again">Start the list over</button><button data-e="back">Back</button></div></section>`;
+  $app.onclick = (e) => {
+    const b = e.target.closest('[data-e]'); if (!b) return;
+    if (b.dataset.e === 'again') { roamDone(); D.roam.done[`${D.roam.cat}|${roamMode()}`] = {}; save(); }
+    setup();
   };
 }
 
@@ -496,6 +602,12 @@ function listenChord(S, spec, prev, o) {
 function openListen() {
   stopPractice = LS.renderListen($app, { D, save, neckSVG, esc, fmt, mine, realise: listenChord, legend: LEGEND, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
 }
+// Workouts: systematic coverage; its roamer entry runs the Chord changes roamer once round each progression in
+// every shape
+function openWorkouts() {
+  stopPractice = WK.renderWorkouts($app, { D, save, neckSVG, esc, fmt, legend: LEGEND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); },
+    startRoamer: () => { stopPractice = null; D.app = 'changes'; D.src = 'roam'; D.play = 'chords'; D.roam.tour5 = true; D.roam.cat = 'all'; save(); setup(); run(); } });
+}
 function openPractice() {
   stopPractice = PR.renderPractice($app, { D, save, neckSVG, esc, fmt, keys: MAJOR_KEYS, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
 }
@@ -534,6 +646,7 @@ function setup() {
   if (D.app === 'practice') return openPractice();
   if (D.app === 'call') return openCall();
   if (D.app === 'listen') return openListen();
+  if (D.app === 'workouts') return openWorkouts();
   const minor = isMinor();
   const keys = keysFor(minor);
   if (D.key !== 'rand' && !keys.includes(D.key)) D.key = minor ? ({ Db: 'C#', Ab: 'G#' }[D.key] || D.key) : ({ 'C#': 'Db', 'G#': 'Ab' }[D.key] || D.key);
@@ -547,7 +660,7 @@ function setup() {
   $app.innerHTML = `
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
   <p class="lead">${{ chords: 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.', scales: 'The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.', arps: 'The chords keep coming; play each one as an arpeggio through the shape, starting from the tone it names.', guide: 'The chords keep coming; play just their 3rds and 7ths as two lines that move as little as possible.', modal: 'Pick a mode. Its own chords vamp on the beat; solo in the shape and land on each chord’s 3rd or 7th.' }[D.play]}</p>
-  ${seg('app', [['changes', 'Chord changes'], ['practice', 'Scale practice'], ['call', 'Call and response'], ['listen', 'Listen']], D.app || 'changes')}
+  ${seg('app', [['changes', 'Chord changes'], ['practice', 'Scale practice'], ['call', 'Call and response'], ['listen', 'Listen'], ['workouts', 'Workouts']], D.app || 'changes')}
   ${seg('play', [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales'], ['modal', 'Modes']], D.play)}
 
   <section class="card">
@@ -556,8 +669,8 @@ function setup() {
     <div class="chips">${['rand', ...keys].map((k) => `<button class="chip ${D.key === k ? 'on' : ''}" data-key="${k}">${k === 'rand' ? 'Any' : fmt(T.pretty(k)) + (minor ? 'm' : '')}</button>`).join('')}</div>
     <h2>Shape</h2>
     <div class="chips shapes">${['rand', ...G.SHAPES].map((s) => `<button class="chip ${D.shape === s ? 'on' : ''}" data-shape="${s}">${s === 'rand' ? 'Any' : D.pair ? `${s}+${G.nextShape(s)}` : s}</button>`).join('')}</div>
-    <div class="chips"><button class="chip ${D.pair ? 'on' : ''}" data-act="pair">Two shapes at once</button><button class="chip ${D.tour ? 'on' : ''}" data-act="tour">Tour all five shapes</button></div>
-    ${D.tour ? `<p class="note">The run moves up the neck through the shapes, ${G.SHAPES.join(' → ')}, starting from the one you pick: a new shape each time round the progression or vamp (every 8 chords in a chord set). Finish a full lap and a clean run counts for every shape you passed through.</p>` : ''}
+    <div class="chips"><button class="chip ${D.pair ? 'on' : ''}" data-act="pair">Two shapes at once</button><button class="chip ${D.tour ? 'on' : ''}" data-act="tour">Tour all five shapes</button>${D.tour && D.mode === 'pos' ? `<button class="chip ${D.tourSlow ? 'on' : ''}" data-act="tourSlow">Slowly</button>` : ''}</div>
+    ${D.tour && D.tourSlow && D.mode === 'pos' ? `<p class="note">Slowly: after every chord the area slides one fret, up the neck to the top and back down, so one shape melts into the next; the name of the shape you’re passing through is shown as you go. Finish a full sweep and a clean run counts for every shape you passed.</p>` : D.tour ? `<p class="note">The run moves up the neck through the shapes, ${G.SHAPES.join(' → ')}, starting from the one you pick: a new shape each time round the progression or vamp (every 8 chords in a chord set). Finish a full lap and a clean run counts for every shape you passed through.</p>` : ''}
     ${seg('mode', [['pos', 'Stay in position'], ['one', 'One shape everywhere']], D.mode)}
     <p class="note">${D.mode === 'pos'
       ? `The key’s ${D.pair ? `${S0.shapeKey} shapes mark` : `${S0.shape} shape marks`} out ${D.pair ? 'an area' : 'a position'}${D.key !== 'rand' && D.shape !== 'rand' ? ` (frets ${S0.pos.lo}–${S0.pos.hi} in ${fmt(T.pretty(D.key))}${minor ? 'm' : ''})` : ''}. Every chord is played inside it, in whichever CAGED shape of that chord lives there.`
@@ -580,8 +693,8 @@ function setup() {
 
   ${D.play === 'modal' ? modalCard() : `  <section class="card">
     <h2>Chords</h2>
-    ${seg('src', [['set', 'Chord sets'], ['prog', 'Progressions'], ['genre', 'Genres']], D.src)}
-    ${D.src === 'genre' ? genreCard() : D.src === 'set' ? `
+    ${seg('src', [['set', 'Chord sets'], ['prog', 'Progressions'], ['genre', 'Genres'], ['roam', 'Roamer']], D.src)}
+    ${D.src === 'roam' ? roamCard() : D.src === 'genre' ? genreCard() : D.src === 'set' ? `
       <div class="sets">${sets.map((s) => `<button class="set ${D.set === s.id ? 'on' : ''}" data-set="${s.id}"><b>${esc(s.name)}</b><small>${esc(s.blurb)}</small></button>`).join('')}</div>
       <h3>Colour</h3>
       ${seg('colour', H.COLOURS.map((c) => [c.id, c.name]), D.colour)}
@@ -618,13 +731,13 @@ function setup() {
     <h3>Rhythm</h3>
     <div class="chips">${RHYTHMS.map((r) => `<button class="chip ${D.rhythm === r.id ? 'on' : ''}" data-rhythm="${r.id}">${esc(r.name)}</button>`).join('')}</div>
     <p class="note">${esc(rhythm().blurb)}${D.rhythm !== 'ring' ? ' A strip under the beat shows where to strike, the current eighth lit.' : ''}</p>
-    <div class="chips"><button class="chip ${D.countIn ? 'on' : ''}" data-act="countIn">Count-in</button><button class="chip ${D.click ? 'on' : ''}" data-act="click">Audible click</button></div>
-    <p class="note">The beat is shown, not heard: the dots light up on every beat${D.click ? ', and the click sounds too' : '. Turn on the audible click if you want one'}.</p>
+    <div class="chips"><button class="chip ${D.countIn ? 'on' : ''}" data-act="countIn">Count-in</button><button class="chip ${D.click ? 'on' : ''}" data-act="click">Click</button>${D.rhythm !== 'ring' ? `<button class="chip ${D.hearRhythm ? 'on' : ''}" data-act="hearRhythm">Hear the rhythm</button>` : ''}</div>
+    <p class="note">The dots light up on every beat${D.click ? ' and the click sounds' : ''}${D.rhythm !== 'ring' && D.hearRhythm ? '; a soft muted strum plays the rhythm on its hits' : ''}. Mute it all during a run with Mute.</p>
   </section>
 
   <section class="card">
     <h2>Progress</h2>
-    <p class="note">${D.src === 'genre' ? `<b>${esc(GN.genreById(D.genre).name)}</b> in ${D.kt}` : D.src === 'prog' ? `<b>${esc(p.name)}</b> in ${D.kt}` : `<b>${esc(sets.find((s) => s.id === D.set).name)}</b>, ${esc(H.COLOURS.find((c) => c.id === D.colour).name.toLowerCase())}, ${D.kt}`} is done when you’ve played it cleanly in all five shapes at <b>${tgt} bpm</b>${D.src === 'prog' ? ' with 4 beats a bar' : ' changing every bar'} (or the same speed of change at other settings). You confirm each run yourself.</p>
+    <p class="note">${D.src === 'roam' ? `The roamer, ${D.roam.cat === 'all' ? 'everything' : esc(D.roam.cat.toLowerCase())},` : D.src === 'genre' ? `<b>${esc(GN.genreById(D.genre).name)}</b> in ${D.kt}` : D.src === 'prog' ? `<b>${esc(p.name)}</b> in ${D.kt}` : `<b>${esc(sets.find((s) => s.id === D.set).name)}</b>, ${esc(H.COLOURS.find((c) => c.id === D.colour).name.toLowerCase())}, ${D.kt}`} is done when you’ve played it cleanly in all five shapes at <b>${tgt} bpm</b>${D.src === 'prog' ? ' with 4 beats a bar' : ' changing every bar'} (or the same speed of change at other settings). You confirm each run yourself.</p>
     ${shapeProgress(doneKey(), tgt)}
     ${complete(doneKey(), tgt) ? '<p class="done">✓ Done in every shape</p>' : ''}
   </section>
@@ -644,9 +757,12 @@ function setup() {
       return redraw();
     }
     if (d.scaleLevel !== undefined) { D.scaleLevel = d.scaleLevel === 'any' ? 'any' : Number(d.scaleLevel); return redraw(); }
+    if (d.roamcat !== undefined) { D.roam.cat = d.roamcat; return redraw(); }
+    if (d.roamtimes !== undefined) { if (d.roamtimes === 'tour') D.roam.tour5 = true; else { D.roam.tour5 = false; D.roam.times = Number(d.roamtimes); } return redraw(); }
     const a = d.act;
+    if (a === 'roamreset') { D.roam.done[`${D.roam.cat}|${roamMode()}`] = {}; return redraw(); }
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
-    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL', 'tour'].includes(a)) { D[a] = !D[a]; return redraw(); }
+    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL', 'tour', 'tourSlow', 'hearRhythm'].includes(a)) { D[a] = !D[a]; return redraw(); }
     if (a === 'bpm-' || a === 'bpm+') { D.bpm = Math.max(30, Math.min(220, D.bpm + (a === 'bpm+' ? 2 : -2))); return redraw(); }
     if (a === 'go') { save(); run(); }
     if (a === 'newprog') return editor(null);
@@ -688,13 +804,14 @@ async function awake(on) {
 async function run() {
   const S = session();
   R = { S, ui: [], timer: null, queue: [], cur: null, e: 0, count: 0, passes: 0, countLeft: D.countIn ? 8 : 0, bpm: D.bpm, paused: false, prevGrip: null, maxBpm: D.bpm, minBpm: D.bpm };
-  R.stream = D.play === 'modal' ? modalStream(S) : D.src === 'genre' ? genreStream(S, R) : D.src === 'prog' ? progStream(S, R) : setStream(S);
+  if (D.src === 'roam' && D.play !== 'modal' && !roamLeft().length) { R = null; return roamFinished(); }
+  R.stream = D.play === 'modal' ? modalStream(S) : D.src === 'roam' ? roamStream(S, R) : D.src === 'genre' ? genreStream(S, R) : D.src === 'prog' ? progStream(S, R) : setStream(S);
   R.queue.push(R.stream.next(), R.stream.next());
   drawRun();
   // the clock: the audio clock when the click sounds (sample-accurate), otherwise the page clock; no audio is
   // touched at all when the click is off
-  R.sound = D.click;
-  if (R.sound || D.pad) { await A.unlockAudio(); await A.ensureRunning(); }
+  R.sound = true; // the audio clock always: the click and the rhythm can be switched on (or muted) mid-run
+  await A.unlockAudio(); await A.ensureRunning();
   awake(true);
   R.nextTime = now() + 0.15;
   if (R.countLeft) showChord(R.queue[0], { counting: true });
@@ -775,11 +892,21 @@ function playPad(c, t) {
   const at = A.audioCtx().currentTime + Math.max(0.01, t - now());
   A.pad(padVoicing(c), at, c.beats * 60 / R.bpm - 0.05, { vel: 0.55 });
 }
+// the rhythm, heard: a soft muted strum of the chord on each hit (down on the beat, up on the &; a push strikes the
+// next chord early; a shuffle's & comes late)
+function strumHit(c, e, t) {
+  const n = c.beats * 2, push = rhythm().push && e === n - 1 && R.queue[0];
+  if (!push && !hitsFor(c, c === R.first).includes(e)) return;
+  const ch = push ? R.queue[0] : c;
+  const ms = ch.grip ? G.gripMidis(ch.grip) : padVoicing(ch);
+  const tt = t + (D.rhythm === 'shuffle' && e % 2 ? (30 / R.bpm) * 0.33 : 0);
+  A.strum(e % 2 ? [...ms].reverse() : ms, tt, { muted: D.rhythm === 'funk' && !(e % 2 === 0), vel: e % 2 ? 0.42 : 0.55, dur: Math.min(0.5, (30 / R.bpm) * 1.6), spread: 0.009 });
+}
 function tick(t) {
   if (R.countLeft > 0) {
     const n8 = R.countLeft;
     if (n8 % 2 === 0) {
-      if (R.sound) A.click(t, n8 === 8 ? 2 : 1);
+      if (D.click && !D.mute) A.click(t, n8 === 8 ? 2 : 1);
       at(t, () => { const el = document.getElementById('count'); if (el) el.textContent = String(5 - n8 / 2); });
     }
     R.countLeft--;
@@ -797,7 +924,8 @@ function tick(t) {
     if (c.slot === 0 && R.count > 0) R.passes++;
   }
   const c = R.cur, e = R.e, b = e >> 1, onBeat = e % 2 === 0;
-  if (onBeat && R.sound) A.click(t, b === 0 ? 2 : 1);
+  if (onBeat && D.click && !D.mute) A.click(t, b === 0 ? 2 : 1);
+  if (D.hearRhythm && !D.mute && D.rhythm !== 'ring') strumHit(c, e, t);
   at(t, () => {
     if (onBeat) document.querySelectorAll('#beats i').forEach((el, i) => el.classList.toggle('on', i === b));
     document.querySelectorAll('#rhythm i').forEach((el, i) => el.classList.toggle('on', i === e));
@@ -817,8 +945,10 @@ function tick(t) {
 function drawRun() {
   const { S } = R;
   $app.innerHTML = `
-  <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where">${fmt(keyLabel(S))}<small>${fmt(posLabel(S))}${scaleMode() ? ` · scales: ${LEVEL_NAME[D.scaleLevel] || 'mix'}` : D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
+  <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where"><span id="rkey">${fmt(keyLabel(S))}</span><small>${fmt(posLabel(S))}${scaleMode() ? ` · scales: ${LEVEL_NAME[D.scaleLevel] || 'mix'}` : D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
+  ${D.src === 'roam' && D.play !== 'modal' ? '<div class="roamnow" id="roamnow"></div>' : ''}
   <div class="liveplay" id="liveplay">${livePlay()}</div>
+  ${D.evolve && D.src === 'prog' && D.play !== 'modal' ? '<div class="written" id="written"></div>' : ''}
   <div class="now" id="now"></div>
   <div class="beats" id="beats"></div>
   <div class="rhythm" id="rhythm"></div>
@@ -845,6 +975,7 @@ function drawRun() {
       return;
     }
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
+    if (r === 'click' || r === 'hearRhythm' || r === 'mute') { D[r] = !D[r]; if (r === 'mute' && D.mute) A.hush(); save(); return applyNames(); }
     if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
     if (r === 'gguide') return openGuide();
@@ -866,7 +997,7 @@ function livePlay() {
   return `<div class="seg">${modes.map(([v, l]) => `<button data-r="play-${v}" class="${D.play === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 }
 function runButtons() {
-  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}${D.src === 'genre' ? '<button class="rt" data-r="gguide">Genre guide</button>' : ''}<button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
+  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}${D.src === 'genre' ? '<button class="rt" data-r="gguide">Genre guide</button>' : ''}<button class="rt" data-r="click">Click</button>${D.rhythm !== 'ring' ? '<button class="rt" data-r="hearRhythm">Rhythm</button>' : ''}<button class="rt" data-r="mute">Mute</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
 }
 function switchPlay(mode) {
   if (!R || D.play === mode) return;
@@ -901,12 +1032,18 @@ function applyNames() {
   $app.classList.toggle('hide-names', !D.names);
   $app.classList.toggle('hide-nums', !D.nums);
   $app.classList.toggle('no-neck', !D.neck);
-  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv, wide: D.wide, pad: D.pad };
+  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv, wide: D.wide, pad: D.pad, click: D.click, hearRhythm: D.hearRhythm, mute: D.mute };
   $app.querySelectorAll('.rt').forEach((b) => { const k = b.dataset.r || b.dataset.w; b.classList.toggle('on', !!on[k]); b.setAttribute('aria-pressed', !!on[k]); });
 }
 const gripTag = (g) => (g ? (g.shape ? `${g.shape} shape` : g.label) : '');
 function showChord(c, { next = null, prev = null, counting = false, note = null } = {}) {
   if (!R) return;
+  if (c.end) return roamFinished();
+  if (c.roam) {
+    const el = document.getElementById('roamnow');
+    if (el) el.innerHTML = `<span class="lbl">now playing</span><b>${fmt(T.pretty(c.roam.name))}</b><small>${esc(c.roam.by || c.roam.cat)} · ${c.roam.rounds > 1 ? `round ${c.roam.round} of ${c.roam.rounds} · ` : ''}${c.roam.idx} of ${c.roam.total}</small>`;
+    const k = document.getElementById('rkey'); if (k) k.innerHTML = fmt(c.roam.key);
+  }
   const { main, sub } = labelsFor(c);
   const tags = [];
   const ch = D.play === 'chords';
@@ -918,7 +1055,9 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   const solo = ch ? '' : D.play === 'scales' ? (c.solo ? soloHTML(c) : '') : linePanel(c);
   document.getElementById('now').innerHTML = counting
     ? `<div class="count" id="count"></div><div class="first">first: <b class="cnum">${fmt(main)}</b> <b class="cname">${fmt(sub)}</b></div>`
-    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${solo}${c.fn && !solo ? `<div class="fn">${esc(c.fn)}${c.tag ? '' : ''}</div>` : ''}${c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
+    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${solo}${c.fn && !solo ? `<div class="fn">${esc(c.fn)}${c.tag ? '' : ''}</div>` : ''}${c.role ? `<div class="fn subnote"><b>${fmt(T.prettyRoman(c.role.text))}</b> · ${esc(c.role.why)}</div>` : c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
+  const wr = document.getElementById('written');
+  if (wr && R.orig && c.oid !== undefined && !counting) wr.innerHTML = `<span class="lbl">as written</span> ${R.orig.map((o, j) => `<span class="${j === c.oid ? 'on' : ''}${j === c.oid && c.role ? ` ${c.role.kind}` : ''}">${fmt(T.prettyRoman(H.label(o.spec)))}</span>`).join('<i>·</i>')}`;
   document.getElementById('beats').innerHTML = counting ? '' : Array.from({ length: c.beats }, () => '<i></i>').join('');
   const rh = document.getElementById('rhythm');
   if (rh) rh.innerHTML = counting ? '' : rhythmHTML(c);
@@ -932,7 +1071,10 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
 function nextHTML(next) {
   if (!next) return '';
   const l = labelsFor(next);
-  return `<span class="lbl">next</span> <b class="cnum">${fmt(l.main)}</b> <b class="cname">${fmt(l.sub)}</b>${D.play === 'chords' && D.hint && next.grip ? ` <span class="muted">${esc(gripTag(next.grip))}</span>` : ''}${D.play === 'scales' && next.solo ? ` <span class="nsolo">${fmt(SC.scaleTitle(next.solo, next.root))}</span>` : ''}${next.place && next.place !== R.shown?.c?.place ? ` <span class="nsolo">→ ${next.place}</span>` : ''}`;
+  // a tiny picture of the next grip, so the hand can get ready (not in the reveal-later modes)
+  const g = D.play === 'chords' && D.neck && D.diagram === 'now' && next.grip ? next.grip : null;
+  const pic = g ? `<span class="nextpic">${neckSVG(g, { lo: g.lo <= 1 ? 0 : g.lo, hi: (g.lo <= 1 ? 0 : g.lo) + 4, tiny: true })}</span>` : '';
+  return `${pic}<span class="lbl">next</span> <b class="cnum">${fmt(l.main)}</b> <b class="cname">${fmt(l.sub)}</b>${D.play === 'chords' && D.hint && next.grip ? ` <span class="muted">${esc(gripTag(next.grip))}</span>` : ''}${D.play === 'scales' && next.solo ? ` <span class="nsolo">${fmt(SC.scaleTitle(next.solo, next.root))}</span>` : ''}${next.place && next.place !== R.shown?.c?.place ? ` <span class="nsolo">→ ${next.place}</span>` : ''}`;
 }
 // the neck: off, shown, or waiting (halfway / on tap)
 function renderStage() {

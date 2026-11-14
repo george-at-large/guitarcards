@@ -333,3 +333,48 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 .trail i { color: var(--violet); font-style: normal; }
 .lwarn { text-align: center; color: var(--rose); }
 .lwarn:empty { display: none; }
+
+/* ---------- Workouts ---------- */
+.wklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.wkrow { display: flex; gap: 6px; align-items: stretch; }
+.wkpick { flex: 1; text-align: left; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; color: var(--text); display: grid; gap: 3px; }
+.wkpick b { font: 600 15px var(--f-ui); }
+.wkpick small { color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+.wkrow.on .wkpick { border-color: var(--amber); background: rgba(255, 181, 71, 0.08); }
+.wkinc { width: 40px; flex: none; border-radius: 12px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.2); color: var(--amber); font-size: 18px; }
+.wkinc.on { border-color: rgba(255, 181, 71, 0.45); }
+.wkp { font-size: 11.5px; color: var(--muted); }
+.wkp.part { color: var(--amber); } .wkp.ok { color: #7fd8a4; }
+.wkbar, .roamprog { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 2px 0 6px; }
+.wkbar i, .roamprog i { display: block; height: 100%; background: var(--amber); transition: width .3s; }
+.wkcount { text-align: center; color: var(--muted); font-size: 12.5px; margin: 0; }
+.wkflash { color: #7fd8a4; margin-left: 6px; }
+.wknow { min-height: 0; padding: 8px 0 2px; }
+.wknow .main { font: 600 30px/1.15 var(--f-num); }
+.wknow .sub { font-size: 17px; margin-top: 4px; }
+.wktip { text-align: center; margin: 6px auto 10px; max-width: 34em; }
+.wkctl { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 6px 0 12px; }
+.wkctl button { min-height: 46px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: 600 15px var(--f-ui); }
+.wkctl button.primary { background: var(--amber); color: #1a1407; border-color: transparent; padding: 0 22px; }
+.wkctl button.soft { color: var(--soft); }
+.wkdone p { line-height: 1.5; }
+
+/* the roamer's banner: which progression is playing */
+.roamnow { text-align: center; margin: 2px auto 6px; padding: 8px 14px; border-radius: 14px; background: rgba(255, 181, 71, 0.07); border: 1px solid rgba(255, 181, 71, 0.25); max-width: 30em; }
+.roamnow:empty { display: none; }
+.roamnow .lbl { display: block; font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--amber); }
+.roamnow b { display: block; font: 600 19px/1.25 var(--f-display); }
+.roamnow small { color: var(--muted); font-size: 12px; }
+.wknext { font: 600 15px var(--f-num); color: var(--text); }
+
+/* evolving mode: the progression as written, the slot we're in lit */
+.written { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 4px 6px; margin: 6px auto 4px; font: 500 15px var(--f-num); color: var(--muted); max-width: 34em; }
+.written:empty { display: none; }
+.written .lbl { font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; margin-right: 4px; }
+.written i { font-style: normal; opacity: 0.5; }
+.written span.on { color: var(--text); font-weight: 650; border-bottom: 2px solid var(--amber); }
+.written span.on.swap, .written span.on.way { border-bottom-color: var(--violet); }
+.now .subnote b { font-weight: 650; }
+/* the next grip, tiny, beside the next chord */
+.nextline .nextpic { display: inline-flex; align-self: center; width: 58px; margin: -4px 2px -4px -6px; }
+.nextline .nextpic svg.neck.tiny { width: 58px; height: auto; }

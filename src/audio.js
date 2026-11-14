@@ -195,18 +195,21 @@ export function noiseHit(t, { dur = 0.05, freq = 2500, vel = 0.5 } = {}) {
 
 let clickBuf = null;
 export function click(t, level = 1) {
-  // level 2 = bar accent, 1 = beat, 0 = subdivision — a short woodblock-like tick
+  // level 2 = bar accent, 1 = beat, 0 = subdivision: a woodblock knock, a pitched body under a short burst of noise,
+  // loud enough to cut through a phone speaker
   const c = audioCtx();
-  if (!clickBuf) { const n = Math.floor(c.sampleRate * 0.03); clickBuf = c.createBuffer(1, n, c.sampleRate); const d = clickBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.12)); }
-  const f = level === 2 ? 2100 : level === 1 ? 1500 : 1050;
-  const v = level === 2 ? 0.9 : level === 1 ? 0.6 : 0.28;
+  if (!clickBuf) { const n = Math.floor(c.sampleRate * 0.02); clickBuf = c.createBuffer(1, n, c.sampleRate); const d = clickBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.15)); }
+  const f = level === 2 ? 1760 : level === 1 ? 1320 : 990;
+  const v = level === 2 ? 1 : level === 1 ? 0.72 : 0.38;
   const s = c.createBufferSource(); s.buffer = clickBuf;
-  const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 9;
-  const g = c.createGain(); g.gain.value = v * 2.2;
+  const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f * 1.5; bp.Q.value = 2;
+  const g = c.createGain(); g.gain.value = v * 0.9;
   s.connect(bp).connect(g).connect(master); s.start(t);
-  const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f;
-  const og = c.createGain(); og.gain.setValueAtTime(v * 0.25, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
-  o.connect(og).connect(master); o.start(t); o.stop(t + 0.03);
+  for (const [mul, amp, dec] of [[1, 0.9, 0.045], [2.76, 0.3, 0.02]]) {
+    const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f * mul;
+    const og = c.createGain(); og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(v * amp, t + 0.002); og.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+    o.connect(og).connect(master); o.start(t); o.stop(t + dec + 0.01);
+  }
 }
 
 // strum: midis low->high; dir 'D' plays low->high, 'U' high->low

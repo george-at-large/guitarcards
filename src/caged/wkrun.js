@@ -1,0 +1,274 @@
+// The Workouts section: pick a workout (or the full workout), a key and a key loop, an area of the neck, then step
+// through it. Each step draws what to play and sounds its context: a chord or short cadence, the chord held softly
+// while you play, and where it resolves. Steps advance by tap or on a slow beat. Each unit (a workout, in a key, in a
+// shape) is ticked off when finished, and the run remembers where it got to.
+import * as T from '../theory.js';
+import * as A from '../audio.js';
+import * as G from './grips.js';
+import * as W from './workouts.js';
+
+const LEGEND_SCALE = '<div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">colour note</span><span class="k sc">rest of the scale</span></div>';
+const LEGEND_GUIDE = '<div class="legend"><span class="k t3">3rd</span><span class="k t7">7th</span><span class="k sc">other 3rds and 7ths here</span></div>';
+const AREAS = [['one', 'One shape'], ['pair', 'Two shapes'], ['all', 'All five']];
+
+export function renderWorkouts($app, ctx) {
+  const { D, save, neckSVG, esc, fmt, legend, onBack, startRoamer } = ctx;
+  const O = D.wk = Object.assign({ sel: 'full', key: 'C', loop: 'one', shape: 'E', area: 'one', types: { tri: true, sev: true, ext: false }, pace: 'tap', bpm: 60, beats: 8, sound: true, hold: true, click: false, skip: [], done: {}, at: null, seed: 7 }, D.wk || {});
+  let R = null;
+
+  // ---------- the plan: every unit of the run, in order ----------
+  const workoutsOf = () => (O.sel === 'full' ? W.WORKOUTS.filter((w) => !O.skip.includes(w.id)) : [W.byId(O.sel)].filter(Boolean));
+  const unitId = (u) => `${u.w.id}|${u.key}${u.w.area ? `|${u.shape}${u.pair ? '+' : ''}` : ''}`;
+  const sig = () => JSON.stringify([O.sel, O.key, O.loop, O.shape, O.area, O.loop === 'rand' ? O.seed : 0, O.sel === 'full' ? O.skip : 0]);
+  function plan() {
+    const keys = W.loopKeys(O.key, O.loop, O.seed);
+    const lo0 = G.positionOf(T.parseNote(O.key), O.shape).lo;
+    const units = [];
+    for (const key of keys) for (const w of workoutsOf()) {
+      if (!w.area) { units.push({ w, key }); continue; }
+      const s0 = O.loop === 'pos' ? W.shapeNear(key, lo0) : O.shape;
+      for (const shape of O.area === 'all' ? W.shapesFrom(s0) : [s0]) units.push({ w, key, shape, pair: O.area === 'pair' });
+    }
+    return units;
+  }
+  const qs = () => W.typesFor(O.types);
+  const unitSteps = (u) => W.steps(u.w, u.key, { shape: u.shape || 'E', pair: !!u.pair, qs: qs() });
+
+  // ---------- progress ----------
+  function keysDone(w) {
+    return W.MAJOR_KEYS.filter((k) => (w.area ? G.SHAPES.every((s) => O.done[`${w.id}|${k}|${s}`]) || G.SHAPES.every((s) => O.done[`${w.id}|${k}|${s}+`]) : O.done[`${w.id}|${k}`])).length;
+  }
+  function rowProgress(w) {
+    const kd = keysDone(w);
+    const here = w.area ? G.SHAPES.filter((s) => O.done[`${w.id}|${O.key}|${s}`]).length : O.done[`${w.id}|${O.key}`] ? 1 : 0;
+    const cur = w.area ? `${fmt(T.pretty(O.key))}: ${here}/5 shapes` : `${fmt(T.pretty(O.key))}: ${here ? 'done' : 'to do'}`;
+    return `<span class="wkp ${kd === 12 ? 'ok' : kd || here ? 'part' : ''}">${cur} · ${kd}/12 keys</span>`;
+  }
+
+  // ---------- sound ----------
+  const now = () => A.audioCtx().currentTime;
+  function sound(step) {
+    if (!O.sound || !step.sound) return;
+    const spb = 60 / O.bpm, gap = Math.min(2.2, Math.max(1, spb * 2));
+    let t = now() + 0.06;
+    step.sound.seq.forEach((c, i) => {
+      if (i) t += gap;
+      A.strum(c.midis, t, { vel: 0.55, spread: 0.022 });
+      if (O.hold) R.pad.chord(c.midis, t, { inT: 0.25, outT: 0.5 });
+    });
+    if (!O.hold) R.pad.release(now(), 0.3);
+  }
+  function resolve() {
+    const st = R.steps[R.si];
+    if (!st?.sound?.resolve) return;
+    const t = now() + 0.04;
+    A.strum(st.sound.resolve.midis, t, { vel: 0.55, spread: 0.022 });
+    if (O.hold) R.pad.chord(st.sound.resolve.midis, t, { inT: 0.25, outT: 0.5 });
+  }
+  function freshPad() { R.pad = A.padLine({ vel: 0.4 }); }
+
+  // ---------- the run ----------
+  async function start(resume) {
+    await A.unlockAudio(); await A.ensureRunning();
+    const units = plan();
+    if (!units.length) return;
+    R = { units, ui: 0, si: 0, steps: null, timer: null, paused: false };
+    if (resume && O.at && O.at.sig === sig()) { R.ui = Math.min(O.at.ui, units.length - 1); R.si = O.at.si; }
+    freshPad();
+    enterUnit(R.ui, R.si);
+  }
+  function enterUnit(ui, si = 0) {
+    R.ui = ui;
+    R.steps = unitSteps(R.units[ui]);
+    if (!R.steps.length) return finishUnit(); // nothing fits here (rare): move on
+    R.si = Math.min(si, R.steps.length - 1);
+    show();
+  }
+  function finishUnit() {
+    const u = R.units[R.ui];
+    O.done[unitId(u)] = Date.now();
+    R.flash = `✓ ${u.w.name} · ${T.pretty(u.key)}${u.shape ? ` · ${u.pair ? `${u.shape}+${G.nextShape(u.shape)}` : `${u.shape} shape`}` : ''}`;
+    if (R.ui + 1 >= R.units.length) { O.at = null; save(); return finished(); }
+    save();
+    enterUnit(R.ui + 1, 0);
+  }
+  function go(d) {
+    clearTimeout(R.timer);
+    if (d > 0 && R.si + 1 >= R.steps.length) return finishUnit();
+    if (d < 0 && R.si === 0) { if (R.ui > 0) { R.flash = ''; enterUnit(R.ui - 1, 1e9); } return; }
+    R.si += d;
+    R.flash = '';
+    show();
+  }
+  function show() {
+    const u = R.units[R.ui], st = R.steps[R.si];
+    O.at = { sig: sig(), ui: R.ui, si: R.si }; save();
+    drawRun(u, st);
+    sound(st);
+    if (O.pace === 'auto' && !R.paused) autoStep(st);
+  }
+  // auto: the step lasts so many beats; the click counts them; a resolution falls in the last two
+  function autoStep(st) {
+    const spb = 60 / O.bpm, t0 = now() + 0.06;
+    const lead = st.sound ? (st.sound.seq.length - 1) * Math.min(2.2, Math.max(1, spb * 2)) : 0;
+    const total = lead + O.beats * spb;
+    if (O.click) for (let b = 0; b < O.beats; b++) A.click(t0 + lead + b * spb, b === 0 ? 2 : 1);
+    if (st.sound?.resolve) R.timer = setTimeout(() => { resolve(); R.timer = setTimeout(() => go(1), 2 * spb * 1000); }, (total - 2 * spb) * 1000);
+    else R.timer = setTimeout(() => go(1), total * 1000);
+  }
+  function stopAll() {
+    if (!R) return;
+    clearTimeout(R.timer);
+    A.hush();
+    R = null;
+  }
+  function togglePause(btn) {
+    R.paused = !R.paused;
+    btn.textContent = R.paused ? '▶' : '❚❚';
+    clearTimeout(R.timer);
+    if (R.paused) { A.hush(); } else { freshPad(); show(); }
+  }
+
+  // ---------- drawing the run ----------
+  const areaName = (u) => (u.shape ? (u.pair ? `${u.shape}+${G.nextShape(u.shape)} shapes` : `${u.shape} shape`) : 'the whole neck');
+  function neckHTML(n) {
+    const svg = neckSVG({ notes: n.notes, lo: n.lo, hi: n.hi }, { lo: n.lo, hi: n.hi, band: n.band || null, prev: n.prev || null, labels: 'iv' });
+    return n.cap ? `<figure>${svg}<figcaption>${fmt(n.cap)}</figcaption></figure>` : svg;
+  }
+  function drawRun(u, st) {
+    const nx = R.steps[R.si + 1] || null;
+    const total = R.units.length;
+    const pct = ((R.ui + (R.si + 1) / R.steps.length) / total) * 100;
+    $app.innerHTML = `
+    <header class="chead run"><button class="icon" data-w="stop" aria-label="Stop">■</button><div class="where">${esc(u.w.name)}<small>${fmt(T.pretty(u.key))} ${u.w.minor ? 'minor' : 'major'} · ${esc(areaName(u))}</small></div>${O.pace === 'auto' ? `<button class="icon" data-w="pause" aria-label="Pause">${R.paused ? '▶' : '❚❚'}</button>` : '<span></span>'}</header>
+    <div class="wkbar"><i style="width:${pct.toFixed(1)}%"></i></div>
+    <p class="wkcount">${total > 1 ? `Part ${R.ui + 1} of ${total} · ` : ''}step ${R.si + 1} of ${R.steps.length}${R.flash ? ` <span class="wkflash">${esc(R.flash)}</span>` : ''}</p>
+    <div class="now wknow"><div class="main">${fmt(T.pretty(st.title))}</div><div class="sub">${fmt(T.pretty(st.sub || ''))}</div></div>
+    ${st.tip ? `<p class="note wktip">${fmt(st.tip)}</p>` : ''}
+    <div class="lnecks ${st.necks.length > 1 ? '' : 'one'}">${st.necks.map(neckHTML).join('')}</div>
+    ${st.legend === 'scale' ? LEGEND_SCALE : st.legend === 'guide' ? LEGEND_GUIDE : legend}
+    <div class="nextline">${nx ? `<span class="lbl">next</span> <span class="wknext">${fmt(T.pretty(nx.title))}</span>` : R.ui + 1 < total ? `<span class="lbl">next</span> <span class="muted">${esc(R.units[R.ui + 1].w.name)} · ${fmt(T.pretty(R.units[R.ui + 1].key))} · ${esc(areaName(R.units[R.ui + 1]))}</span>` : '<span class="lbl">last step</span>'}</div>
+    <div class="wkctl">
+      <button data-w="prev" aria-label="Back">◀</button>
+      ${O.sound ? '<button data-w="again" class="soft">↻ Hear it</button>' : ''}
+      ${O.sound && st.sound?.resolve ? `<button data-w="resolve" class="soft">Resolve → ${fmt(T.pretty(st.sound.resolve.name))}</button>` : ''}
+      <button data-w="next" class="primary" aria-label="Next">Next ▶</button>
+    </div>
+    <div class="runbtns">${liveBtn('sound', 'Sound', O.sound)}${liveBtn('hold', 'Hold the chord', O.hold)}${liveBtn('auto', O.pace === 'auto' ? `Auto · ${O.beats} beats` : 'Auto', O.pace === 'auto')}${O.pace === 'auto' ? liveBtn('click', 'Click', O.click) : ''}<button class="rt" data-w="skip">Skip this part</button></div>`;
+  }
+  const liveBtn = (k, l, on) => `<button class="rt ${on ? 'on' : ''}" data-w="t:${k}" aria-pressed="${!!on}">${esc(l)}</button>`;
+  function finished() {
+    const n = R.units.length;
+    stopAll();
+    $app.innerHTML = `
+    <header class="chead"><button class="icon" data-w="back" aria-label="Back">‹</button><h1>Done</h1><span></span></header>
+    <section class="card wkdone"><h2>Workout complete</h2><p>${n} part${n === 1 ? '' : 's'} finished${O.loop !== 'one' ? `, through ${O.loop === 'rand' ? 'all twelve keys' : esc(W.LOOPS.find((l) => l.id === O.loop).name.toLowerCase())}` : ''}. Each one is ticked in the list.</p></section>
+    <div class="actions"><button class="primary" data-w="setup">Back to workouts</button></div>`;
+  }
+
+  // ---------- setup ----------
+  function seg(name, opts, cur) {
+    return `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-o="${name}" data-v="${v}" class="${String(cur) === String(v) ? 'on' : ''}" role="radio" aria-checked="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
+  }
+  const chip = (k, l, on) => `<button class="chip ${on ? 'on' : ''}" data-tg="${k}">${l}</button>`;
+  function rowHTML(w) {
+    const on = O.sel === w.id, inc = !O.skip.includes(w.id);
+    return `<li class="wkrow ${on ? 'on' : ''}"><button class="wkpick" data-pick="${w.id}"><b>${esc(w.name)}</b><small>${fmt(w.blurb)}</small>${rowProgress(w)}</button>${O.sel === 'full' ? `<button class="wkinc ${inc ? 'on' : ''}" data-inc="${w.id}" aria-label="Include in the full workout" aria-pressed="${inc}">${inc ? '✓' : ''}</button>` : ''}</li>`;
+  }
+  function summary() {
+    if (O.sel === 'roamer') return '';
+    const units = plan();
+    const left = units.filter((u) => !O.done[unitId(u)]).length;
+    const hasArea = workoutsOf().some((w) => w.area);
+    return `<p class="note"><b>${units.length} part${units.length === 1 ? '' : 's'}</b>${units.length > 1 ? `, ${left} not yet ticked` : ''}: ${O.sel === 'full' ? `${workoutsOf().length} workouts` : esc(W.byId(O.sel).name)} in ${O.loop === 'one' ? fmt(T.pretty(O.key)) : `${12} keys (${esc(W.LOOPS.find((l) => l.id === O.loop).name)})`}${hasArea ? `, ${O.area === 'all' ? 'all five shapes each' : O.area === 'pair' ? 'two shapes at a time' : O.loop === 'pos' ? 'staying in one position' : `the ${O.shape} shape`}` : ''}. ${O.at && O.at.sig === sig() ? 'You can pick up where you left off.' : ''}</p>`;
+  }
+  function setup() {
+    const pos = G.positionOf(T.parseNote(O.key), O.shape);
+    const loop = W.LOOPS.find((l) => l.id === O.loop);
+    const roam = O.sel === 'roamer';
+    const resumable = !roam && O.at && O.at.sig === sig();
+    $app.innerHTML = `
+    <header class="chead"><button class="icon" data-w="back" aria-label="Back">‹</button><h1>Workouts</h1><button class="icon" data-w="go" aria-label="Start">▶</button></header>
+    <p class="lead">Cover everything, one step at a time: every chord, arpeggio and scale in every shape, then every key. Each step sounds its chord, holds it while you play, and shows where it goes.</p>
+    <section class="card">
+      <h2>Workout</h2>
+      <ul class="wklist"><li class="wkrow ${O.sel === 'full' ? 'on' : ''}"><button class="wkpick" data-pick="full"><b>Full workout</b><small>All of them in order, every key in your loop. ${O.sel === 'full' ? 'Untick any to leave it out.' : ''}</small></button></li></ul>
+      ${W.GROUPS.map((g) => `<h3>${esc(g)}</h3><ul class="wklist">${W.WORKOUTS.filter((w) => w.group === g).map(rowHTML).join('')}</ul>`).join('')}
+      <h3>Progressions</h3>
+      <ul class="wklist"><li class="wkrow ${roam ? 'on' : ''}"><button class="wkpick" data-pick="roamer"><b>Progression roamer, all five shapes</b><small>Every progression and cadence in the library, each once round in every CAGED shape, on the beat. Runs in Chord changes.</small></button></li></ul>
+    </section>
+    ${roam ? '' : `
+    <section class="card">
+      <h2>Key and loop</h2>
+      <div class="chips">${W.MAJOR_KEYS.map((k) => `<button class="chip ${O.key === k ? 'on' : ''}" data-o="key" data-v="${k}">${fmt(T.pretty(k))}</button>`).join('')}</div>
+      <h3>Loop</h3>
+      ${seg('loop', W.LOOPS.map((l) => [l.id, l.name]), O.loop)}
+      <p class="note">${fmt(loop.blurb)}${O.loop !== 'one' ? ` Starts on ${fmt(T.pretty(O.key))}.` : ''}</p>
+    </section>
+    <section class="card">
+      <h2>Where on the neck</h2>
+      <div class="chips shapes">${G.SHAPES.map((s) => `<button class="chip ${O.shape === s ? 'on' : ''}" data-o="shape" data-v="${s}">${O.area === 'pair' ? `${s}+${G.nextShape(s)}` : s}</button>`).join('')}</div>
+      ${seg('area', AREAS, O.area)}
+      <p class="note">${O.loop === 'pos' ? `Your hand stays at frets ${pos.lo}–${pos.hi}; each key uses whichever shape lives there.` : O.area === 'all' ? `Each workout goes up the neck through all five shapes, starting from the ${O.shape} shape.` : O.area === 'pair' ? `The ${O.shape} and ${G.nextShape(O.shape)} shapes as one area: part of the drill is the shift between them.` : `The ${O.shape} shape of ${fmt(T.pretty(O.key))}: frets ${pos.lo}–${pos.hi}.`} The string-set and up-the-neck workouts use the whole neck.</p>
+    </section>
+    <section class="card">
+      <h2>Chord types</h2>
+      <div class="chips">${Object.entries(W.TYPES).map(([k, t]) => chip(`type:${k}`, `${t.name} <small>${t.qs.map((q) => fmt(T.pretty(T.chordSymbol(T.parseNote('C'), q).replace(/^C/, '') || 'maj'))).join(' ')}</small>`, O.types[k])).join('')}</div>
+      <p class="note">For the CAGED chords and both arpeggio workouts.</p>
+    </section>
+    <section class="card">
+      <h2>Pace</h2>
+      ${seg('pace', [['tap', 'Tap through'], ['auto', 'On the beat']], O.pace)}
+      ${O.pace === 'auto' ? `<div class="tempo"><button data-w="bpm-" aria-label="Slower">−</button><b>${O.bpm}<small> bpm</small></b><button data-w="bpm+" aria-label="Faster">+</button></div>
+      <h3>Beats a step</h3>${seg('beats', [[4, '4'], [8, '8'], [16, '16'], [32, '32']], O.beats)}` : ''}
+      <div class="chips">${chip('sound', 'Sound', O.sound)}${chip('hold', 'Hold the chord', O.hold)}${O.pace === 'auto' ? chip('click', 'Click', O.click) : ''}</div>
+      <p class="note">${O.pace === 'auto' ? `Each step lasts ${O.beats} beats at ${O.bpm} bpm, then moves on. Scales want 16 or 32.` : 'Tap Next when you’ve played the step. Nothing hurries you.'}</p>
+    </section>`}
+    ${summary()}
+    <div class="actions">${resumable ? '<button class="primary" data-w="resume">▶ Pick up where you left off</button>' : ''}<button class="${resumable ? '' : 'primary'}" data-w="go">${roam ? '▶ Start the roamer' : resumable ? 'Start from the beginning' : '▶ Start'}</button></div>`;
+  }
+
+  $app.onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const d = b.dataset;
+    if (d.pick) { O.sel = d.pick; save(); return setup(); }
+    if (d.inc) { O.skip = O.skip.includes(d.inc) ? O.skip.filter((x) => x !== d.inc) : [...O.skip, d.inc]; save(); return setup(); }
+    if (d.o) {
+      O[d.o] = ['beats'].includes(d.o) ? Number(d.v) : d.v;
+      if (d.o === 'loop' && d.v === 'rand') O.seed = 1 + Math.floor(Math.random() * 9999);
+      save(); return setup();
+    }
+    if (d.tg) {
+      if (d.tg.startsWith('type:')) { const k = d.tg.slice(5); O.types = { ...O.types, [k]: !O.types[k] }; if (!Object.values(O.types).some(Boolean)) O.types.tri = true; }
+      else O[d.tg] = !O[d.tg];
+      save(); return setup();
+    }
+    const a = d.w;
+    if (!a) return;
+    if (a === 'back') { stopAll(); return onBack(); }
+    if (a === 'setup') { stopAll(); return setup(); }
+    if (a === 'go' || a === 'resume') { save(); if (O.sel === 'roamer') return startRoamer(); return start(a === 'resume'); }
+    if (a === 'bpm-' || a === 'bpm+') { O.bpm = Math.max(20, Math.min(160, O.bpm + (a === 'bpm+' ? 4 : -4))); save(); return setup(); }
+    if (!R) return;
+    if (a === 'stop') { stopAll(); return setup(); }
+    if (a === 'pause') return togglePause(b);
+    if (a === 'next') return go(1);
+    if (a === 'prev') return go(-1);
+    if (a === 'again') { clearTimeout(R.timer); return sound(R.steps[R.si]); }
+    if (a === 'resolve') return resolve();
+    if (a === 'skip') { clearTimeout(R.timer); R.flash = ''; if (R.ui + 1 >= R.units.length) { O.at = null; save(); return finished(); } return enterUnit(R.ui + 1, 0); }
+    if (a.startsWith('t:')) {
+      const k = a.slice(2);
+      if (k === 'auto') O.pace = O.pace === 'auto' ? 'tap' : 'auto';
+      else O[k] = !O[k];
+      if (k === 'hold' && !O.hold) R.pad.release(now(), 0.4);
+      if (k === 'sound' && !O.sound) { A.hush(); freshPad(); }
+      save();
+      clearTimeout(R.timer);
+      drawRun(R.units[R.ui], R.steps[R.si]);
+      if (k === 'auto' && O.pace === 'auto') autoStep(R.steps[R.si]);
+    }
+  };
+  setup();
+  return stopAll;
+}
