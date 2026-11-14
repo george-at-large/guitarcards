@@ -214,6 +214,7 @@ export function congruent(id) {
 
 
 // ---------- chord context: the chords that call for each scale ----------
+// key: where a progression resolves (semitones above the 1), so V7 → I is numbered as such, not as I7 → IV
 // over one root: [semitones above the root, chord quality], a bar each (shorter when the scale changes sooner), looping.
 // A landscape can override any of them (the blues landscape plays everything over I7 – IV7, say)
 export const CONTEXT = {
@@ -233,9 +234,9 @@ export const CONTEXT = {
   'maj-pent': { prog: [[0, '69'], [5, 'add9']], why: 'I6/9 – IVadd9: no 4 or 7 to clash with either chord.' },
   'maj-blues': { prog: [[0, '7'], [5, '7']], why: 'I7 – IV7: the ♭3 slides into the 3rd of each chord.' },
   'lyd-dom': { prog: [[0, '7#11'], [0, '9']], why: 'A 7th chord that stays put: the ♯11 floats instead of resolving.' },
-  'phryg-dom': { prog: [[0, '7b9'], [5, 'm']], why: 'V7♭9 – i: the dominant of a minor key, its ♭9 and ♭13 from the key’s ♭6 and ♭2.' },
-  altered: { prog: [[0, '7alt'], [5, 'maj7']], why: 'V7alt – Imaj7: every tension altered, then resolved.' },
-  'dim-hw': { prog: [[0, '13b9'], [5, 'maj7']], why: 'V13♭9 – Imaj7: the ♭9 with a natural 13, resolved.' },
+  'phryg-dom': { key: 5, prog: [[0, '7b9'], [5, 'm']], why: 'V7♭9 – i: the dominant of a minor key, its ♭9 and ♭13 from the key’s ♭6 and ♭2.' },
+  altered: { key: 5, prog: [[0, '7alt'], [5, 'maj7']], why: 'V7alt – Imaj7: every tension altered, then resolved.' },
+  'dim-hw': { key: 5, prog: [[0, '13b9'], [5, 'maj7']], why: 'V13♭9 – Imaj7: the ♭9 with a natural 13, resolved.' },
   'dbl-harm': { prog: [[0, 'maj7'], [1, 'maj7']], why: 'Imaj7 – ♭IImaj7: both chords from the scale’s two exotic gaps.' },
 };
 export const LAND_CONTEXT = {
@@ -247,8 +248,8 @@ export const LAND_CONTEXT = {
     dorian: { prog: [[0, 'm7'], [5, '7']], why: 'i7 – IV7: the minor blues and funk vamp.' },
   },
   'l-dom': {
-    mixolydian: { prog: [[0, '13'], [5, 'maj7']], why: 'V13 – Imaj7: the plain dominant, resolving to major.' },
-    'mixo-b6': { prog: [[0, '7b13'], [5, 'm']], why: 'V7♭13 – i: a dominant heading for a minor chord.' },
+    mixolydian: { key: 5, prog: [[0, '13'], [5, 'maj7']], why: 'V13 – Imaj7: the plain dominant, resolving to major.' },
+    'mixo-b6': { key: 5, prog: [[0, '7b13'], [5, 'm']], why: 'V7♭13 – i: a dominant heading for a minor chord.' },
   },
   'l-flam': {
     phrygian: { prog: [[0, 'm'], [1, '']], why: 'i – ♭II: the minor side of flamenco.' },

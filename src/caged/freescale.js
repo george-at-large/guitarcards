@@ -566,7 +566,7 @@ export function renderFreeScale($app, ctx) {
       const kn = fmt(T.noteName(keyTonic(), true)), deg = d.drift ? BY[d.ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === (it.shift || 0)) : -1;
       const ch = d.drift ? `<p class="fsmoved">${it.shift ? `Same notes as ${kn} ${esc(BY[d.ids[0]].name)}, heard from its ${ORD[deg]} (${fmt(driftDeg(it)?.roman || '')}): <b>${t} is the 1</b> <i>(the drone moved)</i>` : `Home: ${kn} ${esc(BY[d.ids[0]].name)}`}</p>` : !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
       const cx = ctxOf(it.mode);
-      const over = cx && O.backing === 'chords' ? `<p class="fsover"><span class="lbl">over</span> <b>${fmt(cx.prog.map(([o, q]) => chordName(o, q)).join(' – '))}</b><small>${fmt(cx.why)}</small></p>` : '';
+      const over = cx && O.backing === 'chords' ? `<p class="fsover"><span class="lbl">over</span> <b>${fmt(cx.prog.map(([o, q]) => chordName(o, q)).join(' – '))}</b> <i class="fsrn">${fmt(cx.prog.map(([o, q]) => romanOf(shiftOf(it) + o - (cx.key || 0), q)).join(' – '))}</i><small>${fmt(cx.why)}</small></p>` : '';
       return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${over}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fillRole(d.roles[it.mode])}</p>` : ''}`;
     }
     return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${moved}`;
@@ -610,6 +610,34 @@ export function renderFreeScale($app, ctx) {
     const rn = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][d];
     return { ord: ORD[d], roman: `${acc < 0 ? '♭' : acc > 0 ? '♯' : ''}${minor ? rn.toLowerCase() : rn}${dim ? '°' : ''}` };
   }
+  // a chord as a roman numeral in the key (the parent's root in a drift): ♭VImaj7, iv7, V7♭9…
+  const RN = ['I', '♭II', 'II', '♭III', 'III', 'IV', '♯IV', 'V', '♭VI', 'VI', '♭VII', 'VII'];
+  function romanOf(semis, q) {
+    const c = T.getChord(q), minor = c.ivs.includes('b3') && !c.ivs.includes('3');
+    let sym = c.sym; if (minor && /^m(?!aj)/.test(sym)) sym = sym.slice(1);
+    const rn = RN[((semis % 12) + 12) % 12];
+    return (minor ? rn.toLowerCase() : rn) + sym;
+  }
+  // a note as the key spells it (in a drift, the parent scale's spelling)
+  function spell(n) {
+    const l = land();
+    if (l && l.drift) { const par = BY[l.ids[0]].ivs.map((iv) => T.transpose(keyTonic(), F.simpleIv(iv))); return par.find((x) => T.notePc(x) === T.notePc(n)) ?? n; }
+    return n;
+  }
+  // the chords for this scale, as numerals and names, and the note to hit as each arrives: its 3rd (the 4th on a sus chord)
+  function chordsHTML(it) {
+    const cx = ctxOf(it.mode); if (!cx) return '';
+    const seen = new Set(), ch = cx.prog.filter(([o, q]) => { const k = `${o}${q}`; if (seen.has(k)) return false; seen.add(k); return true; });
+    // the strongest chord tone that's in the scale you're playing: 3rd, then 7th, then root, then 5th
+    const inScale = pcs(it.mode);
+    const hit = ch.map(([o, q]) => {
+      const c = T.getChord(q), pick = (want) => c.ivs.find((x) => want.includes(x) && inScale.includes((o + FL.semisOf(x)) % 12));
+      const iv = pick(['3', 'b3']) || pick(['b7', '7', 'bb7', '6']) || pick(['1']) || pick(['5', 'b5', '#5']) || '1';
+      return `<b>${fmt(T.noteName(spell(T.transpose(T.transposeSemis(tonic(), o), F.simpleIv(iv))), true))}</b><i>${fmt(T.prettyIv(iv))} of ${fmt(chordName(o, q))}</i>`;
+    });
+    return `<span class="fschords">${O.backing === 'chords' && R.on ? 'over' : 'chords'}: ${ch.map(([o, q]) => `<b>${fmt(romanOf(shiftOf(it) + o - (cx.key || 0), q))}</b><i>${fmt(chordName(o, q))}</i>`).join(' – ')}</span>
+      <span class="fschords">hit as each chord arrives: ${hit.join(' · ')}</span>`;
+  }
   // the notes to land on the beats: the landscape's own choice, else the chord tones of the mode
   function targetsHTML(it) {
     const l = land(); if (!l || !it.mode) return '';
@@ -637,7 +665,16 @@ export function renderFreeScale($app, ctx) {
       <div class="fsrow fsland"><span class="lbl">Backing</span>${seg('backing', O.backing, [['drone', 'Root drone'], ['chords', 'Chords']])}</div>
       <div class="fsrow fsland"><span class="lbl">Change</span>${seg('go', O.go, [['manual', 'Manual'], ['auto', 'Auto']])}</div>
       ${O.go === 'auto' ? `<div class="fsrow fsland"><span class="lbl">Every</span>${seg('every', O.every, [[4, '4 beats'], [8, '8'], [16, '16'], [32, '32']])}</div>` : ''}
-      <p class="note fsblurb">${fmt(l.blurb)}</p>` : ''}`;
+      <p class="note fsblurb">${fmt(l.blurb)}</p>
+      <details class="fssolo" ${R.soloOpen ? 'open' : ''}><summary>Soloing over the changes: what to aim for</summary><ul>
+        <li><b>Hit a chord tone as each chord arrives</b>, on its first beat. The 3rd says the most (it tells major from minor); the root is safest; the 7th is the jazziest. The label above the neck names the note to hit on each chord (its 3rd when your scale has it).</li>
+        <li><b>Approach it from a half step</b> above or below, a beat early: the slide into the target is what makes it sound intentional.</li>
+        <li><b>Guide tones</b>: from a chord’s 3rd or 7th, move by the smallest step to the next chord’s 3rd or 7th. Two or three notes per change can outline the whole progression.</li>
+        <li><b>Lean on the colour note, then resolve it</b>: the note that makes the mode (Dorian’s 6, Lydian’s ♯4, the leading tone in harmonic minor) on a strong beat, then a step to a chord tone.</li>
+        <li><b>Keep a motif, change one note</b>: play the same short phrase when the mode or the 1 changes and let the new note do the talking. It’s the clearest way to hear what moved.</li>
+        <li><b>Leave space</b>: phrase in two bars, rest for two. Start phrases on different beats, not always on 1.</li>
+        <li><b>Land on a target at the end of every phrase</b>; the notes between can be anything in the scale.</li>
+      </ul></details>` : ''}`;
   }
   function optsHTML() {
     const d = def();
@@ -680,7 +717,7 @@ export function renderFreeScale($app, ctx) {
     <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
-    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc({ aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${targetsHTML(it)}</p>` : ''}
+    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc({ aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${targetsHTML(it)}${chordsHTML(it)}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
@@ -699,6 +736,7 @@ export function renderFreeScale($app, ctx) {
       if (k >= 0) O.wi = k; else { O.seq = 'hold'; O.wi = 0; }
       save(); draw();
     };
+    const sd = $app.querySelector('.fssolo'); if (sd) sd.ontoggle = () => { R.soloOpen = sd.open; };
     const od = $app.querySelector('#fsoptsd');
     od.ontoggle = () => { R.optsOpen = od.open; };
     const sq = $app.querySelector('#fsseq');
