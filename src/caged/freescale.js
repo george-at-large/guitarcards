@@ -664,6 +664,7 @@ export function renderFreeScale($app, ctx) {
     <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
+    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && shiftOf(it) ? ` <small>· from the ${ORD[BY[land().ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === shiftOf(it))]} of ${fmt(T.noteName(keyTonic(), true))} ${esc(BY[land().ids[0]].name)}</small>` : ''}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>

@@ -559,3 +559,5 @@ details.fsopts[open] > summary { margin-bottom: 8px; }
 .fsover .lbl { font: 600 11px var(--f-ui); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .fsover b { color: var(--text, #fff); }
 .fsover small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.fsnecklbl { text-align: center; font: 650 14px var(--f-display); margin: 8px 0 0; }
+.fsnecklbl small { font: 400 12px var(--f-ui); color: var(--muted); }
