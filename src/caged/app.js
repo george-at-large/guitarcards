@@ -661,7 +661,7 @@ function openFree() {
 // Borrowed chords: each one explained, in all five shapes, and its progressions sent to Chord changes round the shapes
 function openBorrowed() {
   stopPractice = BC.renderBorrowed($app, { D, save, neckSVG, esc, fmt, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); },
-    onPractise: (id, minor, key) => { stopPractice = null; D.app = 'changes'; D.src = 'prog'; D.prog = id; D.kt = minor ? 'minor' : 'major'; D.key = key; D.mode = 'pos'; D.play = 'chords'; D.pcolour = 'as'; D.tour = true; D.tourSlow = false; D.shape = 'C'; save(); setup(); run(); } });
+    onPractise: (id, minor, key, where = 'all') => { stopPractice = null; D.app = 'changes'; D.src = 'prog'; D.prog = id; D.kt = minor ? 'minor' : 'major'; D.key = key; D.mode = 'pos'; D.play = 'chords'; D.pcolour = 'as'; D.tour = where === 'all'; D.tourSlow = false; D.shape = where === 'all' ? 'C' : where; save(); setup(); run(); } });
 }
 // Chord scales: each chord's scale, fingered in every CAGED shape and 3 per string, over the held chord
 function openChordScales() {

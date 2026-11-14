@@ -13,7 +13,7 @@ const KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 export function renderBorrowed($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, onPractise } = ctx;
-  const O = D.bc = Object.assign({ key: 'C', id: 'iv' }, D.bc || {});
+  const O = D.bc = Object.assign({ key: 'C', id: 'iv', where: 'all' }, D.bc || {});
   const cur = () => BORROWED.find((b) => b.id === O.id) || BORROWED[0];
   const tonic = () => T.parseNote(O.key);
   const name = (root, q) => H.chordName(root, q);
@@ -56,7 +56,7 @@ export function renderBorrowed($app, ctx) {
       <p class="bcpname">${fmt(p.name)}${minor && !b.minor ? ' <small>(minor key)</small>' : ''}</p>
       <p class="bcbars">${chords.map((bar) => `<span>${bar.map((c) => `<b>${fmt(c.rn)}</b><i>${fmt(c.nm)}</i>`).join(' ')}</span>`).join('')}</p>
       <p class="note">${fmt(p.note)}</p>
-      <button class="chip on" data-practise="${item.id}" data-minor="${minor ? 1 : 0}">▶ Play it round all five shapes</button>
+      <button class="chip on" data-practise="${item.id}" data-minor="${minor ? 1 : 0}">▶ ${O.where === 'all' ? 'Play it round all five shapes' : `Play it in the ${O.where} shape`}</button>
     </li>`;
   }
   function draw() {
@@ -82,7 +82,8 @@ export function renderBorrowed($app, ctx) {
     </section>
     <section class="card bcprogs">
       <h2>Progressions that use it</h2>
-      <p class="note">Each one opens in Chord changes in ${fmt(T.noteName(t, true))}, a new CAGED shape each time round (C → A → G → E → D), so you play it in all five.</p>
+      <div class="fsopt"><span>Play in</span><div class="seg" role="radiogroup">${[['all', 'All five'], ...G.SHAPES.map((x) => [x, x])].map(([v, l]) => `<button data-where="${v}" class="${O.where === v ? 'on' : ''}" role="radio" aria-checked="${O.where === v}">${l}</button>`).join('')}</div></div>
+      <p class="note">Each one opens in Chord changes in ${fmt(T.noteName(t, true))}, ${O.where === 'all' ? 'a new CAGED shape each time round (C → A → G → E → D), so you play it in all five' : `staying in the ${O.where} shape`}.</p>
       <ul>${b.progs.map(progHTML).join('')}</ul>
     </section>`;
   }
@@ -93,7 +94,8 @@ export function renderBorrowed($app, ctx) {
     if (d.key) { O.key = d.key; save(); return draw(); }
     if (d.bc) { O.id = d.bc; save(); draw(); document.querySelector('.bcabout')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     if (d.hear) return hear(d.hear);
-    if (d.practise) { A.hush(); return onPractise(d.practise, d.minor === '1', O.key); }
+    if (d.where) { O.where = d.where; save(); const y = window.scrollY; draw(); window.scrollTo(0, y); return; }
+    if (d.practise) { A.hush(); return onPractise(d.practise, d.minor === '1', O.key, O.where); }
   };
   draw();
   return () => A.hush();
