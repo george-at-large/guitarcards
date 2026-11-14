@@ -638,3 +638,15 @@ details.fssolo li b { color: var(--text, #fff); }
 .csnav { justify-content: space-between; align-items: center; margin: 8px 0 4px; }
 .cswrap { color: var(--amber); font-weight: 600; }
 .bcrow.on { background: rgba(255, 181, 71, 0.08); border-radius: 12px; box-shadow: 0 0 0 1px rgba(255, 181, 71, 0.35); }
+.bcfrom { margin: 0 0 4px; padding-left: 16px; font-size: 13.5px; line-height: 1.45; }
+.bcfrom b { color: var(--text, #fff); }
+.bcfromhd { margin: 4px 0 2px; font-weight: 650; color: var(--amber); }
+.bctick { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; margin-right: 6px; font-size: 12px; font-weight: 700; vertical-align: 1px; }
+.bctick.done { background: #4caf7a; color: #08130d; }
+.bctick.part { border: 1.5px solid #4caf7a; color: #4caf7a; }
+.bcprog.isdone .bcpname { color: #8fd8ad; }
+.bcprogress { margin: 4px 0 6px; }
+.bcprogress small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+.bcprogress .prog-shapes { margin: 0; gap: 4px; }
+.bcprogress .ps { padding: 4px 0 3px; border-radius: 9px; }
+.bcprogress .ps b { font-size: 13px; }

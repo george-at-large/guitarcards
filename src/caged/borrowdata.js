@@ -192,3 +192,82 @@ export const BORROWED = [
       P('♭II – V7 – i, quick', '| i:min | i:min | bII:maj V:7 | i:min |', 'Two beats each: the pair as a cadence.', M),
     ] },
 ];
+
+// ---------- longer pieces: eight bars or so with extensions, the borrowed chord inside a little story ----------
+// (appended after each chord's short ones so their ids, and the progress recorded against them, stay put)
+const LONG = {
+  iv: [P('Eight bars: the ballad', '| I:maj9 | vi:m9 | IV:maj9 | iv:m6 | iii:m7 | VI:7b9 | ii:m9 | V:13 |', 'Lush major, then the iv6 clouds it over, and a turnaround brings it back round.')],
+  iv6: [P('Nine bars: the standard’s last line', '| I:maj9 | I:7 | IV:maj9 | iv:m6 | iii:m7 | bIII:7 | ii:m9 | bII:7 | I:6/9 |', 'IV darkens to iv6, then the bass slides home by half steps through two tritone subs.')],
+  bVII: [P('Eight bars: open-string anthem', '| I:add9 | bVII:add9 | IV:add9 | I:add9 | vi:m7 | bVII:add9 | IV:add9 | I:add9 |', 'Add9 chords ring out; ♭VII carries the chorus both times.')],
+  bVI: [P('Eight bars: the film cue', '| I:maj9 | bVI:maj7#11 | I:maj9 | bVI:maj7#11 | iv:m9 | bVII:13 | I:maj9 | I:maj9 |', 'Floating between I and ♭VI (its ♯11 is the key’s 2nd), then home through iv and the backdoor ♭VII13.')],
+  bIII: [P('Eight bars: neo-soul', '| I:maj9 | bIII:maj9 | IV:maj9 | iv:m9 | iii:m7 | bIII:maj7 | ii:m9 | V:13sus4 |', '♭III twice: once climbing to IV, once sliding down from iii to ii.')],
+  bVII7: [P('Eight bars: both doors', '| I:maj9 | vi:m9 | ii:m9 | V:13 | iv:m9 | bVII:13 | I:maj9 | I:6/9 |', 'Home through the front door (ii–V), then again through the back (iv–♭VII).')],
+  'iiø7': [P('Nine bars: minor shadows in major', '| I:maj9 | VI:7b9 | ii:m7b5 | V:7b9 | iii:m7 | VI:7alt | ii:m7b5 | V:7b9 | I:maj9 |', 'Every ii is half-diminished and every V has a ♭9: a major key full of minor colour.')],
+  v: [P('Eight bars: Mixolydian groove', '| I:9 | v:m9 | IV:maj9 | I:9 | v:m7 | I:7 | IV:maj9 | IV:maj9 |', 'The minor v keeps it floating; v7 – I7 then becomes a ii–V into IV.')],
+  II: [P('Eight bars: wide-eyed', '| I:maj7 | II:9 | IV:maj7 | iv:m6 | iii:m7 | VI:7 | II:9 | V:13 |', 'II9 lifts it twice; in between, iv6 brings the shadow.')],
+  bII: [P('Eight bars: flamenco noir', '| i:m9 | bII:maj7 | i:m9 | bII:maj7#11 | iv:m9 | bII:maj7 | V:7b9 | i:m9 |', 'The ♭II rubbing against i, then as the step before V7♭9.', M)],
+  IVm: [P('Eight bars: Dorian groove', '| i:m11 | IV:13 | i:m11 | IV:13 | bIII:maj7 | IV:9 | i:m11 | i:m11 |', 'The i11 – IV13 vamp, with ♭III stepping up to IV.', M)],
+  V7m: [P('Eight bars: minor ballad', '| i:m9 | iv:m9 | ii:m7b5 | V:7b9 | i:m9 | bVI:maj7 | ii:m7b5 | V:7alt |', 'Two minor ii–Vs, the second darker (7alt).', M)],
+  'bVI-bVII': [P('Eight bars: the climb, twice', '| I:maj9 | iii:m7 | bVI:maj9 | bVII:13 | I:maj9 | IV:maj9 | bVI:maj7 | bVII:7 |', 'Once to land on I, once to loop back round.')],
+  'iv-bVII': [P('Eight bars: soul ending', '| I:maj7 | vi:m7 | IV:maj7 | iv:m7 | bVII:9 | I:maj7 | iv:m7 | bVII:13 |', 'IV darkening into the back door, twice.')],
+};
+for (const b of BORROWED) if (LONG[b.id]) b.progs.push(...LONG[b.id]);
+
+// ---------- hybrid: several kinds of borrowed chord in one tune ----------
+BORROWED.push(
+  { id: 'h-parallel', hybrid: true, rn: 'iv · ♭III · ♭VI · ♭VII', name: 'The whole parallel minor', from: 'Natural minor (Aeolian)',
+    chords: [{ iv: '4', q: 'min', rn: 'iv' }, { iv: 'b6', q: 'maj', rn: '♭VI' }],
+    where: 'Everything the parallel minor lends at once (iv, ♭III, ♭VI, ♭VII, and iiø7 for jazz) against a major I.',
+    how: 'Treat I as home and the borrowed chords as a darker region to visit. Lead back through ♭VII or iv rather than V, and the key never stops sounding major.',
+    sound: 'A major song that turns bittersweet half way.',
+    progs: [
+      P('Up through ♭III, home through ♭VI – ♭VII', '| I:maj | bIII:maj | IV:maj | iv:min | I:maj | bVI:maj | bVII:maj | I:maj |', 'Four borrowed chords in eight bars.'),
+      P('From iv round the circle', '| I:maj | iv:min | bVI:maj | bVII:maj | I:maj | bIII:maj | bVII:maj | I:maj |', 'Every chord after I is borrowed.'),
+      P('Starting on vi', '| vi:min | IV:maj | iv:min | I:maj | bVII:maj | bVI:maj | bVII:maj | I:maj |', 'Diatonic first, then into the parallel minor.'),
+      P('Extended', '| I:maj9 | bVI:maj9 | iv:m9 | bVII:13 | I:maj9 | bIII:maj9 | ii:m7b5 | V:7b9 |', 'The jazz version: even the ii–V at the end is borrowed.'),
+    ] },
+  { id: 'h-lyd-aeo', hybrid: true, rn: 'II · iv · ♭VI', name: 'Lydian meets Aeolian', from: 'Lydian and natural minor',
+    chords: [{ iv: '2', q: 'maj', rn: 'II' }, { iv: 'b6', q: 'maj', rn: '♭VI' }],
+    where: 'Borrowing from both ends of the brightness ladder: the Lydian II (a raised 4th, F♯ in C) and the Aeolian iv and ♭VI (a lowered 6th, A♭).',
+    how: 'Let the raised and the lowered notes take turns: F♯ in II, then A♭ in iv or ♭VI. Each sounds stronger straight after the other.',
+    sound: 'Cinematic: wonder, then shadow.',
+    progs: [
+      P('Bright, then dark', '| I:maj | II:maj | IV:maj | I:maj | I:maj | bVI:maj | iv:min | I:maj |', 'Four bars of Lydian lift, four of Aeolian shade.'),
+      P('Both in one phrase', '| I:maj | II:maj | bVI:maj | bVII:maj | I:maj | II:maj | iv:min | I:maj |', 'F♯ and A♭ a bar apart.'),
+      P('The film cue', '| I:maj9 | II:9 | bVI:maj7#11 | I:maj9 |', 'Four slow bars: the II9 glows, the ♭VI darkens.'),
+      P('Into a turnaround', '| I:maj7 | II:9 | IV:maj7 | iv:m6 | iii:m7 | bIII:maj7 | ii:m7 | V:7 |', 'II9 up, iv6 down, then a chromatic slide into the turnaround.'),
+    ] },
+  { id: 'h-rock', hybrid: true, rn: 'v · ♭III · ♭VI · ♭VII', name: 'The rock palette', from: 'Mixolydian and natural minor',
+    chords: [{ iv: '5', q: 'min', rn: 'v' }, { iv: 'b3', q: 'maj', rn: '♭III' }],
+    where: 'Mixolydian’s ♭VII and minor v together with the Aeolian ♭III and ♭VI: every chord rock borrows.',
+    how: 'They all avoid the leading tone, so nothing pulls hard: chords fall by 4ths and climb by whole steps. Great with power chords and add9s.',
+    sound: 'Classic rock, big and open.',
+    progs: [
+      P('Eight bars', '| I:maj | v:min | bVII:maj | IV:maj | I:maj | bIII:maj | bVI:maj | bVII:maj |', 'Mixolydian, then Aeolian.'),
+      P('Down and back', '| I:maj | bVII:maj | bVI:maj | bVII:maj | I:maj | v:min | IV:maj | I:maj |', 'The descending and climbing pairs, then v.'),
+      P('Two chords a bar', '| I:maj bVII:maj | IV:maj I:maj | bIII:maj bVII:maj | IV:maj IV:maj |', 'A riff-rock chorus.'),
+      P('Add9s', '| I:add9 | v:m7 | bVII:add9 | IV:add9 |', 'The same palette, ringing.'),
+    ] },
+  { id: 'h-jazz', hybrid: true, rn: 'iv6 · ♭VII7 · iiø7', name: 'The jazz palette', from: 'Minor modes in a major tune',
+    chords: [{ iv: '4', q: 'm6', rn: 'iv6' }, { iv: 'b7', q: '7', rn: '♭VII7' }],
+    where: 'The borrowed chords standards use: the minor iv6, the backdoor ♭VII7 and the half-diminished ii with its V7♭9.',
+    how: 'They’re all ways home: iv6 and ♭VII7 by the back door, iiø7 – V7♭9 by the front with minor colour. Mix them inside turnarounds.',
+    sound: 'Smoky, standards-era.',
+    progs: [
+      P('Nine bars: every way home', '| I:maj7 | vi:m7 | ii:m7b5 | V:7b9 | I:maj7 | IV:maj7 | iv:m6 | bVII:7 | I:maj7 |', 'Front door with minor colour, then the back door.'),
+      P('Extended', '| I:maj9 | iv:m9 | bVII:13 | I:maj9 | iii:m7 | VI:7b9 | ii:m7b5 | V:7alt |', 'Backdoor first, then a darkened turnaround.'),
+      P('The descending last line', '| IV:maj7 | iv:m6 | iii:m7 | bIII:maj7 | ii:m7b5 | V:7b9 | I:6/9 | I:6/9 |', 'A falling bass line through three borrowed chords.'),
+      P('I7 to the back door', '| I:maj7 | I:7 | IV:maj7 | iv:m7 | bVII:7 | I:maj7 | ii:m7b5 | V:7b9 |', 'I7 to IV, IV darkens, the back door, then a minor-tinged ii–V.'),
+    ] },
+  { id: 'h-minor', hybrid: true, minor: true, rn: 'IV · ♭II · V7', name: 'The minor-key palette', from: 'Dorian, Phrygian and harmonic minor',
+    chords: [{ iv: '4', q: 'maj', rn: 'IV' }, { iv: 'b2', q: 'maj', rn: '♭II' }],
+    where: 'In a minor key, borrowing in three directions: Dorian’s major IV (a raised 6th), Phrygian’s ♭II (a lowered 2nd) and harmonic minor’s V7 (a raised 7th).',
+    how: 'Each changes one note of natural minor and does a different job: IV lifts, ♭II darkens, V7 lands. Use all three in one tune and minor gets its full range.',
+    sound: 'Every colour of minor.',
+    progs: [
+      P('Eight bars', '| i:min | IV:maj | i:min | IV:maj | bVI:maj | bII:maj | V:7 | i:min |', 'Dorian vamp, then the Neapolitan into the dominant.', M),
+      P('Sevenths', '| i:m7 | IV:7 | bIII:maj7 | IV:7 | iv:m7 | bII:maj7 | V:7b9 | i:m7 |', 'IV7 twice, then ♭II into V7♭9.', M),
+      P('Three borrowings in a row', '| i:min | bII:maj | i:min | IV:maj | i:min | bVII:maj | bVI:maj | V:7 |', 'Phrygian, Dorian, then the Andalusian into V.', M),
+      P('Extended', '| i:m9 | IV:13 | i:m9 | IV:13 | bII:maj7 | V:7alt | i:m9 | i:m9 |', 'Dorian groove, then a dramatic cadence.', M),
+    ] },
+);

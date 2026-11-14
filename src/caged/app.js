@@ -661,7 +661,12 @@ function openFree() {
 // Borrowed chords: each one explained, in all five shapes, and its progressions sent to Chord changes round the shapes
 function openBorrowed() {
   stopPractice = BC.renderBorrowed($app, { D, save, neckSVG, esc, fmt, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); },
-    onPractise: practiseFrom });
+    onPractise: practiseFrom, progress: progProgress });
+}
+// how far a library progression has got: the best clean tempo per shape, the tempo that counts as done, done in all five
+function progProgress(id, minor) {
+  const k = `p:${id}:${minor ? 'minor' : 'major'}`, tgt = L.resolve(L.byId(id)).some((b) => b.length > 1) ? 100 : 120;
+  return { rec: record(k), tgt, all: complete(k, tgt), html: shapeProgress(k, tgt) };
 }
 // play a library progression in Chord changes: in one CAGED shape, round and round, or touring all five
 function practiseFrom(id, minor, key, where = 'E') {
@@ -672,7 +677,7 @@ function practiseFrom(id, minor, key, where = 'E') {
 // Chord scales: each chord's scale, fingered in every CAGED shape and 3 per string, over the held chord
 // Chromatic chords: secondary dominants, tritone subs, diminished and augmented chords, the same screen as Borrowed chords
 function openChromatic() {
-  stopPractice = BC.renderBorrowed($app, { D, save, neckSVG, esc, fmt, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); }, onPractise: practiseFrom }, BC.CHROM_CFG);
+  stopPractice = BC.renderBorrowed($app, { D, save, neckSVG, esc, fmt, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); }, onPractise: practiseFrom, progress: progProgress }, BC.CHROM_CFG);
 }
 function openChordScales() {
   stopPractice = CS.renderChordScales($app, { D, save, neckSVG, esc, fmt, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });

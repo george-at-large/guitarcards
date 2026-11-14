@@ -309,7 +309,7 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultArp: true, ultMove: 'stay', ultDown: false }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultArp: true, ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same' }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
   let R = { on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [], tip: 0, since: 0, order: null, prev: null };
 
@@ -318,12 +318,20 @@ export function renderFreeScale($app, ctx) {
   const def = () => { if (O.seq === 'cong') return O.content === 'scale' ? CONG : null; const d = FL.seqDef(O.seq); return d && (!d.qs || (O.content !== 'scale' && d.ext === (O.content === 'ext'))) ? d : null; };
   // the ultimate ladder's walk: each rung, detour and return, with its extended arpeggio first (when asked for) on every
   // rung and on any detour that changes the chord (its 3rd, 5th or 7th); returns go straight to the mode
+  // the walk in the chosen direction: darker runs the rungs 1 → 7; brighter runs them 7 → 1, each rung still followed
+  // by its own detours and returns
+  function ultWalk(d) {
+    if (O.ultDir !== 'up') return d.walk;
+    const groups = [];
+    for (const e of d.walk) { if (typeof e[1] === 'number') groups.push([]); groups[groups.length - 1].push(e); }
+    return groups.reverse().flat();
+  }
   function ultItems(d) {
-    const out = []; let base = d.walk[0][0], baseRung = 1;
-    d.walk.forEach(([mode, kind], i) => {
-      const k = typeof kind === 'number' ? 'rung' : kind, from = i ? d.walk[i - 1][0] : null; // the top of the ladder starts fresh
-      if (k === 'rung') { base = mode; baseRung = kind; }
-      const it = { mode, kind: k, rung: typeof kind === 'number' ? kind : null, from, base, baseRung };
+    const out = [], W = ultWalk(d); let base = W[0][0], baseRung = 1, stepNo = 0;
+    W.forEach(([mode, kind], i) => {
+      const k = typeof kind === 'number' ? 'rung' : kind, from = i ? W[i - 1][0] : null; // the top of the ladder starts fresh
+      if (k === 'rung') { base = mode; baseRung = kind; stepNo++; }
+      const it = { mode, kind: k, rung: typeof kind === 'number' ? kind : null, from, base, baseRung, stepNo };
       if (O.ultArp && k !== 'back' && (k === 'rung' || !from || FL.ULT_INFO[mode].q !== FL.ULT_INFO[from].q)) out.push({ ...it, arp: true });
       out.push(it);
     });
@@ -372,6 +380,9 @@ export function renderFreeScale($app, ctx) {
   function passDone() {
     if (O.content === 'scale' && O.pat && O.patPass) O.cell = FL.newPattern(O.cell && O.cell.c);
     if (land()?.walk) {
+      // the ladder is a loop: past Locrian, flattening the root gives Lydian a semitone down (and past Lydian going
+      // brighter, sharpening it gives Locrian a semitone up), so each lap can carry on in the next key
+      if (O.ultLap === 'move') O.key = KEYS[(KEYS.indexOf(O.key) + (O.ultDir === 'up' ? 1 : 11)) % 12];
       if (O.ultMove === 'pass' && O.area === 'shape') O.shape = G.nextShape(O.shape);
       if (O.ultMove === 'climb') O.ultDown = !O.ultDown;
       return;
@@ -404,7 +415,7 @@ export function renderFreeScale($app, ctx) {
   // the piece of neck to show
   function areaWin() {
     if (land()?.walk && O.ultMove === 'climb') {
-      const ws = climbWins(), n = ws.length, r = (cur().baseRung || 1) - 1, k = Math.min(n - 1, O.ultDown ? n - 1 - r : r), w = ws[k];
+      const ws = climbWins(), n = ws.length, r = (cur().stepNo || 1) - 1, k = Math.min(n - 1, O.ultDown ? n - 1 - r : r), w = ws[k];
       return { lo: Math.max(0, w.lo), hi: w.hi, band: true, name: `${w.shape} shape, frets ${Math.max(0, w.lo)}–${w.hi} · climbing ${O.ultDown ? 'down' : 'up'} the neck` };
     }
     if (O.area === 'low') return { lo: 0, hi: 7, name: 'frets 0–7' };
@@ -717,8 +728,11 @@ export function renderFreeScale($app, ctx) {
   // the ultimate ladder's own options: arpeggio first, one CAGED shape, and the map of the walk
   const SHORT = { lydian: 'Lyd', ionian: 'Ion', 'mel-min': 'mel min', mixolydian: 'Mix', 'lyd-dom': 'Lyd dom', dorian: 'Dor', aeolian: 'Aeo', 'harm-min': 'harm min', 'locrian-n2': 'Loc ♮2', phrygian: 'Phr', 'phryg-dom': 'Phr dom', locrian: 'Loc', altered: 'alt', 'dim-hw': 'H-W dim' };
   function ultPanel(l) {
-    const map = l.walk.filter(([, k]) => k !== 'back').map(([m, k]) => (typeof k === 'number' ? `<b>${k} ${SHORT[m]}</b>` : `<i>↳${SHORT[m]}</i>`)).join(' ');
+    const map = ultWalk(l).filter(([, k]) => k !== 'back').map(([m, k]) => (typeof k === 'number' ? `<b>${k} ${SHORT[m]}</b>` : `<i>↳${SHORT[m]}</i>`)).join(' ');
     return `<p class="fsultmap">${fmt(map)}</p>
+      <div class="fsrow fsland"><span class="lbl">Direction</span>${seg('ultdir', O.ultDir, [['down', 'Darker ↓'], ['up', 'Brighter ↑']])}</div>
+      <div class="fsrow fsland"><span class="lbl">Each lap</span>${seg('ultlap', O.ultLap, [['same', 'Same root'], ['move', `Root ${O.ultDir === 'up' ? 'up' : 'down'} a semitone`]])}</div>
+      ${O.ultLap === 'move' ? `<p class="note fsblurb">It’s a loop: ${O.ultDir === 'up' ? 'past Lydian, sharpening the root gives Locrian a semitone up' : 'past Locrian, flattening the root gives Lydian a semitone down'}, so at the end of each lap the root and the drone move ${O.ultDir === 'up' ? 'up' : 'down'} a semitone and the ladder carries on.</p>` : ''}
       <div class="fsrow fsland"><span class="lbl">Arpeggio first</span>${seg('ultarp', O.ultArp ? 1 : 0, [[1, 'On'], [0, 'Off']])}</div>
       <div class="fsrow fsland"><span class="lbl">Move</span>${seg('ultmove', O.ultMove, [['stay', 'Stay'], ['pass', 'Shape each pass'], ['climb', 'Climb the neck']])}</div>
       ${O.ultMove === 'climb' ? `<p class="note fsblurb">Each rung one CAGED position higher: rung 1 low on the neck, rung 7 near the top, and the next time round back down. Detours stay in their rung’s position.</p>` : `<div class="fsrow fsland"><span class="lbl">Shape</span>${seg('ultshape', O.area === 'shape' ? O.shape : 'whole', [['whole', 'Neck'], ...G.SHAPES.map((x) => [x, x])])}</div>${O.ultMove === 'pass' ? `<p class="note fsblurb">${O.area === 'shape' ? `The whole ladder in the ${O.shape} shape, then the next shape up (C → A → G → E → D) for the next pass.` : 'Pick a shape to start from.'}</p>` : ''}`}`;
@@ -837,6 +851,7 @@ export function renderFreeScale($app, ctx) {
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
     if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
     if (d.ultarp !== undefined) { const was = cur().mode; O.ultArp = d.ultarp === '1'; const k = walk().findIndex((x) => items()[x].mode === was && !items()[x].arp); O.wi = Math.max(0, k); save(); return draw(); }
+    if (d.ultdir || d.ultlap) { const was = cur(); if (d.ultdir) O.ultDir = d.ultdir; if (d.ultlap) O.ultLap = d.ultlap; const k = walk().findIndex((x) => items()[x].mode === was.mode && items()[x].kind === was.kind && !!items()[x].arp === !!was.arp); O.wi = Math.max(0, k); save(); return draw(); }
     if (d.ultmove) { O.ultMove = d.ultmove; O.ultDown = false; if (d.ultmove === 'pass' && O.area !== 'shape') { O.area = 'shape'; } save(); return draw(); }
     if (d.ultshape) { if (d.ultshape === 'whole') O.area = 'whole'; else { O.area = 'shape'; O.shape = d.ultshape; } save(); return draw(); }
     if (d.backing) { O.backing = d.backing; R.cb = 0; save(); if (R.on) drone(); return draw(); }
