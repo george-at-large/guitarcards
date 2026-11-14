@@ -7,6 +7,7 @@ import * as T from '../theory.js';
 import { ivFrom } from './harmony.js';
 import { BORROWED } from './borrowdata.js';
 import { CHROMATIC } from './chromdata.js';
+import { MODULATIONS } from './moddata.js';
 
 const P = (name, by, chart, o = {}) => ({ name, by, chart, ...o });
 const M = { minor: true };
@@ -201,6 +202,7 @@ export function resolve(item) {
 
 // the borrowed-chord drills, each progression under its chord (ids are explicit: the numerals don't slug)
 LIBRARY.push({ cat: 'Borrowed chords', items: BORROWED.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.rn}: ${p.name}`, by: b.name.toLowerCase(), chart: p.chart, minor: !!p.minor, id: `borrow-${b.id}-${i}`, borrow: b.id }))) });
+LIBRARY.push({ cat: 'Modulations', items: MODULATIONS.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.name}: ${p.name}`, by: b.from, chart: p.chart, minor: !!p.minor, id: `mod-${b.id}-${i}`, borrow: b.id }))) });
 LIBRARY.push({ cat: 'Chromatic chords', items: CHROMATIC.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.name}: ${p.name}`, by: b.from, chart: p.chart, minor: !!p.minor, id: `chrom-${b.id}-${i}`, borrow: b.id }))) });
 
 const slug = (s) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

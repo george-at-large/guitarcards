@@ -12,6 +12,7 @@ import { voiceInArea } from './cscale.js';
 import * as SC from './scales.js';
 import * as FL from './fsladder.js';
 import { CHROMATIC } from './chromdata.js';
+import { MODULATIONS } from './moddata.js';
 
 const SBY = Object.fromEntries(SC.SCALES.map((s) => [s.id, s]));
 const spcs = (id) => [...new Set(SBY[id].ivs.map(FL.semisOf))].sort((a, b) => a - b);
@@ -43,6 +44,8 @@ const KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 // title, the library id prefix, where its settings live, and how the picker groups the chords
 const BORROW_CFG = { data: BORROWED, title: 'Borrowed chords', prefix: 'borrow', state: 'bc', first: 'iv',
   groups: [['In a major key', (x) => !x.minor && !x.pair && !x.hybrid], ['In a minor key', (x) => x.minor && !x.pair && !x.hybrid], ['Pairs that travel together', (x) => x.pair], ['Hybrid: several kinds in one tune', (x) => x.hybrid]] };
+export const MOD_CFG = { data: MODULATIONS, title: 'Modulation', prefix: 'mod', state: 'md', first: 'toV',
+  groups: [...new Set(MODULATIONS.map((x) => x.group))].map((g) => [g, (x) => x.group === g]) };
 export const CHROM_CFG = { data: CHROMATIC, title: 'Chromatic chords', prefix: 'chrom', state: 'cc', first: 'VofV',
   groups: [...new Set(CHROMATIC.map((x) => x.group))].map((g) => [g, (x) => x.group === g]) };
 export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
