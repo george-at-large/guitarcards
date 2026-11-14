@@ -521,3 +521,9 @@ details.fsopts[open] > summary::after { content: '▴'; }
 details.fsopts > summary b { color: var(--amber); font-size: 14.5px; }
 details.fsopts > summary small { color: var(--muted); font-size: 12.5px; }
 details.fsopts[open] > summary { margin-bottom: 8px; }
+.fsmetro, .fstempo { flex-wrap: nowrap; }
+.fsmetro .lbl, .fstempo .lbl { font: 600 11px var(--f-ui); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); min-width: 74px; }
+.fsmetro .seg { flex: 1; }
+.fstempo input[type=range] { flex: 1; min-width: 60px; }
+.fstempo .fsbpm { margin-left: 0; }
+.fstempo .fsbpm small { color: var(--muted); font-size: 11px; margin-left: -4px; }

@@ -34,6 +34,7 @@ export const LADDERS = [
   { id: 'sh-modes', group: 'Shuffles', name: 'The seven modes, shuffled', ids: ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'], shuffle: true, blurb: 'The seven modes in a random order, each pass a new order.' },
   { id: 'sh-mm', group: 'Shuffles', name: 'Melodic minor modes, shuffled', ids: ['mel-min', 'dorian-b2', 'lyd-aug', 'lyd-dom', 'mixo-b6', 'locrian-n2', 'altered'], shuffle: true, blurb: 'The seven modes of melodic minor, shuffled.' },
   { id: 'sh-hm', group: 'Shuffles', name: 'Harmonic minor modes, shuffled', ids: ['harm-min', 'locrian-n6', 'ionian-s5', 'dorian-s4', 'phryg-dom', 'lydian-s2', 'superloc-bb7'], shuffle: true, blurb: 'The seven modes of harmonic minor, shuffled.' },
+  { id: 'sh-all', group: 'Shuffles', name: 'Everything, exotic too, shuffled', ids: SC.SCALES.map((s) => s.id), shuffle: true, blurb: 'Every scale the app knows, exotic ones too, shuffled.' },
   { id: 'sh-use', group: 'Shuffles', name: 'Everything useful, shuffled', ids: ['ionian', 'aeolian', 'min-pent', 'maj-pent', 'blues', 'dorian', 'mixolydian', 'lydian', 'phrygian', 'harm-min', 'mel-min', 'altered', 'lyd-dom', 'locrian-n2', 'mixo-b6', 'phryg-dom'], shuffle: true, blurb: 'The essentials, everyday, colour and jazz scales, shuffled.' },
 ];
 // arpeggio types to step through: plain ones and extended ones
@@ -140,3 +141,36 @@ export function spellNum(id, n) {
   if (!iv) return null;
   return n > 7 ? asExt(asSimple(iv)) : asSimple(iv);
 }
+
+// ---------- congruent scales: the gapped scales (on any root) whose notes all sit inside a scale ----------
+const IVC = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7'];
+const pcsOfC = (ivs, start = 0) => [...new Set(ivs.map((iv) => (T.intervalSemis(F.simpleIv(iv)) + start) % 12))];
+const IVN = IVC;
+// the gapped scales on any root whose notes all sit inside this one (plus the blues fits), as heard over the drone
+export function congruent(id) {
+  const base = pcsOfC(BY[id].ivs);
+  const out = [], seen = new Set();
+  const gapped = SC.SCALES.filter((s) => s.ivs.length <= 6 && s.id !== 'whole-tone' && s.id !== 'aug-hex');
+  for (const g of gapped) for (let st = 0; st < 12; st++) {
+    const p = pcsOfC(g.ivs, st);
+    let why = null;
+    if (p.every((x) => base.includes(x))) why = 'inside';
+    else if (st === 0 && base.includes(4) && base.includes(10) && (g.id === 'min-pent' || g.id === 'blues')) why = 'blues';
+    if (!why) continue;
+    // the same notes under another name (C minor pentatonic = E♭ major pentatonic): keep the first, note the other
+    const key = [...p].sort((x, y) => x - y).join();
+    if (seen.has(key)) {
+      const prev = out.find((o) => o.key === key);
+      if (prev && st === 0 && prev.start !== 0) { prev.also = { id: prev.id, start: prev.start }; prev.id = g.id; prev.start = 0; } // name it from the drone's root
+      else if (prev && !prev.also) prev.also = { id: g.id, start: st };
+      continue;
+    }
+    seen.add(key);
+    const as = p.map((x) => T.prettyIv(IVN[x])).sort((x, y) => IVN.indexOf(x.replace('♭', 'b').replace('♯', '#')) - IVN.indexOf(y.replace('♭', 'b').replace('♯', '#')));
+    out.push({ id: g.id, start: st, why, as, key });
+  }
+  // the plainest first: pentatonics on the root, then on other roots, then the rest
+  const rank = (c) => (c.start === 0 ? 0 : 1) + (c.id.includes('pent') ? 0 : 2) + (c.why === 'blues' ? 1 : 0);
+  return out.sort((a, b) => rank(a) - rank(b));
+}
+
