@@ -337,22 +337,28 @@ function genreStream(S, R) {
     },
   };
 }
+// what an evolved chord is doing: standing in for the written chord, or a chord on the way to the next one
+function roleIn(orig, x) {
+  if (!x.sub) return null;
+  const lab = (o) => H.label(o.spec);
+  return x.half ? { kind: 'way', text: `on the way to ${lab(orig[(x.oid + 1) % orig.length])}`, why: x.sub } : { kind: 'swap', text: `in place of ${lab(orig[x.oid])}`, why: x.sub };
+}
+// the complexity dial: triads, as written, sevenths, colour tones, then colour with substitutions evolving the
+// progression each time round (the top step); it can be turned during a run
+const CX = [['tri', 'Simple'], ['as', 'As written'], ['sev', 'Sevenths'], ['col', 'Colour'], ['subs', 'Substitutions']];
+const CX_BLURB = { tri: 'Every chord a plain triad.', as: 'The chords as the progression writes them.', sev: 'Every chord a seventh chord.', col: 'Colour tones: 9ths, 11ths, 13ths, altered dominants.', subs: 'Colour tones, and each time round a chord is swapped for a substitute (tritone sub, ii–V, secondary dominant, passing diminished); the screen says what each one replaces.', var: 'Variations: related chord types.' };
+const subsOn = () => D.pcolour === 'subs';
 function progStream(S, R) {
   const orig = progSlots(S.minor);
   const vl = prog().vl;
   let cur = orig, i = 0, pass = 0, prev = null;
   R.slots = cur; R.orig = orig;
-  // what an evolved chord is doing: standing in for the written chord, or a chord on the way to the next one
-  const roleOf = (x) => {
-    if (!x.sub) return null;
-    const lab = (o) => H.label(o.spec);
-    return x.half ? { kind: 'way', text: `on the way to ${lab(orig[(x.oid + 1) % orig.length])}`, why: x.sub } : { kind: 'swap', text: `in place of ${lab(orig[x.oid])}`, why: x.sub };
-  };
+  const roleOf = (x) => roleIn(orig, x);
   return {
     next() {
       if (i >= cur.length) {
         i = 0; pass++;
-        if (D.evolve) { const r = E.evolve(cur, orig, S.minor); cur = r.slots; R.pendingNote = r.note; }
+        if (D.evolve || subsOn()) { const r = E.evolve(cur, orig, S.minor); cur = r.slots; R.pendingNote = r.note; } else cur = orig;
         if (D.tour) { advanceShape(S); prev = null; }
         R.slots = cur;
       }
@@ -380,7 +386,7 @@ function roamStream(S, R) {
   const todo = roamLeft();
   for (let k = todo.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [todo[k], todo[j]] = [todo[j], todo[k]]; }
   const rounds = D.roam.tour5 ? 5 : D.roam.times;
-  let item = null, cur = null, i = 0, pass = 0, prev = null, last = null, idx = list.length - todo.length;
+  let item = null, cur = null, orig = null, i = 0, pass = 0, prev = null, last = null, idx = list.length - todo.length;
   function load() {
     item = todo.shift(); idx++;
     const minor = !!item.minor;
@@ -390,8 +396,9 @@ function roamStream(S, R) {
       S.minor = minor; S.lastScale = {};
       S.pos = D.pair ? G.positionOfPair(S.tonic, S.shape) : G.positionOf(S.tonic, S.shape);
     }
-    cur = slotsFor(item, minor); i = 0; pass = 0; prev = null;
-    R.roam = item; R.slots = cur;
+    orig = slotsFor(item, minor); i = 0; pass = 0; prev = null;
+    cur = subsOn() ? E.evolve(orig, orig, minor).slots : orig;
+    R.roam = item; R.slots = cur; R.orig = orig;
   }
   if (todo.length) load();
   return {
@@ -404,12 +411,15 @@ function roamStream(S, R) {
           if (!todo.length) { item = null; return { ...last, end: true }; }
           load();
           if (D.roam.tour5) advanceShape(S);
-        } else if (D.roam.tour5 || D.tour) { advanceShape(S); prev = null; }
+        } else {
+          cur = subsOn() ? E.evolve(cur, orig, S.minor).slots : orig;
+          if (D.roam.tour5 || D.tour) { advanceShape(S); prev = null; }
+        }
         R.slots = cur;
       }
       const x = cur[i], nx = cur[(i + 1) % cur.length];
       const q = colourise(x.spec, nx.spec, x.oid + pass, S.minor);
-      const c = realise(S, x.spec, q, prev, { beats: x.beats, bar: x.bar, slot: i, pass, sub: x.sub, vl: item.vl, slots: cur });
+      const c = realise(S, x.spec, q, prev, { beats: x.beats, bar: x.bar, slot: i, pass, sub: x.sub, vl: item.vl, slots: cur, oid: x.oid, role: roleIn(orig, x) });
       c.roam = { name: item.name, by: item.by, cat: item.cat, round: pass + 1, rounds, idx, total: list.length, key: keyLabel(S) };
       prev = c.grip;
       last = c;
@@ -422,6 +432,9 @@ function roamCard() {
   const list = roamList(), left = roamLeft().length, n = list.length - left;
   return `
       <div class="chips">${[['all', 'Everything'], ...L.LIBRARY.map((g) => [g.cat, g.cat])].map(([v, l]) => `<button class="chip ${D.roam.cat === v ? 'on' : ''}" data-roamcat="${esc(v)}">${esc(l)}</button>`).join('')}</div>
+      <h3>Complexity</h3>
+      ${seg('pcolour', CX, D.pcolour === 'var' ? 'sev' : D.pcolour)}
+      <p class="note">${esc(CX_BLURB[D.pcolour] || '')} Turn the dial on the run screen to change it as you play.</p>
       <h3>Each progression</h3>
       <div class="seg" role="radiogroup">${[[1, 'Once'], [2, 'Twice'], [3, '3 times'], ['tour', 'Once in every shape']].map(([v, l]) => { const on = v === 'tour' ? D.roam.tour5 : !D.roam.tour5 && D.roam.times === v; return `<button data-roamtimes="${v}" class="${on ? 'on' : ''}" role="radio" aria-checked="${on}">${l}</button>`; }).join('')}</div>
       <p class="note">It roams through ${D.roam.cat === 'all' ? 'every progression and cadence in the library' : `the ${esc(D.roam.cat.toLowerCase())}`} in a shuffled order, ${D.roam.tour5 ? 'each once round in every CAGED shape, moving up a shape each time round' : `${D.roam.times === 1 ? 'once' : D.roam.times === 2 ? 'twice' : `${D.roam.times} times`} round each`}, then moves on; the one playing is named at the top. Major ones play in ${fmt(T.pretty(D.key === 'rand' ? 'C' : D.key))} major, minor ones in ${fmt(T.pretty(D.key === 'rand' ? 'C' : D.key))} minor. It finishes when every one has been played, and remembers where it got to.</p>
@@ -705,7 +718,8 @@ function setup() {
       <p class="note"><b>${esc(p.name)}</b> · ${esc(p.by)}${p.vl ? ' · a voice-leading study: the grips are chosen to move as little as possible' : ''}${p.bassLine ? ' · slash chords: each gets a grip with that bass note; “Two shapes at once” gives the line room' : ''}${conv ? ` · <i>written in ${p.minor ? 'minor' : 'major'}, converted to ${D.kt}</i>` : ''}</p>
       ${chartHTML(progSlots(minor), { tonic: S0.tonic })}
       <h3>Colour</h3>
-      ${seg('pcolour', [['as', 'As written'], ['tri', 'Triads'], ['sev', 'Sevenths'], ['col', 'Colour tones'], ['var', 'Variations']], D.pcolour)}
+      ${seg('pcolour', [...CX, ['var', 'Variations']], D.pcolour)}
+      <p class="note">${esc(CX_BLURB[D.pcolour] || '')} A complexity dial on the run screen changes it as you play.</p>
       ${D.pcolour === 'var' ? varNote() : ''}
       <button class="toggle ${D.evolve ? 'on' : ''}" data-act="evolve"><b>Evolving mode ${D.evolve ? 'on' : 'off'}</b><small>Each time round, one chord is swapped for another with the same job (iii or vi for I, ii for IV, ♭II7 for V7), or a ii–V, secondary dominant or passing diminished slips in. Old swaps drift back.</small></button>`}
   </section>`}
@@ -948,7 +962,8 @@ function drawRun() {
   <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where"><span id="rkey">${fmt(keyLabel(S))}</span><small>${fmt(posLabel(S))}${scaleMode() ? ` · scales: ${LEVEL_NAME[D.scaleLevel] || 'mix'}` : D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
   ${D.src === 'roam' && D.play !== 'modal' ? '<div class="roamnow" id="roamnow"></div>' : ''}
   <div class="liveplay" id="liveplay">${livePlay()}</div>
-  ${D.evolve && D.src === 'prog' && D.play !== 'modal' ? '<div class="written" id="written"></div>' : ''}
+  ${progLike() && D.play !== 'modal' ? `<div class="cxdial" id="cxdial">${cxDial()}</div>` : ''}
+  ${((D.evolve || subsOn()) && D.src === 'prog') || D.src === 'roam' ? '<div class="written" id="written"></div>' : ''}
   <div class="now" id="now"></div>
   <div class="beats" id="beats"></div>
   <div class="rhythm" id="rhythm"></div>
@@ -961,6 +976,12 @@ function drawRun() {
   <div class="sheet" id="sheet" hidden></div>`;
   applyNames();
   window.scrollTo(0, 0);
+  const cx = document.getElementById('cx');
+  if (cx) cx.oninput = () => {
+    const opts = D.src === 'genre' ? CX.slice(0, 4) : CX, [v, l] = opts[Number(cx.value)];
+    D.pcolour = v; save();
+    document.getElementById('cxname').textContent = l;
+  };
   $app.onclick = (e) => {
     const b = e.target.closest('button, #stage'); if (!b) return;
     const r = b.dataset?.r || (b.id === 'stage' ? 'reveal' : null);
@@ -991,6 +1012,11 @@ function drawRun() {
   };
 }
 // the play mode can change mid-run: every chord already carries what each mode needs
+function cxDial() {
+  const opts = D.src === 'genre' ? CX.slice(0, 4) : CX;
+  const i = Math.max(0, opts.findIndex(([v]) => v === D.pcolour));
+  return `<span class="lbl">simple</span><input type="range" id="cx" min="0" max="${opts.length - 1}" step="1" value="${D.pcolour === 'var' ? 2 : i}" aria-label="Complexity"><span class="lbl">complex</span><b id="cxname">${esc(D.pcolour === 'var' ? 'Variations' : opts[i][1])}</b>`;
+}
 function livePlay() {
   const modes = [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales']];
   if (R?.stream?.modal) modes.push(['modal', 'Mode']);

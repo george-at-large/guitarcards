@@ -386,3 +386,9 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 .wkbeats .seg { flex: 1; }
 .wkdots { margin: 6px auto 0; }
 .wkbeatn { text-align: center; color: var(--muted); font-size: 12px; margin: 2px 0 0; min-height: 15px; }
+/* the complexity dial on the run screen */
+.cxdial { display: flex; align-items: center; gap: 8px; max-width: 420px; margin: 0 auto 6px; padding: 6px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); flex-wrap: wrap; }
+.cxdial .lbl { font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.cxdial input[type=range] { flex: 1; margin: 0; min-width: 120px; }
+.cxdial b { flex: 1 0 100%; text-align: center; font: 600 13px var(--f-ui); color: var(--amber); }
+svg.neck .dot.r.sc circle { fill: #6b4a1e; stroke: rgba(255, 181, 71, 0.55); }

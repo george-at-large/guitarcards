@@ -230,13 +230,23 @@ export function renderCall($app, ctx) {
     const name = (d) => { const a = Math.abs(d); return a === 0 ? 'repeat' : `${d > 0 ? '↑' : '↓'} ${['', 'half step', 'whole step', 'min 3rd', 'maj 3rd', '4th', 'tritone', '5th', 'min 6th', 'maj 6th', 'min 7th', 'maj 7th', 'octave'][Math.min(a, 12)]}`; };
     return `<p class="note crsteps">${notes.slice(1).map((n, i) => esc(name(n.midi - notes[i].midi))).join(' · ')}</p>`;
   }
-  // the phrase in the position: one dot per place, coloured by degree; each lights as it plays
+  // the whole scale across the shape, faint and numbered by degree; the phrase's notes on top, coloured by degree,
+  // each lighting as it plays (with no phrase showing, just the scale)
   function neckHTML(notes) {
     const p = pos();
     const seen = new Map();
     for (const n of notes || []) if (n.string && !seen.has(`${n.string}:${n.fret}`)) seen.set(`${n.string}:${n.fret}`, n);
-    const uniq = [...seen.values()].map((n) => ({ string: n.string, fret: n.fret, midi: n.midi, iv: IVN[n.rel], kind: kind(n.rel) }));
+    const phrase = [...seen.values()].map((n) => ({ string: n.string, fret: n.fret, midi: n.midi, iv: IVN[n.rel], kind: kind(n.rel) }));
+    const tpc = T.notePc(tonic()), rels = BY[C.scale].ivs.map((iv) => T.intervalSemis(F.simpleIv(iv)) % 12);
+    const scale = [];
+    for (let st = 1; st <= 6; st++) for (let f = Math.max(0, p.lo); f <= p.hi; f++) {
+      const rel = ((F.OPEN[st] + f - tpc) % 12 + 12) % 12;
+      if (rels.includes(rel) && !seen.has(`${st}:${f}`)) scale.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv: IVN[rel], kind: rel === 0 ? 'r sc' : 'sc' });
+    }
+    const uniq = [...scale, ...phrase];
     if (!uniq.length) return '';
+    // with the phrase hidden, the dots carry no position tags, so nothing lights up to give it away
+    if (!phrase.length) return neckSVG({ notes: uniq, lo: Math.max(0, p.lo - 1), hi: p.hi + 1 }, { lo: Math.max(0, p.lo - 1), hi: p.hi + 1, band: p, labels: 'iv' });
     let i = 0;
     return neckSVG({ notes: uniq, lo: Math.max(0, p.lo - 1), hi: p.hi + 1 }, { lo: Math.max(0, p.lo - 1), hi: p.hi + 1, band: p, labels: 'iv' })
       .replace(/<g class="dot /g, () => { const n = uniq[i++]; return `<g data-sf="${n.string}:${n.fret}" class="dot `; });
@@ -266,8 +276,8 @@ export function renderCall($app, ctx) {
     </section>`}
     <div class="crhead"><b>${fmt(T.noteName(tonic(), true))} ${esc(sc.name)}</b> · ${C.shape} shape, frets ${p.lo}–${p.hi}${running ? ` · question ${count}` : ''}</div>
     <div class="crphase ${phase}" id="crphase">${{ idle: 'Press ▶ to start', count: 'Count-in', q: 'Listen', a: 'Your answer', m: 'A model answer' }[phase]}</div>
-    ${shown && (C.show || phase === 'a' || phase === 'm') ? `${phraseHTML(shown, phase === 'm' ? 'a' : 'q')}${stepsHTML(shown)}<div class="stage" id="crneck">${neckHTML(shown)}</div>` : shown ? '<p class="note" style="text-align:center">Notes hidden while it plays: listen, then they show for your answer.</p>' : ''}
-    <div class="legend"><span class="k r">1</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">other degrees</span></div>`;
+    ${shown && (C.show || phase === 'a' || phase === 'm') ? `${phraseHTML(shown, phase === 'm' ? 'a' : 'q')}${stepsHTML(shown)}<div class="stage" id="crneck">${neckHTML(shown)}</div>` : `${shown ? '<p class="note" style="text-align:center">Notes hidden while it plays: listen, then they show for your answer.</p>' : ''}<div class="stage" id="crneck">${neckHTML(null)}</div>`}
+    <div class="legend"><span class="k r">1</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">other degrees</span><span class="k sc">the rest of the scale</span></div>`;
     const sel = $app.querySelector('#cscale');
     if (sel) sel.onchange = () => { C.scale = sel.value; save(); draw(); };
   }
