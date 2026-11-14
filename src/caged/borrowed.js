@@ -107,8 +107,10 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
     if (d.bc) { O.id = d.bc; save(); draw(); document.querySelector('.bcabout')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     if (d.hear) return hear(d.hear);
     if (d.where) { O.where = d.where; save(); const y = window.scrollY; draw(); window.scrollTo(0, y); return; }
-    if (d.practise) { A.hush(); return onPractise(d.practise, d.minor === '1', O.key, O.where); }
+    if (d.practise) { A.hush(); O.lastProg = d.practise; save(); return onPractise(d.practise, d.minor === '1', O.key, O.where); }
   };
   draw();
+  // back from a run: straight to the progression just played
+  if (O.lastProg) { const el = $app.querySelector(`[data-practise="${O.lastProg}"]`); O.lastProg = null; save(); if (el) requestAnimationFrame(() => el.closest('.bcprog').scrollIntoView({ block: 'center' })); }
   return () => A.hush();
 }

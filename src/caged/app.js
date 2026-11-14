@@ -665,6 +665,7 @@ function openBorrowed() {
 }
 // play a library progression in Chord changes: in one CAGED shape, round and round, or touring all five
 function practiseFrom(id, minor, key, where = 'E') {
+  D.returnTo = D.app; // after the run, back to the chord being worked on
   stopPractice = null; D.app = 'changes'; D.src = 'prog'; D.prog = id; D.kt = minor ? 'minor' : 'major'; D.key = key; D.mode = 'pos'; D.play = 'chords'; D.pcolour = 'as';
   D.tour = where === 'all'; D.tourSlow = false; D.shape = where === 'all' ? 'C' : where; save(); setup(); run();
 }
@@ -825,7 +826,7 @@ function setup() {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     const redraw = () => { save(); setup(); };
-    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc', 'app', 'around', 'aroundAmt']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
+    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc', 'app', 'around', 'aroundAmt']) if (d[k] !== undefined) { D[k] = d[k]; if (k === 'app') D.returnTo = null; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
     if (d.genre) {
       const g = GN.genreById(d.genre);
@@ -1457,14 +1458,20 @@ function revealNeck() {
   }
   document.getElementById('stage').innerHTML = neckSVG(c.grip, { ...w, prev }) + LEGEND;
 }
+// after a run: back to the section that sent it (Borrowed or Chromatic chords), else the Chord changes screen
+function afterRun() {
+  R = null;
+  if (D.returnTo) { D.app = D.returnTo; D.returnTo = null; save(); }
+  setup();
+}
 function finish() {
   closeSheet();
-  if (!R) return setup();
+  if (!R) return afterRun();
   const { S, count, passes } = R;
   const bpm = R.minBpm;
   stop();
   const enough = progLike() ? passes >= 1 : count >= 8;
-  if (!enough) { R = null; return setup(); }
+  if (!enough) return afterRun();
   const n = normBpm(bpm), tgt = target(), k = doneKey();
   const prevBest = record(k)[S.shapeKey] || 0;
   const lap = D.tour && S.toured.size > 1 ? [...S.toured] : [S.shapeKey];
@@ -1485,9 +1492,9 @@ function finish() {
       for (const sk of lap) if (n > (rec[sk] || 0)) rec[sk] = n;
       if (bpm < 220) D.bpm = Math.min(220, bpm + 4);
       save();
-      if (complete(k, tgt)) { $app.querySelector('.end').insertAdjacentHTML('beforeend', '<p class="done">✓ Done in all five shapes</p>'); setTimeout(() => { R = null; setup(); }, 1600); return; }
+      if (complete(k, tgt)) { $app.querySelector('.end').insertAdjacentHTML('beforeend', '<p class="done">✓ Done in all five shapes</p>'); setTimeout(afterRun, 1600); return; }
     }
-    R = null; setup();
+    afterRun();
   };
 }
 
