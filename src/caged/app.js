@@ -1,5 +1,6 @@
 // CAGED Changes: pick a key and a CAGED shape, start the beat, and play each chord as it arrives, in that shape.
-// Silent by design: the metronome is visual (an audible click is an opt-in), and no chord is ever played back.
+// Silent by default: the metronome is visual (an audible click is an opt-in); in the line modes a soft pad can play
+// each chord (the Chord sound toggle).
 // Chords come from a set (diatonic → modal interchange → everything → any chord) or a progression from the library;
 // colour tiers turn triads into sevenths and sevenths into 9ths, 13ths and altered dominants. Evolving mode swaps
 // chords for others with the same job as the loop goes round. A progression counts as done once you've confirmed a
@@ -25,7 +26,7 @@ const STORE = 'caged-changes';
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; } };
 const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
-  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
+  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, pad: false, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
 }, load());
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
@@ -582,7 +583,7 @@ function stop() {
   if (!R) return;
   clearTimeout(R.timer);
   R.ui.forEach(clearTimeout);
-  if (R.sound) A.hush();
+  if (R.sound || D.pad) A.hush();
   awake(false);
   R.stopped = true;
 }
@@ -604,7 +605,7 @@ async function run() {
   // the clock: the audio clock when the click sounds (sample-accurate), otherwise the page clock; no audio is
   // touched at all when the click is off
   R.sound = D.click;
-  if (R.sound) { await A.unlockAudio(); await A.ensureRunning(); }
+  if (R.sound || D.pad) { await A.unlockAudio(); await A.ensureRunning(); }
   awake(true);
   R.nextTime = now() + 0.15;
   if (R.countLeft) showChord(R.queue[0], { counting: true });
@@ -655,6 +656,29 @@ function rhythmHTML(c) {
   return Array.from({ length: n }, (_, e) => `<i class="${hits.has(e) ? 'hit' : ''}${push && e === n - 1 ? ' push' : ''}${e % 2 ? ' and' : ''}"><small>${e % 2 ? '&' : (e >> 1) % 4 + 1}</small></i>`).join('');
 }
 
+// the chord as a soft pad: root low, then the 3rd, 7th and one colour tone close together above middle C
+function padVoicing(c) {
+  const ivs = T.getChord(c.lq || c.q).ivs;
+  const rootPc = T.notePc(c.root);
+  const bassIv = c.spec?.bass && c.spec.bass !== '1' ? c.spec.bass : '1';
+  const bass = 36 + ((rootPc + H.semisOf(bassIv)) % 12) + (((rootPc + H.semisOf(bassIv)) % 12) < 4 ? 12 : 0); // E2 to D#3
+  const order = ['3', 'b3', '4', '2', '7', 'b7', 'bb7', '6', '9', 'b9', '#9', '11', '#11', '13', 'b13', '5', 'b5', '#5'];
+  const upper = order.filter((x) => ivs.includes(x)).slice(0, 4);
+  let prevM = 55, out = [];
+  for (const iv of upper) {
+    const pc = (rootPc + H.semisOf(iv.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n]))) % 12;
+    let m = 55 + ((pc - 55) % 12 + 12) % 12; // first one from G3 up
+    while (m <= prevM && out.length) m += 12;
+    out.push(m); prevM = m;
+  }
+  if (out.length && out[out.length - 1] > 76) out = out.map((m) => m - 12).map((m) => (m < 55 ? m + 12 : m)); // keep it under E5, nothing muddy under G3
+  return [bass, ...out.sort((a, b) => a - b)];
+}
+function playPad(c, t) {
+  if (!D.pad || !lineMode() || !c) return;
+  const at = A.audioCtx().currentTime + Math.max(0.01, t - now());
+  A.pad(padVoicing(c), at, c.beats * 60 / R.bpm - 0.05, { vel: 0.55 });
+}
 function tick(t) {
   if (R.countLeft > 0) {
     const n8 = R.countLeft;
@@ -672,7 +696,7 @@ function tick(t) {
     if (!R.first) R.first = R.cur;
     const c = R.cur, nx = R.queue[0], prev = R.prevGrip, note = R.pendingNote;
     if (c.slot === 0 && note) R.pendingNote = null;
-    if (!c.shownEarly) at(t, () => { showChord(c, { next: nx, prev, note: c.slot === 0 ? note : null }); });
+    if (!c.shownEarly) { at(t, () => { showChord(c, { next: nx, prev, note: c.slot === 0 ? note : null }); }); playPad(c, t); }
     else at(t, () => { const el = document.getElementById('next'); if (el) el.innerHTML = nextHTML(nx); });
     if (c.slot === 0 && R.count > 0) R.passes++;
   }
@@ -688,6 +712,7 @@ function tick(t) {
     const nx = R.queue[0], after = R.queue[1], prev = c.grip, note = nx.slot === 0 ? R.pendingNote : null;
     nx.shownEarly = true;
     at(t, () => { showChord(nx, { next: after, prev, note, early: true }); });
+    playPad(nx, t);
   }
   R.e++;
   if (R.e >= c.beats * 2) { R.e = 0; R.count++; }
@@ -718,6 +743,11 @@ function drawRun() {
     if (r === 'neck') { D.neck = !D.neck; save(); applyNames(); return renderStage(); }
     if (r && r.startsWith('play-')) return switchPlay(r.slice(5));
     if (r === 'keep') return keepVersion(b);
+    if (r === 'pad') {
+      D.pad = !D.pad; save(); applyNames();
+      if (D.pad) { A.unlockAudio().then(() => A.ensureRunning()).then(() => { if (R?.cur && !R.paused) playPad(R.cur, now() + 0.02); }); } else A.hush();
+      return;
+    }
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
@@ -739,7 +769,7 @@ function livePlay() {
   return `<div class="seg">${modes.map(([v, l]) => `<button data-r="play-${v}" class="${D.play === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 }
 function runButtons() {
-  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}<button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
+  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}<button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
 }
 function switchPlay(mode) {
   if (!R || D.play === mode) return;
@@ -756,7 +786,7 @@ function togglePause(btn) {
   if (!R) return;
   R.paused = !R.paused;
   btn.textContent = R.paused ? '▶' : '❚❚';
-  if (R.paused) { clearTimeout(R.timer); R.ui.forEach(clearTimeout); R.ui = []; if (R.sound) A.hush(); }
+  if (R.paused) { clearTimeout(R.timer); R.ui.forEach(clearTimeout); R.ui = []; if (R.sound || D.pad) A.hush(); }
   else { R.nextTime = now() + 0.1; pump(); }
 }
 // numeral and name are both always in the page; classes on the app decide which show (at least one does), and
@@ -774,7 +804,7 @@ function applyNames() {
   $app.classList.toggle('hide-names', !D.names);
   $app.classList.toggle('hide-nums', !D.nums);
   $app.classList.toggle('no-neck', !D.neck);
-  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv, wide: D.wide };
+  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv, wide: D.wide, pad: D.pad };
   $app.querySelectorAll('.rt').forEach((b) => { const k = b.dataset.r || b.dataset.w; b.classList.toggle('on', !!on[k]); b.setAttribute('aria-pressed', !!on[k]); });
 }
 const gripTag = (g) => (g ? (g.shape ? `${g.shape} shape` : g.label) : '');

@@ -195,6 +195,33 @@ export function strum(midis, t, { dir = 'D', spread = 0.012, vel = 0.8, muted = 
   });
 }
 
+// ---------- pad: a soft, warm synth chord ----------
+// Each note: a sawtooth and a triangle a few cents apart, through one gentle low-pass that opens slightly on the
+// attack; slow attack, long release, a touch of the room. Quiet enough to solo over.
+export function pad(midis, t, dur, { vel = 0.5 } = {}) {
+  const c = audioCtx();
+  const out = c.createGain();
+  const peak = (vel * 0.22) / Math.sqrt(Math.max(1, midis.length));
+  const atk = 0.09, rel = 0.55, end = t + Math.max(0.2, dur);
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(peak, t + atk);
+  out.gain.setValueAtTime(peak, end);
+  out.gain.exponentialRampToValueAtTime(0.0001, end + rel);
+  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.4;
+  lp.frequency.setValueAtTime(900, t);
+  lp.frequency.linearRampToValueAtTime(1700, t + 0.25);
+  lp.frequency.exponentialRampToValueAtTime(1100, end + rel);
+  out.connect(lp).connect(master);
+  for (const m of midis) {
+    for (const [type, det, amp] of [['sawtooth', -6, 0.35], ['triangle', 5, 0.65]]) {
+      const o = c.createOscillator(); o.type = type; o.frequency.value = hz(m); o.detune.value = det;
+      const g = c.createGain(); g.gain.value = amp;
+      o.connect(g).connect(out);
+      o.start(t); o.stop(end + rel + 0.05);
+    }
+  }
+}
+
 // ---------- drone ----------
 let drone = null;
 export function startDrone(midi, fifth = true) {
