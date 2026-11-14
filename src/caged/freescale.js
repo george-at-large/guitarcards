@@ -72,11 +72,12 @@ function factsFor(id, tonic) {
 
 // ---------- practice tips: ways to practise the mode, each with a picture of the pattern in this key ----------
 // the scale climbing from its root on the 6th string, laid out a few notes per string
-function climb(tonic, id, perString) {
-  const pc = T.notePc(tonic), rel = pcs(id);
-  let f0 = ((pc - 4) % 12 + 12) % 12; if (f0 === 0) f0 = 12;
+// the scale climbed n notes per string from the 6th string, starting on one of its degrees (0: the root)
+function climb(tonic, id, perString, startDeg = 0) {
+  const pc = T.notePc(tonic), rel = pcs(id), sorted = rel.slice().sort((a, b) => a - b);
+  let f0 = ((pc + sorted[startDeg % sorted.length] - 4) % 12 + 12) % 12; if (f0 === 0 && startDeg === 0) f0 = 12; // the root position up at 12, other positions may start open
   const m0 = 40 + f0, seq = [];
-  for (let m = m0; m <= m0 + 30; m++) if (rel.includes(((m - pc) % 12 + 12) % 12)) seq.push(m);
+  for (let m = m0; m <= m0 + 36; m++) if (rel.includes(((m - pc) % 12 + 12) % 12)) seq.push(m);
   const out = [];
   let i = 0;
   for (let st = 6; st >= 1 && i < seq.length; st--) for (let k = 0; k < perString && i < seq.length; k++, i++) out.push({ string: st, fret: seq[i] - F.OPEN[st], midi: seq[i], rel: ((seq[i] - pc) % 12 + 12) % 12 });
@@ -95,7 +96,10 @@ export function tipsFor(id, tonic) {
   const q = (t) => `https://www.google.com/search?q=${encodeURIComponent(`${t} ${name} scale guitar`)}`;
   const tips = [];
   const per = gapped ? 2 : 3, c = climb(tonic, id, per);
-  tips.push({ title: gapped ? 'Two notes per string' : 'Three notes per string', how: gapped ? `The box shape: two notes on every string, from the root on the 6th string up two octaves. Play it up and back down, then find the four other boxes up the neck.` : `Three notes on every string, from the root on the 6th string up two octaves: the hand shifts as it climbs, so the whole mode runs on a diagonal. Alternate pick, slowly, with the drone.`, search: q(gapped ? 'box shapes' : '3 notes per string'), pic: pic(c.notes.map((n, i) => label(n, i + 1, relKind(n.rel)))) });
+  // every position: one starting on each degree of the scale on the 6th string, in order up the neck
+  const sortedIvs = p.slice().sort((a, b) => a - b).map((x) => s.ivs.find((iv) => T.intervalSemis(F.simpleIv(iv)) % 12 === x) || IVN[x]);
+  const positions = (p.length === 5 || p.length === 7) ? p.map((_, d) => { const cc = climb(tonic, id, per, d); return { d, f0: cc.f0, pic: pic(cc.notes.map((n) => label(n, T.prettyIv(s.ivs.find((iv) => T.intervalSemis(F.simpleIv(iv)) % 12 === n.rel) || IVN[n.rel]), relKind(n.rel)))), start: sortedIvs[d] }; }).sort((a, b) => a.f0 - b.f0) : null;
+  tips.push({ title: gapped ? 'Two notes per string' : 'Three notes per string', how: gapped ? `The box shapes: two notes on every string, two octaves from the 6th string up. There’s one box starting on each note of the scale: swipe or use the arrows to go through them up the neck, and join each to the next.` : `Three notes on every string, two octaves from the 6th string up: the hand shifts as it climbs, so the mode runs on a diagonal. There are ${p.length} positions, one starting on each note of the scale: swipe or use the arrows to go through them up the neck. Alternate pick, slowly, with the drone.`, search: q(gapped ? 'box shapes' : '3 notes per string'), pic: pic(c.notes.map((n, i) => label(n, i + 1, relKind(n.rel)))), positions });
   if (n7 || gapped) {
     const seq = c.notes, steps = [];
     for (let i = 0; i + 2 < seq.length && steps.length < 12; i++) steps.push(seq[i], seq[i + (gapped ? 1 : 2)]);
@@ -356,6 +360,18 @@ export function renderFreeScale($app, ctx) {
   // practice tips: one at a time, its picture and a link to look it up
   function tipsHTML() {
     const tips = tipsFor(O.scale, tonic()), t = tips[R.tip % tips.length];
+    if (t.positions && t.positions.length) {
+      const n = t.positions.length;
+      if (R.pos === undefined) R.pos = t.positions.findIndex((x) => x.d === 0); // start on the root position
+      const k = (R.pos % n + n) % n, ps = t.positions[k];
+      const svg = neckSVG({ notes: ps.pic.notes, lo: ps.pic.lo, hi: ps.pic.hi }, { lo: ps.pic.lo, hi: ps.pic.hi, labels: 'iv', small: true });
+      return `<h2>Practice tips</h2>
+      <div class="chips fstips">${tips.map((x, i) => `<button class="chip ${i === R.tip % tips.length ? 'on' : ''}" data-tip="${i}">${esc(x.title)}</button>`).join('')}</div>
+      <p>${fmt(t.how)}</p>
+      <div class="fspos3"><button class="icon" data-f="pos-" aria-label="Previous position">‹</button><div><b>Position ${k + 1} of ${n}</b><small>starts on the ${fmt(T.prettyIv(ps.start))} · ${ps.f0 === 0 ? 'the open 6th string' : `fret ${ps.f0} on the 6th string`}</small></div><button class="icon" data-f="pos+" aria-label="Next position">›</button></div>
+      <div class="fstippic" id="fsswipe">${svg}<p class="note">${n} positions up the neck · swipe sideways for the next</p></div>
+      <a class="fslook" href="${t.search}" target="_blank" rel="noopener">Look it up ↗</a>`;
+    }
     const picSvg = t.pic ? neckSVG({ notes: t.pic.notes, lo: t.pic.lo, hi: t.pic.hi }, { lo: t.pic.lo, hi: t.pic.hi, labels: 'iv', small: true }) : t.rhythm ? rhythmSVG(t.rhythm) : '';
     return `<h2>Practice tips</h2>
       <div class="chips fstips">${tips.map((x, i) => `<button class="chip ${i === R.tip % tips.length ? 'on' : ''}" data-tip="${i}">${esc(x.title)}</button>`).join('')}</div>
@@ -510,7 +526,7 @@ export function renderFreeScale($app, ctx) {
     ${R.on ? '' : `<div class="actions"><button class="primary" data-f="play">▶ ${O.go === 'auto' ? 'Start' : O.drone ? 'Start the drone' : 'Start'}</button></div>`}`;
     const sel = $app.querySelector('#fsscale');
     if (sel) sel.onchange = () => {
-      O.scale = sel.value; R.fact = 0; R.tip = 0; R.prev = null;
+      O.scale = sel.value; R.fact = 0; R.tip = 0; R.prev = null; R.pos = undefined;
       // on a ladder that has it: go to it there; otherwise just this one
       const d2 = def();
       if (d2 && d2.cong) { O.home = O.scale; O.wi = 0; save(); return draw(); }
@@ -526,10 +542,20 @@ export function renderFreeScale($app, ctx) {
     r.oninput = () => { O.bpm = Number(r.value); document.getElementById('fsbpmv').textContent = O.bpm; };
     r.onchange = () => save();
   }
+  // swipe the position picture sideways to change position
+  let sx = null;
+  $app.ontouchstart = (e) => { sx = e.target.closest('#fsswipe') ? e.touches[0].clientX : null; };
+  $app.ontouchend = (e) => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) < 40) return;
+    R.pos = (R.pos ?? 0) + (dx < 0 ? 1 : -1);
+    const el = document.getElementById('fstips'); if (el) el.innerHTML = tipsHTML();
+  };
   $app.onclick = (e) => {
     if (e.target.closest('#fsfact')) return openAbout(); // tap the facts to read them all
     const g = e.target.closest('[data-goto]');
-    if (g) { O.scale = g.dataset.goto; O.key = g.dataset.gokey; O.seq = 'hold'; O.wi = 0; R.prev = null; R.fact = 0; R.tip = 0; save(); closeAbout(); if (R.on) drone(); return draw(); }
+    if (g) { O.scale = g.dataset.goto; O.key = g.dataset.gokey; O.seq = 'hold'; O.wi = 0; R.prev = null; R.fact = 0; R.tip = 0; R.pos = undefined; save(); closeAbout(); if (R.on) drone(); return draw(); }
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     if (d.key) { O.key = d.key; save(); if (R.on) drone(); return draw(); }
@@ -544,6 +570,7 @@ export function renderFreeScale($app, ctx) {
     if (d.tip !== undefined) { R.tip = Number(d.tip); document.getElementById('fstips').innerHTML = tipsHTML(); return; }
     const a = d.f; if (!a) return;
     if (a === 'back') { stopAll(); closeAbout(); return onBack(); }
+    if (a === 'pos+' || a === 'pos-') { R.pos = (R.pos ?? 0) + (a === 'pos+' ? 1 : -1); document.getElementById('fstips').innerHTML = tipsHTML(); return; }
     if (a === 'about') return openAbout();
     if (a === 'closeabout') return closeAbout();
     if (a === 'play') { if (R.on) { stopAll(); return draw(); } return play(); }

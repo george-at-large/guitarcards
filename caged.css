@@ -532,3 +532,7 @@ details.fsopts[open] > summary { margin-bottom: 8px; }
 .fsglance dd { margin: 0; }
 .fsglance dd ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
 @media (max-width: 420px) { .fsglance dl { grid-template-columns: 1fr; gap: 1px; } .fsglance dd { margin-bottom: 6px; } }
+.fspos3 { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; max-width: 340px; margin: 6px auto 0; text-align: center; }
+.fspos3 b { display: block; font-size: 15px; }
+.fspos3 small { display: block; color: var(--muted); font-size: 12.5px; }
+#fsswipe { touch-action: pan-y; }
