@@ -12,6 +12,7 @@ import * as G from './grips.js';
 import * as H from './harmony.js';
 import * as L from './library.js';
 import * as SC from './scales.js';
+import * as MC from './modal.js';
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const MAJOR_KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -60,6 +61,8 @@ export const DRILLS = [
   { id: 'approach', group: 'Lines', name: 'Approach from below', goal: 'Reach each chord’s 3rd from a half step below: the approach on the beat before, the 3rd on beat 1.', why: 'A half-step approach makes any target sound inevitable: the ear hears the pull.', at: (c) => T_([third(c.q)], { below: 1 }) },
   { id: 'enclose', group: 'Lines', name: 'Enclosures', goal: 'Surround each chord’s 3rd: the scale note above, the half step below, then the 3rd on the beat.', why: 'The bebop enclosure: circle the target, then land on it.', at: (c) => T_([third(c.q)], { below: 1, above: true }) },
   { id: 'tones', group: 'Lines', name: 'Chord tones only', goal: 'Only chord tones: make a melody out of each chord’s arpeggio, changing as the chord changes.', why: 'If every note is a chord tone, the line outlines the changes on its own.', sev: true, at: (c) => T_(T.getChord(c.q).ivs.filter((x) => !/^(b|#)?(9|11|13)$/.test(x))) },
+  { id: 'modecolour', group: 'Modes', name: 'The mode’s colour note', goal: 'Play the mode over the vamp and lean on its colour note (Dorian’s 6, Lydian’s ♯4, Mixolydian’s ♭7, Phrygian’s ♭2…), then let it resolve to a chord tone.', why: 'The colour note is what makes a mode sound like itself rather than plain major or minor.', scale: (c, key) => (c.mode ? ['@mode', 'colour'] : [homeMode(c, key)]) },
+  { id: 'modetones', group: 'Modes', name: 'Chord tones in the mode', goal: 'Play the mode the whole time, and land on the current chord’s 3rd or 7th as each chord arrives.', why: 'One scale over the whole vamp, but the chord tones still say which chord you’re on.', sev: true, scale: (c, key) => (c.mode ? ['@mode', 'tones'] : [homeMode(c, key)]) },
   { id: 'dorian', group: 'Reach into scales', name: 'Dorian on minor chords', goal: 'Over every minor chord play Dorian (the natural 6 is its colour); elsewhere the key’s own notes.', why: 'Dorian is the bright minor: cooler than natural minor.', scale: (c, key) => (fam(c.q) === 'min' ? ['dorian', '6'] : [homeMode(c, key)]) },
   { id: 'mixo', group: 'Reach into scales', name: 'Mixolydian on dominants', goal: 'Over every dominant chord play its Mixolydian (major with a ♭7); elsewhere the key’s own notes.', why: 'The plain dominant sound, inside the key.', scale: (c, key) => (fam(c.q) === 'dom' ? ['mixolydian', 'b7'] : [homeMode(c, key)]) },
   { id: 'lydian', group: 'Reach into scales', name: 'Lydian on major chords', goal: 'Over every major chord play Lydian (the ♯4 floats); elsewhere the key’s own notes.', why: 'The brightest major colour: no avoid note against the 3rd.', scale: (c, key) => (fam(c.q) === 'maj' ? ['lydian', '#4'] : [homeMode(c, key)]) },
@@ -81,9 +84,14 @@ export const LEVELS = [
   { n: 5, name: 'Very hard', bpm: 84, stretch: 1, show: 'none', cats: ['Jazz standards', 'Bass lines and slash chords', 'Turnarounds and jazz moves'], blurb: 'As written, the hardest progressions, the neck shows the position but not the targets: find them.' },
 ];
 
+// modal vamps: which modes come up at each difficulty
+const MODES_AT = [['dorian', 'mixolydian', 'aeolian'], ['ionian', 'lydian'], ['phrygian'], ['melodic-minor', 'lydian-dominant', 'phrygian-dominant'], ['harmonic-minor', 'locrian']];
+const minorMode = (id) => ['dorian', 'phrygian', 'aeolian', 'locrian', 'melodic-minor', 'harmonic-minor'].includes(id);
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+
 export function renderSolo($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, realise, legend, KIND } = ctx;
-  const O = D.solo = Object.assign({ key: 'C', kt: 'major', shape: 'E', pair: false, drill: 'guide', level: 1, sound: true, click: false, mute: false, show: true, bpm: 50, explain: true }, D.solo || {});
+  const O = D.solo = Object.assign({ key: 'C', kt: 'major', shape: 'E', pair: false, drill: 'guide', level: 1, sound: true, click: false, mute: false, show: true, bpm: 50, explain: true, src: 'progs', mode: 'any' }, D.solo || {});
   let R = null, lock = null;
   const minor = () => O.kt === 'minor';
   const LV = () => LEVELS[O.level - 1];
@@ -95,14 +103,30 @@ export function renderSolo($app, ctx) {
     if (O.kt !== 'both') list = list.filter((p) => !!p.minor === minor());
     return list.sort(() => Math.random() - 0.5);
   }
+  // vamps: each mode's typical vamps on the key note, chords held two bars (longer at the easy levels)
+  function vampItems() {
+    const modes = O.mode !== 'any' ? [O.mode] : MODES_AT.slice(0, O.level).flat();
+    const out = [];
+    for (const id of modes) {
+      const m = MC.modeById(id), byDeg = Object.fromEntries(MC.modeChords(T.parseNote('C'), id, 3).map((x) => [x.deg, x]));
+      for (const v of m.vamps) out.push({ name: `${m.name.replace(/\s*\(.*\)/, '')} vamp: ${v.filter((x, i, a) => a.indexOf(x) === i).map((d) => (byDeg[d] ? T.prettyRoman(H.label({ iv: byDeg[d].iv, q: byDeg[d].q })) : ROMAN[d])).join('–')}`, by: m.feel, cat: 'Modal vamps', modal: m, vamp: v, minor: minorMode(id) });
+    }
+    return out.sort(() => Math.random() - 0.5);
+  }
   function stream() {
-    const list = pool(), lv = LV();
+    const list = O.src === 'vamps' ? vampItems() : O.src === 'both' ? [...pool(), ...vampItems()].sort(() => Math.random() - 0.5) : pool(), lv = LV();
     let li = 0, item = null, slots = [], i = 0, pass = 0;
-    const rounds = () => (slots.length > 8 ? 1 : 2);
+    const rounds = () => (item && item.modal ? 3 : slots.length > 8 ? 1 : 2);
     function load() {
       const d = drillById(O.drill);
       item = list[li++ % list.length];
       slots = [];
+      if (item.modal) {
+        const tonic = T.parseNote(O.key), chords = MC.modeChords(tonic, item.modal.id, d.sev ? 4 : 3), byDeg = Object.fromEntries(chords.map((x) => [x.deg, x]));
+        item.vamp.forEach((deg, bi) => { const x = byDeg[deg] || byDeg[0]; slots.push({ spec: { iv: x.iv, q: x.q }, beats: 8 * Math.max(1, lv.stretch / 2), bar: bi, deg }); });
+        i = 0; pass = 0;
+        return;
+      }
       L.resolve(item).forEach((bar, bi) => bar.forEach((spec) => {
         let q = spec.q;
         if (d.sev && T.getChord(q).ivs.length < 4) q = H.toSeventh(H.toTriad(q), spec.iv, { dominant: !!spec.rel, minorKey: !!item.minor });
@@ -125,16 +149,30 @@ export function renderSolo($app, ctx) {
   function make() {
     const it = R.stream.next(), S = R.S;
     const im = !!it.item.minor;
-    const kn = im ? (MINOR_KEYS.includes(O.key) ? O.key : { Db: 'C#', Ab: 'G#' }[O.key] || O.key) : (MAJOR_KEYS.includes(O.key) ? O.key : { 'C#': 'Db', 'G#': 'Ab' }[O.key] || O.key);
+    const kn = it.item.modal ? O.key : im ? (MINOR_KEYS.includes(O.key) ? O.key : { Db: 'C#', Ab: 'G#' }[O.key] || O.key) : (MAJOR_KEYS.includes(O.key) ? O.key : { 'C#': 'Db', 'G#': 'Ab' }[O.key] || O.key);
     const tonic = T.parseNote(kn);
     if (S.minor !== im || T.notePc(S.tonic) !== T.notePc(tonic)) { S.tonic = tonic; S.minor = im; S.lastScale = {}; }
     const c = realise(S, it.spec, R.prevGrip, { voicing: 'caged', bass: 'off', scaleLevel: 1 });
     R.prevGrip = c.grip || R.prevGrip;
-    return { ...c, key: { tonic, minor: im }, beats: it.beats, item: it.item, first: it.first, slot: it.slot, slots: it.slots, pass: it.pass };
+    return { ...c, key: { tonic, minor: im }, mode: it.item.modal || null, beats: it.beats, item: it.item, first: it.first, slot: it.slot, slots: it.slots, pass: it.pass };
   }
   // the drill for chord c (next chord nx): the notes it aims at, or the scale, in the fret window
   function aim(c, nx) {
     const d = drillById(O.drill), p = R.S.pos, lo = Math.max(0, p.lo), hi = p.hi;
+    if (d.scale && d.scale(c, c.key, nx)[0] === '@mode') {
+      const [, how] = d.scale(c, c.key, nx), m = c.mode;
+      const rels = MC.modePcsFrom(c.key.tonic, m.id, c.root);
+      const cRel = ((T.notePc(c.key.tonic) + semis(m.char) - T.notePc(c.root)) % 12 + 12) % 12;
+      const targets = how === 'tones' ? relsOf([third(c.q), seventh(c.q)].filter(Boolean)) : [];
+      const notes = SC.scaleNotesIn({ rel: rels }, c.root, c.q, lo, hi).map((n) => {
+        const r = ((n.midi - T.notePc(c.root)) % 12 + 12) % 12;
+        if (r === cRel) return { ...n, kind: 'tx', mark: how === 'colour' };
+        if (n.chord) return targets.includes(r) ? { ...n, mark: true } : n;
+        return { ...n, kind: 'sc' };
+      });
+      const colourNote = T.noteName(T.transpose(c.key.tonic, F.simpleIv(m.char)), true);
+      return { kind: 'scale', notes, label: `${T.noteName(c.key.tonic, true)} ${m.name.replace(/\s*\(.*\)/, '')}${how === 'colour' ? `: lean on ${colourNote}, the ${ord(m.char)}` : `: land on ${[third(c.q), seventh(c.q)].filter(Boolean).map((iv) => T.noteName(T.transpose(c.root, F.simpleIv(simple(iv))), true)).join(' or ')}`}` };
+    }
     if (d.scale) {
       const [id, colour] = d.scale(c, c.key, nx);
       const sc = SCALE[id];
@@ -169,7 +207,8 @@ export function renderSolo($app, ctx) {
       const k = `${cc.name}`;
       if (seen.has(k)) continue;
       seen.add(k);
-      if (d.scale) { const [id] = d.scale(cc, c.key, nn); parts.push(`${cc.name}: ${T.noteName(root, true)} ${SCALE[id].name.replace(/\s*\(.*\)/, '')}`); }
+      if (d.scale && c.mode && d.scale({ ...cc, mode: c.mode }, c.key, nn)[0] === '@mode') { parts.push(`${cc.name}: ${T.noteName(c.key.tonic, true)} ${c.mode.name.replace(/\s*\(.*\)/, '')}`); }
+      else if (d.scale) { const [id] = d.scale(cc, c.key, nn); parts.push(`${cc.name}: ${T.noteName(root, true)} ${SCALE[id].name.replace(/\s*\(.*\)/, '')}`); }
       else { const a = d.at(cc, c.key, nn); parts.push(`${cc.name}: ${a.tones.map((iv) => T.noteName(T.transpose(root, F.simpleIv(simple(iv))), true)).join(' or ')}`); }
     }
     return parts.join(' · ');
@@ -229,7 +268,9 @@ export function renderSolo($app, ctx) {
       const nxs = c.slots[(j + 1) % c.slots.length], nroot = H.spell(key.tonic, nxs.spec.iv);
       const cc = { root, q: x.spec.q, name, key }, nn = { root: nroot, q: nxs.spec.q, name: H.chordName(nroot, nxs.spec.q) };
       let ask;
-      if (d.scale) {
+      if (d.scale && c.mode && d.scale({ ...cc, mode: c.mode }, key, nn)[0] === '@mode') {
+        ask = `${T.noteName(key.tonic, true)} ${c.mode.name.replace(/\s*\(.*\)/, '')}`;
+      } else if (d.scale) {
         const [id] = d.scale(cc, key, nn), sc = SCALE[id];
         ask = `${T.noteName(root, true)} ${sc.name.replace(/\s*\(.*\)/, '')}`;
         const out = relsOf(sc.ivs).map((r) => (T.notePc(root) + r) % 12).filter((pc) => !keyPcs.includes(pc));
@@ -241,7 +282,8 @@ export function renderSolo($app, ctx) {
         const out = notes.filter((n) => !keyPcs.includes(T.notePc(n)));
         if (out.length) hard.push(`On ${name} the target ${out.map((n) => T.noteName(n, true)).join(' or ')} isn’t in the key: it’s the note that tells the ear the chord changed.`);
       }
-      rows.push(`<tr><td class="cnum">${fmt(H.label(x.spec))}</td><td><b>${fmt(name)}</b><small>${esc(chordJob(x.spec, key.minor))}</small></td><td class="sask">${fmt(ask)}</td></tr>`);
+      const job = c.mode ? (x.deg === 0 ? `home: the ${c.mode.name.replace(/\s*\(.*\)/, '')} tonic` : relsOf(T.getChord(x.spec.q).ivs).map((r) => (T.notePc(root) + r) % 12).includes((T.notePc(key.tonic) + semis(c.mode.char)) % 12) ? `carries the mode’s colour note (the ${ord(c.mode.char)}): this is the chord that says ${c.mode.name.replace(/\s*\(.*\)/, '')}` : 'from the mode') : chordJob(x.spec, key.minor);
+      rows.push(`<tr><td class="cnum">${fmt(H.label(x.spec))}</td><td><b>${fmt(name)}</b><small>${esc(job)}</small></td><td class="sask">${fmt(ask)}</td></tr>`);
     });
     const lv = LV();
     if (c.slots.length > 6) hard.push(`It’s long: ${c.slots.length} chords. Keep your place by the numerals.`);
@@ -251,7 +293,7 @@ export function renderSolo($app, ctx) {
     <section class="card sexp">
       <span class="lbl">next up</span>
       <h2 class="sexph">${fmt(T.pretty(c.item.name))}</h2>
-      <p class="note">${fmt(c.item.by || c.item.cat)}. In ${fmt(T.noteName(key.tonic, true))} ${key.minor ? 'minor' : 'major'}, ${c.slots.length} chords${lv.stretch > 1 ? `, each held ${lv.stretch} times as long as written` : ''}, ${c.slots.length > 8 ? 'once' : 'twice'} round.</p>
+      <p class="note">${c.mode ? `${fmt(T.noteName(key.tonic, true))} ${esc(c.mode.name)}: ${esc(c.mode.feel)}. Its colour note is the ${fmt(ord(c.mode.char))}: ${fmt(T.noteName(T.transpose(key.tonic, F.simpleIv(c.mode.char)), true))}. A vamp: ${c.slots.length} chords, each held ${c.slots[0].beats / 4} bars, three times round.` : `${fmt(c.item.by || c.item.cat)}. In ${fmt(T.noteName(key.tonic, true))} ${key.minor ? 'minor' : 'major'}, ${c.slots.length} chords`}${c.mode ? '' : `${lv.stretch > 1 ? `, each held ${lv.stretch} times as long as written` : ''}, ${c.slots.length > 8 ? 'once' : 'twice'} round.`}</p>
       <h3>The theory</h3>
       <table class="stab"><tr><th></th><th>chord · its job</th><th>${d.scale ? 'play' : 'land on'}</th></tr>${rows.join('')}</table>
       <h3>The challenge: ${esc(d.name.toLowerCase())}</h3>
@@ -372,6 +414,12 @@ export function renderSolo($app, ctx) {
       <h2>The drill</h2>
       ${groups.map((g) => `<h3>${esc(g)}</h3><div class="chips">${DRILLS.filter((x) => x.group === g).map((x) => `<button class="chip ${O.drill === x.id ? 'on' : ''}" data-o="drill" data-v="${x.id}">${esc(x.name)}</button>`).join('')}</div>`).join('')}
       <p class="note"><b>${esc(d.name)}</b>: ${fmt(d.goal)} <i>${fmt(d.why)}</i></p>
+    </section>
+    <section class="card">
+      <h2>Music</h2>
+      ${seg('src', [['progs', 'Progressions'], ['vamps', 'Modal vamps'], ['both', 'Both']], O.src)}
+      ${O.src !== 'progs' ? `<h3>Mode</h3><div class="chips"><button class="chip ${O.mode === 'any' ? 'on' : ''}" data-o="mode" data-v="any">Any (by difficulty)</button>${MC.MODES.map((m) => `<button class="chip ${O.mode === m.id ? 'on' : ''}" data-o="mode" data-v="${m.id}">${esc(m.name.replace(/\s*\(.*\)/, ''))}</button>`).join('')}</div>` : ''}
+      <p class="note">${O.src === 'progs' ? 'Progressions from the library, a couple of times round each.' : `Each mode’s typical vamps on ${fmt(T.pretty(O.key))}, chords held two bars or more, three times round${O.mode === 'any' ? `; at this difficulty: ${MODES_AT.slice(0, O.level).flat().map((id) => MC.modeById(id).name.replace(/\s*\(.*\)/, '')).join(', ')}` : ''}.${O.src === 'both' ? ' Mixed in with progressions.' : ''}`} The Modes drills suit vamps best.</p>
     </section>
     <section class="card">
       <h2>Difficulty</h2>
