@@ -138,7 +138,16 @@ export function tipsFor(id, tonic) {
   if (bebop) tips.push({ title: 'Chord tones on the beat', how: 'Run it in eighth notes down from the root: the extra passing note makes every chord tone land on a beat. Start on a chord tone, on the beat.', search: q('bebop scale eighth notes'), pic: pic(c.notes.slice().reverse().slice(0, 8).map((n, i) => label(n, i + 1, relKind(n.rel)))) });
   if (id === 'blues' || id === 'maj-blues') tips.push({ title: 'Slide into the blue note', how: 'Slide or bend into the blue note from a fret below and resolve it: it’s a passing colour, not a place to stop.', search: q('blue note bends'), pic: pic(c.notes.map((n, i) => label(n, i + 1, [3, 6].includes(n.rel) ? 'tx' : relKind(n.rel)))) });
   // rhythm: the same notes, different feels (the picture is one bar of four beats: where the notes fall, accents bigger)
-  const R4 = (div, hits, acc = []) => ({ div, hits, acc });
+  const R4 = (div, hits, acc = [], labels = {}) => ({ div, hits, acc, labels });
+  // target on the beat: a chosen degree on a chosen beat, in this mode's own spelling
+  const ivs = s.ivs, pi = (x) => { const n = String(x).replace(/\D/g, ''); return `${T.prettyIv(x)}${n === '1' ? 'st' : n === '2' ? 'nd' : n === '3' ? 'rd' : 'th'}`; }, pl = (x) => T.prettyIv(x);
+  const th = ivs.find((x) => /^b?3$/.test(x)), sv = ivs.find((x) => /^b?b?7$/.test(x)) || ivs.find((x) => x === '6'), fv = ivs.find((x) => /^[b#]?5$/.test(x));
+  const refT = p.includes(4) ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10], colT = n7 ? p.filter((x) => !refT.includes(x)) : [];
+  const colIv = colT.length === 1 ? ivs.find((x) => T.intervalSemis(F.simpleIv(x)) % 12 === colT[0]) : null;
+  if (th) tips.push({ title: `The ${pi(th)} on beat 1`, how: `Play eighth notes freely through the mode, but beat 1 of every bar must be the ${pi(th)}${th === 'b3' ? ' (the minor 3rd)' : ' (the 3rd)'}. Aim for it from a different place each bar.`, search: q('target notes downbeat'), rhythm: R4(2, [0, 1, 2, 3, 4, 5, 6, 7], [0], { 0: pl(th) }), pic: null });
+  tips.push({ title: 'Chord tones on the beats', how: `On every click play a chord tone (1, ${[th, fv, sv].filter(Boolean).map(pl).join(', ')}); on the “and”s anything in the mode. The beat outlines the harmony, the off-beats decorate it: the bebop principle.`, search: q('chord tones on the beat'), rhythm: R4(2, [0, 1, 2, 3, 4, 5, 6, 7], [0, 2, 4, 6], { 0: 'CT', 2: 'CT', 4: 'CT', 6: 'CT' }), pic: null });
+  if (colIv) tips.push({ title: `Colour note on beat 3`, how: `Put the ${pi(colIv)}, the note that makes this mode itself, on beat 3, then resolve it to the nearest chord tone on beat 4. Tension, release, every bar.`, search: q('characteristic note resolution'), rhythm: R4(1, [0, 1, 2, 3], [2, 3], { 2: pl(colIv), 3: 'CT' }), pic: null });
+  if (sv) tips.push({ title: `Anticipate the ${pi(sv)}`, how: `Land the ${pi(sv)} on the “and” of 4 and hold it over the bar line into beat 1: arriving early is what makes a line swing.`, search: q('anticipation phrasing'), rhythm: R4(2, [0, 2, 4, 7], [7], { 7: pl(sv) }), pic: null });
   const all = (div) => Array.from({ length: div * 4 }, (_, i) => i);
   tips.push({ title: 'Triplets', how: 'Three notes to every click: up the scale in triplets, accenting the first of each three. Then turn it into a sequence: 1-2-3, 2-3-4, 3-4-5, one group per beat.', search: q('triplets'), rhythm: R4(3, all(3), [0, 3, 6, 9]), pic: null });
   tips.push({ title: 'Sixteenths', how: 'Four notes to every click, alternate picking, evenly. Start at half the tempo you think you can manage; speed comes from evenness.', search: q('sixteenth notes'), rhythm: R4(4, all(4), [0, 4, 8, 12]), pic: null });
@@ -185,14 +194,15 @@ function triadsIn(id, tonic) {
 }
 
 // one bar of four beats: the beat lines, a dot for each note, bigger on the accents
-function rhythmSVG({ div, hits, acc }) {
+function rhythmSVG({ div, hits, acc, labels = {} }) {
   const W = 320, H = 70, x0 = 14, bw = (W - 2 * x0) / 4, n = div * 4, step = bw / div;
   let g = '';
   for (let b = 0; b <= 4; b++) g += `<line x1="${x0 + b * bw}" y1="10" x2="${x0 + b * bw}" y2="${H - 10}" class="rbeat"/>`;
   for (let b = 0; b < 4; b++) g += `<text x="${x0 + b * bw + 4}" y="${H - 2}" class="rnum">${b + 1}</text>`;
   for (let i = 0; i < n; i++) {
     const x = x0 + i * step + step / 2;
-    g += hits.includes(i) ? `<circle cx="${x}" cy="${H / 2}" r="${acc.includes(i) ? 9 : 5.5}" class="${acc.includes(i) ? 'racc' : 'rhit'}"/>` : `<circle cx="${x}" cy="${H / 2}" r="2.5" class="rrest"/>`;
+    const lab = labels[i];
+    g += hits.includes(i) ? `<circle cx="${x}" cy="${H / 2}" r="${lab ? 12 : acc.includes(i) ? 9 : 5.5}" class="${acc.includes(i) ? 'racc' : 'rhit'}"/>${lab ? `<text x="${x}" y="${H / 2 + 4}" class="rlab">${lab}</text>` : ''}` : `<circle cx="${x}" cy="${H / 2}" r="2.5" class="rrest"/>`;
   }
   return `<svg viewBox="0 0 ${W} ${H}" class="rhythmpic" role="img" aria-label="Rhythm">${g}</svg>`;
 }
@@ -228,7 +238,7 @@ export function renderFreeScale($app, ctx) {
     return `<h2>Practice tips</h2>
       <div class="chips fstips">${tips.map((x, i) => `<button class="chip ${i === R.tip % tips.length ? 'on' : ''}" data-tip="${i}">${esc(x.title)}</button>`).join('')}</div>
       <p>${fmt(t.how)}</p>
-      ${picSvg ? `<div class="fstippic${t.rhythm ? ' wide' : ''}">${picSvg}<p class="note">${t.rhythm ? 'One bar of four beats: each dot a note, the big ones accented.' : t.pic.notes.some((n) => /^\d+$/.test(n.iv)) ? 'Numbers: the order to play them in.' : ''}</p></div>` : ''}
+      ${picSvg ? `<div class="fstippic${t.rhythm ? ' wide' : ''}">${picSvg}<p class="note">${t.rhythm ? (Object.keys(t.rhythm.labels || {}).length ? 'One bar of four beats: the labelled notes go on those beats (CT: any chord tone).' : 'One bar of four beats: each dot a note, the big ones accented.') : t.pic.notes.some((n) => /^\d+$/.test(n.iv)) ? 'Numbers: the order to play them in.' : ''}</p></div>` : ''}
       <a class="fslook" href="${t.search}" target="_blank" rel="noopener">Look it up ↗</a>`;
   }
   // everything about the mode, to read at leisure
