@@ -291,3 +291,8 @@ details.pcongs summary { cursor: pointer; font: 600 14px var(--f-display); }
 details.pcongs p { margin: 6px 0 0; font-size: 13.5px; color: var(--soft); }
 details.pcongs b { font-family: var(--f-num); color: var(--text); }
 .muted { color: var(--muted); }
+
+/* genre guide */
+.gguide h3 { margin: 14px 2px 4px; }
+.gguide p { margin: 0 2px; font-size: 14.5px; line-height: 1.5; color: var(--soft); }
+.rhythm.demo { justify-content: flex-start; margin: 8px 0 0; }

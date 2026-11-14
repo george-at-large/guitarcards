@@ -173,10 +173,16 @@ export function scalesFor(iv, q, minor, tonicPc = 0) {
 }
 
 // one scale for the chord at the chosen level ('any' = all), never the same as last time for this chord if avoidable
-export function pickScale(iv, q, minor, level, last = null, tonicPc = 0) {
+export function pickScale(iv, q, minor, level, last = null, tonicPc = 0, prefer = null) {
   const all = scalesFor(iv, q, minor, tonicPc);
   if (!all.length) return null;
   let pool = level === 'any' ? all : all.filter((x) => x.level === Number(level));
+  // a genre's own scales first: at this level if possible, else at any level
+  if (prefer && prefer.length) {
+    const atLevel = pool.filter((x) => prefer.includes(x.scale.id));
+    const anyLevel = all.filter((x) => prefer.includes(x.scale.id));
+    if (atLevel.length) pool = atLevel; else if (anyLevel.length) pool = anyLevel;
+  }
   // nothing at that level for this chord: the nearest level that has something
   for (let d = 1; !pool.length && d < 4; d++) pool = all.filter((x) => Math.abs(x.level - Number(level)) === d);
   if (!pool.length) pool = all;

@@ -14,6 +14,7 @@ import * as E from './evolve.js';
 import * as SC from './scales.js';
 import * as MC from './modal.js';
 import * as PR from './practice.js';
+import * as GN from './genres.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -26,7 +27,7 @@ const STORE = 'caged-changes';
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; } };
 const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
-  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, pad: false, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
+  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, pad: false, genre: 'blues', diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
 }, load());
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
@@ -43,11 +44,12 @@ const prog = () => mine().find((p) => p.id === D.prog) || L.byId(D.prog);
 const isMinor = () => D.kt === 'minor';
 // a progression counts as done at this tempo (normalised to 4 beats a bar): 120, or 100 when bars hold two chords
 const progBars = () => L.resolve(prog());
-const target = () => (D.src === 'prog' ? (progBars().some((b) => b.length > 1) ? 100 : 120) : 120);
-const doneKey = () => (D.play === 'modal' ? `m:${D.modal}:${D.modalSrc}` : ({ scales: 'x:', arps: 'a:', guide: 'g:' }[D.play] || '') + (D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`));
+const progLike = () => D.src === 'prog' || D.src === 'genre';
+const target = () => (D.src === 'genre' ? 110 : D.src === 'prog' ? (progBars().some((b) => b.length > 1) ? 100 : 120) : 120);
+const doneKey = () => (D.play === 'modal' ? `m:${D.modal}:${D.modalSrc}` : ({ scales: 'x:', arps: 'a:', guide: 'g:' }[D.play] || '') + (D.src === 'genre' ? `gn:${D.genre}:${D.kt}` : D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`));
 const record = (k = doneKey()) => D.done[k] || {};
 const complete = (k, tgt) => G.SHAPES.every((s) => (record(k)[s] || 0) >= tgt);
-const normBpm = (bpm) => Math.round(D.src === 'prog' ? bpm * 4 / D.barBeats : bpm * 4 / D.beats);
+const normBpm = (bpm) => Math.round(progLike() ? bpm * 4 / D.barBeats : bpm * 4 / D.beats);
 
 // ---------- a session: key, position, and the stream of chords ----------
 function session() {
@@ -156,7 +158,7 @@ function voice(S, root, q, spec, prev, vl) {
   if (grip?.q) qq = grip.q;
   return { q: qq, grip, plainer };
 }
-const varyOn = () => (D.src === 'prog' ? D.pcolour === 'var' : D.colour === 'var');
+const varyOn = () => (progLike() ? D.pcolour === 'var' : D.colour === 'var');
 // every chord remembers the area it was made for (the tour moves on while it waits in the queue)
 function realise(S, spec, q, prev, extra = {}) {
   const c = realiseCore(S, spec, q, prev, extra);
@@ -195,7 +197,7 @@ function realiseCore(S, spec, q, prev, extra = {}) {
   const root = H.spell(S.tonic, spec.iv);
   S.lastScale ||= {};
   const k = `${spec.iv}:${q}`;
-  const solo = SC.pickScale(spec.iv, q, S.minor, D.scaleLevel, S.lastScale[k], T.notePc(S.tonic));
+  const solo = SC.pickScale(spec.iv, q, S.minor, D.scaleLevel, S.lastScale[k], T.notePc(S.tonic), D.src === 'genre' ? GN.genreById(D.genre).scales : null);
   S.lastScale[k] = solo;
   const line = { lq: q, lname: H.slashName(root, q, spec.bass), lrn: H.label(spec, q), solo, arp: { start: pickOne(T.getChord(q).ivs) }, guide: guideFor(S, root, q) };
   if (D.play === 'modal' || extra.modalRun) {
@@ -262,18 +264,53 @@ function colourise(spec, next, i, minor) {
   const opts = H.colourOptions(sev, spec.iv, { toMinor: next ? H.isMinorish(next.q) || E.cls(next.q) === 'hd' : false, minorKey: minor });
   return opts[i % opts.length];
 }
-// the progression's slots, converted to the chosen mode if it was written in the other one
-function progSlots(minor) {
-  const p = prog();
-  const bars = progBars();
-  const conv = !!p.minor !== minor;
+// a chart's slots (each chord with its beats and bar), converted to the chosen mode if written in the other one
+function slotsFor(item, minor, barOffset = 0) {
+  const bars = L.resolve(item);
+  const conv = !!item.minor !== minor;
   const slots = [];
   bars.forEach((b, bi) => b.forEach((spec) => {
     const beats = Math.max(1, Math.round(D.barBeats / b.length));
-    slots.push({ spec: conv ? E.toParallel(spec, minor) : spec, beats, bar: bi });
+    slots.push({ spec: conv ? E.toParallel(spec, minor) : spec, beats, bar: bi + barOffset });
   }));
   slots.forEach((x, i) => { x.oid = i; });
   return slots;
+}
+// the progression's slots; for a genre, all its loops one after another (for the chord list and walkthrough)
+function progSlots(minor) {
+  if (D.src === 'genre') {
+    const g = GN.genreById(D.genre);
+    let off = 0;
+    const all = [];
+    for (const ch of g.charts) { const sl = slotsFor({ chart: ch, minor: g.minor }, minor, off); off = sl[sl.length - 1].bar + 1; all.push(...sl); }
+    all.forEach((x, i) => { x.oid = i; });
+    return all;
+  }
+  return slotsFor(prog(), minor);
+}
+// a genre: one of its typical loops, a new one every two times round
+function genreStream(S, R) {
+  const g = GN.genreById(D.genre);
+  const charts = g.charts.map((ch) => slotsFor({ chart: ch, minor: g.minor }, S.minor));
+  let ci = Math.floor(Math.random() * charts.length), cur = charts[ci], i = 0, loops = 0, prev = null;
+  R.slots = cur;
+  return {
+    genre: true,
+    next() {
+      if (i >= cur.length) {
+        i = 0; loops++;
+        if (loops % 2 === 0 && charts.length > 1) { let n; do { n = Math.floor(Math.random() * charts.length); } while (n === ci); ci = n; cur = charts[ci]; }
+        if (D.tour) { advanceShape(S); prev = null; }
+        R.slots = cur;
+      }
+      const x = cur[i], nx = cur[(i + 1) % cur.length];
+      const q = colourise(x.spec, nx.spec, x.oid + loops, S.minor);
+      const c = realise(S, x.spec, q, prev, { beats: x.beats, bar: x.bar, slot: i, pass: loops, slots: cur });
+      prev = c.grip;
+      i++;
+      return c;
+    },
+  };
 }
 function progStream(S, R) {
   const orig = progSlots(S.minor);
@@ -397,6 +434,33 @@ function modalCard() {
     <p class="note">${esc(m.name[0].toUpperCase() + m.name.slice(1))}: ${esc(m.feel)}. Its colour note is the ${fmt(T.prettyIv(m.char))}. ${D.modalSrc === 'vamp' ? 'Its typical vamps loop, a new one every two times round.' : 'Any chord of the mode, the tonic most often.'} On each chord the 3rd and 7th are ringed: land a phrase on one of them as the chord arrives.</p>
   </section>`;
 }
+function genreCard() {
+  const g = GN.genreById(D.genre);
+  return `<div class="chips">${GN.GENRES.map((x) => `<button class="chip ${D.genre === x.id ? 'on' : ''}" data-genre="${x.id}">${esc(x.name)}</button>`).join('')}</div>
+      <p class="note"><b>${esc(g.name)}</b>: ${esc(g.guide.feel)} Strum: ${esc((RHYTHMS.find((r) => r.id === g.rhythm) || RHYTHMS[0]).name)} (set in Tempo). ${g.tempo[0]}–${g.tempo[1]} bpm. ${g.charts.length} typical loops, a new one every two times round${g.minor ? '; minor key' : ''}. In Scales, its own scales come first.</p>
+      <button class="toggle" data-act="gguide"><b>Genre guide</b><small>Rhythm and strumming, the chords it uses, how to solo, who to listen to</small></button>
+      <h3>Colour</h3>
+      ${seg('pcolour', [['as', 'As the genre plays them'], ['tri', 'Triads'], ['sev', 'Sevenths'], ['col', 'Colour tones'], ['var', 'Variations']], D.pcolour)}`;
+}
+function guideHTML(g) {
+  const sec = (t, x) => `<h3>${t}</h3><p>${esc(x)}</p>`;
+  const r = RHYTHMS.find((x) => x.id === g.rhythm) || RHYTHMS[0];
+  return `<div class="gguide">${sec('Feel', g.guide.feel)}${sec(`Rhythm and strumming · ${r.name}`, g.guide.rhythm)}<div class="rhythm demo">${Array.from({ length: 8 }, (_, e) => `<i class="${r.hits.includes(e) ? 'hit' : ''}${e % 2 ? ' and' : ''}"><small>${e % 2 ? '&' : e / 2 + 1}</small></i>`).join('')}</div>${sec('Chords', g.guide.chords)}${sec('Soloing', g.guide.solo)}<h3>Scales it uses</h3><p>${g.scales.map((id) => esc((SC.SCALES.find((x) => x.id === id) || { name: id }).name)).join(', ')}</p><h3>Tempo</h3><p>${g.tempo[0]}–${g.tempo[1]} bpm</p>${sec('Listen to', g.guide.listen)}</div>`;
+}
+function guidePage() {
+  const g = GN.genreById(D.genre);
+  $app.innerHTML = `<header class="chead"><button class="icon" data-g="back" aria-label="Back">‹</button><h1>${esc(g.name)}</h1><span></span></header><section class="card">${guideHTML(g)}</section>`;
+  $app.onclick = (e) => { if (e.target.closest('[data-g="back"]')) setup(); };
+  window.scrollTo(0, 0);
+}
+function openGuide() {
+  const el = document.getElementById('sheet');
+  if (!el) return;
+  const g = GN.genreById(D.genre);
+  el.innerHTML = `<div class="sheet-head"><div><b>${esc(g.name)}</b><small>Genre guide</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>${guideHTML(g)}`;
+  el.hidden = false; el.scrollTop = 0;
+  document.body.classList.add('locked');
+}
 // what a voicing set does, in a sentence or two
 function voicingBlurb() {
   const v = G.voicingById(D.voicing);
@@ -498,8 +562,8 @@ function setup() {
 
   ${D.play === 'modal' ? modalCard() : `  <section class="card">
     <h2>Chords</h2>
-    ${seg('src', [['set', 'Chord sets'], ['prog', 'Progressions']], D.src)}
-    ${D.src === 'set' ? `
+    ${seg('src', [['set', 'Chord sets'], ['prog', 'Progressions'], ['genre', 'Genres']], D.src)}
+    ${D.src === 'genre' ? genreCard() : D.src === 'set' ? `
       <div class="sets">${sets.map((s) => `<button class="set ${D.set === s.id ? 'on' : ''}" data-set="${s.id}"><b>${esc(s.name)}</b><small>${esc(s.blurb)}</small></button>`).join('')}</div>
       <h3>Colour</h3>
       ${seg('colour', H.COLOURS.map((c) => [c.id, c.name]), D.colour)}
@@ -542,7 +606,7 @@ function setup() {
 
   <section class="card">
     <h2>Progress</h2>
-    <p class="note">${D.src === 'prog' ? `<b>${esc(p.name)}</b> in ${D.kt}` : `<b>${esc(sets.find((s) => s.id === D.set).name)}</b>, ${esc(H.COLOURS.find((c) => c.id === D.colour).name.toLowerCase())}, ${D.kt}`} is done when you’ve played it cleanly in all five shapes at <b>${tgt} bpm</b>${D.src === 'prog' ? ' with 4 beats a bar' : ' changing every bar'} (or the same speed of change at other settings). You confirm each run yourself.</p>
+    <p class="note">${D.src === 'genre' ? `<b>${esc(GN.genreById(D.genre).name)}</b> in ${D.kt}` : D.src === 'prog' ? `<b>${esc(p.name)}</b> in ${D.kt}` : `<b>${esc(sets.find((s) => s.id === D.set).name)}</b>, ${esc(H.COLOURS.find((c) => c.id === D.colour).name.toLowerCase())}, ${D.kt}`} is done when you’ve played it cleanly in all five shapes at <b>${tgt} bpm</b>${D.src === 'prog' ? ' with 4 beats a bar' : ' changing every bar'} (or the same speed of change at other settings). You confirm each run yourself.</p>
     ${shapeProgress(doneKey(), tgt)}
     ${complete(doneKey(), tgt) ? '<p class="done">✓ Done in every shape</p>' : ''}
   </section>
@@ -555,6 +619,12 @@ function setup() {
     const redraw = () => { save(); setup(); };
     for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc', 'app']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
+    if (d.genre) {
+      const g = GN.genreById(d.genre);
+      D.genre = g.id; D.rhythm = g.rhythm; D.kt = g.minor ? 'minor' : 'major';
+      if (D.bpm < g.tempo[0] || D.bpm > g.tempo[1]) D.bpm = g.tempo[0];
+      return redraw();
+    }
     if (d.scaleLevel !== undefined) { D.scaleLevel = d.scaleLevel === 'any' ? 'any' : Number(d.scaleLevel); return redraw(); }
     const a = d.act;
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
@@ -562,6 +632,7 @@ function setup() {
     if (a === 'bpm-' || a === 'bpm+') { D.bpm = Math.max(30, Math.min(220, D.bpm + (a === 'bpm+' ? 2 : -2))); return redraw(); }
     if (a === 'go') { save(); run(); }
     if (a === 'newprog') return editor(null);
+    if (a === 'gguide') return guidePage();
     if (a === 'editprog') return editor(prog());
     if (a === 'walk') { save(); walkthrough(); }
   };
@@ -599,7 +670,7 @@ async function awake(on) {
 async function run() {
   const S = session();
   R = { S, ui: [], timer: null, queue: [], cur: null, e: 0, count: 0, passes: 0, countLeft: D.countIn ? 8 : 0, bpm: D.bpm, paused: false, prevGrip: null, maxBpm: D.bpm, minBpm: D.bpm };
-  R.stream = D.play === 'modal' ? modalStream(S) : D.src === 'prog' ? progStream(S, R) : setStream(S);
+  R.stream = D.play === 'modal' ? modalStream(S) : D.src === 'genre' ? genreStream(S, R) : D.src === 'prog' ? progStream(S, R) : setStream(S);
   R.queue.push(R.stream.next(), R.stream.next());
   drawRun();
   // the clock: the audio clock when the click sounds (sample-accurate), otherwise the page clock; no audio is
@@ -632,6 +703,13 @@ const RHYTHMS = [
   { id: 'push', name: 'Push', hits: [3], push: true, blurb: 'The next chord is struck on the & of 4, half a beat early, and shown early too. Plus the & of 2.' },
   { id: 'offbeat', name: 'Off-beats', hits: [1, 3, 5, 7], blurb: 'Every &: reggae and ska.' },
   { id: 'tresillo', name: 'Tresillo 3-3-2', hits: [0, 3, 6], blurb: 'Dotted, dotted, straight: Latin and pop.' },
+  { id: 'eighths', name: 'Straight eighths', hits: [0, 1, 2, 3, 4, 5, 6, 7], blurb: 'Every eighth, down-strokes or down-up: rock and punk drive.' },
+  { id: 'shuffle', name: 'Shuffle', hits: [0, 1, 2, 3, 4, 5, 6, 7], blurb: 'Every eighth, swung long–short (the & comes late): blues.' },
+  { id: 'island', name: 'Island strum', hits: [0, 2, 3, 5, 6, 7], blurb: 'Down, down-up, up-down-up: the pop and folk staple.' },
+  { id: 'funk', name: 'Funk scratch', hits: [0, 1, 3, 5, 6], blurb: 'Keep the hand moving; these hits ring, everything else is a muted scratch.' },
+  { id: 'bossa', name: 'Bossa', hits: [0, 3, 5], blurb: 'Thumb on 1 and 3, fingers on 1, the & of 2 and the & of 3.' },
+  { id: 'boomchick', name: 'Boom-chick', hits: [0, 2, 4, 6], blurb: 'Bass note on 1 and 3 (root, then 5th), strum on 2 and 4: country.' },
+  { id: 'rumba', name: 'Rumba', hits: [0, 3, 4, 6], blurb: 'Flamenco rumba: 1, the & of 2, 3, 4, with a muted chuck on 2 and 4.' },
   { id: 'random', name: 'Random comping', random: true, blurb: 'A fresh syncopated pattern on every chord: leave space, place each hit.' },
 ];
 const rhythm = () => RHYTHMS.find((r) => r.id === D.rhythm) || RHYTHMS[0];
@@ -751,6 +829,7 @@ function drawRun() {
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
+    if (r === 'gguide') return openGuide();
     if (r === 'close-sheet') return closeSheet();
     if (r === 'pause') return togglePause(b);
     if (r === 'reveal') return revealNeck();
@@ -769,7 +848,7 @@ function livePlay() {
   return `<div class="seg">${modes.map(([v, l]) => `<button data-r="play-${v}" class="${D.play === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 }
 function runButtons() {
-  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}<button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
+  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}${D.src === 'genre' ? '<button class="rt" data-r="gguide">Genre guide</button>' : ''}<button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
 }
 function switchPlay(mode) {
   if (!R || D.play === mode) return;
@@ -830,7 +909,7 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   renderStage();
   if (next) document.getElementById('next').innerHTML = nextHTML(next);
   if (note) document.getElementById('evo').innerHTML = `<span>Evolved:</span> ${esc(note)}`;
-  if (D.src === 'prog' && c.slots) document.getElementById('chart').innerHTML = chartHTML(c.slots, { cur: c.slot, tonic: R.S.tonic });
+  if (c.slots) document.getElementById('chart').innerHTML = chartHTML(c.slots, { cur: c.slot, tonic: R.S.tonic });
 }
 function nextHTML(next) {
   if (!next) return '';
@@ -956,7 +1035,7 @@ function finish() {
   const { S, count, passes } = R;
   const bpm = R.minBpm;
   stop();
-  const enough = D.src === 'prog' ? passes >= 1 : count >= 8;
+  const enough = progLike() ? passes >= 1 : count >= 8;
   if (!enough) { R = null; return setup(); }
   const n = normBpm(bpm), tgt = target(), k = doneKey();
   const prevBest = record(k)[S.shapeKey] || 0;
@@ -965,7 +1044,7 @@ function finish() {
   $app.innerHTML = `
   <header class="chead"><span></span><h1>How was it?</h1><span></span></header>
   <section class="card end">
-    <p>${D.src === 'prog' ? `<b>${esc(prog().name)}</b>, ${passes} time${passes === 1 ? '' : 's'} round` : `<b>${count} chords</b>`} in ${fmt(keyLabel(S))}, <b>${lap.length > 1 ? `through ${lap.join(', ')}` : shapeWord(S)}</b>, at ${bpm} bpm${n !== bpm ? ` (counts as ${n})` : ''}.</p>
+    <p>${progLike() ? `<b>${esc(D.src === 'genre' ? GN.genreById(D.genre).name : prog().name)}</b>, ${passes} time${passes === 1 ? '' : 's'} round` : `<b>${count} chords</b>`} in ${fmt(keyLabel(S))}, <b>${lap.length > 1 ? `through ${lap.join(', ')}` : shapeWord(S)}</b>, at ${bpm} bpm${n !== bpm ? ` (counts as ${n})` : ''}.</p>
     <p>Was every chord clean and on time?</p>
     <div class="actions"><button class="primary" data-e="yes">✓ Clean</button><button data-e="no">Not yet</button></div>
     <p class="note">${prevBest ? `Best in the ${shapeWord(S)} so far: ${prevBest} bpm.` : `First clean run in the ${shapeWord(S)} gets recorded.`} Fast is ${tgt} bpm. ${n >= tgt ? 'This one counts as fast.' : `${tgt - n} to go.`}${S.shapes.length > 1 ? ' Two-shape runs are logged; the five single shapes are what count towards done.' : ''}</p>
@@ -996,18 +1075,18 @@ function sheetChords(S) {
   const groups = [];
   const add = (title, list) => { if (list.length) groups.push({ title, list }); };
   const qsFor = (q, spec, next) => {
-    if (D.src === 'prog' && D.pcolour === 'col') {
+    if (progLike() && D.pcolour === 'col') {
       const tri = H.toTriad(q);
       const sev = T.getChord(q).ivs.length >= 4 ? q : H.toSeventh(tri, spec.iv, { dominant: !!spec.rel, minorKey: S.minor });
       return H.colourOptions(sev, spec.iv, { toMinor: next ? H.isMinorish(next.q) || E.cls(next.q) === 'hd' : false, minorKey: S.minor });
     }
     if (varyOn()) {
-      const base = D.src === 'prog' ? colourise(spec, next, 0, S.minor) : q;
+      const base = progLike() ? colourise(spec, next, 0, S.minor) : q;
       return H.variations(base, spec.iv, S.minor);
     }
-    return [D.src === 'prog' ? colourise(spec, next, 0, S.minor) : q];
+    return [progLike() ? colourise(spec, next, 0, S.minor) : q];
   };
-  if (D.src === 'prog') {
+  if (progLike()) {
     const slots = progSlots(S.minor), seen = new Set(), own = [];
     slots.forEach((x, i) => {
       const next = slots[(i + 1) % slots.length].spec;
@@ -1016,7 +1095,7 @@ function sheetChords(S) {
         if (!seen.has(k)) { seen.add(k); own.push({ spec: x.spec, q }); }
       }
     });
-    add('In the progression', own);
+    add(D.src === 'genre' ? `Chords ${GN.genreById(D.genre).name.toLowerCase()} uses` : 'In the progression', own);
     if (D.evolve) {
       const subs = [];
       for (const r of E.reachable(slots, S.minor)) for (const q of qsFor(r.spec.q, r.spec, r.next)) {
@@ -1135,11 +1214,11 @@ function listWalkthrough(S, body, title) {
   window.scrollTo(0, 0);
 }
 function scaleWalkthrough(S) {
-  const title = D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
+  const title = D.src === 'genre' ? GN.genreById(D.genre).name : D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
   $app.innerHTML = `
   <header class="chead"><button class="icon" data-w="back" aria-label="Back">‹</button><h1>Scale options</h1><span></span></header>
   <p class="lead"><b>${esc(title)}</b> · ${fmt(keyLabel(S))}. Every scale that works over each chord, from easy to exotic, with what it sounds like here.</p>
-  ${D.src === 'prog' ? chartHTML(progSlots(S.minor), { tonic: S.tonic }) : ''}
+  ${progLike() ? chartHTML(progSlots(S.minor), { tonic: S.tonic }) : ''}
   ${namesButton('w')}
   <div class="scalelist">${scaleListHTML(S)}</div>`;
   applyNames();
@@ -1258,7 +1337,7 @@ function keepVersion(btn) {
 function walkItems(S) {
   const items = [];
   let prev = null;
-  if (D.src === 'prog') {
+  if (progLike()) {
     const slots = progSlots(S.minor);
     const seen = new Set();
     slots.forEach((x, i) => {
@@ -1288,7 +1367,7 @@ function walkthrough() {
   if (scaleMode()) return scaleWalkthrough(S);
   if (lineMode()) return listWalkthrough(S, toneListHTML(S), { arps: 'Arpeggios', guide: 'Guide tones', modal: 'Mode chords' }[D.play]);
   const items = walkItems(S);
-  const title = D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
+  const title = D.src === 'genre' ? GN.genreById(D.genre).name : D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
   let html = '', group = null;
   items.forEach((c, i) => {
     if (c.group && c.group !== group) { if (group !== null) html += '</div>'; html += `<h2 class="wgroup">${esc(c.group)}</h2><div class="cards">`; group = c.group; }
@@ -1299,7 +1378,7 @@ function walkthrough() {
   $app.innerHTML = `
   <header class="chead"><button class="icon" data-w="back" aria-label="Back">‹</button><h1>Walkthrough</h1><span></span></header>
   <p class="lead"><b>${esc(title)}</b> · ${fmt(keyLabel(S))} · ${fmt(posLabel(S))}${D.src === 'set' ? ` · ${esc(H.COLOURS.find((c) => c.id === D.colour).name.toLowerCase())}` : ''}. Play through steps along at your tempo.</p>
-  ${D.src === 'prog' ? chartHTML(progSlots(S.minor), { tonic: S.tonic }) : ''}
+  ${progLike() ? chartHTML(progSlots(S.minor), { tonic: S.tonic }) : ''}
   <div class="actions"><button class="primary" data-w="play">▶ Play through</button></div>
   ${namesButton('w')}
   ${LEGEND}
