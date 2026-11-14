@@ -489,3 +489,25 @@ svg.rhythmpic .rhit { fill: var(--soft); }
 svg.rhythmpic .racc { fill: var(--amber); }
 svg.rhythmpic .rrest { fill: rgba(255, 255, 255, 0.15); }
 svg.rhythmpic .rlab { fill: #1a1407; font: 700 10px var(--f-ui); text-anchor: middle; }
+/* free scales: moving through modes, patterns, areas */
+.fsnav { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 6px; }
+.fsarp { display: block; color: var(--text); margin-top: 3px; }
+.fspos { text-align: center; color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+#fscount { display: inline-block; margin-left: 4px; color: var(--soft); font-variant-numeric: tabular-nums; }
+#fscount.soon { color: var(--amber); font-weight: 650; }
+.fsmoved { text-align: center; margin: 4px 0 0; font-size: 14px; }
+.fsmoved b { color: var(--amber); }
+.fsmoved i { font-style: normal; color: var(--muted); font-size: 12px; }
+.fspat { max-width: 34em; margin: 8px auto; padding: 10px 14px; border-radius: 14px; background: rgba(103, 232, 249, 0.07); border: 1px solid rgba(103, 232, 249, 0.3); text-align: center; }
+.fspat .lbl { display: block; font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--cyan); }
+.fsnums { display: flex; justify-content: center; gap: 8px; margin: 6px 0; }
+.fsnums b { min-width: 40px; padding: 6px 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.08); font: 650 22px var(--f-num); }
+.fspat .note { margin: 4px 0 8px; }
+.fswin { text-align: center; color: var(--muted); font-size: 12.5px; margin: 6px 0 0; }
+.fsopts { display: grid; gap: 8px; }
+.fsopt { display: grid; grid-template-columns: 84px 1fr; gap: 8px; align-items: center; }
+.fsopt > span { font: 600 12px var(--f-ui); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.fsopt .seg button { padding: 7px 8px; font-size: 13px; }
+.fsopt .chip { justify-self: start; }
+.fsblurb { margin: -2px 0 2px; }
+@media (max-width: 420px) { .fsopt { grid-template-columns: 1fr; gap: 4px; } }

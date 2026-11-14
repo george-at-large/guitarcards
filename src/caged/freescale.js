@@ -1,10 +1,14 @@
 // Free scale practice: one screen, no setup. A key, a mode from any harmonic system (listed from most useful to most
 // exotic, each with its family), the whole neck showing it, a drone on the key note (with or without the 5th) and a
-// metronome you set on screen. While it plays, facts about when the mode is useful scroll by.
+// metronome you set on screen. While it plays, facts about when the mode is useful scroll by. It can also step through
+// ladders of modes (by hand or on the beat), set an interval pattern to carry through them, show arpeggios, and
+// narrow the neck to a half or one CAGED shape.
 import * as T from '../theory.js';
 import * as F from '../fretboard.js';
 import * as A from '../audio.js';
 import * as SC from './scales.js';
+import * as G from './grips.js';
+import * as FL from './fsladder.js';
 
 const BY = Object.fromEntries(SC.SCALES.map((s) => [s.id, s]));
 const IVN = ['1', '♭2', '2', '♭3', '3', '4', '♯4', '5', '♭6', '6', '♭7', '7'];
@@ -209,25 +213,81 @@ function rhythmSVG({ div, hits, acc, labels = {} }) {
 
 export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
-  const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12 }, D.fs || {});
-  let R = { on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [], tip: 0 };
+  const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
+    content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
+    area: 'whole', shape: 'E', shapeGo: 'manual' }, D.fs || {});
+  let R = { on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [], tip: 0, since: 0, order: null, prev: null };
+
+  // ---------- what's up now: one mode, a ladder or shuffle of modes, or a set of arpeggio types ----------
+  const def = () => { const d = FL.seqDef(O.seq); return d && (!d.qs || (O.content !== 'scale' && d.ext === (O.content === 'ext'))) ? d : null; };
+  const items = () => { const d = def(); return d ? FL.itemsOf(d) : [{ mode: O.scale }]; };
+  function walk() {
+    const d = def(), n = items().length;
+    if (!d) return [0];
+    if (d.shuffle) { if (!R.order || R.order.length !== n) R.order = FL.shuffled(Array.from({ length: n }, (_, i) => i)); return R.order; }
+    return FL.walkOf(d, n);
+  }
+  const cur = () => { const w = walk(); return items()[w[((O.wi % w.length) + w.length) % w.length]]; };
+  const upNext = () => { const w = walk(); if (w.length < 2) return null; return items()[w[(O.wi + 1) % w.length]]; };
+  function sync() { const it = cur(); if (it.mode) O.scale = it.mode; }
+  const itemName = (it) => (it.q !== undefined ? `${FL.qName(it.q)} arpeggio` : BY[it.mode].name);
+  // a full pass done (or, holding one mode, a change): a new pattern, the next shape, if asked for
+  function passDone() {
+    if (O.content === 'scale' && O.pat && O.patPass) O.cell = FL.newPattern(O.cell && O.cell.c);
+    if (O.area === 'shape' && O.shapeGo === 'auto') O.shape = G.nextShape(O.shape);
+  }
+  function step(dir, auto = false) {
+    const before = cur(), w = walk();
+    if (w.length < 2) { if (dir > 0) passDone(); R.prev = null; }
+    else {
+      let wi = O.wi + dir;
+      if (wi >= w.length) { wi = 0; if (def().shuffle) R.order = FL.shuffled(w.map((_, i) => i), w[w.length - 1]); passDone(); }
+      if (wi < 0) wi = w.length - 1;
+      O.wi = wi; sync();
+      const now = cur();
+      R.prev = before.mode && now.mode ? before.mode : null;
+      if (now.mode !== before.mode) R.fact = 0;
+    }
+    if (!auto) R.since = 0;
+    save(); draw();
+  }
+  // the piece of neck to show
+  function areaWin() {
+    if (O.area === 'low') return { lo: 0, hi: 7, name: 'frets 0–7' };
+    if (O.area === 'high') return { lo: 7, hi: O.frets, name: `frets 7–${O.frets}` };
+    if (O.area === 'shape') { const p = G.positionOf(tonic(), O.shape); return { lo: p.lo, hi: p.hi, band: true, name: `${O.shape} shape, frets ${p.lo}–${p.hi}` }; }
+    return { lo: 0, hi: O.frets, name: '' };
+  }
 
   const tonic = () => T.parseNote(O.key);
-  function neck() {
-    const t = tonic(), s = BY[O.scale];
-    const rel = pcs(O.scale);
-    const p = rel, ref = p.includes(4) ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10];
+  const scaleKind = (s, r, iv) => {
+    const p = pcs(s.id), ref = p.includes(4) ? [0, 2, 4, 5, 7, 9, 11] : [0, 2, 3, 5, 7, 8, 10];
     const colour = p.length >= 7 ? p.filter((x) => !ref.includes(x)) : [];
-    const notes = [];
-    for (let st = 1; st <= 6; st++) for (let f = 0; f <= O.frets; f++) {
-      const r = ((F.OPEN[st] + f - T.notePc(t)) % 12 + 12) % 12;
-      if (!rel.includes(r)) continue;
-      const iv = s.ivs.find((x) => T.intervalSemis(F.simpleIv(x)) % 12 === r) || IVN[r];
-      const plain = iv.replace('♭', 'b').replace('♯', '#');
-      const kind = r === 0 ? 'r' : /^(b?3|[b#]?5|b?b?7)$/.test(plain) ? KIND(plain) : colour.includes(r) || /^[b#]?(9|11|13)$/.test(plain) ? 'tx' : 'sc';
-      notes.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv, kind });
+    const plain = iv.replace('♭', 'b').replace('♯', '#');
+    return r === 0 ? 'r' : /^(b?3|[b#]?5|b?b?7)$/.test(plain) ? KIND(plain) : colour.includes(r) || /^[b#]?(9|11|13)$/.test(plain) ? 'tx' : 'sc';
+  };
+  // what the neck shows: the tones (each with its spelling and colour) and, faintly, the rest of the mode
+  function tones() {
+    const it = cur(), s = BY[O.scale];
+    if (it.q !== undefined) return { tones: T.getChord(it.q).ivs.map((iv) => ({ pc: FL.semisOf(iv), iv, kind: KIND(iv) })), bg: [] };
+    if (O.content !== 'scale') return { tones: FL.modeArp(O.scale, O.content === 'ext').map((iv) => ({ pc: FL.semisOf(iv), iv, kind: KIND(iv) })), bg: pcs(O.scale) };
+    if (O.pat && O.hint && O.cell) return { tones: O.cell.c.map((n) => FL.spellNum(O.scale, n)).filter(Boolean).map((iv) => ({ pc: FL.semisOf(iv), iv, kind: scaleKind(s, FL.semisOf(iv), iv) })), bg: pcs(O.scale) };
+    return { tones: pcs(O.scale).map((r) => { const iv = s.ivs.find((x) => FL.semisOf(x) === r) || IVN[r]; return { pc: r, iv, kind: scaleKind(s, r, iv) }; }), bg: [] };
+  }
+  function neck() {
+    const tp = T.notePc(tonic()), win = areaWin(), { tones: tt, bg: bgp } = tones(), it = cur();
+    const mv = R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
+    const mark = new Set(mv && mv.pairs.length <= 2 ? mv.added : []);
+    // the note that just moved is always shown (ringed), even when the pattern or arpeggio leaves it out
+    for (const pc of mark) if (!tt.some((x) => x.pc === pc)) { const iv = BY[O.scale].ivs.find((x) => FL.semisOf(x) === pc); if (iv) tt.push({ pc, iv, kind: 'sc' }); }
+    const notes = [], bg = [];
+    for (let st = 1; st <= 6; st++) for (let f = win.lo; f <= win.hi; f++) {
+      const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12;
+      const t = tt.find((x) => x.pc === r);
+      if (t) notes.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv: t.iv, kind: t.kind, mark: mark.has(r) });
+      else if (bgp.includes(r)) bg.push({ string: st, fret: f, root: r === 0 });
     }
-    return neckSVG({ notes, lo: 0, hi: O.frets }, { lo: 0, hi: O.frets, labels: 'iv' });
+    return neckSVG({ notes, lo: win.lo, hi: win.hi }, { lo: win.lo, hi: win.hi, labels: 'iv', bg, band: win.band ? { lo: win.lo, hi: win.hi } : null });
   }
   const facts = () => factsFor(O.scale, tonic());
   function factHTML() { const f = facts(); return `<span class="lbl">when it’s useful · ${(R.fact % f.length) + 1} of ${f.length} <i>tap to read it all</i></span><p>${fmt(f[R.fact % f.length])}</p>`; }
@@ -264,8 +324,19 @@ export function renderFreeScale($app, ctx) {
     if (R.next < c.currentTime - 0.02) R.next = c.currentTime + 0.05;
     while (R.next < c.currentTime + 0.12) {
       const t = R.next, b = R.beat++;
-      if (O.metro) A.click(t, b % 4 === 0 ? 2 : 1);
-      R.vis.push(setTimeout(() => document.querySelectorAll('#fsbeats i').forEach((el, i) => el.classList.toggle('on', O.metro && i === b % 4)), Math.max(0, (t - c.currentTime) * 1000)));
+      // auto: the change lands on a downbeat, every so many beats; the bar counts from the last change
+      let change = false;
+      if (O.go === 'auto' && R.since >= O.every) { R.since = 0; change = true; }
+      const pos = O.go === 'auto' ? R.since % 4 : b % 4;
+      R.since++;
+      const left = O.every - R.since + 1;
+      if (O.metro) A.click(t, pos === 0 ? 2 : 1);
+      R.vis.push(setTimeout(() => {
+        if (change && R.on) step(1, true);
+        document.querySelectorAll('#fsbeats i').forEach((el, i) => el.classList.toggle('on', i === pos));
+        const cd = document.getElementById('fscount');
+        if (cd) { cd.textContent = O.go === 'auto' ? `change in ${left}` : ''; cd.classList.toggle('soon', O.go === 'auto' && left <= 2); }
+      }, Math.max(0, (t - c.currentTime) * 1000)));
       if (R.vis.length > 64) R.vis.splice(0, 32);
       R.next += 60 / O.bpm;
     }
@@ -281,7 +352,7 @@ export function renderFreeScale($app, ctx) {
     await Promise.race([A.ensureRunning(), new Promise((r) => setTimeout(r, 500))]);
     if (!R.on) return;
     drone();
-    R.next = A.audioCtx().currentTime + 0.1; R.beat = 0;
+    R.next = A.audioCtx().currentTime + 0.1; R.beat = 0; R.since = 0;
     clock(); rotateFacts();
     draw();
   }
@@ -292,14 +363,66 @@ export function renderFreeScale($app, ctx) {
   }
 
   // ---------- the screen ----------
+  const seg = (attr, cur, opts) => `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${String(cur) === String(v) ? 'on' : ''}" role="radio" aria-checked="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
+  function seqOptions() {
+    const groups = {};
+    for (const l of FL.LADDERS) (groups[l.group] = groups[l.group] || []).push(l);
+    let h = `<option value="hold" ${!def() ? 'selected' : ''}>Just this one</option>`;
+    for (const [g, ls] of Object.entries(groups)) h += `<optgroup label="${esc(g)}">${ls.map((l) => `<option value="${l.id}" ${def() && O.seq === l.id ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</optgroup>`;
+    if (O.content !== 'scale') h += `<optgroup label="${O.content === 'ext' ? 'Extended arpeggio types' : 'Arpeggio types'}">${FL.ARPSETS.filter((a) => a.ext === (O.content === 'ext')).map((a) => `<option value="${a.id}" ${def() && O.seq === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</optgroup>`;
+    return h;
+  }
+  function titleHTML() {
+    const it = cur(), t = fmt(T.noteName(tonic(), true));
+    if (it.q !== undefined) return `${t} ${fmt(FL.qName(it.q))} arpeggio <small>${fmt(T.getChord(it.q).ivs.map((x) => T.prettyIv(x)).join(' '))}</small>`;
+    const s = BY[O.scale], par = parentOf(O.scale);
+    const sub = par ? `${par.deg === 0 ? esc(par.pname) : `mode ${par.deg + 1} of ${esc(par.pname)}`}: ${fmt(KEYNAME(T.notePc(tonic()) - par.offset))} ${esc(par.pname)} from its ${ORD[par.deg]}` : esc(FAMILY[s.fam] || '');
+    const arp = O.content !== 'scale' ? `<span class="fsarp">its ${O.content === 'ext' ? 'extended ' : ''}arpeggio: ${fmt(FL.modeArp(O.scale, O.content === 'ext').map((x) => T.prettyIv(x)).join(' '))}</span>` : '';
+    return `${t} ${esc(s.name)} <small>${sub} · <button class="linkish" data-f="about">about this mode</button>${arp}</small>`;
+  }
+  // where we are in the sequence, what's next, and which note just moved
+  function stepHTML() {
+    const d = def(), w = walk(), it = cur(), nx = upNext();
+    const mv = R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
+    const moved = mv && mv.pairs.length <= 2 ? `<p class="fsmoved">${mv.pairs.length === 1 ? 'One note moved' : 'Two notes moved'}: ${mv.pairs.map(([a, b]) => `<b>${fmt(a ? T.prettyIv(a) : '–')} → ${fmt(b ? T.prettyIv(b) : '–')}</b>`).join(', ')} <i>(ringed)</i></p>` : '';
+    if (!d) return O.go === 'auto' && R.on ? `<p class="fspos"><span id="fscount"></span></p>` : '';
+    return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span id="fscount"></span></p>${moved}`;
+  }
+  function patHTML() {
+    if (O.content !== 'scale' || !O.pat || !O.cell) return '';
+    const sp = O.cell.c.map((n) => FL.spellNum(O.scale, n));
+    const missing = O.cell.c.filter((n, i) => !sp[i]);
+    return `<div class="fspat"><span class="lbl">pattern${O.cell.name ? ` · ${esc(O.cell.name)}` : ''}</span>
+      <p class="fsnums">${O.cell.c.map((n) => `<b>${n}</b>`).join('')}</p>
+      ${O.hint ? `<p class="note">In ${esc(BY[O.scale].name)}: ${fmt(sp.map((x) => (x ? T.prettyIv(x) : '–')).join(' '))}${missing.length ? ` (it has no ${missing.join(', ')})` : ''}</p>` : '<p class="note">Play these degrees up and down, in every mode, on the same rhythm. Hint shows them on the neck.</p>'}
+      <button class="chip" data-f="newpat">New pattern</button></div>`;
+  }
+  function optsHTML() {
+    const d = def();
+    return `<section class="card fsopts">
+      <div class="fsopt"><span>Play</span>${seg('content', O.content, [['scale', 'Scale'], ['arp', 'Arpeggio'], ['ext', 'Extended']])}</div>
+      <div class="fsopt"><span>Go through</span><select id="fsseq" class="select" aria-label="Go through">${seqOptions()}</select></div>
+      ${d ? `<p class="note fsblurb">${fmt(d.blurb)}</p>` : ''}
+      <div class="fsopt"><span>Change</span>${seg('go', O.go, [['manual', 'Manual'], ['auto', 'Auto']])}</div>
+      ${O.go === 'auto' ? `<div class="fsopt"><span>Every</span>${seg('every', O.every, [[4, '4 beats'], [8, '8'], [16, '16'], [32, '32']])}</div>` : ''}
+      ${O.content === 'scale' ? `<div class="fsopt"><span>Pattern</span><div class="fsrow"><button class="chip ${O.pat ? 'on' : ''}" data-f="pat">Interval pattern</button>${O.pat ? `<button class="chip ${O.hint ? 'on' : ''}" data-f="hint">Hint</button><button class="chip ${O.patPass ? 'on' : ''}" data-f="patpass">New each ${d ? 'pass' : 'change'}</button>` : ''}</div></div>` : ''}
+      <div class="fsopt"><span>Neck</span>${seg('area', O.area, [['whole', 'Whole'], ['low', 'Low half'], ['high', 'High half'], ['shape', 'Shape']])}</div>
+      ${O.area === 'whole' ? `<div class="fsopt"><span></span>${seg('frets', O.frets, [[12, 'Frets 0–12'], [15, 'Frets 0–15']])}</div>` : ''}
+      ${O.area === 'shape' ? `<div class="fsopt"><span>Shape</span>${seg('shape', O.shape, G.SHAPES.map((x) => [x, x]))}</div>
+        <div class="fsopt"><span>Move</span>${seg('shapego', O.shapeGo, [['manual', 'Manual'], ['auto', `Auto, each ${d ? 'pass' : 'change'}`]])}<button class="chip" data-f="nextshape">Next shape ›</button></div>` : ''}
+    </section>`;
+  }
   function draw() {
-    const s = BY[O.scale];
+    sync();
+    if (O.content === 'scale' && O.pat && !O.cell) O.cell = FL.newPattern();
+    const it = cur(), d = def(), isArp = it.q !== undefined, many = walk().length > 1;
     const opts = TIERS.map(([tier, ids]) => `<optgroup label="${esc(tier)}">${ids.filter((id) => BY[id]).map((id) => `<option value="${id}" ${id === O.scale ? 'selected' : ''}>${esc(BY[id].name)} · ${esc(FAMILY[BY[id].fam] || '')}</option>`).join('')}</optgroup>`).join('');
+    const win = areaWin();
     $app.innerHTML = `
     <header class="chead"><button class="icon" data-f="back" aria-label="Back">‹</button><h1>Free scales</h1><button class="icon" data-f="play" aria-label="${R.on ? 'Stop' : 'Start'}">${R.on ? '■' : '▶'}</button></header>
     <div class="fsbar">
       <div class="chips fskeys">${KEYS.map((k) => `<button class="chip ${O.key === k ? 'on' : ''}" data-key="${k}">${fmt(T.pretty(k))}</button>`).join('')}</div>
-      <select id="fsscale" class="select" aria-label="Mode">${opts}</select>
+      ${isArp ? '' : `<select id="fsscale" class="select" aria-label="Mode">${opts}</select>`}
       <div class="fsrow">
         <button class="chip ${O.drone ? 'on' : ''}" data-f="drone">Drone</button><button class="chip ${O.fifth ? 'on' : ''}" data-f="fifth">+ 5th</button>
         <button class="chip ${O.metro ? 'on' : ''}" data-f="metro">Metronome</button>
@@ -307,17 +430,28 @@ export function renderFreeScale($app, ctx) {
       </div>
       <input type="range" id="fsbpmr" min="30" max="200" step="2" value="${O.bpm}" aria-label="Tempo">
     </div>
-    <h2 class="fstitle">${fmt(T.noteName(tonic(), true))} ${esc(s.name)} <small>${(() => { const par = parentOf(O.scale); return par ? `${par.deg === 0 ? esc(par.pname) : `mode ${par.deg + 1} of ${esc(par.pname)}`}: ${fmt(KEYNAME(T.notePc(tonic()) - par.offset))} ${esc(par.pname)} from its ${ORD[par.deg]}` : esc(FAMILY[s.fam] || ''); })()} · <button class="linkish" data-f="about">about this mode</button></small></h2>
-    <div class="beats" id="fsbeats">${O.metro ? '<i></i><i></i><i></i><i></i>' : ''}</div>
-    <div class="fsfact in" id="fsfact">${factHTML()}</div>
+    <div class="fsnav">${many ? '<button class="icon" data-f="prev" aria-label="Previous">‹</button>' : '<span></span>'}<h2 class="fstitle">${titleHTML()}</h2>${many ? '<button class="icon" data-f="next" aria-label="Next">›</button>' : '<span></span>'}</div>
+    ${stepHTML()}
+    <div class="beats" id="fsbeats">${O.metro || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
+    ${patHTML()}
+    ${isArp ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
+    ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
-    <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">colour note</span><span class="k sc">rest of the scale</span></div>
-    <div class="chips" style="justify-content:center">${[12, 15].map((n) => `<button class="chip ${O.frets === n ? 'on' : ''}" data-frets="${n}">Frets 0–${n}</button>`).join('')}</div>
-    <section class="card fstipcard" id="fstips">${tipsHTML()}</section>
+    <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
+    ${optsHTML()}
+    ${isArp ? '' : `<section class="card fstipcard" id="fstips">${tipsHTML()}</section>`}
     <div class="sheet" id="fsabout" hidden></div>
-    ${R.on ? '' : '<div class="actions"><button class="primary" data-f="play">▶ Start the drone</button></div>'}`;
+    ${R.on ? '' : `<div class="actions"><button class="primary" data-f="play">▶ ${O.go === 'auto' ? 'Start' : O.drone ? 'Start the drone' : 'Start'}</button></div>`}`;
     const sel = $app.querySelector('#fsscale');
-    sel.onchange = () => { O.scale = sel.value; R.fact = 0; R.tip = 0; save(); draw(); };
+    if (sel) sel.onchange = () => {
+      O.scale = sel.value; R.fact = 0; R.tip = 0; R.prev = null;
+      // on a ladder that has it: go to it there; otherwise just this one
+      const d2 = def(), k = d2 && !d2.qs ? walk().findIndex((x) => items()[x].mode === O.scale) : -1;
+      if (k >= 0) O.wi = k; else { O.seq = 'hold'; O.wi = 0; }
+      save(); draw();
+    };
+    const sq = $app.querySelector('#fsseq');
+    sq.onchange = () => { O.seq = sq.value; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; save(); draw(); };
     const r = $app.querySelector('#fsbpmr');
     r.oninput = () => { O.bpm = Number(r.value); document.getElementById('fsbpmv').textContent = O.bpm; };
     r.onchange = () => save();
@@ -325,17 +459,27 @@ export function renderFreeScale($app, ctx) {
   $app.onclick = (e) => {
     if (e.target.closest('#fsfact')) return openAbout(); // tap the facts to read them all
     const g = e.target.closest('[data-goto]');
-    if (g) { O.scale = g.dataset.goto; O.key = g.dataset.gokey; R.fact = 0; R.tip = 0; save(); closeAbout(); if (R.on) drone(); return draw(); }
+    if (g) { O.scale = g.dataset.goto; O.key = g.dataset.gokey; O.seq = 'hold'; O.wi = 0; R.prev = null; R.fact = 0; R.tip = 0; save(); closeAbout(); if (R.on) drone(); return draw(); }
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     if (d.key) { O.key = d.key; save(); if (R.on) drone(); return draw(); }
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
+    if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
+    if (d.go) { O.go = d.go; R.since = 0; save(); return draw(); }
+    if (d.every) { O.every = Number(d.every); R.since = Math.min(R.since, O.every); save(); return draw(); }
+    if (d.area) { O.area = d.area; save(); return draw(); }
+    if (d.shape) { O.shape = d.shape; save(); return draw(); }
+    if (d.shapego) { O.shapeGo = d.shapego; save(); return draw(); }
     if (d.tip !== undefined) { R.tip = Number(d.tip); document.getElementById('fstips').innerHTML = tipsHTML(); return; }
     const a = d.f; if (!a) return;
     if (a === 'back') { stopAll(); closeAbout(); return onBack(); }
     if (a === 'about') return openAbout();
     if (a === 'closeabout') return closeAbout();
     if (a === 'play') { if (R.on) { stopAll(); return draw(); } return play(); }
+    if (a === 'next' || a === 'prev') return step(a === 'next' ? 1 : -1);
+    if (a === 'newpat') { O.cell = FL.newPattern(O.cell && O.cell.c); save(); return draw(); }
+    if (a === 'pat' || a === 'hint' || a === 'patpass') { const k = { pat: 'pat', hint: 'hint', patpass: 'patPass' }[a]; O[k] = !O[k]; save(); return draw(); }
+    if (a === 'nextshape') { O.shape = G.nextShape(O.shape); save(); return draw(); }
     if (a === 'drone' || a === 'fifth') { O[a] = !O[a]; save(); if (R.on) drone(); return draw(); }
     if (a === 'metro') { O.metro = !O.metro; save(); return draw(); }
     if (a === 'bpm-' || a === 'bpm+') { O.bpm = Math.max(30, Math.min(200, O.bpm + (a === 'bpm+' ? 2 : -2))); save(); document.getElementById('fsbpmv').textContent = O.bpm; const rr = document.getElementById('fsbpmr'); if (rr) rr.value = O.bpm; return; }
