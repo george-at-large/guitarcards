@@ -25,6 +25,7 @@ import * as SO from './solo.js';
 import * as FS from './freescale.js';
 import * as BC from './borrowed.js';
 import * as CS from './cscale.js';
+import * as QT from './quartal.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -686,6 +687,10 @@ function openChromatic() {
 function openModulation() {
   stopPractice = BC.renderBorrowed($app, { D, save, neckSVG, esc, fmt, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); }, onPractise: practiseFrom, progress: progProgress }, BC.MOD_CFG);
 }
+// Quartal: chords stacked in 4ths, in progressions, in any CAGED area or on a string set
+function openQuartal() {
+  stopPractice = QT.renderQuartal($app, { D, save, neckSVG, esc, fmt, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
+}
 function openChordScales() {
   stopPractice = CS.renderChordScales($app, { D, save, neckSVG, esc, fmt, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
 }
@@ -734,6 +739,7 @@ function setup() {
   if (D.app === 'cscale') return openChordScales();
   if (D.app === 'chrom') return openChromatic();
   if (D.app === 'mod') return openModulation();
+  if (D.app === 'quartal') return openQuartal();
   const minor = isMinor();
   const keys = keysFor(minor);
   if (D.key !== 'rand' && !keys.includes(D.key)) D.key = minor ? ({ Db: 'C#', Ab: 'G#' }[D.key] || D.key) : ({ 'C#': 'Db', 'G#': 'Ab' }[D.key] || D.key);
@@ -747,7 +753,7 @@ function setup() {
   $app.innerHTML = `
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
   <p class="lead">${{ chords: 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.', scales: 'The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.', arps: 'The chords keep coming; play each one as an arpeggio through the shape, starting from the tone it names.', guide: 'The chords keep coming; play just their 3rds and 7ths as two lines that move as little as possible.', modal: 'Pick a mode. Its own chords vamp on the beat; solo in the shape and land on each chord’s 3rd or 7th.' }[D.play]}</p>
-  ${seg('app', [['changes', 'Chord changes'], ['free', 'Free scales'], ['borrow', 'Borrowed chords'], ['chrom', 'Chromatic chords'], ['mod', 'Modulation'], ['cscale', 'Chord scales'], ['call', 'Call and response'], ['listen', 'Listen'], ['workouts', 'Workouts'], ['solo', 'Soloing']], D.app || 'changes')}
+  ${seg('app', [['changes', 'Chord changes'], ['free', 'Free scales'], ['borrow', 'Borrowed chords'], ['chrom', 'Chromatic chords'], ['mod', 'Modulation'], ['quartal', 'Quartal'], ['cscale', 'Chord scales'], ['call', 'Call and response'], ['listen', 'Listen'], ['workouts', 'Workouts'], ['solo', 'Soloing']], D.app || 'changes')}
   ${qsCard()}
   ${seg('play', [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales'], ['modal', 'Modes']], D.play)}
 
