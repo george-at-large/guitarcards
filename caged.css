@@ -392,3 +392,8 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 .cxdial input[type=range] { flex: 1; margin: 0; min-width: 120px; }
 .cxdial b { flex: 1 0 100%; text-align: center; font: 600 13px var(--f-ui); color: var(--amber); }
 svg.neck .dot.r.sc circle { fill: #6b4a1e; stroke: rgba(255, 181, 71, 0.55); }
+.arlive { display: flex; align-items: center; gap: 8px; max-width: 420px; margin: 0 auto 6px; }
+.arlive .lbl { font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); white-space: nowrap; }
+.arlive .seg { flex: 1; }
+.arlive .seg { flex-wrap: nowrap; }
+#caged .arlive .seg button { flex: 1 1 0; padding: 5px 2px; font-size: 12.5px; min-width: 0; }

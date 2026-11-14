@@ -18,6 +18,7 @@ import * as GN from './genres.js';
 import * as CR from './callresp.js';
 import * as LS from './listen.js';
 import * as WK from './wkrun.js';
+import * as AR from './around.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -32,7 +33,7 @@ const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
   colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, pad: false, genre: 'blues', diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
-  roam: { cat: 'all', times: 2, tour5: false, done: {} }, hearRhythm: true, mute: false,
+  roam: { cat: 'all', times: 2, tour5: false, done: {} }, hearRhythm: true, mute: false, around: 'off', aroundAmt: 'medium',
 }, load());
 // the beat and the rhythm are heard now (they were silent by default): turn the click on once for everyone
 if (!D.soundV2) { D.click = true; D.hearRhythm = true; D.soundV2 = 1; }
@@ -358,7 +359,8 @@ function progStream(S, R) {
     next() {
       if (i >= cur.length) {
         i = 0; pass++;
-        if (D.evolve || subsOn()) { const r = E.evolve(cur, orig, S.minor); cur = r.slots; R.pendingNote = r.note; } else cur = orig;
+        const base = D.around !== 'off' ? AR.around(orig, S.minor, D.around, D.aroundAmt) : orig;
+        if (D.evolve || subsOn()) { const r = E.evolve(D.around !== 'off' ? base : cur, orig, S.minor); cur = r.slots; R.pendingNote = r.note; } else cur = base;
         if (D.tour) { advanceShape(S); prev = null; }
         R.slots = cur;
       }
@@ -397,7 +399,8 @@ function roamStream(S, R) {
       S.pos = D.pair ? G.positionOfPair(S.tonic, S.shape) : G.positionOf(S.tonic, S.shape);
     }
     orig = slotsFor(item, minor); i = 0; pass = 0; prev = null;
-    cur = subsOn() ? E.evolve(orig, orig, minor).slots : orig;
+    const first = D.around !== 'off' && (D.roam.tour5 ? 5 : D.roam.times) === 1 ? AR.around(orig, minor, D.around, D.aroundAmt) : orig;
+    cur = subsOn() ? E.evolve(first, orig, minor).slots : first;
     R.roam = item; R.slots = cur; R.orig = orig;
   }
   if (todo.length) load();
@@ -412,7 +415,8 @@ function roamStream(S, R) {
           load();
           if (D.roam.tour5) advanceShape(S);
         } else {
-          cur = subsOn() ? E.evolve(cur, orig, S.minor).slots : orig;
+          const base = D.around !== 'off' ? AR.around(orig, S.minor, D.around, D.aroundAmt) : orig;
+          cur = subsOn() ? E.evolve(base, orig, S.minor).slots : base;
           if (D.roam.tour5 || D.tour) { advanceShape(S); prev = null; }
         }
         R.slots = cur;
@@ -428,6 +432,13 @@ function roamStream(S, R) {
     },
   };
 }
+// around the progression: the palette it borrows from, and how much
+function aroundCard() {
+  return `<h3>Around the progression</h3>
+      ${seg('around', AR.PALETTES, D.around)}
+      ${D.around !== 'off' ? seg('aroundAmt', AR.AMOUNTS, D.aroundAmt) : ''}
+      <p class="note">${esc(AR.PALETTE_BLURB[D.around])}${D.around !== 'off' ? ` The progression is the scaffold: the first time round it plays as written, then each time round ${D.aroundAmt === 'light' ? 'one chord' : D.aroundAmt === 'heavy' ? 'about half the chords' : 'about a quarter of the chords'} change, fresh from the original, and the screen says what each one replaces or leads into. Changeable during a run.` : ''}</p>`;
+}
 function roamCard() {
   const list = roamList(), left = roamLeft().length, n = list.length - left;
   return `
@@ -435,6 +446,7 @@ function roamCard() {
       <h3>Complexity</h3>
       ${seg('pcolour', CX, D.pcolour === 'var' ? 'sev' : D.pcolour)}
       <p class="note">${esc(CX_BLURB[D.pcolour] || '')} Turn the dial on the run screen to change it as you play.</p>
+      ${aroundCard()}
       <h3>Each progression</h3>
       <div class="seg" role="radiogroup">${[[1, 'Once'], [2, 'Twice'], [3, '3 times'], ['tour', 'Once in every shape']].map(([v, l]) => { const on = v === 'tour' ? D.roam.tour5 : !D.roam.tour5 && D.roam.times === v; return `<button data-roamtimes="${v}" class="${on ? 'on' : ''}" role="radio" aria-checked="${on}">${l}</button>`; }).join('')}</div>
       <p class="note">It roams through ${D.roam.cat === 'all' ? 'every progression and cadence in the library' : `the ${esc(D.roam.cat.toLowerCase())}`} in a shuffled order, ${D.roam.tour5 ? 'each once round in every CAGED shape, moving up a shape each time round' : `${D.roam.times === 1 ? 'once' : D.roam.times === 2 ? 'twice' : `${D.roam.times} times`} round each`}, then moves on; the one playing is named at the top. Major ones play in ${fmt(T.pretty(D.key === 'rand' ? 'C' : D.key))} major, minor ones in ${fmt(T.pretty(D.key === 'rand' ? 'C' : D.key))} minor. It finishes when every one has been played, and remembers where it got to.</p>
@@ -721,6 +733,7 @@ function setup() {
       ${seg('pcolour', [...CX, ['var', 'Variations']], D.pcolour)}
       <p class="note">${esc(CX_BLURB[D.pcolour] || '')} A complexity dial on the run screen changes it as you play.</p>
       ${D.pcolour === 'var' ? varNote() : ''}
+      ${aroundCard()}
       <button class="toggle ${D.evolve ? 'on' : ''}" data-act="evolve"><b>Evolving mode ${D.evolve ? 'on' : 'off'}</b><small>Each time round, one chord is swapped for another with the same job (iii or vi for I, ii for IV, ♭II7 for V7), or a ii–V, secondary dominant or passing diminished slips in. Old swaps drift back.</small></button>`}
   </section>`}
 
@@ -762,7 +775,7 @@ function setup() {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     const redraw = () => { save(); setup(); };
-    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc', 'app']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
+    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc', 'app', 'around', 'aroundAmt']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
     if (d.genre) {
       const g = GN.genreById(d.genre);
@@ -977,7 +990,8 @@ function drawRun() {
   ${D.src === 'roam' && D.play !== 'modal' ? '<div class="roamnow" id="roamnow"></div>' : ''}
   <div class="liveplay" id="liveplay">${livePlay()}</div>
   ${progLike() && D.play !== 'modal' ? `<div class="cxdial" id="cxdial">${cxDial()}</div>` : ''}
-  ${((D.evolve || subsOn()) && D.src === 'prog') || D.src === 'roam' ? '<div class="written" id="written"></div>' : ''}
+  ${(D.src === 'prog' || D.src === 'roam') && D.play !== 'modal' ? `<div class="arlive" id="arlive">${arLive()}</div>` : ''}
+  ${((D.evolve || subsOn() || D.around !== 'off') && D.src === 'prog') || D.src === 'roam' ? '<div class="written" id="written"></div>' : ''}
   <div class="now" id="now"></div>
   <div class="beats" id="beats"></div>
   <div class="rhythm" id="rhythm"></div>
@@ -1011,6 +1025,7 @@ function drawRun() {
     }
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'nextshape') return nextShapeNow();
+    if (r && r.startsWith('ar-')) { D.around = r.slice(3); save(); document.getElementById('arlive').innerHTML = arLive(); return; }
     if (r === 'click' || r === 'hearRhythm' || r === 'mute') { D[r] = !D[r]; if (r === 'mute' && D.mute) A.hush(); save(); return applyNames(); }
     if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
@@ -1031,6 +1046,9 @@ function cxDial() {
   const opts = D.src === 'genre' ? CX.slice(0, 4) : CX;
   const i = Math.max(0, opts.findIndex(([v]) => v === D.pcolour));
   return `<span class="lbl">simple</span><input type="range" id="cx" min="0" max="${opts.length - 1}" step="1" value="${D.pcolour === 'var' ? 2 : i}" aria-label="Complexity"><span class="lbl">complex</span><b id="cxname">${esc(D.pcolour === 'var' ? 'Variations' : opts[i][1])}</b>`;
+}
+function arLive() {
+  return `<span class="lbl">bring in</span><div class="seg">${AR.PALETTES.map(([v, l]) => `<button data-r="ar-${v}" class="${D.around === v ? 'on' : ''}">${{ off: 'None', mi: 'Borrowed', chr: 'Chromatic', both: 'Both' }[v] || l}</button>`).join('')}</div>`;
 }
 function livePlay() {
   const modes = [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales']];
