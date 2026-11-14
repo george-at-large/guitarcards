@@ -11,6 +11,7 @@ import * as H from './harmony.js';
 import * as L from './library.js';
 import * as E from './evolve.js';
 import * as SC from './scales.js';
+import * as MC from './modal.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -23,7 +24,7 @@ const STORE = 'caged-changes';
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (e) { return {}; } };
 const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
-  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
+  colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
 }, load());
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
@@ -33,12 +34,15 @@ if (!D.nums && !D.names) D.nums = true;
 const MAJOR_KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 const MINOR_KEYS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
 const keysFor = (minor) => (minor ? MINOR_KEYS : MAJOR_KEYS);
-const prog = () => L.byId(D.prog);
+// your own progressions live in the settings, alongside the library
+// (charts are stored as numerals; `writtenIn` is only the key chord names were typed in, never the library's `key`)
+const mine = () => (D.mine || []).map((m) => ({ ...m, key: undefined, writtenIn: m.writtenIn || m.key || 'C', by: m.by || 'yours', cat: 'My progressions' }));
+const prog = () => mine().find((p) => p.id === D.prog) || L.byId(D.prog);
 const isMinor = () => D.kt === 'minor';
 // a progression counts as done at this tempo (normalised to 4 beats a bar): 120, or 100 when bars hold two chords
 const progBars = () => L.resolve(prog());
 const target = () => (D.src === 'prog' ? (progBars().some((b) => b.length > 1) ? 100 : 120) : 120);
-const doneKey = () => (D.play === 'scales' ? 'x:' : '') + (D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`);
+const doneKey = () => (D.play === 'modal' ? `m:${D.modal}:${D.modalSrc}` : ({ scales: 'x:', arps: 'a:', guide: 'g:' }[D.play] || '') + (D.src === 'prog' ? `p:${D.prog}:${D.kt}` : `s:${D.kt}:${D.set}:${D.colour}`));
 const record = (k = doneKey()) => D.done[k] || {};
 const complete = (k, tgt) => G.SHAPES.every((s) => (record(k)[s] || 0) >= tgt);
 const normBpm = (bpm) => Math.round(D.src === 'prog' ? bpm * 4 / D.barBeats : bpm * 4 / D.beats);
@@ -52,7 +56,16 @@ function session() {
   // two neighbouring shapes: one wider area (C+A, A+G, G+E, E+D, D+C)
   const pos = D.pair ? G.positionOfPair(tonic, shape) : G.positionOf(tonic, shape);
   const shapes = D.pair ? pos.shapes : [shape];
-  return { tonic, minor, shape, shapes, shapeKey: shapes.join('+'), pos, keyName };
+  return { tonic, minor, shape, shapes, shapeKey: shapes.join('+'), pos, keyName, toured: new Set([shapes.join('+')]) };
+}
+// the tour: on to the next CAGED shape (or pair) up the neck
+function advanceShape(S) {
+  S.shape = G.nextShape(S.shape);
+  S.pos = D.pair ? G.positionOfPair(S.tonic, S.shape) : G.positionOf(S.tonic, S.shape);
+  S.shapes = D.pair ? S.pos.shapes : [S.shape];
+  S.shapeKey = S.shapes.join('+');
+  S.toured.add(S.shapeKey);
+  S.gtPrev = null;
 }
 const keyLabel = (S) => `${T.noteName(S.tonic, true)} ${S.minor ? 'minor' : 'major'}`;
 const shapeWord = (S) => `${S.shapeKey} shape${S.shapes.length > 1 ? 's' : ''}`;
@@ -61,7 +74,8 @@ const posLabel = (S) => (D.mode === 'pos' ? `${shapeWord(S)} · frets ${S.pos.lo
 // a grip for a chord: in position, or this shape nearest the last chord; a colour chord with no grip here steps
 // down to its plainer cousin
 const scaleMode = () => D.play === 'scales';
-const usesArea = () => D.mode === 'pos' || D.voicing !== 'caged' || scaleMode();
+const lineMode = () => D.play !== 'chords'; // scales, arpeggios, guide tones, modes: notes over the chord, not a grip
+const usesArea = () => D.mode === 'pos' || D.voicing !== 'caged' || lineMode();
 // a chord's quality as one voicing family plays it: triad sets play the triad, drop sets and shells need a seventh,
 // shells cut colour chords back to their seventh
 function adaptQFor(vid, q, spec, S) {
@@ -141,15 +155,50 @@ function voice(S, root, q, spec, prev, vl) {
   return { q: qq, grip, plainer };
 }
 const varyOn = () => (D.src === 'prog' ? D.pcolour === 'var' : D.colour === 'var');
+// every chord remembers the area it was made for (the tour moves on while it waits in the queue)
 function realise(S, spec, q, prev, extra = {}) {
+  const c = realiseCore(S, spec, q, prev, extra);
+  c.snap = { pos: S.pos, shapes: S.shapes, shapeKey: S.shapeKey, shape: S.shape };
+  c.place = D.tour ? posLabel(S) : null;
+  return c;
+}
+// guide tones: the chord's 3rd and 7th inside the area, as two voices that each move as little as possible
+function guideFor(S, root, q) {
+  const [third, sev] = MC.targetsFor(q);
+  const rootPc = T.notePc(root), cands = [];
+  for (const iv of [third, sev]) {
+    const pc = (rootPc + H.semisOf(iv)) % 12;
+    for (let st = 1; st <= 6; st++) for (let f = S.pos.lo; f <= S.pos.hi; f++) if ((F_OPEN[st] + f) % 12 === pc) cands.push({ string: st, fret: f, midi: F_OPEN[st] + f, iv, note: T.transposeSemis(root, H.semisOf(iv)) });
+  }
+  const A = cands.filter((x) => x.iv === third), B = cands.filter((x) => x.iv === sev), prev = S.gtPrev;
+  let best = null, bs = Infinity, swap = false;
+  for (const a of A) for (const b of B) {
+    if (a.string === b.string) continue;
+    let sc, sw = false;
+    if (prev) { const m1 = Math.abs(a.midi - prev[0].midi) + Math.abs(b.midi - prev[1].midi), m2 = Math.abs(a.midi - prev[1].midi) + Math.abs(b.midi - prev[0].midi); sc = Math.min(m1, m2); sw = m2 < m1; }
+    else sc = Math.abs(a.string - b.string) + Math.abs((a.midi + b.midi) / 2 - 60) * 0.15;
+    if (sc < bs) { bs = sc; best = [a, b]; swap = sw; }
+  }
+  if (!best) return null;
+  const line = swap ? [best[1], best[0]] : best; // line[k] continues prev[k]
+  const word = (d) => (d === 0 ? 'holds' : Math.abs(d) <= 2 ? `${Math.abs(d) === 1 ? 'half' : 'whole'} step ${d > 0 ? 'up' : 'down'}` : `leaps ${d > 0 ? 'up' : 'down'} ${Math.abs(d)} semitones`);
+  const nm = (x) => `${T.prettyIv(x.iv)} ${T.noteName(x.note, true)}`;
+  const moves = prev ? line.map((x, k) => `${nm(prev[k])} → ${nm(x)}: ${word(x.midi - prev[k].midi)}`) : [`Start on ${nm(best[0])} and ${nm(best[1])}`];
+  S.gtPrev = line;
+  return { notes: best, all: cands, moves, prev: prev || null };
+}
+// everything a chord can be practised as, made up front so the play mode can switch mid-run: the grip (chords), and
+// over the chord as written, a scale, an arpeggio start, the guide-tone pair and (in mode mode) the targets
+function realiseCore(S, spec, q, prev, extra = {}) {
   const root = H.spell(S.tonic, spec.iv);
-  // scale mode: the chord as written, and a scale to solo over it at the chosen level (not the same one twice running)
-  if (scaleMode()) {
-    S.lastScale ||= {};
-    const k = `${spec.iv}:${q}`;
-    const solo = SC.pickScale(spec.iv, q, S.minor, D.scaleLevel, S.lastScale[k], T.notePc(S.tonic));
-    S.lastScale[k] = solo;
-    return { spec, q, root, name: H.slashName(root, q, spec.bass), rn: H.label(spec, q), grip: null, solo, ...extra };
+  S.lastScale ||= {};
+  const k = `${spec.iv}:${q}`;
+  const solo = SC.pickScale(spec.iv, q, S.minor, D.scaleLevel, S.lastScale[k], T.notePc(S.tonic));
+  S.lastScale[k] = solo;
+  const line = { lq: q, lname: H.slashName(root, q, spec.bass), lrn: H.label(spec, q), solo, arp: { start: pickOne(T.getChord(q).ivs) }, guide: guideFor(S, root, q) };
+  if (D.play === 'modal' || extra.modalRun) {
+    const m = MC.modeById(D.modal);
+    line.modal = { m, targets: MC.targetsFor(q), pcs: MC.modePcsFrom(S.tonic, m.id, root), charRel: ((T.notePc(T.transpose(S.tonic, m.char)) - T.notePc(root)) % 12 + 12) % 12, charNote: T.transpose(S.tonic, m.char) };
   }
   let v;
   if (varyOn()) {
@@ -165,7 +214,7 @@ function realise(S, spec, q, prev, extra = {}) {
   // the bass actually played: a slash chord's own, or an inversion the bass line chose
   let bass = spec.bass && spec.bass !== '1' ? spec.bass : null;
   if (!bass && grip && D.bassline !== 'off') { const low = grip.notes.reduce((a, b) => (a.midi <= b.midi ? a : b)); if (low.iv && low.iv !== '1') bass = low.iv.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n]); }
-  return { spec, q: qq, root, name: H.slashName(root, qq, bass), rn: H.label(spec, qq, bass), grip, plainer, ...extra };
+  return { spec, q: qq, root, name: H.slashName(root, qq, bass), rn: H.label(spec, qq, bass), grip, plainer, ...line, ...extra };
 }
 
 // sets: a random chord from the pool, never the same twice running
@@ -176,7 +225,7 @@ function colourFor(e) {
 }
 function setStream(S) {
   const pool = H.setPool(S.minor ? 'minor' : 'major', D.set);
-  let last = null, prev = null;
+  let last = null, prev = null, n = 0;
   return {
     next() {
       let spec, fn = '', tag = '', q;
@@ -192,6 +241,8 @@ function setStream(S) {
         last = { e };
       }
       if (D.set === 'any') last = { iv: spec.iv, q };
+      if (D.tour && n > 0 && n % 8 === 0) { advanceShape(S); prev = null; }
+      n++;
       const c = realise(S, spec, q, prev, { fn, tag, beats: D.beats });
       prev = c.grip;
       return c;
@@ -232,6 +283,7 @@ function progStream(S, R) {
       if (i >= cur.length) {
         i = 0; pass++;
         if (D.evolve) { const r = E.evolve(cur, orig, S.minor); cur = r.slots; R.pendingNote = r.note; }
+        if (D.tour) { advanceShape(S); prev = null; }
         R.slots = cur;
       }
       const x = cur[i], nx = cur[(i + 1) % cur.length];
@@ -239,6 +291,37 @@ function progStream(S, R) {
       const c = realise(S, x.spec, q, prev, { beats: x.beats, bar: x.bar, slot: i, pass, sub: x.sub, vl, slots: cur });
       prev = c.grip;
       i++;
+      return c;
+    },
+  };
+}
+
+// mode mode: the mode's own chords, as its vamps (a new one every two times round) or any of them
+function modalStream(S) {
+  const m = MC.modeById(D.modal);
+  const chords = MC.modeChords(S.tonic, m.id, D.colour === 'tri' ? 3 : 4);
+  const byDeg = Object.fromEntries(chords.map((c) => [c.deg, c]));
+  const vamps = m.vamps.filter((v) => v.every((d) => byDeg[d]));
+  let vamp = null, vi = 0, loops = 0, prev = null, n = 0, last = null;
+  return {
+    modal: true,
+    next() {
+      let ch;
+      if (D.modalSrc === 'vamp' && vamps.length) {
+        if (!vamp || vi >= vamp.length) {
+          if (vamp) loops++;
+          if (vamp && D.tour && loops % 2 === 0) { advanceShape(S); prev = null; }
+          if (!vamp || loops % 2 === 0) vamp = pickOne(vamps);
+          vi = 0;
+        }
+        ch = byDeg[vamp[vi++]];
+      } else {
+        if (D.tour && n > 0 && n % 8 === 0) { advanceShape(S); prev = null; }
+        do { ch = Math.random() < 0.3 ? byDeg[0] : pickOne(chords); } while (chords.length > 1 && ch === last);
+        last = ch; n++;
+      }
+      const c = realise(S, { iv: ch.iv, q: ch.q }, ch.q, prev, { beats: D.beats, modalRun: true });
+      prev = c.grip;
       return c;
     },
   };
@@ -283,7 +366,7 @@ function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, sm
   for (const n of grip.notes) {
     const lab = labels === 'finger' && n.finger !== undefined ? (n.finger || '○') : labels === 'note' ? T.noteName(n.note, true) : T.prettyIv(n.iv);
     const held = prev && D.moves && prev.notes.some((p) => p.string === n.string && p.fret === n.fret);
-    const cls = `dot ${n.kind || KIND(n.iv)}${n.fret === 0 ? ' open' : ''}${held ? ' held' : ''}`;
+    const cls = `dot ${n.kind || KIND(n.iv)}${n.fret === 0 ? ' open' : ''}${held || n.mark ? ' held' : ''}${n.outer ? ' outer' : ''}`;
     const r = tiny ? (n.fret === 0 ? 13 : 18) : n.fret === 0 ? 12 : 16;
     g += `<g class="${cls}"><circle cx="${x(n.string)}" cy="${y(n.fret)}" r="${r}"/>${tiny ? '' : `<text x="${x(n.string)}" y="${y(n.fret) + 4.5}">${esc(lab)}</text>`}</g>`;
   }
@@ -293,13 +376,24 @@ const LEGEND = '<div class="legend"><span class="k r">root</span><span class="k 
 // open-string voicings: from the nut when they sit low, else around the fretted notes (opens drawn above)
 const openWindow = (g) => (g.lo <= 5 ? { lo: 0, hi: Math.max(4, g.hi), band: null } : { lo: g.lo - 1, hi: g.lo + 3, band: null });
 function windowFor(S, grip) {
-  if (D.voicing === 'open' && grip && !grip.noOpen && !scaleMode()) return openWindow(grip);
+  if (D.voicing === 'open' && grip && !grip.noOpen && !lineMode()) return openWindow(grip);
   if (usesArea()) return { lo: Math.max(0, S.pos.lo - (S.pos.lo > 0 ? 1 : 0)), hi: S.pos.hi + 1, band: S.pos };
   return { lo: Math.max(0, (grip?.lo ?? 1) - 1), hi: (grip?.lo ?? 1) + 4, band: null };
 }
 
 function varNote() {
   return `<div class="chips"><button class="chip ${D.varVL ? 'on' : ''}" data-act="varVL">Smoothest variations</button></div><p class="note">Each chord becomes a related type that keeps its job and stays in the key: I as 6, add9, sus2, 6/9, maj9; ii as m6, m9, m11; V7 as 7sus4, 9, 13 (♭9 and ♯9 in minor). ${D.varVL ? 'With “smoothest” on, it picks the type whose voicing moves least from the last chord.' : 'Picked at random.'} Triad voicing sets flatten these back to triads.</p>`;
+}
+function modalCard() {
+  const m = MC.modeById(D.modal);
+  return `<section class="card">
+    <h2>Mode</h2>
+    <select id="modal" class="select" aria-label="Mode">${MC.MODES.map((x) => `<option value="${x.id}" ${x.id === D.modal ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+    ${seg('modalSrc', [['vamp', 'Its vamps'], ['all', 'Any of its chords']], D.modalSrc)}
+    <h3>Chords</h3>
+    ${seg('colour', [['tri', 'Triads'], ['sev', 'Sevenths']], D.colour === 'tri' ? 'tri' : 'sev')}
+    <p class="note">${esc(m.name[0].toUpperCase() + m.name.slice(1))}: ${esc(m.feel)}. Its colour note is the ${fmt(T.prettyIv(m.char))}. ${D.modalSrc === 'vamp' ? 'Its typical vamps loop, a new one every two times round.' : 'Any chord of the mode, the tonic most often.'} On each chord the 3rd and 7th are ringed: land a phrase on one of them as the chord arrives.</p>
+  </section>`;
 }
 // what a voicing set does, in a sentence or two
 function voicingBlurb() {
@@ -329,7 +423,8 @@ function shapeProgress(k, tgt) {
   return `<div class="prog-shapes">${G.SHAPES.map((s) => { const b = r[s] || 0; return `<span class="ps ${b >= tgt ? 'ok' : b ? 'part' : ''}" title="${s} shape${b ? `: best ${b} bpm` : ''}"><b>${s}</b>${b ? `<small>${b}</small>` : ''}</span>`; }).join('')}</div>`;
 }
 function progOptions() {
-  return L.LIBRARY.map((g) => `<optgroup label="${esc(g.cat)}">${L.ALL.filter((p) => p.cat === g.cat).map((p) => {
+  const own = mine();
+  return (own.length ? `<optgroup label="My progressions">${own.map((p) => `<option value="${p.id}" ${p.id === D.prog ? 'selected' : ''}>${esc(p.name)}${p.minor ? ' (minor)' : ''}</option>`).join('')}</optgroup>` : '') + L.LIBRARY.map((g) => `<optgroup label="${esc(g.cat)}">${L.ALL.filter((p) => p.cat === g.cat).map((p) => {
     const kt = p.minor ? 'minor' : 'major';
     const tgt = L.resolve(p).some((b) => b.length > 1) ? 100 : 120;
     const done = complete(`p:${p.id}:${kt}`, tgt) || complete(`p:${p.id}:${kt === 'major' ? 'minor' : 'major'}`, tgt);
@@ -359,23 +454,25 @@ function setup() {
   const conv = D.src === 'prog' && !!p.minor !== minor;
   $app.innerHTML = `
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
-  <p class="lead">${scaleMode() ? 'Pick a key and a shape. The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.' : 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.'}</p>
-  ${seg('play', [['chords', 'Play the chords'], ['scales', 'Solo with scales']], D.play)}
+  <p class="lead">${{ chords: 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.', scales: 'The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.', arps: 'The chords keep coming; play each one as an arpeggio through the shape, starting from the tone it names.', guide: 'The chords keep coming; play just their 3rds and 7ths as two lines that move as little as possible.', modal: 'Pick a mode. Its own chords vamp on the beat; solo in the shape and land on each chord’s 3rd or 7th.' }[D.play]}</p>
+  ${seg('play', [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales'], ['modal', 'Modes']], D.play)}
 
   <section class="card">
-    <h2>Key</h2>
-    ${seg('kt', [['major', 'Major'], ['minor', 'Minor']], D.kt)}
+    <h2>${D.play === 'modal' ? 'Tonic' : 'Key'}</h2>
+    ${D.play === 'modal' ? '' : seg('kt', [['major', 'Major'], ['minor', 'Minor']], D.kt)}
     <div class="chips">${['rand', ...keys].map((k) => `<button class="chip ${D.key === k ? 'on' : ''}" data-key="${k}">${k === 'rand' ? 'Any' : fmt(T.pretty(k)) + (minor ? 'm' : '')}</button>`).join('')}</div>
     <h2>Shape</h2>
     <div class="chips shapes">${['rand', ...G.SHAPES].map((s) => `<button class="chip ${D.shape === s ? 'on' : ''}" data-shape="${s}">${s === 'rand' ? 'Any' : D.pair ? `${s}+${G.nextShape(s)}` : s}</button>`).join('')}</div>
-    <div class="chips"><button class="chip ${D.pair ? 'on' : ''}" data-act="pair">Two shapes at once</button></div>
+    <div class="chips"><button class="chip ${D.pair ? 'on' : ''}" data-act="pair">Two shapes at once</button><button class="chip ${D.tour ? 'on' : ''}" data-act="tour">Tour all five shapes</button></div>
+    ${D.tour ? `<p class="note">The run moves up the neck through the shapes, ${G.SHAPES.join(' → ')}, starting from the one you pick: a new shape each time round the progression or vamp (every 8 chords in a chord set). Finish a full lap and a clean run counts for every shape you passed through.</p>` : ''}
     ${seg('mode', [['pos', 'Stay in position'], ['one', 'One shape everywhere']], D.mode)}
     <p class="note">${D.mode === 'pos'
       ? `The key’s ${D.pair ? `${S0.shapeKey} shapes mark` : `${S0.shape} shape marks`} out ${D.pair ? 'an area' : 'a position'}${D.key !== 'rand' && D.shape !== 'rand' ? ` (frets ${S0.pos.lo}–${S0.pos.hi} in ${fmt(T.pretty(D.key))}${minor ? 'm' : ''})` : ''}. Every chord is played inside it, in whichever CAGED shape of that chord lives there.`
       : `Every chord in the ${D.pair ? `${S0.shapeKey} shapes (whichever is nearer)` : `${S0.shape} shape`}, moving up and down the neck to find its root.`}</p>
   </section>
 
-  ${scaleMode() ? `<section class="card">
+  ${D.play === 'arps' || D.play === 'guide' ? `<section class="card"><h2>${D.play === 'arps' ? 'Arpeggios' : 'Guide tones'}</h2><p class="note">${D.play === 'arps' ? 'Each chord’s tones across the shape, coloured by job; the ringed tone is where to start. Run it up and back, then try starting from the next chord tone in time.' : 'For each chord the 3rd and 7th (a triad: 3rd and root), chosen inside the shape so each line moves as little as possible: 7ths fall to 3rds, 3rds hold or step. The ringed pair is this chord’s, the dashed circles where they came from.'} Turn on <b>Wider</b> during a run to see two frets past each side of the shape.</p></section>` : ''}
+  ${D.play === 'arps' || D.play === 'guide' || D.play === 'modal' ? '' : scaleMode() ? `<section class="card">
     <h2>Scales</h2>
     ${seg('scaleLevel', [[1, 'Easy'], [2, 'Medium'], [3, 'Hard'], [4, 'Exotic'], ['any', 'Mix']], D.scaleLevel)}
     <p class="note">${{ 1: 'Pentatonics, blues and the key’s own mode for each chord: inside sounds.', 2: 'One or two notes outside the key, and the everyday jazz scales: Lydian dominant, altered, Phrygian dominant, diminished, bebop.', 3: 'Rarer melodic- and harmonic-minor modes, harmonic major, and modes that bend three or more notes.', 4: 'Double harmonic, Hungarian, Neapolitan, Persian, enigmatic, Japanese pentatonics: wherever they genuinely fit.', any: 'Anything that works, any level.' }[D.scaleLevel]} Only scales that hold every chord tone (or, for pentatonics, leave the clashing ones out) are offered. When a chord has nothing at your level, the nearest level is used.</p>
@@ -388,7 +485,7 @@ function setup() {
     <p class="note">${{ off: 'Each chord in its usual voicing; slash chords in a progression still get their bass.', smooth: 'Inversions are chosen so the bass moves as little as possible.', down: 'Inversions are chosen so the bass walks down by step; when it runs out of room it jumps back up and starts again.', up: 'Inversions are chosen so the bass climbs by step; when it runs out of room it drops back and starts again.' }[D.bassline]} Inversions show as slash chords: C/E, numeral I/3 (the bass as a degree of the key).${D.bassline !== 'off' && !D.pair ? ' Bass lines need room: try “Two shapes at once”.' : ''}</p>
   </section>`}
 
-  <section class="card">
+  ${D.play === 'modal' ? modalCard() : `  <section class="card">
     <h2>Chords</h2>
     ${seg('src', [['set', 'Chord sets'], ['prog', 'Progressions']], D.src)}
     ${D.src === 'set' ? `
@@ -398,13 +495,14 @@ function setup() {
       <p class="note">${esc(H.COLOURS.find((c) => c.id === D.colour).blurb)}</p>${D.colour === 'var' ? varNote() : ''}`
     : `
       <select id="prog" class="select" aria-label="Progression">${progOptions()}</select>
+      <div class="chips"><button class="chip" data-act="newprog">＋ New progression</button>${prog().cat === 'My progressions' ? '<button class="chip" data-act="editprog">Edit</button>' : ''}</div>
       <p class="note"><b>${esc(p.name)}</b> · ${esc(p.by)}${p.vl ? ' · a voice-leading study: the grips are chosen to move as little as possible' : ''}${p.bassLine ? ' · slash chords: each gets a grip with that bass note; “Two shapes at once” gives the line room' : ''}${conv ? ` · <i>written in ${p.minor ? 'minor' : 'major'}, converted to ${D.kt}</i>` : ''}</p>
       ${chartHTML(progSlots(minor), { tonic: S0.tonic })}
       <h3>Colour</h3>
       ${seg('pcolour', [['as', 'As written'], ['tri', 'Triads'], ['sev', 'Sevenths'], ['col', 'Colour tones'], ['var', 'Variations']], D.pcolour)}
       ${D.pcolour === 'var' ? varNote() : ''}
       <button class="toggle ${D.evolve ? 'on' : ''}" data-act="evolve"><b>Evolving mode ${D.evolve ? 'on' : 'off'}</b><small>Each time round, one chord is swapped for another with the same job (iii or vi for I, ii for IV, ♭II7 for V7), or a ii–V, secondary dominant or passing diminished slips in. Old swaps drift back.</small></button>`}
-  </section>
+  </section>`}
 
   <section class="card">
     <h2>Show</h2>
@@ -424,6 +522,9 @@ function setup() {
     ${D.src === 'set'
       ? `<h3>Change chord every</h3>${seg('beats', [[1, '1 beat'], [2, '2'], [4, '4 (a bar)'], [8, '8']], D.beats)}`
       : `<h3>Beats in a bar</h3>${seg('barBeats', [[2, '2 (double time)'], [4, '4'], [8, '8 (half time)']], D.barBeats)}`}
+    <h3>Rhythm</h3>
+    <div class="chips">${RHYTHMS.map((r) => `<button class="chip ${D.rhythm === r.id ? 'on' : ''}" data-rhythm="${r.id}">${esc(r.name)}</button>`).join('')}</div>
+    <p class="note">${esc(rhythm().blurb)}${D.rhythm !== 'ring' ? ' A strip under the beat shows where to strike, the current eighth lit.' : ''}</p>
     <div class="chips"><button class="chip ${D.countIn ? 'on' : ''}" data-act="countIn">Count-in</button><button class="chip ${D.click ? 'on' : ''}" data-act="click">Audible click</button></div>
     <p class="note">The beat is shown, not heard: the dots light up on every beat${D.click ? ', and the click sounds too' : '. Turn on the audible click if you want one'}.</p>
   </section>
@@ -435,26 +536,30 @@ function setup() {
     ${complete(doneKey(), tgt) ? '<p class="done">✓ Done in every shape</p>' : ''}
   </section>
 
-  <div class="actions"><button class="primary" data-act="go">▶ Start</button><button data-act="walk">${scaleMode() ? 'Scale options' : 'Walkthrough'}</button></div>`;
+  <div class="actions"><button class="primary" data-act="go">▶ Start</button><button data-act="walk">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Walkthrough' : 'All chords'}</button></div>`;
 
   $app.onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     const redraw = () => { save(); setup(); };
-    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
+    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
     if (d.scaleLevel !== undefined) { D.scaleLevel = d.scaleLevel === 'any' ? 'any' : Number(d.scaleLevel); return redraw(); }
     const a = d.act;
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
-    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL'].includes(a)) { D[a] = !D[a]; return redraw(); }
+    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL', 'tour'].includes(a)) { D[a] = !D[a]; return redraw(); }
     if (a === 'bpm-' || a === 'bpm+') { D.bpm = Math.max(30, Math.min(220, D.bpm + (a === 'bpm+' ? 2 : -2))); return redraw(); }
     if (a === 'go') { save(); run(); }
+    if (a === 'newprog') return editor(null);
+    if (a === 'editprog') return editor(prog());
     if (a === 'walk') { save(); walkthrough(); }
   };
   applyNames();
   const r = $app.querySelector('#bpm');
   r.oninput = () => { D.bpm = Number(r.value); $app.querySelector('.tempo b').innerHTML = `${D.bpm}<small> bpm</small>`; };
   r.onchange = () => save();
+  const msel = $app.querySelector('#modal');
+  if (msel) msel.onchange = () => { D.modal = msel.value; save(); setup(); };
   const vsel = $app.querySelector('#voicing');
   if (vsel) vsel.onchange = () => { D.voicing = vsel.value; save(); setup(); };
   const sel = $app.querySelector('#prog');
@@ -482,8 +587,8 @@ async function awake(on) {
 
 async function run() {
   const S = session();
-  R = { S, ui: [], timer: null, queue: [], cur: null, beatIn: 0, count: 0, passes: 0, countLeft: D.countIn ? 4 : 0, bpm: D.bpm, paused: false, prevGrip: null, maxBpm: D.bpm, minBpm: D.bpm };
-  R.stream = D.src === 'prog' ? progStream(S, R) : setStream(S);
+  R = { S, ui: [], timer: null, queue: [], cur: null, e: 0, count: 0, passes: 0, countLeft: D.countIn ? 8 : 0, bpm: D.bpm, paused: false, prevGrip: null, maxBpm: D.bpm, minBpm: D.bpm };
+  R.stream = D.play === 'modal' ? modalStream(S) : D.src === 'prog' ? progStream(S, R) : setStream(S);
   R.queue.push(R.stream.next(), R.stream.next());
   drawRun();
   // the clock: the audio clock when the click sounds (sample-accurate), otherwise the page clock; no audio is
@@ -502,48 +607,96 @@ function at(t, fn) {
 }
 function pump() {
   if (!R || R.stopped || R.paused) return;
-  while (R.nextTime < now() + 0.12) { beat(R.nextTime); R.nextTime += 60 / R.bpm; }
+  // the clock ticks in eighth notes: beats get the click and the beat dots, the "&"s carry rhythm hits
+  while (R.nextTime < now() + 0.12) { tick(R.nextTime); R.nextTime += 30 / R.bpm; }
   R.timer = setTimeout(pump, 25);
 }
-function beat(t) {
+
+// ---------- rhythm: where to strike in each chord (eighth-note positions in a 4/4 bar) ----------
+const RHYTHMS = [
+  { id: 'ring', name: 'Let it ring', hits: [0], blurb: 'One strum when the chord arrives.' },
+  { id: 'quarters', name: 'Four to the bar', hits: [0, 2, 4, 6], blurb: 'Every beat, short and even (Freddie Green).' },
+  { id: 'two', name: 'Two-feel', hits: [0, 4], blurb: 'Beats 1 and 3.' },
+  { id: 'charleston', name: 'Charleston', hits: [0, 3], blurb: '1 and the & of 2: the jazz comping staple.' },
+  { id: 'push', name: 'Push', hits: [3], push: true, blurb: 'The next chord is struck on the & of 4, half a beat early, and shown early too. Plus the & of 2.' },
+  { id: 'offbeat', name: 'Off-beats', hits: [1, 3, 5, 7], blurb: 'Every &: reggae and ska.' },
+  { id: 'tresillo', name: 'Tresillo 3-3-2', hits: [0, 3, 6], blurb: 'Dotted, dotted, straight: Latin and pop.' },
+  { id: 'random', name: 'Random comping', random: true, blurb: 'A fresh syncopated pattern on every chord: leave space, place each hit.' },
+];
+const rhythm = () => RHYTHMS.find((r) => r.id === D.rhythm) || RHYTHMS[0];
+function hitsFor(c, first) {
+  if (c.hits) return c.hits;
+  const r = rhythm(), n = c.beats * 2;
+  let base = r.hits;
+  if (r.random) {
+    const k = Math.random() < 0.45 ? 3 : 2, pool = [0, 1, 2, 3, 4, 5, 6, 7], pick = new Set([Math.random() < 0.5 ? 0 : [1, 2, 3][Math.floor(Math.random() * 3)]]);
+    while (pick.size < k) pick.add(pool[Math.floor(Math.random() * 8)]);
+    base = [...pick].sort((a, b) => a - b);
+  }
+  const hits = new Set();
+  for (let bar = 0; bar * 8 < n; bar++) for (const h of base) if (bar * 8 + h < n) hits.add(bar * 8 + h);
+  if (r.push && first) hits.add(0); // the very first chord can't have been pushed
+  c.hits = [...hits].sort((a, b) => a - b);
+  return c.hits;
+}
+function rhythmHTML(c) {
+  if (D.rhythm === 'ring') return '';
+  const n = c.beats * 2, hits = new Set(hitsFor(c, c === R.first)), push = rhythm().push;
+  return Array.from({ length: n }, (_, e) => `<i class="${hits.has(e) ? 'hit' : ''}${push && e === n - 1 ? ' push' : ''}${e % 2 ? ' and' : ''}"><small>${e % 2 ? '&' : (e >> 1) % 4 + 1}</small></i>`).join('');
+}
+
+function tick(t) {
   if (R.countLeft > 0) {
-    const n = R.countLeft;
-    if (R.sound) A.click(t, n === 4 ? 2 : 1);
-    at(t, () => { const el = document.getElementById('count'); if (el) el.textContent = String(5 - n); });
+    const n8 = R.countLeft;
+    if (n8 % 2 === 0) {
+      if (R.sound) A.click(t, n8 === 8 ? 2 : 1);
+      at(t, () => { const el = document.getElementById('count'); if (el) el.textContent = String(5 - n8 / 2); });
+    }
     R.countLeft--;
     return;
   }
-  if (R.beatIn === 0) {
+  if (R.e === 0) {
     R.prevGrip = R.cur ? R.cur.grip : null;
     R.cur = R.queue.shift();
     R.queue.push(R.stream.next());
+    if (!R.first) R.first = R.cur;
     const c = R.cur, nx = R.queue[0], prev = R.prevGrip, note = R.pendingNote;
     if (c.slot === 0 && note) R.pendingNote = null;
-    at(t, () => { showChord(c, { next: nx, prev, note: c.slot === 0 ? note : null }); });
+    if (!c.shownEarly) at(t, () => { showChord(c, { next: nx, prev, note: c.slot === 0 ? note : null }); });
+    else at(t, () => { const el = document.getElementById('next'); if (el) el.innerHTML = nextHTML(nx); });
     if (c.slot === 0 && R.count > 0) R.passes++;
   }
-  const c = R.cur, b = R.beatIn;
-  if (R.sound) A.click(t, b === 0 ? 2 : 1);
+  const c = R.cur, e = R.e, b = e >> 1, onBeat = e % 2 === 0;
+  if (onBeat && R.sound) A.click(t, b === 0 ? 2 : 1);
   at(t, () => {
-    document.querySelectorAll('#beats i').forEach((el, i) => el.classList.toggle('on', i === b));
-    if (D.neck && D.diagram === 'half' && b === Math.floor(c.beats / 2)) revealNeck();
+    if (onBeat) document.querySelectorAll('#beats i').forEach((el, i) => el.classList.toggle('on', i === b));
+    document.querySelectorAll('#rhythm i').forEach((el, i) => el.classList.toggle('on', i === e));
+    if (onBeat && D.neck && D.diagram === 'half' && b === Math.floor(c.beats / 2)) revealNeck();
   });
-  R.beatIn++;
-  if (R.beatIn >= c.beats) { R.beatIn = 0; R.count++; }
+  // a push: the next chord arrives on the last "&", half a beat early
+  if (rhythm().push && e === c.beats * 2 - 1 && R.queue[0]) {
+    const nx = R.queue[0], after = R.queue[1], prev = c.grip, note = nx.slot === 0 ? R.pendingNote : null;
+    nx.shownEarly = true;
+    at(t, () => { showChord(nx, { next: after, prev, note, early: true }); });
+  }
+  R.e++;
+  if (R.e >= c.beats * 2) { R.e = 0; R.count++; }
 }
 
 function drawRun() {
   const { S } = R;
   $app.innerHTML = `
   <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where">${fmt(keyLabel(S))}<small>${fmt(posLabel(S))}${scaleMode() ? ` · scales: ${LEVEL_NAME[D.scaleLevel] || 'mix'}` : D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
+  <div class="liveplay" id="liveplay">${livePlay()}</div>
   <div class="now" id="now"></div>
   <div class="beats" id="beats"></div>
+  <div class="rhythm" id="rhythm"></div>
   <div class="nextline" id="next"></div>
   <div class="stage" id="stage"></div>
   <div class="evo" id="evo"></div>
   <div id="chart"></div>
   <div class="runctl"><button data-r="bpm-" aria-label="Slower">−</button><b id="bpmnow">${R.bpm} bpm</b><button data-r="bpm+" aria-label="Faster">+</button></div>
-  <div class="runbtns"><button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button><button class="rt" data-r="allv">All voicings</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : 'Chord set'}</button></div>
+  <div class="runbtns" id="runbtns">${runButtons()}</div>
   <div class="sheet" id="sheet" hidden></div>`;
   applyNames();
   window.scrollTo(0, 0);
@@ -553,6 +706,9 @@ function drawRun() {
     if (r === 'stop') return finish();
     if (r === 'names' || r === 'nums') { flipLabel(r); save(); return applyNames(); }
     if (r === 'neck') { D.neck = !D.neck; save(); applyNames(); return renderStage(); }
+    if (r && r.startsWith('play-')) return switchPlay(r.slice(5));
+    if (r === 'keep') return keepVersion(b);
+    if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
     if (r === 'close-sheet') return closeSheet();
@@ -566,6 +722,26 @@ function drawRun() {
     }
   };
 }
+// the play mode can change mid-run: every chord already carries what each mode needs
+function livePlay() {
+  const modes = [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales']];
+  if (R?.stream?.modal) modes.push(['modal', 'Mode']);
+  return `<div class="seg">${modes.map(([v, l]) => `<button data-r="play-${v}" class="${D.play === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+}
+function runButtons() {
+  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}<button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
+}
+function switchPlay(mode) {
+  if (!R || D.play === mode) return;
+  D.play = mode;
+  save();
+  R.sheet = null;
+  document.getElementById('liveplay').innerHTML = livePlay();
+  document.getElementById('runbtns').innerHTML = runButtons();
+  applyNames();
+  if (R.shown?.c && !R.shown.counting) showChord(R.shown.c, { next: R.queue[0], prev: R.shown.prev });
+  else if (R.shown?.c) showChord(R.shown.c, { counting: true });
+}
 function togglePause(btn) {
   if (!R) return;
   R.paused = !R.paused;
@@ -575,7 +751,7 @@ function togglePause(btn) {
 }
 // numeral and name are both always in the page; classes on the app decide which show (at least one does), and
 // with the numeral off the name takes its place and size
-function labelsFor(c) { return { main: c.rn, sub: c.name }; }
+function labelsFor(c) { return D.play === 'chords' ? { main: c.rn, sub: c.name } : { main: c.lrn || c.rn, sub: c.lname || c.name }; }
 function flipLabel(which) {
   const other = which === 'nums' ? 'names' : 'nums';
   if (D[which] && !D[other]) D[other] = true;
@@ -588,7 +764,7 @@ function applyNames() {
   $app.classList.toggle('hide-names', !D.names);
   $app.classList.toggle('hide-nums', !D.nums);
   $app.classList.toggle('no-neck', !D.neck);
-  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv };
+  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv, wide: D.wide };
   $app.querySelectorAll('.rt').forEach((b) => { const k = b.dataset.r || b.dataset.w; b.classList.toggle('on', !!on[k]); b.setAttribute('aria-pressed', !!on[k]); });
 }
 const gripTag = (g) => (g ? (g.shape ? `${g.shape} shape` : g.label) : '');
@@ -596,21 +772,30 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   if (!R) return;
   const { main, sub } = labelsFor(c);
   const tags = [];
-  if (D.hint && c.grip) tags.push(`<span class="tag shape">${esc(gripTag(c.grip))}</span>`);
+  const ch = D.play === 'chords';
+  if (ch && D.hint && c.grip) tags.push(`<span class="tag shape">${esc(gripTag(c.grip))}</span>`);
   if (c.tag) tags.push(`<span class="tag">${esc(c.tag)}</span>`);
-  if (c.plainer) tags.push(`<span class="tag warn" title="No ${esc(c.plainer)} grip here">plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</span>`);
-  if (c.grip?.outside) tags.push('<span class="tag warn">stretches out of position</span>');
-  if (c.grip?.noOpen) tags.push('<span class="tag warn">no open strings fit this one</span>');
-  const solo = c.solo ? soloHTML(c) : '';
+  if (ch && c.plainer) tags.push(`<span class="tag warn" title="No ${esc(c.plainer)} grip here">plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</span>`);
+  if (ch && c.grip?.outside) tags.push('<span class="tag warn">stretches out of position</span>');
+  if (ch && c.grip?.noOpen) tags.push('<span class="tag warn">no open strings fit this one</span>');
+  const solo = ch ? '' : D.play === 'scales' ? (c.solo ? soloHTML(c) : '') : linePanel(c);
   document.getElementById('now').innerHTML = counting
     ? `<div class="count" id="count"></div><div class="first">first: <b class="cnum">${fmt(main)}</b> <b class="cname">${fmt(sub)}</b></div>`
-    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${solo}${c.fn && !solo ? `<div class="fn">${esc(c.fn)}</div>` : ''}${c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
+    : `<div class="main cnum">${fmt(main)}</div><div class="sub cname">${fmt(sub)}</div><div class="tags">${tags.join('')}</div>${solo}${c.fn && !solo ? `<div class="fn">${esc(c.fn)}${c.tag ? '' : ''}</div>` : ''}${c.sub ? `<div class="fn subnote">${esc(c.sub)}</div>` : ''}`;
   document.getElementById('beats').innerHTML = counting ? '' : Array.from({ length: c.beats }, () => '<i></i>').join('');
+  const rh = document.getElementById('rhythm');
+  if (rh) rh.innerHTML = counting ? '' : rhythmHTML(c);
+  if (c.place) { const w = document.querySelector('.where small'); if (w && w.dataset.place !== c.place) { w.dataset.place = c.place; w.innerHTML = c.place; } }
   R.shown = { c, prev, counting };
   renderStage();
-  if (next) { const l = labelsFor(next); document.getElementById('next').innerHTML = `<span class="lbl">next</span> <b class="cnum">${fmt(l.main)}</b> <b class="cname">${fmt(l.sub)}</b>${D.hint && next.grip ? ` <span class="muted">${esc(gripTag(next.grip))}</span>` : ''}${next.solo ? ` <span class="nsolo">${fmt(SC.scaleTitle(next.solo, next.root))}</span>` : ''}`; }
+  if (next) document.getElementById('next').innerHTML = nextHTML(next);
   if (note) document.getElementById('evo').innerHTML = `<span>Evolved:</span> ${esc(note)}`;
   if (D.src === 'prog' && c.slots) document.getElementById('chart').innerHTML = chartHTML(c.slots, { cur: c.slot, tonic: R.S.tonic });
+}
+function nextHTML(next) {
+  if (!next) return '';
+  const l = labelsFor(next);
+  return `<span class="lbl">next</span> <b class="cnum">${fmt(l.main)}</b> <b class="cname">${fmt(l.sub)}</b>${D.play === 'chords' && D.hint && next.grip ? ` <span class="muted">${esc(gripTag(next.grip))}</span>` : ''}${D.play === 'scales' && next.solo ? ` <span class="nsolo">${fmt(SC.scaleTitle(next.solo, next.root))}</span>` : ''}${next.place && next.place !== R.shown?.c?.place ? ` <span class="nsolo">→ ${next.place}</span>` : ''}`;
 }
 // the neck: off, shown, or waiting (halfway / on tap)
 function renderStage() {
@@ -634,15 +819,93 @@ function allVoicings(c) {
     return `<figure class="sv${sig(v) === chosen ? ' chosen' : ''}${v.kind === 'caged' || !v.kind ? ' caged' : ''}">${neckSVG(v, { lo: win.lo, hi: win.hi, band: w ? S.pos : null, tiny: true, bg })}<figcaption>${esc(v.label || '')}</figcaption></figure>`;
   }).join('')}</div><p class="note">${vs.length} way${vs.length === 1 ? '' : 's'} to play it here${chosen ? '; the ringed one is the run’s pick' : ''}.</p></div>${LEGEND}`;
 }
+// the panel under the chord in the arpeggio, guide-tone and mode modes
+function linePanel(c) {
+  const pv = (x) => T.prettyIv(x);
+  if (D.play === 'arps' && c.arp) {
+    const ivs = T.getChord(c.lq || c.q).ivs;
+    return `<div class="solo lvA"><div class="solo-top"><small>Arpeggio</small></div><b>${ivs.map((x) => `${pv(x)}`).join(' · ')}</b><p>Start on the ${pv(c.arp.start)} (${T.noteName(T.transpose(c.root, c.arp.start.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n])), true)}, ringed) and run the chord tones through the position, up and back.</p></div>`;
+  }
+  if (D.play === 'guide') return !c.guide ? '<div class="solo lvG"><p>No 3rd-and-7th pair fits inside this shape for this chord.</p></div>' : `<div class="solo lvG"><div class="solo-top"><small>Guide tones</small></div>${c.guide.moves.map((m) => `<p class="gline">${fmt(m)}</p>`).join('')}</div>`;
+  if (D.play === 'modal' && c.modal) {
+    const md = c.modal, [a, b] = md.targets;
+    const nn = (iv) => T.noteName(T.transpose(c.root, iv), true);
+    return `<div class="solo lvM"><div class="solo-top"><small>${fmt(T.noteName(R.S.tonic, true))} ${esc(md.m.name)}</small></div><b>Land on ${fmt(pv(a))} ${fmt(nn(a))} or ${fmt(pv(b))} ${fmt(nn(b))}</b><p>Aim a phrase at a target on the chord change. The mode’s own colour is ${fmt(T.prettyIv(md.m.char))} (${fmt(T.noteName(md.charNote, true))}): ${esc(md.m.feel)}.</p></div>`;
+  }
+  return '';
+}
+// the frets a line mode draws: the shape, or two frets past it each side with "wider" on
+function lineSpan(Sx) {
+  const p = Sx.pos, wide = D.wide ? 2 : 0;
+  const lo = Math.max(0, p.lo - wide), hi = Math.min(17, p.hi + wide);
+  return { lo, hi, wlo: Math.max(0, lo - (lo > 0 && !wide ? 1 : 0)), whi: hi + (wide ? 0 : 1) };
+}
+function lineNotes(c, Sx, z) {
+  const outer = (n) => n.fret < Sx.pos.lo || n.fret > Sx.pos.hi;
+  const simple = (x) => x.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n]);
+  const lq = c.lq || c.q;
+  if (D.play === 'arps') {
+    const rel = [...new Set(T.getChord(lq).ivs.map((x) => H.semisOf(simple(x))))];
+    return { notes: SC.scaleNotesIn({ rel }, c.root, lq, z.lo, z.hi).map((n) => ({ ...n, mark: n.iv === c.arp.start, outer: outer(n) })) };
+  }
+  if (D.play === 'guide') {
+    if (!c.guide) return { notes: [] };
+    const chosen = new Set(c.guide.notes.map((n) => `${n.string}:${n.fret}`));
+    return { notes: c.guide.all.map((n) => (chosen.has(`${n.string}:${n.fret}`) ? { ...n, mark: true } : { ...n, kind: 'sc' })), prev: c.guide.prev ? { notes: c.guide.prev } : null };
+  }
+  const md = c.modal;
+  return { notes: SC.scaleNotesIn({ rel: md.pcs }, c.root, lq, z.lo, z.hi).map((n) => {
+    const rel = ((n.midi - T.notePc(c.root)) % 12 + 12) % 12;
+    const o = { ...n, outer: outer(n) };
+    if (md.targets.includes(n.iv)) return { ...o, mark: true };
+    if (n.iv === '1') return o;
+    if (rel === md.charRel) return { ...o, kind: 'tx' };
+    return { ...o, kind: 'sc' };
+  }) };
+}
+const LEGEND_MODE = '<div class="legend"><span class="k t3">3rd</span><span class="k t7">7th</span><span class="k r">root</span><span class="k tx">the mode’s colour note</span><span class="k sc">rest of the mode</span></div>';
+function lineNeck(c) {
+  const Sx = c.snap ? { ...R.S, ...c.snap } : R.S;
+  const z = lineSpan(Sx);
+  const w = { ...windowFor(Sx, null), lo: z.wlo, hi: z.whi };
+  if (D.play === 'guide' && !c.guide) { document.getElementById('stage').innerHTML = '<div class="cnone">No 3rd and 7th pair fits in this shape</div>'; return; }
+  const { notes, prev } = lineNotes(c, Sx, z);
+  document.getElementById('stage').innerHTML = neckSVG({ notes, lo: w.lo, hi: w.hi }, { ...w, prev, labels: D.labels === 'finger' ? 'iv' : D.labels }) + (D.play === 'modal' ? LEGEND_MODE : LEGEND);
+}
+// the sheet and walkthrough for the line modes: each chord's tones (or guide tones, or the mode with its targets)
+function toneListHTML(S) {
+  const z = { lo: S.pos.lo, hi: S.pos.hi, wlo: Math.max(0, S.pos.lo - (S.pos.lo > 0 ? 1 : 0)), whi: S.pos.hi + 1 };
+  const groups = D.play === 'modal'
+    ? [{ title: `${T.noteName(S.tonic, true)} ${MC.modeById(D.modal).name}`, list: MC.modeChords(S.tonic, D.modal, D.colour === 'tri' ? 3 : 4).map((x) => ({ spec: { iv: x.iv, q: x.q }, q: x.q })) }]
+    : sheetChords(S);
+  let html = '';
+  const S2 = { ...S, gtPrev: null };
+  for (const grp of groups) {
+    html += `<h2 class="sgroup">${fmt(grp.title)}</h2><div class="sgrid tones">`;
+    for (const it of grp.list) {
+      const c = realiseCore(S2, it.spec, it.q, null, {});
+      if (c.arp) c.arp.start = '1';
+      S2.gtPrev = null;
+      const body = D.play === 'guide' && !c.guide ? '<div class="cnone">none here</div>' : neckSVG({ notes: lineNotes(c, S, z).notes, lo: z.wlo, hi: z.whi }, { lo: z.wlo, hi: z.whi, band: S.pos, tiny: true });
+      html += `<figure class="sv"><figcaption class="tt"><b class="cnum">${fmt(c.rn)}</b> <span class="cname">${fmt(c.name)}</span></figcaption>${body}</figure>`;
+    }
+    html += '</div>';
+  }
+  return html;
+}
 function revealNeck() {
   if (!R?.shown || !D.neck) return;
   const { c, prev } = R.shown;
-  const w = windowFor(R.S, c.grip);
-  if (D.allv && !c.solo) return allVoicings(c);
-  if (c.solo) {
-    // the scale across the area, chord tones in their colours, the rest of the scale as quiet dots
-    const notes = SC.scaleNotesIn(c.solo, c.root, c.q, R.S.pos.lo, R.S.pos.hi).map((n) => ({ ...n, kind: n.chord ? KIND(n.iv) : 'sc' }));
-    document.getElementById('stage').innerHTML = neckSVG({ notes, lo: w.lo, hi: w.hi }, { ...w, labels: D.labels === 'finger' ? 'iv' : D.labels }) + LEGEND_SCALE;
+  const Sx = c.snap ? { ...R.S, ...c.snap } : R.S;
+  const w = windowFor(Sx, c.grip);
+  if (D.play === 'chords' && D.allv && c.grip) return allVoicings(c);
+  if (D.play === 'arps' || D.play === 'guide' || D.play === 'modal') return lineNeck(c);
+  if (D.play === 'scales' && c.solo) {
+    // the scale across the area, chord tones in their colours, the rest of the scale as quiet dots; "wider" carries
+    // it two frets past each side of the shape, those notes dimmed
+    const z = lineSpan(Sx);
+    const notes = SC.scaleNotesIn(c.solo, c.root, c.lq || c.q, z.lo, z.hi).map((n) => ({ ...n, kind: n.chord ? KIND(n.iv) : 'sc', outer: n.fret < Sx.pos.lo || n.fret > Sx.pos.hi }));
+    document.getElementById('stage').innerHTML = neckSVG({ notes, lo: z.wlo, hi: z.whi }, { ...w, lo: z.wlo, hi: z.whi, labels: D.labels === 'finger' ? 'iv' : D.labels }) + LEGEND_SCALE;
     return;
   }
   document.getElementById('stage').innerHTML = neckSVG(c.grip, { ...w, prev }) + LEGEND;
@@ -657,11 +920,12 @@ function finish() {
   if (!enough) { R = null; return setup(); }
   const n = normBpm(bpm), tgt = target(), k = doneKey();
   const prevBest = record(k)[S.shapeKey] || 0;
+  const lap = D.tour && S.toured.size > 1 ? [...S.toured] : [S.shapeKey];
   window.scrollTo(0, 0);
   $app.innerHTML = `
   <header class="chead"><span></span><h1>How was it?</h1><span></span></header>
   <section class="card end">
-    <p>${D.src === 'prog' ? `<b>${esc(prog().name)}</b>, ${passes} time${passes === 1 ? '' : 's'} round` : `<b>${count} chords</b>`} in ${fmt(keyLabel(S))}, <b>${shapeWord(S)}</b>, at ${bpm} bpm${n !== bpm ? ` (counts as ${n})` : ''}.</p>
+    <p>${D.src === 'prog' ? `<b>${esc(prog().name)}</b>, ${passes} time${passes === 1 ? '' : 's'} round` : `<b>${count} chords</b>`} in ${fmt(keyLabel(S))}, <b>${lap.length > 1 ? `through ${lap.join(', ')}` : shapeWord(S)}</b>, at ${bpm} bpm${n !== bpm ? ` (counts as ${n})` : ''}.</p>
     <p>Was every chord clean and on time?</p>
     <div class="actions"><button class="primary" data-e="yes">✓ Clean</button><button data-e="no">Not yet</button></div>
     <p class="note">${prevBest ? `Best in the ${shapeWord(S)} so far: ${prevBest} bpm.` : `First clean run in the ${shapeWord(S)} gets recorded.`} Fast is ${tgt} bpm. ${n >= tgt ? 'This one counts as fast.' : `${tgt - n} to go.`}${S.shapes.length > 1 ? ' Two-shape runs are logged; the five single shapes are what count towards done.' : ''}</p>
@@ -671,7 +935,7 @@ function finish() {
     const b = e.target.closest('[data-e]'); if (!b) return;
     if (b.dataset.e === 'yes') {
       const rec = (D.done[k] ||= {});
-      if (n > (rec[S.shapeKey] || 0)) rec[S.shapeKey] = n;
+      for (const sk of lap) if (n > (rec[sk] || 0)) rec[sk] = n;
       if (bpm < 220) D.bpm = Math.min(220, bpm + 4);
       save();
       if (complete(k, tgt)) { $app.querySelector('.end').insertAdjacentHTML('beforeend', '<p class="done">✓ Done in all five shapes</p>'); setTimeout(() => { R = null; setup(); }, 1600); return; }
@@ -766,8 +1030,11 @@ function sheetHTML(S) {
 function openSheet() {
   const el = document.getElementById('sheet');
   if (!el || !R) return;
-  if (!R.sheet) R.sheet = scaleMode() ? scaleListHTML(R.S) : sheetHTML(R.S);
-  if (scaleMode()) {
+  if (!R.sheet) R.sheet = scaleMode() ? scaleListHTML(R.S) : lineMode() ? toneListHTML(R.S) : sheetHTML(R.S);
+  if (lineMode() && !scaleMode()) {
+    el.innerHTML = `<div class="sheet-head"><div><b>${{ arps: 'Arpeggios', guide: 'Guide tones', modal: 'The mode’s chords' }[D.play]}</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
+    <p class="note">${{ arps: 'Every chord that can come up, its tones across the shape.', guide: 'Every chord’s 3rd and 7th inside the shape. In a run, the pair that moves least is ringed.', modal: 'Each chord of the mode with the whole mode across the shape: its 3rd and 7th ringed, the colour note in violet.' }[D.play]}</p>${D.play === 'modal' ? LEGEND_MODE : LEGEND}${R.sheet}`;
+  } else if (scaleMode()) {
     el.innerHTML = `<div class="sheet-head"><div><b>Scale options</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
     <p class="note">Every chord that can come up and every scale that works over it, easiest first. Your level is highlighted; the run picks from it.</p>${R.sheet}`;
   } else el.innerHTML = `<div class="sheet-head"><div><b>Chord set</b><small>${fmt(keyLabel(R.S))} · ${fmt(posLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
@@ -812,6 +1079,21 @@ function scaleListHTML(S) {
   }
   return html;
 }
+function listWalkthrough(S, body, title) {
+  $app.innerHTML = `
+  <header class="chead"><button class="icon" data-w="back" aria-label="Back">‹</button><h1>${esc(title)}</h1><span></span></header>
+  <p class="lead">${fmt(keyLabel(S))} · ${fmt(posLabel(S))}</p>
+  ${namesButton('w')}
+  ${D.play === 'modal' ? LEGEND_MODE : LEGEND}
+  ${body}`;
+  applyNames();
+  $app.onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.w === 'back') return setup();
+    if (b.dataset.w === 'names' || b.dataset.w === 'nums') { flipLabel(b.dataset.w); save(); applyNames(); }
+  };
+  window.scrollTo(0, 0);
+}
 function scaleWalkthrough(S) {
   const title = D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
   $app.innerHTML = `
@@ -827,6 +1109,109 @@ function scaleWalkthrough(S) {
     if (b.dataset.w === 'names' || b.dataset.w === 'nums') { flipLabel(b.dataset.w); save(); applyNames(); }
   };
   window.scrollTo(0, 0);
+}
+
+
+// ---------- your own progressions ----------
+// A chart in numerals (ii7 V7 | Imaj7, I/3 = I over the 3rd of the key, V7/ii, iiø7, vii°7) or chord names in a
+// written key (Dm7 G7 | Cmaj7, C/E). Bars split by |; without bars, one chord a bar. Stored as engine tokens.
+const ROM = { i: 1, ii: 2, iii: 3, iv: 4, v: 5, vi: 6, vii: 7 };
+const SUF_UP = { '': 'maj', maj: 'maj', M: 'maj', maj7: 'maj7', M7: 'maj7', 'Δ': 'maj7', 'Δ7': 'maj7', '7': '7', '6': '6', '9': '9', '11': '11', '13': '13', maj9: 'maj9', add9: 'add9', '6/9': '6/9', '69': '6/9', sus: 'sus4', sus4: 'sus4', sus2: 'sus2', '7sus4': '7sus4', '7sus': '7sus4', '9sus4': '9sus4', '+': 'aug', aug: 'aug', '7#5': '7#5', '+7': '7#5', '7b9': '7b9', '7#9': '7#9', '7#11': '7#11', '7b13': '7b13', '7alt': '7alt', alt: '7alt', '13b9': '13b9', 'maj7#11': 'maj7#11', '5': '5', 'm': 'min', 'm7': 'm7', 'm6': 'm6', 'm9': 'm9', '°': 'dim', '°7': 'dim7', o: 'dim', o7: 'dim7', 'ø': 'm7b5', 'ø7': 'm7b5', m7b5: 'm7b5', dim: 'dim', dim7: 'dim7' };
+const SUF_LO = { '': 'min', '7': 'm7', '6': 'm6', '9': 'm9', '11': 'm11', '13': 'm13', maj7: 'mMaj7', '(maj7)': 'mMaj7', add9: 'madd9', '6/9': 'm6/9', 'ø': 'm7b5', 'ø7': 'm7b5', '7b5': 'm7b5', m7b5: 'm7b5', '°': 'dim', '°7': 'dim7', o: 'dim', o7: 'dim7', dim: 'dim', dim7: 'dim7', '+': 'aug' };
+const C0 = T.parseNote('C');
+function romanHead(iv, q) {
+  const m = /^(b|#)?(\d)$/.exec(iv);
+  const r = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][Number(m[2]) - 1];
+  return (m[1] || '') + (H.isMinorish(q) ? r.toLowerCase() : r);
+}
+function userToken(raw, keyTonic) {
+  const t = raw.replace(/♭/g, 'b').replace(/♯/g, '#');
+  // chord name in the written key
+  const nm = /^([A-G](?:b|#)?)([^/]*)(?:\/([A-G](?:b|#)?))?$/.exec(t);
+  if (nm) {
+    const q = SUF_UP[nm[2]];
+    if (!q) throw new Error(`Don’t know the chord type in “${raw}”`);
+    const root = T.parseNote(nm[1]);
+    const iv = H.ivFrom(keyTonic, root);
+    const bass = nm[3] ? H.ivFrom(root, T.parseNote(nm[3])) : null;
+    return `${romanHead(iv, q)}:${q}${bass && bass !== '1' ? `/${bass}` : ''}`;
+  }
+  const m = /^(b|#)?(vii|vi|iv|v|iii|ii|i|VII|VI|IV|V|III|II|I)([^/]*)(?:\/(.+))?$/.exec(t);
+  if (!m) throw new Error(`Can’t read “${raw}”: write numerals like ii7, V7, Imaj7, ♭VII, or chord names like Dm7`);
+  const lower = m[2] === m[2].toLowerCase();
+  const q = (lower ? SUF_LO : SUF_UP)[m[3]];
+  if (!q) throw new Error(`Don’t know the chord type in “${raw}”`);
+  const head = (m[1] || '') + m[2];
+  if (!m[4]) return `${head}:${q}`;
+  // after the slash: a numeral = a secondary chord (V7/ii); a number = the bass as a degree of the key (I/3)
+  if (/^(b|#)?[ivIV]+$/.test(m[4])) return `${head}/${m[4]}:${q}`;
+  const dm = /^(b|#)?([1-7])$/.exec(m[4]);
+  if (!dm) throw new Error(`Can’t read the bass in “${raw}”`);
+  const chordIv = (m[1] || '') + String(ROM[m[2].toLowerCase()]);
+  const root = T.transpose(C0, chordIv), bassNote = T.transpose(C0, (dm[1] || '') + dm[2]);
+  const bass = H.ivFrom(root, bassNote);
+  return `${head}:${q}${bass !== '1' ? `/${bass}` : ''}`;
+}
+function parseUserChart(text, keyName) {
+  const tonic = T.parseNote(keyName);
+  const hasBars = text.includes('|');
+  const bars = (hasBars ? text.split('|') : text.split(/\s+/)).map((b) => b.trim()).filter(Boolean);
+  if (!bars.length) throw new Error('Write at least one chord');
+  return '| ' + bars.map((b) => b.split(/\s+/).filter(Boolean).map((tok) => userToken(tok, tonic)).join(' ')).join(' | ') + ' |';
+}
+function editor(item) {
+  stop();
+  const ed = item ? { ...item, key: item.writtenIn || 'C' } : { id: `mine-${Date.now().toString(36)}`, name: '', minor: D.kt === 'minor', text: '', key: 'C' };
+  const draw = () => {
+    let preview = '', chart = null;
+    try {
+      if (ed.text.trim()) { chart = parseUserChart(ed.text, ed.key || 'C'); preview = chartHTML(L.resolve({ chart }).flatMap((b, bi) => b.map((spec) => ({ spec, bar: bi }))), { tonic: T.parseNote(D.key === 'rand' ? 'C' : D.key) }); }
+    } catch (e) { preview = `<p class="note warn">${esc(e.message)}</p>`; }
+    $app.innerHTML = `
+    <header class="chead"><button class="icon" data-e="back" aria-label="Back">‹</button><h1>${item ? 'Edit progression' : 'New progression'}</h1><span></span></header>
+    <section class="card">
+      <h2>Name</h2><input id="ename" class="select" value="${esc(ed.name)}" placeholder="My ii–V" aria-label="Name">
+      <h2>Chart</h2><textarea id="etext" class="select" rows="4" placeholder="ii7 V7 | Imaj7 | vi7 II7 | ii7 V7" aria-label="Chart">${esc(ed.text)}</textarea>
+      <p class="note">Numerals: <b>ii7 V7 Imaj7</b>, <b>♭VII7</b>, <b>iiø7</b>, <b>vii°7</b>, <b>iv6</b>, secondary <b>V7/ii</b>, slash <b>I/3</b> (I over the 3rd of the key). Or chord names in the key below: <b>Dm7 G7 Cmaj7</b>, <b>C/E</b>. Split bars with <b>|</b>; two chords in a bar share it. Without bars, one chord a bar.</p>
+      <h3>Chord names are written in</h3>
+      <div class="chips">${MAJOR_KEYS.map((k) => `<button class="chip ${ed.key === k ? 'on' : ''}" data-ekey="${k}">${fmt(T.pretty(k))}</button>`).join('')}</div>
+      <div class="chips"><button class="chip ${ed.minor ? 'on' : ''}" data-e="minor">Minor key (the tonic is i)</button></div>
+      <h3>Preview</h3>${preview || '<p class="note">Type a chart to see it.</p>'}
+    </section>
+    <div class="actions"><button class="primary" data-e="save" ${chart ? '' : 'disabled'}>Save</button>${item ? '<button data-e="delete">Delete</button>' : ''}</div>`;
+    const tn = $app.querySelector('#ename'), tt = $app.querySelector('#etext');
+    tn.oninput = () => { ed.name = tn.value; };
+    tt.onchange = () => { ed.text = tt.value; draw(); };
+    $app.onclick = (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.ekey) { ed.text = tt.value; ed.key = b.dataset.ekey; return draw(); }
+      const a = b.dataset.e;
+      if (a === 'back') return setup();
+      if (a === 'minor') { ed.text = tt.value; ed.minor = !ed.minor; return draw(); }
+      if (a === 'delete') { D.mine = (D.mine || []).filter((m) => m.id !== ed.id); if (D.prog === ed.id) D.prog = 'major-ii-v-i'; save(); return setup(); }
+      if (a === 'save' && chart) {
+        const rec = { id: ed.id, name: ed.name.trim() || 'My progression', chart, minor: ed.minor, text: tt.value, writtenIn: ed.key };
+        D.mine = [...(D.mine || []).filter((m) => m.id !== rec.id), rec];
+        D.prog = rec.id; D.src = 'prog'; D.kt = rec.minor ? 'minor' : 'major';
+        save(); setup();
+      }
+    };
+  };
+  draw();
+}
+// save the evolved version playing now as one of your progressions
+function keepVersion(btn) {
+  if (!R?.slots) return;
+  const bars = [];
+  R.slots.forEach((x) => { const sp = x.spec; (bars[x.bar] ||= []).push(`${romanHead(sp.iv, sp.q)}:${sp.q}${sp.bass && sp.bass !== '1' ? `/${sp.bass}` : ''}`); });
+  const chart = '| ' + bars.filter(Boolean).map((b) => b.join(' ')).join(' | ') + ' |';
+  const base = prog().name.replace(/ \(evolved.*\)$/, '');
+  const n = (D.mine || []).filter((m) => m.name.startsWith(base + ' (evolved')).length + 1;
+  const rec = { id: `mine-${Date.now().toString(36)}`, name: `${base} (evolved ${n})`, chart, minor: R.S.minor, text: L.resolve({ chart }).map((b) => b.map((sp) => H.label(sp)).join(' ')).join(' | '), writtenIn: 'C' };
+  D.mine = [...(D.mine || []), rec];
+  save();
+  btn.textContent = 'Saved ✓';
+  setTimeout(() => { if (btn.isConnected) btn.textContent = 'Save this version'; }, 1800);
 }
 
 // ---------- walkthrough: every chord in the set or progression, with its grip ----------
@@ -861,6 +1246,7 @@ function walkthrough() {
   stop();
   const S = session();
   if (scaleMode()) return scaleWalkthrough(S);
+  if (lineMode()) return listWalkthrough(S, toneListHTML(S), { arps: 'Arpeggios', guide: 'Guide tones', modal: 'Mode chords' }[D.play]);
   const items = walkItems(S);
   const title = D.src === 'prog' ? prog().name : H.SETS[D.kt].find((s) => s.id === D.set).name;
   let html = '', group = null;

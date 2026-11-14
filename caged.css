@@ -247,3 +247,30 @@ svg.neck .dot.sc text { fill: #e9dccd; font-size: 11px; }
 .allv .note { text-align: center; margin-top: 6px; }
 .sv.chosen svg.neck { outline: 3px solid var(--amber); outline-offset: 1px; }
 .sv.chosen figcaption { color: var(--amber); font-weight: 700; }
+
+/* the rhythm strip: eighth notes, hits filled, the push (next chord early) in amber */
+.rhythm { display: flex; justify-content: center; gap: 3px; margin: -4px auto 12px; flex-wrap: wrap; max-width: 420px; }
+.rhythm:empty { display: none; }
+.rhythm i { width: 22px; height: 30px; border-radius: 7px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); display: grid; place-items: end center; padding-bottom: 2px; }
+.rhythm i.and { margin-right: 5px; }
+.rhythm i small { font: 600 9.5px var(--f-ui); color: var(--muted); }
+.rhythm i.hit { background: rgba(92, 205, 242, 0.32); border-color: rgba(92, 205, 242, 0.7); }
+.rhythm i.push { background: rgba(255, 181, 71, 0.35); border-color: rgba(255, 181, 71, 0.8); }
+.rhythm i.on { box-shadow: 0 0 0 2px #fff inset; }
+.rhythm i.on.hit { background: var(--cyan); } .rhythm i.on.hit small { color: #002; }
+
+svg.neck .dot.outer { opacity: 0.55; }
+.solo.lvA { border-left-color: var(--rose); } .solo.lvG { border-left-color: var(--cyan); } .solo.lvM { border-left-color: var(--violet); }
+.solo .gline { margin: 3px 0 0; font: 500 16px var(--f-num); color: var(--text); }
+
+.sgrid.tones { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.sv figcaption.tt { font-size: 13px; color: var(--text); text-align: left; }
+.sv figcaption.tt b { font: 600 15px var(--f-num); }
+
+textarea.select { font: 500 16px/1.4 var(--f-num); resize: vertical; min-height: 90px; }
+input.select { font: 600 16px var(--f-ui); }
+.note.warn { color: var(--warn); }
+#caged button:disabled { opacity: 0.4; }
+
+.liveplay { margin: 2px 0 6px; }
+.liveplay .seg button { padding: 6px 6px; font-size: 13px; }
