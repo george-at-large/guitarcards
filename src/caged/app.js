@@ -36,7 +36,7 @@ const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
   colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, pad: false, genre: 'blues', diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
-  roam: { cat: 'all', times: 2, tour5: false, done: {} }, hearRhythm: true, mute: false, around: 'off', aroundAmt: 'medium', tgExtras: true,
+  roam: { cat: 'all', times: 2, tour5: false, done: {} }, hearRhythm: true, mute: false, around: 'off', aroundAmt: 'medium', tgExtras: true, qsMinutes: 15,
 }, load());
 // the beat and the rhythm are heard now (they were silent by default): turn the click on once for everyone
 if (!D.soundV2) { D.click = true; D.hearRhythm = true; D.soundV2 = 1; }
@@ -809,6 +809,7 @@ function setup() {
     if (d.roamtimes !== undefined) { if (d.roamtimes === 'tour') D.roam.tour5 = true; else { D.roam.tour5 = false; D.roam.times = Number(d.roamtimes); } return redraw(); }
     const a = d.act;
     if (a === 'quick') return quickStart();
+    if (d.qsmin !== undefined) { D.qsMinutes = Number(d.qsmin); qsPreview = null; return redraw(); }
     if (a === 'qsreset') { if (confirm('Forget everything Quick start has learned about your playing?')) { D.coach = CO.fresh(); qsPreview = null; } return redraw(); }
     if (a === 'roamreset') { D.roam.done[`${D.roam.cat}|${roamMode()}`] = {}; return redraw(); }
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
@@ -1009,17 +1010,21 @@ function tick(t) {
 const QS_FIELDS = ['src', 'set', 'colour', 'prog', 'pcolour', 'around', 'aroundAmt', 'evolve', 'voicing', 'play', 'scaleLevel', 'key', 'kt', 'shape', 'pair', 'tour', 'tourSlow', 'bpm', 'beats', 'barBeats', 'mode', 'bassline', 'diagram'];
 let QS = null, qsPreview = null;
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
-function qsPlan() { if (!qsPreview) qsPreview = CO.plan(D.coach, L.ALL); return qsPreview; }
+function qsPlan() { if (!qsPreview) qsPreview = CO.plan(D.coach, L.ALL, { minutes: D.qsMinutes, tg: TGV.ready() }); return qsPreview; }
 function qsCard() {
   D.coach = CO.ensure(D.coach);
+  // is the Ted Greene pack here? (its area joins the curriculum if so)
+  if (!TGV.ready() && !qsCard.tried) { qsCard.tried = true; TGV.load().then(() => { if (TGV.ready() && !R && !QS && D.app === 'changes') { qsPreview = null; setup(); } }); }
   const blocks = qsPlan(), mins = blocks.reduce((t, b) => t + b.minutes, 0);
   const bel = CO.beliefs(D.coach);
   return `<section class="card qs">
     <button class="primary qsgo" data-act="quick">▶ Quick start <small>about ${mins} minutes</small></button>
+    <div class="seg qsmins" role="radiogroup">${[5, 10, 15, 20, 30, 45].map((m) => `<button data-qsmin="${m}" class="${D.qsMinutes === m ? 'on' : ''}">${m} min</button>`).join('')}</div>
+    <div class="qscur"><span>Curriculum</span><div class="roamprog"><i style="width:${(CO.progress(D.coach) * 100).toFixed(0)}%"></i></div><b>${(CO.progress(D.coach) * 100).toFixed(0)}%</b></div>
     <ol class="qsplan">${blocks.map((b) => `<li><b>${esc(b.title)}</b> · ${esc(b.level)}${b.prog ? ` · ${esc(b.prog)}` : ''} <small>${fmt(T.pretty(b.key))}${b.minor ? 'm' : ''} · ${b.shape} shape · ${b.bpm} bpm · ${b.minutes} min</small></li>`).join('')}</ol>
     <details class="qsmodel"><summary>What I think about your playing${D.coach.sessions ? ` (${D.coach.sessions} session${D.coach.sessions === 1 ? '' : 's'})` : ''}</summary>
       <ul>${bel.map((x) => `<li><b>${esc(x.area)}</b>: ${esc(x.text)}</li>`).join('')}</ul>
-      <p class="note">After each part you say how it went; that moves the tempo, the level, the key and the shape. Areas left longest come back first; your weakest shapes get the work.</p>
+      <p class="note">After each part you say how it went (or skip it as too easy); that moves the tempo, the level, the key and the shape. Areas left longest come back first; your weakest shapes get the work; new areas open as the ones they build on come along. Just show up and press Quick start: over time it works through the whole curriculum.</p>
       <button class="chip" data-act="qsreset">Start the model again</button></details>
   </section>`;
 }
@@ -1035,6 +1040,7 @@ function quickStart() {
 function startBlock() {
   const b = QS.blocks[QS.i];
   Object.assign(D, { mode: 'pos', pair: false, tour: false, tourSlow: false, evolve: false, bassline: 'off', diagram: 'now', around: 'off', beats: 4, barBeats: 4, pcolour: 'as' }, b.o);
+  if (b.o.genre) D.rhythm = GN.genreById(b.o.genre).rhythm;
   QS.left = b.minutes * 60;
   save();
   clearInterval(QS.timer);
@@ -1050,7 +1056,7 @@ function qsTick() {
 }
 function qsBar() {
   const b = QS.blocks[QS.i];
-  return `<span class="lbl">quick start · ${QS.i + 1} of ${QS.blocks.length}${b.role === 'warm' ? ' · warm-up' : ''}</span><b>${esc(b.title)}: ${esc(b.level)}${b.prog ? ` · ${esc(b.prog)}` : ''}</b><small><span id="qsleft">${mmss(QS.left)} left</span> · ${esc(b.why)}</small>`;
+  return `<span class="lbl">quick start · ${QS.i + 1} of ${QS.blocks.length}${b.role === 'warm' ? ' · warm-up' : ''}</span><b>${esc(b.title)}: ${esc(b.level)}${b.prog ? ` · ${esc(b.prog)}` : ''}</b><small><span id="qsleft">${mmss(QS.left)} left</span> · ${esc(b.why)}</small><button class="qsskip" data-r="qsskip">Too easy: skip ⏭</button>`;
 }
 // a block is over (time, or ■): how did it go?
 function qsEnd() {
@@ -1078,6 +1084,19 @@ function qsEnd() {
     startBlock();
   };
 }
+// too easy: no need to finish it; it counts as a big step up, and the next block starts
+function qsSkip() {
+  if (!QS) return;
+  clearInterval(QS.timer);
+  if (R) { stop(); R = null; }
+  const b = QS.blocks[QS.i];
+  const r = CO.rate(D.coach, b, 'skip');
+  D.coach = r.st; QS.changes.push(r.change); QS.rated.push({ b, how: 'skip' });
+  QS.i++;
+  save();
+  if (QS.i >= QS.blocks.length) return qsDone();
+  startBlock();
+}
 function qsDone() {
   clearInterval(QS.timer);
   if (QS.rated.length) D.coach = CO.endSession(D.coach);
@@ -1085,7 +1104,7 @@ function qsDone() {
   const { rated, changes } = QS;
   QS = null; qsPreview = null;
   save();
-  const word = { hard: 'couldn’t keep up', right: 'just right', easy: 'easy' };
+  const word = { hard: 'couldn’t keep up', right: 'just right', easy: 'easy', skip: 'too easy, skipped' };
   window.scrollTo(0, 0);
   $app.innerHTML = `
   <header class="chead"><span></span><h1>Done for today</h1><span></span></header>
@@ -1142,6 +1161,7 @@ function drawRun() {
     const b = e.target.closest('button, #stage'); if (!b) return;
     const r = b.dataset?.r || (b.id === 'stage' ? 'reveal' : null);
     if (r === 'stop') return QS ? qsEnd() : finish();
+    if (r === 'qsskip') return qsSkip();
     if (r === 'names' || r === 'nums') { flipLabel(r); save(); return applyNames(); }
     if (r === 'neck') { D.neck = !D.neck; save(); applyNames(); return renderStage(); }
     if (r && r.startsWith('play-')) return switchPlay(r.slice(5));

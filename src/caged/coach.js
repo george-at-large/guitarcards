@@ -53,9 +53,34 @@ export const AREAS = {
     { name: 'Pop and rock, borrowing', cat: 'Pop and rock', o: { pcolour: 'as', around: 'mi', aroundAmt: 'medium' } },
     { name: 'Jazz standards', cat: 'Jazz standards', o: { pcolour: 'as', around: 'off' } },
     { name: 'Turnarounds, chromatic', cat: 'Turnarounds and jazz moves', o: { pcolour: 'sev', around: 'chr', aroundAmt: 'medium' } },
+    { name: 'Modal vamps', cat: 'Modal vamps', o: { pcolour: 'as', around: 'off' } },
+    { name: 'Voice leading', cat: 'Voice leading', o: { pcolour: 'as', around: 'off' } },
+    { name: 'Bass lines and slash chords', cat: 'Bass lines and slash chords', o: { pcolour: 'as', around: 'off' } },
     { name: 'Jazz standards in colour', cat: 'Jazz standards', o: { pcolour: 'col', around: 'off' } },
+    { name: 'Jazz standards with substitutions', cat: 'Jazz standards', o: { pcolour: 'subs', around: 'both', aroundAmt: 'medium' } },
   ].map((l) => ({ ...l, o: { src: 'prog', play: 'chords', voicing: 'caged', ...l.o } })) },
+  modes: { name: 'Modes', needs: { lines: 2 }, levels: [
+    ['dorian', 'Dorian'], ['mixolydian', 'Mixolydian'], ['aeolian', 'Aeolian'], ['lydian', 'Lydian'], ['phrygian', 'Phrygian'],
+    ['melodic-minor', 'Melodic minor'], ['lydian-dominant', 'Lydian dominant'], ['phrygian-dominant', 'Phrygian dominant'], ['harmonic-minor', 'Harmonic minor'], ['locrian', 'Locrian'],
+  ].map(([id, name]) => ({ name: `${name} vamps`, o: { play: 'modal', modal: id, modalSrc: 'vamp' } })) },
+  genres: { name: 'Genres', needs: { progs: 2 }, levels: [
+    ['pop', 'Pop'], ['rock', 'Rock'], ['blues', 'Blues'], ['folk', 'Folk'], ['country', 'Country'], ['reggae', 'Reggae'], ['funk', 'Funk'], ['indie', 'Indie'],
+    ['bossa', 'Bossa nova'], ['latin', 'Latin'], ['gospel', 'Gospel'], ['neosoul', 'Neo-soul'], ['punk', 'Punk'], ['metal', 'Metal', true], ['flamenco', 'Flamenco', true], ['jazz', 'Jazz'],
+  ].map(([id, name, minor]) => ({ name, minor: !!minor, o: { src: 'genre', genre: id, play: 'chords', pcolour: 'as', voicing: 'caged' } })) },
+  tg: { name: 'Ted Greene voicings', needs: { voicings: 4 }, tg: true, levels: [
+    { name: 'Cadences', cat: 'Cadences' }, { name: 'Pop and rock in sevenths', cat: 'Pop and rock', pc: 'sev' }, { name: 'Turnarounds', cat: 'Turnarounds and jazz moves' },
+    { name: 'Voice leading', cat: 'Voice leading' }, { name: 'Jazz standards', cat: 'Jazz standards' }, { name: 'Jazz standards in colour', cat: 'Jazz standards', pc: 'col' },
+  ].map((l) => ({ ...l, o: { src: 'prog', play: 'chords', voicing: 'tg', pcolour: l.pc || 'as', around: 'off' } })) },
 };
+// an area opens once the areas it builds on have got far enough
+const open = (st, k, opt) => { const a = AREAS[k]; if (a.tg && !opt.tg) return false; return Object.entries(a.needs || {}).every(([b, lv]) => st.areas[b].lv >= lv); };
+// how much of the curriculum is done: levels climbed, over all of them
+export function progress(stIn) {
+  const st = ensure(stIn);
+  let got = 0, all = 0;
+  for (const [k, a] of Object.entries(AREAS)) { all += a.levels.length; got += Math.min(a.levels.length, st.areas[k].lv + (st.areas[k].streak || st.areas[k].ok ? 0.5 : 0)); }
+  return got / all;
+}
 const START_BPM = 60, MIN_BPM = 40, LEVEL_UP_BPM = 84;
 
 export function fresh() {
@@ -63,7 +88,11 @@ export function fresh() {
   for (const k of Object.keys(AREAS)) a[k] = { lv: 0, bpm: START_BPM, ok: 0, hard: 999, streak: 0, last: 0, shapes: {}, keys: {}, n: 0 };
   return { v: 1, sessions: 0, areas: a, progSeen: {}, log: [] };
 }
-export const ensure = (st) => (st && st.v === 1 ? st : fresh());
+export function ensure(st) {
+  if (!st || st.v !== 1) return fresh();
+  for (const k of Object.keys(AREAS)) st.areas[k] ||= { lv: 0, bpm: START_BPM, ok: 0, hard: 999, streak: 0, last: 0, shapes: {}, keys: {}, n: 0 };
+  return st;
+}
 
 // the weakest shape for an area: untried shapes first, then the fewest reps (a "too hard" counts against it), but
 // not the same shape twice running, so a struggle doesn't become a rut
@@ -83,36 +112,54 @@ function progFor(st, cat, all) {
 }
 const ago = (st, ar) => (ar.last ? st.sessions - ar.last : Infinity);
 
-// the session: four blocks, each with its settings, its length and the reason it was chosen
-export function plan(stIn, library) {
-  const st = ensure(stIn);
+// the session, as long as you have: a warm-up (from ten minutes), growth-edge blocks from the open areas left
+// longest (in their weakest shapes), and a progression to finish (from eight minutes); each block with its settings,
+// its length and why it was chosen
+export function plan(stIn, library, opt = {}) {
+  const st = ensure(stIn), minutes = opt.minutes || 15;
   const A = st.areas, blocks = [];
-  const mk = (area, lvIdx, minutes, role, why, bpmAdj = 0) => {
+  const mk = (area, lvIdx, mins, role, why, bpmAdj = 0, shapeAs = null) => {
     const ar = A[area], L = AREAS[area].levels[Math.max(0, Math.min(lvIdx, AREAS[area].levels.length - 1))];
-    const shape = role === 'warm' ? SHAPES.slice().sort((a, b) => ((ar.shapes[b]?.n || 0) - (ar.shapes[a]?.n || 0)))[0] : weakestShape(ar);
+    const shape = shapeAs || (role === 'warm' ? SHAPES.slice().sort((a, b) => ((ar.shapes[b]?.n || 0) - (ar.shapes[a]?.n || 0)))[0] : weakestShape(ar));
     const key = keyFor(ar);
     const o = { ...L.o };
     let prog = null;
     if (L.cat) { prog = progFor(st, L.cat, library); o.prog = prog.id; }
-    const minor = prog ? !!prog.minor : false;
+    const minor = prog ? !!prog.minor : !!L.minor;
     const bpm = Math.max(MIN_BPM, Math.round(ar.bpm + bpmAdj));
-    return { area, role, lv: lvIdx, title: AREAS[area].name, level: L.name, prog: prog ? prog.name : null, key, minor, shape, bpm, minutes, why, o: { ...o, key: minor ? ({ Db: 'C#', Ab: 'G#' }[key] || key) : key, kt: minor ? 'minor' : 'major', shape, bpm } };
+    return { area, role, lv: lvIdx, title: AREAS[area].name, level: L.name, prog: prog ? prog.name : null, key, minor, shape, bpm, minutes: mins, why, o: { ...o, key: minor ? ({ Db: 'C#', Ab: 'G#' }[key] || key) : key, kt: minor ? 'minor' : 'major', shape, bpm } };
   };
-  // two growth-edge blocks: the areas left longest, in their weakest shapes
-  const edge = ['grips', 'voicings', 'lines'].filter((a) => !(a === 'grips' && st.sessions === 0)).sort((a, b) => ago(st, A[b]) - ago(st, A[a]) || A[a].n - A[b].n).slice(0, 2);
-  // warm-up first: the most familiar area not in today's edge, a step below its level, in the shape you know best
-  const wa = ['grips', 'voicings', 'lines'].filter((a) => !edge.includes(a)).sort((a, b) => A[b].n - A[a].n)[0] || 'grips';
-  const w = A[wa];
-  blocks.push(mk(wa, Math.max(0, w.lv - 1), 2, 'warm', w.n ? `Warm-up: ${AREAS[wa].name.toLowerCase()} a step below your level, in the shape you know best, a little under your tempo.` : 'Warm-up: the plainest version, to get the hands moving.', -6));
-  for (const area of edge) {
-    const ar = A[area];
-    const why = !ar.n ? `New: the first level of ${AREAS[area].name.toLowerCase()}.`
-      : `${ago(st, ar) > 1 ? `Not practised for ${ago(st, ar)} sessions, so it comes back now. ` : ''}${ar.streak ? `Last time it went well, so ${ar.bpm} bpm today` : ar.hard < 999 && ar.bpm < ar.hard ? `Last time ${ar.hard} bpm was too fast, so ${ar.bpm} today` : `At your working tempo, ${ar.bpm} bpm`}; the ${weakestShape(ar)} shape, your least secure there.`;
-    blocks.push(mk(area, ar.lv, ar.streak === 0 && ar.n ? 3 : 4, 'edge', why));
+  const warm = minutes >= 10 ? 2 : 0, apply = minutes >= 8 ? Math.min(5, Math.max(3, Math.round(minutes * 0.25))) : 0;
+  const nEdge = Math.max(1, Math.round((minutes - warm - apply) / 4));
+  const pool = Object.keys(AREAS).filter((k) => k !== 'progs' && open(st, k, opt) && !(k === 'grips' && st.sessions === 0));
+  const edge = pool.sort((a, b) => ago(st, A[b]) - ago(st, A[a]) || A[a].lv / AREAS[a].levels.length - A[b].lv / AREAS[b].levels.length).slice(0, nEdge);
+  if (warm) {
+    const wa = ['grips', 'voicings', 'lines'].filter((a) => !edge.includes(a)).sort((a, b) => A[b].n - A[a].n)[0] || 'grips';
+    const w = A[wa];
+    blocks.push(mk(wa, Math.max(0, w.lv - 1), warm, 'warm', w.n ? `Warm-up: ${AREAS[wa].name.toLowerCase()} a step below your level, in the shape you know best, a little under your tempo.` : 'Warm-up: the plainest version, to get the hands moving.', -6));
   }
-  // finish with music: a progression at your level
-  const p = A.progs;
-  blocks.push(mk('progs', p.lv, 4, 'apply', p.n ? `Put it to use: a progression from ${AREAS.progs.levels[p.lv].name.toLowerCase()}, at your tempo there.` : 'Put it to use: a real progression to finish.'));
+  // a long session with few areas open: the same areas again in another shape, so blocks stay short and fresh
+  const runs = edge.map((a) => ({ area: a, shape: null }));
+  const left = minutes - warm - apply;
+  for (let i = 0; runs.length && left / runs.length > 8 && i < 12; i++) {
+    const a = edge[i % edge.length], used = runs.filter((r) => r.area === a).map((r) => r.shape || weakestShape(A[a]));
+    const next = SHAPES.find((sh) => !used.includes(sh));
+    if (!next) break;
+    runs.push({ area: a, shape: next });
+  }
+  runs.sort((x, y) => edge.indexOf(x.area) - edge.indexOf(y.area) || (x.shape ? 1 : 0) - (y.shape ? 1 : 0));
+  const len = Math.max(2, Math.round(left / Math.max(1, runs.length)));
+  for (const { area, shape } of runs) {
+    const ar = A[area];
+    if (shape) { blocks.push(mk(area, ar.lv, len, 'edge', `The same again in the ${shape} shape: one area across more of the neck.`, 0, shape)); continue; }
+    const why = !ar.n ? `New: the first level of ${AREAS[area].name.toLowerCase()}${AREAS[area].needs ? ', now that you’re ready for it' : ''}.`
+      : `${ago(st, ar) > 1 ? `Not practised for ${ago(st, ar)} sessions, so it comes back now. ` : ''}${ar.streak ? `Last time it went well, so ${ar.bpm} bpm today` : ar.hard < 999 && ar.bpm < ar.hard ? `Last time ${ar.hard} bpm was too fast, so ${ar.bpm} today` : `At your working tempo, ${ar.bpm} bpm`}; the ${weakestShape(ar)} shape, your least secure there.`;
+    blocks.push(mk(area, ar.lv, len, 'edge', why));
+  }
+  if (apply) {
+    const p = A.progs;
+    blocks.push(mk('progs', p.lv, apply, 'apply', p.n ? `Put it to use: a progression from ${AREAS.progs.levels[p.lv].name.toLowerCase()}, at your tempo there.` : 'Put it to use: a real progression to finish.'));
+  }
   return blocks;
 }
 
@@ -125,7 +172,11 @@ export function rate(stIn, b, how) {
   // a warm-up doesn't count as practising the area (it would push it down the queue)
   if (b.role !== 'warm') { ar.n++; ar.last = st.sessions + 1; ar.lastShape = b.shape; }
   let change = '';
-  if (b.role === 'warm') { if (how === 'hard' && ar.lv > 0) { ar.bpm = Math.max(MIN_BPM, ar.bpm - 6); change = `${AREAS[b.area].name}: tempo down to ${ar.bpm}.`; } }
+  if (how === 'skip') {
+    ar.ok = Math.max(ar.ok, b.bpm); ar.streak = 0;
+    if (ar.lv < max) { ar.lv++; ar.bpm = Math.max(START_BPM, b.bpm - 8); ar.ok = 0; ar.hard = 999; change = `${AREAS[b.area].name}: too easy, so straight up to ${AREAS[b.area].levels[ar.lv].name.toLowerCase()}.`; }
+    else { ar.bpm = Math.min(200, b.bpm + 12); change = `${AREAS[b.area].name}: too easy at the top level, so ${ar.bpm} bpm next time.`; }
+  } else if (b.role === 'warm') { if (how === 'hard' && ar.lv > 0) { ar.bpm = Math.max(MIN_BPM, ar.bpm - 6); change = `${AREAS[b.area].name}: tempo down to ${ar.bpm}.`; } }
   else if (how === 'hard') {
     ar.hard = Math.min(ar.hard, b.bpm); ar.streak = 0;
     if (b.bpm <= MIN_BPM + 6 && ar.lv > 0) { ar.lv--; ar.bpm = Math.max(MIN_BPM, ar.ok || START_BPM); change = `${AREAS[b.area].name}: back a level to ${AREAS[b.area].levels[ar.lv].name.toLowerCase()}.`; }
@@ -151,7 +202,7 @@ export function beliefs(stIn) {
   const st = ensure(stIn), out = [];
   for (const [k, def] of Object.entries(AREAS)) {
     const ar = st.areas[k];
-    if (!ar.n) { out.push({ area: def.name, text: 'Not tried yet.' }); continue; }
+    if (!ar.n) { out.push({ area: def.name, text: def.needs && !Object.entries(def.needs).every(([b, lv]) => st.areas[b].lv >= lv) ? `Opens once ${Object.entries(def.needs).map(([b, lv]) => `${AREAS[b].name.toLowerCase()} reaches level ${lv + 1}`).join(' and ')}.` : def.tg ? 'Not tried yet (needs your Ted Greene pack on this device).' : 'Not tried yet.' }); continue; }
     const shapes = SHAPES.filter((s) => ar.shapes[s]?.n);
     const weak = weakestShape(ar);
     out.push({ area: def.name, text: `${def.levels[ar.lv].name} (level ${ar.lv + 1} of ${def.levels.length}) at ${ar.bpm} bpm${ar.ok ? `; comfortable up to ${ar.ok}` : ''}${ar.hard < 999 ? `, ${ar.hard} too fast` : ''}. ${shapes.length < 5 ? `${5 - shapes.length} shape${5 - shapes.length === 1 ? '' : 's'} not tried yet` : `Weakest shape: ${weak}`}.` });
