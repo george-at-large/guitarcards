@@ -635,7 +635,7 @@ export function renderFreeScale($app, ctx) {
       const iv = pick(['3', 'b3']) || pick(['b7', '7', 'bb7', '6']) || pick(['1']) || pick(['5', 'b5', '#5']) || '1';
       return `<b>${fmt(T.noteName(spell(T.transpose(T.transposeSemis(tonic(), o), F.simpleIv(iv))), true))}</b><i>${fmt(T.prettyIv(iv))} of ${fmt(chordName(o, q))}</i>`;
     });
-    return `<span class="fschords">${O.backing === 'chords' && R.on ? 'over' : 'chords'}: ${ch.map(([o, q]) => `<b>${fmt(romanOf(shiftOf(it) + o - (cx.key || 0), q))}</b><i>${fmt(chordName(o, q))}</i>`).join(' – ')}</span>
+    return `<span class="fschords">${O.backing === 'chords' && R.on ? 'over' : 'chords'}: ${ch.map(([o, q]) => `<b class="rn">${fmt(romanOf(shiftOf(it) + o - (cx.key || 0), q))}</b><i>${fmt(chordName(o, q))}</i>`).join(' – ')}</span>
       <span class="fschords">hit as each chord arrives: ${hit.join(' · ')}</span>`;
   }
   // the notes to land on the beats: the landscape's own choice, else the chord tones of the mode

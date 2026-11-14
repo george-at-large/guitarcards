@@ -574,3 +574,5 @@ details.fssolo summary { cursor: pointer; color: var(--amber); font-size: 13px; 
 details.fssolo ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.45; color: var(--soft, #ccc); }
 details.fssolo li { margin: 0 0 5px; }
 details.fssolo li b { color: var(--text, #fff); }
+.fschords b.rn { font: 700 18px var(--f-display); vertical-align: -1px; }
+.fsnecklbl small b.fsroman { font: 700 18px var(--f-display); color: var(--amber); vertical-align: -1px; }
