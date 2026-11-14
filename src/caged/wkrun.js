@@ -9,36 +9,38 @@ import * as W from './workouts.js';
 
 const LEGEND_SCALE = '<div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">colour note</span><span class="k sc">rest of the scale</span></div>';
 const LEGEND_GUIDE = '<div class="legend"><span class="k t3">3rd</span><span class="k t7">7th</span><span class="k sc">other 3rds and 7ths here</span></div>';
-const AREAS = [['one', 'One shape'], ['pair', 'Two shapes'], ['all', 'All five']];
+const AREAS = [['one', 'One shape'], ['pair', 'Two shapes'], ['all', 'All five'], ['neck', 'Whole neck']];
 
 export function renderWorkouts($app, ctx) {
   const { D, save, neckSVG, esc, fmt, legend, onBack, startRoamer } = ctx;
   const O = D.wk = Object.assign({ sel: 'full', key: 'C', loop: 'one', shape: 'E', area: 'one', types: { tri: true, sev: true, ext: false }, pace: 'tap', bpm: 60, beats: 8, sound: true, hold: true, click: true, mute: false, skip: [], done: {}, at: null, seed: 7 }, D.wk || {});
   if (!O.v2) { O.click = true; O.v2 = 1; } // the metronome is on unless switched off
+  O.cw = { ...W.CW_DEFAULT, ...(O.cw || {}) };
   if (!O.metro) O.metro = O.click === false ? 'silent' : 'on'; // on: click and dots; silent: dots only; off: no beat
   const METRO = [['on', 'Metronome: on'], ['silent', 'Metronome: silent'], ['off', 'Metronome: off']];
   let R = null;
 
   // ---------- the plan: every unit of the run, in order ----------
   const workoutsOf = () => (O.sel === 'full' ? W.WORKOUTS.filter((w) => !O.skip.includes(w.id)) : [W.byId(O.sel)].filter(Boolean));
-  const unitId = (u) => `${u.w.id}|${u.key}${u.w.area ? `|${u.shape}${u.pair ? '+' : ''}` : ''}`;
-  const sig = () => JSON.stringify([O.sel, O.key, O.loop, O.shape, O.area, O.loop === 'rand' ? O.seed : 0, O.sel === 'full' ? O.skip : 0]);
+  const unitId = (u) => `${u.w.id}|${u.key}${u.shape ? `|${u.shape}${u.pair ? '+' : ''}` : u.neck ? '|neck' : ''}`;
+  const sig = () => JSON.stringify([O.sel, O.key, O.loop, O.shape, O.area, O.loop === 'rand' ? O.seed : 0, O.sel === 'full' ? O.skip : 0, O.sel === 'complete' || O.sel === 'full' ? O.cw : 0]);
   function plan() {
     const keys = W.loopKeys(O.key, O.loop, O.seed);
     const lo0 = G.positionOf(T.parseNote(O.key), O.shape).lo;
     const units = [];
     for (const key of keys) for (const w of workoutsOf()) {
       if (!w.area) { units.push({ w, key }); continue; }
+      if (O.area === 'neck' && w.neck) { units.push({ w, key, neck: true }); continue; }
       const s0 = O.loop === 'pos' ? W.shapeNear(key, lo0) : O.shape;
-      for (const shape of O.area === 'all' ? W.shapesFrom(s0) : [s0]) units.push({ w, key, shape, pair: O.area === 'pair' });
+      for (const shape of O.area === 'all' ? W.shapesFrom(s0) : [s0]) units.push({ w, key, shape, pair: O.area === 'pair' }); // (the whole neck: one shape for the rest)
     }
     return units;
   }
   const qs = () => W.typesFor(O.types);
   const stepCache = new Map();
   const unitSteps = (u) => {
-    const k = `${unitId(u)}|${qs().join(',')}`;
-    if (!stepCache.has(k)) { if (stepCache.size > 40) stepCache.clear(); stepCache.set(k, W.steps(u.w, u.key, { shape: u.shape || 'E', pair: !!u.pair, qs: qs() })); }
+    const k = `${unitId(u)}|${qs().join(',')}|${JSON.stringify(O.cw)}`;
+    if (!stepCache.has(k)) { if (stepCache.size > 40) stepCache.clear(); stepCache.set(k, W.steps(u.w, u.key, { shape: u.shape || 'E', pair: !!u.pair, qs: qs(), cw: O.cw, neck: !!u.neck })); }
     return stepCache.get(k);
   };
 
@@ -190,6 +192,21 @@ export function renderWorkouts($app, ctx) {
 
   // ---------- drawing the run ----------
   const areaName = (u) => (u.shape ? (u.pair ? `${u.shape}+${G.nextShape(u.shape)} shapes` : `${u.shape} shape`) : 'the whole neck');
+  // the complete chord workout's own settings
+  function cwCard() {
+    const c = O.cw, q = (x) => fmt(T.pretty(T.chordSymbol(T.parseNote('C'), x).replace(/^C/, '') || 'maj'));
+    let n = 0;
+    try { n = W.steps(W.byId('complete'), O.key, { shape: O.shape, pair: O.area === 'pair', cw: c, neck: O.area === 'neck' }).length; } catch (e) { /* */ }
+    return `<section class="card">
+      <h2>Complete chord workout</h2>
+      ${W.CW_TYPES.map(([g, list]) => `<h3>${esc(g)}</h3><div class="chips">${list.map((x) => `<button class="chip ${c.qs.includes(x) ? 'on' : ''}" data-cwq="${x}">${q(x)}</button>`).join('')}</div>`).join('')}
+      <h3>Voicings</h3><div class="chips">${W.CW_FAMS.map(([v, l]) => `<button class="chip ${c.fams.includes(v) ? 'on' : ''}" data-cwf="${v}">${esc(l)}</button>`).join('')}</div>
+      <h3>Inversions</h3><div class="chips">${[[0, 'Root position'], [1, '1st'], [2, '2nd'], [3, '3rd (sevenths)']].map(([v, l]) => `<button class="chip ${c.invs.includes(v) ? 'on' : ''}" data-cwi="${v}">${l}</button>`).join('')}</div>
+      <h3>Strings</h3>${seg('cwstrings', W.CW_STRINGS, c.strings)}
+      <h3>Order</h3>${seg('cworder', [['type', 'Each type through all its voicings'], ['morph', 'Each voicing morphed through the types']], c.order)}
+      <p class="note"><b>${n} voicings</b> in ${fmt(T.pretty(O.key))}${O.area === 'neck' ? ' up the whole neck' : O.area === 'pair' ? ` in the ${O.shape}+${G.nextShape(O.shape)} shapes` : ` in the ${O.shape} shape`}${O.area === 'all' ? ' (and the same in each of the five shapes)' : ''}. Triad voicings are for triads, drops and shells for sevenths and colour chords; colour chords are voiced with their four most telling notes, named by the note in the bass. Each string set is a block: Next block skips it.</p>
+    </section>`;
+  }
   function neckHTML(n) {
     const svg = neckSVG({ notes: n.notes, lo: n.lo, hi: n.hi }, { lo: n.lo, hi: n.hi, band: n.band || null, prev: n.prev || null, bg: n.bg || null, labels: 'iv' });
     return n.cap ? `<figure>${svg}<figcaption>${fmt(n.cap)}</figcaption></figure>` : svg;
@@ -272,13 +289,14 @@ export function renderWorkouts($app, ctx) {
       <h2>Where on the neck</h2>
       <div class="chips shapes">${G.SHAPES.map((s) => `<button class="chip ${O.shape === s ? 'on' : ''}" data-o="shape" data-v="${s}">${O.area === 'pair' ? `${s}+${G.nextShape(s)}` : s}</button>`).join('')}</div>
       ${seg('area', AREAS, O.area)}
-      <p class="note">${O.loop === 'pos' ? `Your hand stays at frets ${pos.lo}–${pos.hi}; each key uses whichever shape lives there.` : O.area === 'all' ? `Each workout goes up the neck through all five shapes, starting from the ${O.shape} shape.` : O.area === 'pair' ? `The ${O.shape} and ${G.nextShape(O.shape)} shapes as one area: part of the drill is the shift between them.` : `The ${O.shape} shape of ${fmt(T.pretty(O.key))}: frets ${pos.lo}–${pos.hi}.`} The string-set and up-the-neck workouts use the whole neck.</p>
+      <p class="note">${O.loop === 'pos' ? `Your hand stays at frets ${pos.lo}–${pos.hi}; each key uses whichever shape lives there.` : O.area === 'all' ? `Each workout goes up the neck through all five shapes, starting from the ${O.shape} shape.` : O.area === 'pair' ? `The ${O.shape} and ${G.nextShape(O.shape)} shapes as one area: part of the drill is the shift between them.` : `The ${O.shape} shape of ${fmt(T.pretty(O.key))}: frets ${pos.lo}–${pos.hi}.`} The string-set and up-the-neck workouts use the whole neck${O.area === 'neck' ? '; Whole neck is for the complete chord workout, the others use the shape' : ''}.</p>
     </section>
-    <section class="card">
+    ${O.sel === 'complete' ? cwCard() : ''}
+    ${O.sel === 'complete' ? '' : `<section class="card">
       <h2>Chord types</h2>
       <div class="chips">${Object.entries(W.TYPES).map(([k, t]) => chip(`type:${k}`, `${t.name} <small>${t.qs.map((q) => fmt(T.pretty(T.chordSymbol(T.parseNote('C'), q).replace(/^C/, '') || 'maj'))).join(' ')}</small>`, O.types[k])).join('')}</div>
       <p class="note">For the CAGED chords and both arpeggio workouts.</p>
-    </section>
+    </section>`}
     <section class="card">
       <h2>Pace</h2>
       ${seg('pace', [['tap', 'Tap through'], ['auto', 'On the beat']], O.pace)}
@@ -298,6 +316,13 @@ export function renderWorkouts($app, ctx) {
     const d = b.dataset;
     if (d.pick) { O.sel = d.pick; save(); return setup(); }
     if (d.inc) { O.skip = O.skip.includes(d.inc) ? O.skip.filter((x) => x !== d.inc) : [...O.skip, d.inc]; save(); return setup(); }
+    if (d.cwq || d.cwf || d.cwi !== undefined) {
+      const [k, v] = d.cwq ? ['qs', d.cwq] : d.cwf ? ['fams', d.cwf] : ['invs', Number(d.cwi)];
+      const has = O.cw[k].includes(v);
+      if (!(has && O.cw[k].length === 1)) O.cw = { ...O.cw, [k]: has ? O.cw[k].filter((x) => x !== v) : [...O.cw[k], v] };
+      save(); return setup();
+    }
+    if (d.o === 'cwstrings' || d.o === 'cworder') { O.cw = { ...O.cw, [d.o === 'cwstrings' ? 'strings' : 'order']: d.v }; save(); return setup(); }
     if (d.o === 'beats' && R) { O.beats = Number(d.v); save(); return drawRun(R.units[R.ui], R.steps[R.si]); }
     if (d.o) {
       O[d.o] = ['beats'].includes(d.o) ? Number(d.v) : d.v;

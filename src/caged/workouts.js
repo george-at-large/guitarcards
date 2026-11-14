@@ -132,6 +132,79 @@ const PLAY_SCALE = 'From the lowest note in the shape up to the highest and back
 const W = [];
 const def = (o) => W.push(o);
 
+// ----- the complete chord workout: chosen chord types, every voicing of them in the chosen place -----
+export const CW_TYPES = [['Triads', ['maj', 'min', 'dim', 'aug', 'sus2', 'sus4']], ['Sevenths', ['maj7', '7', 'm7', 'm7b5', 'dim7', 'mMaj7', '6', 'm6', '7sus4']], ['Colour', ['add9', '6/9', 'maj9', '9', 'm9', '13', '7b9', '7#9', 'maj7#11']]];
+export const CW_FAMS = [['caged', 'CAGED grips'], ['close', 'Close triads'], ['spread', 'Spread triads'], ['drop2', 'Drop 2'], ['drop3', 'Drop 3'], ['drop24', 'Drop 2&4'], ['shell', 'Shells']];
+export const CW_STRINGS = [['all', 'All strings'], ['top', 'Top: 1–4'], ['mid', 'Middle: 2–5'], ['bass', 'Bass: 3–6']];
+export const CW_DEFAULT = { qs: ['maj', 'min', 'maj7', '7', 'm7', 'm7b5', 'dim7'], fams: ['caged', 'close', 'drop2', 'drop3'], invs: [0, 1, 2, 3], strings: 'all', order: 'type' };
+const FAM_SETS = { close: [[6, 5, 4], [5, 4, 3], [4, 3, 2], [3, 2, 1]], spread: [[6, 4, 3], [5, 3, 2], [4, 2, 1], [6, 5, 3], [5, 4, 2], [6, 4, 2], [5, 3, 1]], drop2: [[6, 5, 4, 3], [5, 4, 3, 2], [4, 3, 2, 1]], drop3: [[6, 4, 3, 2], [5, 3, 2, 1]], drop24: [[6, 5, 3, 2], [5, 4, 2, 1]], shell: [[6, 5, 4], [6, 4, 3], [5, 4, 3], [5, 3, 2]] };
+const FAM_KIND = { close: 'close triad', spread: 'spread triad', drop2: 'drop 2', drop3: 'drop 3', drop24: 'drop 2&4', shell: 'shell' };
+const stringsOk = (ss, f) => f === 'all' || (f === 'top' ? Math.max(...ss) <= 4 : f === 'mid' ? Math.min(...ss) >= 2 && Math.max(...ss) <= 5 : Math.min(...ss) >= 3);
+// every voicing of one chord type allowed by the settings, in the place (pos), or the whole neck (pos null)
+function allVoicings(r, q, cw, pos) {
+  const out = [], seen = new Set(), n = T.getChord(q).ivs.length, basic = n <= 4;
+  const keep = (notes, fam, set, inv, bassIv) => {
+    const sig = notes.map((x) => `${x.string}:${x.fret}`).sort().join();
+    if (seen.has(sig)) return;
+    if (pos ? !fits(notes, pos) : Math.max(...notes.map((x) => x.fret)) > 15) return;
+    if (!stringsOk(notes.map((x) => x.string), cw.strings)) return;
+    seen.add(sig);
+    out.push({ notes, fam, set, inv, bassIv, fi: cw.fams.indexOf(fam.endsWith('grip') ? 'caged' : Object.keys(FAM_KIND).find((f) => FAM_KIND[f] === fam)), si: set ? Object.values(FAM_SETS).flat().findIndex((x) => String(x) === String(set)) : -1 });
+  };
+  for (const fam of cw.fams) {
+    if (fam === 'caged') {
+      if (!cw.invs.includes(0)) continue;
+      for (const shape of pos ? (pos.shapes || [pos.shape]) : G.SHAPES) for (const p of G.placements(r, q, shape)) keep(p.notes, `${shape} shape grip`, null, 0, '1');
+      continue;
+    }
+    for (const set of FAM_SETS[fam]) for (const v of voicings(r, q, fam, set)) {
+      if (fam === 'shell' ? v.bassIv !== '1' : basic && !cw.invs.includes(v.inversion)) continue;
+      keep(v.notes, FAM_KIND[fam], set, v.inversion, v.bassIv);
+    }
+  }
+  return out.sort((a, b) => a.fi - b.fi || a.si - b.si || avg(a.notes) - avg(b.notes));
+}
+const invName = (q, x) => (x.fam.endsWith('grip') ? 'root in the bass' : T.getChord(q).ivs.length <= 4 && x.fam !== 'shell' ? INV[x.inv] || `${T.prettyIv(x.bassIv)} in the bass` : `${T.prettyIv(x.bassIv)} in the bass`);
+def({
+  id: 'complete', group: 'Chords', name: 'Complete chord workout', area: true, neck: true,
+  blurb: 'Pick the chord types, the voicing families and where (a shape, two shapes or the whole neck), and narrow it by inversion or strings: it goes through every voicing that fits.',
+  build(k, o) {
+    const cw = { ...CW_DEFAULT, ...(o.cw || {}) }, r = k.root('1'), p = k.pos, steps = [];
+    const view = (g, prev) => ({ ...g, ...(p ? areaView(p) : around(g.lo, g.hi)), prev: prev ? grip(prev.notes) : null });
+    const step = (q, x, i, total, prev, block, title) => {
+      const g = grip(x.notes), frets = `${g.lo}–${g.hi}`;
+      return { block, title: title || `${k.name('1', q)} · ${x.fam}`, sub: `${invName(q, x)}${x.set ? ` · strings ${strings(x.set)}` : ''} · frets ${frets}${total > 1 ? ` · ${i + 1} of ${total}` : ''}`,
+        tip: i === 0 ? `Every ${x.fam} of ${k.name('1', q)}${p ? ' in this area' : ' up the neck'}, one after another: find each from the last.` : 'Say the bass note’s interval as you play it, then find the next.',
+        necks: [view(g, prev)], legend: 'chord', sound: { seq: [{ midis: midis({ notes: x.notes }), name: k.name('1', q) }] } };
+    };
+    if (cw.order === 'morph' && cw.qs.length > 1) {
+      // each voicing of the first type, morphed through the other types on the same strings and inversion
+      const [q0, ...rest] = cw.qs;
+      for (const base of allVoicings(r, q0, cw, p)) {
+        const block = `${base.fam}|${base.set}|${base.inv}|${avg(base.notes)}`;
+        steps.push(step(q0, base, 0, 1, null, block, `${k.name('1', q0)} · ${base.fam}`));
+        let prev = base;
+        for (const q of rest) {
+          const cands = allVoicings(r, q, { ...cw, fams: [base.fam.endsWith('grip') ? 'caged' : Object.keys(FAM_KIND).find((f) => FAM_KIND[f] === base.fam)] }, p).filter((x) => (!base.set || String(x.set) === String(base.set)) && x.inv === base.inv);
+          if (!cands.length) continue;
+          const cost = (x) => x.notes.reduce((t, nn) => { const o2 = prev.notes.find((y) => y.string === nn.string); return t + (o2 ? Math.abs(o2.fret - nn.fret) : 3); }, 0);
+          const v = cands.reduce((a, b) => (cost(a) <= cost(b) ? a : b));
+          steps.push(step(q, v, 0, 1, prev, block, `→ ${k.name('1', q)} · ${v.fam}`));
+          prev = v;
+        }
+      }
+      return steps;
+    }
+    for (const q of cw.qs) {
+      const all = allVoicings(r, q, cw, p);
+      const byFam = new Map();
+      for (const x of all) { const key = `${x.fam}|${x.set || ''}`; if (!byFam.has(key)) byFam.set(key, []); byFam.get(key).push(x); }
+      for (const [key, list] of byFam) list.forEach((x, i) => steps.push(step(q, x, i, list.length, i ? list[i - 1] : null, `${q}|${key}`)));
+    }
+    return steps;
+  },
+});
+
 // ----- chords -----
 def({
   id: 'caged-chords', group: 'Chords', name: 'Chords in the CAGED shapes', area: true, types: true,
@@ -526,8 +599,8 @@ export const GROUPS = [...new Set(W.map((w) => w.group))];
 export const byId = (id) => W.find((w) => w.id === id);
 
 // the steps for one unit: a workout in a key, in an area (or across the neck)
-export function steps(w, key, { shape = 'E', pair = false, qs = typesFor({ tri: true, sev: true }) } = {}) {
+export function steps(w, key, { shape = 'E', pair = false, qs = typesFor({ tri: true, sev: true }), cw = null, neck = false } = {}) {
   const tonic = T.parseNote(key);
-  const pos = w.area ? (pair ? G.positionOfPair(tonic, shape) : G.positionOf(tonic, shape)) : null;
-  return w.build(keyCtx(key, pos), { qs });
+  const pos = w.area && !(neck && w.neck) ? (pair ? G.positionOfPair(tonic, shape) : G.positionOf(tonic, shape)) : null;
+  return w.build(keyCtx(key, pos), { qs, cw });
 }
