@@ -23,6 +23,8 @@ import * as TGV from './tgv.js';
 import * as CW from './colourwhy.js';
 import * as SO from './solo.js';
 import * as FS from './freescale.js';
+import * as BC from './borrowed.js';
+import * as CS from './cscale.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -656,6 +658,15 @@ function openWorkouts() {
 function openFree() {
   stopPractice = FS.renderFreeScale($app, { D, save, neckSVG, esc, fmt, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
 }
+// Borrowed chords: each one explained, in all five shapes, and its progressions sent to Chord changes round the shapes
+function openBorrowed() {
+  stopPractice = BC.renderBorrowed($app, { D, save, neckSVG, esc, fmt, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); },
+    onPractise: (id, minor, key) => { stopPractice = null; D.app = 'changes'; D.src = 'prog'; D.prog = id; D.kt = minor ? 'minor' : 'major'; D.key = key; D.mode = 'pos'; D.play = 'chords'; D.pcolour = 'as'; D.tour = true; D.tourSlow = false; D.shape = 'C'; save(); setup(); run(); } });
+}
+// Chord scales: each chord's scale, fingered in every CAGED shape and 3 per string, over the held chord
+function openChordScales() {
+  stopPractice = CS.renderChordScales($app, { D, save, neckSVG, esc, fmt, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
+}
 function openSolo() {
   stopPractice = SO.renderSolo($app, { D, save, neckSVG, esc, fmt, realise: listenChord, legend: LEGEND, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
 }
@@ -697,6 +708,8 @@ function setup() {
   if (D.app === 'workouts') return openWorkouts();
   if (D.app === 'solo') return openSolo();
   if (D.app === 'free') return openFree();
+  if (D.app === 'borrow') return openBorrowed();
+  if (D.app === 'cscale') return openChordScales();
   const minor = isMinor();
   const keys = keysFor(minor);
   if (D.key !== 'rand' && !keys.includes(D.key)) D.key = minor ? ({ Db: 'C#', Ab: 'G#' }[D.key] || D.key) : ({ 'C#': 'Db', 'G#': 'Ab' }[D.key] || D.key);
@@ -710,7 +723,7 @@ function setup() {
   $app.innerHTML = `
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
   <p class="lead">${{ chords: 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.', scales: 'The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.', arps: 'The chords keep coming; play each one as an arpeggio through the shape, starting from the tone it names.', guide: 'The chords keep coming; play just their 3rds and 7ths as two lines that move as little as possible.', modal: 'Pick a mode. Its own chords vamp on the beat; solo in the shape and land on each chord’s 3rd or 7th.' }[D.play]}</p>
-  ${seg('app', [['changes', 'Chord changes'], ['free', 'Free scales'], ['call', 'Call and response'], ['listen', 'Listen'], ['workouts', 'Workouts'], ['solo', 'Soloing']], D.app || 'changes')}
+  ${seg('app', [['changes', 'Chord changes'], ['free', 'Free scales'], ['borrow', 'Borrowed chords'], ['cscale', 'Chord scales'], ['call', 'Call and response'], ['listen', 'Listen'], ['workouts', 'Workouts'], ['solo', 'Soloing']], D.app || 'changes')}
   ${qsCard()}
   ${seg('play', [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales'], ['modal', 'Modes']], D.play)}
 
