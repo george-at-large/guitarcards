@@ -564,7 +564,7 @@ export function renderFreeScale($app, ctx) {
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = d.drift ? null : landText(hm, it.mode);
       const kn = fmt(T.noteName(keyTonic(), true)), deg = d.drift ? BY[d.ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === (it.shift || 0)) : -1;
-      const ch = d.drift ? `<p class="fsmoved">${it.shift ? `Same notes as ${kn} ${esc(BY[d.ids[0]].name)}, heard from its ${ORD[deg]}: <b>${t} is the 1</b> <i>(the drone moved)</i>` : `Home: ${kn} ${esc(BY[d.ids[0]].name)}`}</p>` : !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
+      const ch = d.drift ? `<p class="fsmoved">${it.shift ? `Same notes as ${kn} ${esc(BY[d.ids[0]].name)}, heard from its ${ORD[deg]} (${fmt(driftDeg(it)?.roman || '')}): <b>${t} is the 1</b> <i>(the drone moved)</i>` : `Home: ${kn} ${esc(BY[d.ids[0]].name)}`}</p>` : !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
       const cx = ctxOf(it.mode);
       const over = cx && O.backing === 'chords' ? `<p class="fsover"><span class="lbl">over</span> <b>${fmt(cx.prog.map(([o, q]) => chordName(o, q)).join(' – '))}</b><small>${fmt(cx.why)}</small></p>` : '';
       return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${over}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fillRole(d.roles[it.mode])}</p>` : ''}`;
@@ -600,6 +600,15 @@ export function renderFreeScale($app, ctx) {
         return `<b>${fmt(T.noteName(n, true))}</b> (${fmt(T.prettyIv(iv))})`;
       } catch (e) { return fmt(T.prettyIv(iv)); }
     });
+  }
+  // in a drift: which degree of the parent the 1 sits on, as an ordinal and a roman numeral (iv, ♭VI, vi°…)
+  function driftDeg(it) {
+    const l = land(); if (!l || !l.drift || !it.mode) return null;
+    const pivs = BY[l.ids[0]].ivs, d = pivs.findIndex((iv) => FL.semisOf(iv) === (it.shift || 0));
+    if (d < 0) return null;
+    const acc = (it.shift || 0) - [0, 2, 4, 5, 7, 9, 11][d], p = pcs(it.mode), minor = !p.includes(4) && p.includes(3), dim = minor && !p.includes(7) && p.includes(6);
+    const rn = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'][d];
+    return { ord: ORD[d], roman: `${acc < 0 ? '♭' : acc > 0 ? '♯' : ''}${minor ? rn.toLowerCase() : rn}${dim ? '°' : ''}` };
   }
   // the notes to land on the beats: the landscape's own choice, else the chord tones of the mode
   function targetsHTML(it) {
@@ -671,7 +680,7 @@ export function renderFreeScale($app, ctx) {
     <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
-    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && shiftOf(it) ? ` <small>· from the ${ORD[BY[land().ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === shiftOf(it))]} of ${fmt(T.noteName(keyTonic(), true))} ${esc(BY[land().ids[0]].name)}</small>` : ''}${targetsHTML(it)}</p>` : ''}
+    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc({ aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${targetsHTML(it)}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
