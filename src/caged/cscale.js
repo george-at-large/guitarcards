@@ -43,7 +43,22 @@ const VOICE = {
   d2: { name: 'Drop 2', sets: ['4321', '5432', '6543'] },
   d3: { name: 'Drop 3', sets: ['6432', '5321'] },
   tri: { name: 'Triads', sets: ['321', '432', '543', '654'] },
+  open: { name: 'Open strings', sets: [] },
 };
+// open-string voicings of a chord anywhere on the neck: open strings ringing against fretted notes higher up (the
+// cowboy chords at the nut left out), the most open strings and the fullest first
+export function openGems(root, q) {
+  let vs = [];
+  try { vs = G.openVoicings(root, q); } catch (e) { return []; }
+  const holes = (v) => { const ss = v.notes.map((n) => n.string); let k = 0; for (let x = Math.min(...ss) + 1; x < Math.max(...ss); x++) if (!ss.includes(x)) k++; return k; };
+  const up = vs.filter((v) => { const fr = v.notes.filter((n) => n.fret > 0).map((n) => n.fret); return fr.length >= 1 && Math.max(...fr) >= 4 && v.notes.length >= 4 && !holes(v); });
+  const pool = up.length ? up : vs;
+  const score = (v) => v.opens * 2 + v.notes.length - v.cost;
+  // one per hand position: the best at each lowest fret, so the list spreads up the neck
+  const best = new Map();
+  for (const v of pool) { const fr = v.notes.filter((n) => n.fret > 0).map((n) => n.fret); const at = fr.length ? Math.min(...fr) : 0; if (!best.has(at) || score(v) > score(best.get(at))) best.set(at, v); }
+  return [...best.values()].sort((a, b) => score(b) - score(a));
+}
 const ORDERS = {
   up: { name: 'Up', seq: [0, 1, 2, 3, 4, 5, 6, 7] },
   down: { name: 'Down', seq: [7, 6, 5, 4, 3, 2, 1, 0] },
@@ -74,7 +89,7 @@ export function renderChordScales($app, ctx) {
 
   const sc = () => SCALES.find((s) => s.id === O.scale) || SCALES[0];
   const tonic = () => T.parseNote(O.key);
-  const size = () => (O.voice === 'tri' ? 'tri' : O.size === 'tri' && O.voice !== 'caged' ? 'sev' : O.size);
+  const size = () => (O.voice === 'tri' ? 'tri' : O.size === 'tri' && O.voice !== 'caged' && O.voice !== 'open' ? 'sev' : O.size);
   const vid = () => (O.voice === 'caged' ? 'caged' : `${O.voice}:${O.set}`);
   const chordAt = (d) => {
     const s = sc(), i = d % 7, q = s[size()][i], root = T.transpose(tonic(), s.ivs[i]);
@@ -86,12 +101,17 @@ export function renderChordScales($app, ctx) {
   function sequence() {
     const seq = ORDERS[O.order].seq, out = [];
     let prev = null;
-    const pos = O.where === 'neck' ? null : G.positionOf(tonic(), O.where);
+    const pos = O.where === 'neck' || O.voice === 'open' ? null : G.positionOf(tonic(), O.where);
     for (let j = 0; j < seq.length; j++) {
       const c = chordAt(seq[j]);
       let v = null;
-      if (pos) v = voiceInArea(c.root, c.q, pos, prev, O.voice, vid(), size() === 'tri');
-      else {
+      if (O.voice === 'open') {
+        // the most open strings ringing, then the smallest move from the last chord
+        const gs = openGems(c.root, c.q);
+        if (gs.length) { const most = Math.max(...gs.map((x) => x.opens)); const top = gs.filter((x) => x.opens >= most - 1); v = top.reduce((a, b) => ((prev ? G.movement(prev, b) * 0.4 : 0) - b.opens * 2 < (prev ? G.movement(prev, a) * 0.4 : 0) - a.opens * 2 ? b : a)); }
+        else v = voiceInArea(c.root, c.q, G.positionOf(tonic(), 'E'), prev, 'caged', 'caged', size() === 'tri');
+      } else if (pos) v = voiceInArea(c.root, c.q, pos, prev, O.voice, vid(), size() === 'tri');
+      else if (O.voice !== 'open') {
         // up the neck on one string set, one inversion: the next voicing of that inversion up (or down) from the last
         const all = G.familyVoicings(c.root, c.q, vid(), { lo: 0, hi: 19, mid: 9 });
         const pool = [...all.inside, ...all.outside].filter((x) => x.hi <= 19);
@@ -155,7 +175,7 @@ export function renderChordScales($app, ctx) {
   // ---------- the screen ----------
   const seg = (attr, cur, opts) => `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${String(cur) === String(v) ? 'on' : ''}" role="radio" aria-checked="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
   function win(v) {
-    if (O.where !== 'neck') { const p = G.positionOf(tonic(), O.where); return { lo: Math.min(p.lo, v?.lo ?? p.lo), hi: Math.max(p.hi, v?.hi ?? p.hi), band: { lo: p.lo, hi: p.hi } }; }
+    if (O.where !== 'neck' && O.voice !== 'open') { const p = G.positionOf(tonic(), O.where); return { lo: Math.min(p.lo, v?.lo ?? p.lo), hi: Math.max(p.hi, v?.hi ?? p.hi), band: { lo: p.lo, hi: p.hi } }; }
     const lo = Math.max(0, (v?.lo ?? 1) - 1); return { lo, hi: Math.max((v?.hi ?? 4) + 1, lo + 4), band: null };
   }
   function stageHTML() {
@@ -167,7 +187,18 @@ export function renderChordScales($app, ctx) {
       <div class="csnow"><div><h2>${fmt(c.rn)} <span>${fmt(c.name)}</span></h2><p class="note">from ${esc(c.mode)}${size() === 'ext' ? ` · ${fmt(c.why)}` : ''}${c.v?.label ? ` · ${fmt(c.v.label)}` : ''}${c.wrap ? ` · <b class="cswrap">the neck runs out: ${c.wrap === 'down' ? 'down' : 'up'} an octave here</b>` : ''}</p></div>
       <div class="csnext"><small>next</small><b>${fmt(nx.rn)}</b>${small}</div></div>
       <div class="stage fsneck" id="csswipe">${big}</div>
-      <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">extension</span></div>`;
+      <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">extension</span></div>
+      ${O.voice === 'open' ? gemsHTML(c) : ''}`;
+  }
+  // more open-string voicings of this chord around the neck: tap one to hear it
+  function gemsHTML(c) {
+    const gs = openGems(c.root, c.q).filter((g) => !c.v || g.notes.map((n) => n.string + ':' + n.fret).join() !== c.v.notes.map((n) => n.string + ':' + n.fret).join()).slice(0, 6);
+    R.gems = gs;
+    if (!gs.length) return '';
+    return `<section class="card csgems"><h2>More open-string ${fmt(c.name)} voicings</h2><div class="csgemgrid">${gs.map((g, i) => {
+      const fr = g.notes.filter((n) => n.fret > 0).map((n) => n.fret), lo = Math.max(0, Math.min(...fr) - 1), hi = Math.max(Math.max(...fr) + 1, lo + 4);
+      return `<button class="csgem" data-gem="${i}">${neckSVG(g, { lo, hi, labels: 'iv', small: true })}<small>frets ${Math.min(...fr)}–${Math.max(...fr)} · ${g.opens} open</small></button>`;
+    }).join('')}</div><p class="note">Tap one to hear it. Open strings ring under fretted notes higher up: the keys whose notes match the open strings (E, A, D, G) have the most.</p></section>`;
   }
   function drawStage() { const el = document.getElementById('csstage'); if (el) el.innerHTML = stageHTML(); }
   function draw() {
@@ -180,11 +211,11 @@ export function renderChordScales($app, ctx) {
     <p class="note csblurb">A scale’s own chords, one on each degree, played in order in one place on the neck.</p>
     <div class="chips fskeys">${KEYS.map((k) => `<button class="chip ${O.key === k ? 'on' : ''}" data-key="${k}">${fmt(T.pretty(k))}</button>`).join('')}</div>
     <div class="fsopt"><span>Scale</span>${seg('scale', O.scale, SCALES.map((x) => [x.id, x.name]))}</div>
-    <div class="fsopt"><span>Chords</span>${seg('size', size(), [...(O.voice === 'caged' || O.voice === 'tri' ? [['tri', 'Triads']] : []), ...(O.voice === 'tri' ? [] : [['sev', 'Sevenths'], ['ext', 'Extensions']])])}</div>
+    <div class="fsopt"><span>Chords</span>${seg('size', size(), [...(O.voice === 'caged' || O.voice === 'tri' || O.voice === 'open' ? [['tri', 'Triads']] : []), ...(O.voice === 'tri' ? [] : [['sev', 'Sevenths'], ['ext', 'Extensions']])])}</div>
     <div class="fsopt"><span>Voicing</span>${seg('voice', O.voice, Object.entries(VOICE).map(([id, v]) => [id, v.name]))}</div>
     ${O.voice !== 'caged' ? `<div class="fsopt"><span>Strings</span>${seg('set', O.set, V.sets.map((x) => [x, x.split('').join('-')]))}</div>` : ''}
-    <div class="fsopt"><span>Where</span>${seg('where', O.where, [...G.SHAPES.map((x) => [x, `${x} area`]), ...(O.voice !== 'caged' ? [['neck', 'Up the neck']] : [])])}</div>
-    ${O.where === 'neck' ? `<div class="fsopt"><span>Inversion</span>${seg('inv', O.inv, invOpts)}</div>` : ''}
+    ${O.voice === 'open' ? `<p class="note">Open strings: anywhere on the neck, as many open strings ringing as the chord allows. Best in E, A, D and G.</p>` : `<div class="fsopt"><span>Where</span>${seg('where', O.where, [...G.SHAPES.map((x) => [x, `${x} area`]), ...(O.voice !== 'caged' ? [['neck', 'Up the neck']] : [])])}</div>`}
+    ${O.where === 'neck' && O.voice !== 'open' ? `<div class="fsopt"><span>Inversion</span>${seg('inv', O.inv, invOpts)}</div>` : ''}
     <div class="fsopt"><span>Order</span>${seg('order', O.order, Object.entries(ORDERS).map(([id, o]) => [id, o.name]))}</div>
     <div class="fsopt"><span>Show</span>${seg('labels', O.labels, [['finger', 'Fingers'], ['iv', 'Intervals'], ['note', 'Notes']])}</div>
     <div class="fsplay csplay"><button class="primary ${R.on ? 'stop' : ''}" data-f="play">${R.on ? '■ Stop' : '▶ Play through'}</button><div class="fsplayr">${R.on ? '<div class="beats csbeats"><i></i><i></i><i></i><i></i></div>' : `<small>each chord strummed, ${O.beats} beats each, with a click</small>`}</div></div>
@@ -208,13 +239,14 @@ export function renderChordScales($app, ctx) {
     if (d.key) return change(() => { O.key = d.key; });
     if (d.scale) return change(() => { O.scale = d.scale; });
     if (d.size) return change(() => { O.size = d.size; });
-    if (d.voice) return change(() => { O.voice = d.voice; if (d.voice === 'tri') O.size = 'tri'; else if (O.size === 'tri' && d.voice !== 'caged') O.size = 'sev'; });
+    if (d.voice) return change(() => { O.voice = d.voice; if (d.voice === 'tri') O.size = 'tri'; else if (O.size === 'tri' && d.voice !== 'caged' && d.voice !== 'open') O.size = 'sev'; });
     if (d.set) return change(() => { O.set = d.set; });
     if (d.where) return change(() => { O.where = d.where; });
     if (d.inv !== undefined) return change(() => { O.inv = Number(d.inv); });
     if (d.order) return change(() => { O.order = d.order; });
     if (d.labels) { O.labels = d.labels; save(); return drawStage(); }
     if (d.beats) { O.beats = Number(d.beats); save(); return draw(); }
+    if (d.gem !== undefined) { const g = R.gems?.[Number(d.gem)]; if (g) { A.unlockAudio().catch(() => {}); A.ensureRunning().then(() => strum(g, A.audioCtx().currentTime + 0.05, 1.8)); } return; }
     if (d.k !== undefined) { O.k = Number(d.k); save(); drawStage(); if (!R.on) hearNow(); else R.beat = O.k * O.beats; return; }
     const a = d.f;
     if (a === 'back') { stop(); return onBack(); }

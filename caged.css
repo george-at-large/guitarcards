@@ -650,3 +650,8 @@ details.fssolo li b { color: var(--text, #fff); }
 .bcprogress .prog-shapes { margin: 0; gap: 4px; }
 .bcprogress .ps { padding: 4px 0 3px; border-radius: 9px; }
 .bcprogress .ps b { font-size: 13px; }
+.csgemgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+.csgem { display: flex; flex-direction: column; align-items: center; padding: 4px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: inherit; }
+.csgem svg { width: 100%; height: auto; }
+.csgem small { font-size: 10.5px; color: var(--muted); }
+.csgems h2 { text-transform: none; letter-spacing: 0; }
