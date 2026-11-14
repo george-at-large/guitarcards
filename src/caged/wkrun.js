@@ -15,6 +15,8 @@ export function renderWorkouts($app, ctx) {
   const { D, save, neckSVG, esc, fmt, legend, onBack, startRoamer } = ctx;
   const O = D.wk = Object.assign({ sel: 'full', key: 'C', loop: 'one', shape: 'E', area: 'one', types: { tri: true, sev: true, ext: false }, pace: 'tap', bpm: 60, beats: 8, sound: true, hold: true, click: true, mute: false, skip: [], done: {}, at: null, seed: 7 }, D.wk || {});
   if (!O.v2) { O.click = true; O.v2 = 1; } // the metronome is on unless switched off
+  if (!O.metro) O.metro = O.click === false ? 'silent' : 'on'; // on: click and dots; silent: dots only; off: no beat
+  const METRO = [['on', 'Metronome: on'], ['silent', 'Metronome: silent'], ['off', 'Metronome: off']];
   let R = null;
 
   // ---------- the plan: every unit of the run, in order ----------
@@ -73,13 +75,15 @@ export function renderWorkouts($app, ctx) {
     if (!R || R.paused) return;
     while (R.next < now() + 0.12) {
       const t = R.next, b = R.beat++;
-      if (O.click && !O.mute) A.click(t, b % 4 === 0 ? 2 : 1);
+      if (O.metro === 'on' && !O.mute) A.click(t, b % 4 === 0 ? 2 : 1);
+      if (O.metro !== 'off') R.vis.push(setTimeout(() => { document.querySelectorAll('#wbeats i').forEach((el, i) => el.classList.toggle('on', i === b % 4)); const n = document.getElementById('wbeatn'); if (n) n.textContent = O.pace === 'auto' && R.sb > 0 ? `${Math.min(R.sb, stepLen(R.steps[R.si]))} of ${stepLen(R.steps[R.si])}` : ''; }, Math.max(0, (t - now()) * 1000)));
       if (O.pace === 'auto') autoBeat(t);
       R.next += spb();
     }
     R.clock = setTimeout(clock, 25);
   }
   function startClock() { clearTimeout(R.clock); R.next = now() + 0.08; R.beat = 0; clock(); }
+  const clearVis = () => { (R.vis || []).forEach(clearTimeout); R.vis = []; };
   // auto: a step lasts its lead-in (two beats a chord of the cadence) plus so many beats; a resolution falls two
   // beats before the end; the next step lands on the beat
   const stepLen = (st) => (st.sound ? (st.sound.seq.length - 1) * 2 : 0) + O.beats;
@@ -94,7 +98,7 @@ export function renderWorkouts($app, ctx) {
     await A.unlockAudio(); await A.ensureRunning();
     const units = plan();
     if (!units.length) return;
-    R = { units, ui: 0, si: 0, steps: null, timer: null, clock: null, paused: false, sb: 0 };
+    R = { units, ui: 0, si: 0, steps: null, timer: null, clock: null, paused: false, sb: 0, vis: [] };
     if (resume && O.at && O.at.sig === sig()) { R.ui = Math.min(O.at.ui, units.length - 1); R.si = O.at.si; }
     freshPad();
     startClock();
@@ -133,14 +137,14 @@ export function renderWorkouts($app, ctx) {
   }
   function stopAll() {
     if (!R) return;
-    clearTimeout(R.timer); clearTimeout(R.clock);
+    clearTimeout(R.timer); clearTimeout(R.clock); clearVis();
     A.hush();
     R = null;
   }
   function togglePause(btn) {
     R.paused = !R.paused;
     btn.textContent = R.paused ? '▶' : '❚❚';
-    clearTimeout(R.timer); clearTimeout(R.clock);
+    clearTimeout(R.timer); clearTimeout(R.clock); clearVis();
     if (R.paused) A.hush();
     else { freshPad(); startClock(); show(); }
   }
@@ -160,6 +164,7 @@ export function renderWorkouts($app, ctx) {
     <div class="wkbar"><i style="width:${pct.toFixed(1)}%"></i></div>
     <p class="wkcount">${total > 1 ? `Part ${R.ui + 1} of ${total} · ` : ''}step ${R.si + 1} of ${R.steps.length}${R.flash ? ` <span class="wkflash">${esc(R.flash)}</span>` : ''}</p>
     <div class="now wknow"><div class="main">${fmt(T.pretty(st.title))}</div><div class="sub">${fmt(T.pretty(st.sub || ''))}</div></div>
+    ${O.metro !== 'off' ? '<div class="beats wkdots" id="wbeats"><i></i><i></i><i></i><i></i></div><p class="wkbeatn" id="wbeatn"></p>' : ''}
     ${st.tip ? `<p class="note wktip">${fmt(st.tip)}</p>` : ''}
     <div class="lnecks ${st.necks.length > 1 ? '' : 'one'}">${st.necks.map(neckHTML).join('')}</div>
     ${st.legend === 'scale' ? LEGEND_SCALE : st.legend === 'guide' ? LEGEND_GUIDE : legend}
@@ -172,7 +177,7 @@ export function renderWorkouts($app, ctx) {
     </div>
     <div class="runctl"><button data-w="bpm-" aria-label="Slower">−</button><b id="wbpm">${O.bpm} bpm</b><button data-w="bpm+" aria-label="Faster">+</button></div>
     ${O.pace === 'auto' ? `<div class="wkbeats"><span class="lbl">beats a step</span>${seg('beats', [[4, '4'], [8, '8'], [16, '16'], [32, '32']], O.beats)}</div>` : ''}
-    <div class="runbtns">${liveBtn('click', 'Metronome', O.click)}${liveBtn('sound', 'Chord sound', O.sound)}${liveBtn('auto', O.pace === 'auto' ? `Auto: next every ${O.beats} beats` : 'Auto: off, tap Next', O.pace === 'auto')}${O.sound ? liveBtn('hold', 'Hold the chord', O.hold) : ''}${liveBtn('mute', 'Mute all', O.mute)}<button class="rt" data-w="skip">Skip this part</button></div>`;
+    <div class="runbtns"><button class="rt ${O.metro !== 'off' ? 'on' : ''}" data-w="metro">${METRO.find(([v]) => v === O.metro)[1]}</button>${liveBtn('sound', 'Chord sound', O.sound)}${liveBtn('auto', O.pace === 'auto' ? `Auto: next every ${O.beats} beats` : 'Auto: off, tap Next', O.pace === 'auto')}${O.sound ? liveBtn('hold', 'Hold the chord', O.hold) : ''}${liveBtn('mute', 'Mute all', O.mute)}<button class="rt" data-w="skip">Skip this part</button></div>`;
   }
   const liveBtn = (k, l, on) => `<button class="rt ${on ? 'on' : ''}" data-w="t:${k}" aria-pressed="${!!on}">${esc(l)}</button>`;
   function finished() {
@@ -239,8 +244,9 @@ export function renderWorkouts($app, ctx) {
       ${seg('pace', [['tap', 'Tap through'], ['auto', 'On the beat']], O.pace)}
       <div class="tempo"><button data-w="bpm-" aria-label="Slower">−</button><b>${O.bpm}<small> bpm</small></b><button data-w="bpm+" aria-label="Faster">+</button></div>
       <h3>Beats a step (on Auto)</h3>${seg('beats', [[4, '4'], [8, '8'], [16, '16'], [32, '32']], O.beats)}
-      <div class="chips">${chip('click', 'Metronome', O.click)}${chip('sound', 'Chord sounds', O.sound)}${chip('hold', 'Hold the chord', O.hold)}</div>
-      <p class="note">${O.pace === 'auto' ? `Each step lasts ${O.beats} beats at ${O.bpm} bpm, then moves on on the beat. Scales want 16 or 32.` : 'Tap Next when you’ve played the step; the metronome keeps time meanwhile.'} Metronome, chord sound and Auto are separate switches, so you can keep the click with the chords silent, and let it move on by itself or tap through; all of them, the tempo and Mute all can be changed during a run.</p>
+      <h3>Metronome</h3>${seg('metro', [['on', 'Click and dots'], ['silent', 'Dots only'], ['off', 'Off']], O.metro)}
+      <div class="chips">${chip('sound', 'Chord sounds', O.sound)}${chip('hold', 'Hold the chord', O.hold)}</div>
+      <p class="note">${O.pace === 'auto' ? `Each step lasts ${O.beats} beats at ${O.bpm} bpm, then moves on on the beat. Scales want 16 or 32.` : 'Tap Next when you’ve played the step; the metronome keeps time meanwhile.'} The metronome (clicking, silent dots, or off), chord sound and Auto are separate switches, so you can keep the beat with the chords silent, and let it move on by itself or tap through; all of them, the tempo and Mute all can be changed during a run.</p>
     </section>`}
     ${summary()}
     <div class="actions">${resumable ? '<button class="primary" data-w="resume">▶ Pick up where you left off</button>' : ''}<button class="${resumable ? '' : 'primary'}" data-w="go">${roam ? '▶ Start the roamer' : resumable ? 'Start from the beginning' : '▶ Start'}</button></div>`;
@@ -276,6 +282,7 @@ export function renderWorkouts($app, ctx) {
     if (a === 'stop') { stopAll(); return setup(); }
     if (a === 'pause') return togglePause(b);
     if (a === 'next') return go(1);
+    if (a === 'metro') { const i = METRO.findIndex(([v]) => v === O.metro); O.metro = METRO[(i + 1) % 3][0]; save(); return drawRun(R.units[R.ui], R.steps[R.si]); }
     if (a === 'prev') return go(-1);
     if (a === 'again') { clearTimeout(R.timer); return sound(R.steps[R.si]); }
     if (a === 'resolve') return resolve();

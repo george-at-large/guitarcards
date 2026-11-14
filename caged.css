@@ -384,3 +384,5 @@ details.pcongs b { font-family: var(--f-num); color: var(--text); }
 .wkbeats { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 10px auto 0; max-width: 340px; }
 .wkbeats .lbl { font: 600 10.5px var(--f-ui); text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); white-space: nowrap; }
 .wkbeats .seg { flex: 1; }
+.wkdots { margin: 6px auto 0; }
+.wkbeatn { text-align: center; color: var(--muted); font-size: 12px; margin: 2px 0 0; min-height: 15px; }
