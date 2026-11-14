@@ -621,3 +621,19 @@ details.fssolo li b { color: var(--text, #fff); }
 .fsultmap i { font-style: normal; color: var(--amber); margin-right: 4px; }
 .fschords b.fschg { color: #fff; background: rgba(255, 181, 71, 0.3); border-radius: 4px; padding: 0 3px; margin-left: 0; }
 .fschords b.fsavoid { color: var(--muted); }
+/* Chord scales: a scale's chords in order */
+.csstrip { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 8px; }
+.csch { display: flex; flex-direction: column; align-items: center; padding: 5px 7px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: inherit; min-width: 40px; }
+.csch b { font: 700 14px var(--f-display); color: var(--amber); }
+.csch i { font-style: normal; font-size: 10.5px; color: var(--muted); }
+.csch.on { background: rgba(255, 181, 71, 0.18); border-color: var(--amber); }
+.csnow { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.csnow h2 { margin: 0; font: 700 30px var(--f-display); color: var(--amber); text-transform: none; letter-spacing: 0; }
+.csnow h2 span { font: 600 18px var(--f-display); color: var(--text, #fff); margin-left: 4px; }
+.csnow .note { margin: 2px 0 0; }
+.csnext { text-align: center; width: 82px; flex: none; }
+.csnext small { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.csnext b { font: 700 15px var(--f-display); color: var(--amber); }
+.csnext svg { width: 100%; height: auto; }
+.csnav { justify-content: space-between; align-items: center; margin: 8px 0 4px; }
+.cswrap { color: var(--amber); font-weight: 600; }

@@ -1,166 +1,128 @@
-// Chord scales: the scale that goes with each chord, fingered all over the neck. Melodic minor first (the jazz
-// workhorse), then the major-scale modes, then harmonic minor and the symmetric scales. For each chord: which scale,
-// where it comes from and when to use it; then the scale in each CAGED shape around the chord, or as 3-notes-per-string
-// positions up the neck, with finger numbers, the chord's own grip faintly underneath, over a held chord.
+// Chord scales: a scale's own chords (melodic minor harmonised: i m(maj7), ii m7, ♭III maj7♯5, IV7, V7, viø7, viiø7),
+// played in order in one CAGED area or on one string set, with good fingerings. Triads, sevenths, or each chord with
+// the extension worth knowing on it (IV7♯11 and VII7alt in melodic minor, say). Voicings: CAGED grips, drop 2, drop 3
+// or triads; in an area they're voice-led and stay in position, or on a string set they climb the neck in one
+// inversion. Step through by hand, or let it play each chord for a few beats.
 import * as T from '../theory.js';
-import * as F from '../fretboard.js';
 import * as A from '../audio.js';
 import * as G from './grips.js';
 import * as H from './harmony.js';
-import * as SC from './scales.js';
-import * as FL from './fsladder.js';
-import { glance, parentOf } from './freescale.js';
 
-const BY = Object.fromEntries(SC.SCALES.map((s) => [s.id, s]));
 const KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
-const ORD = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
 
-// the chords and their scales, by family
-export const FAMILIES = [
-  { id: 'mm', name: 'Melodic minor', blurb: 'The jazz family: every mode of melodic minor has a chord it fits better than anything else.', items: [
-    { id: 'mel-min', q: 'mMaj7', use: 'Minor chords with a natural 6 or 7: m6, m(maj7), and the i chord of a minor ii–V–i.' },
-    { id: 'lyd-dom', q: '7#11', use: 'Dominant 7ths that don’t resolve down a 5th: ♭VII7, IV7 in a blues, tritone subs, 7♯11 chords.' },
-    { id: 'altered', q: '7alt', use: 'The V7 of a ii–V–I, every tension altered (♭9, ♯9, ♯11, ♭13): the most tension before the resolution.' },
-    { id: 'locrian-n2', q: 'm7b5', use: 'Half-diminished chords, above all the iiø7 of a minor ii–V–i; the natural 9 makes it smoother than Locrian.' },
-    { id: 'mixo-b6', q: '7b13', use: 'A dominant with ♭13 and natural 9, heading for a minor chord.' },
-    { id: 'lyd-aug', q: 'maj7#5', use: 'maj7♯5: a bright, floating major with a raised 5th.' },
-    { id: 'dorian-b2', q: '7sus4', label: '7sus4(♭9)', use: 'The sus4(♭9) chord, the “Phrygian” sus sound of modal jazz.' },
-  ] },
-  { id: 'maj', name: 'Major scale modes', blurb: 'The everyday chords: each chord of a major key with its mode.', items: [
-    { id: 'ionian', q: 'maj7', use: 'Imaj7 and major triads; the 4th is an avoid note on the beat.' },
-    { id: 'dorian', q: 'm7', use: 'm7 chords, especially ii7 in a ii–V and minor vamps.' },
-    { id: 'mixolydian', q: '7', use: 'Dominant 7ths: V7, blues chords, unaltered 9 and 13 chords.' },
-    { id: 'lydian', q: 'maj7#11', use: 'maj7 chords other than I (IVmaj7, ♭VImaj7) and maj7♯11.' },
-    { id: 'aeolian', q: 'm7', use: 'vi7 and minor chords with a ♭6 colour: the plain minor key.' },
-    { id: 'phrygian', q: 'm7', use: 'iii7, and m7 chords with a dark ♭9 colour; Spanish and metal minor.' },
-    { id: 'locrian', q: 'm7b5', use: 'viiø7 in a major key; jazz players often prefer Locrian ♮2.' },
-  ] },
-  { id: 'hm', name: 'Harmonic minor and symmetric', blurb: 'The rest you need: harmonic minor’s dominant and the two diminished scales and the whole-tone scale.', items: [
-    { id: 'phryg-dom', q: '7b9', use: 'The V7♭9 of a minor key: ♭9 and ♭13 with a natural 3rd.' },
-    { id: 'harm-min', q: 'mMaj7', use: 'A minor tonic with a leading tone: i(maj7) in classical and Latin minor.' },
-    { id: 'dim-hw', q: '13b9', use: '7♭9 and 13♭9 chords: ♭9, ♯9 and ♯11 with a natural 13th.' },
-    { id: 'dim-wh', q: 'dim7', use: 'Diminished 7th chords: every other note of it is a chord tone.' },
-    { id: 'whole-tone', q: '7#5', use: '7♯5 (augmented dominant) chords: dreamy, unresolved.' },
-  ] },
+// each scale: its degrees, the triad / seventh / extended chord on each, and the mode each chord comes from
+export const SCALES = [
+  { id: 'mel', name: 'Melodic minor', ivs: ['1', '2', 'b3', '4', '5', '6', '7'],
+    tri: ['min', 'min', 'aug', 'maj', 'maj', 'dim', 'dim'],
+    sev: ['mMaj7', 'm7', 'maj7#5', '7', '7', 'm7b5', 'm7b5'],
+    ext: ['mMaj9', 'm7', 'maj7#5', '7#11', '7b13', 'm7b5', '7alt'],
+    modes: ['melodic minor', 'Dorian ♭2', 'Lydian augmented', 'Lydian dominant', 'Mixolydian ♭6', 'Locrian ♮2', 'altered'],
+    why: ['the 9 sits well on the minor-major chord', 'the ♭9 is an avoid note, so the plain m7 (or a sus4♭9)', 'the ♯5 is already the colour', 'the ♯11 is this mode’s sound: the tritone-sub and ♭VII7 chord', 'the ♭13 points the dominant towards minor', 'the natural 9 is usable here (Locrian ♮2)', 'read as a dominant: every tension altered'] },
+  { id: 'maj', name: 'Major', ivs: ['1', '2', '3', '4', '5', '6', '7'],
+    tri: ['maj', 'min', 'min', 'maj', 'maj', 'min', 'dim'],
+    sev: ['maj7', 'm7', 'm7', 'maj7', '7', 'm7', 'm7b5'],
+    ext: ['maj9', 'm9', 'm11', 'maj7#11', '13', 'm9', 'm7b5'],
+    modes: ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian'],
+    why: ['the 9 (the 11 would clash with the 3rd)', 'Dorian takes 9, 11 and 13', 'the ♭9 is an avoid note, so the 11 instead', 'the ♯11 is Lydian’s sound', 'the 13 (with the 9) is the classic dominant colour', 'the 9 (the ♭13 is an avoid note)', 'the ♭9 is an avoid note: keep it m7♭5'] },
+  { id: 'harm', name: 'Harmonic minor', ivs: ['1', '2', 'b3', '4', '5', 'b6', '7'],
+    tri: ['min', 'dim', 'aug', 'min', 'maj', 'maj', 'dim'],
+    sev: ['mMaj7', 'm7b5', 'maj7#5', 'm7', '7', 'maj7', 'dim7'],
+    ext: ['mMaj9', 'm7b5', 'maj7#5', 'm9', '7b9b13', 'maj7#11', 'dim7'],
+    modes: ['harmonic minor', 'Locrian ♮6', 'Ionian ♯5', 'Dorian ♯4', 'Phrygian dominant', 'Lydian ♯2', 'super-Locrian 𝄫7'],
+    why: ['the 9 on the minor-major tonic', 'the ♭9 is an avoid note: keep it m7♭5', 'the ♯5 is already the colour', 'the 9 (and the ♯11 is there too)', '♭9 and ♭13: the V of a minor key', 'the ♯11 (and the ♯9) of Lydian ♯2', 'the diminished 7th, already symmetrical'] },
+  { id: 'nat', name: 'Natural minor', ivs: ['1', '2', 'b3', '4', '5', 'b6', 'b7'],
+    tri: ['min', 'dim', 'maj', 'min', 'min', 'maj', 'maj'],
+    sev: ['m7', 'm7b5', 'maj7', 'm7', 'm7', 'maj7', '7'],
+    ext: ['m9', 'm7b5', 'maj9', 'm9', 'm11', 'maj7#11', '9'],
+    modes: ['Aeolian', 'Locrian', 'Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian'],
+    why: ['the 9 (the ♭13 is an avoid note)', 'the ♭9 is an avoid note: keep it m7♭5', 'the 9 on the relative major', 'Dorian takes 9, 11 and 13', 'the ♭9 is an avoid note, so the 11 instead', 'the ♯11, Lydian’s sound', 'the 9 on ♭VII7'] },
 ];
-const ALL = FAMILIES.flatMap((f) => f.items.map((it) => ({ ...it, fam: f.id })));
-
-// ---------- finger numbers ----------
-// a box (one hand position): the index sits where most notes fall within four frets; one finger per fret, a stretch
-// either side, kept in order on each string
-function boxFingers(notes) {
-  const fr = notes.map((n) => n.fret).filter((f) => f > 0);
-  if (!fr.length) return notes.map((n) => ({ ...n, finger: 0 }));
-  let p = Math.min(...fr), best = -1;
-  for (let c = Math.min(...fr); c <= Math.max(...fr); c++) { const k = fr.filter((f) => f >= c && f <= c + 3).length; if (k > best) { best = k; p = c; } }
-  return byString(notes, (fs) => fs.map((f) => (f === 0 ? 0 : Math.max(1, Math.min(4, f - p + 1)))));
-}
-// 3 notes per string: the standard patterns, by the steps between them
-function npsFingers(notes) {
-  return byString(notes, (fs) => {
-    if (fs[0] === 0) return fs.map((f) => Math.min(4, f)); // an open string: first position, one finger per fret
-    if (fs.length !== 3) return fs.map((f, i) => Math.min(4, i + 1));
-    const [a, b, c] = fs;
-    if (c - a <= 2) return [1, 2, 3];          // half, half
-    if (b - a === 1) return [1, 2, 4];         // half, whole (or wider)
-    if (c - b === 1) return [1, 3, 4];         // whole, half
-    return [1, 2, 4];                          // whole, whole: index, middle, stretch to pinky
-  });
-}
-function byString(notes, fn) {
-  const out = notes.map((n) => ({ ...n }));
-  for (let s = 1; s <= 6; s++) {
-    const on = out.filter((n) => n.string === s).sort((a, b) => a.fret - b.fret);
-    if (!on.length) continue;
-    let f = fn(on.map((n) => n.fret));
-    // keep fingers rising along the string: up where they collide, then back down from the pinky if they overflow
-    for (let i = 1; i < f.length; i++) if (f[i] && f[i] <= f[i - 1]) f[i] = f[i - 1] + 1;
-    for (let i = f.length - 1; i >= 0; i--) if (f[i] > 4 - (f.length - 1 - i)) f[i] = Math.max(1, 4 - (f.length - 1 - i));
-    on.forEach((n, i) => { n.finger = n.fret === 0 ? 0 : f[i]; });
-  }
-  return out;
-}
+// voicing families and their string sets
+const VOICE = {
+  caged: { name: 'CAGED grips', sets: [] },
+  d2: { name: 'Drop 2', sets: ['4321', '5432', '6543'] },
+  d3: { name: 'Drop 3', sets: ['6432', '5321'] },
+  tri: { name: 'Triads', sets: ['321', '432', '543', '654'] },
+};
+const ORDERS = {
+  up: { name: 'Up', seq: [0, 1, 2, 3, 4, 5, 6, 7] },
+  down: { name: 'Down', seq: [7, 6, 5, 4, 3, 2, 1, 0] },
+  updown: { name: 'Up and down', seq: [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1] },
+  fourths: { name: 'In 4ths', seq: [0, 3, 6, 2, 5, 1, 4, 7] }, // I IV vii iii vi ii V I: the diatonic cycle
+};
+const INV = [['1', ['1']], ['3rd', ['3', 'b3']], ['5th', ['5', 'b5', '#5']], ['7th', ['7', 'b7', 'bb7', '6']]];
 
 export function renderChordScales($app, ctx) {
-  const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
-  const O = D.cs = Object.assign({ key: 'C', fam: 'mm', id: 'mel-min', view: 'shape', pos: 0, labels: 'finger', metro: true, bpm: 80, go: 'manual', every: 16 }, D.cs || {});
-  const R = { on: false, timer: null, next: 0, beat: 0, since: 0, pad: null, dir: 1, vis: [] };
+  const { D, save, neckSVG, esc, fmt, onBack } = ctx;
+  const O = D.cs2 = Object.assign({ key: 'C', scale: 'mel', size: 'sev', voice: 'caged', set: '4321', where: 'E', inv: 0, order: 'up', labels: 'finger', beats: 4, bpm: 72, k: 0 }, D.cs2 || {});
+  const R = { on: false, timer: null, next: 0, beat: 0, vis: [], seq: null };
 
-  const item = () => ALL.find((x) => x.id === O.id && x.fam === O.fam) || FAMILIES.find((f) => f.id === O.fam).items[0];
-  const root = () => T.parseNote(O.key);
-  const chordName = () => H.chordName(root(), item().q) + (item().label ? '' : '');
+  const sc = () => SCALES.find((s) => s.id === O.scale) || SCALES[0];
+  const tonic = () => T.parseNote(O.key);
+  const size = () => (O.voice === 'tri' ? 'tri' : O.size === 'tri' && O.voice !== 'caged' ? 'sev' : O.size);
+  const vid = () => (O.voice === 'caged' ? 'caged' : `${O.voice}:${O.set}`);
+  const chordAt = (d) => {
+    const s = sc(), i = d % 7, q = s[size()][i], root = T.transpose(tonic(), s.ivs[i]);
+    return { i, root, q, name: H.chordName(root, q), rn: H.numeral(s.ivs[i], q), mode: s.modes[i], why: s.why[i], octave: d === 7 };
+  };
 
-  // ---------- positions ----------
-  function positions() {
-    const it = item(), ivs = BY[it.id].ivs, r = root();
-    const tag = (n) => ({ ...n, iv: n.iv, note: T.transpose(r, F.simpleIv(n.iv)) });
-    if (O.view === 'shape') {
-      return G.SHAPES.map((sh) => {
-        const w = F.cagedWindow(r, sh);
-        const notes = F.regionNotes({ root: O.key, tones: ivs, region: { caged: sh } }).map(tag);
-        return { name: `${sh} shape`, sub: `frets ${w.lo}–${w.hi}`, lo: w.lo, hi: w.hi, shape: sh, notes: boxFingers(notes) };
-      }).sort((a, b) => a.lo - b.lo);
-    }
-    if (O.view === 'nps') {
-      if (ivs.length < 7) return [];
-      const out = [];
-      for (let d = 1; d <= ivs.length; d++) {
-        let notes = F.regionNotes({ root: O.key, tones: ivs, region: { nps3: d } });
-        const lo = Math.min(...notes.map((n) => n.fret));
-        if (lo >= 12) notes = notes.map((n) => ({ ...n, fret: n.fret - 12, midi: n.midi - 12 }));
-        if (Math.max(...notes.map((n) => n.fret)) > 19) continue;
-        notes = notes.map(tag);
-        const fr = notes.map((n) => n.fret);
-        out.push({ name: `From the ${T.prettyIv(ivs[d - 1])}`, sub: `3 per string · frets ${Math.min(...fr)}–${Math.max(...fr)}`, lo: Math.min(...fr), hi: Math.max(...fr), deg: d, notes: npsFingers(notes) });
+  // ---------- the voicings, worked out for the whole sequence (each depends on the one before) ----------
+  function bassIv(v) { const low = v.notes.reduce((a, b) => (b.string > a.string ? b : a)); return low.iv; }
+  function sequence() {
+    const seq = ORDERS[O.order].seq, out = [];
+    let prev = null;
+    const pos = O.where === 'neck' ? null : G.positionOf(tonic(), O.where);
+    for (let j = 0; j < seq.length; j++) {
+      const c = chordAt(seq[j]);
+      let v = null;
+      if (pos) {
+        v = O.voice === 'caged' ? G.gripInPosition(c.root, c.q, pos, prev) : G.voiceLeadPick(c.root, c.q, vid(), pos, prev);
+        // a few extended chords have no CAGED grip in some areas: then the nearest voicing of any kind there
+        if (!v && O.voice === 'caged') v = G.voiceLeadPick(c.root, c.q, 'any', pos, prev) || G.voiceLeadPick(c.root, c.q, 'd2:all', pos, prev);
       }
-      return out.sort((a, b) => a.lo - b.lo);
+      else {
+        // up the neck on one string set, one inversion: the next voicing of that inversion up (or down) from the last
+        const all = G.familyVoicings(c.root, c.q, vid(), { lo: 0, hi: 19, mid: 9 });
+        const pool = [...all.inside, ...all.outside].filter((x) => x.hi <= 19);
+        const want = INV[O.inv]?.[1] || ['1'];
+        const match = pool.filter((x) => want.includes(bassIv(x)));
+        const cand = match.length ? match : pool;
+        if (!cand.length) v = null;
+        else if (!prev) v = cand.reduce((a, b) => ((O.order === 'down' ? b.center > a.center : b.center < a.center) ? b : a));
+        else {
+          const goingDown = seq[j] < seq[j - 1];
+          const ahead = cand.filter((x) => (goingDown ? x.center < prev.center - 0.5 : x.center > prev.center + 0.5));
+          const pick = ahead.length ? ahead : cand;
+          v = pick.reduce((a, b) => (Math.abs(b.center - prev.center) < Math.abs(a.center - prev.center) ? b : a));
+          if (!ahead.length) c.wrap = goingDown ? 'up' : 'down'; // out of neck: the climb jumps an octave here
+        }
+      }
+      out.push({ ...c, v });
+      if (v) prev = v;
     }
-    const notes = F.regionNotes({ root: O.key, tones: ivs, region: { frets: [0, 15] } }).map(tag);
-    return [{ name: 'The whole neck', sub: 'frets 0–15', lo: 0, hi: 15, notes: notes.map((n) => ({ ...n, finger: undefined })) }];
+    return out;
   }
-  const posAt = () => { const ps = positions(); if (!ps.length) return null; const k = ((O.pos % ps.length) + ps.length) % ps.length; return { ...ps[k], k, n: ps.length }; };
+  const seq = () => (R.seq ||= sequence());
+  const reset = () => { R.seq = null; O.k = 0; };
 
-  // chord tones in their colours, tensions purple, the rest of the scale grey
-  function kindOf(iv) {
-    const c = T.getChord(item().q).ivs, s = FL.semisOf(iv), m = c.find((x) => FL.semisOf(x) === s);
-    return m ? KIND(m) : 'sc';
-  }
-  function neck(p) {
-    const lo = Math.max(0, p.lo - (p.lo > 0 ? 1 : 0)), hi = Math.max(p.hi + 1, lo + 4);
-    // the chord's own grip in this area: its notes ringed (faint rings where the grip uses a note outside this fingering)
-    const g = G.gripInPosition(root(), item().q, { lo: p.lo, hi: p.hi, mid: (p.lo + p.hi) / 2 });
-    const inGrip = new Set((g ? g.notes : []).map((n) => `${n.string}:${n.fret}`));
-    const notes = p.notes.map((n) => ({ ...n, kind: kindOf(n.iv), mark: inGrip.has(`${n.string}:${n.fret}`) }));
-    const bg = g ? g.notes.filter((n) => !p.notes.some((x) => x.string === n.string && x.fret === n.fret)).map((n) => ({ string: n.string, fret: n.fret, root: n.iv === '1' })) : [];
-    const lab = O.labels === 'finger' && O.view !== 'neck' ? 'finger' : O.labels === 'note' ? 'note' : 'iv';
-    return neckSVG({ notes, lo, hi }, { lo, hi, labels: lab, bg });
-  }
-
-  // ---------- sound: the chord held on a pad, a click, the position moving on its own ----------
-  function chordMidis() {
-    const r = T.notePc(root()), bass = 40 + ((r - 4 + 12) % 12);
-    let up = T.getChord(item().q).ivs.filter((iv) => iv !== '1');
-    if (up.length > 4) up = up.filter((iv) => iv !== '5');
-    const top = up.map((iv) => { const pc = (r + FL.semisOf(iv)) % 12; return 55 + ((pc - 7 + 12) % 12); });
-    return [bass, ...new Set(top)].sort((a, b) => a - b);
-  }
-  function padChord() { if (R.pad) R.pad.chord(chordMidis(), A.audioCtx().currentTime + 0.05); }
+  // ---------- sound ----------
+  function strum(v, t, dur) { if (v) A.strum(G.gripMidis(v), t, { dur }); }
   function clock() {
     if (!R.on) return;
     const c = A.audioCtx();
     if (R.next < c.currentTime - 0.02) R.next = c.currentTime + 0.05;
     while (R.next < c.currentTime + 0.12) {
-      const t = R.next, b = R.beat++;
-      let move = false;
-      if (O.go === 'auto' && R.since >= O.every) { R.since = 0; move = true; }
-      R.since++;
-      if (O.metro) A.click(t, b % 4 === 0 ? 2 : 1);
+      const t = R.next, b = R.beat++, s = seq(), dur = 60 / O.bpm;
+      const k = Math.floor(b / O.beats) % s.length, first = b % O.beats === 0;
+      if (first) strum(s[k].v, t, dur * O.beats * 0.95);
+      A.click(t, first ? 2 : 1);
       R.vis.push(setTimeout(() => {
-        if (move && R.on) step(R.dir, true);
-        document.querySelectorAll('.csbeats i').forEach((el, i) => el.classList.toggle('on', i === b % 4));
+        if (!R.on) return;
+        if (first && O.k !== k) { O.k = k; drawStage(); }
+        document.querySelectorAll('.csbeats i').forEach((el, i) => el.classList.toggle('on', i === (b % O.beats) % 4));
       }, Math.max(0, (t - c.currentTime) * 1000)));
       if (R.vis.length > 64) R.vis.splice(0, 32);
-      R.next += 60 / O.bpm;
+      R.next += dur;
     }
     R.timer = setTimeout(clock, 25);
   }
@@ -169,98 +131,85 @@ export function renderChordScales($app, ctx) {
     R.on = true;
     await Promise.race([A.ensureRunning(), new Promise((r) => setTimeout(r, 500))]);
     if (!R.on) return;
-    R.pad = A.padLine({ vel: 0.55 }); padChord();
-    R.next = A.audioCtx().currentTime + 0.1; R.beat = 0; R.since = 0;
+    R.next = A.audioCtx().currentTime + 0.1; R.beat = O.k * O.beats;
     clock(); draw();
   }
-  function stop() {
-    R.on = false; clearTimeout(R.timer); R.vis.forEach(clearTimeout); R.vis = [];
-    if (R.pad) { R.pad.release(A.audioCtx().currentTime, 0.3); R.pad = null; }
-    A.hush();
-  }
-  // the position played up and back down, in eighth notes
-  function hearIt() {
-    const p = posAt(); if (!p) return;
+  function stop() { R.on = false; clearTimeout(R.timer); R.vis.forEach(clearTimeout); R.vis = []; A.hush(); }
+  function hearNow() {
+    const s = seq()[O.k]; if (!s?.v) return;
     A.unlockAudio().catch(() => {});
-    A.ensureRunning().then(() => {
-      const ms = p.notes.map((n) => n.midi).sort((a, b) => a - b), seq = ms.concat(ms.slice(0, -1).reverse());
-      const t0 = A.audioCtx().currentTime + 0.1, dt = 30 / O.bpm;
-      seq.forEach((m, i) => A.pluck(m, t0 + i * dt, { vel: 0.7, dur: dt * 1.6 }));
-    });
-  }
-  // next or previous position; on auto it walks up the neck and back down
-  function step(dir, auto = false) {
-    const ps = positions(); if (ps.length < 2) return;
-    const k = ((O.pos % ps.length) + ps.length) % ps.length;
-    if (auto) { if (k + R.dir > ps.length - 1 || k + R.dir < 0) R.dir = -R.dir; O.pos = k + R.dir; }
-    else O.pos = k + dir;
-    save(); draw();
+    A.ensureRunning().then(() => strum(s.v, A.audioCtx().currentTime + 0.05, 1.6));
   }
 
   // ---------- the screen ----------
   const seg = (attr, cur, opts) => `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button data-${attr}="${v}" class="${String(cur) === String(v) ? 'on' : ''}" role="radio" aria-checked="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
-  function aboutHTML() {
-    const it = item(), s = BY[it.id], par = parentOf(it.id), r = root();
-    const from = par ? (par.deg === 0 ? `${par.pname} itself` : `mode ${par.deg + 1} of ${par.pname}: ${T.noteName(T.transposeSemis(r, -par.offset), true)} ${par.pname} from its ${ORD[par.deg]}`) : '';
-    const rows = glance(it.id, r).filter(([k]) => ['Notes', 'Tensions', 'Avoid notes', 'Feel', 'Same notes as'].includes(k));
-    return `<h2><span class="csq">${fmt(chordName())}${it.label ? ` <small>${fmt(it.label.replace(/^7sus4/, ''))}</small>` : ''}</span> → ${fmt(T.noteName(r, true))} ${esc(s.name)}</h2>
-      ${from ? `<p class="note">${fmt(from)}</p>` : ''}
-      <p>${fmt(it.use)}</p>
-      <dl class="fsglance">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join('')}</dl>`;
+  function win(v) {
+    if (O.where !== 'neck') { const p = G.positionOf(tonic(), O.where); return { lo: Math.min(p.lo, v?.lo ?? p.lo), hi: Math.max(p.hi, v?.hi ?? p.hi), band: { lo: p.lo, hi: p.hi } }; }
+    const lo = Math.max(0, (v?.lo ?? 1) - 1); return { lo, hi: Math.max((v?.hi ?? 4) + 1, lo + 4), band: null };
   }
+  function stageHTML() {
+    const s = seq(), k = ((O.k % s.length) + s.length) % s.length, c = s[k], nx = s[(k + 1) % s.length], prev = s[(k - 1 + s.length) % s.length];
+    const w = win(c.v);
+    const big = c.v ? neckSVG(c.v, { lo: w.lo, hi: w.hi, band: w.band, labels: O.labels, prev: k ? prev.v : null }) : '<div class="cnone">No voicing for this one here</div>';
+    const wn = win(nx.v), small = nx.v ? neckSVG(nx.v, { lo: wn.lo, hi: wn.hi, labels: 'iv', tiny: true }) : '';
+    return `<div class="csstrip">${s.map((x, i) => `<button class="csch ${i === k ? 'on' : ''}" data-k="${i}"><b>${fmt(x.rn)}</b><i>${fmt(x.name)}</i></button>`).join('')}</div>
+      <div class="csnow"><div><h2>${fmt(c.rn)} <span>${fmt(c.name)}</span></h2><p class="note">from ${esc(c.mode)}${size() === 'ext' ? ` · ${fmt(c.why)}` : ''}${c.v?.label ? ` · ${fmt(c.v.label)}` : ''}${c.wrap ? ` · <b class="cswrap">the neck runs out: ${c.wrap === 'down' ? 'down' : 'up'} an octave here</b>` : ''}</p></div>
+      <div class="csnext"><small>next</small><b>${fmt(nx.rn)}</b>${small}</div></div>
+      <div class="stage fsneck" id="csswipe">${big}</div>
+      <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">extension</span></div>`;
+  }
+  function drawStage() { const el = document.getElementById('csstage'); if (el) el.innerHTML = stageHTML(); }
   function draw() {
-    const fam = FAMILIES.find((f) => f.id === O.fam), it = item(), p = posAt();
-    if (O.view === 'nps' && BY[it.id].ivs.length < 7) O.view = 'shape';
+    const V = VOICE[O.voice];
+    if (O.voice !== 'caged' && !V.sets.includes(O.set)) O.set = V.sets[0];
+    if (O.where === 'neck' && O.voice === 'caged') O.where = 'E';
+    const invOpts = INV.slice(0, size() === 'tri' ? 3 : 4).map(([l], i) => [i, i === 0 ? 'Root' : `${l} in bass`]);
     $app.innerHTML = `
     <header class="chead"><button class="icon" data-f="back" aria-label="Back">‹</button><h1>Chord scales</h1><button class="icon" data-f="play" aria-label="${R.on ? 'Stop' : 'Start'}">${R.on ? '■' : '▶'}</button></header>
+    <p class="note csblurb">A scale’s own chords, one on each degree, played in order in one place on the neck.</p>
     <div class="chips fskeys">${KEYS.map((k) => `<button class="chip ${O.key === k ? 'on' : ''}" data-key="${k}">${fmt(T.pretty(k))}</button>`).join('')}</div>
-    ${seg('fam', O.fam, FAMILIES.map((f) => [f.id, esc(f.name)]))}
-    <p class="note csblurb">${esc(fam.blurb)}</p>
-    <div class="chips cschips">${fam.items.map((x) => `<button class="chip ${x.id === it.id ? 'on' : ''}" data-cs="${x.id}"><b>${fmt(H.chordName(root(), x.q))}${x.label ? fmt(x.label.replace(/^7sus4/, '')) : ''}</b> <small>${esc(BY[x.id].name)}</small></button>`).join('')}</div>
-    <section class="card csabout">${aboutHTML()}</section>
-    <div class="fsopt"><span>Where</span>${seg('view', O.view, [['shape', 'CAGED shapes'], ...(BY[it.id].ivs.length >= 7 ? [['nps', '3 per string']] : []), ['neck', 'Whole neck']])}</div>
-    <div class="fsopt"><span>Show</span>${seg('labels', O.labels, [['finger', 'Fingers'], ['iv', 'Degrees'], ['note', 'Notes']])}</div>
-    ${p ? `<div class="fspos3"><button class="icon" data-f="pos-" aria-label="Lower position">‹</button><p><b>${esc(p.name)}</b><small>${esc(p.sub)}${p.n > 1 ? ` · ${p.k + 1} of ${p.n}, low to high` : ''}</small></p><button class="icon" data-f="pos+" aria-label="Higher position">›</button></div>` : ''}
-    <div class="fsplay csplay"><button class="primary ${R.on ? 'stop' : ''}" data-f="play">${R.on ? '■ Stop' : '▶ Play over the chord'}</button><div class="fsplayr">${R.on ? '<div class="beats csbeats"><i></i><i></i><i></i><i></i></div>' : `<small>the chord held${O.metro ? ', with a click' : ''}${O.go === 'auto' ? `, moving every ${O.every} beats` : ''}</small>`}</div></div>
-    <div class="stage fsneck" id="csswipe">${p ? neck(p) : ''}</div>
-    <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">tension</span><span class="k sc">rest of the scale</span></div>
-    <p class="note">The white-ringed notes are the ${fmt(chordName())} grip in this area: play it, then the scale around it.${O.labels === 'finger' && O.view === 'nps' ? ' Three per string: half then whole 1-2-4, whole then half 1-3-4, whole-whole 1-2-4 with a stretch.' : O.labels === 'finger' && O.view === 'shape' ? ' One finger per fret, the index where most notes sit; a 1 or 4 outside that is a stretch.' : ''}</p>
-    <div class="chips"><button class="chip" data-f="hear">▶ Hear this position, up and down</button></div>
-    <section class="card">
-      <div class="fsopt"><span>Click</span>${seg('metro', O.metro ? 1 : 0, [[1, 'On'], [0, 'Off']])}</div>
-      <div class="fsrow fstempo"><span class="lbl">Tempo</span><input type="range" id="csbpm" min="40" max="200" step="2" value="${O.bpm}" aria-label="Tempo"><span class="fsbpm"><b id="csbpmv">${O.bpm}</b><small>bpm</small></span></div>
-      <div class="fsopt"><span>Move</span>${seg('go', O.go, [['manual', 'By hand'], ['auto', 'Auto, up and down']])}</div>
-      ${O.go === 'auto' ? `<div class="fsopt"><span>Every</span>${seg('every', O.every, [[8, '8 beats'], [16, '16'], [32, '32']])}</div>` : ''}
-    </section>
-    <section class="card"><h2>How to practise it</h2><ul class="cstips">
-      <li>Play the grip, then the scale from its lowest note to its highest and back, in time. Then the next position up.</li>
-      <li>Land a chord tone (coloured) on every beat 1; the tensions (purple) are the sound of the scale, so lean on them and resolve them a step to a chord tone.</li>
-      <li>Auto walks up the neck and back down, a position every few bars, with the chord held: keep playing through each move.</li>
-      <li>Then change chord, same root: you’ll hear what each scale adds, and the fingers learn where the notes move.</li>
-    </ul></section>`;
+    <div class="fsopt"><span>Scale</span>${seg('scale', O.scale, SCALES.map((x) => [x.id, x.name]))}</div>
+    <div class="fsopt"><span>Chords</span>${seg('size', size(), [...(O.voice === 'caged' || O.voice === 'tri' ? [['tri', 'Triads']] : []), ...(O.voice === 'tri' ? [] : [['sev', 'Sevenths'], ['ext', 'Extensions']])])}</div>
+    <div class="fsopt"><span>Voicing</span>${seg('voice', O.voice, Object.entries(VOICE).map(([id, v]) => [id, v.name]))}</div>
+    ${O.voice !== 'caged' ? `<div class="fsopt"><span>Strings</span>${seg('set', O.set, V.sets.map((x) => [x, x.split('').join('-')]))}</div>` : ''}
+    <div class="fsopt"><span>Where</span>${seg('where', O.where, [...G.SHAPES.map((x) => [x, `${x} area`]), ...(O.voice !== 'caged' ? [['neck', 'Up the neck']] : [])])}</div>
+    ${O.where === 'neck' ? `<div class="fsopt"><span>Inversion</span>${seg('inv', O.inv, invOpts)}</div>` : ''}
+    <div class="fsopt"><span>Order</span>${seg('order', O.order, Object.entries(ORDERS).map(([id, o]) => [id, o.name]))}</div>
+    <div class="fsopt"><span>Show</span>${seg('labels', O.labels, [['finger', 'Fingers'], ['iv', 'Intervals'], ['note', 'Notes']])}</div>
+    <div class="fsplay csplay"><button class="primary ${R.on ? 'stop' : ''}" data-f="play">${R.on ? '■ Stop' : '▶ Play through'}</button><div class="fsplayr">${R.on ? '<div class="beats csbeats"><i></i><i></i><i></i><i></i></div>' : `<small>each chord strummed, ${O.beats} beats each, with a click</small>`}</div></div>
+    <div class="fsrow fstempo"><span class="lbl">Tempo</span><input type="range" id="csbpm" min="40" max="200" step="2" value="${O.bpm}" aria-label="Tempo"><span class="fsbpm"><b id="csbpmv">${O.bpm}</b><small>bpm</small></span></div>
+    <div class="fsopt"><span>Each chord</span>${seg('beats', O.beats, [[2, '2 beats'], [4, '4'], [8, '8']])}</div>
+    <div class="fsnav csnav"><button class="icon" data-f="prev" aria-label="Previous chord">‹</button><button class="chip" data-f="hear">▶ Hear this chord</button><button class="icon" data-f="next" aria-label="Next chord">›</button></div>
+    <div id="csstage">${stageHTML()}</div>
+    <p class="note">${O.where === 'neck' ? `On strings ${O.set.split('').join('-')}, each chord in the same inversion, climbing the neck.` : `All in the ${O.where} area of ${fmt(T.noteName(tonic(), true))} (the band): each chord voiced as near the last as it can be, so few fingers move.`} The dotted rings show where the previous chord’s fingers were.</p>`;
     const rr = $app.querySelector('#csbpm');
     rr.oninput = () => { O.bpm = Number(rr.value); document.getElementById('csbpmv').textContent = O.bpm; };
     rr.onchange = () => save();
   }
+  const change = (fn) => { fn(); reset(); save(); if (R.on) R.beat = 0; draw(); };
   let sx = null;
   $app.ontouchstart = (e) => { sx = e.target.closest('#csswipe') ? e.touches[0].clientX : null; };
-  $app.ontouchend = (e) => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) >= 40) step(dx < 0 ? 1 : -1); };
+  $app.ontouchend = (e) => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) >= 40) move(dx < 0 ? 1 : -1); };
+  function move(dir) { const n = seq().length; O.k = (((O.k + dir) % n) + n) % n; save(); drawStage(); if (!R.on) hearNow(); else R.beat = O.k * O.beats; }
   $app.onclick = (e) => {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
-    if (d.key) { O.key = d.key; save(); padChord(); return draw(); }
-    if (d.fam) { O.fam = d.fam; O.id = FAMILIES.find((f) => f.id === d.fam).items[0].id; O.pos = 0; save(); padChord(); return draw(); }
-    if (d.cs) { O.id = d.cs; save(); padChord(); return draw(); }
-    if (d.view) { O.view = d.view; O.pos = 0; save(); return draw(); }
-    if (d.labels) { O.labels = d.labels; save(); return draw(); }
-    if (d.metro !== undefined) { O.metro = d.metro === '1'; save(); return draw(); }
-    if (d.go) { O.go = d.go; R.since = 0; save(); return draw(); }
-    if (d.every) { O.every = Number(d.every); save(); return draw(); }
+    if (d.key) return change(() => { O.key = d.key; });
+    if (d.scale) return change(() => { O.scale = d.scale; });
+    if (d.size) return change(() => { O.size = d.size; });
+    if (d.voice) return change(() => { O.voice = d.voice; if (d.voice === 'tri') O.size = 'tri'; else if (O.size === 'tri' && d.voice !== 'caged') O.size = 'sev'; });
+    if (d.set) return change(() => { O.set = d.set; });
+    if (d.where) return change(() => { O.where = d.where; });
+    if (d.inv !== undefined) return change(() => { O.inv = Number(d.inv); });
+    if (d.order) return change(() => { O.order = d.order; });
+    if (d.labels) { O.labels = d.labels; save(); return drawStage(); }
+    if (d.beats) { O.beats = Number(d.beats); save(); return draw(); }
+    if (d.k !== undefined) { O.k = Number(d.k); save(); drawStage(); if (!R.on) hearNow(); else R.beat = O.k * O.beats; return; }
     const a = d.f;
     if (a === 'back') { stop(); return onBack(); }
     if (a === 'play') { if (R.on) { stop(); return draw(); } return start(); }
-    if (a === 'pos+' || a === 'pos-') return step(a === 'pos+' ? 1 : -1);
-    if (a === 'hear') return hearIt();
+    if (a === 'next' || a === 'prev') return move(a === 'next' ? 1 : -1);
+    if (a === 'hear') return hearNow();
   };
   draw();
   return stop;
