@@ -637,3 +637,4 @@ details.fssolo li b { color: var(--text, #fff); }
 .csnext svg { width: 100%; height: auto; }
 .csnav { justify-content: space-between; align-items: center; margin: 8px 0 4px; }
 .cswrap { color: var(--amber); font-weight: 600; }
+.bcrow.on { background: rgba(255, 181, 71, 0.08); border-radius: 12px; box-shadow: 0 0 0 1px rgba(255, 181, 71, 0.35); }

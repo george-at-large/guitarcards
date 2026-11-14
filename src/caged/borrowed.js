@@ -9,13 +9,22 @@ import * as H from './harmony.js';
 import * as L from './library.js';
 import { BORROWED } from './borrowdata.js';
 import { voiceInArea } from './cscale.js';
+import { CHROMATIC } from './chromdata.js';
 
 const KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
-export function renderBorrowed($app, ctx) {
+// the same screen serves Chromatic chords (secondary dominants, tritone subs, diminished…): cfg names the data, the
+// title, the library id prefix, where its settings live, and how the picker groups the chords
+const BORROW_CFG = { data: BORROWED, title: 'Borrowed chords', prefix: 'borrow', state: 'bc', first: 'iv',
+  groups: [['In a major key', (x) => !x.minor && !x.pair], ['In a minor key', (x) => x.minor && !x.pair], ['Pairs that travel together', (x) => x.pair]] };
+export const CHROM_CFG = { data: CHROMATIC, title: 'Chromatic chords', prefix: 'chrom', state: 'cc', first: 'VofV',
+  groups: [...new Set(CHROMATIC.map((x) => x.group))].map((g) => [g, (x) => x.group === g]) };
+export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
   const { D, save, neckSVG, esc, fmt, onBack, onPractise } = ctx;
-  const O = D.bc = Object.assign({ key: 'C', id: 'iv', where: 'all' }, D.bc || {});
-  const cur = () => BORROWED.find((b) => b.id === O.id) || BORROWED[0];
+  const DATA = cfg.data;
+  const O = D[cfg.state] = Object.assign({ key: 'C', id: cfg.first, where: 'E' }, D[cfg.state] || {});
+  if (!O.oneShape) { O.oneShape = true; if (O.where === 'all') O.where = 'E'; } // one shape round and round is the default now
+  const cur = () => DATA.find((b) => b.id === O.id) || DATA[0];
   const tonic = () => T.parseNote(O.key);
   const name = (root, q) => H.chordName(root, q);
 
@@ -36,7 +45,7 @@ export function renderBorrowed($app, ctx) {
     const all = [home, ...gs.map((x) => x.g)].filter(Boolean);
     const lo = Math.min(pos.lo, ...all.map((g) => g.lo)), hi = Math.max(pos.hi, ...all.map((g) => g.hi));
     const w = { lo: Math.max(0, lo), hi: Math.max(hi, lo + 4), small: true, labels: 'iv' };
-    return `<div class="bcrow" style="grid-template-columns: 54px repeat(${gs.length + 1}, 1fr)">
+    return `<div class="bcrow${O.where === shape ? ' on' : ''}" style="grid-template-columns: 54px repeat(${gs.length + 1}, 1fr)">
       <button class="bcplay" data-hear="${shape}" aria-label="Hear ${shape} shape"><b>${shape}</b><small>shape</small><span>▶</span></button>
       <figure><figcaption>${fmt(name(tonic(), b.minor ? 'min' : 'maj'))} <small>${b.minor ? 'i' : 'I'}</small></figcaption>${neckSVG(home, w)}</figure>
       ${gs.map((x) => `<figure><figcaption>${fmt(name(x.root, x.q))} <small>${fmt(x.rn)}</small></figcaption>${neckSVG(x.g, { ...w, prev: x.prev })}</figure>`).join('')}
@@ -53,7 +62,7 @@ export function renderBorrowed($app, ctx) {
   }
   // a progression's chords in this key, with their numerals
   function progHTML(p, i) {
-    const b = cur(), item = L.byId(`borrow-${b.id}-${i}`), bars = L.resolve(item), t = tonic();
+    const b = cur(), item = L.byId(`${cfg.prefix}-${b.id}-${i}`), bars = L.resolve(item), t = tonic();
     const minor = !!p.minor;
     const chords = bars.map((bar) => bar.map((c) => ({ nm: name(T.transpose(t, c.iv), c.q), rn: H.numeral(c.iv, c.q) })));
     return `<li class="bcprog">
@@ -65,18 +74,17 @@ export function renderBorrowed($app, ctx) {
   }
   function draw() {
     const b = cur(), t = tonic(), kn = fmt(T.noteName(t, true)) + (b.minor ? ' minor' : ' major');
-    const maj = BORROWED.filter((x) => !x.minor && !x.pair), min = BORROWED.filter((x) => x.minor && !x.pair), pairs = BORROWED.filter((x) => x.pair);
+
     const chip = (x) => `<button class="chip bcchip ${x.id === b.id ? 'on' : ''}" data-bc="${x.id}"><b>${fmt(x.rn)}</b> <small>${esc(x.name)}</small></button>`;
     $app.innerHTML = `
-    <header class="chead"><button class="icon" data-f="back" aria-label="Back">‹</button><h1>Borrowed chords</h1><span></span></header>
+    <header class="chead"><button class="icon" data-f="back" aria-label="Back">‹</button><h1>${esc(cfg.title)}</h1><span></span></header>
     <div class="chips fskeys">${KEYS.map((k) => `<button class="chip ${O.key === k ? 'on' : ''}" data-key="${k}">${fmt(T.pretty(k))}</button>`).join('')}</div>
+      <div class="fsopt"><span>Shape</span><div class="seg" role="radiogroup">${[...G.SHAPES.map((x) => [x, x]), ['all', 'All five']].map(([v, l]) => `<button data-where="${v}" class="${O.where === v ? 'on' : ''}" role="radio" aria-checked="${O.where === v}">${l}</button>`).join('')}</div></div>
     <section class="card bcpick">
-      <p class="lbl">In a major key</p><div class="chips bcchips">${maj.map(chip).join('')}</div>
-      <p class="lbl">In a minor key</p><div class="chips bcchips">${min.map(chip).join('')}</div>
-      <p class="lbl">Pairs that travel together</p><div class="chips bcchips">${pairs.map(chip).join('')}</div>
+      ${cfg.groups.map(([label, f]) => `<p class="lbl">${esc(label)}</p><div class="chips bcchips">${DATA.filter(f).map(chip).join('')}</div>`).join('')}
     </section>
     <section class="card bcabout">
-      <h2><span class="bcrn">${fmt(b.rn)}</span> ${esc(b.name)} <small>${fmt(chordsOf(b).map((c) => name(T.transpose(t, c.iv), c.q)).join(' – '))} in ${kn} · from ${esc(b.from)}</small></h2>
+      <h2><span class="bcrn">${fmt(b.rn)}</span> ${esc(b.name)} <small>${fmt(chordsOf(b).map((c) => name(T.transpose(t, c.iv), c.q)).join(' – '))} in ${kn} · ${cfg.prefix === 'borrow' ? 'from ' : ''}${esc(b.from)}</small></h2>
       <dl class="fsglance"><dt>Where it comes from</dt><dd>${fmt(b.where)}</dd><dt>How to use it</dt><dd>${fmt(b.how)}</dd><dt>Sound</dt><dd>${fmt(b.sound)}</dd></dl>
       <p class="note">Shown in C (or A minor where it says so); the chords below are in ${kn}.</p>
     </section>
@@ -87,7 +95,6 @@ export function renderBorrowed($app, ctx) {
     </section>
     <section class="card bcprogs">
       <h2>Progressions that use it</h2>
-      <div class="fsopt"><span>Play in</span><div class="seg" role="radiogroup">${[['all', 'All five'], ...G.SHAPES.map((x) => [x, x])].map(([v, l]) => `<button data-where="${v}" class="${O.where === v ? 'on' : ''}" role="radio" aria-checked="${O.where === v}">${l}</button>`).join('')}</div></div>
       <p class="note">Each one opens in Chord changes in ${fmt(T.noteName(t, true))}, ${O.where === 'all' ? 'a new CAGED shape each time round (C → A → G → E → D), so you play it in all five' : `staying in the ${O.where} shape`}.</p>
       <ul>${b.progs.map(progHTML).join('')}</ul>
     </section>`;
