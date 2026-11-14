@@ -69,8 +69,8 @@ function session() {
   return { tonic, minor, shape, shapes, shapeKey: shapes.join('+'), pos, keyName, toured: new Set([shapes.join('+')]) };
 }
 // the tour: on to the next CAGED shape (or pair) up the neck
-function advanceShape(S) {
-  if (D.tourSlow && D.mode === 'pos') return; // the slow tour glides instead (drift)
+function advanceShape(S, force = false) {
+  if (!force && D.tourSlow && D.mode === 'pos') return; // the slow tour glides instead (drift)
   S.shape = G.nextShape(S.shape);
   S.pos = D.pair ? G.positionOfPair(S.tonic, S.shape) : G.positionOf(S.tonic, S.shape);
   S.shapes = D.pair ? S.pos.shapes : [S.shape];
@@ -170,7 +170,7 @@ const varyOn = () => (progLike() ? D.pcolour === 'var' : D.colour === 'var');
 function realise(S, spec, q, prev, extra = {}) {
   const c = realiseCore(S, spec, q, prev, extra);
   c.snap = { pos: S.pos, shapes: S.shapes, shapeKey: S.shapeKey, shape: S.shape };
-  c.place = D.tour ? posLabel(S) : null;
+  c.place = D.tour || S.moved ? posLabel(S) : null;
   drift(S);
   return c;
 }
@@ -956,6 +956,20 @@ function tick(t) {
   if (R.e >= c.beats * 2) { R.e = 0; R.count++; }
 }
 
+// by hand: on to the next CAGED shape up the neck; the chord already waiting is voiced again in the new shape
+function nextShapeNow() {
+  if (!R) return;
+  const S = R.S;
+  advanceShape(S, true);
+  S.moved = true; // from now on each chord carries its place, so the header follows
+  const c = R.queue[0];
+  if (c && !c.end && !c.shownEarly) {
+    const re = realise(S, c.spec, c.lq || c.q, R.cur?.grip || null, { beats: c.beats, bar: c.bar, slot: c.slot, pass: c.pass, sub: c.sub, slots: c.slots, oid: c.oid, role: c.role });
+    if (c.roam) re.roam = c.roam;
+    R.queue[0] = re;
+    const el = document.getElementById('next'); if (el) el.innerHTML = nextHTML(re);
+  }
+}
 function drawRun() {
   const { S } = R;
   $app.innerHTML = `
@@ -996,6 +1010,7 @@ function drawRun() {
       return;
     }
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
+    if (r === 'nextshape') return nextShapeNow();
     if (r === 'click' || r === 'hearRhythm' || r === 'mute') { D[r] = !D[r]; if (r === 'mute' && D.mute) A.hush(); save(); return applyNames(); }
     if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'sheet') return openSheet();
@@ -1023,7 +1038,7 @@ function livePlay() {
   return `<div class="seg">${modes.map(([v, l]) => `<button data-r="play-${v}" class="${D.play === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 }
 function runButtons() {
-  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}${D.src === 'genre' ? '<button class="rt" data-r="gguide">Genre guide</button>' : ''}<button class="rt" data-r="click">Click</button>${D.rhythm !== 'ring' ? '<button class="rt" data-r="hearRhythm">Rhythm</button>' : ''}<button class="rt" data-r="mute">Mute</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
+  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}${D.src === 'genre' ? '<button class="rt" data-r="gguide">Genre guide</button>' : ''}<button class="rt" data-r="nextshape">Next shape ⏭</button><button class="rt" data-r="click">Click</button>${D.rhythm !== 'ring' ? '<button class="rt" data-r="hearRhythm">Rhythm</button>' : ''}<button class="rt" data-r="mute">Mute</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
 }
 function switchPlay(mode) {
   if (!R || D.play === mode) return;
