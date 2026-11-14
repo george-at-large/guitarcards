@@ -426,3 +426,10 @@ svg.neck .dot.extra circle { stroke: var(--violet); stroke-width: 2.5; stroke-da
 #caged .stepb { display: none; position: absolute; top: 14px; width: 48px; height: 56px; border-radius: 14px; font-size: 20px; padding: 0; z-index: 2; }
 #caged .stepb.prev { left: 0; } #caged .stepb.next { right: 0; }
 #caged.paused .stepb { display: block; }
+/* why this colour */
+#caged .tag.colourbtn { background: rgba(185, 162, 255, 0.12); color: var(--violet); border: 1px solid rgba(185, 162, 255, 0.35); padding: 3px 10px; border-radius: 999px; font: 600 12.5px var(--f-ui); }
+.why { margin: 12px 0; padding: 10px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.why h3 { margin: 0 0 6px; font: 600 16px var(--f-num); }
+.why p { margin: 4px 0; line-height: 1.45; }
+.whytone { display: inline-block; min-width: 34px; padding: 1px 8px; margin-right: 6px; border-radius: 999px; background: var(--violet); color: #15102a; text-align: center; font: 700 13px var(--f-ui); }
+.why.ctx { border-color: rgba(255, 181, 71, 0.3); }

@@ -21,6 +21,7 @@ import * as WK from './wkrun.js';
 import * as AR from './around.js';
 import * as CO from './coach.js';
 import * as TGV from './tgv.js';
+import * as CW from './colourwhy.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1152,6 +1153,7 @@ function drawRun() {
     }
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'nextshape') return nextShapeNow();
+    if (r === 'why') return openWhy();
     if (r === 'step-' || r === 'step+') return stepChord(r === 'step+' ? 1 : -1);
     if (r === 'tgExtras') { D.tgExtras = !D.tgExtras; save(); applyNames(); return renderStage(); }
     if (r && r.startsWith('ar-')) { D.around = r.slice(3); save(); document.getElementById('arlive').innerHTML = arLive(); return; }
@@ -1266,6 +1268,7 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   if (ch && c.plainer) tags.push(`<span class="tag warn" title="No ${esc(c.plainer)} grip here">plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</span>`);
   if (ch && c.grip?.outside) tags.push('<span class="tag warn">stretches out of position</span>');
   if (ch && c.grip?.noOpen) tags.push('<span class="tag warn">no open strings fit this one</span>');
+  if (CW.hasColour(c.lq || c.q, ch ? c.grip : null)) tags.push('<button class="tag colourbtn" data-r="why">why this colour?</button>');
   if (ch && c.grip?.noTG) tags.push('<span class="tag warn">no Ted Greene form here: the CAGED grip</span>');
   if (ch && c.grip?.tg && c.grip.notes.some((n) => n.extra)) tags.push(`<span class="tag tgx">${D.tgExtras ? 'extras' : 'extras hidden'}: ${c.grip.notes.filter((n) => n.extra).map((n) => fmt(T.prettyIv(n.iv))).join(' ')}</span>`);
   const solo = ch ? '' : D.play === 'scales' ? (c.solo ? soloHTML(c) : '') : linePanel(c);
@@ -1278,7 +1281,7 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   const rh = document.getElementById('rhythm');
   if (rh) rh.innerHTML = counting ? '' : rhythmHTML(c);
   if (c.place) { const w = document.querySelector('.where small'); if (w && w.dataset.place !== c.place) { w.dataset.place = c.place; w.innerHTML = c.place; } }
-  R.shown = { c, prev, counting };
+  R.shown = { c, prev, counting, next };
   renderStage();
   if (next) document.getElementById('next').innerHTML = nextHTML(next);
   if (note) document.getElementById('evo').innerHTML = `<span>Evolved:</span> ${esc(note)}`;
@@ -1537,6 +1540,18 @@ function openSheet() {
   <p class="note">Every chord that can come up, and ${D.voicing === 'caged' || D.voicing === 'any' ? `every version of it ${usesArea() ? 'inside the area' : 'in the shape'}: the CAGED grip${usesArea() ? ', then triads or drop voicings on each string set and inversion' : ' wherever it lands'}` : D.voicing === 'open' ? 'its voicings with the most open strings, anywhere on the neck (the run picks the most open, then the nearest)' : `every ${esc(G.voicingById(D.voicing).name.toLowerCase())} voicing of it inside the area (the run picks the one nearest the last chord)`}.${usesArea() ? ' The key’s own shape is the faint dots behind.' : ''}</p>${LEGEND}${R.sheet}`;
   el.hidden = false;
   el.scrollTop = 0;
+  document.body.classList.add('locked');
+}
+// why this colour: each colour note of the chord on screen, where it comes from and why it suits this chord here
+function openWhy() {
+  const el = document.getElementById('sheet');
+  if (!el || !R || !R.shown) return;
+  const c = R.shown.c, w = CW.explain(c, { tonic: R.S.tonic, minor: R.S.minor }, R.shown.next);
+  el.innerHTML = `<div class="sheet-head"><div><b>${fmt(w.title)}</b><small>${fmt(c.rn)} in ${fmt(keyLabel(R.S))}</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>
+  ${w.items.map((x) => `<section class="why"><h3><span class="whytone">${fmt(x.tone)}</span> ${fmt(x.note)}</h3><p>${fmt(x.text)}</p><p class="note">${fmt(x.where)}</p></section>`).join('')}
+  ${w.ctx.length ? `<section class="why ctx"><h3>Why here</h3>${w.ctx.map((t) => `<p>${fmt(t)}</p>`).join('')}</section>` : ''}
+  <p class="note">The run keeps going behind this; pause first to take your time.</p>`;
+  el.hidden = false; el.scrollTop = 0;
   document.body.classList.add('locked');
 }
 function closeSheet() {
