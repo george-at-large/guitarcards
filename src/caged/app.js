@@ -12,6 +12,7 @@ import * as L from './library.js';
 import * as E from './evolve.js';
 import * as SC from './scales.js';
 import * as MC from './modal.js';
+import * as PR from './practice.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -412,6 +413,12 @@ function voicingBlurb() {
   }[v.fam]);
 }
 
+// ---------- scale practice: its own screen (whole neck, drone, no chord changes) ----------
+let stopPractice = null;
+function openPractice() {
+  stopPractice = PR.renderPractice($app, { D, save, neckSVG, esc, fmt, keys: MAJOR_KEYS, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
+}
+
 // ---------- setup ----------
 function seg(name, opts, cur) {
   // data-bar-beats reads back as dataset.barBeats (HTML lowercases data-barBeats)
@@ -442,6 +449,8 @@ function chartHTML(slots, { cur = -1, tonic = null } = {}) {
 
 function setup() {
   stop();
+  if (stopPractice) { stopPractice(); stopPractice = null; }
+  if (D.app === 'practice') return openPractice();
   const minor = isMinor();
   const keys = keysFor(minor);
   if (D.key !== 'rand' && !keys.includes(D.key)) D.key = minor ? ({ Db: 'C#', Ab: 'G#' }[D.key] || D.key) : ({ 'C#': 'Db', 'G#': 'Ab' }[D.key] || D.key);
@@ -455,6 +464,7 @@ function setup() {
   $app.innerHTML = `
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
   <p class="lead">${{ chords: 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.', scales: 'The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.', arps: 'The chords keep coming; play each one as an arpeggio through the shape, starting from the tone it names.', guide: 'The chords keep coming; play just their 3rds and 7ths as two lines that move as little as possible.', modal: 'Pick a mode. Its own chords vamp on the beat; solo in the shape and land on each chord’s 3rd or 7th.' }[D.play]}</p>
+  ${seg('app', [['changes', 'Chord changes'], ['practice', 'Scale practice']], D.app || 'changes')}
   ${seg('play', [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales'], ['modal', 'Modes']], D.play)}
 
   <section class="card">
@@ -542,7 +552,7 @@ function setup() {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     const redraw = () => { save(); setup(); };
-    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
+    for (const k of ['kt', 'key', 'shape', 'mode', 'src', 'set', 'colour', 'pcolour', 'diagram', 'labels', 'play', 'bassline', 'rhythm', 'modalSrc', 'app']) if (d[k] !== undefined) { D[k] = d[k]; return redraw(); }
     for (const k of ['beats', 'barBeats']) if (d[k] !== undefined) { D[k] = Number(d[k]); return redraw(); }
     if (d.scaleLevel !== undefined) { D.scaleLevel = d.scaleLevel === 'any' ? 'any' : Number(d.scaleLevel); return redraw(); }
     const a = d.act;

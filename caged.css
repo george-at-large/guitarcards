@@ -274,3 +274,20 @@ input.select { font: 600 16px var(--f-ui); }
 
 .liveplay { margin: 2px 0 6px; }
 .liveplay .seg button { padding: 6px 6px; font-size: 13px; }
+
+/* scale practice */
+.pctl .seg { margin-top: 10px; }
+.pctl .small { font-size: 12.5px; align-self: center; }
+.stage.whole { cursor: default; min-height: 0; }
+.stage.whole svg.neck { max-width: 340px; }
+.ladder { display: flex; gap: 3px; margin: 0 0 10px; }
+.ladder span { flex: 1; text-align: center; font: 600 10.5px var(--f-ui); padding: 6px 2px; border-radius: 8px; color: var(--muted); background: linear-gradient(180deg, rgba(255, 220, 140, 0.10), rgba(255, 255, 255, 0.02)); border: 1px solid var(--line); }
+.ladder span:nth-child(n+4) { background: linear-gradient(180deg, rgba(120, 120, 255, 0.07), rgba(0, 0, 0, 0.2)); }
+.ladder span.on { color: #1c1206; background: var(--amber); border-color: transparent; }
+.pcong { margin: 6px 0 0; font-size: 13.5px; color: var(--soft); }
+.pcong b { font-family: var(--f-num); color: var(--text); }
+details.pcongs { margin: 12px 0; padding: 10px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+details.pcongs summary { cursor: pointer; font: 600 14px var(--f-display); }
+details.pcongs p { margin: 6px 0 0; font-size: 13.5px; color: var(--soft); }
+details.pcongs b { font-family: var(--f-num); color: var(--text); }
+.muted { color: var(--muted); }
