@@ -20,6 +20,7 @@ import * as LS from './listen.js';
 import * as WK from './wkrun.js';
 import * as AR from './around.js';
 import * as CO from './coach.js';
+import * as TGV from './tgv.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -34,7 +35,7 @@ const D = Object.assign({
   key: 'C', kt: 'major', shape: 'C', mode: 'pos', src: 'set', set: 'dia', prog: 'major-ii-v-i',
   colour: 'sev', pcolour: 'as', names: false, nums: true, neck: true, voicing: 'caged', play: 'chords', scaleLevel: 1, bassline: 'off', varVL: true, allv: false, rhythm: 'ring', tour: false, mine: [], modal: 'dorian', modalSrc: 'vamp', wide: false, pad: false, genre: 'blues', diagram: 'now', labels: 'iv', hint: true, moves: true, evolve: false,
   bpm: 72, beats: 4, barBeats: 4, click: false, countIn: true, done: {},
-  roam: { cat: 'all', times: 2, tour5: false, done: {} }, hearRhythm: true, mute: false, around: 'off', aroundAmt: 'medium',
+  roam: { cat: 'all', times: 2, tour5: false, done: {} }, hearRhythm: true, mute: false, around: 'off', aroundAmt: 'medium', tgExtras: true,
 }, load());
 // the beat and the rhythm are heard now (they were silent by default): turn the click on once for everyone
 if (!D.soundV2) { D.click = true; D.hearRhythm = true; D.soundV2 = 1; }
@@ -138,6 +139,13 @@ function gripFor(S, root, q, prev, vl, spec = {}) {
     let pool = G.bassGrips(root, q, rel, S.pos);
     if (!pool.length) pool = G.bassGrips(root, q, rel, { lo: Math.max(0, S.pos.lo - 2), hi: Math.min(17, S.pos.hi + 2), mid: S.pos.mid }).map((x) => ({ ...x, far: true }));
     if (pool.length) return choose(pool, S, prev);
+  }
+  // Ted Greene: his grips for this chord in the area (the bass line steers the choice too); none: the CAGED grip
+  if (D.voicing === 'tg') {
+    const pool = TGV.voicingsFor(root, q, S.pos);
+    if (pool.length) return choose(pool, S, prev);
+    const c = G.gripInPosition(root, q, S.pos, prev);
+    return c ? { ...c, noTG: true } : null;
   }
   // bass-line mode: any version in the area with any chord tone in the bass, steered by the line
   if (D.bassline !== 'off' && D.voicing !== 'open') {
@@ -537,11 +545,12 @@ function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, sm
       if (p.fret >= lo && p.fret <= hi && (p.fret > 0 || lo === 0)) g += `<circle cx="${x(p.string)}" cy="${y(p.fret)}" r="9" class="was"/>`;
     }
   }
-  for (let s = 1; s <= 6; s++) if (!at.has(s)) g += `<text x="${x(s)}" y="${top - 12}" class="mute">×</text>`;
+  for (let s = 1; s <= 6; s++) if (!at.has(s) || (at.get(s).extra && !D.tgExtras)) g += `<text x="${x(s)}" y="${top - 12}" class="mute">×</text>`;
   for (const n of grip.notes) {
+    if (n.extra && !D.tgExtras) continue;
     const lab = labels === 'finger' && n.finger !== undefined ? (n.finger || '○') : labels === 'note' ? T.noteName(n.note, true) : T.prettyIv(n.iv);
     const held = prev && D.moves && prev.notes.some((p) => p.string === n.string && p.fret === n.fret);
-    const cls = `dot ${n.kind || KIND(n.iv)}${n.fret === 0 ? ' open' : ''}${held || n.mark ? ' held' : ''}${n.outer ? ' outer' : ''}`;
+    const cls = `dot ${n.kind || KIND(n.iv)}${n.fret === 0 ? ' open' : ''}${held || n.mark ? ' held' : ''}${n.outer ? ' outer' : ''}${n.extra ? ' extra' : ''}`;
     const r = tiny ? (n.fret === 0 ? 13 : 18) : n.fret === 0 ? 12 : 16;
     g += `<g class="${cls}"><circle cx="${x(n.string)}" cy="${y(n.fret)}" r="${r}"/>${tiny ? '' : `<text x="${x(n.string)}" y="${y(n.fret) + 4.5}">${esc(lab)}</text>`}</g>`;
   }
@@ -596,6 +605,12 @@ function openGuide() {
   el.innerHTML = `<div class="sheet-head"><div><b>${esc(g.name)}</b><small>Genre guide</small></div><button class="icon" data-r="close-sheet" aria-label="Close">✕</button></div>${guideHTML(g)}`;
   el.hidden = false; el.scrollTop = 0;
   document.body.classList.add('locked');
+}
+// Ted Greene: is the private pack on this device?
+function tgStatus() {
+  if (!TGV.ready() && !tgStatus.tried) { tgStatus.tried = true; TGV.load().then(() => { if (!R && D.app === 'changes' && D.voicing === 'tg') setup(); }); return '<p class="note">Looking for your Ted Greene pack…</p>'; }
+  if (TGV.ready()) return `<p class="note tgok">${TGV.count()} Ted Greene forms, from your ${TGV.from() === 'files' ? 'own copy of the book on this computer' : 'private pack on this device'}. It stays here: never published.</p><div class="chips"><button class="chip ${D.tgExtras ? 'on' : ''}" data-act="tgExtras">Show his extra notes</button></div>`;
+  return `<p class="note">No Ted Greene pack on this device yet. Import the pack file (<b>tedgreene-pack.json</b> from the private folder on your Mac; AirDrop it to the phone). It’s kept on this device only. Until then, chords use the CAGED grips.</p><label class="chip filechip">Import the pack<input type="file" id="tgpackc" accept=".json,application/json" hidden></label>`;
 }
 // what a voicing set does, in a sentence or two
 function voicingBlurb() {
@@ -715,6 +730,7 @@ function setup() {
     <h2>Voicings</h2>
     <select id="voicing" class="select" aria-label="Voicing set">${[...new Set(G.VOICINGS.map((v) => v.group))].map((g) => `<optgroup label="${esc(g)}">${G.VOICINGS.filter((v) => v.group === g).map((v) => `<option value="${v.id}" ${v.id === D.voicing ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</optgroup>`).join('')}</select>
     <p class="note">${voicingBlurb()}</p>
+    ${D.voicing === 'tg' ? tgStatus() : ''}
     <h3>Bass line</h3>
     ${seg('bassline', [['off', 'Off'], ['smooth', 'Smooth'], ['down', 'Walk down'], ['up', 'Walk up']], D.bassline)}
     <p class="note">${{ off: 'Each chord in its usual voicing; slash chords in a progression still get their bass.', smooth: 'Inversions are chosen so the bass moves as little as possible.', down: 'Inversions are chosen so the bass walks down by step; when it runs out of room it jumps back up and starts again.', up: 'Inversions are chosen so the bass climbs by step; when it runs out of room it drops back and starts again.' }[D.bassline]} Inversions show as slash chords: C/E, numeral I/3 (the bass as a degree of the key).${D.bassline !== 'off' && !D.pair ? ' Bass lines need room: try “Two shapes at once”.' : ''}</p>
@@ -795,7 +811,7 @@ function setup() {
     if (a === 'qsreset') { if (confirm('Forget everything Quick start has learned about your playing?')) { D.coach = CO.fresh(); qsPreview = null; } return redraw(); }
     if (a === 'roamreset') { D.roam.done[`${D.roam.cat}|${roamMode()}`] = {}; return redraw(); }
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
-    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL', 'tour', 'tourSlow', 'hearRhythm'].includes(a)) { D[a] = !D[a]; return redraw(); }
+    if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL', 'tour', 'tourSlow', 'hearRhythm', 'tgExtras'].includes(a)) { D[a] = !D[a]; return redraw(); }
     if (a === 'bpm-' || a === 'bpm+') { D.bpm = Math.max(30, Math.min(220, D.bpm + (a === 'bpm+' ? 2 : -2))); return redraw(); }
     if (a === 'go') { save(); run(); }
     if (a === 'newprog') return editor(null);
@@ -811,6 +827,15 @@ function setup() {
   if (msel) msel.onchange = () => { D.modal = msel.value; save(); setup(); };
   const vsel = $app.querySelector('#voicing');
   if (vsel) vsel.onchange = () => { D.voicing = vsel.value; save(); setup(); };
+  const tgf = $app.querySelector('#tgpackc');
+  if (tgf) tgf.onchange = async () => {
+    const f = tgf.files && tgf.files[0]; if (!f) return;
+    try {
+      const pack = JSON.parse(await f.text());
+      if (pack.kind !== 'guitarcards-pack' || pack.name !== 'tedgreene' || !pack.tg) throw new Error('that isn’t the Ted Greene pack');
+      await TGV.savePack(pack); TGV.reset(); await TGV.load(); setup();
+    } catch (e) { alert(`Couldn’t import it: ${e.message}`); }
+  };
   const sel = $app.querySelector('#prog');
   if (sel) sel.onchange = () => { D.prog = sel.value; D.kt = prog().minor ? 'minor' : 'major'; save(); setup(); };
 }
@@ -835,6 +860,7 @@ async function awake(on) {
 }
 
 async function run() {
+  if (D.voicing === 'tg' && !TGV.ready()) await TGV.load();
   const S = session();
   R = { S, ui: [], timer: null, queue: [], cur: null, e: 0, count: 0, passes: 0, countLeft: D.countIn ? 8 : 0, bpm: D.bpm, paused: false, prevGrip: null, maxBpm: D.bpm, minBpm: D.bpm };
   if (D.src === 'roam' && D.play !== 'modal' && !roamLeft().length) { R = null; return roamFinished(); }
@@ -931,7 +957,7 @@ function strumHit(c, e, t) {
   const n = c.beats * 2, push = rhythm().push && e === n - 1 && R.queue[0];
   if (!push && !hitsFor(c, c === R.first).includes(e)) return;
   const ch = push ? R.queue[0] : c;
-  const ms = ch.grip ? G.gripMidis(ch.grip) : padVoicing(ch);
+  const ms = ch.grip ? ch.grip.notes.filter((n) => D.tgExtras || !n.extra).map((n) => n.midi).sort((a, b) => a - b) : padVoicing(ch);
   const tt = t + (D.rhythm === 'shuffle' && e % 2 ? (30 / R.bpm) * 0.33 : 0);
   A.strum(e % 2 ? [...ms].reverse() : ms, tt, { muted: D.rhythm === 'funk' && !(e % 2 === 0), vel: e % 2 ? 0.42 : 0.55, dur: Math.min(0.5, (30 / R.bpm) * 1.6), spread: 0.009 });
 }
@@ -1123,6 +1149,7 @@ function drawRun() {
     }
     if (r === 'wide') { D.wide = !D.wide; if (D.wide) D.neck = true; save(); applyNames(); return renderStage(); }
     if (r === 'nextshape') return nextShapeNow();
+    if (r === 'tgExtras') { D.tgExtras = !D.tgExtras; save(); applyNames(); return renderStage(); }
     if (r && r.startsWith('ar-')) { D.around = r.slice(3); save(); document.getElementById('arlive').innerHTML = arLive(); return; }
     if (r === 'click' || r === 'hearRhythm' || r === 'mute') { D[r] = !D[r]; if (r === 'mute' && D.mute) A.hush(); save(); return applyNames(); }
     if (r === 'allv') { D.allv = !D.allv; if (D.allv) D.neck = true; save(); applyNames(); return renderStage(); }
@@ -1154,7 +1181,7 @@ function livePlay() {
   return `<div class="seg">${modes.map(([v, l]) => `<button data-r="play-${v}" class="${D.play === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 }
 function runButtons() {
-  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}${D.src === 'genre' ? '<button class="rt" data-r="gguide">Genre guide</button>' : ''}<button class="rt" data-r="nextshape">Next shape ⏭</button><button class="rt" data-r="click">Click</button>${D.rhythm !== 'ring' ? '<button class="rt" data-r="hearRhythm">Rhythm</button>' : ''}<button class="rt" data-r="mute">Mute</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
+  return `<button class="rt" data-r="nums">Numeral</button><button class="rt" data-r="names">Name</button><button class="rt" data-r="neck">Neck</button>${lineMode() ? '<button class="rt" data-r="wide">Wider</button><button class="rt" data-r="pad">Chord sound</button>' : '<button class="rt" data-r="allv">All voicings</button>'}${D.evolve && D.src === 'prog' && !R?.stream?.modal ? '<button class="rt" data-r="keep">Save this version</button>' : ''}${D.src === 'genre' ? '<button class="rt" data-r="gguide">Genre guide</button>' : ''}${D.voicing === 'tg' && D.play === 'chords' ? '<button class="rt" data-r="tgExtras">TG extras</button>' : ''}<button class="rt" data-r="nextshape">Next shape ⏭</button><button class="rt" data-r="click">Click</button>${D.rhythm !== 'ring' ? '<button class="rt" data-r="hearRhythm">Rhythm</button>' : ''}<button class="rt" data-r="mute">Mute</button><button class="sheet-btn" data-r="sheet">${scaleMode() ? 'Scale options' : D.play === 'chords' ? 'Chord set' : 'All chords'}</button>`;
 }
 function switchPlay(mode) {
   if (!R || D.play === mode) return;
@@ -1189,7 +1216,7 @@ function applyNames() {
   $app.classList.toggle('hide-names', !D.names);
   $app.classList.toggle('hide-nums', !D.nums);
   $app.classList.toggle('no-neck', !D.neck);
-  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv, wide: D.wide, pad: D.pad, click: D.click, hearRhythm: D.hearRhythm, mute: D.mute };
+  const on = { nums: D.nums, names: D.names, neck: D.neck, allv: D.allv, wide: D.wide, pad: D.pad, click: D.click, hearRhythm: D.hearRhythm, mute: D.mute, tgExtras: D.tgExtras };
   $app.querySelectorAll('.rt').forEach((b) => { const k = b.dataset.r || b.dataset.w; b.classList.toggle('on', !!on[k]); b.setAttribute('aria-pressed', !!on[k]); });
 }
 const gripTag = (g) => (g ? (g.shape ? `${g.shape} shape` : g.label) : '');
@@ -1209,6 +1236,8 @@ function showChord(c, { next = null, prev = null, counting = false, note = null 
   if (ch && c.plainer) tags.push(`<span class="tag warn" title="No ${esc(c.plainer)} grip here">plainer: no ${fmt(T.pretty(T.getChord(c.plainer).sym))} grip here</span>`);
   if (ch && c.grip?.outside) tags.push('<span class="tag warn">stretches out of position</span>');
   if (ch && c.grip?.noOpen) tags.push('<span class="tag warn">no open strings fit this one</span>');
+  if (ch && c.grip?.noTG) tags.push('<span class="tag warn">no Ted Greene form here: the CAGED grip</span>');
+  if (ch && c.grip?.tg && c.grip.notes.some((n) => n.extra)) tags.push(`<span class="tag tgx">${D.tgExtras ? 'extras' : 'extras hidden'}: ${c.grip.notes.filter((n) => n.extra).map((n) => fmt(T.prettyIv(n.iv))).join(' ')}</span>`);
   const solo = ch ? '' : D.play === 'scales' ? (c.solo ? soloHTML(c) : '') : linePanel(c);
   document.getElementById('now').innerHTML = counting
     ? `<div class="count" id="count"></div><div class="first">first: <b class="cnum">${fmt(main)}</b> <b class="cname">${fmt(sub)}</b></div>`
@@ -1438,6 +1467,7 @@ function versionsFor(S, root, q, spec = {}) {
   if (D.bassline !== 'off' && D.voicing !== 'open' && (D.voicing === 'caged' || D.voicing === 'any')) return [...G.versionsIn(root, q, S.pos), ...toneRels(q).filter((r) => r).flatMap((rel) => G.bassGrips(root, q, rel, S.pos).slice(0, 3))];
   if (G.voicingById(D.voicing).mix) return familyPool(S, root, q, spec).filter((x) => !x.far);
   if (D.voicing === 'open') return G.openVoicings(root, q).slice(0, 8);
+  if (D.voicing === 'tg') return TGV.voicingsFor(root, q, S.pos).filter((x) => !x.far).slice(0, 16);
   if (D.voicing !== 'caged') return G.familyVoicings(root, q, D.voicing, S.pos).inside;
   if (D.mode === 'pos') return G.versionsIn(root, q, S.pos);
   return S.shapes.flatMap((sh) => G.placements(root, q, sh).map((p) => ({ ...p, label: `${sh} shape · fret ${p.rootFret}` })));

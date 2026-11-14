@@ -416,3 +416,8 @@ svg.neck .dot.r.sc circle { fill: #6b4a1e; stroke: rgba(255, 181, 71, 0.55); }
 #caged .qsrate button { padding: 14px; font: 650 16px var(--f-display); border-radius: 16px; }
 #caged .qsrate button.primary { background: var(--amber); color: #1a1407; border: 0; }
 .qsdone { padding-left: 18px; display: grid; gap: 4px; }
+/* Ted Greene: his extra notes, dashed */
+svg.neck .dot.extra circle { stroke: var(--violet); stroke-width: 2.5; stroke-dasharray: 4 3; }
+.tag.tgx { background: rgba(185, 162, 255, 0.12); color: var(--violet); border-color: rgba(185, 162, 255, 0.3); }
+.note.tgok { color: var(--soft); }
+.chip.filechip { cursor: pointer; display: inline-block; }

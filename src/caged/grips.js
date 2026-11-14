@@ -306,6 +306,7 @@ export const VOICINGS = [
   { id: 'caged', name: 'CAGED grips', group: 'Grips', blurb: 'One grip per chord, in whichever CAGED shape of it lives in the area.' },
   { id: 'any', name: 'Any voicing, voice-led', group: 'Grips', blurb: 'From every grip, triad and drop voicing in the area, the one closest to the last chord.' },
   { id: 'open', name: 'Open strings: as many as possible', group: 'Grips', blurb: 'For every chord, the playable voicing anywhere on the neck with the most open strings ringing; ties go to the smallest move. Keys with no open strings to offer fall back to the CAGED grip.' },
+  { id: 'tg', name: 'Ted Greene voicings', group: 'Ted Greene', blurb: 'Every chord played with one of Ted Greene’s own grips from Modern Chord Progressions, moved to its root and placed in the area, the one nearest the last chord. Notes he adds beyond the chord shown (a 9 or 13 on a dominant, a 6 on a major) are marked, and can be shown or hidden. Needs your private Ted Greene pack on this device.' },
   { id: 'tri:321', name: 'Triads · strings 3-2-1', group: 'Triads', fam: 'tri', sets: [[3, 2, 1]] },
   { id: 'tri:432', name: 'Triads · strings 4-3-2', group: 'Triads', fam: 'tri', sets: [[4, 3, 2]] },
   { id: 'tri:543', name: 'Triads · strings 5-4-3', group: 'Triads', fam: 'tri', sets: [[5, 4, 3]] },
