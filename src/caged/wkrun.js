@@ -224,7 +224,7 @@ export function renderWorkouts($app, ctx) {
     ${st.tip ? `<p class="note wktip">${fmt(st.tip)}</p>` : ''}
     <div class="lnecks ${st.necks.length > 1 ? '' : 'one'}">${st.necks.map(neckHTML).join('')}</div>
     ${st.legend === 'scale' ? LEGEND_SCALE : st.legend === 'guide' ? LEGEND_GUIDE : legend}
-    <div class="nextline">${nx ? `<span class="lbl">next</span> <span class="wknext">${fmt(T.pretty(nx.title))}</span>` : R.ui + 1 < total ? `<span class="lbl">next</span> <span class="muted">${esc(R.units[R.ui + 1].w.name)} · ${fmt(T.pretty(R.units[R.ui + 1].key))} · ${esc(areaName(R.units[R.ui + 1]))}</span>` : '<span class="lbl">last step</span>'}</div>
+    <div class="nextline">${nx ? `${nextPic(nx)}<span class="lbl">next</span> <span class="wknext">${fmt(T.pretty(nx.title))}</span>` : R.ui + 1 < total ? `<span class="lbl">next</span> <span class="muted">${esc(R.units[R.ui + 1].w.name)} · ${fmt(T.pretty(R.units[R.ui + 1].key))} · ${esc(areaName(R.units[R.ui + 1]))}</span>` : '<span class="lbl">last step</span>'}</div>
     <div class="wkctl">
       <button data-w="prev" aria-label="Back">◀</button>
       ${O.sound && !O.mute ? '<button data-w="again" class="soft">↻ Hear it</button>' : ''}
@@ -235,6 +235,13 @@ export function renderWorkouts($app, ctx) {
     <div class="runctl"><button data-w="bpm-" aria-label="Slower">−</button><b id="wbpm">${O.bpm} bpm</b><button data-w="bpm+" aria-label="Faster">+</button></div>
     ${O.pace === 'auto' ? `<div class="wkbeats"><span class="lbl">beats a step</span>${seg('beats', [[4, '4'], [8, '8'], [16, '16'], [32, '32']], O.beats)}</div>` : ''}
     <div class="runbtns"><button class="rt ${O.metro !== 'off' ? 'on' : ''}" data-w="metro">${METRO.find(([v]) => v === O.metro)[1]}</button>${liveBtn('sound', 'Chord sound', O.sound)}${liveBtn('auto', O.pace === 'auto' ? `Auto: next every ${O.beats} beats` : 'Auto: off, tap Next', O.pace === 'auto')}${O.sound ? liveBtn('hold', 'Hold the chord', O.hold) : ''}${liveBtn('mute', 'Mute all', O.mute)}<button class="rt" data-w="skip">Skip this part</button></div>`;
+  }
+  // the next step's grip, tiny, so the hand can get ready (chord steps only: a scale is too many dots)
+  function nextPic(nx) {
+    const n = nx.necks && nx.necks[0];
+    if (!n || nx.legend === 'scale' || n.notes.length > 7) return '';
+    const lo = n.lo <= 1 ? 0 : n.lo, notes = n.notes.filter((x) => x.kind !== 'sc');
+    return `<span class="nextpic">${neckSVG({ notes, lo, hi: lo + 4 }, { lo, hi: lo + 4, tiny: true, labels: 'iv' })}</span>`;
   }
   const liveBtn = (k, l, on) => `<button class="rt ${on ? 'on' : ''}" data-w="t:${k}" aria-pressed="${!!on}">${esc(l)}</button>`;
   function finished() {
