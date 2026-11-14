@@ -8,6 +8,7 @@ import * as G from './grips.js';
 import * as H from './harmony.js';
 import * as L from './library.js';
 import { BORROWED } from './borrowdata.js';
+import { voiceInArea } from './cscale.js';
 
 const KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -18,33 +19,36 @@ export function renderBorrowed($app, ctx) {
   const tonic = () => T.parseNote(O.key);
   const name = (root, q) => H.chordName(root, q);
 
-  // the tonic chord and the borrowed chord, both inside one CAGED shape of the key
+  // a single borrowed chord, or a pair that travels together
+  const chordsOf = (b) => b.chords || [{ iv: b.iv, q: b.q, rn: b.rn }];
+  // the tonic chord and the borrowed chord(s), all inside one CAGED shape of the key, each voice-led from the last
   function pair(shape) {
     const b = cur(), t = tonic(), pos = G.positionOf(t, shape);
-    const home = G.gripInPosition(t, b.minor ? 'min' : 'maj', pos);
-    const root = T.transpose(t, b.iv);
-    const g = G.gripInPosition(root, b.q, pos, home);
-    return { pos, home, g, root };
+    const tri = (q) => ['maj', 'min', 'dim', 'aug'].includes(q), grip = (root, q, prev) => voiceInArea(root, q, pos, prev, 'caged', 'caged', tri(q)); // everyday grips only, no muted string inside
+    const home = grip(t, b.minor ? 'min' : 'maj', null);
+    let prev = home;
+    const gs = chordsOf(b).map((c) => { const root = T.transpose(t, c.iv), g = grip(root, c.q, prev); if (g) prev = g; return { ...c, root, g }; });
+    gs.forEach((x, i) => { x.prev = i ? gs[i - 1].g : home; });
+    return { pos, home, gs };
   }
   function shapeRow(shape) {
-    const b = cur(), { pos, home, g, root } = pair(shape);
-    const lo = Math.min(pos.lo, home?.lo ?? pos.lo, g?.lo ?? pos.lo), hi = Math.max(pos.hi, home?.hi ?? pos.hi, g?.hi ?? pos.hi);
-    const w = { lo: Math.max(0, lo - (lo > 0 ? 0 : 0)), hi: Math.max(hi, lo + 4), small: true, labels: 'iv' };
-    return `<div class="bcrow">
+    const b = cur(), { pos, home, gs } = pair(shape);
+    const all = [home, ...gs.map((x) => x.g)].filter(Boolean);
+    const lo = Math.min(pos.lo, ...all.map((g) => g.lo)), hi = Math.max(pos.hi, ...all.map((g) => g.hi));
+    const w = { lo: Math.max(0, lo), hi: Math.max(hi, lo + 4), small: true, labels: 'iv' };
+    return `<div class="bcrow" style="grid-template-columns: 54px repeat(${gs.length + 1}, 1fr)">
       <button class="bcplay" data-hear="${shape}" aria-label="Hear ${shape} shape"><b>${shape}</b><small>shape</small><span>▶</span></button>
       <figure><figcaption>${fmt(name(tonic(), b.minor ? 'min' : 'maj'))} <small>${b.minor ? 'i' : 'I'}</small></figcaption>${neckSVG(home, w)}</figure>
-      <figure><figcaption>${fmt(name(root, b.q))} <small>${fmt(b.rn)}</small></figcaption>${neckSVG(g, { ...w, prev: home })}</figure>
+      ${gs.map((x) => `<figure><figcaption>${fmt(name(x.root, x.q))} <small>${fmt(x.rn)}</small></figcaption>${neckSVG(x.g, { ...w, prev: x.prev })}</figure>`).join('')}
     </div>`;
   }
   function hear(shape) {
-    const { home, g } = pair(shape);
-    if (!home || !g) return;
+    const { home, gs } = pair(shape);
+    if (!home || gs.some((x) => !x.g)) return;
     A.unlockAudio().catch(() => {});
     A.ensureRunning().then(() => {
-      const t = A.audioCtx().currentTime + 0.08;
-      A.strum(G.gripMidis(home), t, { dur: 1.1 });
-      A.strum(G.gripMidis(g), t + 1.2, { dur: 1.1 });
-      A.strum(G.gripMidis(home), t + 2.4, { dur: 1.6 });
+      const t = A.audioCtx().currentTime + 0.08, seq = [home, ...gs.map((x) => x.g), home];
+      seq.forEach((g, i) => A.strum(G.gripMidis(g), t + i * 1.2, { dur: i === seq.length - 1 ? 1.6 : 1.1 }));
     });
   }
   // a progression's chords in this key, with their numerals
@@ -61,7 +65,7 @@ export function renderBorrowed($app, ctx) {
   }
   function draw() {
     const b = cur(), t = tonic(), kn = fmt(T.noteName(t, true)) + (b.minor ? ' minor' : ' major');
-    const maj = BORROWED.filter((x) => !x.minor), min = BORROWED.filter((x) => x.minor);
+    const maj = BORROWED.filter((x) => !x.minor && !x.pair), min = BORROWED.filter((x) => x.minor && !x.pair), pairs = BORROWED.filter((x) => x.pair);
     const chip = (x) => `<button class="chip bcchip ${x.id === b.id ? 'on' : ''}" data-bc="${x.id}"><b>${fmt(x.rn)}</b> <small>${esc(x.name)}</small></button>`;
     $app.innerHTML = `
     <header class="chead"><button class="icon" data-f="back" aria-label="Back">‹</button><h1>Borrowed chords</h1><span></span></header>
@@ -69,9 +73,10 @@ export function renderBorrowed($app, ctx) {
     <section class="card bcpick">
       <p class="lbl">In a major key</p><div class="chips bcchips">${maj.map(chip).join('')}</div>
       <p class="lbl">In a minor key</p><div class="chips bcchips">${min.map(chip).join('')}</div>
+      <p class="lbl">Pairs that travel together</p><div class="chips bcchips">${pairs.map(chip).join('')}</div>
     </section>
     <section class="card bcabout">
-      <h2><span class="bcrn">${fmt(b.rn)}</span> ${esc(b.name)} <small>${fmt(name(T.transpose(t, b.iv), b.q))} in ${kn} · from ${esc(b.from)}</small></h2>
+      <h2><span class="bcrn">${fmt(b.rn)}</span> ${esc(b.name)} <small>${fmt(chordsOf(b).map((c) => name(T.transpose(t, c.iv), c.q)).join(' – '))} in ${kn} · from ${esc(b.from)}</small></h2>
       <dl class="fsglance"><dt>Where it comes from</dt><dd>${fmt(b.where)}</dd><dt>How to use it</dt><dd>${fmt(b.how)}</dd><dt>Sound</dt><dd>${fmt(b.sound)}</dd></dl>
       <p class="note">Shown in C (or A minor where it says so); the chords below are in ${kn}.</p>
     </section>

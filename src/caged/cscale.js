@@ -52,6 +52,21 @@ const ORDERS = {
 };
 const INV = [['1', ['1']], ['3rd', ['3', 'b3']], ['5th', ['5', 'b5', '#5']], ['7th', ['7', 'b7', 'bb7', '6']]];
 
+// a voicing with a muted string in the middle of it (other than drop 3's, which is standard)
+const holes = (v) => { const ss = v.notes.map((n) => n.string), lo = Math.min(...ss), hi = Math.max(...ss); let k = 0; for (let s = lo; s <= hi; s++) if (!ss.includes(s)) k++; return k; };
+// the chord in one CAGED area: its CAGED grip when that's a clean, everyday grip; when the grip needs a muted string
+// inside it (the G-shape m7 without its B string, say), or there's no grip, the nearest standard voicing instead:
+// drop 2 or drop 3 for 7th chords, close or spread triads for triads
+export function voiceInArea(root, q, pos, prev, voice, vid, triads) {
+  if (voice !== 'caged') return G.voiceLeadPick(root, q, vid, pos, prev);
+  const g = G.gripInPosition(root, q, pos, prev);
+  if (g && !holes(g)) return g;
+  const alts = (triads ? ['tri:adj', 'spread'] : ['d2:all', 'd3:all']).map((id) => G.voiceLeadPick(root, q, id, pos, prev)).filter(Boolean);
+  if (!alts.length) return g;
+  const sc = (x) => (prev ? G.movement(prev, x) : Math.abs(x.center - pos.mid)) + (triads && holes(x) ? 2 : 0);
+  return alts.reduce((a, b) => (sc(b) < sc(a) ? b : a));
+}
+
 export function renderChordScales($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack } = ctx;
   const O = D.cs2 = Object.assign({ key: 'C', scale: 'mel', size: 'sev', voice: 'caged', set: '4321', where: 'E', inv: 0, order: 'up', labels: 'finger', beats: 4, bpm: 72, k: 0 }, D.cs2 || {});
@@ -75,11 +90,7 @@ export function renderChordScales($app, ctx) {
     for (let j = 0; j < seq.length; j++) {
       const c = chordAt(seq[j]);
       let v = null;
-      if (pos) {
-        v = O.voice === 'caged' ? G.gripInPosition(c.root, c.q, pos, prev) : G.voiceLeadPick(c.root, c.q, vid(), pos, prev);
-        // a few extended chords have no CAGED grip in some areas: then the nearest voicing of any kind there
-        if (!v && O.voice === 'caged') v = G.voiceLeadPick(c.root, c.q, 'any', pos, prev) || G.voiceLeadPick(c.root, c.q, 'd2:all', pos, prev);
-      }
+      if (pos) v = voiceInArea(c.root, c.q, pos, prev, O.voice, vid(), size() === 'tri');
       else {
         // up the neck on one string set, one inversion: the next voicing of that inversion up (or down) from the last
         const all = G.familyVoicings(c.root, c.q, vid(), { lo: 0, hi: 19, mid: 9 });
