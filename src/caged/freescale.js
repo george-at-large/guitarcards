@@ -605,7 +605,8 @@ export function renderFreeScale($app, ctx) {
   function targetsHTML(it) {
     const l = land(); if (!l || !it.mode) return '';
     const ivs = l.targets?.[it.mode] || FL.modeArp(it.mode, false);
-    return `<span class="fstargets">targets: ${fillRole(ivs.map((iv) => `{${iv}}`).join(' ')).replace(/ \(([^)]*)\)/g, '<i>$1</i>')}</span>`;
+    // the interval first, then its note: ♭3 (B♭)
+    return `<span class="fstargets">targets: ${fillRole(ivs.map((iv) => `{${iv}}`).join(' ')).replace(/<b>(.*?)<\/b> \(([^)]*)\)/g, '<b>$2</b><i>$1</i>')}</span>`;
   }
   // how a scale differs from the landscape's home: a degree altered (♭7 → 7, 2 → ♭9), or a note added or dropped
   function landText(homeId, id) {
