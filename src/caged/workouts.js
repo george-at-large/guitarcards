@@ -142,12 +142,12 @@ def({
       const nm = k.name('1', q), n = T.getChord(q).ivs.length;
       for (const shape of p.shapes || [p.shape]) {
         const ps = G.placements(r, q, shape).filter((x) => fits(x.notes, p));
-        if (ps.length) steps.push({ title: `${nm} · ${shape} shape grip`, sub: 'the CAGED grip', tip: 'Grip it, strum it, then pick each note low to high and say its name: root, 3rd, 5th, 7th.', necks: [{ ...grip(ps[0].notes), ...areaView(p) }], legend: 'chord', sound: { seq: [{ midis: midis(ps[0]), name: nm }] } });
+        if (ps.length) steps.push({ block: q, title: `${nm} · ${shape} shape grip`, sub: 'the CAGED grip', tip: 'Grip it, strum it, then pick each note low to high and say its name: root, 3rd, 5th, 7th.', necks: [{ ...grip(ps[0].notes), ...areaView(p) }], legend: 'chord', sound: { seq: [{ midis: midis(ps[0]), name: nm }] } });
       }
       const fam = n === 3 ? [['close', 'triad', [[6, 5, 4], [5, 4, 3], [4, 3, 2], [3, 2, 1]]]] : [['drop2', 'drop 2', [[6, 5, 4, 3], [5, 4, 3, 2], [4, 3, 2, 1]]], ['drop3', 'drop 3', [[6, 4, 3, 2], [5, 3, 2, 1]]]];
       for (const [voicing, kind, sets] of fam) for (const set of sets) {
         for (const v of voicings(r, q, voicing, set).filter((x) => fits(x.notes, p)).sort((a, b) => avg(a.notes) - avg(b.notes))) {
-          steps.push({ title: `${nm} · ${kind} · ${INV[v.inversion] || `${v.bassIv} in the bass`}`, sub: `strings ${strings(set)}`, tip: `The ${T.prettyIv(v.bassIv)} is in the bass. Find it from the grip: which grip notes does it share?`, necks: [{ ...grip(v.notes), ...areaView(p) }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: nm }] } });
+          steps.push({ block: q, title: `${nm} · ${kind} · ${INV[v.inversion] || `${v.bassIv} in the bass`}`, sub: `strings ${strings(set)}`, tip: `The ${T.prettyIv(v.bassIv)} is in the bass. Find it from the grip: which grip notes does it share?`, necks: [{ ...grip(v.notes), ...areaView(p) }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: nm }] } });
         }
       }
     }
@@ -163,7 +163,7 @@ function upTheNeck(k, qs, families) {
       const vs = voicings(r, q, voicing, set).filter((v) => Math.max(...v.notes.map((n) => n.fret)) <= 15).sort((a, b) => avg(a.notes) - avg(b.notes));
       vs.forEach((v, i) => {
         const g = grip(v.notes);
-        steps.push({ title: `${nm} · ${INV[v.inversion] || `${v.bassIv} in the bass`}`, sub: `${kind} · strings ${strings(set)} · ${i + 1} of ${vs.length} up the neck`, tip: i === 0 ? 'Start at the bottom of the neck. Each next inversion is the next one up: the lowest note moves to the next chord tone.' : 'Slide up to it. Watch which voice moves: each note goes up to the next chord tone.', necks: [{ ...g, ...around(g.lo, g.hi), prev: i ? grip(vs[i - 1].notes) : null }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: nm }] } });
+        steps.push({ block: `${q}|${set}`, title: `${nm} · ${INV[v.inversion] || `${v.bassIv} in the bass`}`, sub: `${kind} · strings ${strings(set)} · ${i + 1} of ${vs.length} up the neck`, tip: i === 0 ? 'Start at the bottom of the neck. Each next inversion is the next one up: the lowest note moves to the next chord tone.' : 'Slide up to it. Watch which voice moves: each note goes up to the next chord tone.', necks: [{ ...g, ...around(g.lo, g.hi), prev: i ? grip(vs[i - 1].notes) : null }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: nm }] } });
       });
     }
   }
@@ -219,7 +219,7 @@ for (const P of PARENTS) def({
         else { const up = vs.filter((x) => avg(x.notes) > avg(prev.notes)); v = up.length ? up.reduce((a, b) => (avg(a.notes) <= avg(b.notes) ? a : b)) : vs.reduce((a, b) => (avg(a.notes) <= avg(b.notes) ? a : b)); }
         const g = grip(v.notes), w = around(g.lo, g.hi);
         const bg = SC.scaleNotesIn({ rel }, k.tonic, 'maj', w.lo, w.hi).map((x) => ({ string: x.string, fret: x.fret, root: x.iv === '1' }));
-        steps.push({ title: `${k.rn(iv, q)} · ${k.name(iv, q)}`, sub: `${P.mode} · ${kind} · strings ${strings(set)} · chord ${d + 1} of 8`,
+        steps.push({ block: `${kind}|${set}`, title: `${k.rn(iv, q)} · ${k.name(iv, q)}`, sub: `${P.mode} · ${kind} · strings ${strings(set)} · chord ${d + 1} of 8`,
           tip: d === 0 ? `The faint dots are ${T.noteName(k.tonic, true)} ${P.mode}: every chord here is built from them. Up one chord at a time; each voice steps up to the next note of the scale.` : 'Every voice moves up one step of the scale: find each new note among the faint ones.',
           necks: [{ ...g, ...w, bg, prev: prev ? grip(prev.notes) : null }], legend: 'chord', sound: { seq: [{ midis: midis(v), name: k.name(iv, q) }] } });
         prev = v;
@@ -259,6 +259,7 @@ function morphRun(k, m, set, base, where) {
     const g = grip(v.notes), mv = i ? moved(prev, v) : [];
     const view = where ? areaView(where) : around(Math.min(g.lo, base.notes.length ? Math.min(...base.notes.filter((n) => n.fret > 0).map((n) => n.fret), g.lo) : g.lo), g.hi);
     steps.push({
+      block: `${m.kind}|${set}|${base.inversion}|${avg(base.notes)}`,
       title: i ? `${k.name('1', m.chain[i - 1])} → ${k.name('1', q)}` : `${k.name('1', q)}`,
       sub: `${m.kind} · ${INV[base.inversion] || 'inversion'} · strings ${strings(set)}`,
       tip: i ? `Only ${mv.length === 1 ? 'one note moves' : `${mv.length} notes move`}: ${mv.join(', ')}. Keep the rest of the hand still.` : `Start here, then change the chord type one note at a time: ${m.chain.map((x) => T.pretty(T.chordSymbol(r, x))).join(' → ')}.`,
@@ -348,7 +349,7 @@ def({
       const notes = climb(r, q, s);
       if (!notes) continue;
       const g = grip(notes);
-      steps.push({ title: `${k.name('1', q)} · two octaves`, sub: `from the root on the ${s}th string`, tip: 'Up from the ringed root to the ringed root two octaves higher and back, shifting as you go. Slow and even.', necks: [{ ...g, ...around(g.lo, g.hi) }], legend: 'chord', line: true, sound: { seq: [{ midis: k.voiced('1', q), name: k.name('1', q) }] } });
+      steps.push({ block: q, title: `${k.name('1', q)} · two octaves`, sub: `from the root on the ${s}th string`, tip: 'Up from the ringed root to the ringed root two octaves higher and back, shifting as you go. Slow and even.', necks: [{ ...g, ...around(g.lo, g.hi) }], legend: 'chord', line: true, sound: { seq: [{ midis: k.voiced('1', q), name: k.name('1', q) }] } });
     }
     return steps;
   },
@@ -483,7 +484,7 @@ function guideSteps(k, chords, label) {
     }
     const on = new Set((pair || []).map((n) => `${n.string}:${n.fret}`));
     const notes = all.map((n) => (on.has(`${n.string}:${n.fret}`) ? { ...n, mark: true } : { ...n, kind: 'sc' }));
-    steps.push({ title: `${k.rn(iv, q)} · ${k.name(iv, q)}`, sub: `${label}, chord ${i + 1} of ${chords.length}: 3rd and 7th`, tip: i === 0 ? 'Play just the two ringed notes over each chord. The faint ones are the other 3rds and 7ths in the shape.' : 'One note holds or moves a half step, the other a step: the 7th falls to the next 3rd.', necks: [{ ...grip(notes), ...areaView(p) }], legend: 'guide', sound: { seq: chordSound(k, [[iv, q]]) } });
+    steps.push({ block: label, title: `${k.rn(iv, q)} · ${k.name(iv, q)}`, sub: `${label}, chord ${i + 1} of ${chords.length}: 3rd and 7th`, tip: i === 0 ? 'Play just the two ringed notes over each chord. The faint ones are the other 3rds and 7ths in the shape.' : 'One note holds or moves a half step, the other a step: the 7th falls to the next 3rd.', necks: [{ ...grip(notes), ...areaView(p) }], legend: 'guide', sound: { seq: chordSound(k, [[iv, q]]) } });
     prev = pair;
   });
   return steps;
