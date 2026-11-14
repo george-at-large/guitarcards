@@ -5,6 +5,8 @@ let ctx = null;
 let master = null;     // every voice goes in here
 let guitarBus = null;  // plucked strings go through a guitar-body EQ first
 let irBuf = null;
+let hallIn = null;    // a long, dark hall for the ambient pad and bells (a send)
+let hallBuf = null;
 const pluckCache = new Map();
 
 // small-room reverb impulse: decaying stereo noise, generated once
@@ -23,6 +25,23 @@ function roomIR(c) {
   }
   return irBuf;
 }
+// a long hall: 5 s of decorrelated noise, darkening and fading slowly, a short pre-delay
+function hallIR(c) {
+  if (hallBuf) return hallBuf;
+  const len = Math.floor(c.sampleRate * 5), pre = Math.floor(c.sampleRate * 0.025);
+  hallBuf = c.createBuffer(2, len, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = hallBuf.getChannelData(ch);
+    let lp = 0;
+    for (let i = pre; i < len; i++) {
+      const t = (i - pre) / c.sampleRate;
+      const k = 0.35 + 0.6 * Math.min(1, t / 2.5); // the tail gets darker
+      lp = lp * k + (Math.random() * 2 - 1) * (1 - k);
+      d[i] = lp * Math.exp(-t * 1.35) * (i - pre < 400 ? (i - pre) / 400 : 1) * 2.2;
+    }
+  }
+  return hallBuf;
+}
 function buildBus() {
   const c = ctx;
   master = c.createGain(); master.gain.value = 0.85;
@@ -32,6 +51,10 @@ function buildBus() {
   const wet = c.createGain(); wet.gain.value = 0.16;
   master.connect(dry).connect(comp);
   master.connect(verb).connect(wet).connect(comp);
+  hallIn = c.createGain(); hallIn.gain.value = 1;
+  const hall = c.createConvolver(); hall.buffer = hallIR(c);
+  const hallWet = c.createGain(); hallWet.gain.value = 0.55;
+  hallIn.connect(hall).connect(hallWet).connect(comp);
   comp.connect(c.destination);
   // guitar body: a little low-mid warmth, tame the harsh upper mids and fizz
   guitarBus = c.createGain(); guitarBus.gain.value = 1;
@@ -222,6 +245,67 @@ export function pad(midis, t, dur, { vel = 0.5 } = {}) {
   }
 }
 
+// ---------- ambient: a slow, warm pad and soft bells, half dry and half in the hall ----------
+// the pad: each note a pair of detuned saws and a triangle, low-passed and breathing slowly, spread across the
+// stereo field; it swells in and fades long after the next chord has started, so changes overlap
+export function softPad(midis, t, dur, { vel = 0.5, attack = 1.4, release = 3 } = {}) {
+  const c = audioCtx();
+  const atk = Math.min(attack, Math.max(0.2, dur * 0.4)), end = t + Math.max(0.4, dur);
+  const peak = (vel * 0.2) / Math.sqrt(Math.max(1, midis.length));
+  const out = c.createGain();
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(peak, t + atk);
+  out.gain.setValueAtTime(peak, end);
+  out.gain.exponentialRampToValueAtTime(0.0001, end + release);
+  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.5;
+  lp.frequency.setValueAtTime(500, t);
+  lp.frequency.linearRampToValueAtTime(1500, t + atk);
+  lp.frequency.exponentialRampToValueAtTime(700, end + release);
+  const lfo = c.createOscillator(); lfo.frequency.value = 0.13 + Math.random() * 0.08;
+  const lfoG = c.createGain(); lfoG.gain.value = 220;
+  lfo.connect(lfoG).connect(lp.frequency);
+  lfo.start(t); lfo.stop(end + release + 0.1);
+  const dry = c.createGain(); dry.gain.value = 0.6;
+  const send = c.createGain(); send.gain.value = 0.9;
+  out.connect(lp);
+  lp.connect(dry).connect(master);
+  lp.connect(send).connect(hallIn);
+  const sorted = [...midis].sort((a, b) => a - b);
+  sorted.forEach((m, i) => {
+    const pan = c.createStereoPanner ? c.createStereoPanner() : null;
+    if (pan) pan.pan.value = sorted.length > 1 ? -0.45 + (0.9 * i) / (sorted.length - 1) : 0;
+    const bus = c.createGain(); bus.gain.value = m < 48 ? 0.8 : 1;
+    if (pan) bus.connect(pan).connect(out); else bus.connect(out);
+    for (const [type, det, amp] of [['sawtooth', -7, 0.16], ['sawtooth', 7, 0.16], ['triangle', 0, 0.6]]) {
+      const o = c.createOscillator(); o.type = type; o.frequency.value = hz(m); o.detune.value = det + (Math.random() - 0.5) * 3;
+      const g = c.createGain(); g.gain.value = amp;
+      o.connect(g).connect(bus);
+      o.start(t); o.stop(end + release + 0.1);
+    }
+  });
+}
+// a soft bell: a sine and a few quiet partials, struck and left to ring into the hall
+export function bell(midi, t, { vel = 0.4, decay = 2.6 } = {}) {
+  const c = audioCtx();
+  const out = c.createGain();
+  const peak = vel * 0.16;
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(peak, t + 0.012);
+  out.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+  const dry = c.createGain(); dry.gain.value = 0.55;
+  const send = c.createGain(); send.gain.value = 1;
+  out.connect(dry).connect(master);
+  out.connect(send).connect(hallIn);
+  for (const [ratio, amp, dk] of [[1, 1, 1], [2, 0.22, 0.45], [3.01, 0.08, 0.3], [4.2, 0.03, 0.2]]) {
+    const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = hz(midi) * ratio;
+    const g = c.createGain();
+    g.gain.setValueAtTime(amp, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0001, amp * 0.001), t + decay * dk);
+    o.connect(g).connect(out);
+    o.start(t); o.stop(t + decay + 0.05);
+  }
+}
+
 // ---------- drone ----------
 let drone = null;
 export function startDrone(midi, fifth = true) {
@@ -371,9 +455,10 @@ function cutMaster(keepDrone) {
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(0.0001, t);
     // rebuild master so scheduled sources are cut off
-    const old = master, oldG = guitarBus;
+    const old = master, oldG = guitarBus, oldH = hallIn;
+    oldH.gain.cancelScheduledValues(t); oldH.gain.setValueAtTime(0.0001, t);
     buildBus();
-    setTimeout(() => { try { old.disconnect(); oldG.disconnect(); } catch (e) { /* */ } }, 50);
+    setTimeout(() => { try { old.disconnect(); oldG.disconnect(); oldH.disconnect(); } catch (e) { /* */ } }, 50);
     if (keepDrone && drone) { const d = drone; drone = null; startDrone(d.midi, d.fifth); }
   }
 }

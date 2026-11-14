@@ -16,6 +16,7 @@ import * as MC from './modal.js';
 import * as PR from './practice.js';
 import * as GN from './genres.js';
 import * as CR from './callresp.js';
+import * as LS from './listen.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -219,7 +220,7 @@ function realiseCore(S, spec, q, prev, extra = {}) {
   // the bass actually played: a slash chord's own, or an inversion the bass line chose
   let bass = spec.bass && spec.bass !== '1' ? spec.bass : null;
   if (!bass && grip && D.bassline !== 'off') { const low = grip.notes.reduce((a, b) => (a.midi <= b.midi ? a : b)); if (low.iv && low.iv !== '1') bass = low.iv.replace(/^(b|#)?(9|11|13)$/, (m, a, n) => (a || '') + { 9: '2', 11: '4', 13: '6' }[n]); }
-  return { spec, q: qq, root, name: H.slashName(root, qq, bass), rn: H.label(spec, qq, bass), grip, plainer, ...line, ...extra };
+  return { spec, q: qq, root, bassIv: bass, name: H.slashName(root, qq, bass), rn: H.label(spec, qq, bass), grip, plainer, ...line, ...extra };
 }
 
 // sets: a random chord from the pool, never the same twice running
@@ -484,6 +485,17 @@ let stopPractice = null;
 function openCall() {
   stopPractice = CR.renderCall($app, { D, save, neckSVG, esc, fmt, keys: MAJOR_KEYS, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
 }
+// Listen: chords voiced by the same engine, with its own voicing set, bass and scale level (the run's settings are
+// put back afterwards)
+function listenChord(S, spec, prev, o) {
+  const over = { voicing: o.voicing, mode: 'pos', bassline: o.bass, play: 'chords', pcolour: 'as', colour: 'sev', src: 'set', scaleLevel: o.scaleLevel, tour: false };
+  const keep = {};
+  for (const k in over) { keep[k] = D[k]; D[k] = over[k]; }
+  try { return realise(S, spec, spec.q, prev, { vl: true }); } finally { Object.assign(D, keep); }
+}
+function openListen() {
+  stopPractice = LS.renderListen($app, { D, save, neckSVG, esc, fmt, mine, realise: listenChord, legend: LEGEND, KIND, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
+}
 function openPractice() {
   stopPractice = PR.renderPractice($app, { D, save, neckSVG, esc, fmt, keys: MAJOR_KEYS, onBack: () => { stopPractice = null; D.app = 'changes'; save(); setup(); } });
 }
@@ -521,6 +533,7 @@ function setup() {
   if (stopPractice) { stopPractice(); stopPractice = null; }
   if (D.app === 'practice') return openPractice();
   if (D.app === 'call') return openCall();
+  if (D.app === 'listen') return openListen();
   const minor = isMinor();
   const keys = keysFor(minor);
   if (D.key !== 'rand' && !keys.includes(D.key)) D.key = minor ? ({ Db: 'C#', Ab: 'G#' }[D.key] || D.key) : ({ 'C#': 'Db', 'G#': 'Ab' }[D.key] || D.key);
@@ -534,7 +547,7 @@ function setup() {
   $app.innerHTML = `
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
   <p class="lead">${{ chords: 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.', scales: 'The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.', arps: 'The chords keep coming; play each one as an arpeggio through the shape, starting from the tone it names.', guide: 'The chords keep coming; play just their 3rds and 7ths as two lines that move as little as possible.', modal: 'Pick a mode. Its own chords vamp on the beat; solo in the shape and land on each chord’s 3rd or 7th.' }[D.play]}</p>
-  ${seg('app', [['changes', 'Chord changes'], ['practice', 'Scale practice'], ['call', 'Call and response']], D.app || 'changes')}
+  ${seg('app', [['changes', 'Chord changes'], ['practice', 'Scale practice'], ['call', 'Call and response'], ['listen', 'Listen']], D.app || 'changes')}
   ${seg('play', [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales'], ['modal', 'Modes']], D.play)}
 
   <section class="card">

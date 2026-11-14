@@ -58,7 +58,9 @@ export function bassDegree(iv, bassIv) {
   const n = T.transpose(T.transpose(C0, iv), bassIv);
   return T.prettyIv(ivFrom(C0, n));
 }
-export const slashName = (root, q, bassIv) => (bassIv && bassIv !== '1' ? `${chordName(root, q)}/${T.noteName(T.transpose(root, bassIv), true)}` : chordName(root, q));
+// the bass note of a slash chord, never with a double flat or sharp (G♭7/D, not G♭7/E𝄫)
+export const bassNote = (root, bassIv) => { const b = T.transpose(root, bassIv); return Math.abs(b.acc) > 1 ? T.enharmonic(b) : b; };
+export const slashName = (root, q, bassIv) => (bassIv && bassIv !== '1' ? `${chordName(root, q)}/${T.noteName(bassNote(root, bassIv), true)}` : chordName(root, q));
 export const chordName = (root, q) => T.pretty(T.chordSymbol(root, q)).replace(/\s+/g, '');
 
 // ---------- colour tiers ----------
