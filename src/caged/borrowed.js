@@ -26,6 +26,13 @@ export function sourcesOf(c, minor, prefer = []) {
     .map((id) => { const rot = spcs(id).map((p) => (p - r + 12) % 12).sort((a, b) => a - b).join(); const over = SC.SCALES.find((s) => s.ivs.length === 7 && spcs(s.id).join() === rot); return over ? { src: id, over: over.id } : null; })
     .filter(Boolean).sort((a, b) => (prefer.includes(b.src) ? 1 : 0) - (prefer.includes(a.src) ? 1 : 0)).slice(0, 3);
 }
+// how a progression is played when you press Play: as written by default, or made more interesting
+const VERSIONS = [
+  ['as', 'As written', 'Exactly the chords shown, the same every time round.'],
+  ['col', 'Richer chords', 'The same progression with colour tones: 9ths, 11ths, 13ths, altered dominants.'],
+  ['subs', 'Substitutions', 'Each time round a chord is swapped for a substitute (tritone sub, ii–V, secondary dominant, passing diminished); the screen says what it replaces.'],
+  ['evolve', 'Evolving', 'Each time round a chord drifts to another with the same job (iii or vi for I, ii for IV); old swaps drift back.'],
+];
 const KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 // the same screen serves Chromatic chords (secondary dominants, tritone subs, diminished…): cfg names the data, the
@@ -37,7 +44,7 @@ export const CHROM_CFG = { data: CHROMATIC, title: 'Chromatic chords', prefix: '
 export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
   const { D, save, neckSVG, esc, fmt, onBack, onPractise, progress } = ctx;
   const DATA = cfg.data;
-  const O = D[cfg.state] = Object.assign({ key: 'C', id: cfg.first, where: 'E' }, D[cfg.state] || {});
+  const O = D[cfg.state] = Object.assign({ key: 'C', id: cfg.first, where: 'E', version: 'as' }, D[cfg.state] || {});
   if (!O.oneShape) { O.oneShape = true; if (O.where === 'all') O.where = 'E'; } // one shape round and round is the default now
   const cur = () => DATA.find((b) => b.id === O.id) || DATA[0];
   const tonic = () => T.parseNote(O.key);
@@ -102,7 +109,7 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
       <p class="bcbars">${chords.map((bar) => `<span>${bar.map((c) => `<b>${fmt(c.rn)}</b><i>${fmt(c.nm)}</i>`).join(' ')}</span>`).join('')}</p>
       <p class="note">${fmt(p.note)}</p>
       ${pr && Object.keys(pr.rec).length ? `<div class="bcprogress">${pr.html}<small>best clean tempo per shape; done at ${pr.tgt} bpm</small></div>` : ''}
-      <button class="chip on" data-practise="${item.id}" data-minor="${minor ? 1 : 0}">▶ ${O.where === 'all' ? 'Play it round all five shapes' : `Play it in the ${O.where} shape`}</button>
+      <div class="bcplayin"><span>▶ Play in</span>${[...G.SHAPES, 'all'].map((x) => `<button class="${O.where === x ? 'on' : ''}" data-practise="${item.id}" data-minor="${minor ? 1 : 0}" data-in="${x}">${x === 'all' ? 'All five' : x}${pr && x !== 'all' && (pr.rec[x] || 0) >= pr.tgt ? ' ✓' : ''}</button>`).join('')}</div>
     </li>`;
   }
   function draw() {
@@ -112,6 +119,8 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
     $app.innerHTML = `
     <header class="chead"><button class="icon" data-f="back" aria-label="Back">‹</button><h1>${esc(cfg.title)}</h1><span></span></header>
     <div class="chips fskeys">${KEYS.map((k) => `<button class="chip ${O.key === k ? 'on' : ''}" data-key="${k}">${fmt(T.pretty(k))}</button>`).join('')}</div>
+      <div class="fsopt"><span>Version</span><div class="seg" role="radiogroup">${VERSIONS.map(([v, l]) => `<button data-version="${v}" class="${O.version === v ? 'on' : ''}" role="radio" aria-checked="${O.version === v}">${l}</button>`).join('')}</div></div>
+      <p class="note bcvnote">${esc(VERSIONS.find(([v]) => v === O.version)[2])}</p>
       <div class="fsopt"><span>Shape</span><div class="seg" role="radiogroup">${[...G.SHAPES.map((x) => [x, x]), ['all', 'All five']].map(([v, l]) => `<button data-where="${v}" class="${O.where === v ? 'on' : ''}" role="radio" aria-checked="${O.where === v}">${l}</button>`).join('')}</div></div>
     <section class="card bcpick">
       ${cfg.groups.map(([label, f]) => `<p class="lbl">${esc(label)}</p><div class="chips bcchips">${DATA.filter(f).map(chip).join('')}</div>`).join('')}
@@ -128,7 +137,7 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
     </section>
     <section class="card bcprogs">
       <h2>Progressions that use it</h2>
-      <p class="note">Each one opens in Chord changes in ${fmt(T.noteName(t, true))}, ${O.where === 'all' ? 'a new CAGED shape each time round (C → A → G → E → D), so you play it in all five' : `staying in the ${O.where} shape`}.</p>
+      <p class="note">Tap a shape under a progression to play it in Chord changes in ${fmt(T.noteName(t, true))}, round and round in that shape (All five moves up a shape each time round). It starts ${esc(VERSIONS.find(([v]) => v === O.version)[1].toLowerCase())}; the complexity slider on the play screen still changes it as you go. A ✓ beside a shape means done there.</p>
       <ul>${b.progs.map(progHTML).join('')}</ul>
     </section>`;
   }
@@ -139,8 +148,9 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
     if (d.key) { O.key = d.key; save(); return draw(); }
     if (d.bc) { O.id = d.bc; save(); draw(); document.querySelector('.bcabout')?.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     if (d.hear) return hear(d.hear);
+    if (d.version) { O.version = d.version; save(); const y = window.scrollY; draw(); window.scrollTo(0, y); return; }
     if (d.where) { O.where = d.where; save(); const y = window.scrollY; draw(); window.scrollTo(0, y); return; }
-    if (d.practise) { A.hush(); O.lastProg = d.practise; save(); return onPractise(d.practise, d.minor === '1', O.key, O.where); }
+    if (d.practise) { A.hush(); O.lastProg = d.practise; if (d.in) O.where = d.in; save(); return onPractise(d.practise, d.minor === '1', O.key, O.where, O.version); }
   };
   draw();
   // back from a run: straight to the progression just played

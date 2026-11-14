@@ -655,3 +655,8 @@ details.fssolo li b { color: var(--text, #fff); }
 .csgem svg { width: 100%; height: auto; }
 .csgem small { font-size: 10.5px; color: var(--muted); }
 .csgems h2 { text-transform: none; letter-spacing: 0; }
+.bcplayin { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 6px; }
+.bcplayin span { font-size: 12px; color: var(--amber); font-weight: 650; margin-right: 2px; }
+.bcplayin button { padding: 6px 10px; border-radius: 999px; background: rgba(255, 181, 71, 0.1); border: 1px solid rgba(255, 181, 71, 0.35); color: inherit; font: 650 13px var(--f-display); }
+.bcplayin button.on { background: rgba(255, 181, 71, 0.85); color: #1c1206; }
+.bcvnote { margin: 0 0 4px; }

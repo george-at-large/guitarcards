@@ -669,9 +669,12 @@ function progProgress(id, minor) {
   return { rec: record(k), tgt, all: complete(k, tgt), html: shapeProgress(k, tgt) };
 }
 // play a library progression in Chord changes: in one CAGED shape, round and round, or touring all five
-function practiseFrom(id, minor, key, where = 'E') {
+// version: 'as' (exactly as written), 'col' (richer: 9ths, 13ths, altered dominants), 'subs' (a substitute each time
+// round, named), 'evolve' (chords drift to others with the same job); nothing left over from earlier settings
+function practiseFrom(id, minor, key, where = 'E', version = 'as') {
   D.returnTo = D.app; // after the run, back to the chord being worked on
-  stopPractice = null; D.app = 'changes'; D.src = 'prog'; D.prog = id; D.kt = minor ? 'minor' : 'major'; D.key = key; D.mode = 'pos'; D.play = 'chords'; D.pcolour = 'as';
+  stopPractice = null; D.app = 'changes'; D.src = 'prog'; D.prog = id; D.kt = minor ? 'minor' : 'major'; D.key = key; D.mode = 'pos'; D.play = 'chords';
+  D.pcolour = version === 'col' || version === 'subs' ? version : 'as'; D.evolve = version === 'evolve'; D.around = 'off';
   D.tour = where === 'all'; D.tourSlow = false; D.shape = where === 'all' ? 'C' : where; save(); setup(); run();
 }
 // Chord scales: each chord's scale, fingered in every CAGED shape and 3 per string, over the held chord
