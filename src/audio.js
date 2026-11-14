@@ -284,6 +284,73 @@ export function softPad(midis, t, dur, { vel = 0.5, attack = 1.4, release = 3 } 
     }
   });
 }
+// a continuous pad: each note is its own voice, held for as long as it stays in the chord, so a change of chord only
+// moves the notes that move (common tones never retrigger) and the moving ones crossfade, legato, with no gap. One
+// filter and one slow LFO run under the whole line, so nothing swells and dies with each chord.
+export function padLine({ vel = 0.55 } = {}) {
+  const c = audioCtx();
+  const t0 = c.currentTime;
+  const out = c.createGain(); out.gain.value = 1;
+  const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.5; lp.frequency.value = 1100;
+  const lfo = c.createOscillator(); lfo.frequency.value = 0.09 + Math.random() * 0.05;
+  const lfoG = c.createGain(); lfoG.gain.value = 180;
+  lfo.connect(lfoG).connect(lp.frequency); lfo.start(t0);
+  const dry = c.createGain(); dry.gain.value = 0.6;
+  const send = c.createGain(); send.gain.value = 0.9;
+  out.connect(lp);
+  lp.connect(dry).connect(master);
+  lp.connect(send).connect(hallIn);
+  const held = new Map(); // midi → { g, oscs }
+  const level = (n) => (vel * 0.2) / Math.sqrt(Math.max(1, n));
+  function voice(m, t) {
+    const g = c.createGain(); g.gain.setValueAtTime(0, t);
+    const pan = c.createStereoPanner ? c.createStereoPanner() : null;
+    if (pan) { pan.pan.value = Math.max(-0.55, Math.min(0.55, (m - 60) / 26)); g.connect(pan).connect(out); } else g.connect(out);
+    const oscs = [['sawtooth', -7, 0.16], ['sawtooth', 7, 0.16], ['triangle', 0, 0.6]].map(([type, det, amp]) => {
+      const o = c.createOscillator(); o.type = type; o.frequency.value = hz(m); o.detune.value = det + (Math.random() - 0.5) * 3;
+      const a = c.createGain(); a.gain.value = amp;
+      o.connect(a).connect(g); o.start(t);
+      return o;
+    });
+    return { g, oscs };
+  }
+  return {
+    // move to these notes at t; inT/outT are the fade-in and fade-out time constants (seconds)
+    chord(midis, t, { inT = 0.35, outT = 0.6 } = {}) {
+      const want = new Set(midis), lv = level(want.size);
+      for (const [m, v] of held) {
+        if (want.has(m)) continue;
+        v.g.gain.setTargetAtTime(0, t, outT);
+        v.oscs.forEach((o) => o.stop(t + outT * 9 + 0.2));
+        held.delete(m);
+      }
+      for (const m of want) {
+        const amp = lv * (m < 48 ? 0.8 : 1), v = held.get(m);
+        if (v) v.g.gain.setTargetAtTime(amp, t, 0.5);
+        else { const nv = voice(m, t); nv.g.gain.setTargetAtTime(amp, t, inT); held.set(m, nv); }
+      }
+      // the faintest brightening as the harmony moves, settling back
+      lp.frequency.setTargetAtTime(1350, t, 0.4);
+      lp.frequency.setTargetAtTime(1050, t + 1, 2);
+    },
+    // let everything ring away
+    release(t, outT = 1) {
+      for (const v of held.values()) { v.g.gain.setTargetAtTime(0, t, outT); v.oscs.forEach((o) => o.stop(t + outT * 9 + 0.2)); }
+      held.clear();
+      lfo.stop(t + outT * 9 + 0.3);
+    },
+  };
+}
+// the spoken voice: straight to the speakers past the compressor (so the music never dips while it talks), with a
+// touch of the hall so it sits in the same room
+export function voiceBus(vol = 0.4) {
+  const c = audioCtx();
+  const g = c.createGain(); g.gain.value = vol;
+  g.connect(c.destination);
+  const send = c.createGain(); send.gain.value = 0.1;
+  g.connect(send).connect(hallIn);
+  return g;
+}
 // a soft bell: a sine and a few quiet partials, struck and left to ring into the hall
 export function bell(midi, t, { vel = 0.4, decay = 2.6 } = {}) {
   const c = audioCtx();
