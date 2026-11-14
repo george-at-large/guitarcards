@@ -98,20 +98,37 @@ export function renderWorkouts($app, ctx) {
   function autoBeat(t) {
     const st = R.steps[R.si], idx = R.sb++, len = stepLen(st);
     if (st.sound?.resolve && idx === len - 2) resolve(t);
-    if (idx === len) { R.sb = -1e9; clearTimeout(R.timer); R.timer = setTimeout(() => go(1, t), Math.max(0, (t - now()) * 1000)); }
+    if (idx === len) { R.sb = -1e9; clearTimeout(R.timer); R.timer = setTimeout(() => safe(() => go(1, t)), Math.max(0, (t - now()) * 1000)); }
   }
 
   // ---------- the run ----------
+  // the run screen comes up at once; the audio is woken inside the tap but never waited on for long (an iPhone can
+  // leave it hanging), and the beat starts once it's running or after half a second
   async function start(resume) {
-    await A.unlockAudio(); await A.ensureRunning();
-    const units = plan();
-    if (!units.length) return;
-    R = { units, ui: 0, si: 0, steps: null, timer: null, clock: null, paused: false, sb: 0, vis: [] };
-    if (resume && O.at && O.at.sig === sig()) { R.ui = Math.min(O.at.ui, units.length - 1); R.si = O.at.si; }
-    freshPad();
-    startClock();
-    enterUnit(R.ui, R.si);
+    A.unlockAudio().catch(() => {});
+    try {
+      const units = plan();
+      if (!units.length) return failed(null, 'Nothing to do: every workout is left out of the full workout. Tap In beside one.');
+      stopAll();
+      R = { units, ui: 0, si: 0, steps: null, timer: null, clock: null, paused: false, sb: 0, vis: [] };
+      if (resume && O.at && O.at.sig === sig()) { R.ui = Math.min(O.at.ui, units.length - 1); R.si = O.at.si; }
+      freshPad();
+      enterUnit(R.ui, R.si);
+      const run = R;
+      await Promise.race([A.ensureRunning(), new Promise((res) => setTimeout(res, 500))]);
+      if (R === run && R && !R.paused) startClock();
+    } catch (e) { failed(e); }
   }
+  // something broke: stop the beat and say what, rather than clicking on with nothing shown
+  function failed(e, msg) {
+    if (e) console.error(e);
+    stopAll();
+    $app.innerHTML = `
+    <header class="chead"><button class="icon" data-w="setup" aria-label="Back">‹</button><h1>Workouts</h1><span></span></header>
+    <section class="card"><h2>Couldn’t start</h2><p>${esc(msg || 'Something went wrong while setting up this workout.')}</p>${e ? `<p class="note">${esc(String(e && e.message || e))}</p><p class="note">Pull down to reload the page and try again; if it keeps happening, tell me the line above.</p>` : ''}</section>
+    <div class="actions"><button class="primary" data-w="setup">Back to workouts</button></div>`;
+  }
+  const safe = (fn) => { try { fn(); } catch (e) { failed(e); } };
   function enterUnit(ui, si = 0, t = null) {
     R.ui = ui;
     R.steps = unitSteps(R.units[ui]);
@@ -275,7 +292,8 @@ export function renderWorkouts($app, ctx) {
     <div class="actions">${resumable ? '<button class="primary" data-w="resume">▶ Pick up where you left off</button>' : ''}<button class="${resumable ? '' : 'primary'}" data-w="go">${roam ? '▶ Start the roamer' : resumable ? 'Start from the beginning' : '▶ Start'}</button></div>`;
   }
 
-  $app.onclick = (e) => {
+  $app.onclick = (e) => safe(() => onClick(e));
+  function onClick(e) {
     const b = e.target.closest('button'); if (!b) return;
     const d = b.dataset;
     if (d.pick) { O.sel = d.pick; save(); return setup(); }
@@ -320,7 +338,7 @@ export function renderWorkouts($app, ctx) {
       save();
       drawRun(R.units[R.ui], R.steps[R.si]);
     }
-  };
+  }
   setup();
   return stopAll;
 }
