@@ -19,6 +19,7 @@ import * as CR from './callresp.js';
 import * as LS from './listen.js';
 import * as WK from './wkrun.js';
 import * as AR from './around.js';
+import * as CO from './coach.js';
 
 const $app = document.getElementById('caged');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -37,6 +38,8 @@ const D = Object.assign({
 }, load());
 // the beat and the rhythm are heard now (they were silent by default): turn the click on once for everyone
 if (!D.soundV2) { D.click = true; D.hearRhythm = true; D.soundV2 = 1; }
+// a quick-start session that never finished (the app was closed mid-way): put your own settings back
+if (D.qsSnap) { Object.assign(D, D.qsSnap); delete D.qsSnap; }
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(D)); } catch (e) { /* private mode */ } };
 if (D.diagram === 'off') { D.neck = false; D.diagram = 'now'; } // older setting: "never" is now the neck toggle
 if (!D.nums && !D.names) D.nums = true;
@@ -686,6 +689,7 @@ function setup() {
   <header class="chead">${standalone ? '<span></span>' : '<a class="cback" href="./" aria-label="Guitar Cards">‹</a>'}<h1>CAGED Changes</h1><span></span></header>
   <p class="lead">${{ chords: 'Pick a key and a shape. The beat keeps time and the chords keep coming. Play each one in the shape as it arrives.', scales: 'The chords keep coming on the beat; for each one you get a scale to solo over it, inside the shape.', arps: 'The chords keep coming; play each one as an arpeggio through the shape, starting from the tone it names.', guide: 'The chords keep coming; play just their 3rds and 7ths as two lines that move as little as possible.', modal: 'Pick a mode. Its own chords vamp on the beat; solo in the shape and land on each chord’s 3rd or 7th.' }[D.play]}</p>
   ${seg('app', [['changes', 'Chord changes'], ['practice', 'Scale practice'], ['call', 'Call and response'], ['listen', 'Listen'], ['workouts', 'Workouts']], D.app || 'changes')}
+  ${qsCard()}
   ${seg('play', [['chords', 'Chords'], ['arps', 'Arpeggios'], ['guide', 'Guide tones'], ['scales', 'Scales'], ['modal', 'Modes']], D.play)}
 
   <section class="card">
@@ -787,6 +791,8 @@ function setup() {
     if (d.roamcat !== undefined) { D.roam.cat = d.roamcat; return redraw(); }
     if (d.roamtimes !== undefined) { if (d.roamtimes === 'tour') D.roam.tour5 = true; else { D.roam.tour5 = false; D.roam.times = Number(d.roamtimes); } return redraw(); }
     const a = d.act;
+    if (a === 'quick') return quickStart();
+    if (a === 'qsreset') { if (confirm('Forget everything Quick start has learned about your playing?')) { D.coach = CO.fresh(); qsPreview = null; } return redraw(); }
     if (a === 'roamreset') { D.roam.done[`${D.roam.cat}|${roamMode()}`] = {}; return redraw(); }
     if (a === 'nums' || a === 'names') { flipLabel(a); return redraw(); }
     if (['hint', 'moves', 'click', 'countIn', 'evolve', 'neck', 'pair', 'varVL', 'tour', 'tourSlow', 'hearRhythm'].includes(a)) { D[a] = !D[a]; return redraw(); }
@@ -969,6 +975,97 @@ function tick(t) {
   if (R.e >= c.beats * 2) { R.e = 0; R.count++; }
 }
 
+// ---------- quick start: a session planned from the coach's model of your playing ----------
+const QS_FIELDS = ['src', 'set', 'colour', 'prog', 'pcolour', 'around', 'aroundAmt', 'evolve', 'voicing', 'play', 'scaleLevel', 'key', 'kt', 'shape', 'pair', 'tour', 'tourSlow', 'bpm', 'beats', 'barBeats', 'mode', 'bassline', 'diagram'];
+let QS = null, qsPreview = null;
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
+function qsPlan() { if (!qsPreview) qsPreview = CO.plan(D.coach, L.ALL); return qsPreview; }
+function qsCard() {
+  D.coach = CO.ensure(D.coach);
+  const blocks = qsPlan(), mins = blocks.reduce((t, b) => t + b.minutes, 0);
+  const bel = CO.beliefs(D.coach);
+  return `<section class="card qs">
+    <button class="primary qsgo" data-act="quick">▶ Quick start <small>about ${mins} minutes</small></button>
+    <ol class="qsplan">${blocks.map((b) => `<li><b>${esc(b.title)}</b> · ${esc(b.level)}${b.prog ? ` · ${esc(b.prog)}` : ''} <small>${fmt(T.pretty(b.key))}${b.minor ? 'm' : ''} · ${b.shape} shape · ${b.bpm} bpm · ${b.minutes} min</small></li>`).join('')}</ol>
+    <details class="qsmodel"><summary>What I think about your playing${D.coach.sessions ? ` (${D.coach.sessions} session${D.coach.sessions === 1 ? '' : 's'})` : ''}</summary>
+      <ul>${bel.map((x) => `<li><b>${esc(x.area)}</b>: ${esc(x.text)}</li>`).join('')}</ul>
+      <p class="note">After each part you say how it went; that moves the tempo, the level, the key and the shape. Areas left longest come back first; your weakest shapes get the work.</p>
+      <button class="chip" data-act="qsreset">Start the model again</button></details>
+  </section>`;
+}
+function quickStart() {
+  D.coach = CO.ensure(D.coach);
+  const snap = {};
+  for (const k of QS_FIELDS) snap[k] = D[k];
+  D.qsSnap = snap;
+  QS = { blocks: qsPlan(), i: 0, snap, changes: [], rated: [] };
+  qsPreview = null;
+  startBlock();
+}
+function startBlock() {
+  const b = QS.blocks[QS.i];
+  Object.assign(D, { mode: 'pos', pair: false, tour: false, tourSlow: false, evolve: false, bassline: 'off', diagram: 'now', around: 'off', beats: 4, barBeats: 4, pcolour: 'as' }, b.o);
+  QS.left = b.minutes * 60;
+  save();
+  clearInterval(QS.timer);
+  QS.timer = setInterval(qsTick, 1000);
+  run();
+}
+function qsTick() {
+  if (!QS) return;
+  if (!R || R.paused || R.stopped || R.countLeft > 0) return;
+  QS.left--;
+  const el = document.getElementById('qsleft'); if (el) el.textContent = `${mmss(QS.left)} left`;
+  if (QS.left <= 0) qsEnd();
+}
+function qsBar() {
+  const b = QS.blocks[QS.i];
+  return `<span class="lbl">quick start · ${QS.i + 1} of ${QS.blocks.length}${b.role === 'warm' ? ' · warm-up' : ''}</span><b>${esc(b.title)}: ${esc(b.level)}${b.prog ? ` · ${esc(b.prog)}` : ''}</b><small><span id="qsleft">${mmss(QS.left)} left</span> · ${esc(b.why)}</small>`;
+}
+// a block is over (time, or ■): how did it go?
+function qsEnd() {
+  clearInterval(QS.timer);
+  if (R) { stop(); R = null; }
+  const b = QS.blocks[QS.i], nx = QS.blocks[QS.i + 1];
+  window.scrollTo(0, 0);
+  $app.innerHTML = `
+  <header class="chead"><span></span><h1>How was that?</h1><span></span></header>
+  <section class="card end">
+    <p><b>${esc(b.title)}: ${esc(b.level)}</b>${b.prog ? ` · ${esc(b.prog)}` : ''}<br><small>${fmt(T.pretty(b.key))}${b.minor ? ' minor' : ''} · ${b.shape} shape · ${b.bpm} bpm</small></p>
+    <div class="qsrate"><button data-q="hard">Couldn’t keep up</button><button data-q="right" class="primary">Just right</button><button data-q="easy">Easy</button></div>
+    ${nx ? `<p class="note">Next: <b>${esc(nx.title)}</b> · ${esc(nx.level)}${nx.prog ? ` · ${esc(nx.prog)}` : ''}, ${fmt(T.pretty(nx.key))}${nx.minor ? 'm' : ''} in the ${nx.shape} shape, ${nx.minutes} min. It starts with a count-in when you answer.</p>` : '<p class="note">That was the last part.</p>'}
+    <div class="actions"><button data-q="end">End the session here</button></div>
+  </section>`;
+  $app.onclick = (e) => {
+    const x = e.target.closest('[data-q]'); if (!x) return;
+    const how = x.dataset.q;
+    if (how === 'end') return qsDone();
+    const r = CO.rate(D.coach, b, how);
+    D.coach = r.st; QS.changes.push(r.change); QS.rated.push({ b, how });
+    QS.i++;
+    save();
+    if (QS.i >= QS.blocks.length) return qsDone();
+    startBlock();
+  };
+}
+function qsDone() {
+  clearInterval(QS.timer);
+  if (QS.rated.length) D.coach = CO.endSession(D.coach);
+  Object.assign(D, QS.snap); delete D.qsSnap;
+  const { rated, changes } = QS;
+  QS = null; qsPreview = null;
+  save();
+  const word = { hard: 'couldn’t keep up', right: 'just right', easy: 'easy' };
+  window.scrollTo(0, 0);
+  $app.innerHTML = `
+  <header class="chead"><span></span><h1>Done for today</h1><span></span></header>
+  <section class="card end">
+    ${rated.length ? `<ul class="qsdone">${rated.map(({ b, how }) => `<li><b>${esc(b.title)}</b> · ${esc(b.level)}: <i>${word[how]}</i></li>`).join('')}</ul>
+    <h3>What changes next time</h3><ul class="qsdone">${changes.filter(Boolean).map((c) => `<li>${esc(c)}</li>`).join('') || '<li>Nothing yet: same again, to settle it.</li>'}</ul>` : '<p>Nothing rated this time, so nothing changes.</p>'}
+    <div class="actions"><button class="primary" data-q="ok">Done</button></div>
+  </section>`;
+  $app.onclick = (e) => { if (e.target.closest('[data-q]')) setup(); };
+}
 // by hand: on to the next CAGED shape up the neck; the chord already waiting is voiced again in the new shape
 function nextShapeNow() {
   if (!R) return;
@@ -987,6 +1084,7 @@ function drawRun() {
   const { S } = R;
   $app.innerHTML = `
   <header class="chead run"><button class="icon" data-r="stop" aria-label="Stop">■</button><div class="where"><span id="rkey">${fmt(keyLabel(S))}</span><small>${fmt(posLabel(S))}${scaleMode() ? ` · scales: ${LEVEL_NAME[D.scaleLevel] || 'mix'}` : D.voicing !== 'caged' ? ` · ${esc(G.voicingById(D.voicing).name.toLowerCase().replace('strings ', ''))}` : ''}${D.evolve && D.src === 'prog' ? ' · evolving' : ''}</small></div><button class="icon" data-r="pause" aria-label="Pause">❚❚</button></header>
+  ${QS ? `<div class="qsbar" id="qsbar">${qsBar()}</div>` : ''}
   ${D.src === 'roam' && D.play !== 'modal' ? '<div class="roamnow" id="roamnow"></div>' : ''}
   <div class="liveplay" id="liveplay">${livePlay()}</div>
   ${progLike() && D.play !== 'modal' ? `<div class="cxdial" id="cxdial">${cxDial()}</div>` : ''}
@@ -1013,7 +1111,7 @@ function drawRun() {
   $app.onclick = (e) => {
     const b = e.target.closest('button, #stage'); if (!b) return;
     const r = b.dataset?.r || (b.id === 'stage' ? 'reveal' : null);
-    if (r === 'stop') return finish();
+    if (r === 'stop') return QS ? qsEnd() : finish();
     if (r === 'names' || r === 'nums') { flipLabel(r); save(); return applyNames(); }
     if (r === 'neck') { D.neck = !D.neck; save(); applyNames(); return renderStage(); }
     if (r && r.startsWith('play-')) return switchPlay(r.slice(5));
