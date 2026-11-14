@@ -478,9 +478,8 @@ export function renderFreeScale($app, ctx) {
       if (O.metro === 'click') A.click(t, pos === 0 ? 2 : 1);
       R.vis.push(setTimeout(() => {
         if (change && R.on) step(1, true);
-        document.querySelectorAll('#fsbeats i').forEach((el, i) => el.classList.toggle('on', i === pos));
-        const cd = document.getElementById('fscount');
-        if (cd) { cd.textContent = O.go === 'auto' ? `change in ${left}` : ''; cd.classList.toggle('soon', O.go === 'auto' && left <= 2); }
+        document.querySelectorAll('.fsbeats i').forEach((el, i) => el.classList.toggle('on', i % 4 === pos));
+        document.querySelectorAll('.fscount').forEach((cd) => { cd.textContent = O.go === 'auto' ? `change in ${left}` : ''; cd.classList.toggle('soon', O.go === 'auto' && left <= 2); });
       }, Math.max(0, (t - c.currentTime) * 1000)));
       if (R.vis.length > 64) R.vis.splice(0, 32);
       R.next += 60 / O.bpm;
@@ -532,13 +531,13 @@ export function renderFreeScale($app, ctx) {
     const d = def(), w = walk(), it = cur(), nx = upNext();
     const mv = R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
     const moved = mv && mv.pairs.length <= 2 ? `<p class="fsmoved">${mv.pairs.length === 1 ? 'One note moved' : 'Two notes moved'}: ${mv.pairs.map(([a, b]) => `<b>${fmt(a ? T.prettyIv(a) : '–')} → ${fmt(b ? T.prettyIv(b) : '–')}</b>`).join(', ')} <i>(ringed)</i></p>` : '';
-    if (!d) return O.go === 'auto' && R.on ? `<p class="fspos"><span id="fscount"></span></p>` : '';
+    if (!d) return O.go === 'auto' && R.on ? `<p class="fspos"><span class="fscount"></span></p>` : '';
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = landText(hm, it.mode);
       const ch = !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
-      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span id="fscount"></span></p>${ch}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fmt(d.roles[it.mode])}</p>` : ''}`;
+      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fmt(d.roles[it.mode])}</p>` : ''}`;
     }
-    return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span id="fscount"></span></p>${moved}`;
+    return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${moved}`;
   }
   function patHTML() {
     if (O.content !== 'scale' || !O.pat || !O.cell) return '';
@@ -548,6 +547,14 @@ export function renderFreeScale($app, ctx) {
       <p class="fsnums">${O.cell.c.map((n) => `<b>${n}</b>`).join('')}</p>
       ${O.hint ? `<p class="note">In ${esc(BY[O.scale].name)}: ${fmt(sp.map((x) => (x ? T.prettyIv(x) : '–')).join(' '))}${missing.length ? ` (it has no ${missing.join(', ')})` : ''}</p>` : '<p class="note">Play these degrees up and down, in every mode, on the same rhythm. Hint shows them on the neck.</p>'}
       <button class="chip" data-f="newpat">New pattern</button></div>`;
+  }
+  // start and stop, right under the controls, with the beat and what you'll hear
+  function playHTML() {
+    const hear = [O.drone ? `drone${O.fifth ? ' + 5th' : ''}` : 'no drone', O.metro === 'click' ? 'click' : O.metro === 'silent' ? 'beat shown, no click' : 'metronome off', O.go === 'auto' ? `changes every ${O.every} beats` : 'you change it with ‹ ›'].join(' · ');
+    return `<div class="fsplay">
+      <button class="primary ${R.on ? 'stop' : ''}" data-f="play">${R.on ? '■ Stop' : '▶ Start'}</button>
+      <div class="fsplayr">${R.on ? `<div class="beats fsbeats"><i></i><i></i><i></i><i></i></div><span class="fscount"></span>` : `<small>${esc(hear)}</small>`}</div>
+    </div>`;
   }
   // the landscape picker: which family, how big, and whether it changes on its own
   // how a scale differs from the landscape's home: a degree altered (♭7 → 7, 2 → ♭9), or a note added or dropped
@@ -604,10 +611,11 @@ export function renderFreeScale($app, ctx) {
       <div class="fsrow fsmetro"><span class="lbl">Metronome</span>${seg('metro', O.metro, [['click', 'Click'], ['silent', 'Dots only'], ['off', 'Off']])}</div>
       <div class="fsrow fstempo"><span class="lbl">Tempo</span><input type="range" id="fsbpmr" min="30" max="200" step="2" value="${O.bpm}" aria-label="Tempo"><span class="fsbpm"><button data-f="bpm-" aria-label="Slower">−</button><b id="fsbpmv">${O.bpm}</b><small>bpm</small><button data-f="bpm+" aria-label="Faster">+</button></span></div>
     </div>
+    ${playHTML()}
     ${optsHTML()}
     <div class="fsnav">${many ? '<button class="icon" data-f="prev" aria-label="Previous">‹</button>' : '<span></span>'}<h2 class="fstitle">${titleHTML()}</h2>${many ? '<button class="icon" data-f="next" aria-label="Next">›</button>' : '<span></span>'}</div>
     ${stepHTML()}
-    <div class="beats" id="fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
+    <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
@@ -617,7 +625,7 @@ export function renderFreeScale($app, ctx) {
     ${isArp ? '' : `<section class="card fsclimb" id="fsclimb">${climbHTML()}</section>`}
     ${isArp ? '' : `<section class="card fstipcard" id="fstips">${tipsHTML()}</section>`}
     <div class="sheet" id="fsabout" hidden></div>
-    ${R.on ? '' : `<div class="actions"><button class="primary" data-f="play">▶ ${O.go === 'auto' ? 'Start' : O.drone ? 'Start the drone' : 'Start'}</button></div>`}`;
+`;
     const sel = $app.querySelector('#fsscale');
     if (sel) sel.onchange = () => {
       O.scale = sel.value; R.fact = 0; R.tip = 0; R.prev = null; R.pos = undefined; R.cpos = undefined;
@@ -669,7 +677,7 @@ export function renderFreeScale($app, ctx) {
       save(); return draw();
     }
     if (d.metro) { O.metro = d.metro; save(); return draw(); }
-    if (d.go) { O.go = d.go; R.since = 0; save(); return draw(); }
+    if (d.go) { O.go = d.go; R.since = 0; save(); if (O.go === 'auto' && !R.on) return play(); return draw(); }
     if (d.every) { O.every = Number(d.every); R.since = Math.min(R.since, O.every); save(); return draw(); }
     if (d.area) { O.area = d.area; save(); return draw(); }
     if (d.shape) { O.shape = d.shape; save(); return draw(); }

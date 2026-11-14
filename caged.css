@@ -493,8 +493,8 @@ svg.rhythmpic .rlab { fill: #1a1407; font: 700 10px var(--f-ui); text-anchor: mi
 .fsnav { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 6px; }
 .fsarp { display: block; color: var(--text); margin-top: 3px; }
 .fspos { text-align: center; color: var(--muted); font-size: 13px; margin: 4px 0 0; }
-#fscount { display: inline-block; margin-left: 4px; color: var(--soft); font-variant-numeric: tabular-nums; }
-#fscount.soon { color: var(--amber); font-weight: 650; }
+.fscount { display: inline-block; margin-left: 4px; color: var(--soft); font-variant-numeric: tabular-nums; }
+.fscount.soon { color: var(--amber); font-weight: 650; }
 .fsmoved { text-align: center; margin: 4px 0 0; font-size: 14px; }
 .fsmoved b { color: var(--amber); }
 .fsmoved i { font-style: normal; color: var(--muted); font-size: 12px; }
@@ -547,3 +547,11 @@ details.fsopts[open] > summary { margin-bottom: 8px; }
 .fsland small.note { font-size: 11px; }
 .fsland > .chip { white-space: nowrap; flex: none; }
 .fsland > small.note { flex: 1; min-width: 0; }
+.fsplay { display: flex; align-items: center; gap: 12px; margin: 2px 0 10px; }
+#caged .fsplay .primary { flex: none; min-width: 120px; padding: 13px 18px; border-radius: 18px; font: 650 17px var(--f-display); }
+#caged .fsplay .primary.stop { background: rgba(255, 255, 255, 0.1); color: var(--text, #fff); }
+.fsplayr { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.fsplayr small { color: var(--muted); font-size: 12px; line-height: 1.35; }
+.fsplayr .beats { margin: 0; gap: 8px; }
+.fsplayr .beats i { width: 14px; height: 14px; }
+.fsplayr .fscount { font-size: 12px; }
