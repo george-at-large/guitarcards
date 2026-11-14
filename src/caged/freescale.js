@@ -601,6 +601,12 @@ export function renderFreeScale($app, ctx) {
       } catch (e) { return fmt(T.prettyIv(iv)); }
     });
   }
+  // the notes to land on the beats: the landscape's own choice, else the chord tones of the mode
+  function targetsHTML(it) {
+    const l = land(); if (!l || !it.mode) return '';
+    const ivs = l.targets?.[it.mode] || FL.modeArp(it.mode, false);
+    return `<span class="fstargets">targets: ${fillRole(ivs.map((iv) => `{${iv}}`).join(' ')).replace(/ \(([^)]*)\)/g, '<i>$1</i>')}</span>`;
+  }
   // how a scale differs from the landscape's home: a degree altered (♭7 → 7, 2 → ♭9), or a note added or dropped
   function landText(homeId, id) {
     if (!id || homeId === id) return null;
@@ -664,7 +670,7 @@ export function renderFreeScale($app, ctx) {
     <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
-    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && shiftOf(it) ? ` <small>· from the ${ORD[BY[land().ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === shiftOf(it))]} of ${fmt(T.noteName(keyTonic(), true))} ${esc(BY[land().ids[0]].name)}</small>` : ''}</p>` : ''}
+    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && shiftOf(it) ? ` <small>· from the ${ORD[BY[land().ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === shiftOf(it))]} of ${fmt(T.noteName(keyTonic(), true))} ${esc(BY[land().ids[0]].name)}</small>` : ''}${targetsHTML(it)}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>

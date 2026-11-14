@@ -561,3 +561,6 @@ details.fsopts[open] > summary { margin-bottom: 8px; }
 .fsover small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
 .fsnecklbl { text-align: center; font: 650 14px var(--f-display); margin: 8px 0 0; }
 .fsnecklbl small { font: 400 12px var(--f-ui); color: var(--muted); }
+.fstargets { display: block; font: 400 12.5px var(--f-ui); color: var(--soft, #ccc); margin-top: 2px; }
+.fstargets b { color: var(--amber); font-weight: 650; margin-left: 6px; }
+.fstargets i { font-style: normal; color: var(--muted); font-size: 11px; margin-left: 2px; }
