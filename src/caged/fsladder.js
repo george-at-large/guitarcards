@@ -32,7 +32,7 @@ export const LADDERS = [
   { id: 'l-dom', group: 'Landscapes', land: true, loop: true, name: 'Dominant colours', ids: ['mixolydian', 'lyd-dom', 'altered'], big: ['lyd-dom', 'mixolydian', 'mixo-b6', 'phryg-dom', 'altered', 'dim-hw'], home: 'mixolydian', blurb: 'Scales for one dominant 7th chord: 1, 3 and ♭7 stay, and the tensions around them change.',
     roles: { mixolydian: 'Mixolydian, the home shape: the plain dominant sound.', 'lyd-dom': 'Raise the 4th to ♯11: bright and floating, for 7th chords that don’t resolve, like ♭VII7 and tritone subs.', 'mixo-b6': 'Lower the 6th to ♭13: a dominant leaning towards a minor chord.', 'phryg-dom': 'Add ♭9 to the ♭13: the V7 of a minor key (harmonic minor from its 5th).', altered: 'Every tension altered (♭9, ♯9, ♯11, ♭13), no natural 5th: the most tension, for a jazz V7 resolving.', 'dim-hw': 'Half-whole diminished: ♭9, ♯9 and ♯11 with a natural 5th and 13th. For 7♭9 and 13♭9 chords.' } },
   { id: 'l-flam', group: 'Landscapes', land: true, loop: true, name: 'Flamenco Phrygian', ids: ['phrygian', 'phryg-dom'], big: ['phrygian', 'phryg-dom', 'dbl-harm', 'harm-min'], blurb: 'Over one root, swap the minor 3rd for the major one and back, as flamenco and metal players do with the chord.',
-    roles: { phrygian: 'Phrygian, the home shape: minor with a ♭2.', 'phryg-dom': 'Raise the 3rd: the major I chord of the flamenco cadence. The 3rd moves with the chord, so players switch all the time.', 'dbl-harm': 'Raise the 7th too (double harmonic, or Byzantine): two exotic gaps, heard in Arabic, Balkan and Indian music.', 'harm-min': 'Lower the 3rd, raise the 2nd: harmonic minor, whose 5th mode is the Phrygian dominant you just played.' } },
+    roles: { phrygian: 'Phrygian, the home shape: minor with a ♭2.', 'phryg-dom': 'Raise the 3rd: the major I chord of the flamenco cadence. The 3rd moves with the chord, so players switch all the time.', 'dbl-harm': 'Raise the 7th too (double harmonic, or Byzantine): two exotic gaps, heard in Arabic, Balkan and Indian music.', 'harm-min': 'Harmonic minor on the same root: the 2nd and 7th rise. Its family is the same one: Phrygian dominant is harmonic minor played from its 5th.' } },
   { id: 'bright', group: 'Ladders', name: 'Brightness: the seven modes', ids: ['lydian', 'ionian', 'mixolydian', 'dorian', 'aeolian', 'phrygian', 'locrian'], blurb: 'Lydian down to Locrian, one note lower at each step, then back up.' },
   { id: 'bright-x', group: 'Ladders', name: 'Brightness, extended', ids: ['lyd-aug', 'lydian', 'ionian', 'mixolydian', 'dorian', 'aeolian', 'phrygian', 'locrian', 'altered', 'superloc-bb7'], blurb: 'The seven modes with a rung above (Lydian augmented) and two below (altered, super-Locrian 𝄫7): melodic and harmonic minor modes stretch the ladder.' },
   { id: 'dom', group: 'Ladders', name: 'Dominant: inside to outside', ids: ['lyd-dom', 'mixolydian', 'mixo-b6', 'phryg-dom', 'altered'], blurb: 'Over a dominant 7th: the root, 3rd and ♭7 stay put while the tensions darken, from Lydian dominant to altered (the last step moves two notes).' },
@@ -193,3 +193,47 @@ export function congruent(id) {
   return out.sort((a, b) => rank(a) - rank(b));
 }
 
+
+// ---------- chord context: the chords that call for each scale ----------
+// over one root: [semitones above the root, chord quality], a bar each (shorter when the scale changes sooner), looping.
+// A landscape can override any of them (the blues landscape plays everything over I7 – IV7, say)
+export const CONTEXT = {
+  aeolian: { prog: [[0, 'm'], [8, ''], [10, ''], [0, 'm']], why: 'i – ♭VI – ♭VII – i: the ♭6 and ♭7 as chords, the rock and pop minor.' },
+  'harm-min': { prog: [[0, 'm'], [7, '7b9']], why: 'i – V7♭9: the raised 7 is the 3rd of the V chord, pulling up to the root; the ♭6 is its ♭9.' },
+  'mel-min': { prog: [[0, 'm6'], [0, 'mMaj7']], why: 'i6 – i(maj7): the natural 6 and 7 are chord tones, the jazz minor tonic.' },
+  dorian: { prog: [[0, 'm7'], [5, '7']], why: 'i7 – IV7: the natural 6 is the 3rd of the IV chord, the funk and Latin vamp.' },
+  phrygian: { prog: [[0, 'm'], [1, '']], why: 'i – ♭II: the ♭2 as a major chord a half step up, the metal and flamenco rub.' },
+  locrian: { prog: [[0, 'm7b5'], [1, 'maj7']], why: 'iø7 – ♭IImaj7: Locrian only really works over the m7♭5 chord.' },
+  'min-pent': { prog: [[0, 'm7'], [5, 'm7']], why: 'i7 – iv7: the minor blues-rock vamp.' },
+  blues: { prog: [[0, 'm7'], [5, 'm7']], why: 'i7 – iv7: the ♭5 passes between 4 and 5 on both chords.' },
+  ionian: { prog: [[0, 'maj7'], [7, '7']], why: 'Imaj7 – V7: the 7 and 4 are the notes that pull V back to I.' },
+  'harm-maj': { prog: [[0, 'maj7'], [5, 'm6']], why: 'Imaj7 – iv6: the ♭6 is the borrowed minor iv chord’s 3rd.' },
+  'mixo-b6': { prog: [[0, ''], [10, ''], [5, 'm'], [0, '']], why: 'I – ♭VII – iv – I: major on top, ♭6 and ♭7 underneath.' },
+  lydian: { prog: [[0, 'maj7'], [2, '']], why: 'Imaj7 – II: the ♯4 is the 3rd of the major II chord, the floating film vamp.' },
+  mixolydian: { prog: [[0, '7'], [10, '']], why: 'I7 – ♭VII: the ♭7 as a chord, the rock major.' },
+  'maj-pent': { prog: [[0, '69'], [5, 'add9']], why: 'I6/9 – IVadd9: no 4 or 7 to clash with either chord.' },
+  'maj-blues': { prog: [[0, '7'], [5, '7']], why: 'I7 – IV7: the ♭3 slides into the 3rd of each chord.' },
+  'lyd-dom': { prog: [[0, '7#11'], [0, '9']], why: 'A 7th chord that stays put: the ♯11 floats instead of resolving.' },
+  'phryg-dom': { prog: [[0, '7b9'], [5, 'm']], why: 'V7♭9 – i: the dominant of a minor key, its ♭9 and ♭13 from the key’s ♭6 and ♭2.' },
+  altered: { prog: [[0, '7alt'], [5, 'maj7']], why: 'V7alt – Imaj7: every tension altered, then resolved.' },
+  'dim-hw': { prog: [[0, '13b9'], [5, 'maj7']], why: 'V13♭9 – Imaj7: the ♭9 with a natural 13, resolved.' },
+  'dbl-harm': { prog: [[0, 'maj7'], [1, 'maj7']], why: 'Imaj7 – ♭IImaj7: both chords from the scale’s two exotic gaps.' },
+};
+export const LAND_CONTEXT = {
+  'l-blues': {
+    'min-pent': { prog: [[0, '7'], [5, '7']], why: 'I7 – IV7 of a blues: the minor 3rd rubs the chord’s major 3rd on purpose.' },
+    blues: { prog: [[0, '7'], [5, '7']], why: 'I7 – IV7: the ♭5 is the blue note between 4 and 5.' },
+    'maj-pent': { prog: [[0, '7'], [5, '7']], why: 'I7 – IV7: sweet over the I chord; over IV its 3 rubs the IV7’s ♭7, so players switch to minor there.' },
+    mixolydian: { prog: [[0, '7'], [5, '7']], why: 'I7 – IV7: every note of the I7 is in the scale.' },
+    dorian: { prog: [[0, 'm7'], [5, '7']], why: 'i7 – IV7: the minor blues and funk vamp.' },
+  },
+  'l-dom': {
+    mixolydian: { prog: [[0, '13'], [5, 'maj7']], why: 'V13 – Imaj7: the plain dominant, resolving to major.' },
+    'mixo-b6': { prog: [[0, '7b13'], [5, 'm']], why: 'V7♭13 – i: a dominant heading for a minor chord.' },
+  },
+  'l-flam': {
+    phrygian: { prog: [[0, 'm'], [1, '']], why: 'i – ♭II: the minor side of flamenco.' },
+    'phryg-dom': { prog: [[5, 'm'], [3, ''], [1, ''], [0, '']], why: 'iv – ♭III – ♭II – I: the Andalusian cadence, landing on the major chord.' },
+  },
+};
+export const contextOf = (landId, id) => (LAND_CONTEXT[landId] || {})[id] || CONTEXT[id] || null;

@@ -309,7 +309,7 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {} }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone' }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
   let R = { on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [], tip: 0, since: 0, order: null, prev: null };
 
@@ -328,6 +328,19 @@ export function renderFreeScale($app, ctx) {
   const landAll = (l) => (l.big || l.ids).filter((id) => BY[id]);
   function landPicked(l) { const p = (O.landPick || {})[l.id] || l.ids; const out = landAll(l).filter((id) => p.includes(id)); return out.length >= 2 ? out : l.ids.slice(); }
   const landHome = (l) => { const p = landPicked(l), h = FL.homeOf(l); return p.includes(h) ? h : p[0]; };
+  // chord backing: in a landscape, each scale over the chords that call for it, on a pad that only moves the notes that move
+  const ctxOf = (mode) => { const l = land(); return l && mode ? FL.contextOf(l.id, mode) : null; };
+  const chordsWanted = () => !!land() && O.backing === 'chords';
+  function chordMidis(off, q) {
+    const root = (T.notePc(tonic()) + off) % 12, bass = 40 + ((root - 4 + 12) % 12);
+    let up = T.getChord(q).ivs.filter((iv) => iv !== '1');
+    if (up.length > 4) up = up.filter((iv) => iv !== '5');
+    const top = up.map((iv) => { const pc = (root + FL.semisOf(iv)) % 12; return 55 + ((pc - 7 + 12) % 12); });
+    return [bass, ...new Set(top)].sort((a, b) => a - b);
+  }
+  // beats per chord: a bar, or less when the scale changes before the progression would finish
+  const chordBeats = (n) => (O.go === 'auto' && n * 4 > O.every ? Math.max(1, Math.floor(O.every / n)) : 4);
+  const chordName = (off, q) => T.chordSymbol(T.transposeSemis(tonic(), off), q);
   const landDiff = () => { const l = land(), it = cur(); return l && it.mode ? FL.moved(landHome(l), it.mode) : null; };
   function walk() {
     const d = def(), n = items().length;
@@ -356,7 +369,7 @@ export function renderFreeScale($app, ctx) {
       R.prev = before.mode && now.mode && !def().cong ? before.mode : null;
       if (now.mode !== before.mode) R.fact = 0;
     }
-    if (!auto) R.since = 0;
+    if (!auto) { R.since = 0; R.cb = 0; }
     save(); draw();
   }
   // the piece of neck to show
@@ -462,7 +475,11 @@ export function renderFreeScale($app, ctx) {
   function closeAbout() { const el = document.getElementById('fsabout'); if (el) el.hidden = true; document.body.classList.remove('locked'); }
 
   // ---------- sound: the drone and the metronome ----------
-  function drone() { if (R.on && O.drone) A.startDrone(36 + T.notePc(tonic()) + (T.notePc(tonic()) < 4 ? 12 : 0), O.fifth); else A.stopDrone(); }
+  function drone() {
+    if (R.on && O.drone && !chordsWanted()) A.startDrone(36 + T.notePc(tonic()) + (T.notePc(tonic()) < 4 ? 12 : 0), O.fifth); else A.stopDrone();
+    if (R.on && chordsWanted()) { if (!R.pad) { R.pad = A.padLine({ vel: 0.6 }); R.cb = 0; } }
+    else if (R.pad) { R.pad.release(A.audioCtx().currentTime, 0.4); R.pad = null; }
+  }
   function clock() {
     if (!R.on) return;
     const c = A.audioCtx();
@@ -476,6 +493,13 @@ export function renderFreeScale($app, ctx) {
       R.since++;
       const left = O.every - R.since + 1;
       if (O.metro === 'click') A.click(t, pos === 0 ? 2 : 1);
+      if (R.pad) {
+        // the chord for this beat: the scale about to sound (the next one, on a change), its progression from the top
+        if (change) R.cb = 0;
+        const c2 = ctxOf(change ? (upNext() || cur()).mode : cur().mode);
+        if (c2) { const nb = chordBeats(c2.prog.length); if (R.cb % nb === 0) { const [off, q] = c2.prog[Math.floor(R.cb / nb) % c2.prog.length]; R.pad.chord(chordMidis(off, q), t); } }
+        R.cb++;
+      }
       R.vis.push(setTimeout(() => {
         if (change && R.on) step(1, true);
         document.querySelectorAll('.fsbeats i').forEach((el, i) => el.classList.toggle('on', i % 4 === pos));
@@ -504,6 +528,7 @@ export function renderFreeScale($app, ctx) {
     R.on = false;
     clearTimeout(R.timer); clearInterval(R.factT); R.vis.forEach(clearTimeout); R.vis = [];
     A.stopDrone(); A.hush();
+    if (R.pad) { R.pad.release(A.audioCtx().currentTime, 0.3); R.pad = null; }
   }
 
   // ---------- the screen ----------
@@ -535,7 +560,9 @@ export function renderFreeScale($app, ctx) {
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = landText(hm, it.mode);
       const ch = !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
-      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fmt(d.roles[it.mode])}</p>` : ''}`;
+      const cx = ctxOf(it.mode);
+      const over = cx && O.backing === 'chords' ? `<p class="fsover"><span class="lbl">over</span> <b>${fmt(cx.prog.map(([o, q]) => chordName(o, q)).join(' – '))}</b><small>${fmt(cx.why)}</small></p>` : '';
+      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${over}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fmt(d.roles[it.mode])}</p>` : ''}`;
     }
     return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${moved}`;
   }
@@ -550,7 +577,7 @@ export function renderFreeScale($app, ctx) {
   }
   // start and stop, right under the controls, with the beat and what you'll hear
   function playHTML() {
-    const hear = [O.drone ? `drone${O.fifth ? ' + 5th' : ''}` : 'no drone', O.metro === 'click' ? 'click' : O.metro === 'silent' ? 'beat shown, no click' : 'metronome off', O.go === 'auto' ? `changes every ${O.every} beats` : 'you change it with ‹ ›'].join(' · ');
+    const hear = [chordsWanted() ? 'chords' : O.drone ? `drone${O.fifth ? ' + 5th' : ''}` : 'no drone', O.metro === 'click' ? 'click' : O.metro === 'silent' ? 'beat shown, no click' : 'metronome off', O.go === 'auto' ? `changes every ${O.every} beats` : 'you change it with ‹ ›'].join(' · ');
     return `<div class="fsplay">
       <button class="primary ${R.on ? 'stop' : ''}" data-f="play">${R.on ? '■ Stop' : '▶ Start'}</button>
       <div class="fsplayr">${R.on ? `<div class="beats fsbeats"><i></i><i></i><i></i><i></i></div><span class="fscount"></span>` : `<small>${esc(hear)}</small>`}</div>
@@ -573,6 +600,7 @@ export function renderFreeScale($app, ctx) {
     return `<div class="fsrow fsland"><span class="lbl">Landscape</span><select id="fsland" class="select" aria-label="Landscape">${opts}</select></div>
       ${l ? `<div class="fsrow fsland fslandpick"><span class="lbl">Scales</span><div class="chips">${landAll(l).map((id) => `<button class="chip ${landPicked(l).includes(id) ? 'on' : ''}" data-landpick="${id}">${esc(BY[id].name)}</button>`).join('')}</div></div>
       <div class="fsrow fsland"><span class="lbl"></span><button class="chip" data-landset="core">Core ${l.ids.length}</button><button class="chip" data-landset="all">All ${landAll(l).length}</button><small class="note">tap scales to leave them out or put them in (two at least)</small></div>
+      <div class="fsrow fsland"><span class="lbl">Backing</span>${seg('backing', O.backing, [['drone', 'Root drone'], ['chords', 'Chords']])}</div>
       <div class="fsrow fsland"><span class="lbl">Change</span>${seg('go', O.go, [['manual', 'Manual'], ['auto', 'Auto']])}</div>
       ${O.go === 'auto' ? `<div class="fsrow fsland"><span class="lbl">Every</span>${seg('every', O.every, [[4, '4 beats'], [8, '8'], [16, '16'], [32, '32']])}</div>` : ''}
       <p class="note fsblurb">${fmt(l.blurb)}</p>` : ''}`;
@@ -667,6 +695,7 @@ export function renderFreeScale($app, ctx) {
     if (d.key) { O.key = d.key; save(); if (R.on) drone(); return draw(); }
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
     if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
+    if (d.backing) { O.backing = d.backing; R.cb = 0; save(); if (R.on) drone(); return draw(); }
     if (d.landpick || d.landset) {
       const l = land(); if (!l) return;
       const was = cur().mode, p = new Set(landPicked(l));
