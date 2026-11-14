@@ -319,6 +319,7 @@ export function renderFreeScale($app, ctx) {
   const items = () => {
     const d = def();
     if (d && d.cong) { const home = O.home || O.scale; return [{ mode: home, start: 0 }, ...FL.congruent(home).slice(0, 12).map((c) => ({ mode: c.id, start: c.start, why: c.why, as: c.as, also: c.also }))]; }
+    if (d && d.steps) return d.steps.map(([mode, shift, ch]) => ({ mode, shift, ch }));
     if (d && d.land) return landPicked(d).map((mode) => ({ mode, shift: d.shifts?.[mode] || 0 }));
     return d ? FL.itemsOf(d) : [{ mode: O.scale }];
   };
@@ -329,7 +330,8 @@ export function renderFreeScale($app, ctx) {
   function landPicked(l) { const p = (O.landPick || {})[l.id] || l.ids; const out = landAll(l).filter((id) => p.includes(id)); return out.length >= 2 ? out : l.ids.slice(); }
   const landHome = (l) => { const p = landPicked(l), h = FL.homeOf(l); return p.includes(h) ? h : p[0]; };
   // chord backing: in a landscape, each scale over the chords that call for it, on a pad that only moves the notes that move
-  const ctxOf = (mode) => { const l = land(); return l && mode ? FL.contextOf(l.id, mode) : null; };
+  // a progression step plays its own chord; otherwise the scale's chords
+  const ctxOf = (it) => { const l = land(); if (!l || !it || !it.mode) return null; if (it.ch !== undefined) return { prog: [[0, it.ch]], why: '' }; return FL.contextOf(l.id, it.mode); };
   const chordsWanted = () => !!land() && O.backing === 'chords';
   function chordMidis(off, q, it = cur()) {
     const root = (T.notePc(keyTonic()) + shiftOf(it) + off) % 12, bass = 40 + ((root - 4 + 12) % 12);
@@ -500,7 +502,7 @@ export function renderFreeScale($app, ctx) {
       if (R.pad) {
         // the chord for this beat: the scale about to sound (the next one, on a change), its progression from the top
         if (change) R.cb = 0;
-        const c2 = ctxOf(change ? (upNext() || cur()).mode : cur().mode);
+        const c2 = ctxOf(change ? upNext() || cur() : cur());
         if (c2) { const nb = chordBeats(c2.prog.length); if (R.cb % nb === 0) { const [off, q] = c2.prog[Math.floor(R.cb / nb) % c2.prog.length]; R.pad.chord(chordMidis(off, q, change ? upNext() || cur() : cur()), t); } }
         R.cb++;
       }
@@ -564,10 +566,10 @@ export function renderFreeScale($app, ctx) {
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = d.drift ? null : landText(hm, it.mode);
       const kn = fmt(T.noteName(keyTonic(), true)), deg = d.drift ? BY[d.ids[0]].ivs.findIndex((iv) => FL.semisOf(iv) === (it.shift || 0)) : -1;
-      const ch = d.drift ? `<p class="fsmoved">${it.shift ? `Same notes as ${kn} ${esc(BY[d.ids[0]].name)}, heard from its ${ORD[deg]} (${fmt(driftDeg(it)?.roman || '')}): <b>${t} is the 1</b> <i>(the drone moved)</i>` : `Home: ${kn} ${esc(BY[d.ids[0]].name)}`}</p>` : !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
-      const cx = ctxOf(it.mode);
+      const ch = d.steps ? `<p class="fsmoved">Chord ${(O.wi % w.length) + 1} of ${w.length}: <b>${fmt(chordName(0, it.ch))}</b> (${fmt(romanOf(it.shift || 0, it.ch))}), so ${t} ${esc(BY[it.mode].name)} <i>(${it.shift ? 'the drone moved' : 'home'})</i></p>` : d.drift ? `<p class="fsmoved">${it.shift ? `Same notes as ${kn} ${esc(BY[d.ids[0]].name)}, heard from its ${ORD[deg]} (${fmt(driftDeg(it)?.roman || '')}): <b>${t} is the 1</b> <i>(the drone moved)</i>` : `Home: ${kn} ${esc(BY[d.ids[0]].name)}`}</p>` : !dd ? `<p class="fsmoved">Home: ${t} ${esc(BY[hm].name)}</p>` : `<p class="fsmoved">Against ${t} ${esc(BY[hm].name)}: ${dd.parts.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(${[dd.added ? 'new notes ringed' : '', dd.gone ? 'the home notes it lacks faint' : ''].filter(Boolean).join(', ')})</i></p>`;
+      const cx = ctxOf(it);
       const over = cx && O.backing === 'chords' ? `<p class="fsover"><span class="lbl">over</span> <b>${fmt(cx.prog.map(([o, q]) => chordName(o, q)).join(' – '))}</b> <i class="fsrn">${fmt(cx.prog.map(([o, q]) => romanOf(shiftOf(it) + o - (cx.key || 0), q)).join(' – '))}</i><small>${fmt(cx.why)}</small></p>` : '';
-      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${over}${it.mode && d.roles?.[it.mode] ? `<p class="note fsrole">${fillRole(d.roles[it.mode])}</p>` : ''}`;
+      return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${ch}${over}${it.mode && (d.roles?.[it.mode] || (d.steps && FL.MODE_ROLES[it.mode])) ? `<p class="note fsrole">${fillRole(d.roles?.[it.mode] || FL.MODE_ROLES[it.mode])}</p>` : ''}`;
     }
     return `<p class="fspos">${esc(d.name)} · ${(O.wi % w.length) + 1} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>${moved}`;
   }
@@ -626,7 +628,7 @@ export function renderFreeScale($app, ctx) {
   }
   // the chords for this scale, as numerals and names, and the note to hit as each arrives: its 3rd (the 4th on a sus chord)
   function chordsHTML(it) {
-    const cx = ctxOf(it.mode); if (!cx) return '';
+    const cx = ctxOf(it); if (!cx) return '';
     const seen = new Set(), ch = cx.prog.filter(([o, q]) => { const k = `${o}${q}`; if (seen.has(k)) return false; seen.add(k); return true; });
     // the strongest chord tone that's in the scale you're playing: 3rd, then 7th, then root, then 5th
     const inScale = pcs(it.mode);
@@ -641,7 +643,7 @@ export function renderFreeScale($app, ctx) {
   // the notes to land on the beats: the landscape's own choice, else the chord tones of the mode
   function targetsHTML(it) {
     const l = land(); if (!l || !it.mode) return '';
-    const ivs = l.targets?.[it.mode] || FL.modeArp(it.mode, false);
+    const ivs = l.targets?.[it.mode] || (l.steps && FL.MODE_TARGETS[it.mode]) || FL.modeArp(it.mode, false);
     // the interval first, then its note: ♭3 (B♭)
     return `<span class="fstargets">targets: ${fillRole(ivs.map((iv) => `{${iv}}`).join(' ')).replace(/<b>(.*?)<\/b> \(([^)]*)\)/g, '<b>$2</b><i>$1</i>')}</span>`;
   }
@@ -658,10 +660,10 @@ export function renderFreeScale($app, ctx) {
   function landHTML() {
     const l = land();
     const og = (label, ls) => `<optgroup label="${esc(label)}">${ls.map((x) => `<option value="${x.id}" ${l && l.id === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</optgroup>`;
-    const opts = `<option value="hold">Off</option>${og('Same 1, the notes change', FL.LADDERS.filter((x) => x.land && !x.drift))}${og('Same notes, the 1 moves', FL.LADDERS.filter((x) => x.drift))}`;
+    const opts = `<option value="hold">Off</option>${og('Same 1, the notes change', FL.LADDERS.filter((x) => x.land && !x.drift))}${og('Same notes, the 1 moves', FL.LADDERS.filter((x) => x.drift && !x.steps))}${og('Progressions: a mode for each chord', FL.LADDERS.filter((x) => x.steps))}`;
     return `<div class="fsrow fsland"><span class="lbl">Landscape</span><select id="fsland" class="select" aria-label="Landscape">${opts}</select></div>
-      ${l ? `<div class="fsrow fsland fslandpick"><span class="lbl">Scales</span><div class="chips">${landAll(l).map((id) => `<button class="chip ${landPicked(l).includes(id) ? 'on' : ''}" data-landpick="${id}">${esc(BY[id].name)}</button>`).join('')}</div></div>
-      <div class="fsrow fsland"><span class="lbl"></span><button class="chip" data-landset="core">Core ${l.ids.length}</button><button class="chip" data-landset="all">All ${landAll(l).length}</button><small class="note">tap scales to leave them out or put them in (two at least)</small></div>
+      ${l ? `${l.steps ? `<p class="fsprogrow">${l.steps.map(([m, sh, c]) => `<b>${fmt(romanOf(sh, c))}</b>`).join(' – ')}</p>` : `<div class="fsrow fsland fslandpick"><span class="lbl">Scales</span><div class="chips">${landAll(l).map((id) => `<button class="chip ${landPicked(l).includes(id) ? 'on' : ''}" data-landpick="${id}">${esc(BY[id].name)}</button>`).join('')}</div></div>
+      <div class="fsrow fsland"><span class="lbl"></span><button class="chip" data-landset="core">Core ${l.ids.length}</button><button class="chip" data-landset="all">All ${landAll(l).length}</button><small class="note">tap scales to leave them out or put them in (two at least)</small></div>`}
       <div class="fsrow fsland"><span class="lbl">Backing</span>${seg('backing', O.backing, [['drone', 'Root drone'], ['chords', 'Chords']])}</div>
       <div class="fsrow fsland"><span class="lbl">Change</span>${seg('go', O.go, [['manual', 'Manual'], ['auto', 'Auto']])}</div>
       ${O.go === 'auto' ? `<div class="fsrow fsland"><span class="lbl">Every</span>${seg('every', O.every, [[4, '4 beats'], [8, '8'], [16, '16'], [32, '32']])}</div>` : ''}
@@ -717,7 +719,7 @@ export function renderFreeScale($app, ctx) {
     <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
-    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc({ aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${targetsHTML(it)}${chordsHTML(it)}</p>` : ''}
+    ${land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc(land().keyName || { aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${targetsHTML(it)}${chordsHTML(it)}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>

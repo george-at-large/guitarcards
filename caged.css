@@ -576,3 +576,5 @@ details.fssolo li { margin: 0 0 5px; }
 details.fssolo li b { color: var(--text, #fff); }
 .fschords b.rn { font: 700 18px var(--f-display); vertical-align: -1px; }
 .fsnecklbl small b.fsroman { font: 700 18px var(--f-display); color: var(--amber); vertical-align: -1px; }
+.fsprogrow { margin: 0 0 2px; text-align: center; font: 600 16px var(--f-display); color: var(--muted); }
+.fsprogrow b { color: var(--amber); }

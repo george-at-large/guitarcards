@@ -72,6 +72,34 @@ export const LADDERS = [
   { id: 'sh-all', group: 'Shuffles', name: 'Everything, exotic too, shuffled', ids: SC.SCALES.map((s) => s.id), shuffle: true, blurb: 'Every scale the app knows, exotic ones too, shuffled.' },
   { id: 'sh-use', group: 'Shuffles', name: 'Everything useful, shuffled', ids: ['ionian', 'aeolian', 'min-pent', 'maj-pent', 'blues', 'dorian', 'mixolydian', 'lydian', 'phrygian', 'harm-min', 'mel-min', 'altered', 'lyd-dom', 'locrian-n2', 'mixo-b6', 'phryg-dom'], shuffle: true, blurb: 'The essentials, everyday, colour and jazz scales, shuffled.' },
 ];
+// progressions: a mode for each chord. Each step is [mode, semitones above the key, chord]; the 1, the drone and the
+// chord move with every step. ids[0] is the key's own scale (for naming degrees); steps can repeat
+const P = (id, name, key, steps, blurb) => ({ id, group: 'Progressions', land: true, drift: true, loop: true, name, ids: [key], steps, blurb, keyName: { ionian: 'major', aeolian: 'minor', 'harm-min': 'minor', mixolydian: 'blues' }[key] });
+LADDERS.push(
+  P('p-pop', 'Pop: I – V – vi – IV', 'ionian', [['ionian', 0, ''], ['mixolydian', 7, ''], ['aeolian', 9, 'm'], ['lydian', 5, '']], 'The four chords of a thousand pop songs, each with the mode of the key built on it: Ionian, Mixolydian, Aeolian, Lydian. Same notes throughout; the 1 moves with the chord.'),
+  P('p-251', 'Jazz: ii – V – I', 'ionian', [['dorian', 2, 'm7'], ['mixolydian', 7, '7'], ['ionian', 0, 'maj7'], ['ionian', 0, 'maj7']], 'The cadence of jazz: Dorian on the ii, Mixolydian on the V, Ionian on the I (two bars). Aim for each chord’s 3rd as it arrives.'),
+  P('p-1625', 'Turnaround: I – vi – ii – V', 'ionian', [['ionian', 0, 'maj7'], ['aeolian', 9, 'm7'], ['dorian', 2, 'm7'], ['mixolydian', 7, '7']], 'The 1950s and rhythm-changes turnaround, a mode for each chord.'),
+  P('p-145', 'Major: I – IV – V', 'ionian', [['ionian', 0, ''], ['lydian', 5, ''], ['mixolydian', 7, ''], ['ionian', 0, '']], 'Folk, rock and country’s three chords, each heard as its own mode of the key.'),
+  P('p-blues', 'Blues: 12 bars, Mixolydian on each', 'mixolydian', [['mixolydian', 0, '7'], ['mixolydian', 5, '7'], ['mixolydian', 0, '7'], ['mixolydian', 0, '7'], ['mixolydian', 5, '7'], ['mixolydian', 5, '7'], ['mixolydian', 0, '7'], ['mixolydian', 0, '7'], ['mixolydian', 7, '7'], ['mixolydian', 5, '7'], ['mixolydian', 0, '7'], ['mixolydian', 7, '7']], 'A 12-bar blues (quick change) with Mixolydian on every 7th chord, so the notes change with each chord. Set Auto to every 4 beats for one bar a chord.'),
+  P('p-m-rock', 'Minor rock: i – ♭VI – ♭VII', 'aeolian', [['aeolian', 0, 'm'], ['lydian', 8, ''], ['mixolydian', 10, ''], ['aeolian', 0, 'm']], 'The Aeolian rock progression: Aeolian, then Lydian on ♭VI and Mixolydian on ♭VII, all the same notes.'),
+  P('p-m-145', 'Minor: i – iv – v', 'aeolian', [['aeolian', 0, 'm'], ['dorian', 5, 'm'], ['phrygian', 7, 'm'], ['aeolian', 0, 'm']], 'A natural minor key’s three minor chords: Aeolian, Dorian on iv, Phrygian on v.'),
+  P('p-andal', 'Andalusian: i – ♭VII – ♭VI – V', 'aeolian', [['aeolian', 0, 'm'], ['mixolydian', 10, ''], ['lydian', 8, ''], ['phryg-dom', 7, '7']], 'The flamenco and rock descent. The V is major, so its mode is Phrygian dominant: the 7th of the key rises for that chord only.'),
+  P('p-m251', 'Minor jazz: iiø – V7♭9 – i', 'harm-min', [['locrian', 2, 'm7b5'], ['phryg-dom', 7, '7b9'], ['mel-min', 0, 'm6'], ['mel-min', 0, 'm6']], 'The minor ii – V – i: Locrian on the half-diminished ii, Phrygian dominant on the V7♭9, melodic minor on the i (two bars).'),
+);
+// for progressions: what to do in each mode, whatever chord of the key it sits on
+export const MODE_ROLES = {
+  ionian: 'Land {1}, {3} and {5}; {4} and {7} are the tension notes, resolving to {3} and {1}.',
+  dorian: 'Land {1}, {b3}, {5} and {b7}; put {6} on a strong beat now and then: it’s the note that makes it Dorian.',
+  phrygian: 'Land {1}, {b3} and {5}; let {b2} fall to {1} off the beat.',
+  lydian: 'Land {1}, {3} and {5}, and let {#4} ring: it floats instead of resolving.',
+  mixolydian: 'Land {1}, {3} and {b7}: the {b7} is what makes it a dominant sound.',
+  aeolian: 'Land {1}, {b3} and {5}; let {b6} fall to {5} for the minor colour.',
+  locrian: 'The half-diminished chord: land {1}, {b3}, {b5} and {b7}, then step to the next chord’s 3rd.',
+  'phryg-dom': 'The dominant of a minor key. Land {3}, the key’s leading tone, as the chord arrives, with {1} and {5}; let {b2} fall to {1} and {b6} to {5}.',
+  'mel-min': 'Land {1}, {b3}, {5} and {6} or {7}: the natural 6 and 7 are the jazz minor sound.',
+};
+export const MODE_TARGETS = { ionian: ['1', '3', '5'], dorian: ['1', 'b3', '5', '6'], phrygian: ['1', 'b3', '5', 'b2'], lydian: ['1', '3', '5', '#4'], mixolydian: ['1', '3', '5', 'b7'], aeolian: ['1', 'b3', '5', 'b6'], locrian: ['1', 'b3', 'b5', 'b7'], 'phryg-dom': ['3', '1', '5', 'b2'], 'mel-min': ['1', 'b3', '5', '6'] };
+
 // arpeggio types to step through: plain ones and extended ones
 export const ARPSETS = [
   { id: 'a-tri', ext: false, name: 'Triads', qs: ['', 'm', 'dim', 'aug', 'sus2', 'sus4'], blurb: 'The six triads on the same root.' },
