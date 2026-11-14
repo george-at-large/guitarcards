@@ -399,7 +399,8 @@ export function renderFreeScale($app, ctx) {
   }
   function optsHTML() {
     const d = def();
-    return `<section class="card fsopts">
+    const summary = [O.content === 'scale' ? 'Scale' : O.content === 'arp' ? 'Arpeggio' : 'Extended arpeggio', d ? d.name : 'one mode', O.go === 'auto' ? `auto every ${O.every} beats` : 'change by hand', O.pat ? 'pattern on' : '', O.area === 'whole' ? 'whole neck' : O.area === 'shape' ? `${O.shape} shape${O.shapeGo === 'auto' ? ', moving' : ''}` : O.area === 'low' ? 'low half' : 'high half'].filter(Boolean).join(' · ');
+    return `<details class="card fsopts" id="fsoptsd" ${R.optsOpen ? 'open' : ''}><summary><b>Ladders, auto change, patterns, CAGED shapes</b><small>${fmt(summary)}</small></summary>
       <div class="fsopt"><span>Play</span>${seg('content', O.content, [['scale', 'Scale'], ['arp', 'Arpeggio'], ['ext', 'Extended']])}</div>
       <div class="fsopt"><span>Go through</span><select id="fsseq" class="select" aria-label="Go through">${seqOptions()}</select></div>
       ${d ? `<p class="note fsblurb">${fmt(d.blurb)}</p>` : ''}
@@ -410,7 +411,7 @@ export function renderFreeScale($app, ctx) {
       ${O.area === 'whole' ? `<div class="fsopt"><span></span>${seg('frets', O.frets, [[12, 'Frets 0–12'], [15, 'Frets 0–15']])}</div>` : ''}
       ${O.area === 'shape' ? `<div class="fsopt"><span>Shape</span>${seg('shape', O.shape, G.SHAPES.map((x) => [x, x]))}</div>
         <div class="fsopt"><span>Move</span>${seg('shapego', O.shapeGo, [['manual', 'Manual'], ['auto', `Auto, each ${d ? 'pass' : 'change'}`]])}<button class="chip" data-f="nextshape">Next shape ›</button></div>` : ''}
-    </section>`;
+    </details>`;
   }
   function draw() {
     sync();
@@ -430,6 +431,7 @@ export function renderFreeScale($app, ctx) {
       </div>
       <input type="range" id="fsbpmr" min="30" max="200" step="2" value="${O.bpm}" aria-label="Tempo">
     </div>
+    ${optsHTML()}
     <div class="fsnav">${many ? '<button class="icon" data-f="prev" aria-label="Previous">‹</button>' : '<span></span>'}<h2 class="fstitle">${titleHTML()}</h2>${many ? '<button class="icon" data-f="next" aria-label="Next">›</button>' : '<span></span>'}</div>
     ${stepHTML()}
     <div class="beats" id="fsbeats">${O.metro || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
@@ -438,7 +440,6 @@ export function renderFreeScale($app, ctx) {
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
-    ${optsHTML()}
     ${isArp ? '' : `<section class="card fstipcard" id="fstips">${tipsHTML()}</section>`}
     <div class="sheet" id="fsabout" hidden></div>
     ${R.on ? '' : `<div class="actions"><button class="primary" data-f="play">▶ ${O.go === 'auto' ? 'Start' : O.drone ? 'Start the drone' : 'Start'}</button></div>`}`;
@@ -450,6 +451,8 @@ export function renderFreeScale($app, ctx) {
       if (k >= 0) O.wi = k; else { O.seq = 'hold'; O.wi = 0; }
       save(); draw();
     };
+    const od = $app.querySelector('#fsoptsd');
+    od.ontoggle = () => { R.optsOpen = od.open; };
     const sq = $app.querySelector('#fsseq');
     sq.onchange = () => { O.seq = sq.value; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; save(); draw(); };
     const r = $app.querySelector('#fsbpmr');
