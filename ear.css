@@ -148,3 +148,31 @@ i.y { background: var(--e-good) !important; } i.n { background: var(--e-bad) !im
 .acc { font-family: var(--f-ui); font-size: 0.8em; font-weight: 500; position: relative; top: -0.1em; margin-right: 0.02em; }
 #ear .eslot.long b { font-size: 19px; }
 .ebasshint { margin: 6px 2px 0; font-size: 12.5px; }
+
+/* chords */
+.kq { min-height: 92px; display: grid; place-items: center; margin: 2px 0 6px; }
+.kmark { font: 400 54px/1 var(--f-num); color: rgba(255, 255, 255, 0.16); }
+.kname { font: 500 46px/1.1 var(--f-num); letter-spacing: -0.01em; text-align: center; }
+.kname.ksong { font-size: 30px; }
+#ear .ktypes { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+#ear .ktypes button { height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.ktypes b { font: 600 20px/1.1 var(--f-num); }
+.ktypes small { font: 400 11.5px/1.2 var(--f-ui); color: var(--e-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+#ear .kbass { grid-template-columns: repeat(4, 1fr); }
+#ear .kbass button { height: 42px; font: 600 15px var(--f-ui); }
+.kresult .everdict { text-align: center; }
+.kivs { display: flex; justify-content: center; gap: 6px; margin: 10px 0 6px; }
+.kiv { min-width: 34px; padding: 3px 8px; border-radius: 999px; text-align: center; font: 600 15px var(--f-num); background: var(--e-surface2); border: 1px solid var(--e-line); }
+.kiv.f-r { color: #ffb547; } .kiv.f-t3 { color: #ff7a9a; } .kiv.f-t5 { color: #5ccdf2; } .kiv.f-t7 { color: #b49cff; } .kiv.f-tx { color: #efe8da; }
+.kabout { color: var(--e-soft); font-size: 14.5px; text-align: center; margin: 4px 6px 4px; }
+.ktab { text-align: center; color: var(--e-muted); font-size: 12.5px; margin: -2px 0 8px; }
+.ktab span { font: 600 17px ui-monospace, "SF Mono", Menlo, monospace; color: var(--e-text); letter-spacing: 0.08em; margin-right: 6px; }
+.kvoicing .eneckwrap { margin: 6px -6px 4px; }
+.kpsub { text-align: center; color: var(--e-soft); font-size: 14.5px; min-height: 22px; margin: -2px 0 8px; }
+.kplead { margin: 0 0 6px; }
+#ear .epocketrow { margin: -10px 0 4px; }
+.epocketrow .enum { background: rgba(92, 205, 242, 0.14); }
+.pocket .eslots { margin-top: 6px; }
+/* the voicing diagram: smaller dots, so notes on neighbouring strings don't touch */
+.kvoicing .endot .encirc, .kvoicing .endot .englow { transform: scale(0.74); }
+.kvoicing .endot .entxt { font-size: 12.5px; transform: translateY(-1.5px); }

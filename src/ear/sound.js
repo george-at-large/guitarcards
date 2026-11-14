@@ -226,17 +226,49 @@ export function playChord(instrument, notes, t, dur, { vel = 0.8 } = {}) {
   }
   release(t);
   const ms = [...notes].map((n) => n.midi).sort((a, b) => a - b);
-  ms.forEach((m, i) => {
-    const at = t + (instrument === 'pad' ? 0 : i * 0.008);
-    if (instrument === 'piano') held.push({ g: piano(m, at, vel * (i === 0 ? 0.95 : 0.8)) });
-    else if (instrument === 'epiano') held.push(epiano(m, at, vel * (i === 0 ? 0.9 : 0.75)));
-    else {
-      const h = tone(m, at, { attack: 0.18, pluckLevel: 0, level: 0.1, send: 0.35 });
-      held.push({ g: { gain: { cancelScheduledValues() {}, setValueAtTime() {}, setTargetAtTime() {}, value: 0 } }, stop: (x) => h.stop(x, 0.5) });
-    }
-  });
+  ms.forEach((m, i) => key(instrument, m, t + (instrument === 'pad' ? 0 : i * 0.008), vel * (i === 0 ? 0.95 : 0.8)));
   if (dur) release(t + dur, instrument === 'pad' ? 0.3 : 0.15);
 }
+const NOGAIN = { gain: { cancelScheduledValues() {}, setValueAtTime() {}, setTargetAtTime() {}, value: 0 } };
+// one keyboard (or pad) note, held until release()
+function key(instrument, m, at, vel) {
+  if (instrument === 'piano') held.push({ g: piano(m, at, vel) });
+  else if (instrument === 'epiano') held.push(epiano(m, at, vel * 0.95));
+  else { const h = tone(m, at, { attack: 0.18, pluckLevel: 0, level: 0.1, send: 0.35 }); held.push({ g: NOGAIN, stop: (x) => h.stop(x, 0.5) }); }
+}
+
+// one chord for the chord trainer: struck together, arpeggiated slowly from the bass up (each note left ringing), or
+// both (the arpeggio, then the chord). `sustain` lays a soft held tone under each note as it is struck, so the chord
+// keeps sounding until it is stopped; without it the chord is let go after `hold` seconds. Returns {end, together}:
+// when the playing is over and when the chord is (last) heard whole.
+export function voicing(instrument, notes, t, { mode = 'together', gap = 0.62, sustain = false, hold = 3.2, vel = 0.8 } = {}) {
+  const ns = [...notes].sort((a, b) => a.midi - b.midi);
+  release(t, 0.08);
+  if (instrument === 'guitar') dampAll(t);
+  const strike = (n, at, v) => {
+    if (instrument === 'guitar') pluck(n.midi, at, { string: n.string, vel: v, decay: 3.4 });
+    else key(instrument, n.midi, at, v);
+    if (sustain && instrument !== 'pad') {
+      const h = tone(n.midi, at + 0.05, { string: n.string, attack: 1.4, pluckLevel: 0, level: 0.055, send: 0.35 });
+      held.push({ g: NOGAIN, stop: (x) => h.stop(x, 0.8) });
+    }
+  };
+  let at = t;
+  if (mode !== 'together') {
+    ns.forEach((n, i) => strike(n, t + i * gap, vel * (i === 0 ? 0.95 : 0.85)));
+    at = t + ns.length * gap + (mode === 'both' ? 0.7 : 0);
+  }
+  if (mode !== 'arp') {
+    if (mode === 'both') { release(at, 0.1); if (instrument === 'guitar') dampAll(at); }
+    if (instrument === 'guitar') strum(ns.map((n) => ({ ...n, string: n.string || 3 })), at, { spread: 0.04, vel: vel * 0.9, decay: 3.4 });
+    else ns.forEach((n, i) => strike(n, at + (instrument === 'pad' ? 0 : i * 0.008), vel * (i === 0 ? 0.95 : 0.8)));
+    if (instrument === 'guitar' && sustain) ns.forEach((n) => { const h = tone(n.midi, at + 0.05, { string: n.string, attack: 1.4, pluckLevel: 0, level: 0.055, send: 0.35 }); held.push({ g: NOGAIN, stop: (x) => h.stop(x, 0.8) }); });
+  }
+  const end = (mode === 'arp' ? t + (ns.length - 1) * gap : at) + hold;
+  if (!sustain) release(end, instrument === 'pad' ? 0.4 : 0.3);
+  return { end, together: at };
+}
+export function letGo(t = ctx().currentTime) { release(t, 0.3); dampAll(t); }
 
 // ---------- bass ----------
 export function bass(midi, t, dur = 0.9, vel = 0.9) {

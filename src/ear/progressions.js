@@ -422,3 +422,36 @@ export function scheduleCadence(round, t0, instrument = 'guitar') {
   return end + 0.5;
 }
 export const songLine = (s) => `${s.song}${s.by ? ' · ' + s.by : ''}`;
+
+// ---------- pocket mode: what the narrator says ----------
+const NUM_WORD = { I: 'one', II: 'two', III: 'three', IV: 'four', V: 'five', VI: 'six', VII: 'seven' };
+const Q_WORD = { maj: '', min: 'minor', dim: 'diminished', aug: 'augmented', sus4: 'sus four', sus2: 'sus two', '7': 'seven', maj7: 'major seven', m7: 'minor seven', m7b5: 'half diminished', dim7: 'diminished seven', mMaj7: 'minor major seven', '7b9': 'seven flat nine', '6': 'six', m6: 'minor six', '9': 'nine' };
+const BASS_WORD = { 3: 'over the third', 5: 'over the fifth', 7: 'over the seventh' };
+// 'V:7/b7' → 'five seven, over the seventh'; 'bVI:maj' → 'flat six'
+export function spokenToken(token) {
+  const [head, rest = 'maj'] = token.split(':');
+  const [q, bassIv] = rest.split('/');
+  const acc = head.match(/^[b#]*/)[0];
+  const num = NUM_WORD[head.slice(acc.length).toUpperCase()];
+  const pre = acc === 'b' ? 'flat ' : acc === '#' ? 'sharp ' : '';
+  const bass = bassIv ? BASS_WORD[SIMPLE_BASS(bassIv)] : '';
+  return `${pre}${num}${Q_WORD[q] !== undefined ? (Q_WORD[q] ? ' ' + Q_WORD[q] : '') : ' ' + q}${bass ? ', ' + bass : ''}`;
+}
+// a song's name as said aloud; null where the name is itself a string of numerals (the chords already say it)
+const SAY_TITLE = { 'The axis from vi': 'The axis, from six', 'The axis from IV': 'The axis, from four', 'V7 of vi': 'Five seven of six', 'ii/3 cadence': 'The two over its third cadence', 'Pop with V/3': 'Pop, with five over its third' };
+export function spokenTitle(s) {
+  if (SAY_TITLE[s.song]) return SAY_TITLE[s.song];
+  if (/[–]/.test(s.song) && /\b[ivIV♭]+\b/.test(s.song)) return null;
+  return s.song.replace(/\s*\(.*?\)/g, '').replace(/♭/g, ' flat ').replace(/’/g, "'").replace(/\s+/g, ' ').trim();
+}
+export const KEY_LINE = (tonic, minor) => `in ${T.noteName(tonic).replace('b', ' flat').replace('#', ' sharp')} ${minor ? 'minor' : 'major'}`;
+// every line pocket mode can say: the chords of every song and level, the song names, the keys
+export function pocketLines() {
+  const C = T.parseNote('C');
+  const toks = new Set();
+  for (const s of Object.values(SONGS).flat()) T.parseChart(s.chart, C).flat().forEach((c) => toks.add(c.token));
+  for (const L of LEVELS) { (L.vocab || []).forEach((x) => toks.add(x)); (L.pool || []).forEach((p) => t(p).forEach((x) => toks.add(x))); }
+  const titles = Object.values(SONGS).flat().map(spokenTitle).filter(Boolean);
+  const keys = [...KEYS.map((k) => KEY_LINE(T.parseNote(k), false)), ...MINOR_TONICS.map((k) => KEY_LINE(T.parseNote(k), true))];
+  return [...new Set([...[...toks].map(spokenToken), ...titles, ...keys])];
+}

@@ -1,4 +1,6 @@
-"""Record every line the Ear app's narrator can say (src/ear/audiation.js LINES) into ear/voice/.
+"""Record every line the Ear app's narrator can say into ear/voice/: the audiation sessions (src/ear/audiation.js LINES),
+the chord names of pocket mode (src/ear/chords.js LINES) and the progressions' chords, songs and keys
+(src/ear/progressions.js pocketLines).
 
     tools/audiation/.venv/bin/python tools/audiation/app_voice.py           # record what's missing
     tools/audiation/.venv/bin/python tools/audiation/app_voice.py --plan    # list what would be recorded
@@ -26,7 +28,8 @@ OUT = ROOT / 'ear' / 'voice'
 
 
 def lines() -> list:
-    code = "import('./src/ear/audiation.js').then(m => process.stdout.write(JSON.stringify(m.LINES)))"
+    code = ("Promise.all([import('./src/ear/audiation.js'), import('./src/ear/chords.js'), import('./src/ear/progressions.js')])"
+            ".then(([a, k, p]) => process.stdout.write(JSON.stringify([...a.LINES, ...k.LINES, ...p.pocketLines()])))")
     js = "globalThis.window = globalThis; globalThis.localStorage = {getItem: () => null, setItem: () => {}};" + code
     return json.loads(subprocess.run(['node', '--input-type=module', '-e', js], cwd=ROOT, check=True, capture_output=True, text=True).stdout)
 
