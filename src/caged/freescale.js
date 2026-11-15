@@ -344,11 +344,14 @@ export function renderFreeScale($app, ctx) {
     if (R.cl?.sig !== sig) R.cl = { sig, steps: CL.route(keyTonic(), W, clPos(), O.clLane, { kinds: O.chordKinds, inv: O.clInvM }).steps.filter((x) => x.id) };
     return R.cl.steps;
   }
-  function strumCL(it, t) {
+  // the app sounding a chord (only when the app plays): a gentle roll, low to high, over its root in the middle of the
+  // bass range, held until the next chord
+  function strumCL(it, t, dur = 2 * 60 / O.bpm) {
     if (!it || !it.v) return;
-    A.strum(it.v.notes.map((n) => n.midi).sort((a, b) => a - b), t, { vel: 0.7 });
-    const pc = T.notePc(keyTonic());
-    A.pluck(36 + pc + (pc < 4 ? 12 : 0), t, { vel: 0.75 }); // the root under it: most of these voicings leave it out
+    const pc = T.notePc(keyTonic()), bass = 40 + ((pc - 4 + 12) % 12);
+    const midis = it.v.notes.map((n) => n.midi).sort((a, b) => a - b);
+    A.pluck(bass, t, { vel: 0.5, dur: dur * 0.95 }); // the root under it: most of these voicings leave it out
+    midis.forEach((m, i) => A.pluck(m, t + 0.035 * (i + 1), { vel: 0.42 + 0.04 * i, dur: dur * 0.95 - 0.035 * (i + 1) }));
   }
   // upper structures: the arpeggios inside a mode's 13th stack, the shapes improvisers actually reach for. The 7th
   // arpeggios built on its 1, 3, 5 and 7 (degree by degree in thirds), and the triad on its tensions (9 11 13); each
@@ -378,7 +381,7 @@ export function renderFreeScale($app, ctx) {
       return { ivs: lbl, what, name: q !== undefined ? `${T.noteName(root, true)}${q}` : `${T.noteName(root, true)} (${lbl.map((x) => T.prettyIv(x)).join(' ')})` };
     });
   }
-  // who plays: you (it shows each part; each chord sounds as you reach it), or the app (it plays every note and chord)
+  // who plays: you (it shows each part and stays quiet apart from the drone and click), or the app (it plays every note and chord)
   const isViz = () => !!land()?.walk && O.player === 'app';
   function ultItems(d) {
     const W = ultWalk(d), base = [];
@@ -473,8 +476,6 @@ export function renderFreeScale($app, ctx) {
     if (!auto) { R.since = 0; R.cb = 0; R.vz = { seq: null, i: 0, pending: false }; }
     if (R.on && T.notePc(tonic()) !== pc0) drone();
     save(); draw();
-    // the chord ladder by hand: hear each chord as you step to it
-    if (isChord(cur()) && !auto) { A.unlockAudio().catch(() => {}); A.ensureRunning().then(() => strumCL(cur(), A.audioCtx().currentTime + 0.03)).catch(() => {}); }
   }
   // the piece of neck to show
   function areaWin() {
@@ -629,7 +630,6 @@ export function renderFreeScale($app, ctx) {
       R.since++;
       const left = O.every - R.since + 1;
       if (O.metro === 'click') A.click(t, pos === 0 ? 2 : 1);
-      { const c2 = change ? upNext() || cur() : cur(); if (isChord(c2) && pos === 0) strumCL(c2, t); }
       if (R.pad) {
         // the chord for this beat: the scale about to sound (the next one, on a change), its progression from the top
         if (change) R.cb = 0;
@@ -921,7 +921,7 @@ export function renderFreeScale($app, ctx) {
     const chip = (attr, key, on, label) => `<button class="chip ${on ? 'on' : ''}" data-${attr}="${key}">${label}</button>`;
     const pl = ['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'its scale', arp: O.arpMode === 'upper' ? 'its upper-structure arpeggios (from the 1, 3, 5 and 7, and the triad on the tensions)' : 'its extended arpeggio', chords: 'its chords' }[k]));
     const how = n < 2 ? '' : O.order === 'block' ? `The whole ladder as ${['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'scales', arp: 'arpeggios', chords: 'chords' }[k])).join(', then as ')}${P.chords ? ': the chords morph one into the next with nothing in between' : ''}.` : `Each mode in turn: ${pl.join(', then ')}; then the next mode.`;
-    const who = O.player === 'app' ? 'The app plays it: each note lit as it sounds (eighth notes at the tempo), each chord strummed over its root for two beats.' : 'You play it: change by hand with ‹ ›, or on the beat. Each chord sounds as you reach it.';
+    const who = O.player === 'app' ? 'The app plays it: each note lit as it sounds (eighth notes at the tempo), each chord rolled gently over its root for two beats.' : 'You play it: change by hand with ‹ ›, or on the beat. The app stays quiet apart from the drone and click.';
     const chordsNote = P.chords ? ` Chords: ${[K.tri ? 'the triad' : '', K.sev ? 'the 7th chord' : '', K.ext ? 'the extended chords, with the mode’s colours and sus chords' : ''].filter(Boolean).join(', ')}${O.clInvM === 'all' && (K.tri || K.sev) ? ', the triad and 7th in every voicing they have in the shape' : ''}, voice-led in the ${O.shape} shape. A triad or 7th an earlier mode already played (Ionian’s after Lydian’s) isn’t repeated.` : '';
     return `<p class="fsultmap">${map}</p>
       <div class="fsrow fsland"><span class="lbl">Play</span><div class="chips">${chip('upart', 'scale', P.scale, 'Scales')}${chip('upart', 'arp', P.arp, 'Arpeggios')}${chip('upart', 'chords', P.chords, 'Chords')}</div></div>
