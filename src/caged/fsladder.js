@@ -97,6 +97,7 @@ export const ULT_INFO = {
   'lyd-dom': { q: '7', use: ['9', '#11', '13'], avoid: [] },
   dorian: { q: 'm7', use: ['9', '11', '13'], avoid: [] },
   aeolian: { q: 'm7', use: ['9', '11'], avoid: ['b13'] },
+  'dorian-b2': { q: '7sus4', use: ['11', '13'], avoid: [], note: 'Its chord is the sus♭9 (7sus4♭9): the ♭2 sits in the chord as its ♭9, with the 4th in place of the ♭3.' },
   'harm-min': { q: 'mMaj7', use: ['9', '11'], avoid: ['b13'] },
   'locrian-n2': { q: 'm7b5', use: ['9', '11', 'b13'], avoid: [] },
   phrygian: { q: 'm7', use: ['11'], avoid: ['b9', 'b13'] },
@@ -108,12 +109,14 @@ export const ULT_INFO = {
 const ULT_WALK = [
   ['lydian', 1], ['ionian', 2], ['mel-min', 'detour'], ['ionian', 'back'],
   ['mixolydian', 3], ['lyd-dom', 'detour'], ['mixolydian', 'back'],
-  ['dorian', 4], ['aeolian', 5], ['harm-min', 'detour'], ['aeolian', 'back'], ['locrian-n2', 'detour'], ['aeolian', 'back'],
+  ['dorian', 4], ['dorian-b2', 'detour'], ['dorian', 'back'], ['aeolian', 5], ['harm-min', 'detour'], ['aeolian', 'back'], ['locrian-n2', 'detour'], ['aeolian', 'back'],
   ['phrygian', 6], ['phryg-dom', 'detour'], ['phrygian', 'back'],
   ['locrian', 7], ['altered', 'detour'], ['dim-hw', 'detour'], ['locrian', 'back'],
 ];
 LADDERS.push({ id: 'ult', group: 'Ladder with detours', land: true, walk: ULT_WALK, loop: true, name: 'The ultimate ladder', ids: ['lydian'],
   blurb: 'The seven modes from brightest to darkest over one root, one note flattened per rung, with detours to a related mode that changes one note, then back to the rung. Stay in one CAGED shape a session (C, A, G, E, D over five days). With “Extended arpeggio first” each mode is heard as a chord before you play it, and again on a detour that changes the chord’s 3rd, 5th or 7th. Finish with a few minutes improvising over a rung and its detour.' });
+LADDERS.push({ id: 'cult', group: 'Ladder with detours', land: true, chords: true, walk: ULT_WALK, loop: true, name: 'The chord ladder', ids: ['lydian'],
+  blurb: 'The same ladder as chords: each mode’s chord (and its colours, its sus chord where it has one) as four-note drop 2 and drop 3 voicings in one CAGED shape, voice-led so that on most steps one finger moves. Run it in each shape; Inversions walks each rung’s chord through its other voicings there.' });
 
 // for progressions: what to do in each mode, whatever chord of the key it sits on
 export const MODE_ROLES = {
