@@ -310,7 +310,7 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv' }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv', arpMode: 'stack' }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
   // the chord ladder and the visualizer are now parts of the one ladder
   if (O.seq === 'cult') { O.seq = 'ult'; O.parts = { scale: false, arp: false, chords: true }; O.area = 'shape'; }
@@ -350,6 +350,34 @@ export function renderFreeScale($app, ctx) {
     const pc = T.notePc(keyTonic());
     A.pluck(36 + pc + (pc < 4 ? 12 : 0), t, { vel: 0.75 }); // the root under it: most of these voicings leave it out
   }
+  // upper structures: the arpeggios inside a mode's 13th stack, the shapes improvisers actually reach for. The 7th
+  // arpeggios built on its 1, 3, 5 and 7 (degree by degree in thirds), and the triad on its tensions (9 11 13); each
+  // named, with what it gives over the mode's chord (Em7 over Cmaj7 = 3 5 7 9). The altered scale is read as a dominant
+  // (its ♭4 is the 3rd, ♭3 the ♯9…); the half-whole diminished, which has eight notes, gives its four dominant 7ths a
+  // minor 3rd apart and the triad on its 13.
+  const DOM_READ = { b2: 'b9', b3: '#9', b4: '3', b5: '#11', b6: 'b13' };
+  const UPPER_WHAT = ['the chord itself', 'from the 3rd: the chord without its root, the 9 on top', 'from the 5th: the top half of the chord, up to the 11', 'from the 7th: the 7th and the tensions', 'the triad on the tensions, floating over the chord'];
+  const DIM_UPPER = [[['1', '3', '5', 'b7'], 'the chord itself', '1'], [['#9', '5', 'b7', 'b9'], 'a minor 3rd up: the same scale', 'b3'], [['#11', 'b7', 'b9', '3'], 'a tritone up: the tritone sub', 'b5'], [['13', 'b9', '3', '5'], 'a major 6th up', '6'], [['13', 'b9', '3'], 'the triad on the 13: the bright 13♭9 sound', '6']];
+  const TRI_NAME = { '0,3,6': '°', '0,4,8': '+', '0,5,7': 'sus4', '0,2,7': 'sus2' };
+  function upperOf(mode) {
+    const t = keyTonic(), ivs = BY[mode].ivs;
+    let sets;
+    if (mode === 'dim-hw') sets = DIM_UPPER;
+    else {
+      if (ivs.length !== 7) return [];
+      const lab = (iv, i) => (mode === 'altered' ? DOM_READ[iv] || iv : [1, 3, 5].includes(i) ? FL.asExt(iv) : iv);
+      const order = [0, 2, 4, 6, 1, 3, 5], stack = order.map((i) => lab(ivs[i], i)), raw = order.map((i) => ivs[i]);
+      // each root spelled from the scale itself (E♭m7 over C7alt, from D♭ melodic minor, not D♯m7)
+      sets = [0, 1, 2, 3].map((k) => [stack.slice(k, k + 4), UPPER_WHAT[k], raw[k]]).concat([[stack.slice(4, 7), UPPER_WHAT[4], raw[4]]]);
+    }
+    return sets.map(([lbl, what, at]) => {
+      const RESPELL = { '#2': 'b3', '#9': 'b3', '#4': 'b5', '#11': 'b5', '#5': 'b6' };
+      const root = T.transpose(t, F.simpleIv(mode === 'altered' ? RESPELL[at] || at : at)), r0 = FL.semisOf(lbl[0]);
+      const key = [...new Set(lbl.map((iv) => (FL.semisOf(iv) - r0 + 12) % 12))].sort((a, b) => a - b).join(',');
+      const q = CHORD_BY[key] ?? TRI_NAME[key];
+      return { ivs: lbl, what, name: q !== undefined ? `${T.noteName(root, true)}${q}` : `${T.noteName(root, true)} (${lbl.map((x) => T.prettyIv(x)).join(' ')})` };
+    });
+  }
   // who plays: you (it shows each part; each chord sounds as you reach it), or the app (it plays every note and chord)
   const isViz = () => !!land()?.walk && O.player === 'app';
   function ultItems(d) {
@@ -364,7 +392,7 @@ export function renderFreeScale($app, ctx) {
     if (P.chords) for (const c of clSteps(W)) { if (!byUnit.has(c.ui)) byUnit.set(c.ui, []); byUnit.get(c.ui).push(c); }
     const sc = (it) => (P.scale ? [it] : []);
     // a return to the rung: the scale once more, no arpeggio
-    const ar = (it) => (P.arp && it.kind !== 'back' ? [{ ...it, arp: true }] : []);
+    const ar = (it) => (P.arp && it.kind !== 'back' ? (O.arpMode === 'upper' ? upperOf(it.mode).map((u, k, a) => ({ ...it, arp: true, up: u, uk: k, un: a.length })) : [{ ...it, arp: true }]) : []);
     const ch = (it) => (byUnit.get(it.ui) || []).map((c) => ({ ...it, part: 'chord', id: c.id, v: c.v, ck: c.part, cfirst: c.first, inv: c.inv, moved: c.moved, missing: c.missing, already: c.already }));
     const out = O.order === 'block' ? [...base.flatMap(sc), ...base.flatMap(ar), ...base.flatMap(ch)] : base.flatMap((it) => [...sc(it), ...ar(it), ...ch(it)]);
     // the chord before (its fingers drawn faintly) when it's the step just before
@@ -409,7 +437,7 @@ export function renderFreeScale($app, ctx) {
   const cur = () => { const w = walk(); return items()[w[((O.wi % w.length) + w.length) % w.length]]; };
   const upNext = () => { const w = walk(); if (w.length < 2) return null; return items()[w[(O.wi + 1) % w.length]]; };
   function sync() { const it = cur(); if (def()?.cong) { O.scale = O.home || O.scale; return; } if (it.mode) O.scale = it.mode; }
-  const itemName = (it) => (isChord(it) ? clText(it) : it.arp ? `${BY[it.mode].name} arpeggio` : it.q !== undefined ? `${FL.qName(it.q)} arpeggio` : it.start || (def()?.cong && it.mode !== O.scale) ? `${T.noteName(T.transposeSemis(tonic(), it.start || 0), true)} ${BY[it.mode].name}` : BY[it.mode].name);
+  const itemName = (it) => (isChord(it) ? clText(it) : it.arp && it.up ? `${it.up.name} arpeggio` : it.arp ? `${BY[it.mode].name} arpeggio` : it.q !== undefined ? `${FL.qName(it.q)} arpeggio` : it.start || (def()?.cong && it.mode !== O.scale) ? `${T.noteName(T.transposeSemis(tonic(), it.start || 0), true)} ${BY[it.mode].name}` : BY[it.mode].name);
   // a full pass done (or, holding one mode, a change): a new pattern, the next shape, if asked for
   function passDone() {
     if (O.content === 'scale' && O.pat && O.patPass) O.cell = FL.newPattern(O.cell && O.cell.c);
@@ -479,7 +507,11 @@ export function renderFreeScale($app, ctx) {
       return { tones: [...new Set(BY[it.mode].ivs.map((iv) => (FL.semisOf(iv) + (it.start || 0)) % 12))].map((r) => ({ pc: r, iv: IVN2[r], kind: r === 0 ? 'r' : [3, 4].includes(r) ? 't3' : [10, 11].includes(r) ? 't7' : r === 7 ? 't5' : 'sc', ring: r === (it.start || 0) && it.start })), bg: pcs(O.scale) };
     }
     if (it.q !== undefined) return { tones: T.getChord(it.q).ivs.map((iv) => ({ pc: FL.semisOf(iv), iv, kind: KIND(iv) })), bg: [] };
-    // the ultimate ladder's arpeggio phase: the extended arpeggio, usable tensions purple, avoid notes grey
+    // the ultimate ladder's arpeggio phase: the extended arpeggio (or one upper structure), usable tensions purple, avoid notes grey
+    if (it.arp && it.up) {
+      const av = (FL.ULT_INFO[it.mode]?.avoid || []).map(FL.semisOf);
+      return { tones: it.up.ivs.map((iv) => ({ pc: FL.semisOf(iv), iv, kind: [1, 3, 5, 7].includes(FL.numberOf(iv)) && !/^(b9|#9|9|11|#11|13|b13)$/.test(iv) ? KIND(iv) : av.includes(FL.semisOf(iv)) ? 'sc' : 'tx' })), bg: pcs(it.mode) };
+    }
     if (it.arp) {
       const av = (FL.ULT_INFO[it.mode]?.avoid || []).map(FL.semisOf);
       return { tones: FL.modeArp(it.mode, true).map((iv) => ({ pc: FL.semisOf(iv), iv, kind: [1, 3, 5, 7].includes(FL.numberOf(iv)) && !/^(b9|#9|9|11|#11|13|b13)$/.test(iv) ? KIND(iv) : av.includes(FL.semisOf(iv)) ? 'sc' : 'tx' })), bg: pcs(it.mode) };
@@ -624,7 +656,14 @@ export function renderFreeScale($app, ctx) {
     const ms = [...at.keys()].sort((a, b) => a - b), lo = ms.find((m) => ((m - tp) % 12 + 12) % 12 === 0), hi = ms[ms.length - 1];
     if (lo === undefined) return [];
     let up;
-    if (it.arp) {
+    if (it.arp && it.up) {
+      // the structure's own notes stacked from its lowest root in the window, octave after octave, while they fit
+      const s0 = FL.semisOf(it.up.ivs[0]), offs = [0];
+      for (let k = 1; k < it.up.ivs.length; k++) offs.push(offs[k - 1] + (((FL.semisOf(it.up.ivs[k]) - FL.semisOf(it.up.ivs[k - 1])) % 12 + 12) % 12 || 12));
+      const r = ms.find((m) => ((m - tp - s0) % 12 + 12) % 12 === 0);
+      up = [];
+      if (r !== undefined) for (let o = 0; ; o += 12) { const add = offs.map((x) => r + o + x).filter((m) => m <= hi); up.push(...add); if (add.length < offs.length) break; }
+    } else if (it.arp) {
       const st = FL.modeArp(it.mode, true).map((iv) => FL.semisOf(iv) + (Number(String(iv).replace(/\D/g, '')) > 7 ? 12 : 0)).sort((a, b) => a - b);
       up = [];
       for (let o = 0; ; o += 24) { const add = st.map((x) => lo + o + x).filter((m) => m <= hi); up.push(...add); if (add.length < st.length) break; }
@@ -713,6 +752,7 @@ export function renderFreeScale($app, ctx) {
   const clKind = (it) => `${clWhat(it)} · ${where(it)}`;
   function titleHTML() {
     const it = cur(), t = fmt(T.noteName(tonic(), true));
+    if (land()?.walk && it.arp && it.up) return `${fmt(it.up.name)} arpeggio <small>over ${fmt(chordName(0, FL.ULT_INFO[it.mode].q))}: ${fmt(it.up.ivs.map((x) => T.prettyIv(x)).join(' '))} · ${esc(BY[it.mode].name)}</small>`;
     if (isChord(it)) return `${clName(it)} <small>${esc(BY[it.mode].name)} · ${clKind(it)}</small>`;
     if (it.q !== undefined) return `${t} ${fmt(FL.qName(it.q))} arpeggio <small>${fmt(T.getChord(it.q).ivs.map((x) => T.prettyIv(x)).join(' '))}</small>`;
     if (def()?.cong && (it.start || it.mode !== O.scale)) return `${fmt(itemName(it))} <small>inside ${t} ${esc(BY[O.scale].name)}${it.why === 'blues' ? ' (a blues fit: its ♭3 rubs the 3 on purpose)' : ''} · over the drone it sounds as ${fmt(it.as.join(' '))}${it.also ? ` · the same notes as ${fmt(T.noteName(T.transposeSemis(tonic(), it.also.start), true))} ${esc(BY[it.also.id].name)}` : ''}</small>`;
@@ -820,12 +860,13 @@ export function renderFreeScale($app, ctx) {
   function walkLine(it) {
     const nm = esc(BY[it.mode].name), ch = changeText(it.from, it.mode);
     const head = it.kind === 'rung' ? `Rung ${it.rung} of 7: <b>${nm}</b>` : it.kind === 'detour' ? `↳ Detour from ${esc(BY[it.base].name)}: <b>${nm}</b>` : `↩ Back to <b>${nm}</b>`;
-    return `<p class="fsmoved">${it.arp ? 'Its extended arpeggio · ' : ''}${head}${ch ? ` · <b>${fmt(ch)}</b> <i>(ringed, the old note faint)</i>` : ''}</p>`;
+    return `<p class="fsmoved">${it.up ? `Upper structure ${it.uk + 1} of ${it.un}: <b>${fmt(it.up.name)}</b> · ` : it.arp ? 'Its extended arpeggio · ' : ''}${head}${ch ? ` · <b>${fmt(ch)}</b> <i>(ringed, the old note faint)</i>` : ''}</p>`;
   }
   const tok = (ivs) => ivs.map((iv) => `{${iv}}`).join(', ');
   function walkRole(it) { const info = FL.ULT_INFO[it.mode]; return (info.note && it.kind !== 'back' ? `${info.note} ` : '') + walkRole0(it); }
   function walkRole0(it) {
     const info = FL.ULT_INFO[it.mode], chord = chordName(0, info.q), use = tok(info.use), avoid = info.avoid.length ? tok(info.avoid) : '';
+    if (it.up) return `${it.up.name} over ${chord} = ${it.up.ivs.map((x) => `{${x}}`).join(' ')}: ${it.up.what}. The same shape you'd play for ${it.up.name} anywhere; here it gives the ${it.uk ? 'colours' : 'chord tones'}.`;
     if (it.arp) return `Its chord: ${chord}. The extended arpeggio, 1 3 5 7 9 11 13, from the lowest root in the shape, up and back: the 1 3 5 7 are the chord, ${use} the tensions to use${avoid ? `; ${avoid} (grey) is the avoid note: touch it and resolve it down a fret, to hear why` : ''}.`;
     if (it.kind === 'back') return `Back on the rung before moving on: the mode once more, and hear the note return.`;
     if (it.kind === 'detour' && FL.ULT_INFO[it.mode].q === FL.ULT_INFO[it.from].q) return `The chord stays ${chord}: change the one note and play the mode, up and down through the shape. Use ${use}${avoid ? `; avoid ${avoid}` : ''}.`;
@@ -859,12 +900,13 @@ export function renderFreeScale($app, ctx) {
     const map = ultWalk(l).filter(([, k]) => k !== 'back').map(([m, k]) => (typeof k === 'number' ? `<b>${k} ${fmt(SHORT[m])}</b>` : `<i>↳${fmt(SHORT[m])}</i>`)).join(' ');
     const P = O.parts, K = O.chordKinds, n = Object.values(P).filter(Boolean).length;
     const chip = (attr, key, on, label) => `<button class="chip ${on ? 'on' : ''}" data-${attr}="${key}">${label}</button>`;
-    const pl = ['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'its scale', arp: 'its extended arpeggio', chords: 'its chords' }[k]));
+    const pl = ['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'its scale', arp: O.arpMode === 'upper' ? 'its upper-structure arpeggios (from the 1, 3, 5 and 7, and the triad on the tensions)' : 'its extended arpeggio', chords: 'its chords' }[k]));
     const how = n < 2 ? '' : O.order === 'block' ? `The whole ladder as ${['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'scales', arp: 'arpeggios', chords: 'chords' }[k])).join(', then as ')}${P.chords ? ': the chords morph one into the next with nothing in between' : ''}.` : `Each mode in turn: ${pl.join(', then ')}; then the next mode.`;
     const who = O.player === 'app' ? 'The app plays it: each note lit as it sounds (eighth notes at the tempo), each chord strummed over its root for two beats.' : 'You play it: change by hand with ‹ ›, or on the beat. Each chord sounds as you reach it.';
     const chordsNote = P.chords ? ` Chords: ${[K.tri ? 'the triad' : '', K.sev ? 'the 7th chord' : '', K.ext ? 'the extended chords, with the mode’s colours and sus chords' : ''].filter(Boolean).join(', ')}${O.clInvM === 'all' && (K.tri || K.sev) ? ', the triad and 7th in every voicing they have in the shape' : ''}, voice-led in the ${O.shape} shape. A triad or 7th an earlier mode already played (Ionian’s after Lydian’s) isn’t repeated.` : '';
     return `<p class="fsultmap">${map}</p>
       <div class="fsrow fsland"><span class="lbl">Play</span><div class="chips">${chip('upart', 'scale', P.scale, 'Scales')}${chip('upart', 'arp', P.arp, 'Arpeggios')}${chip('upart', 'chords', P.chords, 'Chords')}</div></div>
+      ${P.arp ? `<div class="fsrow fsland"><span class="lbl">Arpeggios</span>${seg('arpmode', O.arpMode, [['stack', 'Full stack'], ['upper', 'Upper structures']])}</div>` : ''}
       ${n > 1 ? `<div class="fsrow fsland"><span class="lbl">Order</span>${seg('uorder', O.order, [['mode', 'Mode by mode'], ['block', 'Whole ladder each']])}</div>` : ''}
       ${P.chords ? `<div class="fsrow fsland"><span class="lbl">Chords</span><div class="chips">${chip('ckind', 'tri', K.tri, 'Triads')}${chip('ckind', 'sev', K.sev, '7ths')}${chip('ckind', 'ext', K.ext, 'Extended')}</div></div>
       ${K.tri || K.sev ? `<div class="fsrow fsland"><span class="lbl">Inversions</span>${seg('clinvm', O.clInvM, [['all', 'All in the shape'], ['one', 'One each']])}</div>` : ''}
@@ -929,7 +971,7 @@ export function renderFreeScale($app, ctx) {
       <div class="fsrow">
         <button class="chip ${O.drone ? 'on' : ''}" data-f="drone">Drone</button><button class="chip ${O.fifth ? 'on' : ''}" data-f="fifth">+ 5th</button>
       </div>
-      <div class="fsrow fsland fsladders"><span class="lbl">Ladder</span><button class="chip ${O.seq === 'ult' ? 'on' : ''}" data-goladder="ult">The ultimate ladder: scales, arpeggios, chords</button></div>
+      <div class="fsrow fsland fsladders"><span class="lbl">Ladder</span><button class="chip ${O.seq === 'ult' ? 'on' : ''}" data-goladder="ult">Ultimate ladder</button></div>
       ${landHTML()}
       <div class="fsrow fsmetro"><span class="lbl">Metronome</span>${seg('metro', O.metro, [['click', 'Click'], ['silent', 'Dots only'], ['off', 'Off']])}</div>
       <div class="fsrow fstempo"><span class="lbl">Tempo</span><input type="range" id="fsbpmr" min="30" max="200" step="2" value="${O.bpm}" aria-label="Tempo"><span class="fsbpm"><button data-f="bpm-" aria-label="Slower">−</button><b id="fsbpmv">${O.bpm}</b><small>bpm</small><button data-f="bpm+" aria-label="Faster">+</button></span></div>
@@ -941,7 +983,7 @@ export function renderFreeScale($app, ctx) {
     <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp || isChord(it) ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
-    ${isChord(it) ? `<p class="fsnecklbl"><b class="fsroman">${clName(it)}</b> <small>${esc(BY[it.mode].name)} · ${it.v.group === 'tri' ? 'triad' : it.v.group === 2 ? 'drop 2' : 'drop 3'}, strings ${it.v.notes.map((n) => n.string).join('')}</small></p>` : land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc(land().keyName || { aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${land().walk ? `<small> · ${it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung'}${it.arp ? (isViz() ? ', its extended arpeggio' : ', arpeggio first') : ''}</small>${walkLabel(it)}` : ''}${targetsHTML(it)}${land().walk ? '' : chordsHTML(it)}</p>` : ''}
+    ${isChord(it) ? `<p class="fsnecklbl"><b class="fsroman">${clName(it)}</b> <small>${esc(BY[it.mode].name)} · ${it.v.group === 'tri' ? 'triad' : it.v.group === 2 ? 'drop 2' : 'drop 3'}, strings ${it.v.notes.map((n) => n.string).join('')}</small></p>` : land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc(land().keyName || { aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${land().walk ? `<small> · ${it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung'}${it.up ? `, upper structure ${it.uk + 1} of ${it.un}` : it.arp ? ', its extended arpeggio' : ''}</small>${walkLabel(it)}` : ''}${targetsHTML(it)}${land().walk ? '' : chordsHTML(it)}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
@@ -993,7 +1035,8 @@ export function renderFreeScale($app, ctx) {
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
     if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
     if (d.goladder) { O.seq = O.seq === d.goladder ? 'hold' : d.goladder; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; if (O.seq === 'ult' && O.parts.chords) O.area = 'shape'; save(); draw(); if (R.on) drone(); return; }
-    if (d.upart || d.ckind || d.uorder || d.uplayer || d.cllane || d.clinvm || d.cllabels) {
+    if (d.upart || d.ckind || d.uorder || d.uplayer || d.cllane || d.clinvm || d.cllabels || d.arpmode) {
+      if (d.arpmode) O.arpMode = d.arpmode;
       const was = cur(), partOf = (x) => x.part || (x.arp ? 'arp' : 'scale');
       if (d.upart) { const p = { ...O.parts, [d.upart]: !O.parts[d.upart] }; if (Object.values(p).some(Boolean)) O.parts = p; if (O.parts.chords) { O.area = 'shape'; if (O.ultMove === 'climb') O.ultMove = 'stay'; } }
       if (d.ckind) { const k = { ...O.chordKinds, [d.ckind]: !O.chordKinds[d.ckind] }; if (Object.values(k).some(Boolean)) O.chordKinds = k; }
