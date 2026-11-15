@@ -1,9 +1,9 @@
-// The chord ladder: the ultimate ladder (seven modes, bright to dark, with detours into melodic minor, harmonic minor
-// and the diminished scale) played as chords. Each mode gives its chord, and a colour or two (its sus chord where it has
-// one), as four-note voicings from Ted Greene's V-System (drop 2 and drop 3 on their natural string sets), all inside
-// one CAGED area. The route is voice-led: each chord takes the voicing that moves fewest voices the shortest way, so on
-// most steps one finger moves a fret. Optionally each rung's chord is walked through its other inversions in the area
-// before the next mode, in whichever order ends nearest the next chord. Pure: no screen, no sound.
+// The ultimate ladder's chords: for each mode, its triad, its 7th chord and its extended chords (with their colours
+// and sus chords), all in one CAGED area. Triads are close voicings on adjacent strings; 7ths and extended chords are
+// four-note voicings from Ted Greene's V-System (drop 2 and drop 3 on their natural string sets). With inversions,
+// the triad and the 7th are played in every voicing they have in the area, low to high or high to low; the route
+// through the whole ladder is voice-led, so each chord takes the voicing that moves fewest voices the shortest way.
+// Pure: no screen, no sound.
 import * as T from '../theory.js';
 import * as F from '../fretboard.js';
 import * as G from './grips.js';
@@ -12,9 +12,13 @@ import { QUALS, voicingsOn } from './xmorph.js';
 // the morpher's chords, plus Dorian ♭2's own 13sus♭9 and a 9sus4 that keeps its 5th (9 4 5 ♭7): one voice from the 9 chord, where the morpher's
 // "11" grip (1 4 ♭7 9) is two away
 const Q = { ...QUALS, '13susb9': { id: '13susb9', sym: '13sus4♭9', tones: ['b9', '4', '13', 'b7'], from: 'Dorian ♭2, the 2nd mode of melodic minor', use: 'The sus♭9 with Dorian’s 13 on top: dark below, bright above, the sound of modal jazz vamps.' }, '9sus': { id: '9sus', sym: '9sus4', tones: ['9', '4', '5', 'b7'], from: 'Mixolydian, with the 4th in place of the 3rd', use: 'The suspended dominant: the 3rd held back a half step up, waiting to fall.' } };
+for (const [q, sym] of [['maj', ''], ['min', 'm'], ['dim', '°'], ['aug', '+']]) Q[`tri:${q}`] = { id: `tri:${q}`, sym, tones: T.getChord(q).ivs, use: 'The triad: the three notes that make it major, minor, diminished or augmented. Every voicing of it in the shape, then the richer chords.' };
 export const CHORD = Q;
+// each mode's triad and 7th chord (the altered scale read as a dominant: its ♭4 sounds as the 3rd, its ♭6 as the ♯5)
+export const TRIAD = { lydian: 'maj', ionian: 'maj', 'mel-min': 'min', mixolydian: 'maj', 'lyd-dom': 'maj', dorian: 'min', 'dorian-b2': 'min', aeolian: 'min', 'harm-min': 'min', 'locrian-n2': 'dim', phrygian: 'min', 'phryg-dom': 'maj', locrian: 'dim', altered: 'aug', 'dim-hw': 'maj' };
+export const SEVENTH = { lydian: 'maj7', ionian: 'maj7', 'mel-min': 'mMaj7', mixolydian: '7', 'lyd-dom': '7', dorian: 'm7', 'dorian-b2': 'm7', aeolian: 'm7', 'harm-min': 'mMaj7', 'locrian-n2': 'm7b5', phrygian: 'm7', 'phryg-dom': '7', locrian: 'm7b5', altered: '7#5', 'dim-hw': '7' };
 
-// each mode's chord first, then its colours (one voice away where possible); tones from the morpher's vocabulary
+// each mode's extended chord first, then its colours (one voice away where possible); tones from the morpher's vocabulary
 export const MODE_CHORDS = {
   lydian: ['maj7#11', 'maj9#11'],
   ionian: ['maj9', '69'],
@@ -81,69 +85,108 @@ export function voicingsIn(root, id, lane, pos) {
   return out;
 }
 
-// the cost of a change: voices that move (bass up, pitch by pitch), how far they move, and, between lanes, the
-// strings the hand has to change
+// close triads on adjacent strings inside the area: every order of the three notes that fits under an octave, the
+// stretch at most three frets, nothing muddy low down
+const TRI_SETS = [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]];
+export function triadsIn(root, q, pos) {
+  const k = `tri|${T.notePc(root)}|${q}|${pos.lo}|${pos.hi}`;
+  if (cache.has(k)) return cache.get(k);
+  const tones = T.getChord(q).ivs, rpc = T.notePc(root), lo = Math.max(0, pos.lo - 1), hi = pos.hi + 1, seen = new Set(), out = [];
+  for (const set of TRI_SETS) for (const order of perms(tones)) {
+    const opts = set.map((st, i) => { const want = pcOf(root, order[i]), fs = []; for (let f = lo; f <= hi; f++) { if (f === 0 && pos.lo > 1) continue; if ((F.OPEN[st] + f) % 12 === want) fs.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv: order[i] }); } return fs; });
+    for (const a of opts[0]) for (const b of opts[1]) for (const c of opts[2]) {
+      const ns = [a, b, c];
+      if (!(a.midi < b.midi && b.midi < c.midi) || c.midi - a.midi >= 12) continue;
+      const fr = ns.filter((n) => n.fret > 0).map((n) => n.fret);
+      if (fr.length && Math.max(...fr) - Math.min(...fr) > 3) continue;
+      let outside = 0; for (const f of fr) outside += Math.max(0, pos.lo - f, f - pos.hi);
+      if (outside > (pos.lo === 0 ? 2 : 1) || a.midi < 47) continue; // low close triads are mud; at the nut, a fret more
+      const v = finish({ notes: ns.map((n) => ({ ...n, note: T.transpose(root, F.simpleIv(n.iv)) })), set, group: 'tri', bassIv: a.iv, lo: fr.length ? Math.min(...fr) : 0, hi: Math.max(...ns.map((n) => n.fret)) });
+      if (!seen.has(v.key) && playable(v)) { seen.add(v.key); out.push(v); }
+    }
+  }
+  void rpc;
+  cache.set(k, out);
+  return out;
+}
+
+// the cost of a change: voices that move (bass up, pitch by pitch; between a triad and a four-note chord, the new
+// notes and how far each is from the nearest old one), how far they move, the strings the hand has to change, and
+// what makes the new voicing less good
 export function moveCost(a, b) {
   const x = a.notes.map((n) => n.midi).sort((p, q) => p - q), y = b.notes.map((n) => n.midi).sort((p, q) => p - q);
   let moved = 0, dist = 0;
-  for (let i = 0; i < 4; i++) { const d = Math.abs(x[i] - y[i]); if (d) { moved++; dist += d; } }
+  if (x.length === y.length) { for (let i = 0; i < y.length; i++) { const d = Math.abs(x[i] - y[i]); if (d) { moved++; dist += d; } } }
+  else for (const m of y) { const d = Math.min(...x.map((o) => Math.abs(o - m))); if (d) { moved++; dist += d; } }
   const sa = new Set(a.notes.map((n) => n.string)), strings = b.notes.filter((n) => !sa.has(n.string)).length;
-  const shift = Math.abs(a.notes.reduce((t, n) => t + n.fret, 0) - b.notes.reduce((t, n) => t + n.fret, 0)) / 4;
+  const shift = Math.abs(a.notes.reduce((t, n) => t + n.fret, 0) / a.notes.length - b.notes.reduce((t, n) => t + n.fret, 0) / b.notes.length);
   return moved * 10 + dist + strings * 6 + shift + rough(b);
 }
-// which voices moved, bass up: "♯11 → 5, up a half step"
+// which voices moved, bass up: "♯11 → 5, up a half step" (only between chords of the same size)
 export function movedText(a, b) {
+  if (a.notes.length !== b.notes.length) return [];
   const x = a.notes.slice().sort((p, q) => p.midi - q.midi), y = b.notes.slice().sort((p, q) => p.midi - q.midi);
   const out = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < y.length; i++) {
     const d = y[i].midi - x[i].midi;
     if (!d) continue;
     out.push(`${T.prettyIv(x[i].iv)} → ${T.prettyIv(y[i].iv)}, ${d < 0 ? 'down' : 'up'} ${Math.abs(d) === 1 ? 'a half step' : Math.abs(d) === 2 ? 'a whole step' : `${Math.abs(d)} half steps`}`);
   }
   return out;
 }
-const perms = (a) => (a.length <= 1 ? [a] : a.flatMap((x, i) => perms(a.slice(0, i).concat(a.slice(i + 1))).map((r) => [x, ...r])));
+function perms(a) { return a.length <= 1 ? [a] : a.flatMap((x, i) => perms(a.slice(0, i).concat(a.slice(i + 1))).map((r) => [x, ...r])); }
+const same = (a, b) => a.notes.map((n) => n.midi).sort().join() === b.notes.map((n) => n.midi).sort().join();
 
-// the route through a walk ([mode, 'rung' n | 'detour' | 'back'] from the ladder) on one root, in one area and lane.
-// colours: play each mode's colour chords too; inv: walk each rung's chord through its other inversions in the area.
-// A return to the rung is its chord alone. Each step: { mode, kind, rung, id, q, v, first (of its mode), inv (an
-// inversion of the chord just played), moved }.
-export function route(root, walk, pos, laneId, { colours = true, inv = false } = {}) {
+// the route through a walk ([mode, 'rung' n | 'detour' | 'back']) on one root, in one area.
+// kinds: { tri, sev, ext } which chords each mode plays, in that order (simple to rich); lane: the four-note voicings;
+// inv: 'all' plays the triad and the 7th in every voicing they have in the area, 'one' plays each once, voice-led.
+// A return to the rung plays one chord (its nearest). Each step: { ui (the walk entry), mode, kind, rung, part
+// ('tri' | 'sev' | 'ext'), id, q, v, first (of its walk entry), inv (another voicing of the chord just played), moved }.
+const MAX_BLOCK = 8;
+export function route(root, walk, pos, laneId, { kinds = { tri: true, sev: true, ext: true }, inv = 'all' } = {}) {
   const lane = laneById(laneId), mid = (pos.lo + pos.hi) / 2;
-  const units = walk.map(([mode, kind]) => {
-    const k = typeof kind === 'number' ? 'rung' : kind, ids = MODE_CHORDS[mode] || [];
-    // a return to the rung: whichever of its chords is nearest (the route picks one)
-    const want = !colours ? ids.slice(0, 1) : ids;
-    // a chord with no voicing here (in this lane and area) is left out
-    const chords = want.map((id) => { let vs = voicingsIn(root, id, lane, pos), off = false; if (!vs.length && lane.id !== 'best') { vs = voicingsIn(root, id, LANES[0], pos); off = vs.length > 0; } return { id, vs, off }; }).filter((c) => c.vs.length);
-    return { mode, kind: k, rung: typeof kind === 'number' ? kind : null, chords, missing: want.filter((id) => !chords.some((c) => c.id === id)) };
+  const four = (id) => { let vs = voicingsIn(root, id, lane, pos); if (!vs.length && lane.id !== 'best') vs = voicingsIn(root, id, LANES[0], pos); return vs; };
+  // a triad or 7th chord already played this lap (Ionian's after Lydian's, Dorian ♭2's after Dorian's) isn't played
+  // again: the mode's own sound is in its extended chords
+  const played = new Set();
+  const units = walk.map(([mode, kind], ui) => {
+    const k = typeof kind === 'number' ? 'rung' : kind, groups = [], want = [], already = [];
+    const once = (id) => { if (played.has(id)) { already.push(id); return false; } if (k !== 'back') played.add(id); return true; };
+    if (kinds.tri && once(`tri:${TRIAD[mode]}`)) { const id = `tri:${TRIAD[mode]}`; want.push(id); groups.push({ id, part: 'tri', vs: triadsIn(root, TRIAD[mode], pos), block: true }); }
+    if (kinds.sev && once(SEVENTH[mode])) { const id = SEVENTH[mode]; want.push(id); groups.push({ id, part: 'sev', vs: four(id), block: true }); }
+    if (kinds.ext) for (const id of MODE_CHORDS[mode] || []) { want.push(id); groups.push({ id, part: 'ext', vs: four(id), block: false }); }
+    const have = groups.filter((g) => g.vs.length);
+    return { ui, mode, kind: k, rung: typeof kind === 'number' ? kind : null, groups: have, already, missing: want.filter((id) => !have.some((g) => g.id === id)) };
   });
-  // the ways through one unit: its chords in any order (the mode's own chord need not come first: a sus can resolve
-  // into it), each one voicing, the one nearest the chord before; with inversions on, the rung's own chord is played
-  // in every voicing it has in the area, low to high or high to low, from any of them. A return to the rung plays
-  // just one of its chords.
+  // a block: every voicing in the area (the nearest the middle, at most eight), low to high or high to low
+  const sweeps = (g) => { const s = g.vs.slice(0, MAX_BLOCK).sort((a, b) => a.notes[0].midi - b.notes[0].midi || a.notes[a.notes.length - 1].midi - b.notes[b.notes.length - 1].midi); return [s, s.slice().reverse()]; };
+  // the ways through one unit: triad, 7th, then the extended chords in any order (a sus can resolve into the mode's
+  // own chord); each block swept up or down, each single chord in the voicing nearest the one before
   function plans(u) {
-    if (!u.chords.length) return [];
+    if (!u.groups.length) return [];
+    if (u.kind === 'back') return u.groups.flatMap((g) => g.vs.map((v) => ({ seq: [[g, v]], cost: 0 })));
+    const fixed = u.groups.filter((g) => g.part !== 'ext'), ext = u.groups.filter((g) => g.part === 'ext');
     const out = [];
-    const blockOf = (c) => {
-      if (!(inv && u.kind === 'rung' && c === u.chords[0] && c.vs.length > 1)) return null;
-      const s = c.vs.slice(0, 4).sort((a, b) => a.notes[0].midi - b.notes[0].midi);
-      return s.flatMap((_, i) => [s.slice(i).concat(s.slice(0, i)), s.slice(0, i + 1).reverse().concat(s.slice(i + 1).reverse())]);
-    };
-    const orders = u.kind === 'back' ? u.chords.map((c) => [c]) : perms(u.chords);
-    for (const order of orders) {
-      const [c0, ...rest] = order, b0 = blockOf(c0);
-      const starts = b0 ? b0.map((vs) => vs.map((v) => [c0.id, v])) : c0.vs.map((v) => [[c0.id, v]]);
-      for (const h of starts) {
+    const tails = perms(ext);
+    // the first group: every way to start it (both sweeps of a block, or any single voicing)
+    const g0 = fixed[0] || null;
+    for (const order of tails) {
+      const groups = g0 ? [...fixed, ...order] : order;
+      const first = groups[0];
+      const starts = first.block && inv === 'all' && first.vs.length > 1 ? sweeps(first).map((vs) => vs.map((v) => [first, v])) : first.vs.map((v) => [[first, v]]);
+      // later blocks: both sweeps tried
+      const later = groups.slice(1);
+      const combos = later.reduce((acc, g) => acc.flatMap((c) => (g.block && inv === 'all' && g.vs.length > 1 ? [[...c, 0], [...c, 1]] : [[...c, -1]])), [[]]);
+      for (const h of starts) for (const combo of combos) {
         const seq = h.slice();
         let cost = 0;
         for (let i = 1; i < h.length; i++) cost += moveCost(h[i - 1][1], h[i][1]);
-        for (const c of rest) {
-          const last = seq[seq.length - 1][1], b = blockOf(c);
-          if (b) { const vs = b.reduce((x, y) => (moveCost(last, x[0]) <= moveCost(last, y[0]) ? x : y)); for (const v of vs) { cost += moveCost(seq[seq.length - 1][1], v); seq.push([c.id, v]); } continue; }
-          const v = c.vs.reduce((x, y) => (moveCost(last, x) <= moveCost(last, y) ? x : y));
-          cost += moveCost(last, v); seq.push([c.id, v]);
-        }
+        later.forEach((g, i) => {
+          const last = seq[seq.length - 1][1];
+          if (combo[i] >= 0) { for (const v of sweeps(g)[combo[i]]) { cost += moveCost(seq[seq.length - 1][1], v) + (same(seq[seq.length - 1][1], v) ? 40 : 0); seq.push([g, v]); } return; }
+          const v = g.vs.reduce((x, y) => (moveCost(last, x) <= moveCost(last, y) ? x : y));
+          cost += moveCost(last, v) + (same(last, v) ? 40 : 0); seq.push([g, v]);
+        });
         out.push({ seq, cost });
       }
     }
@@ -157,20 +200,20 @@ export function route(root, walk, pos, laneId, { colours = true, inv = false } =
     const next = new Map();
     for (const s of states) for (const p of ps) {
       const first = p.seq[0][1];
-      const same = (a, b) => a.notes.map((n) => n.midi).sort().join() === b.notes.map((n) => n.midi).sort().join();
-      const enter = s.last ? moveCost(s.last, first) + (same(s.last, first) ? 40 : 0) : Math.abs(first.notes.reduce((t, n) => t + n.fret, 0) / 4 - mid) + (first.notes[0].iv === '1' ? 0 : 3);
+      const enter = s.last ? moveCost(s.last, first) + (same(s.last, first) ? 40 : 0) : Math.abs(first.notes.reduce((t, n) => t + n.fret, 0) / first.notes.length - mid) + (first.notes[0].iv === '1' ? 0 : 3);
       const c = s.cost + enter + p.cost, end = p.seq[p.seq.length - 1][1].key;
       if (!next.has(end) || next.get(end).cost > c) next.set(end, { last: p.seq[p.seq.length - 1][1], cost: c, path: [...s.path, { u, seq: p.seq }] });
     }
-    states = [...next.values()];
+    // keep the search small: the cheapest few dozen ways in
+    states = [...next.values()].sort((a, b) => a.cost - b.cost).slice(0, 40);
   }
   const best = states.reduce((a, b) => (a.cost <= b.cost ? a : b));
   const steps = [];
   let prev = null;
   for (const { u, seq } of best.path) {
-    if (!seq.length) { steps.push({ mode: u.mode, kind: u.kind, rung: u.rung, id: null, missing: u.missing }); continue; }
-    seq.forEach(([id, v], i) => {
-      steps.push({ mode: u.mode, kind: u.kind, rung: u.rung, id, q: Q[id], v, first: i === 0, inv: i > 0 && id === seq[i - 1][0], moved: prev ? movedText(prev, v) : [], missing: i === 0 ? u.missing : [] });
+    if (!seq.length) { steps.push({ ui: u.ui, mode: u.mode, kind: u.kind, rung: u.rung, id: null, missing: u.missing }); continue; }
+    seq.forEach(([g, v], i) => {
+      steps.push({ ui: u.ui, mode: u.mode, kind: u.kind, rung: u.rung, part: g.part, id: g.id, q: Q[g.id], v, first: i === 0, inv: i > 0 && g.id === seq[i - 1][0].id, moved: prev ? movedText(prev, v) : [], missing: i === 0 ? u.missing : [], already: i === 0 ? u.already : [] });
       prev = v;
     });
   }

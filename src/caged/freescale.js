@@ -310,8 +310,11 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultArp: true, ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', viz: false, vizScale: true, vizArp: true, clLane: 'best', clCol: true, clInv: false, clLabels: 'iv' }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv' }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
+  // the chord ladder and the visualizer are now parts of the one ladder
+  if (O.seq === 'cult') { O.seq = 'ult'; O.parts = { scale: false, arp: false, chords: true }; O.area = 'shape'; }
+  if (O.viz !== undefined) { O.player = O.viz ? 'app' : 'me'; if (O.viz) O.parts = { ...O.parts, scale: O.vizScale !== false, arp: O.vizArp !== false }; for (const k of ['viz', 'vizScale', 'vizArp', 'ultArp', 'clCol', 'clInv']) delete O[k]; }
   let R = { vz: { seq: null, i: 0, pending: false }, on: false, timer: null, next: 0, beat: 0, fact: 0, factT: null, vis: [], tip: 0, since: 0, order: null, prev: null };
 
   // ---------- what's up now: one mode, a ladder or shuffle of modes, or a set of arpeggio types ----------
@@ -329,17 +332,16 @@ export function renderFreeScale($app, ctx) {
     if (O.ultDir === 'both') return [...groups, ...groups.slice(1, -1).reverse()].flat();
     return groups.reverse().flat();
   }
-  // the chord ladder: the route through the ladder as chords, in one CAGED shape of the key (cached: it's a search)
-  const isCL = () => !!land()?.chords;
+  // the ultimate ladder in three parts: each mode's scale, its extended arpeggio and its chords (triad, 7th, extended,
+  // each through its voicings in one CAGED shape, voice-led from the chord before). Each mode in turn: scale →
+  // arpeggio → chords, then the next mode. Whole ladder each: the ladder as scales, then as arpeggios, then as chords
+  // (so the chords morph one into the next with nothing in between).
+  const parts = () => O.parts;
+  const isChord = (it) => !!it && it.part === 'chord';
   const clPos = () => G.positionOf(keyTonic(), O.shape);
-  function clItems(d) {
-    const sig = [O.key, O.shape, O.ultDir, O.clLane, O.clCol, O.clInv].join('|');
-    if (R.cl?.sig !== sig) {
-      const steps = CL.route(keyTonic(), ultWalk(d), clPos(), O.clLane, { colours: O.clCol, inv: O.clInv }).steps.filter((x) => x.id);
-      let base = null, from = null;
-      steps.forEach((x, i) => { if (x.kind === 'rung') base = x.mode; x.base = base; if (x.first) { x.from = from; from = x.mode; } else x.from = null; x.prevV = steps[(i - 1 + steps.length) % steps.length].v; });
-      R.cl = { sig, steps };
-    }
+  function clSteps(W) {
+    const sig = [O.key, O.shape, O.ultDir, O.clLane, JSON.stringify(O.chordKinds), O.clInvM].join('|');
+    if (R.cl?.sig !== sig) R.cl = { sig, steps: CL.route(keyTonic(), W, clPos(), O.clLane, { kinds: O.chordKinds, inv: O.clInvM }).steps.filter((x) => x.id) };
     return R.cl.steps;
   }
   function strumCL(it, t) {
@@ -348,29 +350,30 @@ export function renderFreeScale($app, ctx) {
     const pc = T.notePc(keyTonic());
     A.pluck(36 + pc + (pc < 4 ? 12 : 0), t, { vel: 0.75 }); // the root under it: most of these voicings leave it out
   }
-  // the visualizer: the app plays each mode itself, its scale then (or only) its extended arpeggio
-  const isViz = () => !!land()?.walk && !land().chords && !!O.viz;
+  // who plays: you (it shows each part; each chord sounds as you reach it), or the app (it plays every note and chord)
+  const isViz = () => !!land()?.walk && O.player === 'app';
   function ultItems(d) {
-    const out = [], W = ultWalk(d); let base = W[0][0], baseRung = 1, stepNo = 0;
+    const W = ultWalk(d), base = [];
+    let b = W[0][0], br = 1, sn = 0;
     W.forEach(([mode, kind], i) => {
       const k = typeof kind === 'number' ? 'rung' : kind, from = i ? W[i - 1][0] : null; // the top of the ladder starts fresh
-      if (k === 'rung') { base = mode; baseRung = kind; stepNo++; }
-      const it = { mode, kind: k, rung: typeof kind === 'number' ? kind : null, from, base, baseRung, stepNo };
-      if (O.viz) {
-        // scale first, then its arpeggio; a return to the rung is the scale once more (or nothing, arpeggios only)
-        if (O.vizScale) out.push(it);
-        if (O.vizArp && (k !== 'back' || !O.vizScale)) { if (k !== 'back') out.push({ ...it, arp: true }); }
-        return;
-      }
-      if (O.ultArp && k !== 'back' && (k === 'rung' || !from || FL.ULT_INFO[mode].q !== FL.ULT_INFO[from].q)) out.push({ ...it, arp: true });
-      out.push(it);
+      if (k === 'rung') { b = mode; br = kind; sn++; }
+      base.push({ mode, kind: k, rung: typeof kind === 'number' ? kind : null, from, base: b, baseRung: br, stepNo: sn, ui: i });
     });
-    return out;
+    const P = parts(), byUnit = new Map();
+    if (P.chords) for (const c of clSteps(W)) { if (!byUnit.has(c.ui)) byUnit.set(c.ui, []); byUnit.get(c.ui).push(c); }
+    const sc = (it) => (P.scale ? [it] : []);
+    // a return to the rung: the scale once more, no arpeggio
+    const ar = (it) => (P.arp && it.kind !== 'back' ? [{ ...it, arp: true }] : []);
+    const ch = (it) => (byUnit.get(it.ui) || []).map((c) => ({ ...it, part: 'chord', id: c.id, v: c.v, ck: c.part, cfirst: c.first, inv: c.inv, moved: c.moved, missing: c.missing, already: c.already }));
+    const out = O.order === 'block' ? [...base.flatMap(sc), ...base.flatMap(ar), ...base.flatMap(ch)] : base.flatMap((it) => [...sc(it), ...ar(it), ...ch(it)]);
+    // the chord before (its fingers drawn faintly) when it's the step just before
+    out.forEach((x, i) => { if (isChord(x)) { const p = out[(i - 1 + out.length) % out.length]; x.prevV = isChord(p) && p !== x ? p.v : null; } });
+    return out.length ? out : base;
   }
   const items = () => {
     const d = def();
     if (d && d.cong) { const home = O.home || O.scale; return [{ mode: home, start: 0 }, ...FL.congruent(home).slice(0, 12).map((c) => ({ mode: c.id, start: c.start, why: c.why, as: c.as, also: c.also }))]; }
-    if (d && d.chords) return clItems(d);
     if (d && d.walk) return ultItems(d);
     if (d && d.steps) return d.steps.map(([mode, shift, ch]) => ({ mode, shift, ch }));
     if (d && d.land) return landPicked(d).map((mode) => ({ mode, shift: d.shifts?.[mode] || 0 }));
@@ -406,14 +409,14 @@ export function renderFreeScale($app, ctx) {
   const cur = () => { const w = walk(); return items()[w[((O.wi % w.length) + w.length) % w.length]]; };
   const upNext = () => { const w = walk(); if (w.length < 2) return null; return items()[w[(O.wi + 1) % w.length]]; };
   function sync() { const it = cur(); if (def()?.cong) { O.scale = O.home || O.scale; return; } if (it.mode) O.scale = it.mode; }
-  const itemName = (it) => (it.arp ? `${BY[it.mode].name} arpeggio` : it.q !== undefined ? `${FL.qName(it.q)} arpeggio` : it.start || (def()?.cong && it.mode !== O.scale) ? `${T.noteName(T.transposeSemis(tonic(), it.start || 0), true)} ${BY[it.mode].name}` : BY[it.mode].name);
+  const itemName = (it) => (isChord(it) ? clText(it) : it.arp ? `${BY[it.mode].name} arpeggio` : it.q !== undefined ? `${FL.qName(it.q)} arpeggio` : it.start || (def()?.cong && it.mode !== O.scale) ? `${T.noteName(T.transposeSemis(tonic(), it.start || 0), true)} ${BY[it.mode].name}` : BY[it.mode].name);
   // a full pass done (or, holding one mode, a change): a new pattern, the next shape, if asked for
   function passDone() {
     if (O.content === 'scale' && O.pat && O.patPass) O.cell = FL.newPattern(O.cell && O.cell.c);
     if (land()?.walk) {
       // the ladder is a loop: past Locrian, flattening the root gives Lydian a semitone down (and past Lydian going
       // brighter, sharpening it gives Locrian a semitone up), so each lap can carry on in the next key
-      if (O.ultLap === 'move' && O.ultDir !== 'both' && !isCL()) O.key = KEYS[(KEYS.indexOf(O.key) + (O.ultDir === 'up' ? 1 : 11)) % 12];
+      if (O.ultLap === 'move' && O.ultDir !== 'both') O.key = KEYS[(KEYS.indexOf(O.key) + (O.ultDir === 'up' ? 1 : 11)) % 12];
       if (O.ultMove === 'pass' && O.area === 'shape') O.shape = G.nextShape(O.shape);
       if (O.ultMove === 'climb') O.ultDown = !O.ultDown;
       return;
@@ -443,12 +446,12 @@ export function renderFreeScale($app, ctx) {
     if (R.on && T.notePc(tonic()) !== pc0) drone();
     save(); draw();
     // the chord ladder by hand: hear each chord as you step to it
-    if (isCL() && !auto) { A.unlockAudio().catch(() => {}); A.ensureRunning().then(() => strumCL(cur(), A.audioCtx().currentTime + 0.03)).catch(() => {}); }
+    if (isChord(cur()) && !auto) { A.unlockAudio().catch(() => {}); A.ensureRunning().then(() => strumCL(cur(), A.audioCtx().currentTime + 0.03)).catch(() => {}); }
   }
   // the piece of neck to show
   function areaWin() {
-    if (isCL()) { const p = clPos(); return { lo: p.lo, hi: p.hi, band: true, name: `${O.shape} shape, frets ${p.lo}–${p.hi}` }; }
-    if (land()?.walk && O.ultMove === 'climb') {
+    if (isChord(cur())) { const p = clPos(); return { lo: p.lo, hi: p.hi, band: true, name: `${O.shape} shape, frets ${p.lo}–${p.hi}` }; }
+    if (land()?.walk && O.ultMove === 'climb' && !parts().chords) {
       const ws = climbWins(), n = ws.length, both = O.ultDir === 'both', r = (both ? cur().baseRung : cur().stepNo || 1) - 1, k = Math.min(n - 1, both ? r : O.ultDown ? n - 1 - r : r), w = ws[k];
       return { lo: Math.max(0, w.lo), hi: w.hi, band: true, name: `${w.shape} shape, frets ${Math.max(0, w.lo)}–${w.hi} · ${both ? 'one position per rung' : `climbing ${O.ultDown ? 'down' : 'up'} the neck`}` };
     }
@@ -495,7 +498,7 @@ export function renderFreeScale($app, ctx) {
     return neckSVG({ notes, lo: it.v.lo, hi: it.v.hi }, { lo, hi, labels: O.clLabels === 'finger' ? 'finger' : 'iv', bg, ghost: was, band: { lo: p.lo, hi: p.hi } });
   }
   function neck() {
-    if (isCL()) return clNeck();
+    if (isChord(cur())) return clNeck();
     const tp = T.notePc(tonic()), win = areaWin(), { tones: tt, bg: bgp } = tones(), it = cur();
     const l = land(), mv = l ? (l.drift ? null : l.walk ? (it.from && it.from !== it.mode ? FL.moved(it.from, it.mode) : null) : landDiff()) : R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
     const mark = new Set(mv && (l || mv.pairs.length <= 2) ? mv.added : []);
@@ -590,7 +593,7 @@ export function renderFreeScale($app, ctx) {
       R.since++;
       const left = O.every - R.since + 1;
       if (O.metro === 'click') A.click(t, pos === 0 ? 2 : 1);
-      if (isCL() && pos === 0) strumCL(change ? upNext() || cur() : cur(), t);
+      { const c2 = change ? upNext() || cur() : cur(); if (isChord(c2) && pos === 0) strumCL(c2, t); }
       if (R.pad) {
         // the chord for this beat: the scale about to sound (the next one, on a change), its progression from the top
         if (change) R.cb = 0;
@@ -647,10 +650,13 @@ export function renderFreeScale($app, ctx) {
     while (!R.vz.pending && R.next < c.currentTime + 0.12) {
       const t = R.next;
       if (!R.vz.seq) {
-        R.vz = { seq: vizSeq(), i: 0, pending: false };
-        if (R.pad) R.pad.chord(chordMidis(0, FL.ULT_INFO[cur().mode].q), t);
+        // a chord: strummed over its root and held two beats; a scale or arpeggio: note by note
+        const it = cur();
+        R.vz = { seq: isChord(it) ? [{ chord: it }] : vizSeq(), i: 0, pending: false, chord: isChord(it) };
+        if (R.pad && !isChord(it)) R.pad.chord(chordMidis(0, FL.ULT_INFO[it.mode].q), t);
       }
-      if (R.vz.i < R.vz.seq.length) {
+      if (R.vz.i < R.vz.seq.length && R.vz.chord) { strumCL(R.vz.seq[R.vz.i++].chord, t); R.next += 2 * 60 / O.bpm; }
+      else if (R.vz.i < R.vz.seq.length) {
         const n = R.vz.seq[R.vz.i++];
         A.pluck(n.midi, t, { vel: 0.7, dur: dt * 1.8 });
         R.vis.push(setTimeout(() => lightNote(n), Math.max(0, (t - c.currentTime) * 1000)));
@@ -658,7 +664,7 @@ export function renderFreeScale($app, ctx) {
       } else {
         // done: a beat's rest on the last note, then the next mode
         R.vz.pending = true;
-        const t2 = t + 60 / O.bpm, vz = R.vz;
+        const t2 = t + (R.vz.chord ? 0 : 60 / O.bpm), vz = R.vz;
         R.vis.push(setTimeout(() => { if (!R.on || R.vz !== vz) return; R.vz = { seq: null, i: 0, pending: false }; step(1, true); }, Math.max(0, (t2 - c.currentTime) * 1000)));
         R.next = t2;
       }
@@ -700,17 +706,20 @@ export function renderFreeScale($app, ctx) {
     if (O.content !== 'scale') h += `<optgroup label="${O.content === 'ext' ? 'Extended arpeggio types' : 'Arpeggio types'}">${FL.ARPSETS.filter((a) => a.ext === (O.content === 'ext')).map((a) => `<option value="${a.id}" ${def() && O.seq === a.id ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</optgroup>`;
     return h;
   }
-  const clName = (it) => `${fmt(T.noteName(keyTonic(), true))}${fmt(CL.CHORD[it.id].sym)}`;
-  const clKind = (it) => (!it.first ? (it.inv ? 'another inversion' : 'a colour of the same mode') : it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung');
+  const clText = (it) => `${T.noteName(keyTonic(), true)}${CL.CHORD[it.id].sym}`;
+  const clName = (it) => fmt(clText(it));
+  const where = (it) => (it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung');
+  const clWhat = (it) => (it.inv ? 'another voicing' : it.ck === 'tri' ? 'its triad' : it.ck === 'sev' ? 'its 7th chord' : CL.MODE_CHORDS[it.mode]?.[0] === it.id ? 'its chord' : 'a colour');
+  const clKind = (it) => `${clWhat(it)} · ${where(it)}`;
   function titleHTML() {
     const it = cur(), t = fmt(T.noteName(tonic(), true));
-    if (isCL()) return `${clName(it)} <small>${esc(BY[it.mode].name)} · ${clKind(it)}</small>`;
+    if (isChord(it)) return `${clName(it)} <small>${esc(BY[it.mode].name)} · ${clKind(it)}</small>`;
     if (it.q !== undefined) return `${t} ${fmt(FL.qName(it.q))} arpeggio <small>${fmt(T.getChord(it.q).ivs.map((x) => T.prettyIv(x)).join(' '))}</small>`;
     if (def()?.cong && (it.start || it.mode !== O.scale)) return `${fmt(itemName(it))} <small>inside ${t} ${esc(BY[O.scale].name)}${it.why === 'blues' ? ' (a blues fit: its ♭3 rubs the 3 on purpose)' : ''} · over the drone it sounds as ${fmt(it.as.join(' '))}${it.also ? ` · the same notes as ${fmt(T.noteName(T.transposeSemis(tonic(), it.also.start), true))} ${esc(BY[it.also.id].name)}` : ''}</small>`;
     const s = BY[O.scale], par = parentOf(O.scale);
     const sub = par ? `${par.deg === 0 ? esc(par.pname) : `mode ${par.deg + 1} of ${esc(par.pname)}`}: ${fmt(KEYNAME(T.notePc(tonic()) - par.offset))} ${esc(par.pname)} from its ${ORD[par.deg]}` : esc(FAMILY[s.fam] || '');
-    const arp = O.content !== 'scale' ? `<span class="fsarp">its ${O.content === 'ext' ? 'extended ' : ''}arpeggio: ${fmt(FL.modeArp(O.scale, O.content === 'ext').map((x) => T.prettyIv(x)).join(' '))}</span>` : '';
-    return `${t} ${esc(s.name)} <small>${sub} · <button class="linkish" data-f="about">about this mode</button>${arp}</small>`;
+    const arp = land()?.walk && it.arp ? `<span class="fsarp">its extended arpeggio: ${fmt(FL.modeArp(O.scale, true).map((x) => T.prettyIv(x)).join(' '))}</span>` : O.content !== 'scale' ? `<span class="fsarp">its ${O.content === 'ext' ? 'extended ' : ''}arpeggio: ${fmt(FL.modeArp(O.scale, O.content === 'ext').map((x) => T.prettyIv(x)).join(' '))}</span>` : '';
+    return `${t} ${esc(s.name)}${land()?.walk && it.arp ? ' arpeggio' : ''} <small>${sub} · <button class="linkish" data-f="about">about this mode</button>${arp}</small>`;
   }
   // where we are in the sequence, what's next, and which note just moved
   function stepHTML() {
@@ -718,13 +727,15 @@ export function renderFreeScale($app, ctx) {
     const mv = R.prev && it.mode ? FL.moved(R.prev, it.mode) : null;
     const moved = mv && mv.pairs.length <= 2 ? `<p class="fsmoved">${mv.pairs.length === 1 ? 'One note moved' : 'Two notes moved'}: ${mv.pairs.map(([a, b]) => `<b>${fmt(a ? T.prettyIv(a) : '–')} → ${fmt(b ? T.prettyIv(b) : '–')}</b>`).join(', ')} <i>(ringed)</i></p>` : '';
     if (!d) return O.go === 'auto' && R.on ? `<p class="fspos"><span class="fscount"></span></p>` : '';
-    if (d.chords) {
-      const n = (O.wi % w.length) + 1, ch = it.first && it.from ? changeText(it.from, it.mode) : '', q = CL.CHORD[it.id];
-      const head = !it.first ? (it.inv ? `Another inversion of ${clName(it)}` : `A colour of ${esc(BY[it.mode].name)}: <b>${clName(it)}</b>`) : it.kind === 'rung' ? `Rung ${it.rung} of 7: <b>${esc(BY[it.mode].name)}</b>` : it.kind === 'detour' ? `↳ Detour from ${esc(BY[it.base].name)}: <b>${esc(BY[it.mode].name)}</b>` : `↩ Back to <b>${esc(BY[it.mode].name)}</b>`;
-      const mv = it.moved.length ? `<p class="fsmoved">${it.moved.length === 1 ? 'One finger moves' : `${it.moved.length} fingers move`}: ${it.moved.map((x) => `<b>${fmt(x)}</b>`).join(', ')} <i>(ringed; where it was, faint)</i></p>` : '';
-      return `<p class="fspos">${esc(d.name)} · ${n} of ${w.length}${nx ? ` · next: ${clName(nx)}` : ''} <span class="fscount"></span></p>
-        <p class="fsmoved">${head}${ch ? ` · the scale: <b>${fmt(ch)}</b>` : ''}</p>${mv}
-        <p class="note fsrole">${fmt(q.use)}${it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym).join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
+    if (d.walk && isChord(it)) {
+      const n = (O.wi % w.length) + 1, ch = it.cfirst && it.from ? changeText(it.from, it.mode) : '', q = CL.CHORD[it.id], nm = esc(BY[it.mode].name);
+      const head = `${it.kind === 'rung' ? `Rung ${it.rung} of 7: ${nm}` : it.kind === 'detour' ? `↳ Detour from ${esc(BY[it.base].name)}: ${nm}` : `↩ Back to ${nm}`} · ${clWhat(it)}, <b>${clName(it)}</b>`;
+      const up = it.prevV ? it.v.notes.reduce((t, x) => t + x.midi, 0) / it.v.notes.length > it.prevV.notes.reduce((t, x) => t + x.midi, 0) / it.prevV.notes.length : true;
+      const mv = it.inv ? `<p class="fsmoved">The same notes, the next voicing ${up ? 'up' : 'down'} the shape <i>(where the fingers were, faint)</i></p>` : it.moved?.length ? `<p class="fsmoved">From the chord before, ${it.moved.length === 1 ? 'one finger moves' : `${it.moved.length} fingers move`}: ${it.moved.map((x) => `<b>${fmt(x)}</b>`).join(', ')}${it.prevV ? ' <i>(ringed; where it was, faint)</i>' : ''}</p>` : '';
+      const skip = it.cfirst && it.already?.length ? ` <i>(${fmt(it.already.map((x) => clText({ id: x })).join(' and '))}: played earlier this lap)</i>` : '';
+      return `<p class="fspos">${esc(d.name)} · ${n} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>
+        <p class="fsmoved">${head}${ch ? ` · the scale: <b>${fmt(ch)}</b>` : ''}${skip}</p>${mv}
+        <p class="note fsrole">${fmt(q.use)}${it.cfirst && it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym || 'triad').join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
     }
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = d.drift ? null : landText(hm, it.mode);
@@ -747,7 +758,8 @@ export function renderFreeScale($app, ctx) {
   }
   // start and stop, right under the controls, with the beat and what you'll hear
   function playHTML() {
-    const hear = isCL() ? ['each chord strummed over its root', O.drone ? 'drone' : '', O.metro === 'click' ? 'click' : '', O.go === 'auto' ? `a new chord every ${O.every} beats` : 'you step with ‹ › (each chord sounds)'].filter(Boolean).join(' · ') : isViz() ? [chordsWanted() ? 'the mode’s chord' : O.drone ? 'drone' : 'no drone', `it plays ${[O.vizScale ? 'each scale' : '', O.vizArp ? `${O.vizScale ? 'then ' : 'each '}extended arpeggio` : ''].filter(Boolean).join(' ')}`, `${O.bpm} bpm, in eighths`].join(' · ') : [chordsWanted() ? 'chords' : O.drone ? `drone${O.fifth ? ' + 5th' : ''}` : 'no drone', O.metro === 'click' ? 'click' : O.metro === 'silent' ? 'beat shown, no click' : 'metronome off', O.go === 'auto' ? `changes every ${O.every} beats` : 'you change it with ‹ ›'].join(' · ');
+    const pl = ['scale', 'arp', 'chords'].filter((k) => O.parts[k]).map((k) => ({ scale: 'scales', arp: 'arpeggios', chords: 'chords' }[k])).join(' → ');
+    const hear = land()?.walk ? [O.player === 'app' ? 'the app plays' : 'you play', pl + (O.order === 'block' ? ', the whole ladder each' : ', mode by mode'), O.drone ? 'drone' : '', O.player === 'app' ? `${O.bpm} bpm` : O.go === 'auto' ? `a change every ${O.every} beats` : 'you step with ‹ ›'].filter(Boolean).join(' · ') : [chordsWanted() ? 'chords' : O.drone ? `drone${O.fifth ? ' + 5th' : ''}` : 'no drone', O.metro === 'click' ? 'click' : O.metro === 'silent' ? 'beat shown, no click' : 'metronome off', O.go === 'auto' ? `changes every ${O.every} beats` : 'you change it with ‹ ›'].join(' · ');
     return `<div class="fsplay">
       <button class="primary ${R.on ? 'stop' : ''}" data-f="play">${R.on ? '■ Stop' : '▶ Start'}</button>
       <div class="fsplayr">${R.on ? `<div class="beats fsbeats"><i></i><i></i><i></i><i></i></div><span class="fscount"></span>` : `<small>${esc(hear)}</small>`}</div>
@@ -808,17 +820,16 @@ export function renderFreeScale($app, ctx) {
   function walkLine(it) {
     const nm = esc(BY[it.mode].name), ch = changeText(it.from, it.mode);
     const head = it.kind === 'rung' ? `Rung ${it.rung} of 7: <b>${nm}</b>` : it.kind === 'detour' ? `↳ Detour from ${esc(BY[it.base].name)}: <b>${nm}</b>` : `↩ Back to <b>${nm}</b>`;
-    return `<p class="fsmoved">${it.arp ? 'Arpeggio first · ' : ''}${head}${ch ? ` · <b>${fmt(ch)}</b> <i>(ringed, the old note faint)</i>` : ''}</p>`;
+    return `<p class="fsmoved">${it.arp ? 'Its extended arpeggio · ' : ''}${head}${ch ? ` · <b>${fmt(ch)}</b> <i>(ringed, the old note faint)</i>` : ''}</p>`;
   }
   const tok = (ivs) => ivs.map((iv) => `{${iv}}`).join(', ');
   function walkRole(it) { const info = FL.ULT_INFO[it.mode]; return (info.note && it.kind !== 'back' ? `${info.note} ` : '') + walkRole0(it); }
   function walkRole0(it) {
     const info = FL.ULT_INFO[it.mode], chord = chordName(0, info.q), use = tok(info.use), avoid = info.avoid.length ? tok(info.avoid) : '';
-    if (it.arp) return `Its chord: ${chord}. 1) The 7th arpeggio from the lowest root in the shape, up and back. 2) Each usable tension (${use}) resolving down to the chord tone below it. ${avoid ? `3) The avoid note${info.avoid.length > 1 ? 's' : ''} (${avoid}): touch and resolve down a fret, to hear why. ` : ''}Then the full stack, 1-3-5-7-9-11-13.`;
+    if (it.arp) return `Its chord: ${chord}. The extended arpeggio, 1 3 5 7 9 11 13, from the lowest root in the shape, up and back: the 1 3 5 7 are the chord, ${use} the tensions to use${avoid ? `; ${avoid} (grey) is the avoid note: touch it and resolve it down a fret, to hear why` : ''}.`;
     if (it.kind === 'back') return `Back on the rung before moving on: the mode once more, and hear the note return.`;
-    const routine = O.ultArp ? '' : ` The routine: the 7th arpeggio, the tensions (${use}) resolving down${avoid ? `, the avoid note${info.avoid.length > 1 ? 's' : ''} (${avoid}) resolving down a fret` : ''}, the full stack, then the mode.`;
     if (it.kind === 'detour' && FL.ULT_INFO[it.mode].q === FL.ULT_INFO[it.from].q) return `The chord stays ${chord}: change the one note and play the mode, up and down through the shape. Use ${use}${avoid ? `; avoid ${avoid}` : ''}.`;
-    return `Now the mode, up and down through the shape. Use ${use}${avoid ? `; avoid ${avoid}` : ''}.${routine}`;
+    return `Now the mode, up and down through the shape. Use ${use}${avoid ? `; avoid ${avoid}` : ''}.`;
   }
   function walkLabel(it) {
     const info = FL.ULT_INFO[it.mode], mv = it.from && it.from !== it.mode ? FL.moved(it.from, it.mode) : null, add = new Set(mv ? mv.added : []);
@@ -846,38 +857,39 @@ export function renderFreeScale($app, ctx) {
   const SHORT = { lydian: 'Lyd', ionian: 'Ion', 'mel-min': 'mel min', mixolydian: 'Mix', 'lyd-dom': 'Lyd dom', dorian: 'Dor', aeolian: 'Aeo', 'harm-min': 'harm min', 'locrian-n2': 'Loc ♮2', phrygian: 'Phr', 'phryg-dom': 'Phr dom', locrian: 'Loc', altered: 'alt', 'dim-hw': 'H-W dim' };
   function ultPanel(l) {
     const map = ultWalk(l).filter(([, k]) => k !== 'back').map(([m, k]) => (typeof k === 'number' ? `<b>${k} ${fmt(SHORT[m])}</b>` : `<i>↳${fmt(SHORT[m])}</i>`)).join(' ');
+    const P = O.parts, K = O.chordKinds, n = Object.values(P).filter(Boolean).length;
+    const chip = (attr, key, on, label) => `<button class="chip ${on ? 'on' : ''}" data-${attr}="${key}">${label}</button>`;
+    const pl = ['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'its scale', arp: 'its extended arpeggio', chords: 'its chords' }[k]));
+    const how = n < 2 ? '' : O.order === 'block' ? `The whole ladder as ${['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'scales', arp: 'arpeggios', chords: 'chords' }[k])).join(', then as ')}${P.chords ? ': the chords morph one into the next with nothing in between' : ''}.` : `Each mode in turn: ${pl.join(', then ')}; then the next mode.`;
+    const who = O.player === 'app' ? 'The app plays it: each note lit as it sounds (eighth notes at the tempo), each chord strummed over its root for two beats.' : 'You play it: change by hand with ‹ ›, or on the beat. Each chord sounds as you reach it.';
+    const chordsNote = P.chords ? ` Chords: ${[K.tri ? 'the triad' : '', K.sev ? 'the 7th chord' : '', K.ext ? 'the extended chords, with the mode’s colours and sus chords' : ''].filter(Boolean).join(', ')}${O.clInvM === 'all' && (K.tri || K.sev) ? ', the triad and 7th in every voicing they have in the shape' : ''}, voice-led in the ${O.shape} shape. A triad or 7th an earlier mode already played (Ionian’s after Lydian’s) isn’t repeated.` : '';
     return `<p class="fsultmap">${map}</p>
-      <div class="fsrow fsland"><span class="lbl">Visualizer</span>${seg('viz', O.viz ? 1 : 0, [[0, 'Off: I play'], [1, 'On: it plays']])}</div>
-      ${O.viz ? `<div class="fsrow fsland"><span class="lbl">It plays</span><div class="fsrow"><button class="chip ${O.vizScale ? 'on' : ''}" data-vizpart="scale">Scale</button><button class="chip ${O.vizArp ? 'on' : ''}" data-vizpart="arp">Extended arpeggio</button></div></div>
-      <p class="note fsblurb">It plays each mode itself and lights each note as it sounds: ${O.vizScale && O.vizArp ? 'the scale up and down, then its extended arpeggio (1 3 5 7 9 11 13)' : O.vizScale ? 'the scale, up and down' : 'its extended arpeggio (1 3 5 7 9 11 13), up and down'}, in eighth notes at the tempo, then on to the next mode. ${O.area === 'whole' && O.ultMove !== 'climb' ? `On the whole neck it plays in the ${O.shape} shape’s position.` : ''}</p>` : ''}
+      <div class="fsrow fsland"><span class="lbl">Play</span><div class="chips">${chip('upart', 'scale', P.scale, 'Scales')}${chip('upart', 'arp', P.arp, 'Arpeggios')}${chip('upart', 'chords', P.chords, 'Chords')}</div></div>
+      ${n > 1 ? `<div class="fsrow fsland"><span class="lbl">Order</span>${seg('uorder', O.order, [['mode', 'Mode by mode'], ['block', 'Whole ladder each']])}</div>` : ''}
+      ${P.chords ? `<div class="fsrow fsland"><span class="lbl">Chords</span><div class="chips">${chip('ckind', 'tri', K.tri, 'Triads')}${chip('ckind', 'sev', K.sev, '7ths')}${chip('ckind', 'ext', K.ext, 'Extended')}</div></div>
+      ${K.tri || K.sev ? `<div class="fsrow fsland"><span class="lbl">Inversions</span>${seg('clinvm', O.clInvM, [['all', 'All in the shape'], ['one', 'One each']])}</div>` : ''}
+      ${K.sev || K.ext ? `<div class="fsrow fsland"><span class="lbl">Voicings</span>${seg('cllane', O.clLane, CL.LANES.map((x) => [x.id, x.name]))}</div>` : ''}
+      <div class="fsrow fsland"><span class="lbl">Show</span>${seg('cllabels', O.clLabels, [['iv', 'Intervals'], ['finger', 'Fingers']])}</div>` : ''}
+      <div class="fsrow fsland"><span class="lbl">Who plays</span>${seg('uplayer', O.player, [['me', 'Me'], ['app', 'The app']])}</div>
+      <p class="note fsblurb">${esc(how)} ${esc(who)}${esc(chordsNote)}</p>
       <div class="fsrow fsland"><span class="lbl">Direction</span>${seg('ultdir', O.ultDir, [['down', 'Darker ↓'], ['up', 'Brighter ↑'], ['both', 'Both ↓↑']])}</div>
       ${O.ultDir === 'both' ? '<p class="note fsblurb">Down the ladder from Lydian to Locrian, flattening a note each rung, then back up, sharpening them again, with the detours both ways.</p>' : `<div class="fsrow fsland"><span class="lbl">Each lap</span>${seg('ultlap', O.ultLap, [['same', 'Same root'], ['move', `Root ${O.ultDir === 'up' ? 'up' : 'down'} a semitone`]])}</div>`}
       ${O.ultLap === 'move' && O.ultDir !== 'both' ? `<p class="note fsblurb">It’s a loop: ${O.ultDir === 'up' ? 'past Lydian, sharpening the root gives Locrian a semitone up' : 'past Locrian, flattening the root gives Lydian a semitone down'}, so at the end of each lap the root and the drone move ${O.ultDir === 'up' ? 'up' : 'down'} a semitone and the ladder carries on.</p>` : ''}
-      ${O.viz ? '' : `<div class="fsrow fsland"><span class="lbl">Arpeggio first</span>${seg('ultarp', O.ultArp ? 1 : 0, [[1, 'On'], [0, 'Off']])}</div>`}
-      <div class="fsrow fsland"><span class="lbl">Move</span>${seg('ultmove', O.ultMove, [['stay', 'Stay'], ['pass', 'Shape each pass'], ['climb', 'Climb the neck']])}</div>
-      ${O.ultMove === 'climb' ? `<p class="note fsblurb">Each rung one CAGED position higher: rung 1 low on the neck, rung 7 near the top, and the next time round back down. Detours stay in their rung’s position.</p>` : `<div class="fsrow fsland"><span class="lbl">Shape</span>${seg('ultshape', O.area === 'shape' ? O.shape : 'whole', [['whole', 'Neck'], ...G.SHAPES.map((x) => [x, x])])}</div>${O.ultMove === 'pass' ? `<p class="note fsblurb">${O.area === 'shape' ? `The whole ladder in the ${O.shape} shape, then the next shape up (C → A → G → E → D) for the next pass.` : 'Pick a shape to start from.'}</p>` : ''}`}`;
-  }
-  function clPanel(l) {
-    return `<div class="fsrow fsland"><span class="lbl">Direction</span>${seg('ultdir', O.ultDir, [['down', 'Darker ↓'], ['up', 'Brighter ↑'], ['both', 'Both ↓↑']])}</div>
-      <div class="fsrow fsland"><span class="lbl">Shape</span>${seg('ultshape', O.shape, G.SHAPES.map((x) => [x, x]))}</div>
-      <div class="fsrow fsland"><span class="lbl">Each lap</span>${seg('ultmove', O.ultMove === 'pass' ? 'pass' : 'stay', [['stay', 'Same shape'], ['pass', 'Next shape']])}</div>
-      <div class="fsrow fsland"><span class="lbl">Voicings</span>${seg('cllane', O.clLane, CL.LANES.map((x) => [x.id, x.name]))}</div>
-      <div class="fsrow fsland"><span class="lbl">Chords</span>${seg('clcol', O.clCol ? 1 : 0, [[0, 'Main'], [1, '+ colours, sus']])}</div>
-      <div class="fsrow fsland"><span class="lbl">Inversions</span>${seg('clinv', O.clInv ? 1 : 0, [[0, 'Off'], [1, 'On each rung']])}</div>
-      <div class="fsrow fsland"><span class="lbl">Show</span>${seg('cllabels', O.clLabels, [['iv', 'Intervals'], ['finger', 'Fingers']])}</div>`;
+      <div class="fsrow fsland"><span class="lbl">Move</span>${seg('ultmove', O.ultMove, P.chords ? [['stay', 'Stay'], ['pass', 'Shape each pass']] : [['stay', 'Stay'], ['pass', 'Shape each pass'], ['climb', 'Climb the neck']])}</div>
+      ${O.ultMove === 'climb' && !P.chords ? `<p class="note fsblurb">Each rung one CAGED position higher: rung 1 low on the neck, rung 7 near the top, and the next time round back down. Detours stay in their rung’s position.</p>` : `<div class="fsrow fsland"><span class="lbl">Shape</span>${seg('ultshape', O.area === 'shape' || P.chords ? O.shape : 'whole', [...(P.chords ? [] : [['whole', 'Neck']]), ...G.SHAPES.map((x) => [x, x])])}</div>${O.ultMove === 'pass' ? `<p class="note fsblurb">The whole ladder in the ${O.shape} shape, then the next shape up (C → A → G → E → D) for the next pass.</p>` : ''}`}`;
   }
   function landHTML() {
     const l = land();
     const og = (label, ls) => `<optgroup label="${esc(label)}">${ls.map((x) => `<option value="${x.id}" ${l && l.id === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</optgroup>`;
     const opts = `<option value="hold">Off</option>${og('Same 1, the notes change', FL.LADDERS.filter((x) => x.land && !x.drift && !x.walk))}${og('Same notes, the 1 moves', FL.LADDERS.filter((x) => x.drift && !x.steps))}${og('Progressions: a mode for each chord', FL.LADDERS.filter((x) => x.steps))}${og('Ladder with detours', FL.LADDERS.filter((x) => x.walk))}`;
     return `<div class="fsrow fsland"><span class="lbl">Landscape</span><select id="fsland" class="select" aria-label="Landscape">${opts}</select></div>
-      ${l ? `${l.chords ? clPanel(l) : l.walk ? ultPanel(l) : l.steps ? `<p class="fsprogrow">${l.steps.map(([m, sh, c]) => `<b>${fmt(romanOf(sh, c))}</b>`).join(' – ')}</p>` : `<div class="fsrow fsland fslandpick"><span class="lbl">Scales</span><div class="chips">${landAll(l).map((id) => `<button class="chip ${landPicked(l).includes(id) ? 'on' : ''}" data-landpick="${id}">${esc(BY[id].name)}</button>`).join('')}</div></div>
+      ${l ? `${l.walk ? ultPanel(l) : l.steps ? `<p class="fsprogrow">${l.steps.map(([m, sh, c]) => `<b>${fmt(romanOf(sh, c))}</b>`).join(' – ')}</p>` : `<div class="fsrow fsland fslandpick"><span class="lbl">Scales</span><div class="chips">${landAll(l).map((id) => `<button class="chip ${landPicked(l).includes(id) ? 'on' : ''}" data-landpick="${id}">${esc(BY[id].name)}</button>`).join('')}</div></div>
       <div class="fsrow fsland"><span class="lbl"></span><button class="chip" data-landset="core">Core ${l.ids.length}</button><button class="chip" data-landset="all">All ${landAll(l).length}</button><small class="note">tap scales to leave them out or put them in (two at least)</small></div>`}
-      ${l.chords ? '' : `<div class="fsrow fsland"><span class="lbl">Backing</span>${seg('backing', O.backing, [['drone', 'Root drone'], ['chords', 'Chords']])}</div>`}
+      ${l.walk && O.parts.chords ? '' : `<div class="fsrow fsland"><span class="lbl">Backing</span>${seg('backing', O.backing, [['drone', 'Root drone'], ['chords', 'Chords']])}</div>`}
       ${isViz() ? '' : `<div class="fsrow fsland"><span class="lbl">Change</span>${seg('go', O.go, [['manual', 'Manual'], ['auto', 'Auto']])}</div>`}
-      ${O.go === 'auto' && !isViz() ? `<div class="fsrow fsland"><span class="lbl">Every</span>${seg('every', O.every, l.chords ? [[2, '2 beats'], [4, '4'], [8, '8']] : [[4, '4 beats'], [8, '8'], [16, '16'], [32, '32']])}</div>` : ''}
-      <p class="note fsblurb">${fmt(l.blurb)}</p>
-      ${l.chords ? '' : `<details class="fssolo" ${R.soloOpen ? 'open' : ''}><summary>Soloing over the changes: what to aim for</summary><ul>
+      ${O.go === 'auto' && !isViz() ? `<div class="fsrow fsland"><span class="lbl">Every</span>${seg('every', O.every, l.walk && O.parts.chords ? [[2, '2 beats'], [4, '4'], [8, '8'], [16, '16']] : [[4, '4 beats'], [8, '8'], [16, '16'], [32, '32']])}</div>` : ''}
+      ${l.walk ? '' : `<p class="note fsblurb">${fmt(l.blurb)}</p>`}
+      ${l.walk ? '' : `<details class="fssolo" ${R.soloOpen ? 'open' : ''}><summary>Soloing over the changes: what to aim for</summary><ul>
         <li><b>Hit a chord tone as each chord arrives</b>, on its first beat. The 3rd says the most (it tells major from minor); the root is safest; the 7th is the jazziest. The label above the neck names the note to hit on each chord (its 3rd when your scale has it).</li>
         <li><b>Approach it from a half step</b> above or below, a beat early: the slide into the target is what makes it sound intentional.</li>
         <li><b>Guide tones</b>: from a chord’s 3rd or 7th, move by the smallest step to the next chord’s 3rd or 7th. Two or three notes per change can outline the whole progression.</li>
@@ -917,7 +929,7 @@ export function renderFreeScale($app, ctx) {
       <div class="fsrow">
         <button class="chip ${O.drone ? 'on' : ''}" data-f="drone">Drone</button><button class="chip ${O.fifth ? 'on' : ''}" data-f="fifth">+ 5th</button>
       </div>
-      <div class="fsrow fsland fsladders"><span class="lbl">Ladders</span><button class="chip ${O.seq === 'ult' ? 'on' : ''}" data-goladder="ult">Scale ladder</button><button class="chip ${O.seq === 'cult' ? 'on' : ''}" data-goladder="cult">Chord ladder</button></div>
+      <div class="fsrow fsland fsladders"><span class="lbl">Ladder</span><button class="chip ${O.seq === 'ult' ? 'on' : ''}" data-goladder="ult">The ultimate ladder: scales, arpeggios, chords</button></div>
       ${landHTML()}
       <div class="fsrow fsmetro"><span class="lbl">Metronome</span>${seg('metro', O.metro, [['click', 'Click'], ['silent', 'Dots only'], ['off', 'Off']])}</div>
       <div class="fsrow fstempo"><span class="lbl">Tempo</span><input type="range" id="fsbpmr" min="30" max="200" step="2" value="${O.bpm}" aria-label="Tempo"><span class="fsbpm"><button data-f="bpm-" aria-label="Slower">−</button><b id="fsbpmv">${O.bpm}</b><small>bpm</small><button data-f="bpm+" aria-label="Faster">+</button></span></div>
@@ -928,14 +940,14 @@ export function renderFreeScale($app, ctx) {
     ${stepHTML()}
     <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
-    ${isArp || isCL() ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
-    ${isCL() ? `<p class="fsnecklbl"><b class="fsroman">${clName(it)}</b> <small>${esc(BY[it.mode].name)} · ${it.v.group === 2 ? 'drop 2' : 'drop 3'}, strings ${it.v.notes.map((n) => n.string).join('')}</small></p>` : land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc(land().keyName || { aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${land().walk ? `<small> · ${it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung'}${it.arp ? (isViz() ? ', its extended arpeggio' : ', arpeggio first') : ''}</small>${walkLabel(it)}` : ''}${targetsHTML(it)}${land().walk ? '' : chordsHTML(it)}</p>` : ''}
+    ${isArp || isChord(it) ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
+    ${isChord(it) ? `<p class="fsnecklbl"><b class="fsroman">${clName(it)}</b> <small>${esc(BY[it.mode].name)} · ${it.v.group === 'tri' ? 'triad' : it.v.group === 2 ? 'drop 2' : 'drop 3'}, strings ${it.v.notes.map((n) => n.string).join('')}</small></p>` : land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc(land().keyName || { aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${land().walk ? `<small> · ${it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung'}${it.arp ? (isViz() ? ', its extended arpeggio' : ', arpeggio first') : ''}</small>${walkLabel(it)}` : ''}${targetsHTML(it)}${land().walk ? '' : chordsHTML(it)}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
-    ${isArp || isCL() ? '' : `<section class="card fsglance"><h2>${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)} at a glance</h2><dl>${glance(O.scale, tonic()).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join('')}<dt>Used for</dt><dd><ul>${(FACTS[O.scale] || [BY[O.scale].feel]).map((f) => `<li>${fmt(f)}</li>`).join('')}</ul></dd></dl><button class="linkish" data-f="about">More: its family, its triads, ways to practise it</button></section>`}
-    ${isArp || isCL() ? '' : `<section class="card fsclimb" id="fsclimb">${climbHTML()}</section>`}
-    ${isArp || isCL() ? '' : `<section class="card fstipcard" id="fstips">${tipsHTML()}</section>`}
+    ${isArp || isChord(it) ? '' : `<section class="card fsglance"><h2>${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)} at a glance</h2><dl>${glance(O.scale, tonic()).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join('')}<dt>Used for</dt><dd><ul>${(FACTS[O.scale] || [BY[O.scale].feel]).map((f) => `<li>${fmt(f)}</li>`).join('')}</ul></dd></dl><button class="linkish" data-f="about">More: its family, its triads, ways to practise it</button></section>`}
+    ${isArp || isChord(it) ? '' : `<section class="card fsclimb" id="fsclimb">${climbHTML()}</section>`}
+    ${isArp || isChord(it) ? '' : `<section class="card fstipcard" id="fstips">${tipsHTML()}</section>`}
     <div class="sheet" id="fsabout" hidden></div>
 `;
     const sel = $app.querySelector('#fsscale');
@@ -980,21 +992,18 @@ export function renderFreeScale($app, ctx) {
     if (d.key) { O.key = d.key; save(); if (R.on) drone(); return draw(); }
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
     if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
-    if (d.ultarp !== undefined) { const was = cur().mode; O.ultArp = d.ultarp === '1'; const k = walk().findIndex((x) => items()[x].mode === was && !items()[x].arp); O.wi = Math.max(0, k); save(); return draw(); }
-    if (d.goladder) { O.seq = O.seq === d.goladder ? 'hold' : d.goladder; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; if (O.seq === 'cult') O.area = 'shape'; save(); draw(); if (R.on) drone(); return; }
-    if (d.cllane || d.clcol !== undefined || d.clinv !== undefined || d.cllabels) {
-      const was = cur();
-      if (d.cllane) O.clLane = d.cllane; if (d.clcol !== undefined) O.clCol = d.clcol === '1'; if (d.clinv !== undefined) O.clInv = d.clinv === '1'; if (d.cllabels) O.clLabels = d.cllabels;
-      const k = walk().findIndex((x) => items()[x].mode === was.mode && items()[x].kind === was.kind && items()[x].first);
-      O.wi = Math.max(0, k); save(); return draw();
-    }
-    if (d.viz !== undefined || d.vizpart) {
-      const was = cur();
-      if (d.viz !== undefined) O.viz = d.viz === '1';
-      else { const k = d.vizpart === 'scale' ? 'vizScale' : 'vizArp'; O[k] = !O[k]; if (!O.vizScale && !O.vizArp) O[k === 'vizScale' ? 'vizArp' : 'vizScale'] = true; }
-      const k = walk().findIndex((x) => items()[x].mode === was.mode && items()[x].kind === was.kind);
+    if (d.goladder) { O.seq = O.seq === d.goladder ? 'hold' : d.goladder; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; if (O.seq === 'ult' && O.parts.chords) O.area = 'shape'; save(); draw(); if (R.on) drone(); return; }
+    if (d.upart || d.ckind || d.uorder || d.uplayer || d.cllane || d.clinvm || d.cllabels) {
+      const was = cur(), partOf = (x) => x.part || (x.arp ? 'arp' : 'scale');
+      if (d.upart) { const p = { ...O.parts, [d.upart]: !O.parts[d.upart] }; if (Object.values(p).some(Boolean)) O.parts = p; if (O.parts.chords) { O.area = 'shape'; if (O.ultMove === 'climb') O.ultMove = 'stay'; } }
+      if (d.ckind) { const k = { ...O.chordKinds, [d.ckind]: !O.chordKinds[d.ckind] }; if (Object.values(k).some(Boolean)) O.chordKinds = k; }
+      if (d.uorder) O.order = d.uorder; if (d.uplayer) O.player = d.uplayer; if (d.cllane) O.clLane = d.cllane; if (d.clinvm) O.clInvM = d.clinvm; if (d.cllabels) O.clLabels = d.cllabels;
+      // stay on the same mode (and the same part of it, if it's still there)
+      const its = items(), w = walk();
+      let k = w.findIndex((x) => its[x].mode === was.mode && its[x].kind === was.kind && partOf(its[x]) === partOf(was));
+      if (k < 0) k = w.findIndex((x) => its[x].mode === was.mode && its[x].kind === was.kind);
       O.wi = Math.max(0, k);
-      if (R.on) { stopAll(); save(); return play(); }
+      if (R.on && d.uplayer) { stopAll(); save(); return play(); }
       save(); return draw();
     }
     if (d.ultdir || d.ultlap) { const was = cur(); if (d.ultdir) O.ultDir = d.ultdir; if (d.ultlap) O.ultLap = d.ultlap; const k = walk().findIndex((x) => items()[x].mode === was.mode && items()[x].kind === was.kind && !!items()[x].arp === !!was.arp); O.wi = Math.max(0, k); save(); return draw(); }

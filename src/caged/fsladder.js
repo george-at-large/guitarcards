@@ -115,8 +115,6 @@ const ULT_WALK = [
 ];
 LADDERS.push({ id: 'ult', group: 'Ladder with detours', land: true, walk: ULT_WALK, loop: true, name: 'The ultimate ladder', ids: ['lydian'],
   blurb: 'The seven modes from brightest to darkest over one root, one note flattened per rung, with detours to a related mode that changes one note, then back to the rung. Stay in one CAGED shape a session (C, A, G, E, D over five days). With “Extended arpeggio first” each mode is heard as a chord before you play it, and again on a detour that changes the chord’s 3rd, 5th or 7th. Finish with a few minutes improvising over a rung and its detour.' });
-LADDERS.push({ id: 'cult', group: 'Ladder with detours', land: true, chords: true, walk: ULT_WALK, loop: true, name: 'The chord ladder', ids: ['lydian'],
-  blurb: 'The same ladder as chords: each mode’s chord (and its colours, its sus chord where it has one) as four-note drop 2 and drop 3 voicings in one CAGED shape, voice-led so that on most steps one finger moves. Run it in each shape; Inversions walks each rung’s chord through its other voicings there.' });
 
 // for progressions: what to do in each mode, whatever chord of the key it sits on
 export const MODE_ROLES = {
