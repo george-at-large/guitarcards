@@ -15,13 +15,20 @@ const Q = { ...QUALS };
 for (const [q, sym] of [['maj', ''], ['min', 'm'], ['dim', '°'], ['aug', '+']]) Q[`tri:${q}`] = { id: `tri:${q}`, sym, tones: T.getChord(q).ivs, use: 'The triad: the three notes that make it major, minor, diminished or augmented, in every voicing it has in the shape.' };
 export const CHORD = Q;
 // each mode's triad and 7th chord (the altered scale read as a dominant: its ♭4 sounds as the 3rd, its ♭6 as the ♯5)
-export const TRIAD = { lydian: 'maj', ionian: 'maj', 'mel-min': 'min', mixolydian: 'maj', 'lyd-dom': 'maj', dorian: 'min', 'dorian-b2': 'min', aeolian: 'min', 'harm-min': 'min', 'locrian-n2': 'dim', phrygian: 'min', 'phryg-dom': 'maj', locrian: 'dim', altered: 'aug', 'dim-hw': 'maj' };
-export const SEVENTH = { lydian: 'maj7', ionian: 'maj7', 'mel-min': 'mMaj7', mixolydian: '7', 'lyd-dom': '7', dorian: 'm7', 'dorian-b2': 'm7', aeolian: 'm7', 'harm-min': 'mMaj7', 'locrian-n2': 'm7b5', phrygian: 'm7', 'phryg-dom': '7', locrian: 'm7b5', altered: '7#5', 'dim-hw': '7' };
+export const TRIAD = { 'lyd-aug': 'aug', lydian: 'maj', ionian: 'maj', 'mel-min': 'min', mixolydian: 'maj', 'lyd-dom': 'maj', dorian: 'min', 'dorian-b2': 'min', aeolian: 'min', 'harm-min': 'min', 'locrian-n2': 'dim', phrygian: 'min', 'phryg-dom': 'maj', locrian: 'dim', altered: 'aug', 'dim-hw': 'maj' };
+export const SEVENTH = { 'lyd-aug': 'maj7#5', lydian: 'maj7', ionian: 'maj7', 'mel-min': 'mMaj7', mixolydian: '7', 'lyd-dom': '7', dorian: 'm7', 'dorian-b2': 'm7', aeolian: 'm7', 'harm-min': 'mMaj7', 'locrian-n2': 'm7b5', phrygian: 'm7', 'phryg-dom': '7', locrian: 'm7b5', altered: '7#5', 'dim-hw': '7' };
 
 // ---------- the other chords on the root: rooted grip tones, rootless grip tones (either may be absent) ----------
 // simple to rich; a mode takes each one whose notes it holds, whose 3rd is its own (or that has none: sus chords),
 // and that has none of its avoid notes (sus chords may: the 4th there is no clash)
 const EXT = [
+  ['sus2', 'sus2', ['1', '2', '5'], null, 'The triad with a 2 in place of its 3rd: open, neither major nor minor.'],
+  ['sus4', 'sus4', ['1', '4', '5'], null, 'The triad with a 4 in place of its 3rd: suspended, leaning to fall to the 3rd.'],
+  ['7sus2', '7sus2', ['1', '2', '5', 'b7'], null, 'A 7th chord with a 2 for its 3rd: open and modern, a rock and fusion colour.'],
+  ['maj7sus2', 'maj7sus2', ['1', '2', '5', '7'], null, 'The major 7th with a 2 for its 3rd: airy, floating, ambient.'],
+  ['maj7sus4', 'maj7sus4', ['1', '4', '5', '7'], null, 'The major 7th with a 4 for its 3rd: the suspended major, waiting to settle.'],
+  ['maj9#5', 'maj9♯5', ['1', '#5', '7', '9'], ['9', '3', '#5', '7'], 'Lydian augmented’s chord with its 9: the brightest major sound there is.'],
+  ['augadd9', '+(add9)', ['1', '3', '#5', '9'], null, 'The augmented triad with a 9: dreamy and unresolved.'],
   ['6', '6', ['1', '3', '5', '6'], null, 'The major chord with its 6th: sweet and settled, no 7th leaning anywhere.'],
   ['69', '6/9', ['1', '3', '6', '9'], ['9', '3', '5', '6'], 'Major with its 6th and 9th: nothing leans. The ending chord of jazz and bossa nova.'],
   ['add9', 'add9', ['1', '3', '5', '9'], null, 'The major triad with a 9: open and bright, the pop and folk colour.'],
@@ -60,7 +67,7 @@ for (const [id, sym, r, rl, use] of EXT) {
 const semis = (iv) => T.intervalSemis(F.simpleIv(String(iv))) % 12;
 const modePcs = (mode) => new Set(BY[mode].ivs.map(semis));
 const avoidPcs = (mode) => new Set((ULT_INFO[mode]?.avoid || []).map(semis));
-const MAJOR = new Set(['maj7', '7', '7#5']);
+const MAJOR = new Set(['maj7', '7', '7#5', 'maj7#5']);
 // the chords a mode holds on its root (ids of rooted and rootless grips), in the catalogue's order
 export function chordsOf(mode) {
   const pcs = modePcs(mode), avoid = avoidPcs(mode), major = MAJOR.has(SEVENTH[mode]);
@@ -86,24 +93,25 @@ export function chordsOf(mode) {
   }
   return out;
 }
-// the extended chords each mode plays, most useful first (at most five, with the triad and 7th, ten chords a mode);
+// the other chords each mode plays, most useful first (at most eight: with the triad and 7th, about fifteen a mode);
 // each must belong to the mode (checked above), else it's dropped
 const PICK = {
-  lydian: ['maj7#11', 'maj9', '69', 'maj13', '6'],
-  ionian: ['maj9', '69', 'maj13', '6', 'add9'],
-  'mel-min': ['mMaj9', 'm6', 'm69', 'madd9'],
-  mixolydian: ['13', '9', '9sus4', '7sus4', '13sus4'],
-  'lyd-dom': ['7#11', '9', '13', '6'],
-  dorian: ['m9', 'm11', 'm13', 'm6', '9sus4'],
-  'dorian-b2': ['susb9', '13susb9', 'm6', 'm7_11'],
-  aeolian: ['m9', 'm11', 'madd9', '9sus4'],
-  'harm-min': ['mMaj9', 'madd9'],
+  lydian: ['maj7#11', 'maj9', '69', 'maj13', '6', 'sus2', 'maj7sus2', 'add9'],
+  'lyd-aug': ['maj9#5', 'augadd9'],
+  ionian: ['maj9', '69', 'maj13', '6', 'add9', 'sus2', 'sus4', 'maj7sus4'],
+  'mel-min': ['mMaj9', 'm6', 'm69', 'madd9', 'sus2', 'sus4', 'maj7sus2', 'maj7sus4'],
+  mixolydian: ['13', '9', '9sus4', '7sus4', '13sus4', 'sus4', 'sus2', '7sus2'],
+  'lyd-dom': ['7#11', '9', '13', '6', '69', 'sus2', '7sus2'],
+  dorian: ['m9', 'm11', 'm13', 'm6', '9sus4', 'sus2', 'sus4', '7sus2'],
+  'dorian-b2': ['susb9', '13susb9', 'm6', 'm7_11', 'sus4', '7sus4'],
+  aeolian: ['m9', 'm11', 'madd9', '9sus4', 'sus2', 'sus4', '7sus2', '7sus4'],
+  'harm-min': ['mMaj9', 'madd9', 'sus2', 'sus4', 'maj7sus2', 'maj7sus4'],
   'locrian-n2': ['m9b5', 'm11b5'],
-  phrygian: ['susb9', 'm7_11', '7sus4'],
-  'phryg-dom': ['7b9', '7b9b13', '7b13', 'susb9'],
+  phrygian: ['susb9', 'm7_11', '7sus4', 'sus4'],
+  'phryg-dom': ['7b9', '7b9b13', '7b13', 'susb9', 'sus4', '7sus4'],
   locrian: ['m11b5'],
   altered: ['7alt', '7b9b13', '7b13'],
-  'dim-hw': ['13b9', '7b9', '7#9', '7#11'],
+  'dim-hw': ['13b9', '7b9', '7#9', '7#11', '6'],
 };
 export function picksOf(mode) { const all = chordsOf(mode); return (PICK[mode] || []).map((k) => all.find((c) => c.key === k)).filter(Boolean); }
 export const MODE_CHORDS = Object.fromEntries(Object.keys(TRIAD).map((m) => [m, picksOf(m).map((c) => c.rooted || c.rootless)]));
@@ -337,8 +345,8 @@ export function route(root, walk, pos, laneId, { kinds = { tri: true, sev: true,
     const tri = `tri:${TRIAD[mode]}`, sev = SEVENTH[mode];
     const centre = (v) => Math.abs(v.notes.reduce((t, n) => t + n.fret, 0) / v.notes.length - mid) + span(v) * 0.3;
     const best = (vs) => vs.slice().sort((a, b) => centre(a) - centre(b));
-    // ten chords a mode at most: the triad in two voicings (on different strings), the 7th in three (a drop 2, a drop
-    // 3 and a shell), then up to five other chords, one grip each; with one voicing each, the triad and 7th once
+    // the triad in two voicings (on different strings), the 7th in three (a drop 2, a drop 3 and a shell), then up to
+    // eight other chords, one grip each; with one voicing each, the triad and 7th once
     if (kinds.tri && once(tri)) {
       const all = best(triadsIn(root, TRIAD[mode], pos)), two = all.slice(0, 1).concat(all.filter((v) => all[0] && v.set.join() !== all[0].set.join()).slice(0, 1));
       want.push(tri); groups.push({ id: tri, part: 'tri', vs: inv === 'all' ? two : all.slice(0, 1) });
@@ -351,7 +359,7 @@ export function route(root, walk, pos, laneId, { kinds = { tri: true, sev: true,
     const pool = [...picksOf(mode), ...chordsOf(mode).filter((c) => !(PICK[mode] || []).includes(c.key))];
     let taken = 0, extra = 0;
     if (kinds.ext) for (const c of pool) {
-      if (taken >= 5) break;
+      if (taken >= 8) break;
       // each chord one grip: rooted, rootless, or (both) whichever sits nearest the chord before
       const r = c.rooted && grips !== 'rootless' ? rootedIn(root, c.rooted, pos, mode).slice(0, 3) : [];
       const rl = c.rootless && grips !== 'root' ? four(c.rootless).slice(0, 3) : [];

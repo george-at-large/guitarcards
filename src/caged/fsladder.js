@@ -91,6 +91,7 @@ LADDERS.push(
 // the ones to avoid. walk: [mode, 'rung' n | 'detour' | 'back']
 export const ULT_INFO = {
   lydian: { q: 'maj7', use: ['9', '#11', '13'], avoid: [] },
+  'lyd-aug': { q: 'maj7#5', use: ['9', '#11', '13'], avoid: [] },
   ionian: { q: 'maj7', use: ['9', '13'], avoid: ['11'] },
   'mel-min': { q: 'mMaj7', use: ['9', '11', '13'], avoid: [] },
   mixolydian: { q: '7', use: ['9', '13'], avoid: ['11'] },
@@ -107,7 +108,7 @@ export const ULT_INFO = {
   'dim-hw': { q: '7b9', use: ['b9', '#9', '#11', '13'], avoid: [], note: 'The one exception to the one-note rule: eight notes, the altered scale with a natural 5 and 13 in place of the ♭13.' },
 };
 const ULT_WALK = [
-  ['lydian', 1], ['ionian', 2], ['mel-min', 'detour'], ['ionian', 'back'],
+  ['lydian', 1], ['lyd-aug', 'detour'], ['lydian', 'back'], ['ionian', 2], ['mel-min', 'detour'], ['ionian', 'back'],
   ['mixolydian', 3], ['lyd-dom', 'detour'], ['mixolydian', 'back'],
   ['dorian', 4], ['dorian-b2', 'detour'], ['dorian', 'back'], ['aeolian', 5], ['harm-min', 'detour'], ['aeolian', 'back'], ['locrian-n2', 'detour'], ['aeolian', 'back'],
   ['phrygian', 6], ['phryg-dom', 'detour'], ['phrygian', 'back'],
