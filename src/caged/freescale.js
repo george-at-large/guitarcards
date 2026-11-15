@@ -539,9 +539,13 @@ export function renderFreeScale($app, ctx) {
     // the note that just moved is always shown (ringed), even when the pattern or arpeggio leaves it out
     for (const pc of mark) if (!tt.some((x) => x.pc === pc)) { const iv = BY[O.scale].ivs.find((x) => FL.semisOf(x) === pc); if (iv) tt.push({ pc, iv, kind: 'sc' }); }
     const notes = [], bg = [];
+    // an arpeggio on the ladder: its fingering through the position (the path it's played on), every other place its
+    // notes fall left faint
+    const path = l && l.walk && it.arp ? new Set(vizPath(it).map((n) => `${n.string}:${n.fret}`)) : null;
     for (let st = 1; st <= 6; st++) for (let f = win.lo; f <= win.hi; f++) {
       const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12;
       const t = tt.find((x) => x.pc === r);
+      if (t && path && !path.has(`${st}:${f}`)) { bg.push({ string: st, fret: f, root: r === 0 }); continue; }
       if (t) notes.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv: t.iv, kind: t.kind, mark: mark.has(r) || !!t.ring });
       else if (bgp.includes(r) || ghost.includes(r)) bg.push({ string: st, fret: f, root: r === 0 });
     }
@@ -648,7 +652,10 @@ export function renderFreeScale($app, ctx) {
   // arpeggio: 1 3 5 7 9 11 13 stacked from that root (and on up an octave-and-a-bit at a time) while it fits, then down.
   // Each pitch is fretted once, on the thickest string that has it in the window. On the whole neck it plays in the
   // chosen CAGED shape's position (the rest of the neck stays lit).
-  function vizSeq(it = cur()) {
+  // the notes the arpeggio or scale is played on, up through the position (each pitch once, on the thickest string
+  // that has it); the visualizer plays them up and back, and an arpeggio's neck shows them as its fingering
+  function vizSeq(it = cur()) { const up = vizPath(it); return [...up, ...up.slice(0, -1).reverse()]; }
+  function vizPath(it = cur()) {
     let win = areaWin();
     if (O.area === 'whole' && O.ultMove !== 'climb') { const p = G.positionOf(tonic(), O.shape); win = { lo: p.lo, hi: p.hi }; }
     const tp = T.notePc(tonic()), at = new Map();
@@ -671,8 +678,20 @@ export function renderFreeScale($app, ctx) {
       const set = pcs(it.mode);
       up = ms.filter((m) => m >= lo && set.includes(((m - tp) % 12 + 12) % 12));
     }
-    const down = up.slice(0, -1).reverse();
-    return [...up, ...down].map((m) => at.get(m)).filter(Boolean);
+    // where to fret each pitch: near where the hand already is (and the middle of the position), moving only across
+    // to thinner strings, never back, so the path is one fingering
+    const spots = new Map();
+    for (let st = 6; st >= 1; st--) for (let f = win.lo; f <= win.hi; f++) { const m = F.OPEN[st] + f; if (!spots.has(m)) spots.set(m, []); spots.get(m).push({ string: st, fret: f, midi: m }); }
+    const mid = (win.lo + win.hi) / 2, out = [];
+    let prev = null;
+    for (const m of up) {
+      const all = spots.get(m) || [], ok = prev ? all.filter((x) => x.string <= prev.string) : all, cands = ok.length ? ok : all;
+      if (!cands.length) continue;
+      const cost = (x) => (prev ? Math.abs(x.fret - prev.fret) + 0.5 * Math.abs(x.fret - mid) : Math.abs(x.fret - mid) + (6 - x.string) * 2);
+      prev = cands.reduce((a, b) => (cost(a) <= cost(b) ? a : b));
+      out.push(prev);
+    }
+    return out;
   }
   function lightNote(n) {
     const neck = document.querySelector('.fsneck'); if (!neck) return;
