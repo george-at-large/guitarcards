@@ -310,7 +310,7 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv', arpMode: 'stack', grips: 'both', addOns: true, arpStart: 0, arpOct: 1 }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv', arpMode: 'stack', grips: 'both', addOns: true, arpStart: 0, arpOct: 1, neckView: 1 }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
   // the chord ladder and the visualizer are now parts of the one ladder
   if (O.seq === 'cult') { O.seq = 'ult'; O.parts = { scale: false, arp: false, chords: true }; O.area = 'shape'; }
@@ -521,8 +521,12 @@ export function renderFreeScale($app, ctx) {
     if (O.pat && O.hint && O.cell) return { tones: O.cell.c.map((n) => FL.spellNum(O.scale, n)).filter(Boolean).map((iv) => ({ pc: FL.semisOf(iv), iv, kind: scaleKind(s, FL.semisOf(iv), iv) })), bg: pcs(O.scale) };
     return { tones: pcs(O.scale).map((r) => { const iv = s.ivs.find((x) => FL.semisOf(x) === r) || IVN[r]; return { pc: r, iv, kind: scaleKind(s, r, iv) }; }), bg: [] };
   }
+  // how much neck to show around a shape: just the shape, the shape and the next position down (and a little above,
+  // the default), or wide either side; the shape itself stays shaded
+  const PADS = [[0, 0], [4, 2], [6, 6]];
+  const padded = (lo, hi) => { const [d, u] = PADS[O.neckView] || PADS[1]; return { lo: Math.max(0, lo - d), hi: Math.min(22, hi + u) }; };
   function clNeck() {
-    const it = cur(), p = clPos(), lo = Math.max(0, p.lo - 1), hi = p.hi + 1, tp = T.notePc(keyTonic());
+    const it = cur(), p = clPos(), { lo, hi } = padded(Math.max(0, p.lo - 1), p.hi + 1), tp = T.notePc(keyTonic());
     const was = it.prevV && it.prevV !== it.v ? it.prevV.notes : [];
     const notes = it.v.notes.map((n) => ({ ...n, kind: KIND(n.iv.replace('♭', 'b')), mark: was.length > 0 && !was.some((w) => w.string === n.string && w.fret === n.fret) }));
     // faintly: the roots in the area (most of these voicings leave the root out)
@@ -545,6 +549,8 @@ export function renderFreeScale($app, ctx) {
     // an arpeggio on the ladder: its fingering through the position (the path it's played on), every other place its
     // notes fall left faint
     const pathArr = l && l.walk && it.arp ? vizPath(it) : null, path = pathArr ? new Set(pathArr.map((n) => `${n.string}:${n.fret}`)) : null;
+    const shape = { lo: win.lo, hi: win.hi };
+    if (win.band) win = { ...win, ...padded(win.lo, win.hi) };
     if (pathArr && pathArr.length) { const fr = pathArr.map((n) => n.fret); win = { ...win, lo: Math.min(win.lo, ...fr), hi: Math.max(win.hi, ...fr) }; }
     for (let st = 1; st <= 6; st++) for (let f = win.lo; f <= win.hi; f++) {
       const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12;
@@ -553,7 +559,7 @@ export function renderFreeScale($app, ctx) {
       if (t) notes.push({ string: st, fret: f, midi: F.OPEN[st] + f, iv: t.iv, kind: t.kind, mark: mark.has(r) || !!t.ring });
       else if (bgp.includes(r) || ghost.includes(r)) bg.push({ string: st, fret: f, root: r === 0 });
     }
-    return neckSVG({ notes, lo: win.lo, hi: win.hi }, { lo: win.lo, hi: win.hi, labels: 'iv', bg, band: win.band ? { lo: win.lo, hi: win.hi } : null });
+    return neckSVG({ notes, lo: win.lo, hi: win.hi }, { lo: win.lo, hi: win.hi, labels: 'iv', bg, band: win.band ? { lo: shape.lo, hi: shape.hi } : null });
   }
   const facts = () => factsFor(O.scale, tonic());
   function factHTML() { const f = facts(); return `<span class="lbl">when it’s useful · ${(R.fact % f.length) + 1} of ${f.length} <i>tap to read it all</i></span><p>${fmt(f[R.fact % f.length])}</p>`; }
@@ -1051,7 +1057,7 @@ export function renderFreeScale($app, ctx) {
     ${patHTML()}
     ${isArp || isChord(it) ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
     ${isChord(it) ? `<p class="fsnecklbl"><b class="fsroman">${clName(it)}</b> <small>${esc(BY[it.mode].name)}${placeOf(it.mode) ? ` · ${fmt(placeOf(it.mode))}` : ''} · ${({ tri: 'triad', 2: 'drop 2', 4: 'drop 3', shell: 'shell', root: 'rooted grip' })[it.v.group] || ''}, strings ${it.v.notes.map((n) => n.string).join('')}</small></p>` : land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc(land().keyName || { aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${land().walk ? `<small> · ${it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung'}${it.up ? `, upper structure ${it.uk + 1} of ${it.un}` : it.arp ? ', its extended arpeggio' : ''}</small>${walkLabel(it)}` : ''}${targetsHTML(it)}${land().walk ? '' : chordsHTML(it)}</p>` : ''}
-    ${win.name ? `<p class="fswin">${esc(win.name)}</p>` : ''}
+    ${win.name ? `<p class="fswin">${esc(win.name)}${win.band ? ` <span class="fszoom"><button data-f="neck-" aria-label="Show less neck" ${O.neckView <= 0 ? 'disabled' : ''}>−</button><small>${['shape only', '+ the position below', 'wide'][O.neckView]}</small><button data-f="neck+" aria-label="Show more neck" ${O.neckView >= 2 ? 'disabled' : ''}>+</button></span>` : ''}</p>` : ''}
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
     ${isArp || isChord(it) ? '' : `<section class="card fsglance"><h2>${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)} at a glance</h2><dl>${glance(O.scale, tonic()).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join('')}<dt>Used for</dt><dd><ul>${(FACTS[O.scale] || [BY[O.scale].feel]).map((f) => `<li>${fmt(f)}</li>`).join('')}</ul></dd></dl><button class="linkish" data-f="about">More: its family, its triads, ways to practise it</button></section>`}
@@ -1148,6 +1154,7 @@ export function renderFreeScale($app, ctx) {
     if (a === 'closeabout') return closeAbout();
     if (a === 'play') { if (R.on) { stopAll(); return draw(); } return play(); }
     if (a === 'next' || a === 'prev') return step(a === 'next' ? 1 : -1);
+    if (a === 'neck-' || a === 'neck+') { O.neckView = Math.max(0, Math.min(2, O.neckView + (a === 'neck+' ? 1 : -1))); save(); return draw(); }
     if (a === 'newpat') { O.cell = FL.newPattern(O.cell && O.cell.c); save(); return draw(); }
     if (a === 'pat' || a === 'hint' || a === 'patpass') { const k = { pat: 'pat', hint: 'hint', patpass: 'patPass' }[a]; O[k] = !O[k]; save(); return draw(); }
     if (a === 'nextshape') { O.shape = G.nextShape(O.shape); save(); return draw(); }
