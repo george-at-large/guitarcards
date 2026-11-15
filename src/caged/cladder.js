@@ -231,28 +231,43 @@ export function rootedIn(root, id, pos, mode) {
   cache.set(k, out);
   return out;
 }
-// the add-ons a rooted grip can take: the mode's other safe notes (its tensions, the 5th) that the chord leaves out, each
-// once, on a string the grip leaves free above the bass, in the spot nearest the grip, the hand within four frets;
-// three at most
+// the add-ons a grip can take: the mode's safe notes the chord leaves out (its tensions, the 5th, the 6th or 7th, the
+// root under a rootless grip), each named as it sounds over the chord (9, 11, 13 above it). Where a string the grip
+// leaves free above the bass can take one, in the spot nearest the grip (the hand still within four frets); and on
+// the grip's own strings, a fret or two from the note there, to slide or hammer to (a moving double stop). Six at most.
 export function addOnsFor(root, id, v, mode) {
   const pcs = modePcs(mode), avoid = avoidPcs(mode), have = new Set(Q[id].tones.map(semis));
-  const add = ['9', 'b9', '#9', '11', '#11', '13', 'b13', '5'].filter((iv) => pcs.has(semis(iv)) && !have.has(semis(iv)) && !avoid.has(semis(iv)) && !(semis(iv) === 5 && have.has(4)));
-  const used = new Set(v.notes.map((n) => n.string)), bass = v.notes[0].string, out = [];
+  const name = (pc) => { const iv = BY[mode].ivs.find((x) => semis(x) === pc) || '1'; return /^[b#]?[246]$/.test(iv) ? iv.replace(/[246]$/, (n) => ({ 2: '9', 4: '11', 6: '13' }[n])) : iv; };
+  const add = [...pcs].filter((pc) => !have.has(pc) && !avoid.has(pc) && !(pc === 5 && have.has(4) && !Q[id].tones.includes('4'))).map((pc) => ({ pc, iv: name(pc) }));
+  const used = new Map(v.notes.map((n) => [n.string, n])), bass = v.notes[0].string, out = [];
   const fr = v.notes.filter((n) => n.fret > 0).map((n) => n.fret), lo = fr.length ? Math.min(...fr) : 0, hi = fr.length ? Math.max(...fr) : 0, mid = (lo + hi) / 2;
-  for (const iv of add) {
+  // free strings: each note once, nearest the grip
+  for (const a of add) {
     let best = null;
     for (let st = bass - 1; st >= 1; st--) {
       if (used.has(st)) continue;
       for (let f = Math.max(0, lo - 1); f <= hi + 1; f++) {
-        if ((F.OPEN[st] + f) % 12 !== pcOf(root, iv)) continue;
+        if ((F.OPEN[st] + f) % 12 !== (T.notePc(root) + a.pc) % 12) continue;
         if (f > 0 && Math.max(hi, f) - Math.min(lo, f) > 3) continue;
         const c = Math.abs(f - mid);
-        if (!best || c < best.c) best = { string: st, fret: f, iv, midi: F.OPEN[st] + f, c };
+        if (!best || c < best.c) best = { string: st, fret: f, iv: a.iv, midi: F.OPEN[st] + f, c };
       }
     }
-    if (best && !out.some((o) => o.string === best.string && o.fret === best.fret)) out.push(best);
+    if (best) out.push(best);
   }
-  return out.slice(0, 3);
+  // the grip's own strings: a note a fret or two away (not the bass: it holds the root)
+  for (const n of v.notes) {
+    if (n.string === bass && Q[id].tones.includes('1')) continue;
+    for (const d of [1, -1, 2, -2]) {
+      const f = n.fret + d;
+      if (f < 0 || (f > 0 && Math.max(hi, f) - Math.min(lo || f, f) > 4)) continue;
+      const pc = ((F.OPEN[n.string] + f - T.notePc(root)) % 12 + 12) % 12, a = add.find((x) => x.pc === pc);
+      if (!a || out.some((o) => o.string === n.string)) continue;
+      out.push({ string: n.string, fret: f, iv: a.iv, midi: F.OPEN[n.string] + f, slide: true, c: Math.abs(d) + 2 });
+      break;
+    }
+  }
+  return out.sort((a, b) => a.c - b.c).slice(0, 6);
 }
 
 // shells: root, 3rd and 7th, the root on the 6th or 5th string (1-3-7 on adjacent strings, 1-7-3 skipping one)

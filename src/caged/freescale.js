@@ -528,7 +528,7 @@ export function renderFreeScale($app, ctx) {
     // faintly: the roots in the area (most of these voicings leave the root out)
     const bg = [];
     for (let st = 1; st <= 6; st++) for (let f = lo; f <= hi; f++) { const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12; if (r === 0 && !notes.some((n) => n.string === st && n.fret === f)) bg.push({ string: st, fret: f, root: true }); }
-    const addons = O.addOns && CL.CHORD[it.id]?.rooted ? CL.addOnsFor(keyTonic(), it.id, it.v, it.mode) : null;
+    const addons = O.addOns ? CL.addOnsFor(keyTonic(), it.id, it.v, it.mode) : null;
     return neckSVG({ notes, lo: it.v.lo, hi: it.v.hi }, { lo, hi, labels: O.clLabels === 'finger' ? 'finger' : 'iv', bg, ghost: was, addons, band: { lo: p.lo, hi: p.hi } });
   }
   function neck() {
@@ -795,7 +795,7 @@ export function renderFreeScale($app, ctx) {
       const skip = it.cfirst && it.already?.length ? ` <i>(${fmt(it.already.map((x) => clText({ id: x })).join(' and '))}: played earlier this lap)</i>` : '';
       return `<p class="fspos">${esc(d.name)} · ${n} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>
         <p class="fsmoved">${head}${ch ? ` · the scale: <b>${fmt(ch)}</b>` : ''}${skip}</p>${mv}
-        <p class="note fsrole">${fmt(q.use)}${q.rooted && O.addOns && CL.addOnsFor(keyTonic(), it.id, it.v, it.mode).length ? ` <i>Dashed: what you can add (${fmt([...new Set(CL.addOnsFor(keyTonic(), it.id, it.v, it.mode).map((a) => T.prettyIv(a.iv)))].join(', '))}).</i>` : ''}${q.rootless ? ' <i>(Rootless: the root is the drone’s, or the bass player’s.)</i>' : ''}${it.cfirst && it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym || 'triad').join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
+        <p class="note fsrole">${fmt(q.use)}${O.addOns && CL.addOnsFor(keyTonic(), it.id, it.v, it.mode).length ? ` <i>Dashed: notes of the mode you can add (${fmt([...new Set(CL.addOnsFor(keyTonic(), it.id, it.v, it.mode).map((a) => T.prettyIv(a.iv)))].join(', '))}); on a string already in the grip, slide or hammer to it.</i>` : ''}${q.rootless ? ' <i>(Rootless: the root is the drone’s, or the bass player’s.)</i>' : ''}${it.cfirst && it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym || 'triad').join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
     }
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = d.drift ? null : landText(hm, it.mode);
@@ -930,7 +930,8 @@ export function renderFreeScale($app, ctx) {
       ${n > 1 ? `<div class="fsrow fsland"><span class="lbl">Order</span>${seg('uorder', O.order, [['mode', 'Mode by mode'], ['block', 'Whole ladder each']])}</div>` : ''}
       ${P.chords ? `<div class="fsrow fsland"><span class="lbl">Chords</span><div class="chips">${chip('ckind', 'tri', K.tri, 'Triads')}${chip('ckind', 'sev', K.sev, '7ths')}${chip('ckind', 'ext', K.ext, 'Extended')}</div></div>
       ${K.tri || K.sev ? `<div class="fsrow fsland"><span class="lbl">Inversions</span>${seg('clinvm', O.clInvM, [['all', 'All in the shape'], ['one', 'One each']])}</div>` : ''}
-      ${K.ext ? `<div class="fsrow fsland"><span class="lbl">Extended</span>${seg('grips', O.grips, [['both', 'Both'], ['root', 'With root'], ['rootless', 'Rootless']])}</div>${O.grips !== 'rootless' ? `<div class="fsrow fsland"><span class="lbl">Add-ons</span>${seg('addons', O.addOns ? 1 : 0, [[1, 'Show'], [0, 'Hide']])}</div>` : ''}` : ''}
+      ${K.ext ? `<div class="fsrow fsland"><span class="lbl">Extended</span>${seg('grips', O.grips, [['both', 'Both'], ['root', 'With root'], ['rootless', 'Rootless']])}</div>` : ''}
+      <div class="fsrow fsland"><span class="lbl">Add-ons</span>${seg('addons', O.addOns ? 1 : 0, [[1, 'Show'], [0, 'Hide']])}</div>
       ${K.sev || K.ext ? `<div class="fsrow fsland"><span class="lbl">Voicings</span>${seg('cllane', O.clLane, CL.LANES.map((x) => [x.id, x.name]))}</div>` : ''}
       <div class="fsrow fsland"><span class="lbl">Show</span>${seg('cllabels', O.clLabels, [['iv', 'Intervals'], ['finger', 'Fingers']])}</div>` : ''}
       <div class="fsrow fsland"><span class="lbl">Who plays</span>${seg('uplayer', O.player, [['me', 'Me'], ['app', 'The app']])}</div>
