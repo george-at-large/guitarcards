@@ -517,7 +517,7 @@ function modalStream(S) {
 
 // ---------- the neck diagram: the position stood upright, low E on the left ----------
 const KIND = (iv) => (iv === '1' ? 'r' : /^(b?3)$/.test(iv) ? 't3' : /^(b5|5|#5)$/.test(iv) ? 't5' : /^(b?b?7)$/.test(iv) ? 't7' : 'tx');
-function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, small = false, tiny = false, bg = null, ghost = null } = {}) {
+function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, small = false, tiny = false, bg = null, ghost = null, addons = null } = {}) {
   if (!grip) return '<div class="cnone">No grip for this one here</div>';
   lo = Math.max(0, Math.min(lo, grip.lo));
   hi = Math.max(hi, grip.hi, lo + 4);
@@ -542,6 +542,8 @@ function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, sm
   // the key's CAGED shape, faintly: the tonic chord's notes across the area
   if (bg) for (const b of bg) if (b.fret >= lo && b.fret <= hi && (b.fret > 0 || lo === 0)) g += `<circle cx="${x(b.string)}" cy="${y(b.fret)}" r="${b.fret === 0 ? 10 : 13}" class="bg${b.root ? ' root' : ''}"/>`;
   const at = new Map(grip.notes.map((n) => [n.string, n]));
+  // optional notes a grip can take (a 9, a 13), dashed and labelled
+  if (addons) for (const p of addons) if (p.fret >= lo && p.fret <= hi && (p.fret > 0 || lo === 0)) g += `<g class="addon"><circle cx="${x(p.string)}" cy="${y(p.fret)}" r="${p.fret === 0 ? 11 : 14}"/><text x="${x(p.string)}" y="${y(p.fret) + 4}">${esc(T.prettyIv(p.iv))}</text></g>`;
   // where moved fingers were (always drawn, whatever the moves setting)
   if (ghost) for (const p of ghost) if (p.fret >= lo && p.fret <= hi && (p.fret > 0 || lo === 0) && !grip.notes.some((n) => n.string === p.string && n.fret === p.fret)) g += `<circle cx="${x(p.string)}" cy="${y(p.fret)}" r="9" class="was"/>`;
   // the previous chord: where each moving voice came from, and which notes are held

@@ -310,7 +310,7 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv', arpMode: 'stack' }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv', arpMode: 'stack', extGrip: 'root', addOns: true }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
   // the chord ladder and the visualizer are now parts of the one ladder
   if (O.seq === 'cult') { O.seq = 'ult'; O.parts = { scale: false, arp: false, chords: true }; O.area = 'shape'; }
@@ -340,8 +340,8 @@ export function renderFreeScale($app, ctx) {
   const isChord = (it) => !!it && it.part === 'chord';
   const clPos = () => G.positionOf(keyTonic(), O.shape);
   function clSteps(W) {
-    const sig = [O.key, O.shape, O.ultDir, O.clLane, JSON.stringify(O.chordKinds), O.clInvM].join('|');
-    if (R.cl?.sig !== sig) R.cl = { sig, steps: CL.route(keyTonic(), W, clPos(), O.clLane, { kinds: O.chordKinds, inv: O.clInvM }).steps.filter((x) => x.id) };
+    const sig = [O.key, O.shape, O.ultDir, O.clLane, JSON.stringify(O.chordKinds), O.clInvM, O.extGrip].join('|');
+    if (R.cl?.sig !== sig) R.cl = { sig, steps: CL.route(keyTonic(), W, clPos(), O.clLane, { kinds: O.chordKinds, inv: O.clInvM, grips: O.extGrip }).steps.filter((x) => x.id) };
     return R.cl.steps;
   }
   // the app sounding a chord (only when the app plays): a gentle roll, low to high, over its root in the middle of the
@@ -528,7 +528,8 @@ export function renderFreeScale($app, ctx) {
     // faintly: the roots in the area (most of these voicings leave the root out)
     const bg = [];
     for (let st = 1; st <= 6; st++) for (let f = lo; f <= hi; f++) { const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12; if (r === 0 && !notes.some((n) => n.string === st && n.fret === f)) bg.push({ string: st, fret: f, root: true }); }
-    return neckSVG({ notes, lo: it.v.lo, hi: it.v.hi }, { lo, hi, labels: O.clLabels === 'finger' ? 'finger' : 'iv', bg, ghost: was, band: { lo: p.lo, hi: p.hi } });
+    const addons = O.addOns && CL.CHORD[it.id]?.rooted ? CL.addOnsFor(keyTonic(), it.id, it.v) : null;
+    return neckSVG({ notes, lo: it.v.lo, hi: it.v.hi }, { lo, hi, labels: O.clLabels === 'finger' ? 'finger' : 'iv', bg, ghost: was, addons, band: { lo: p.lo, hi: p.hi } });
   }
   function neck() {
     if (isChord(cur())) return clNeck();
@@ -767,7 +768,7 @@ export function renderFreeScale($app, ctx) {
   const clText = (it) => `${T.noteName(keyTonic(), true)}${CL.CHORD[it.id].sym}`;
   const clName = (it) => fmt(clText(it));
   const where = (it) => (it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung');
-  const clWhat = (it) => (it.inv ? 'another voicing' : it.ck === 'tri' ? 'its triad' : it.ck === 'sev' ? 'its 7th chord' : CL.MODE_CHORDS[it.mode]?.[0] === it.id ? 'its chord' : 'a colour');
+  const clWhat = (it) => (it.inv ? 'another voicing' : it.ck === 'tri' ? 'its triad' : it.ck === 'sev' ? 'its 7th chord' : CL.MODE_CHORDS[it.mode]?.[0] === it.id || CL.ROOTLESS[it.mode]?.[0] === it.id ? 'its chord' : 'a colour');
   const clKind = (it) => `${clWhat(it)} · ${where(it)}`;
   function titleHTML() {
     const it = cur(), t = fmt(T.noteName(tonic(), true));
@@ -790,11 +791,11 @@ export function renderFreeScale($app, ctx) {
       const n = (O.wi % w.length) + 1, ch = it.cfirst && it.from ? changeText(it.from, it.mode) : '', q = CL.CHORD[it.id], nm = esc(BY[it.mode].name);
       const head = `${it.kind === 'rung' ? `Rung ${it.rung} of 7: ${nm}` : it.kind === 'detour' ? `↳ Detour from ${esc(BY[it.base].name)}: ${nm}` : `↩ Back to ${nm}`} · ${clWhat(it)}, <b>${clName(it)}</b>`;
       const up = it.prevV ? it.v.notes.reduce((t, x) => t + x.midi, 0) / it.v.notes.length > it.prevV.notes.reduce((t, x) => t + x.midi, 0) / it.prevV.notes.length : true;
-      const mv = it.inv ? `<p class="fsmoved">The same notes, the next voicing ${up ? 'up' : 'down'} the shape <i>(where the fingers were, faint)</i></p>` : it.moved?.length ? `<p class="fsmoved">From the chord before, ${it.moved.length === 1 ? 'one finger moves' : `${it.moved.length} fingers move`}: ${it.moved.map((x) => `<b>${fmt(x)}</b>`).join(', ')}${it.prevV ? ' <i>(ringed; where it was, faint)</i>' : ''}</p>` : '';
+      const mv = it.inv ? `<p class="fsmoved">The same notes, the next voicing ${up ? 'up' : 'down'} the shape <i>(where the fingers were, faint)</i></p>` : it.moved?.length > 2 ? `<p class="fsmoved">A new grip <i>(the new notes ringed${it.prevV ? '; where the fingers were, faint' : ''})</i></p>` : it.moved?.length ? `<p class="fsmoved">From the chord before, ${it.moved.length === 1 ? 'one finger moves' : 'two fingers move'}: ${it.moved.map((x) => `<b>${fmt(x)}</b>`).join(', ')}${it.prevV ? ' <i>(ringed; where it was, faint)</i>' : ''}</p>` : '';
       const skip = it.cfirst && it.already?.length ? ` <i>(${fmt(it.already.map((x) => clText({ id: x })).join(' and '))}: played earlier this lap)</i>` : '';
       return `<p class="fspos">${esc(d.name)} · ${n} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>
         <p class="fsmoved">${head}${ch ? ` · the scale: <b>${fmt(ch)}</b>` : ''}${skip}</p>${mv}
-        <p class="note fsrole">${fmt(q.use)}${it.cfirst && it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym || 'triad').join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
+        <p class="note fsrole">${fmt(q.use)}${q.rooted && O.addOns && CL.addOnsFor(keyTonic(), it.id, it.v).length ? ` <i>Dashed: what you can add (${fmt([...new Set(CL.addOnsFor(keyTonic(), it.id, it.v).map((a) => T.prettyIv(a.iv)))].join(', '))}).</i>` : ''}${it.ck === 'ext' && !q.rooted && O.extGrip === 'root' ? ' <i>(Rootless: no rooted grip fits this shape.)</i>' : ''}${it.cfirst && it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym || 'triad').join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
     }
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = d.drift ? null : landText(hm, it.mode);
@@ -929,6 +930,7 @@ export function renderFreeScale($app, ctx) {
       ${n > 1 ? `<div class="fsrow fsland"><span class="lbl">Order</span>${seg('uorder', O.order, [['mode', 'Mode by mode'], ['block', 'Whole ladder each']])}</div>` : ''}
       ${P.chords ? `<div class="fsrow fsland"><span class="lbl">Chords</span><div class="chips">${chip('ckind', 'tri', K.tri, 'Triads')}${chip('ckind', 'sev', K.sev, '7ths')}${chip('ckind', 'ext', K.ext, 'Extended')}</div></div>
       ${K.tri || K.sev ? `<div class="fsrow fsland"><span class="lbl">Inversions</span>${seg('clinvm', O.clInvM, [['all', 'All in the shape'], ['one', 'One each']])}</div>` : ''}
+      ${K.ext ? `<div class="fsrow fsland"><span class="lbl">Extended</span>${seg('extgrip', O.extGrip, [['root', 'With root'], ['rootless', 'Rootless (jazz)']])}</div>${O.extGrip === 'root' ? `<div class="fsrow fsland"><span class="lbl">Add-ons</span>${seg('addons', O.addOns ? 1 : 0, [[1, 'Show'], [0, 'Hide']])}</div>` : ''}` : ''}
       ${K.sev || K.ext ? `<div class="fsrow fsland"><span class="lbl">Voicings</span>${seg('cllane', O.clLane, CL.LANES.map((x) => [x.id, x.name]))}</div>` : ''}
       <div class="fsrow fsland"><span class="lbl">Show</span>${seg('cllabels', O.clLabels, [['iv', 'Intervals'], ['finger', 'Fingers']])}</div>` : ''}
       <div class="fsrow fsland"><span class="lbl">Who plays</span>${seg('uplayer', O.player, [['me', 'Me'], ['app', 'The app']])}</div>
@@ -1054,7 +1056,8 @@ export function renderFreeScale($app, ctx) {
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
     if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
     if (d.goladder) { O.seq = O.seq === d.goladder ? 'hold' : d.goladder; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; if (O.seq === 'ult' && O.parts.chords) O.area = 'shape'; save(); draw(); if (R.on) drone(); return; }
-    if (d.upart || d.ckind || d.uorder || d.uplayer || d.cllane || d.clinvm || d.cllabels || d.arpmode) {
+    if (d.upart || d.ckind || d.uorder || d.uplayer || d.cllane || d.clinvm || d.cllabels || d.arpmode || d.extgrip || d.addons !== undefined) {
+      if (d.extgrip) O.extGrip = d.extgrip; if (d.addons !== undefined) O.addOns = d.addons === '1';
       if (d.arpmode) O.arpMode = d.arpmode;
       const was = cur(), partOf = (x) => x.part || (x.arp ? 'arp' : 'scale');
       if (d.upart) { const p = { ...O.parts, [d.upart]: !O.parts[d.upart] }; if (Object.values(p).some(Boolean)) O.parts = p; if (O.parts.chords) { O.area = 'shape'; if (O.ultMove === 'climb') O.ultMove = 'stay'; } }
