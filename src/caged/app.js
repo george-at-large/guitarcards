@@ -557,7 +557,7 @@ function neckSVG(grip, { lo, hi, labels = D.labels, prev = null, band = null, sm
     const held = prev && D.moves && prev.notes.some((p) => p.string === n.string && p.fret === n.fret);
     const cls = `dot ${n.kind || KIND(n.iv)}${n.fret === 0 ? ' open' : ''}${held || n.mark ? ' held' : ''}${n.outer ? ' outer' : ''}${n.extra ? ' extra' : ''}`;
     const r = tiny ? (n.fret === 0 ? 13 : 18) : n.fret === 0 ? 12 : 16;
-    g += `<g class="${cls}"><circle cx="${x(n.string)}" cy="${y(n.fret)}" r="${r}"/>${tiny ? '' : `<text x="${x(n.string)}" y="${y(n.fret) + 4.5}">${esc(lab)}</text>`}</g>`;
+    g += `<g class="${cls}" data-ns="${n.string}" data-nf="${n.fret}"><circle cx="${x(n.string)}" cy="${y(n.fret)}" r="${r}"/>${tiny ? '' : `<text x="${x(n.string)}" y="${y(n.fret) + 4.5}">${esc(lab)}</text>`}</g>`;
   }
   return `<svg viewBox="0 0 ${W} ${H}" class="neck${small ? ' small' : ''}${tiny ? ' tiny' : ''}" role="img" aria-label="Chord diagram">${g}</svg>`;
 }
