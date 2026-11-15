@@ -310,7 +310,7 @@ export function renderFreeScale($app, ctx) {
   const { D, save, neckSVG, esc, fmt, onBack, KIND } = ctx;
   const O = D.fs = Object.assign({ key: 'A', scale: 'dorian', drone: true, fifth: true, metro: false, bpm: 70, frets: 12,
     content: 'scale', seq: 'hold', wi: 0, go: 'manual', every: 16, pat: false, hint: true, patPass: true, cell: null,
-    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv', arpMode: 'stack', extGrip: 'root', addOns: true }, D.fs || {});
+    area: 'whole', shape: 'E', shapeGo: 'manual', landPick: {}, backing: 'drone', ultMove: 'stay', ultDown: false, ultDir: 'down', ultLap: 'same', parts: { scale: true, arp: true, chords: true }, order: 'mode', chordKinds: { tri: true, sev: true, ext: true }, player: 'me', clLane: 'best', clInvM: 'all', clLabels: 'iv', arpMode: 'stack', grips: 'both', addOns: true }, D.fs || {});
   if (typeof O.metro !== 'string') O.metro = O.metro ? 'click' : 'off';
   // the chord ladder and the visualizer are now parts of the one ladder
   if (O.seq === 'cult') { O.seq = 'ult'; O.parts = { scale: false, arp: false, chords: true }; O.area = 'shape'; }
@@ -340,8 +340,8 @@ export function renderFreeScale($app, ctx) {
   const isChord = (it) => !!it && it.part === 'chord';
   const clPos = () => G.positionOf(keyTonic(), O.shape);
   function clSteps(W) {
-    const sig = [O.key, O.shape, O.ultDir, O.clLane, JSON.stringify(O.chordKinds), O.clInvM, O.extGrip].join('|');
-    if (R.cl?.sig !== sig) R.cl = { sig, steps: CL.route(keyTonic(), W, clPos(), O.clLane, { kinds: O.chordKinds, inv: O.clInvM, grips: O.extGrip }).steps.filter((x) => x.id) };
+    const sig = [O.key, O.shape, O.ultDir, O.clLane, JSON.stringify(O.chordKinds), O.clInvM, O.grips].join('|');
+    if (R.cl?.sig !== sig) R.cl = { sig, steps: CL.route(keyTonic(), W, clPos(), O.clLane, { kinds: O.chordKinds, inv: O.clInvM, grips: O.grips }).steps.filter((x) => x.id) };
     return R.cl.steps;
   }
   // the app sounding a chord (only when the app plays): a gentle roll, low to high, over its root in the middle of the
@@ -528,7 +528,7 @@ export function renderFreeScale($app, ctx) {
     // faintly: the roots in the area (most of these voicings leave the root out)
     const bg = [];
     for (let st = 1; st <= 6; st++) for (let f = lo; f <= hi; f++) { const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12; if (r === 0 && !notes.some((n) => n.string === st && n.fret === f)) bg.push({ string: st, fret: f, root: true }); }
-    const addons = O.addOns && CL.CHORD[it.id]?.rooted ? CL.addOnsFor(keyTonic(), it.id, it.v) : null;
+    const addons = O.addOns && CL.CHORD[it.id]?.rooted ? CL.addOnsFor(keyTonic(), it.id, it.v, it.mode) : null;
     return neckSVG({ notes, lo: it.v.lo, hi: it.v.hi }, { lo, hi, labels: O.clLabels === 'finger' ? 'finger' : 'iv', bg, ghost: was, addons, band: { lo: p.lo, hi: p.hi } });
   }
   function neck() {
@@ -768,7 +768,7 @@ export function renderFreeScale($app, ctx) {
   const clText = (it) => `${T.noteName(keyTonic(), true)}${CL.CHORD[it.id].sym}`;
   const clName = (it) => fmt(clText(it));
   const where = (it) => (it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung');
-  const clWhat = (it) => (it.inv ? 'another voicing' : it.ck === 'tri' ? 'its triad' : it.ck === 'sev' ? 'its 7th chord' : CL.MODE_CHORDS[it.mode]?.[0] === it.id || CL.ROOTLESS[it.mode]?.[0] === it.id ? 'its chord' : 'a colour');
+  const clWhat = (it) => (it.inv ? 'another voicing' : it.ck === 'tri' ? 'its triad' : it.ck === 'sev' ? 'its 7th chord' : CL.CHORD[it.id]?.rootless ? 'a chord of the mode, rootless' : 'a chord of the mode');
   const clKind = (it) => `${clWhat(it)} · ${where(it)}`;
   function titleHTML() {
     const it = cur(), t = fmt(T.noteName(tonic(), true));
@@ -795,7 +795,7 @@ export function renderFreeScale($app, ctx) {
       const skip = it.cfirst && it.already?.length ? ` <i>(${fmt(it.already.map((x) => clText({ id: x })).join(' and '))}: played earlier this lap)</i>` : '';
       return `<p class="fspos">${esc(d.name)} · ${n} of ${w.length}${nx ? ` · next: ${fmt(itemName(nx))}` : ''} <span class="fscount"></span></p>
         <p class="fsmoved">${head}${ch ? ` · the scale: <b>${fmt(ch)}</b>` : ''}${skip}</p>${mv}
-        <p class="note fsrole">${fmt(q.use)}${q.rooted && O.addOns && CL.addOnsFor(keyTonic(), it.id, it.v).length ? ` <i>Dashed: what you can add (${fmt([...new Set(CL.addOnsFor(keyTonic(), it.id, it.v).map((a) => T.prettyIv(a.iv)))].join(', '))}).</i>` : ''}${it.ck === 'ext' && !q.rooted && O.extGrip === 'root' ? ' <i>(Rootless: no rooted grip fits this shape.)</i>' : ''}${it.cfirst && it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym || 'triad').join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
+        <p class="note fsrole">${fmt(q.use)}${q.rooted && O.addOns && CL.addOnsFor(keyTonic(), it.id, it.v, it.mode).length ? ` <i>Dashed: what you can add (${fmt([...new Set(CL.addOnsFor(keyTonic(), it.id, it.v, it.mode).map((a) => T.prettyIv(a.iv)))].join(', '))}).</i>` : ''}${q.rootless ? ' <i>(Rootless: the root is the drone’s, or the bass player’s.)</i>' : ''}${it.cfirst && it.missing?.length ? ` <i>(${fmt(it.missing.map((x) => CL.CHORD[x].sym || 'triad').join(', '))}: no good voicing in this shape)</i>` : ''}</p>`;
     }
     if (d.land) {
       const hm = landHome(d), t = fmt(T.noteName(tonic(), true)), dd = d.drift ? null : landText(hm, it.mode);
@@ -923,14 +923,14 @@ export function renderFreeScale($app, ctx) {
     const pl = ['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'its scale', arp: O.arpMode === 'upper' ? 'its upper-structure arpeggios (from the 1, 3, 5 and 7, and the triad on the tensions)' : 'its extended arpeggio', chords: 'its chords' }[k]));
     const how = n < 2 ? '' : O.order === 'block' ? `The whole ladder as ${['scale', 'arp', 'chords'].filter((k) => P[k]).map((k) => ({ scale: 'scales', arp: 'arpeggios', chords: 'chords' }[k])).join(', then as ')}${P.chords ? ': the chords morph one into the next with nothing in between' : ''}.` : `Each mode in turn: ${pl.join(', then ')}; then the next mode.`;
     const who = O.player === 'app' ? 'The app plays it: each note lit as it sounds (eighth notes at the tempo), each chord rolled gently over its root for two beats.' : 'You play it: change by hand with ‹ ›, or on the beat. The app stays quiet apart from the drone and click.';
-    const chordsNote = P.chords ? ` Chords: ${[K.tri ? 'the triad' : '', K.sev ? 'the 7th chord' : '', K.ext ? 'the extended chords, with the mode’s colours and sus chords' : ''].filter(Boolean).join(', ')}${O.clInvM === 'all' && (K.tri || K.sev) ? ', the triad and 7th in every voicing they have in the shape' : ''}, voice-led in the ${O.shape} shape. A triad or 7th an earlier mode already played (Ionian’s after Lydian’s) isn’t repeated.` : '';
+    const chordsNote = P.chords ? ` Chords, about ten a mode, voice-led in the ${O.shape} shape: ${[K.tri ? (O.clInvM === 'all' ? 'the triad in two voicings' : 'the triad') : '', K.sev ? (O.clInvM === 'all' ? 'the 7th as a drop 2, a drop 3 and a shell' : 'the 7th chord') : '', K.ext ? 'then up to five of the mode’s other chords (its 6ths, 9ths, 11ths, 13ths, sus and altered chords, only ones the mode really holds), one grip each, two when there’s a second really good one' : ''].filter(Boolean).join(', ')}.` : '';
     return `<p class="fsultmap">${map}</p>
       <div class="fsrow fsland"><span class="lbl">Play</span><div class="chips">${chip('upart', 'scale', P.scale, 'Scales')}${chip('upart', 'arp', P.arp, 'Arpeggios')}${chip('upart', 'chords', P.chords, 'Chords')}</div></div>
       ${P.arp ? `<div class="fsrow fsland"><span class="lbl">Arpeggios</span>${seg('arpmode', O.arpMode, [['stack', 'Full stack'], ['upper', 'Upper structures']])}</div>` : ''}
       ${n > 1 ? `<div class="fsrow fsland"><span class="lbl">Order</span>${seg('uorder', O.order, [['mode', 'Mode by mode'], ['block', 'Whole ladder each']])}</div>` : ''}
       ${P.chords ? `<div class="fsrow fsland"><span class="lbl">Chords</span><div class="chips">${chip('ckind', 'tri', K.tri, 'Triads')}${chip('ckind', 'sev', K.sev, '7ths')}${chip('ckind', 'ext', K.ext, 'Extended')}</div></div>
       ${K.tri || K.sev ? `<div class="fsrow fsland"><span class="lbl">Inversions</span>${seg('clinvm', O.clInvM, [['all', 'All in the shape'], ['one', 'One each']])}</div>` : ''}
-      ${K.ext ? `<div class="fsrow fsland"><span class="lbl">Extended</span>${seg('extgrip', O.extGrip, [['root', 'With root'], ['rootless', 'Rootless (jazz)']])}</div>${O.extGrip === 'root' ? `<div class="fsrow fsland"><span class="lbl">Add-ons</span>${seg('addons', O.addOns ? 1 : 0, [[1, 'Show'], [0, 'Hide']])}</div>` : ''}` : ''}
+      ${K.ext ? `<div class="fsrow fsland"><span class="lbl">Extended</span>${seg('grips', O.grips, [['both', 'Both'], ['root', 'With root'], ['rootless', 'Rootless']])}</div>${O.grips !== 'rootless' ? `<div class="fsrow fsland"><span class="lbl">Add-ons</span>${seg('addons', O.addOns ? 1 : 0, [[1, 'Show'], [0, 'Hide']])}</div>` : ''}` : ''}
       ${K.sev || K.ext ? `<div class="fsrow fsland"><span class="lbl">Voicings</span>${seg('cllane', O.clLane, CL.LANES.map((x) => [x.id, x.name]))}</div>` : ''}
       <div class="fsrow fsland"><span class="lbl">Show</span>${seg('cllabels', O.clLabels, [['iv', 'Intervals'], ['finger', 'Fingers']])}</div>` : ''}
       <div class="fsrow fsland"><span class="lbl">Who plays</span>${seg('uplayer', O.player, [['me', 'Me'], ['app', 'The app']])}</div>
@@ -1056,8 +1056,8 @@ export function renderFreeScale($app, ctx) {
     if (d.frets) { O.frets = Number(d.frets); save(); return draw(); }
     if (d.content) { O.content = d.content; if (!def()) { if (FL.seqDef(O.seq)?.qs) { O.seq = 'hold'; O.wi = 0; } } R.prev = null; save(); return draw(); }
     if (d.goladder) { O.seq = O.seq === d.goladder ? 'hold' : d.goladder; O.wi = 0; R.order = null; R.prev = null; R.since = 0; R.fact = 0; if (O.seq === 'ult' && O.parts.chords) O.area = 'shape'; save(); draw(); if (R.on) drone(); return; }
-    if (d.upart || d.ckind || d.uorder || d.uplayer || d.cllane || d.clinvm || d.cllabels || d.arpmode || d.extgrip || d.addons !== undefined) {
-      if (d.extgrip) O.extGrip = d.extgrip; if (d.addons !== undefined) O.addOns = d.addons === '1';
+    if (d.upart || d.ckind || d.uorder || d.uplayer || d.cllane || d.clinvm || d.cllabels || d.arpmode || d.grips || d.addons !== undefined) {
+      if (d.grips) O.grips = d.grips; if (d.addons !== undefined) O.addOns = d.addons === '1';
       if (d.arpmode) O.arpMode = d.arpmode;
       const was = cur(), partOf = (x) => x.part || (x.arp ? 'arp' : 'scale');
       if (d.upart) { const p = { ...O.parts, [d.upart]: !O.parts[d.upart] }; if (Object.values(p).some(Boolean)) O.parts = p; if (O.parts.chords) { O.area = 'shape'; if (O.ultMove === 'climb') O.ultMove = 'stay'; } }
