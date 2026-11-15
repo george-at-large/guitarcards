@@ -216,3 +216,42 @@ CHROMATIC.push(
       P('Major 7ths, major thirds', '| I:maj7 | III:maj7 | bVI:maj7 | I:maj7 |', 'The Giant Steps colour, slowed right down.'),
     ] },
 );
+
+// ---------- from songs: each move as a real record has it, charted in the song's own key (transposed to yours on
+// screen). Only the bars that show it, simplified where the record is busier. Appended last so ids stay put. ----------
+const S = (song, by, key, chart, note, o = {}) => ({ name: song, song, by, key, chart, note, ...o });
+const SONGS = {
+  VofV: [
+    S('Take the A Train', 'Billy Strayhorn', 'C', '| C6 | C6 | D7 | D7 | Dm7 | G7 | C6 | Dm7 G7 |', 'The A section: two bars of II7 (D7♯11 on the record), relaxing into ii7 – V7.'),
+    S('Eight Days a Week', 'The Beatles', 'D', '| D | E7 | G | D |', 'The verse: II7 swerving to IV instead of V.'),
+  ],
+  Vofii: [
+    S('All of Me', 'Gerald Marks and Seymour Simons', 'C', '| C6 | C6 | E7 | E7 | A7 | A7 | Dm7 | Dm7 |', 'The opening: E7 (V of vi) then A7 (V of ii) landing on Dm7, a chain of secondary dominants.'),
+  ],
+  Vofvi: [
+    S('Yesterday', 'The Beatles', 'F', '| F | Em7 A7 | Dm | Bb C7 |', 'The opening: Em7 – A7 is a ii–V into vi (A7 is V of vi), then IV – V7 home.'),
+  ],
+  VofIV: [
+    S('Something', 'George Harrison (The Beatles)', 'C', '| C | Cmaj7 | C7 | F |', 'The verse: one note falls C – B – B♭ – A, and C7 becomes V of IV.'),
+  ],
+  secIIV: [
+    S('Satin Doll', 'Duke Ellington and Billy Strayhorn', 'C', '| Dm7 G7 | Dm7 G7 | Em7 A7 | Em7 A7 | Am7 D7 | Abm7 Db7 | Cmaj7 | Cmaj7 |', 'The A section: ii–Vs a step apart, the last one tritone-subbed into I.'),
+  ],
+  subV: [
+    S('The Girl from Ipanema', 'Antônio Carlos Jobim', 'F', '| Fmaj7 | Fmaj7 | G7 | G7 | Gm7 | Gb7 | Fmaj7 | Gb7 |', 'The A section: G7 (V of V), then Gm7 – G♭7, the tritone sub, into F.'),
+  ],
+  passdim: [
+    S('Ain’t Misbehavin’', 'Fats Waller', 'C', '| C C#dim7 | Dm7 G7 | C C#dim7 | Dm7 G7 |', 'The opening: C♯°7 passing up from I to ii7.'),
+  ],
+  liclmin: [
+    S('My Funny Valentine', 'Rodgers and Hart', 'C', '| Cm | CmMaj7 | Cm7 | Cm6 | Abmaj7 | Fm7 | Dm7b5 | G7 |', 'The opening: the classic minor line cliché, then ♭VI and a minor ii–V.', M),
+    S('Something', 'George Harrison (The Beatles)', 'A', '| Am | AmMaj7 | Am7 | D9 |', 'The second half of the verse: the line cliché on A minor (vi of the song’s C), the D9 its Dorian IV.', M),
+  ],
+  medIII: [
+    S('Creep', 'Radiohead', 'G', '| G | B | C | Cm |', 'The whole song: G straight to B major, the B held from one to the other.'),
+  ],
+  medchain: [
+    S('Giant Steps', 'John Coltrane', 'B', '| Bmaj7 D7 | Gmaj7 Bb7 | Ebmaj7 | Am7 D7 | Gmaj7 Bb7 | Ebmaj7 F#7 | Bmaj7 | Fm7 Bb7 |', 'The first eight bars: three keys a major 3rd apart (B, G, E♭), each reached through its own V7.'),
+  ],
+};
+for (const b of CHROMATIC) if (SONGS[b.id]) b.progs.push(...SONGS[b.id]);

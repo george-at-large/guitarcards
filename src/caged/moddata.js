@@ -101,3 +101,27 @@ export const MODULATIONS = [
       P('Pop minor', '| i:min | bVI:maj | bIII:maj | bVII:maj | bIII:maj | bVII:maj | V:7 | i:min |', 'Settling into C, then E7 swings it back to A minor.', M),
     ] },
 ];
+
+// ---------- from songs: each kind of key change as a real record has it, charted in the song's own key. Only the
+// bars that show it, simplified where the record is busier. Appended last so ids stay put. ----------
+const S = (song, by, key, chart, note, o = {}) => ({ name: song, song, by, key, chart, note, ...o });
+const SONGS = {
+  toIV: [
+    S('Satin Doll', 'Duke Ellington and Billy Strayhorn', 'C', '| Gm7 C7 | Gm7 C7 | Fmaj7 | Fmaj7 | Am7 D7 | Am7 D7 | Dm7 | G7 |', 'The bridge: a ii–V into F (IV), then one into G, and Dm7 – G7 home.'),
+  ],
+  iiVaway: [
+    S('Tune Up', 'Miles Davis', 'D', '| Em7 | A7 | Dmaj7 | Dmaj7 | Dm7 | G7 | Cmaj7 | Cmaj7 | Cm7 | F7 | Bbmaj7 | Bbmaj7 |', 'Three keys a whole step apart (D, C, B♭), each entered by its own ii–V.'),
+    S('Blue Bossa', 'Kenny Dorham', 'C', '| Cm7 | Cm7 | Fm7 | Fm7 | Dm7b5 | G7 | Cm7 | Cm7 | Ebm7 | Ab7 | Dbmaj7 | Dbmaj7 | Dm7b5 | G7 | Cm7 | Dm7b5 G7 |', 'E♭m7 – A♭7 is a ii–V into D♭ major (♭II), then a minor ii–V back to C minor.', M),
+  ],
+  truck: [
+    S('My Girl', 'The Temptations', 'C', '| C Dm7 | C Dm7 | D Em7 | D Em7 |', 'The verse riff, then the same a whole step up, as the record does after the horn break (played round, it drops back each time).'),
+  ],
+  parallel: [
+    S('Norwegian Wood', 'The Beatles', 'E', '| E | E | D | E | Em | A | Em | A | Em | F#m | B | B |', 'The verse in E (with a Mixolydian D), then the bridge in E minor. Even 4/4 bars here; the record is in 3/4.'),
+  ],
+  mintoIII: [
+    S('Autumn Leaves', 'Joseph Kosma', 'G', '| Cm7 | F7 | Bbmaj7 | Ebmaj7 | Am7b5 | D7 | Gm6 | Gm6 |', 'A ii–V–I in B♭ (the relative major), E♭maj7 as the pivot, then the minor ii–V home to G minor.', M),
+    S('Fly Me to the Moon', 'Bart Howard', 'A', '| Am7 | Dm7 | G7 | Cmaj7 | Fmaj7 | Bm7b5 | E7 | Am7 A7 |', 'Down the cycle of 4ths from A minor to C major, then Bø7 – E7 back.', M),
+  ],
+};
+for (const b of MODULATIONS) if (SONGS[b.id]) b.progs.push(...SONGS[b.id]);

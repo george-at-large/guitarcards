@@ -112,7 +112,7 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
     const best = pr ? (O.where === 'all' ? Math.min(...G.SHAPES.map((x) => pr.rec[x] || 0)) : pr.rec[O.where] || 0) : 0;
     const tick = !pr ? '' : (O.where === 'all' ? pr.all : best >= pr.tgt) ? '<span class="bctick done" title="Done">✓</span>' : best ? `<span class="bctick part" title="Clean at ${best} bpm; done at ${pr.tgt}">✓</span>` : '';
     return `<li class="bcprog${tick.includes('done') ? ' isdone' : ''}">
-      <p class="bcpname">${tick}${fmt(p.name)}${minor && !b.minor ? ' <small>(minor key)</small>' : ''}</p>
+      <p class="bcpname">${tick}${p.song ? `<span class="bcsong">♪</span> ${esc(p.name)} <small class="bcby">${esc(p.by)} · original key ${fmt(T.pretty(p.key))}${minor ? ' minor' : ''}</small>` : `${fmt(p.name)}${minor && !b.minor ? ' <small>(minor key)</small>' : ''}`}</p>
       <p class="bcbars">${chords.map((bar) => `<span>${bar.map((c) => `<b>${fmt(c.rn)}</b><i>${fmt(c.nm)}</i>`).join(' ')}</span>`).join('')}</p>
       <p class="note">${fmt(p.note)}</p>
       ${pr && Object.keys(pr.rec).length ? `<div class="bcprogress">${pr.html}<small>best clean tempo per shape; done at ${pr.tgt} bpm</small></div>` : ''}
@@ -145,7 +145,10 @@ export function renderBorrowed($app, ctx, cfg = BORROW_CFG) {
     <section class="card bcprogs">
       <h2>Progressions that use it</h2>
       <p class="note">Tap a shape under a progression to play it in Chord changes in ${fmt(T.noteName(t, true))}, round and round in that shape (All five moves up a shape each time round). It starts ${esc(VERSIONS.find(([v]) => v === O.version)[1].toLowerCase())}; the complexity slider on the play screen still changes it as you go. A ✓ beside a shape means done there.</p>
-      <ul>${b.progs.map(progHTML).join('')}</ul>
+      <ul>${b.progs.map((p, i) => (p.song ? '' : progHTML(p, i))).join('')}</ul>
+      ${b.progs.some((p) => p.song) ? `<h3 class="bcsonghd">From songs</h3>
+      <p class="note">The same move as real records use it: just the bars that show it, simplified where the record is busier. Shown and played in ${fmt(T.noteName(t, true))}; the original key is beside each.</p>
+      <ul>${b.progs.map((p, i) => (p.song ? progHTML(p, i) : '')).join('')}</ul>` : ''}
     </section>`;
   }
   $app.onclick = (e) => {

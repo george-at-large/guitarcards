@@ -201,9 +201,9 @@ export function resolve(item) {
 }
 
 // the borrowed-chord drills, each progression under its chord (ids are explicit: the numerals don't slug)
-LIBRARY.push({ cat: 'Borrowed chords', items: BORROWED.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.rn}: ${p.name}`, by: b.name.toLowerCase(), chart: p.chart, minor: !!p.minor, id: `borrow-${b.id}-${i}`, borrow: b.id }))) });
-LIBRARY.push({ cat: 'Modulations', items: MODULATIONS.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.name}: ${p.name}`, by: b.from, chart: p.chart, minor: !!p.minor, id: `mod-${b.id}-${i}`, borrow: b.id }))) });
-LIBRARY.push({ cat: 'Chromatic chords', items: CHROMATIC.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.name}: ${p.name}`, by: b.from, chart: p.chart, minor: !!p.minor, id: `chrom-${b.id}-${i}`, borrow: b.id }))) });
+LIBRARY.push({ cat: 'Borrowed chords', items: BORROWED.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.rn}: ${p.name}`, by: p.by || b.name.toLowerCase(), chart: p.chart, minor: !!p.minor, ...(p.key ? { key: p.key, song: true } : {}), id: `borrow-${b.id}-${i}`, borrow: b.id }))) });
+LIBRARY.push({ cat: 'Modulations', items: MODULATIONS.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.name}: ${p.name}`, by: p.by || b.from, chart: p.chart, minor: !!p.minor, ...(p.key ? { key: p.key, song: true } : {}), id: `mod-${b.id}-${i}`, borrow: b.id }))) });
+LIBRARY.push({ cat: 'Chromatic chords', items: CHROMATIC.flatMap((b) => b.progs.map((p, i) => ({ name: `${b.name}: ${p.name}`, by: p.by || b.from, chart: p.chart, minor: !!p.minor, ...(p.key ? { key: p.key, song: true } : {}), id: `chrom-${b.id}-${i}`, borrow: b.id }))) });
 
 const slug = (s) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 export const ALL = LIBRARY.flatMap((g) => g.items.map((it) => ({ ...it, cat: g.cat, vl: !!g.vl, bassLine: !!g.bass, id: it.id || slug(it.name) })));

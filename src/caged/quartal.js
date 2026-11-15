@@ -20,15 +20,18 @@ const Q3 = [5, 5], Q4 = [5, 5, 5], SW = [5, 5, 5, 4];
 
 export const PROGS = [
   { id: 'dorian', name: 'Dorian pad', key: 'D', minor: true,
+    heard: 'McCoy Tyner’s piano in John Coltrane’s quartet: Impressions and A Love Supreme.',
     blurb: 'The McCoy Tyner sound: one quartal shape moved up and down the Dorian mode over a held root. Every stack is the mode’s own 4ths, so they all fit.',
     chords: [C(0, 0, Q4, 'm11'), C(0, 2, Q4, 'm11'), C(0, 3, [6, 5, 5], 'm6/9'), C(0, 2, Q4, 'm11')] },
   { id: 'sowhat', name: 'So What-style vamp', key: 'D', minor: true,
+    heard: 'Miles Davis, So What (Kind of Blue, 1959), Bill Evans’s comping: 16 bars of D Dorian, 8 of E♭ Dorian, 8 of D. John Coltrane’s Impressions uses the same form.',
     blurb: 'The So What chord: three 4ths with a major 3rd on top (on strings 6 to 2 it’s one fret across). Eight bars on the root, then up a half step and back, the shape of the famous modal tune.',
     chords: [C(0, 0, SW, 'm11'), C(0, 0, SW, 'm11'), C(0, 0, SW, 'm11'), C(0, 0, SW, 'm11'), C(1, 1, SW, 'm11'), C(1, 1, SW, 'm11'), C(0, 0, SW, 'm11'), C(0, 0, SW, 'm11')] },
   { id: 'iiVI', name: 'ii–V–I in 4ths', key: 'C',
     blurb: 'A jazz ii–V–I voiced in 4ths: Dm11 as D G C F, G13 as F B E A (♭7 3 13 9), Cmaj6/9 as E A D G. The stacks hardly move: each voice steps to the nearest note.',
     chords: [C(2, 2, Q4, 'm11'), C(7, 5, [6, 5, 5], '13'), C(0, 4, Q4, '6/9'), C(0, 4, Q4, '6/9')] },
   { id: 'sus', name: 'Sus chords in parallel', key: 'D',
+    heard: 'Herbie Hancock, Maiden Voyage (1965): sus chords that move and never resolve.',
     blurb: 'In the style of Maiden Voyage: 7sus4 chords (5, root, 4th, ♭7 stacked in 4ths) moving by minor 3rds and half steps, never resolving.',
     chords: [C(0, 7, Q4, '7sus4'), C(0, 7, Q4, '7sus4'), C(3, 10, Q4, '7sus4'), C(3, 10, Q4, '7sus4'), C(1, 8, Q4, '7sus4'), C(1, 8, Q4, '7sus4'), C(11, 6, Q4, '7sus4'), C(11, 6, Q4, '7sus4')] },
   { id: 'soul', name: 'Neo-soul 6/9s', key: 'C',
@@ -155,7 +158,8 @@ export function renderQuartal($app, ctx) {
       <p><b>How to use it:</b> over a bass note, a stack names a chord (D G C F over D is Dm11; E A D G over C is C6/9). Move one shape through a mode’s own 4ths for a modal pad; voice-lead stacks through a ii–V–I; slide one shape in parallel for the sus-chord sound. The colours below name each note against the bass.</p>
     </details>
     <div class="chips cschips">${PROGS.map((x) => `<button class="chip ${x.id === p.id ? 'on' : ''}" data-prog="${x.id}">${esc(x.name)}</button>`).join('')}</div>
-    <p class="note">${fmt(p.blurb)}</p>
+    <p class="note">${fmt(p.blurb)}</p>${p.heard ? `
+    <p class="note"><span class="bcsong">♪</span> Heard on: ${esc(p.heard)}</p>` : ''}
     <div class="chips fskeys">${KEYS.map((k) => `<button class="chip ${(O.key || p.key) === k ? 'on' : ''}" data-key="${k}">${fmt(T.pretty(k))}${p.minor ? 'm' : ''}</button>`).join('')}</div>
     <div class="fsopt"><span>Where</span>${seg('where', O.where, [...G.SHAPES.map((x) => [x, `${x} area`]), ['set', 'One string set']])}</div>
     ${O.where === 'set' ? `<div class="fsopt"><span>Strings</span>${seg('set', O.set, [['6543', '6-5-4-3'], ['5432', '5-4-3-2'], ['4321', '4-3-2-1'], ['65432', '6 to 2']])}</div>` : ''}

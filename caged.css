@@ -660,3 +660,7 @@ details.fssolo li b { color: var(--text, #fff); }
 .bcplayin button { padding: 6px 10px; border-radius: 999px; background: rgba(255, 181, 71, 0.1); border: 1px solid rgba(255, 181, 71, 0.35); color: inherit; font: 650 13px var(--f-display); }
 .bcplayin button.on { background: rgba(255, 181, 71, 0.85); color: #1c1206; }
 .bcvnote { margin: 0 0 4px; }
+
+.bcsonghd { margin: 18px 0 4px; font-size: 15px; }
+.bcsong { color: var(--accent, #7cc4ff); }
+.bcby { display: block; font-weight: 400; opacity: .75; margin-top: 2px; }

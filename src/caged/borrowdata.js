@@ -323,3 +323,54 @@ BORROWED.push(
       P('Extended', '| i:m9 | IV:13 | i:m9 | IV:13 | bII:maj7 | V:7alt | i:m9 | i:m9 |', 'Dorian groove, then a dramatic cadence.', M),
     ] },
 );
+
+// ---------- from songs: the move as it appears in a real record, charted in the song's own key (the screen and the
+// runner transpose it to yours). Only the bars that show the chord; simplified where the record uses inversions or
+// odd meters. Appended last so the composed progressions keep their ids (and their ticks). ----------
+const S = (song, by, key, chart, note, o = {}) => ({ name: song, song, by, key, chart, note, ...o });
+const SONGS = {
+  iv: [
+    S('In My Life', 'The Beatles', 'A', '| A | E | F#m | A7 | D | Dm | A | A |', 'The verse: I7 opens the door to IV, then IV turns minor on its way home.'),
+    S('Nowhere Man', 'The Beatles', 'E', '| E | B | A | E | F#m | Am | E | E |', 'I – V – IV – I, then ii straight to iv: the A chord turns minor at the end of the line.'),
+    S('Creep', 'Radiohead', 'G', '| G | B | C | Cm |', 'The whole song: I, a major III, then IV darkening to iv.'),
+  ],
+  iv6: [
+    S('All of Me', 'Gerald Marks and Seymour Simons', 'C', '| Fmaj7 | Fm6 | C6 Em7 | A7 | Dm7 | G7 | C6 | Dm7 G7 |', 'The last eight bars: IVmaj7 darkens to iv6, then the turnaround home.'),
+  ],
+  bVII: [
+    S('Hey Jude', 'The Beatles', 'F', '| F | Eb | Bb | F |', 'The long fade: I – ♭VII – IV – I, round and round.'),
+    S('Sweet Child o’ Mine', 'Guns N’ Roses', 'D', '| D | C | G | D |', 'The verse: the same double plagal (D shapes, tuned down a half step on the record).'),
+    S('With a Little Help from My Friends', 'The Beatles', 'E', '| D | A | E | E |', 'The refrain: ♭VII – IV – I, two plagal steps home.'),
+  ],
+  bIII: [
+    S('Something', 'George Harrison (The Beatles)', 'C', '| F | Eb | G | C |', 'The fill at the end of each verse: IV – ♭III – V, the E♭ a borrowed step between them.'),
+  ],
+  bVII7: [
+    S('Lady Bird', 'Tadd Dameron', 'C', '| Cmaj7 | Cmaj7 | Fm7 | Bb7 | Cmaj7 | Cmaj7 | Bbm7 | Eb7 |', 'The first eight bars: iv7 – ♭VII7 to I, the backdoor at home, then a ii–V away to A♭.'),
+    S('There Will Never Be Another You', 'Harry Warren', 'Eb', '| Abmaj7 | Db7 | Ebmaj7 | Cm7 |', 'Bars 9–12: IV, then ♭VII7 to I, the backdoor without the iv.'),
+  ],
+  IVm: [
+    S('Oye Como Va', 'Tito Puente (Santana)', 'A', '| Am7 | D9 | Am7 | D9 |', 'The whole groove: i – IV, the F♯ in D9 the Dorian note.', M),
+    S('Evil Ways', 'Santana', 'G', '| Gm | C | Gm | C |', 'The verse vamp: i – IV, Dorian again.', M),
+  ],
+  V7m: [
+    S('Hit the Road Jack', 'Percy Mayfield (Ray Charles)', 'A', '| Am G | F E7 |', 'The whole song: i – ♭VII – ♭VI – V7, the falling line with harmonic minor’s major V.', M),
+    S('Sultans of Swing', 'Dire Straits', 'D', '| Dm | C | Bb | A |', 'The verse: the same descent, landing on a major V.', M),
+  ],
+  iim: [
+    S('Moondance', 'Van Morrison', 'A', '| Am7 Bm7 | Am7 Bm7 | Am7 Bm7 | Am7 Bm7 |', 'The verse: i7 – ii7, back and forth; the F♯ in Bm7 is Dorian’s 6th.', M),
+  ],
+  'bVI-bVII': [
+    S('Lady Madonna', 'The Beatles', 'A', '| A D | A D | A D | F G |', 'The riff, then ♭VI – ♭VII climbing back to I.'),
+  ],
+  'iv-bVII': [
+    S('Misty', 'Erroll Garner', 'Eb', '| Ebmaj7 | Bbm7 Eb7 | Abmaj7 | Abm7 Db7 | Ebmaj7 Cm7 | Fm7 Bb7 | Gm7 C7 | Fm7 Bb7 |', 'The A section: up to IV, then iv7 – ♭VII7 back to I in bar 4.'),
+  ],
+  'bII-V': [
+    S('Moonlight Sonata, first movement', 'Beethoven', 'C#', '| C#m | C#m | A D | G#7 |', 'The opening: i, ♭VI, the Neapolitan D, then G♯7 home (the inversions and bass line left out).', M),
+  ],
+  'h-rock': [
+    S('Here Comes the Sun', 'George Harrison (The Beatles)', 'A', '| F | C | G | D | A | E7 |', 'The bridge: ♭VI – ♭III – ♭VII – IV – I, each chord a 4th below the last, then V7 (11/8 bars on the record, even bars here).'),
+  ],
+};
+for (const b of BORROWED) if (SONGS[b.id]) b.progs.push(...SONGS[b.id]);
