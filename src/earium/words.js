@@ -1,0 +1,94 @@
+// Everything Earium says, as whole short sentences (each one a recorded clip of Theo Silk, the same voice as the
+// CAGED Listen section; tools/listenvoice/build.mjs records them into voice/theo). The text on screen is always the
+// same sentence, so what is heard is always written down too.
+import { DEGS, MOVE_PAIRS, ALL_SAYS, FAMILY } from './harm.js';
+
+const NUM = { 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 9: 'nine', 11: 'eleven', 13: 'thirteen' };
+const ACC = { b: 'flat ', bb: 'double flat ', '#': 'sharp ' };
+export const degWord = (d) => { const m = /^(bb|b|#)?(\d+)$/.exec(d); return m ? (ACC[m[1]] || '') + NUM[m[2]] : d; };
+export const degText = (d) => d.replace(/bb/g, '𝄫').replace(/b/g, '♭').replace(/#/g, '♯');
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
+const semi = { 1: 0, b2: 1, 2: 2, b3: 3, 3: 4, 4: 5, '#4': 6, b5: 6, 5: 7, '#5': 8, b6: 8, 6: 9, bb7: 9, b7: 10, 7: 11, b9: 13, 9: 14, '#9': 15, 11: 17, '#11': 18, b13: 20, 13: 21 };
+
+// a note's character, for the rich voice
+export const COLOUR = {
+  1: 'The root: home.', b2: 'Dark and close, the Phrygian tension.', 2: 'Open and unresolved.', b3: 'The minor colour.', 3: 'The major colour, bright and settled.',
+  4: 'Suspended, leaning down to the three.', '#4': 'The Lydian lift.', b5: 'The tritone, restless.', 5: 'The open, stable fifth.', '#5': 'Augmented, stretching upward.',
+  b6: 'Bittersweet, pulling down to the five.', 6: 'Warm and sweet.', bb7: 'The diminished seventh: a six in disguise.', b7: 'The dominant colour, a bluesy pull.',
+  7: 'Dreamy, a half step below home.', b9: 'Tense and dark, a Spanish edge.', 9: 'The two up high: open and lush.', '#9': 'The blues clash, the Hendrix sound.',
+  11: 'The four up high, a suspended glow.', '#11': 'The Lydian sparkle.', b13: 'Dark and yearning.', 13: 'The six up high: sweet and full.',
+};
+
+// ---------- Guided sentences ----------
+export const G = {
+  root: 'This is the one, the root.',
+  rootIs: (name) => `The root is ${name}.`,
+  bass: (d) => `In the bass, the ${degWord(d)}.`,
+  inA: (d) => `Here's the ${degWord(d)}.`,
+  inB: (d) => `The ${degWord(d)} comes in.`,
+  out: (d) => `The ${degWord(d)} steps out.`,
+  move: (a, b) => `The ${degWord(a)} ${semi[b] > semi[a] ? 'rises' : 'falls'} to the ${degWord(b)}.`,
+  now: (say) => `Now it's ${say}.`,
+  colour: (d) => COLOUR[d],
+  imagine: (d) => `Before it sounds, hear the ${degWord(d)} in your mind.`,
+  imagineMove: 'Before it moves, hear the change in your mind.',
+  thereItIs: 'There it is.',
+  quizIn: 'A new note is coming. What is it?',
+  quizMove: 'Something is about to change. Listen.',
+  itWas: (d) => `It's the ${degWord(d)}.`,
+  ring: 'Let it ring.',
+  whole: 'Listen to the whole chord.',
+  thin: 'The chord thins out.',
+  alone: 'Back to the root alone.',
+  newRoot: 'A new root.',
+  over: (d) => `The ${degWord(d)}, over the drone.`,
+};
+const ROOTS = ['C', 'D flat', 'D', 'E flat', 'E', 'F', 'F sharp', 'G', 'A flat', 'A', 'B flat', 'B'];
+export const rootName = (pc) => ROOTS[pc];
+
+// ---------- Ambient sentences ----------
+// a numeral as words: "four", "flat six", "five of two"
+const ROMAN = { I: 1, II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7 };
+export function romanWords(rn) {
+  const m = /^(𝄫|♭|♯|b|#)?([IViv]+)/.exec(rn || '');
+  if (!m) return null;
+  const acc = { '♭': 'flat ', b: 'flat ', '♯': 'sharp ', '#': 'sharp ', '𝄫': 'double flat ' }[m[1]] || '';
+  const n = ROMAN[m[2].toUpperCase()];
+  return n ? acc + NUM[n] : null;
+}
+// the function of a chord in the key, in a few words (rich narration)
+export const ROLE = {
+  tonic: 'home', tonicMinor: 'home, in minor', super: 'the supertonic, leaning to five', mediant: 'the mediant, a soft tonic', sub: 'the subdominant, opening out',
+  dom: 'the dominant, pulling home', rel: 'the relative minor', lead: 'the leading tone chord', borrowed: 'borrowed from the parallel minor', borrowedMaj: 'borrowed from the parallel major',
+  secondary: 'a secondary dominant', tritone: 'a tritone substitute', passing: 'a passing diminished chord', mediantChrom: 'a chromatic mediant', neapolitan: 'the Neapolitan',
+  subMinor: 'the minor subdominant', domMinor: 'the minor dominant', backdoor: 'the backdoor dominant', picardy: 'a Picardy third', sus: 'suspended, waiting to resolve',
+  relMaj: 'the relative major', flatSix: 'the flat six, warm and wide', subtonic: 'the flat seven, the subtonic',
+};
+export const AMB = {
+  movingTo: 'moving to',
+  then: 'then',
+  newKey: 'new key,',
+  home: 'home again,',
+};
+// the numeral and quality words the narration uses (also recorded)
+export const QUAL_WORDS = ['major', 'minor', 'diminished', 'augmented', 'sus two', 'sus four', 'major seven', 'seven', 'minor seven', 'half diminished', 'diminished seven',
+  'minor major seven', 'six', 'minor six', 'add nine', 'minor add nine', 'six nine', 'minor six nine', 'major nine', 'nine', 'minor nine', 'eleven', 'minor eleven',
+  'major seven sharp eleven', 'major nine sharp eleven', 'thirteen', 'minor thirteen', 'major thirteen', 'nine sus four', 'thirteen sus four', 'seven sus four',
+  'seven flat nine', 'seven sharp nine', 'seven sharp eleven', 'seven flat thirteen', 'seven flat nine flat thirteen', 'seven sharp nine flat thirteen', 'thirteen flat nine',
+  'thirteen sharp eleven', 'altered', 'seven sharp five', 'seven flat five', 'minor seven sharp five', 'seven sus two', 'major seven sharp five'];
+
+// every phrase, for the recorder
+export function allPhrases() {
+  const P = new Set([G.root, G.imagineMove, G.thereItIs, G.quizIn, G.quizMove, G.ring, G.whole, G.thin, G.alone, G.newRoot]);
+  for (const d of DEGS) { [G.bass, G.inA, G.inB, G.out, G.imagine, G.itWas, G.over].forEach((f) => P.add(f(d))); P.add(COLOUR[d]); }
+  for (const [a, b] of MOVE_PAIRS) P.add(G.move(a, b));
+  ALL_SAYS.forEach((s) => P.add(G.now(s)));
+  ROOTS.forEach((r) => P.add(G.rootIs(r)));
+  // ambient
+  Object.values(ROLE).forEach((s) => P.add(s));
+  Object.values(AMB).forEach((s) => P.add(s));
+  for (const acc of ['', 'flat ', 'sharp ']) for (const n of [1, 2, 3, 4, 5, 6, 7]) { P.add(acc + NUM[n]); P.add(`of ${acc}${NUM[n]}`); P.add(`over ${acc}${NUM[n]}`); }
+  QUAL_WORDS.forEach((q) => P.add(q));
+  return [...P].filter(Boolean);
+}
+export { cap, FAMILY };

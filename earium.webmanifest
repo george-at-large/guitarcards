@@ -1,0 +1,17 @@
+{
+  "id": "./earium.html",
+  "name": "Earium",
+  "short_name": "Earium",
+  "description": "Listen into the intervals: chords built note by note and named, and ambient progressions with narration.",
+  "start_url": "./earium.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07080f",
+  "theme_color": "#07080f",
+  "icons": [
+    { "src": "icons/earium-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/earium-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/earium-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

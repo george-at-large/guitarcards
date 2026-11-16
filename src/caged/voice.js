@@ -137,6 +137,7 @@ export async function say(groups, t, { vol = 0.35, voice = '' } = {}) {
     });
   });
   speaking = { gain, srcs };
+  return at; // when it will have finished (Earium waits for it)
 }
 // the line before, if still talking, fades away under the new one
 function fade(at) {

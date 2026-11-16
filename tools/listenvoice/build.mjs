@@ -1,4 +1,4 @@
-// Records the Listen voice: every phrase the CAGED Changes Listen section can say, spoken by Theo Silk (ElevenLabs, the
+// Records the Listen voice: every phrase the CAGED Changes Listen section (and Earium) can say, spoken by Theo Silk (ElevenLabs, the
 // Mila house voice, as in tools/audiation and tools/drillvideo), trimmed, and written to voice/theo/<slug>.mp3, with
 // voice/theo/index.json listing the phrases. Phrases already recorded are kept, so re-running only adds new ones.
 //
@@ -18,6 +18,7 @@ import * as M from '../../src/caged/meander.js';
 import * as SC from '../../src/caged/scales.js';
 import * as L from '../../src/caged/library.js';
 import * as H from '../../src/caged/harmony.js';
+import * as EW from '../../src/earium/words.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
@@ -54,6 +55,8 @@ function phrases() {
   for (const kt of ['major', 'minor']) for (const s of H.SETS[kt]) for (const e of H.setPool(kt, s.id)) if (e.tag && !['subV', 'Picardy'].includes(e.tag)) P.add(V.sayable(e.tag));
   SC.SCALES.forEach((s) => P.add(V.scaleWords(s.name)));
   L.ALL.forEach((p) => P.add(V.sayable(p.name)));
+  // Earium (earium.html): its sentences and narration
+  EW.allPhrases().forEach((p) => P.add(p));
   return [...P].filter(Boolean).sort();
 }
 
