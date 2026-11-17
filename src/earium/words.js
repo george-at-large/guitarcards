@@ -156,6 +156,7 @@ export function allPhrases() {
   Object.values(VOICING_SAY).forEach((x) => P.add(x));
   for (const g of GUIDE) for (const t of SPOT_TO) for (const d of [-1, 0, 1]) P.add(SPOT_SAY(g, t, d));
   Object.values(TENSION_SAY).forEach((x) => P.add(x));
+  ['The melody alone.', 'Now with the chords.', 'Slowly, chord by chord.'].forEach((x) => P.add(x));
   [...DEGS, '2', '4', '6', 'b6'].forEach((d) => P.add(MELODY_SAY(d)));
   feelPhrases().forEach((x) => P.add(x));
   for (const acc of ['', 'flat ', 'sharp ']) for (const n of [1, 2, 3, 4, 5, 6, 7]) { P.add(acc + NUM[n]); P.add(`minor ${acc}${NUM[n]}`); P.add(`of ${acc}${NUM[n]}`); P.add(`over ${acc}${NUM[n]}`); }

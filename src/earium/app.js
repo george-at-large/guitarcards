@@ -11,6 +11,9 @@ import { guided, LESSONS } from './guided.js';
 import { ambient, PROGRESSIONS, LEVEL_NAMES, GROUPS, details } from './ambient.js';
 import { degText } from './words.js';
 import { TIERS } from './reharm.js';
+import { inversions, QUALITIES, SETS as INV_SETS, INV_NAMES } from './inversions.js';
+import { rhythm, SETS as R_SETS, inSet } from './rhythm.js';
+import { gridSVG, circleSVG } from './rview.js';
 
 const $ = (s) => document.querySelector(s);
 const app = $('#earium');
@@ -21,11 +24,13 @@ const ROOTS = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B�
 const DEF = {
   inst: 'guitar', space: 0.55, vvol: 0.7,
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random' },
+  i: { root: 'C', q: 'maj', set: 'any', move: 'bounce', pace: 5, arp: false, voice: true, bassSay: false },
+  r: { set: 'core', bpm: 72, loops: 4, count: true, voice: true, view: 'auto' },
   a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, more: false },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
-S = { ...DEF, ...(S || {}), g: { ...DEF.g, ...(S?.g || {}) }, a: { ...DEF.a, ...(S?.a || {}) } };
+S = { ...DEF, ...(S || {}), g: { ...DEF.g, ...(S?.g || {}) }, a: { ...DEF.a, ...(S?.a || {}) }, i: { ...DEF.i, ...(S?.i || {}) }, r: { ...DEF.r, ...(S?.r || {}) } };
 if (S.a.narr !== 'off') S.a.narr = 'on'; // older settings: Describe / Chords only
 const save = () => { try { localStorage.setItem('earium', JSON.stringify(S)); } catch (e) { /* */ } };
 
@@ -54,6 +59,8 @@ function home() {
   <header class="hero"><h1>Earium</h1><p>Listen into the intervals.</p></header>
   <button class="mode" data-go="g"><span class="glyph">◐</span><span><b>Guided</b><small>A voice builds chords note by note and morphs them, naming everything you hear. It can ask you to hear the next note first.</small></span></button>
   <button class="mode" data-go="a"><span class="glyph">◌</span><span><b>Ambient</b><small>Rich chords drift and morph through progressions. A voice can name them, or tell you what they're doing.</small></span></button>
+  <button class="mode" data-go="i"><span class="glyph">◇</span><span><b>Inversions</b><small>One chord in one key, bouncing around its inversions, on one string set or the whole neck.</small></span></button>
+  <button class="mode" data-go="r"><span class="glyph">◷</span><span><b>Rhythm</b><small>Strums and rhythms from around the world, built up a layer at a time and described, on a grid or a circle.</small></span></button>
   ${sound()}
   <p class="foot">Use headphones. The neck shows where each note lives; it isn't always a grip you'd play.</p>`;
 }
@@ -102,7 +109,111 @@ function setupA() {
   <button class="play" data-play="a">Begin</button>`;
 }
 
+function setupI() {
+  view = 'i';
+  const o = S.i, size = ['maj7', '7', 'm7', 'm7b5', 'dim7', 'mMaj7', '6', 'm6'].includes(o.q) ? 4 : 3;
+  if (o.set !== 'any' && !INV_SETS[size].some(([id]) => id === o.set)) o.set = 'any';
+  app.innerHTML = `
+  <header class="bar"><button class="icon" data-go="home" aria-label="Back">‹</button><h2>Inversions</h2><span></span></header>
+  <section class="card">
+    ${row('Key', `<select data-set="i.root" class="sel">${['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map((k) => `<option value="${k}" ${o.root === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}</select>`)}
+    ${row('Chord', `<select data-set="i.q" class="sel">${QUALITIES.map(([q, l]) => `<option value="${q}" ${o.q === q ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`)}
+    ${row('Strings', seg('i.set', [['any', 'Anywhere'], ...INV_SETS[size]], o.set), size === 4 ? 'Sevenths as drop 2 or drop 3 voicings, one note per string.' : 'Triads on three neighbouring strings, one note per string.')}
+    ${row('Move', seg('i.move', [['bounce', 'Bounce'], ['up', 'Up the neck'], ['updown', 'Up and down']], o.move), o.move === 'bounce' ? 'Each time a different inversion, nearby.' : '')}
+    ${row('Each voicing', slider('i.pace', 2, 12, 1, o.pace, `${o.pace} s`))}
+    ${row('Play', seg('i.arp', [[false, 'Together'], [true, 'Arpeggio']], o.arp))}
+    ${row('Voice', seg('i.voice', [[true, 'Names'], [false, 'Off']], o.voice) + (o.voice ? seg('i.bassSay', [[false, 'Inversion'], [true, '+ the bass']], o.bassSay) : ''))}
+  </section>
+  ${sound()}
+  <button class="play" data-play="i">Begin</button>`;
+}
+function setupR() {
+  view = 'r';
+  const o = S.r;
+  const pats = inSet(o.set);
+  app.innerHTML = `
+  <header class="bar"><button class="icon" data-go="home" aria-label="Back">‹</button><h2>Rhythm</h2><span></span></header>
+  <section class="card">
+    ${row('Set', seg('r.set', R_SETS.map(([v, l]) => [v, l]), o.set), R_SETS.find(([v]) => v === o.set)[2] + ` ${pats.length} rhythms.`)}
+    ${row('Tempo', slider('r.bpm', 40, 140, 2, o.bpm, `${o.bpm} bpm`))}
+    ${row('Each rhythm', seg('r.loops', [2, 4, 8].map((n) => [n, `${n}×`]), o.loops), 'How many times round, once it’s built, before the next.')}
+    ${row('Count', seg('r.count', [[true, 'Aloud'], [false, 'Off']], o.count), '“One, ee, and, uh”: the voice counts the steps (just the beats when it’s fast).')}
+    ${row('Voice', seg('r.voice', [[true, 'Describe'], [false, 'Off']], o.voice))}
+  </section>
+  <details class="card guide"><summary>Reading the strum grid</summary>
+    <p><b>↓ ↑</b> a downstroke and an upstroke. The strumming hand swings like a pendulum the whole time: down on the beats, up between them.</p>
+    <p><b class="faint">↓ ↑</b> faint arrows: the hand still moves, but misses the strings. Those gaps make the groove.</p>
+    <p><b>✕</b> a chuck: the strings muted (the fretting hand relaxes, or the palm lands) and struck, a percussive click like a snare drum.</p>
+    <p><b>B b</b> the thumb (or pick) on a bass note: the root, then the alternate bass.</p>
+    <p><b>●</b> a hit (a finger pluck, a clave, a clap). Big for an accent, small for a soft one.</p>
+    <p>The numbers on top are the count: <b>1 e & a</b> for sixteenths, <b>1 &</b> for eighths, <b>1 trip let</b> for triplets.</p>
+  </details>
+  ${sound()}
+  <button class="play" data-play="r">Begin</button>`;
+}
+
 // ---------- the run screen ----------
+function runScreenI() {
+  view = 'run';
+  app.innerHTML = `
+  <header class="bar run"><button class="icon" data-act="stop" aria-label="Stop">✕</button><h2>Inversions</h2><button class="icon" data-act="pause" aria-label="Hold">❚❚</button></header>
+  <main class="stage">
+    <div class="neckcol" id="neck">${neckSVG([])}</div>
+    <div class="info">
+      <div class="chord" id="chord"><div class="sym">…</div></div>
+      <div id="stack" class="stack"></div>
+      <div id="caption" class="caption"></div>
+    </div>
+  </main>
+  <div class="transport"><button data-act="inext" aria-label="Next voicing"><b>›</b><small>next</small></button></div>
+  <footer class="runbar"><button data-act="slower">−</button><span id="pace">${S.i.pace} s</span><button data-act="faster">+</button><span class="instname">${E.INSTRUMENTS.find((i) => i.id === S.inst).name}</span></footer>`;
+}
+function showI(v, prev, lines) {
+  const root = T.parseNote(S.i.root);
+  $('#neck').innerHTML = neckSVG(v.notes.map((n) => ({ ...n, label: degText(n.iv), kind: H.KIND(n.iv), fresh: !prev || !prev.notes.some((x) => x.midi === n.midi) })));
+  const name = T.pretty(T.chordSymbol(root, S.i.q)).replace(/\s+/g, '');
+  $('#chord').innerHTML = `<div class="rn">${esc(INV_NAMES[v.inv] ? INV_NAMES[v.inv][0].toUpperCase() + INV_NAMES[v.inv].slice(1) : '')}</div><div class="sym">${fmt(name)}${v.bass !== '1' ? `/${fmt(T.noteName(T.transpose(root, v.bass), true))}` : ''}</div><div class="say">${esc(v.bass === '1' ? 'the root in the bass' : `the ${degText(v.bass)} in the bass`)}</div>`;
+  const notes = [...v.notes].sort((a, b) => b.midi - a.midi).map((n) => `<li class="k-${H.KIND(n.iv)}"><i></i><b>${degText(n.iv)}</b><span>${fmt(T.noteName(T.transpose(root, n.iv), true))} · string ${n.string}, fret ${n.fret}</span></li>`).join('');
+  const set = (INV_SETS[v.notes.length] || []).find(([id]) => id === v.set);
+  $('#stack').innerHTML = `<ol>${notes}</ol><div class="exl">${esc(set ? set[1] : '')}</div>`;
+  $('#caption').innerHTML = lines.map((l) => `<p>${fmt(l)}</p>`).join('');
+}
+function runScreenR() {
+  view = 'run';
+  app.innerHTML = `
+  <header class="bar run"><button class="icon" data-act="stop" aria-label="Stop">✕</button><h2>Rhythm</h2><button class="icon" data-act="pause" aria-label="Hold">❚❚</button></header>
+  <div id="rhead" class="rhead"></div>
+  <div id="rviz" class="rviz"></div>
+  <div id="rcount" class="rcount"></div>
+  <div id="caption" class="caption"></div>
+  <div class="transport">
+    <button data-act="rprev" aria-label="Previous rhythm"><b>⏮</b><small>rhythm</small></button>
+    <button data-act="rview" aria-label="Grid or circle"><b>◐</b><small>view</small></button>
+    <button data-act="rcount" aria-label="Count aloud"><b>1&amp;</b><small>count</small></button>
+    <button data-act="rnext" aria-label="Next rhythm"><b>⏭</b><small>rhythm</small></button>
+  </div>
+  <footer class="runbar"><button data-act="slower">−</button><span id="pace">${S.r.bpm} bpm</span><button data-act="faster">+</button></footer>`;
+}
+let rPat = null, rLayers = null, rView = null;
+const rUI = {
+  pattern(p) {
+    rPat = p; rLayers = null;
+    rView = S.r.view === 'auto' ? p.view : S.r.view;
+    const viz = $('#rviz'); if (viz) viz.innerHTML = (rView === 'circle' ? circleSVG : gridSVG)(p, p.layers, -1); // the whole pattern, before it starts
+    $('#rhead').innerHTML = `<div class="pk">${esc(p.set === 'core' ? 'Core' : 'More')} · ${esc(p.kind === 'guitar' ? 'Guitar' : 'World')}${p.meter ? ` · ${esc(p.meter)}` : ''}</div><div class="pn">${esc(p.name)}</div><div class="pt">${esc(p.desc)}</div>`;
+  },
+  phase(p, ph) { if (ph.say) { const el = $('#caption'); if (el) el.innerHTML = `<p>${esc(ph.say)}</p>`; } },
+  step(k, cyc, chord, layers) {
+    if (!rPat) return;
+    rLayers = layers || rLayers;
+    const viz = $('#rviz'); if (!viz) return;
+    viz.innerHTML = (rView === 'circle' ? circleSVG : gridSVG)(rPat, rLayers || rPat.layers, k);
+    const per = rPat.steps / rPat.beats;
+    const c = $('#rcount'); if (c) c.innerHTML = `<span class="${k % per === 0 ? 'on' : ''}">${esc(countLabel(k))}</span>${rPat.kind === 'guitar' && chord ? `<small>${fmt(chord)}</small>` : ''}`;
+  },
+};
+function countLabel(k) { const per = rPat.steps / rPat.beats; return rPat.count === 'num' || rPat.count === 'bul' || per === 1 ? String(rPat.count === 'bul' ? ((k + 11) % 12) + 1 : k + 1) : per === 2 ? (k % 2 ? '&' : String(k / 2 + 1)) : per === 4 ? [String(Math.floor(k / 4) + 1), 'e', '&', 'a'][k % 4] : per === 3 ? (k % 3 === 0 ? String(k / 3 + 1) : k % 3 === 1 ? 'trip' : 'let') : String(k + 1); }
+
 function runScreen(mode) {
   view = 'run';
   app.innerHTML = `
@@ -228,8 +339,10 @@ async function begin(mode) {
   await A.unlockAudio(); await A.ensureRunning();
   E.setSpace(S.space);
   voices = E.voices(S.inst);
-  runScreen(mode);
   try { if (navigator.wakeLock) lock = await navigator.wakeLock.request('screen'); } catch (e) { lock = null; }
+  if (mode === 'i') { runScreenI(); const O = { ...S.i, vvol: S.vvol * 4 }; run = inversions(O, { show: showI, none: () => { $('#chord').innerHTML = '<div class="say">No voicings on this string set.</div>'; } }, voices); run.mode = mode; return; }
+  if (mode === 'r') { runScreenR(); const O = { ...S.r, vvol: S.vvol * 4 }; run = rhythm(O, rUI); run.mode = mode; return; }
+  runScreen(mode);
   const O = { ...(mode === 'g' ? S.g : S.a), vvol: S.vvol * 4 };
   if (mode === 'g') run = guided(O, { show: showG, quiz: quizUI }, voices);
   else run = ambient(O, { show: showA, intro: introA, caption: (lines) => { const el = $('#caption'); if (el) el.innerHTML = lines.map((l) => `<p>${esc(l)}</p>`).join(''); } }, voices);
@@ -245,7 +358,7 @@ function end() {
 app.addEventListener('click', async (e) => {
   const b = e.target.closest('button');
   if (!b) return;
-  if (b.dataset.go) { if (b.dataset.go === 'home') home(); else if (b.dataset.go === 'g') setupG(); else setupA(); window.scrollTo(0, 0); return; }
+  if (b.dataset.go) { ({ home, g: setupG, a: setupA, i: setupI, r: setupR })[b.dataset.go](); window.scrollTo(0, 0); return; }
   if (b.dataset.play) { begin(b.dataset.play); return; }
   if (b.dataset.set && b.dataset.v !== undefined) {
     put(b.dataset.set, b.dataset.v);
@@ -270,11 +383,18 @@ app.addEventListener('click', async (e) => {
   }
   const act = b.dataset.act;
   if (run && ['prevProg', 'prevChord', 'nextChord', 'nextProg'].includes(act) && run[act]) { run[act](); return; }
-  if (act === 'stop') { const m = run?.mode; end(); m === 'g' ? setupG() : setupA(); }
+  if (act === 'stop') { const m = run?.mode; end(); ({ g: setupG, a: setupA, i: setupI, r: setupR })[m || 'a'](); }
+  if (act === 'inext' && run?.next) { run.next(); return; }
+  if (act === 'rnext' && run?.next) { run.next(); return; }
+  if (act === 'rprev' && run?.prev) { run.prev(); return; }
+  if (act === 'rview') { rView = rView === 'circle' ? 'grid' : 'circle'; S.r.view = rView; save(); return; }
+  if (act === 'rcount' && run?.O) { S.r.count = !S.r.count; run.O.count = S.r.count; save(); b.classList.toggle('on', S.r.count); return; }
   if (act === 'pause' && run) { const p = !run.paused; run.pause(p); b.textContent = p ? '▶' : '❚❚'; b.classList.toggle('on', p); }
   if (act === 'slower' || act === 'faster') {
     const d = act === 'faster' ? -1 : 1;
     if (run?.mode === 'g') { S.g.pace = Math.max(3, Math.min(30, S.g.pace + d)); $('#pace').textContent = `${S.g.pace} s`; }
+    else if (run?.mode === 'i') { S.i.pace = Math.max(2, Math.min(20, S.i.pace + d)); run.O.pace = S.i.pace; $('#pace').textContent = `${S.i.pace} s`; }
+    else if (run?.mode === 'r') { S.r.bpm = Math.max(40, Math.min(160, S.r.bpm - d * 4)); run.O.bpm = S.r.bpm; $('#pace').textContent = `${S.r.bpm} bpm`; }
     else { S.a.secs = Math.max(4, Math.min(40, S.a.secs + d * 2)); $('#pace').textContent = `${S.a.secs} s`; }
     save();
     liveOpts();
@@ -289,13 +409,13 @@ app.addEventListener('input', (e) => {
   if (out) {
     const k = el.dataset.set;
     out.textContent = k === 'space' ? (S.space < 0.3 ? 'close' : S.space < 0.7 ? 'hall' : 'cathedral') : k === 'vvol' ? Math.round(S.vvol * 100) + '%' : k === 'g.level' ? H.LEVELS[S.g.level - 1].name
-      : k === 'a.far' ? TIERS[S.a.far - 1].name : k === 'a.level' ? LEVEL_NAMES[S.a.level - 1] : k === 'g.pace' ? `${S.g.pace} s` : k === 'a.secs' ? `${S.a.secs} s` : el.value;
+      : k === 'a.far' ? TIERS[S.a.far - 1].name : k === 'a.level' ? LEVEL_NAMES[S.a.level - 1] : k === 'g.pace' ? `${S.g.pace} s` : k === 'a.secs' ? `${S.a.secs} s` : k === 'i.pace' ? `${S.i.pace} s` : k === 'r.bpm' ? `${S.r.bpm} bpm` : el.value;
   }
 });
 app.addEventListener('change', (e) => { const el = e.target; if (el.tagName === 'SELECT' && el.dataset.set) { put(el.dataset.set, el.value); rerender(); } else if (el.type === 'range') rerender(); });
-function rerender() { const y = window.scrollY; if (view === 'home') home(); else if (view === 'g') setupG(); else if (view === 'a') setupA(); window.scrollTo(0, y); }
+function rerender() { const y = window.scrollY; const f = { home, g: setupG, a: setupA, i: setupI, r: setupR }[view]; if (f) f(); window.scrollTo(0, y); }
 // the run reads its options live: pace changes take effect at the next step
-function liveOpts() { if (!run?.O) return; if (run.mode === 'g') run.O.pace = S.g.pace; else run.O.secs = S.a.secs; }
+function liveOpts() { if (!run?.O) return; if (run.mode === 'g') run.O.pace = S.g.pace; else if (run.mode === 'a') run.O.secs = S.a.secs; }
 // a short taste of an instrument when it's chosen
 let previewing = null;
 async function preview() {

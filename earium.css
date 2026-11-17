@@ -160,3 +160,39 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .intro .tens circle { fill: var(--faint); transition: all .4s; }
 .intro .tens circle.on { fill: var(--gold); r: 4; }
 .lbl2 { font: italic 17px var(--serif); color: var(--t5); margin-top: 4px; }
+
+/* rhythm */
+.rhead { margin: 4px 0 10px; }
+.rhead .pk { font-size: 12px; letter-spacing: .06em; color: var(--faint); }
+.rhead .pn { font: 500 26px/1.15 var(--serif); margin-top: 2px; }
+.rhead .pt { font: italic 16px/1.35 var(--serif); color: var(--dim); margin-top: 4px; }
+.rviz svg { width: 100%; height: auto; display: block; }
+.rcircle { max-width: 420px; margin: 0 auto; }
+.rgrid .now { fill: rgba(232, 194, 122, .12); }
+.rgrid .beat { stroke: var(--line); }
+.rgrid .cnt, .rcircle .cnt { font: 10px var(--sans); fill: var(--faint); text-anchor: middle; }
+.rgrid .cnt.on, .rcircle .cnt.on { fill: var(--dim); font-weight: 600; }
+.rcircle .cnt.lit { fill: var(--gold); font-weight: 600; }
+.rgrid .lname, .rcircle .lname { font: 10px var(--sans); fill: var(--faint); }
+.rcircle .lname.c { text-anchor: middle; }
+.rgrid .mk { font: 600 19px var(--sans); text-anchor: middle; }
+.rgrid .mk.soft { font-size: 14px; opacity: .7; }
+.rgrid .mk.ghost { fill: var(--faint) !important; opacity: .35; font-size: 15px; }
+.rgrid .mk.chuck { font-size: 15px; }
+.rgrid .mk.acc { font-size: 23px; }
+.rgrid .mk.lit { filter: drop-shadow(0 0 5px rgba(255, 230, 180, .9)); }
+.rgrid .mk.big { font-size: 19px; }
+.dotempty { fill: var(--line); }
+.rcircle .ring { fill: none; stroke: var(--line); }
+.rcircle .shape { fill: rgba(232, 194, 122, .05); stroke-width: 1.2; opacity: .55; }
+.rcircle .hitdot.lit { filter: drop-shadow(0 0 7px rgba(255, 230, 180, .95)); }
+.rcircle .hand { stroke: var(--gold); stroke-width: 1.5; opacity: .55; }
+.rcircle .hub { fill: var(--gold); }
+.rcount { text-align: center; margin-top: 10px; min-height: 52px; }
+.rcount span { font: 500 44px var(--serif); color: var(--dim); }
+.rcount span.on { color: var(--gold); }
+.rcount small { display: block; font-size: 13px; color: var(--faint); }
+details.guide summary { cursor: pointer; padding: 12px 0; font-size: 14px; color: var(--gold); }
+details.guide p { font-size: 14px; color: var(--dim); margin: 0 0 10px; }
+details.guide b { color: var(--ink); font-weight: 600; }
+details.guide b.faint { color: var(--faint); }

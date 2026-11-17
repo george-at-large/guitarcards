@@ -12,6 +12,7 @@ import * as L from '../caged/library.js';
 import * as Hc from '../caged/harmony.js';
 import * as E from '../caged/evolve.js';
 import { OPEN } from './harm.js';
+import { voices as makeVoices } from './engine.js';
 import * as Gr from '../caged/grips.js';
 import { ROLE, ROLE_SHORT, whyOf, EXTS, EXT_SAY, EXT_INFO, COLOUR, WHY, degWord, degText } from './words.js';
 import { PACKS, GROUPS, packById, packSay, itemSay, itemOf } from './packs.js';
@@ -139,6 +140,12 @@ function colourPack(spec, Lv, next, mi) {
   return opts.length && Math.random() < (Lv === 3 ? 0.3 : 0.6) ? pick(opts) : spec.q;
 }
 const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+// the melody notes sounding in a window of beats: { at (beats from the window's start), beats, iv, oct }
+function melodyIn(mel, b0, b1) {
+  const out = []; let b = 0;
+  for (const [iv, beats, oct = 0] of mel) { if (b + beats > b0 && b < b1) out.push({ at: Math.max(0, b - b0), beats: Math.min(b + beats, b1) - Math.max(b, b0), iv, oct, starts: b >= b0 }); b += beats; }
+  return out.filter((e) => e.starts || e.at === 0);
+}
 function packStream(O, home) {
   let list;
   const build = () => {
@@ -159,12 +166,31 @@ function packStream(O, home) {
     if (item.home) keyPc = T.notePc(T.parseNote(item.home)); // open strings need their key
     const minor = !!item.minor;
     cur = { pack, it, item, chords, minor, newPack: !!pack && pack !== lastPack, rns: chords.map((x) => Hc.label(x.spec, x.spec.q, x.spec.bass)), tension: chords.map((x) => tensionOf(x.spec, x.spec.q, minor)) };
+    // a melody: written out, or a held note restruck on every chord
+    cur.mel = item.melody || (item.top ? chords.map((x) => [item.top, x.beats, 0]) : null);
+    cur.stage = cur.mel ? 'alone' : null;
     lastPack = pack; pass = 0; i = 0;
   }
   load();
   return {
     skip() { if (O.src !== 'prog') { i = cur.chords.length; pass = Math.max(pass, O.loops); } else { i = 0; pass = 0; } }, // the next next() moves on
     next() {
+      const key = { off: (keyPc - home + 12) % 12, minor: cur.minor };
+      if (cur.mel) { // a melody progression: the melody alone, then in time with the chords, then slowly, chord by chord
+        if (cur.stage === 'alone') {
+          cur.stage = 'time'; i = 0;
+          const total = cur.mel.reduce((a, n) => a + n[1], 0);
+          return { silent: true, spec: cur.chords[0].spec, key, beats: total, ann: [], idx: -1, prog: cur, melody: melodyIn(cur.mel, 0, total), say: 'The melody alone.', intro: { pack: cur.newPack ? cur.pack : null, it: cur.it } };
+        }
+        if (i >= cur.chords.length) { i = 0; if (cur.stage === 'time') cur.stage = 'slow'; else { pass++; if (O.src !== 'prog' && pass >= O.loops) { load(); return this.next(); } cur.stage = 'time'; } }
+        const x = cur.chords[i], b0 = cur.chords.slice(0, i).reduce((a, y) => a + y.beats, 0);
+        const ev = melodyIn(cur.mel, b0, b0 + x.beats);
+        const out = { spec: { ...x.spec }, key, beats: x.beats, ann: [], idx: i, prog: cur, style: cur.item.voicing, label: cur.item.labels?.[i],
+          top: ev[0]?.iv, melody: cur.stage === 'slow' ? ev.filter((e) => e.at === 0) : ev, fixed: cur.stage === 'time', quiet: cur.stage === 'time',
+          say: i === 0 ? (cur.stage === 'time' ? 'Now with the chords.' : 'Slowly, chord by chord.') : null };
+        i++;
+        return out;
+      }
       if (i >= cur.chords.length) { i = 0; pass++; if (O.src !== 'prog' && pass >= O.loops) load(); }
       const x = cur.chords[i], nx = cur.chords[(i + 1) % cur.chords.length];
       // a comparison pack (its own chart) plays exactly as written
@@ -243,13 +269,15 @@ export function ambient(O, ui, voices) {
     const tonic = T.parseNote(keyAt(home + it.key.off, it.key.minor));
     const root = Hc.spell(tonic, it.spec.iv);
     const q = it.spec.q;
-    const g = gripFor({ root, q, spec: it.spec, key: { tonic }, style: it.style, top: it.top }, prevGrip);
+    const topIn = it.top && T.getChord(q).ivs.some((iv) => (T.notePc(root) + semis(ext(iv))) % 12 === (T.notePc(tonic) + semis(it.top)) % 12) ? it.top : null;
+    const g = it.silent ? null : gripFor({ root, q, spec: it.spec, key: { tonic }, style: it.style, top: topIn }, prevGrip);
     prevGrip = g || prevGrip;
     const key = { tonic, minor: it.key.minor };
+    const melody = (it.melody || []).map((e) => { let m = 60 + ((T.notePc(tonic) + semis(e.iv)) % 12); if (m < 65) m += 12; return { ...e, midi: m + 12 * (e.oct || 0) }; });
     const keyLabel = `${T.noteName(tonic, true)} ${key.minor ? 'minor' : 'major'}`;
     const fill = (s) => String(typeof s === 'function' ? s() : s).replace('{key}', keyLabel);
     const c = { spec: it.spec, q, root, key, keyLabel, grip: g, beats: it.beats, rn: Hc.label(it.spec, q), name: Hc.slashName(root, q, it.spec.bass),
-      ann: (it.ann || []).map((a) => ({ ...a, text: fill(a.text) })), role: roleOf(it.spec, q, key.minor), bass: it.spec.bass, idx: it.idx, prog: it.prog, intro: it.intro, style: it.style, top: it.top, label: it.label, styleSaid: it.styleSaid };
+      ann: (it.ann || []).map((a) => ({ ...a, text: fill(a.text) })), role: roleOf(it.spec, q, key.minor), bass: it.spec.bass, idx: it.idx, prog: it.prog, intro: it.intro, style: it.style, label: it.label, styleSaid: it.styleSaid, silent: it.silent, fixed: it.fixed, quiet: it.quiet, say: it.say, melody, top: topIn };
     if (O.narr !== 'off') V.prefetch([...words(c, { dry: true }), ...extWords(c, true)]);
     return c;
   }
@@ -315,7 +343,7 @@ export function ambient(O, ui, voices) {
       out.push({ at: 0, notes: full.filter((n) => !isExt(n.iv)) });
       out.push({ at: extAt, notes: full, ext: true });
     } else out.push({ at: 0, notes: full });
-    if (O.motion === 'still' || dur < 5 || c.top || c.styleSaid) return out; // a demo's voicing (or held melody) stays as it is
+    if (O.motion === 'still' || dur < 5 || c.top || c.styleSaid || c.melody?.length) return out; // a demo's voicing (or held melody) stays as it is
     const base = full;
     const top = base[base.length - 1];
     const rootPc = T.notePc(c.root);
@@ -378,6 +406,9 @@ export function ambient(O, ui, voices) {
       else if (k > 0 && ts[k - 1] === mx && mx - ts[k] >= 1.2) c.tcue = 'release';
     }
     let dur = Math.max(3, O.secs * (c.beats / 4));
+    const spb = 60 / (c.prog?.item?.bpm || 72); // a melody's tempo
+    if (c.fixed) dur = c.beats * spb; // in time with the melody
+    if (c.intro && melV) melV.set([], t);
     // the voice first (its length decides when extensions can come in)
     let speakEnd = t + 0.9, g = [];
     if (c.intro) {
@@ -390,8 +421,24 @@ export function ambient(O, ui, voices) {
         dur = Math.max(dur, quietUntil - t + 1); // the first chord rings until the introduction is over
         V.say(lines.map((l) => [l]), t + 0.4, { vol: O.vvol }).then((end) => { if (end) quietUntil = end; });
       }
-    } else if (O.narr !== 'off' && t >= quietUntil) {
+    }
+    if (c.silent) { // the melody alone, after the introduction
+      const start = Math.max(t + 0.3, (O.narr !== 'off' ? quietUntil : t) + 0.2);
+      if (O.narr !== 'off') { V.say([[c.say]], start, { vol: O.vvol }); quietUntil = start + 1.8; }
+      const m0 = start + (O.narr !== 'off' ? 1.8 : 0.3);
+      later(t, () => ui.show({ c: { ...c, rn: '♪', name: 'The melody, alone' }, notes: [], next: queue[0], first: true }));
+      later(start, () => ui.caption([c.say], c));
+      playMelody(c.melody, m0, spb, true);
+      dur = m0 - t + c.beats * spb + 0.8;
+      voices.set([], t);
+      prevChord = null;
+      t += dur;
+      return;
+    }
+    if (c.say && O.narr !== 'off' && !c.intro) { V.say([[c.say]], t + 0.2, { vol: O.vvol }); later(t, () => ui.caption([c.say], c)); if (c.quiet) quietUntil = t + 1.8; }
+    if (c.quiet) { /* in time with the melody: no chord narration */ } else if (O.narr !== 'off' && t >= quietUntil) {
       g = words(c, { later: O.extLater });
+      if (c.say) g.unshift([c.say]);
       speakEnd = t + 0.9 + g.flat().join(' ').length * 0.065 + g.length * 0.3;
       dur = Math.max(dur, speakEnd - t + 1.2); // a long description: the chord rings on until it's said
       later(t + 0.5, () => ui.caption(g.map((x) => x.join(' ')), c));
@@ -423,8 +470,18 @@ export function ambient(O, ui, voices) {
     });
     // arpeggio: on a long chord, the notes roll again, softly
     if (O.arp === 'on' && c.grip && dur > 8) voices.roll(c.grip.notes.map((n) => n.midi), t + dur * 0.62, Math.min(0.5, dur * 0.04));
+    if (c.melody?.length) playMelody(c.melody, t, spb, false);
     prevChord = c;
     t += dur;
+  }
+  // the melody: its own clear voice, above the chords
+  let melV = null;
+  function playMelody(evs, start, spb, alone) {
+    if (!evs.length) return;
+    melV ||= makeVoices('clear');
+    for (const e of evs) melV.set([e.midi], start + e.at * spb, { vel: 1.3 });
+    const last = evs[evs.length - 1];
+    if (alone) melV.set([], start + (last.at + last.beats) * spb);
   }
   function later(at, fn) { const id = setTimeout(fn, Math.max(0, (at - ctx().currentTime) * 1000)); timers.push(id); }
   function pump() {
@@ -475,7 +532,7 @@ export function ambient(O, ui, voices) {
       }
     },
     canProg: O.src !== 'wander',
-    stop() { alive = false; clearTimeout(timer); timers.forEach(clearTimeout); V.hush(); voices.releaseAll(ctx().currentTime, 2); },
+    stop() { alive = false; clearTimeout(timer); timers.forEach(clearTimeout); V.hush(); voices.releaseAll(ctx().currentTime, 2); melV?.releaseAll(ctx().currentTime, 1); },
     pause(p) {
       paused = p;
       if (p) { clearTimeout(timer); timers.forEach(clearTimeout); timers = []; V.hush(); }

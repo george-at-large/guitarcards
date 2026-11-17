@@ -8,6 +8,8 @@
 //   labels  what each chord becomes (shown)
 const X = (id, name, chart, note, o = {}) => ({ id: `x-${id}`, name, chart, note, minor: false, ...o });
 const M = { minor: true };
+// an eight-bar tune in the major key: [interval above home, beats, octave]
+const TUNE = [['3', 2], ['2', 1], ['1', 1], ['2', 2], ['5', 2, -1], ['3', 1], ['4', 1], ['5', 2], ['6', 2], ['5', 2], ['4', 2], ['3', 1], ['2', 1], ['3', 2], ['1', 2], ['2', 2], ['7', 2, -1], ['1', 4]];
 
 export const MORE_GROUPS = [
   { name: 'Modern harmony', packs: [
@@ -77,9 +79,13 @@ export const MORE_GROUPS = [
       X('13', 'A dominant thirteen, four ways', '| V:13 | V:13 | V:13 | I:maj7 |', 'Close, then spread, then in fourths, then home.', { voicings: ['close', 'spread', 'fourths', null] }),
     ] },
     { id: 'x-melody', name: 'One note, many chords', intro: 'One melody note held on top while the chords change under it. The note never moves, but its meaning does.', items: [
-      X('m1', 'The home note on top', '| I:maj | vi:min | IV:maj | ii:m7 | bVI:maj | bII:maj7 | II:7 | V:7sus4 |', 'The melody holds the home note: the root, the flat three, the five, the flat seven, the three, the seven, the flat seven again, the four.', { top: '1' }),
-      X('m5', 'The fifth on top', '| I:maj | iii:min | bIII:maj | V:7 | ii:m11 | bVI:maj7 | IV:maj9 | vi:m7 |', 'The melody holds the fifth of the key: it becomes a root, a minor third, an eleven, a seven, a nine.', { top: '5' }),
-      X('m3', 'The third on top', '| I:maj | vi:min | IV:maj7 | ii:m9 | V:13 | bVII:maj7#11 | III:7 | I:maj |', 'The melody holds the third of the key: three, five, seven, nine, thirteen, sharp eleven, root.', { top: '3' }),
+      X('m1', 'The home note on top', '| I:maj | vi:min | IV:maj | ii:m7 | bVI:maj | bII:maj7 | II:7 | V:7sus4 |', 'The melody holds the home note: the root, the flat three, the five, the flat seven, the three, the seven, the flat seven again, the four.', { top: '1', bpm: 60 }),
+      X('m5', 'The fifth on top', '| I:maj | iii:min | bIII:maj | V:7 | ii:m11 | bVI:maj7 | IV:maj9 | vi:m7 |', 'The melody holds the fifth of the key: it becomes a root, a minor third, an eleven, a seven, a nine.', { top: '5', bpm: 60 }),
+      X('m3', 'The third on top', '| I:maj | vi:min | IV:maj7 | ii:m9 | V:13 | bVII:maj7#11 | III:7 | I:maj |', 'The melody holds the third of the key: three, five, seven, nine, thirteen, sharp eleven, root.', { top: '3', bpm: 60 }),
+    ] },
+    { id: 'x-tune', name: 'A melody, harmonised', intro: 'An eight-bar melody: first alone, then with its chords in time, then slowly, so you can hear what each chord does to it.', items: [
+      X('plain', 'Plainly harmonised', '| I:maj | V:maj | IV:maj7 | I:6 | ii:m7 | vi:min | V:7 | I:maj |', 'Simple chords under the tune: each melody note is a chord tone or a step away from one.', { melody: TUNE, bpm: 72 }),
+      X('reharm', 'The same melody, reharmonised', '| I:maj9 | iii:m7 | IV:maj7#11 | VI:7 | ii:m9 | vi:m7 | V:9sus4 | I:6/9 |', 'The same tune with richer chords under it: the notes stay, their meaning changes.', { melody: TUNE, bpm: 72 }),
     ] },
     { id: 'x-bass', name: 'One chord, many basses', intro: 'One triad held above, a new note in the bass each time: every bass note makes it a different chord.', items: [
       X('cbass', 'A major triad over eight basses', '| I:maj | I:maj/6 | I:maj/4 | I:maj/2 | I:maj/b3 | I:maj/b7 | I:maj/#4 | I:maj/5 |', 'Over its root; over the six, a minor seven; over the four, a major nine; over the two, a nine sus; over the flat three, a major seven sharp eleven; over the flat seven, a Lydian nine; over the sharp four, a rootless dominant; over the five, a six four, waiting.',
