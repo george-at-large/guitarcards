@@ -276,3 +276,5 @@ details.guide b.faint { color: var(--faint); }
 .xmoves span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
 .xmoves p { margin: 3px 0 0; font-size: 13.5px; color: var(--dim); }
 .xmoves b { font-weight: 500; color: var(--ink); margin-right: 4px; }
+.tgcard .filechip { display: inline-block; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold); font-size: 14px; cursor: pointer; margin: 4px 0 8px; }
+.tgtag { display: block; font: italic 13px var(--serif); color: var(--gold); }

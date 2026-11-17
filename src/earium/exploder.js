@@ -15,6 +15,8 @@ import { PACKS, GROUPS, itemOf } from './packs.js';
 import { degText, ROLE } from './words.js';
 import { KIND } from './harm.js';
 import * as Gr from '../caged/grips.js';
+import * as TGB from './tgbook.js';
+import { OPEN } from './harm.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = (s) => esc(T.pretty(String(s ?? '')));
@@ -77,10 +79,10 @@ function vlCost(mode, a, b) {
 function vlPath(cands, mode, w, inWin) {
   const C = cands.map((list) => { const inside = w ? list.filter((g) => inWin(g, w)) : list; return (inside.length ? inside : list).slice(0, 36); });
   if (C.some((c) => !c.length)) return null;
-  let prev = C[0].map((g) => ({ cost: Math.max(0, 4 - g.notes.length), back: -1 }));
+  let prev = C[0].map((g) => ({ cost: Math.max(0, 4 - g.notes.length) - (g.his ? 1.5 : 0), back: -1 }));
   const backs = [prev];
   for (let k = 1; k < C.length; k++) {
-    const cur = C[k].map((g) => { let best = Infinity, bi = 0; C[k - 1].forEach((h, hi) => { const c = prev[hi].cost + vlCost(mode, h, g); if (c < best) { best = c; bi = hi; } }); return { cost: best, back: bi }; });
+    const cur = C[k].map((g) => { let best = Infinity, bi = 0; C[k - 1].forEach((h, hi) => { const c = prev[hi].cost + vlCost(mode, h, g) - (g.his ? 1.5 : 0); if (c < best) { best = c; bi = hi; } }); return { cost: best, back: bi }; });
     backs.push(cur); prev = cur;
   }
   let bi = prev.reduce((b, x, i) => (x.cost < prev[b].cost ? i : b), 0);
@@ -101,15 +103,16 @@ function moves(a, b) {
 }
 
 // every progression, in order (the packs' order), for ‹ › and 🎲
-const LIST = (() => { const seen = new Set(), out = []; for (const p of PACKS) for (const it of p.items) if (!seen.has(it.id)) { seen.add(it.id); out.push({ id: it.id, name: it.name, note: it.note, pack: p.name }); } return out; })();
-const itemFor = (id) => { const it = PACKS.flatMap((p) => p.items).find((x) => x.id === id); return it ? { ...itemOf(it), name: it.name, note: it.note } : L.byId(id); };
+const BASE_LIST = (() => { const seen = new Set(), out = []; for (const p of PACKS) for (const it of p.items) if (!seen.has(it.id)) { seen.add(it.id); out.push({ id: it.id, name: it.name, note: it.note, pack: p.name }); } return out; })();
+const LIST_ALL = () => [...BASE_LIST, ...TGB.progressions().map((x) => ({ id: x.id, name: x.name, note: x.note, pack: 'Ted Greene' }))];
+const itemFor = (id) => { if (String(id).startsWith('tg-')) { const t = TGB.progressions().find((x) => x.id === id); if (t) return t; } const it = PACKS.flatMap((p) => p.items).find((x) => x.id === id); return it ? { ...itemOf(it), name: it.name, note: it.note } : L.byId(id); };
 
 export function exploder(app, { S, save, back, unlock }) {
   const O = S.x;
   let item = null, states = [], voices = null, sel = 0, vIdx = 0, voicingsOf = [], playing = null, chosen = {}, pathCache = null;
   const tonic = () => T.parseNote((item?.minor ? MKEYS : KEYS)[O.key === 'random' ? (O.keyPc ?? 0) : KEYS.indexOf(O.key)]);
   function load(id) {
-    O.prog = id || O.prog || LIST[0].id;
+    O.prog = id || O.prog || BASE_LIST[0].id;
     item = itemFor(O.prog);
     states = explodeSteps(item, O.version, 5);
     if (O.level > states.length - 1) O.level = states.length - 1;
@@ -120,6 +123,17 @@ export function exploder(app, { S, save, back, unlock }) {
   const SHAPES = ['C', 'A', 'G', 'E', 'D'];
   const win = () => (O.shape && O.shape !== 'auto' ? Gr.positionOf(tonic(), O.shape) : null);
   const inWin = (g, w) => g.notes.every((n) => (n.fret === 0 ? w.lo <= 1 : n.fret >= w.lo - 1 && n.fret <= w.hi + 1));
+  // his own grip for a chord of one of his progressions, unchanged, in the key we're in
+  function hisGrip(x, c) {
+    if (!item?.tg || x.changed || x.oid == null) return null;
+    const notes = TGB.gripIn(item, x.oid, T.notePc(tonic()), OPEN);
+    if (!notes) return null;
+    const ivs = T.getChord(c.q).ivs, byPc = new Map(ivs.map((iv) => [(c.rootPc + T.intervalSemis(iv)) % 12, iv]));
+    const name = { 1: 'b9', 2: '9', 3: '#9', 5: '11', 6: '#11', 8: 'b13', 9: '13', 10: 'b7', 11: '7', 7: '5', 0: '1', 4: '3' };
+    const ns = notes.map((n) => ({ ...n, iv: byPc.get(n.midi % 12) || name[((n.midi - c.rootPc) % 12 + 12) % 12] })).sort((a, b) => a.midi - b.midi);
+    const fr = ns.filter((n) => n.fret > 0).map((n) => n.fret);
+    return { notes: ns, bass: ns[0].iv, at: fr.length ? fr.reduce((a, f) => a + f, 0) / fr.length : 0, his: true, tg: true };
+  }
   function chordOf(x) {
     const tn = tonic(), root = Hc.spell(tn, x.spec.iv), q = x.spec.q;
     return { root, rootPc: T.notePc(root), q, spec: x.spec, rn: Hc.label(x.spec, q, x.spec.bass), name: Hc.slashName(root, q, x.spec.bass), role: roleOf(x.spec, q, !!item.minor) };
@@ -128,6 +142,8 @@ export function exploder(app, { S, save, back, unlock }) {
   function allVoicings(c) {
     const ivs = T.getChord(c.q).ivs, basses = c.spec.bass ? [c.spec.bass] : [...new Set(ivs.filter((iv) => !/^(b|#)?(9|11|13)$/.test(iv)))];
     const out = [], seen = new Set();
+    const tgForms = TGB.formsFor(c.root, c.q).map((g) => ({ ...g, notes: g.notes, lo: g.lo }));
+    for (const g of tgForms) { const k = g.notes.map((n) => `${n.string}:${n.fret}`).join(' '); if (seen.has(k)) continue; seen.add(k); const fr = g.notes.filter((n) => n.fret > 0).map((n) => n.fret); out.push({ ...g, bass: g.notes[0].iv, at: fr.length ? fr.reduce((a, f) => a + f, 0) / fr.length : 0 }); }
     for (const b of basses) for (const g of grips(c.rootPc, c.q, b)) {
       const k = g.notes.map((n) => `${n.string}:${n.fret}`).join(' ');
       if (seen.has(k)) continue; seen.add(k);
@@ -138,7 +154,7 @@ export function exploder(app, { S, save, back, unlock }) {
     const best = new Map();
     for (const g of out) {
       const fr = g.notes.filter((n) => n.fret > 0).map((n) => n.fret), span = fr.length ? Math.max(...fr) - Math.min(...fr) : 0;
-      const k = `${INV_OF[g.bass] ?? g.bass}:${Math.round(g.at / 2.5)}:${g.notes.some((n) => n.fret === 0) ? 'o' : 'f'}`, sc = g.notes.length * 2 - span - (g.notes[g.notes.length - 1].iv === '1' ? 1 : 0);
+      const k = `${g.tg ? 'tg' : ''}${INV_OF[g.bass] ?? g.bass}:${Math.round(g.at / 2.5)}:${g.notes.some((n) => n.fret === 0) ? 'o' : 'f'}`, sc = g.notes.length * 2 - span - (g.notes[g.notes.length - 1].iv === '1' ? 1 : 0);
       if (!best.has(k) || sc > best.get(k).sc) best.set(k, { ...g, sc });
     }
     const w = win(), list = [...best.values()].sort((a, b) => a.at - b.at || (INV_OF[a.bass] ?? 0) - (INV_OF[b.bass] ?? 0));
@@ -148,7 +164,7 @@ export function exploder(app, { S, save, back, unlock }) {
   function path() {
     if (!O.vl || O.vl === 'off') return null;
     const key = `${O.prog}|${O.version}|${O.level}|${O.vl}|${O.shape}|${O.key}|${O.keyPc}`;
-    if (pathCache?.key !== key) pathCache = { key, path: vlPath(slots().map((x) => allVoicings(chordOf(x))), O.vl, win(), inWin) };
+    if (pathCache?.key !== key) pathCache = { key, path: vlPath(slots().map((x) => { const c = chordOf(x), h = hisGrip(x, c); return h ? [h, ...allVoicings(c)] : allVoicings(c); }), O.vl, win(), inWin) };
     return pathCache.path;
   }
   async function sound(notes) {
@@ -198,6 +214,8 @@ export function exploder(app, { S, save, back, unlock }) {
     if (!x) return '';
     const c = chordOf(x);
     voicingsOf = allVoicings(c);
+    const his = hisGrip(x, c);
+    if (his) voicingsOf = [his, ...voicingsOf];
     if (vIdx >= voicingsOf.length) vIdx = 0;
     const pth = path(), fromPath = pth && !chosen[sel] && vIdx === 0 ? pth[sel] : null;
     const v = fromPath || (chosen[sel] && voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === chosen[sel])) || voicingsOf[vIdx];
@@ -207,7 +225,7 @@ export function exploder(app, { S, save, back, unlock }) {
     return `<div class="xpanel"><div class="neckcol">${neckSVG(notes, { band: w ? [w.lo, w.hi] : null })}</div><div class="info">
       <div class="chord"><div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(c.role && ROLE[c.role] ? ROLE[c.role] : '')}</div></div>
       ${x.changed ? `<div class="xchg" style="--tc:${TIER_COL[x.tier]}"><b>${fmt(x.changed)}</b>${x.detail ? `<p>${fmt(x.detail)}</p>` : ''}</div>` : ''}
-      ${v ? `<div class="xvoice"><button data-act="vprev" aria-label="Previous voicing">‹</button><div><b>${esc(INV[INV_OF[v.bass] ?? 0] || '')}</b><small>${esc(degText(v.bass))} in the bass · frets ${fr.length ? `${Math.min(...fr)}–${Math.max(...fr)}` : 'open'}${w ? (v.inside ? ` · in the ${O.shape} shape` : ' · outside the shape') : ''} · ${vIdx + 1} of ${voicingsOf.length}</small></div><button data-act="vnext" aria-label="Next voicing">›</button></div>
+      ${v ? `<div class="xvoice"><button data-act="vprev" aria-label="Previous voicing">‹</button><div><b>${esc(INV[INV_OF[v.bass] ?? 0] || '')}</b>${v.his ? '<em class="tgtag">Ted Greene’s grip</em>' : v.tg ? '<em class="tgtag">Ted Greene form</em>' : ''}<small>${esc(degText(v.bass))} in the bass · frets ${fr.length ? `${Math.min(...fr)}–${Math.max(...fr)}` : 'open'}${w ? (v.inside ? ` · in the ${O.shape} shape` : ' · outside the shape') : ''} · ${vIdx + 1} of ${voicingsOf.length}</small></div><button data-act="vnext" aria-label="Next voicing">›</button></div>
       ${pth && sel > 0 && pth[sel - 1] ? `<div class="xmoves"><span>From ${fmt(chordOf(slots()[sel - 1]).name)}</span>${moves(pth[sel - 1], v).map((m) => `<p><b>${m.who}</b> ${fmt(m.text)}</p>`).join('')}</div>` : ''}
       <ol class="xnotes">${[...v.notes].sort((a, b) => b.midi - a.midi).map((n) => `<li class="k-${IVK(n.iv)}"><i></i><b>${degText(n.iv)}</b> <span>${fmt(T.noteName(T.transpose(c.root, n.iv), true))}</span></li>`).join('')}</ol>` : '<p class="xnote">No playable grip for this one.</p>'}
     </div></div>`;
@@ -215,7 +233,9 @@ export function exploder(app, { S, save, back, unlock }) {
   function draw() {
     const tier = states[O.level]?.tier || 0;
     const keyOpts = `<option value="random" ${O.key === 'random' ? 'selected' : ''}>Any key</option>${KEYS.map((k) => `<option value="${k}" ${O.key === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}`;
-    const progOpts = GROUPS.map((g) => `<optgroup label="${esc(g.name)}">${g.packs.flatMap((p) => (PACKS.find((x) => x.id === p.id)?.items || [])).map((it) => `<option value="${it.id}" ${it.id === O.prog ? 'selected' : ''}>${fmt(it.name)}</option>`).join('')}</optgroup>`).join('');
+    const tgGroups = {}; for (const t of TGB.progressions()) (tgGroups[t.group] ||= []).push(t);
+    const tgOpts = Object.entries(tgGroups).map(([g, its]) => `<optgroup label="Ted Greene · ${esc(g)}">${its.map((it) => `<option value="${it.id}" ${it.id === O.prog ? 'selected' : ''}>${fmt(it.name)}</option>`).join('')}</optgroup>`).join('');
+    const progOpts = tgOpts + GROUPS.map((g) => `<optgroup label="${esc(g.name)}">${g.packs.flatMap((p) => (PACKS.find((x) => x.id === p.id)?.items || [])).map((it) => `<option value="${it.id}" ${it.id === O.prog ? 'selected' : ''}>${fmt(it.name)}</option>`).join('')}</optgroup>`).join('');
     app.innerHTML = `
     <header class="bar"><button class="icon" data-act="xback" aria-label="Back">‹</button><h2>Exploder</h2><span></span></header>
     <div class="xpick"><button data-act="xprev" aria-label="Previous progression">‹</button><select id="xprog" class="sel">${progOpts}</select><button data-act="xnext" aria-label="Next progression">›</button><button data-act="xrand" aria-label="Random progression">🎲</button></div>
@@ -248,10 +268,11 @@ export function exploder(app, { S, save, back, unlock }) {
       const x = slots()[k];
       if (!x) { k = 0; return stepOnce(); }
       const c = chordOf(x);
-      const vs = allVoicings(c);
+      const his = hisGrip(x, c);
+      const vs = his ? [his, ...allVoicings(c)] : allVoicings(c);
       const w = win();
       const pth = path();
-      const pick = (chosen[k] && vs.find((g) => g.notes.map((n) => n.midi).join() === chosen[k])) || (pth && pth[k]) || choose(vs, w ? null : prev, w ? w.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || 5 : 5, w);
+      const pick = (chosen[k] && vs.find((g) => g.notes.map((n) => n.midi).join() === chosen[k])) || (his && !pth ? his : null) || (pth && pth[k]) || choose(vs, w ? null : prev, w ? w.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || 5 : 5, w);
       if (pick) { voices.set(pick.notes.map((n) => n.midi), A.audioCtx().currentTime + 0.02, { stagger: 0.03 }); prev = pick; }
       playing.k = k;
       app.querySelectorAll('.xch').forEach((b) => b.classList.toggle('play', Number(b.dataset.x) === k));
@@ -280,8 +301,8 @@ export function exploder(app, { S, save, back, unlock }) {
     if (b.dataset.ver) { stop(); O.version = b.dataset.ver === 'more' ? Math.max(5, O.version + 1) : Number(b.dataset.ver); states = explodeSteps(item, O.version, 5); if (O.level > states.length - 1) O.level = states.length - 1; save(); chosen = {}; sel = 0; draw(); return; }
     const a = b.dataset.act;
     if (a === 'xback') { stop(); app.onclick = null; back(); return; }
-    if (a === 'xprev' || a === 'xnext') { stop(); const i = LIST.findIndex((p) => p.id === O.prog); load(LIST[(i + (a === 'xnext' ? 1 : -1) + LIST.length) % LIST.length].id); if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); draw(); return; }
-    if (a === 'xrand') { stop(); load(LIST[Math.floor(Math.random() * LIST.length)].id); O.version = 1 + Math.floor(Math.random() * 4); states = explodeSteps(item, O.version, 5); O.level = Math.floor(states.length / 2); if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); save(); draw(); return; }
+    if (a === 'xprev' || a === 'xnext') { stop(); const i = LIST_ALL().findIndex((p) => p.id === O.prog); load(LIST_ALL()[(i + (a === 'xnext' ? 1 : -1) + LIST_ALL().length) % LIST_ALL().length].id); if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); draw(); return; }
+    if (a === 'xrand') { stop(); load(LIST_ALL()[Math.floor(Math.random() * LIST_ALL().length)].id); O.version = 1 + Math.floor(Math.random() * 4); states = explodeSteps(item, O.version, 5); O.level = Math.floor(states.length / 2); if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); save(); draw(); return; }
     if (a === 'vnext' || a === 'vprev') {
       vIdx = (vIdx + (a === 'vnext' ? 1 : -1) + voicingsOf.length) % voicingsOf.length;
       const v = voicingsOf[vIdx]; chosen[sel] = v.notes.map((n) => n.midi).join();
@@ -295,5 +316,6 @@ export function exploder(app, { S, save, back, unlock }) {
   if (O.key === 'random' && O.keyPc == null) O.keyPc = Math.floor(Math.random() * 12);
   load(O.prog);
   draw();
+  TGB.load().then((ok) => { if (ok && app.querySelector('#xprog')) { if (String(O.prog).startsWith('tg-')) load(O.prog); draw(); } });
   return { stop };
 }
