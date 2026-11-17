@@ -88,6 +88,27 @@ export function grips(rootPc, q, bassIv = '1') {
 }
 // the best grip after `prev`: little movement, a colourful top note, a full sound, the middle of the neck
 // style: close, spread, fourths, cluster, open (open strings); topPc: the melody note that must be on top
+// how good a voicing sounds on its own (lower is better): the root in the bass, no mud down low, no doubled 3rds or
+// 7ths, no stray minor ninths, a top note in a singing register, four or five notes rather than a thick strum, and
+// open strings welcome but not by default
+export function voicingCost(g, { openOk = false } = {}) {
+  const ns = [...g.notes].sort((a, b) => a.midi - b.midi), n = ns.length;
+  let c = 0;
+  if (!openOk) c += ns.filter((x) => x.fret === 0).length * 0.9;
+  if (ns[0].iv !== '1') c += ns[0].iv === '5' ? 2.4 : 1.4; // a 5th in the bass sounds unsettled (a six-four)
+  for (let i = 1; i < n; i++) { const d = ns[i].midi - ns[i - 1].midi; if (ns[i - 1].midi < 52 && d < 5) c += 1.3; else if (ns[i - 1].midi < 57 && d < 3) c += 0.8; }
+  const count = (re) => ns.filter((x) => re.test(x.iv)).length;
+  if (count(/^(b)?3$/) > 1) c += 1.6;
+  if (count(/^(b|bb)?7$/) > 1) c += 1.4;
+  const altered = ns.some((x) => /^(b9|#9|b13|#11)$/.test(x.iv));
+  if (!altered) for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (ns[j].midi - ns[i].midi === 13) c += 0.9;
+  const top = ns[n - 1].midi;
+  if (top > 81) c += (top - 81) * 0.35;
+  if (top < 62) c += (62 - top) * 0.35;
+  if (n >= 6 && ns.some((x) => /7|9|11|13|6/.test(x.iv))) c += 0.7;
+  if (n < 4 && new Set(ns.map((x) => x.iv)).size < 3) c += 1;
+  return c;
+}
 export function choose(list, prev, area, win = null, { style = null, topPc = null, prevTop = null } = {}) {
   const score = (g) => {
     const m = g.notes.map((n) => n.midi);
@@ -112,13 +133,14 @@ export function choose(list, prev, area, win = null, { style = null, topPc = nul
       c += m.reduce((s, x) => s + Math.min(...pm.map((y) => Math.abs(x - y))), 0) / m.length * 1.4 * k;
       c += pm.reduce((s, y) => s + Math.min(...m.map((x) => Math.abs(x - y))), 0) / pm.length * 0.8 * k;
     }
-    const top = g.notes[g.notes.length - 1].iv;
-    if (top === '1') c += 2.2; else if (top === '5') c += 1;
-    c -= Math.min(g.notes.length, 5) * 0.6;
+    const top = [...g.notes].sort((a, b) => b.midi - a.midi)[0].iv;
+    if (top === '1') c += 2.2; else if (top === '5') c += 0.8;
+    c -= Math.min(g.notes.length, 5) * 0.4;
+    c += voicingCost(g, { openOk: style === 'open' || style === 'cluster' });
     const fr = g.notes.filter((n) => n.fret > 0).map((n) => n.fret);
     const mid = fr.length ? fr.reduce((s, f) => s + f, 0) / fr.length : 2;
     c += Math.abs(mid - area) * 0.35;
-    c += Math.random() * 0.8; // not always the same
+    c += Math.random() * 0.5; // not always the same
     return c;
   };
   return list.map((g) => [g, score(g)]).sort((a, b) => a[1] - b[1])[0]?.[0] || null;

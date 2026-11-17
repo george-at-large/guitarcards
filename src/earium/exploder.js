@@ -10,7 +10,7 @@ import * as Hc from '../caged/harmony.js';
 import * as E from './engine.js';
 import { neckSVG } from './neck.js';
 import { explodeSteps, TIERS } from './reharm.js';
-import { grips, choose, roleOf } from './ambient.js';
+import { grips, choose, roleOf, voicingCost } from './ambient.js';
 import { PACKS, GROUPS, itemOf } from './packs.js';
 import { degText, ROLE } from './words.js';
 import { KIND } from './harm.js';
@@ -141,7 +141,7 @@ export function exploder(app, { S, save, back, unlock }) {
     const best = new Map();
     for (const g of out) {
       const fr = g.notes.filter((n) => n.fret > 0).map((n) => n.fret), span = fr.length ? Math.max(...fr) - Math.min(...fr) : 0;
-      const k = `${g.form ? 'f' : ''}${INV_OF[g.bass] ?? g.bass}:${Math.round(g.at / 2.5)}:${g.notes.some((n) => n.fret === 0) ? 'o' : 'f'}`, sc = g.notes.length * 2 - span - (g.notes[g.notes.length - 1].iv === '1' ? 1 : 0);
+      const k = `${g.form ? 'f' : ''}${INV_OF[g.bass] ?? g.bass}:${Math.round(g.at / 2.5)}:${g.notes.some((n) => n.fret === 0) ? 'o' : 'f'}`, sc = -voicingCost({ ...g, notes: g.notes.map((n) => ({ ...n, iv: n.iv })) }) - span * 0.3 + Math.min(g.notes.length, 5) * 0.4;
       if (!best.has(k) || sc > best.get(k).sc) best.set(k, { ...g, sc });
     }
     const w = win(), list = [...best.values()].sort((a, b) => a.at - b.at || (INV_OF[a.bass] ?? 0) - (INV_OF[b.bass] ?? 0));
@@ -203,6 +203,11 @@ export function exploder(app, { S, save, back, unlock }) {
     voicingsOf = allVoicings(c);
     if (vIdx >= voicingsOf.length) vIdx = 0;
     const pth = path(), auto = !chosen[sel] && vIdx === 0;
+    if (auto && !pth && !led[sel]) { // the best-sounding voicing (inside the position, if one is set), kept once chosen
+      const w2 = win(), inside = w2 ? voicingsOf.filter((g) => inWin(g, w2)) : voicingsOf;
+      const b = choose(inside.length ? inside : voicingsOf, null, w2 ? w2.mid : 6, w2);
+      if (b) led[sel] = b.notes.map((n) => n.midi).join();
+    }
     const ledV = led[sel] && voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === led[sel]);
     const v = (auto && pth ? pth[sel] : null) || (chosen[sel] && voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === chosen[sel])) || (auto ? ledV : null) || voicingsOf[vIdx];
     shown = v;

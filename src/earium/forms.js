@@ -4,6 +4,7 @@
 // Also: the progressions that come with them, as Exploder items.
 import * as T from '../theory.js';
 import { FORMS, STUDIES } from './formsdata.js';
+import { fingerable } from './harm.js';
 
 const OPEN = [40, 45, 50, 55, 59, 64]; // strings 6 → 1
 const openOf = (s) => OPEN[6 - s];
@@ -43,6 +44,7 @@ export function formsFor(root, q, area = { lo: 0, hi: 15 }) {
         if (notes.some((n) => n.fret < 1 || n.fret > 15)) continue;
         const fr = notes.map((n) => n.fret);
         if (Math.min(...fr) < area.lo - 1 || Math.max(...fr) > area.hi + 1) continue;
+        if (!fingerable(notes)) continue; // a hand can play it
         out.push({ notes: notes.sort((a, b) => a.midi - b.midi), form: true, lo: Math.min(...fr), hi: Math.max(...fr) });
       }
     });
