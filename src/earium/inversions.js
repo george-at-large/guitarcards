@@ -56,6 +56,7 @@ export function inversions(O, ui, voices) {
   const sets = O.set === 'any' ? SETS[size].map(([id]) => id) : [O.set];
   const all = sets.flatMap((id) => voicings(rootPc, O.q, id)).sort((a, b) => a.at - b.at);
   let alive = true, paused = false, timer = null, idx = -1, dir = 1, prev = null;
+  const history = []; let back = 0; // voicings already played, and how far back we've stepped
   function nextVoicing() {
     if (!all.length) return null;
     if (O.move === 'up') { idx = (idx + 1) % all.length; return all[idx]; }
@@ -65,9 +66,10 @@ export function inversions(O, ui, voices) {
     const pool = cands.length ? cands : all.filter((v) => v !== prev);
     return pool[Math.floor(Math.random() * pool.length)];
   }
-  function step() {
-    if (!alive || paused) return;
-    const v = nextVoicing();
+  function step(v0 = null) {
+    if (!alive || (paused && !v0)) return;
+    const v = v0 || nextVoicing();
+    if (!v0) { history.push(v); if (history.length > 200) history.shift(); }
     if (!v) { ui.none(); return; }
     const t = ctx().currentTime + 0.05;
     const midis = v.notes.map((n) => n.midi);
@@ -76,7 +78,7 @@ export function inversions(O, ui, voices) {
     if (lines.length) V.say(lines.map((l) => [l]), t + 0.25, { vol: O.vvol });
     ui.show(v, prev, lines);
     prev = v;
-    timer = setTimeout(step, O.pace * 1000);
+    if (!paused) timer = setTimeout(() => { if (back > 0) { back--; step(history[history.length - 1 - back]); } else step(); }, O.pace * 1000);
   }
   step();
   return {
@@ -84,7 +86,9 @@ export function inversions(O, ui, voices) {
     stop() { alive = false; clearTimeout(timer); V.hush(); voices.releaseAll(ctx().currentTime, 1.5); },
     pause(p) { paused = p; clearTimeout(timer); if (!p) step(); },
     get paused() { return paused; },
-    next() { clearTimeout(timer); step(); },
+    next() { clearTimeout(timer); if (back > 0) { back--; step(history[history.length - 1 - back]); } else step(); },
+    // back to the voicing before (and on back through what was played)
+    prev() { if (history.length - 1 - back <= 0) return; clearTimeout(timer); back++; step(history[history.length - 1 - back]); },
     count: all.length,
   };
 }

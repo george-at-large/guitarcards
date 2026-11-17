@@ -209,7 +209,7 @@ function runScreenI() {
       <div id="caption" class="caption"></div>
     </div>
   </main>
-  <div class="transport"><button data-act="inext" aria-label="Next voicing"><b>›</b><small>next</small></button></div>
+  <div class="transport"><button data-act="iprev" aria-label="Previous voicing"><b>‹</b><small>back</small></button><button data-act="inext" aria-label="Next voicing"><b>›</b><small>next</small></button></div>
   <footer class="runbar"><button data-act="slower">−</button><span id="pace">${S.i.pace} s</span><button data-act="faster">+</button><span class="instname">${E.INSTRUMENTS.find((i) => i.id === S.inst).name}</span></footer>`;
 }
 function showI(v, prev, lines) {
@@ -430,6 +430,7 @@ app.addEventListener('click', async (e) => {
   if (run && ['prevProg', 'prevChord', 'nextChord', 'nextProg'].includes(act) && run[act]) { run[act](); return; }
   if (act === 'stop') { const m = run?.mode; end(); ({ g: setupG, a: setupA, i: setupI, r: setupR })[m || 'a'](); }
   if (act === 'inext' && run?.next) { run.next(); return; }
+  if (act === 'iprev' && run?.prev) { run.prev(); return; }
   if (act === 'rnext' && run?.next) { run.next(); return; }
   if (act === 'rprev' && run?.prev) { run.prev(); return; }
   if (act === 'rview') { rView = rView === 'circle' ? 'grid' : 'circle'; S.r.view = rView; save(); return; }
