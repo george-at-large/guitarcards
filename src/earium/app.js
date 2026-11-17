@@ -15,6 +15,7 @@ import { TIERS } from './reharm.js';
 import { inversions, QUALITIES, SETS as INV_SETS, INV_NAMES } from './inversions.js';
 import { rhythm, SETS as R_SETS, inSet } from './rhythm.js';
 import { gridSVG, circleSVG } from './rview.js';
+import { exploder } from './exploder.js';
 
 const $ = (s) => document.querySelector(s);
 const app = $('#earium');
@@ -27,11 +28,12 @@ const DEF = {
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random', vlSource: 'pack:voicelead', vlVoices: 4, vlBass: 'root', vlMoves: 'one', vlFollow: 'all' },
   i: { root: 'C', q: 'maj', set: 'any', move: 'bounce', pace: 5, arp: false, voice: true, bassSay: false },
   r: { set: 'core', bpm: 72, loops: 4, count: true, voice: true, view: 'auto' },
+  x: { prog: null, key: 'C', version: 1, level: 4, explain: true, bpm: 72 },
   a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, more: false },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
-S = { ...DEF, ...(S || {}), g: { ...DEF.g, ...(S?.g || {}) }, a: { ...DEF.a, ...(S?.a || {}) }, i: { ...DEF.i, ...(S?.i || {}) }, r: { ...DEF.r, ...(S?.r || {}) } };
+S = { ...DEF, ...(S || {}), g: { ...DEF.g, ...(S?.g || {}) }, a: { ...DEF.a, ...(S?.a || {}) }, i: { ...DEF.i, ...(S?.i || {}) }, r: { ...DEF.r, ...(S?.r || {}) }, x: { ...DEF.x, ...(S?.x || {}) } };
 if (S.a.narr !== 'off') S.a.narr = 'on'; // older settings: Describe / Chords only
 const save = () => { try { localStorage.setItem('earium', JSON.stringify(S)); } catch (e) { /* */ } };
 
@@ -60,6 +62,7 @@ function home() {
   <header class="hero"><h1>Earium</h1><p>Listen into the intervals.</p></header>
   <button class="mode" data-go="g"><span class="glyph">◐</span><span><b>Guided</b><small>A voice builds chords note by note and morphs them, naming everything you hear. It can ask you to hear the next note first.</small></span></button>
   <button class="mode" data-go="a"><span class="glyph">◌</span><span><b>Ambient</b><small>Rich chords drift and morph through progressions. A voice can name them, or tell you what they're doing.</small></span></button>
+  <button class="mode" data-go="x"><span class="glyph">✺</span><span><b>Exploder</b><small>Any progression, and a slider from plain to fully exploded: passing chords, borrowed chords, subs. Tap a chord to see every way to play it.</small></span></button>
   <button class="mode" data-go="i"><span class="glyph">◇</span><span><b>Inversions</b><small>One chord in one key, bouncing around its inversions, on one string set or the whole neck.</small></span></button>
   <button class="mode" data-go="r"><span class="glyph">◷</span><span><b>Rhythm</b><small>Strums and rhythms from around the world, built up a layer at a time and described, on a grid or a circle.</small></span></button>
   ${sound()}
@@ -399,6 +402,7 @@ function end() {
 app.addEventListener('click', async (e) => {
   const b = e.target.closest('button');
   if (!b) return;
+  if (b.dataset.go === 'x') { view = 'x'; exploder(app, { S, save, back: home, unlock: async () => { await A.unlockAudio(); await A.ensureRunning(); E.setSpace(S.space); } }); window.scrollTo(0, 0); return; }
   if (b.dataset.go) { ({ home, g: setupG, a: setupA, i: setupI, r: setupR })[b.dataset.go](); window.scrollTo(0, 0); return; }
   if (b.dataset.play) { begin(b.dataset.play); return; }
   if (b.dataset.set && b.dataset.v !== undefined) {

@@ -69,7 +69,7 @@ function changesAt(cur, i, minor) {
   // 3: secondary dominants, two-fives, passing diminished (into the next chord)
   if (!(ns === 0 && (nk === 'maj' || nk === 'min')) && ['maj', 'min'].includes(nk)) {
     ins(3, 'secondary', [{ iv: ivPlus(nx.iv, '5'), q: '7', rel: { fn: 'V', to } }], `V7/${to}: a secondary dominant pointing at ${to}`);
-    ins(3, 'twofive', [{ iv: ivPlus(nx.iv, '2'), q: nk === 'min' ? 'm7b5' : 'm7', rel: { fn: nk === 'min' ? 'iiø' : 'ii', to } }, { iv: ivPlus(nx.iv, '5'), q: nk === 'min' ? '7b9' : '7', rel: { fn: 'V', to } }], `ii–V of ${to}: ${to} heard as a little home of its own`);
+    ins(3, 'twofive', [{ iv: ivPlus(nx.iv, '2'), q: nk === 'min' ? 'm7b5' : 'm7', rel: { fn: 'ii', to } }, { iv: ivPlus(nx.iv, '5'), q: nk === 'min' ? '7b9' : '7', rel: { fn: 'V', to } }], `ii–V of ${to}: ${to} heard as a little home of its own`);
     ins(3, 'passing', [{ iv: ivSemi(semi(nx.iv) - 1, true), q: 'dim7' }], `${rn({ iv: ivSemi(semi(nx.iv) - 1, true), q: 'dim7' })} into ${to}: a diminished chord a half step below`);
   }
   if (ns === 0 && k !== 'dom' && !(s === 7)) ins(3, 'dominant', [{ iv: '5', q: '7' }], `V7 before ${to}: the dominant, to close`);
@@ -150,4 +150,37 @@ export function reharmStream(O, home) {
       return out;
     },
   };
+}
+
+// ---------- the Exploder: every step from the plain progression to the most elaborate, repeatable ----------
+// A version is a seed: the same seed always gives the same path. Each state is the whole progression after one more
+// change; slots carry `changed` (why) and `tier` when they differ from the original.
+function rng(seed) { let s = (seed * 7919 + 104729) % 233280; return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; }; }
+export function explodeSteps(item, seed = 1, max = 5) {
+  const R = rng(seed);
+  const minor = !!item.minor;
+  const orig = [];
+  L.resolve(item).forEach((b) => b.forEach((spec) => orig.push({ spec, beats: 4 / b.length })));
+  const cur = orig.map((x, k) => ({ ...x, oid: k }));
+  const states = [{ slots: cur.map((x) => ({ ...x })), change: null, tier: 0 }];
+  const same = (a, b) => a && b && a.iv === b.iv && a.q === b.q && a.bass === b.bass;
+  for (let vn = 1; vn <= max * 2 + 2; vn++) {
+    const tier = Math.min(max, Math.ceil(vn / 2));
+    let made = null;
+    for (let tt = tier; tt >= 1 && !made; tt--) {
+      const opts = [];
+      cur.forEach((x, k) => changesAt(cur, k, minor).filter((c) => c.tier === tt && !same(c.swap, x.spec) && !(c.next && same(c.next, cur[(k + 1) % cur.length].spec))).forEach((c) => opts.push({ k, c, w: x.changed ? 1 : 3 })));
+      if (!opts.length) continue;
+      let r = R() * opts.reduce((a, o) => a + o.w, 0), ch = opts[0];
+      for (const o of opts) { r -= o.w; if (r <= 0) { ch = o; break; } }
+      const { k, c } = ch;
+      if (c.swap) cur[k] = { ...cur[k], spec: c.swap, changed: c.why, tier: c.tier, cat: c.cat };
+      else if (c.ins) { const x = cur[k], half = x.beats / 2, each = half / c.ins.length; cur.splice(k, 1, { ...x, beats: half }, ...c.ins.map((spec) => ({ spec, beats: each, changed: c.why, tier: c.tier, cat: c.cat, ins: true }))); }
+      else if (c.next) { const j = (k + 1) % cur.length; cur[j] = { ...cur[j], spec: c.next, changed: c.why, tier: c.tier, cat: c.cat }; }
+      made = c;
+    }
+    if (!made) break;
+    states.push({ slots: cur.map((x) => ({ ...x })), change: made, tier: made.tier });
+  }
+  return states;
 }

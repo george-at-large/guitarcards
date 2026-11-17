@@ -202,3 +202,48 @@ details.guide b.faint { color: var(--faint); }
 .vmap .vnow { fill: rgba(232, 194, 122, .1); }
 .vmap .vrn { font: 10px var(--sans); fill: var(--faint); text-anchor: middle; }
 .vmap .vrn.on { fill: var(--gold); font-weight: 600; }
+
+/* exploder */
+.xpick, .xrow { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.xpick .sel { flex: 1; min-width: 0; }
+.xpick button, .xvoice button { width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid var(--line); font-size: 18px; color: var(--dim); }
+.xrow .sel { width: auto; flex: 1; }
+.xver button { min-width: 36px; padding: 7px 10px; }
+.xslide { display: flex; align-items: center; gap: 10px; font: italic 15px var(--serif); color: var(--dim); }
+.xslide input { flex: 1; accent-color: var(--gold); }
+.xlvl { font-size: 13px; color: var(--faint); margin: 6px 0 10px; }
+.xlvl i { font-family: var(--serif); font-size: 14px; color: var(--dim); }
+.xbars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+@media (min-width: 520px) { .xbars { grid-template-columns: repeat(4, 1fr); } }
+.xbar { position: relative; height: 62px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255, 255, 255, .02); }
+.xbn { position: absolute; top: -1px; left: 5px; font-size: 9px; color: var(--faint); }
+.xtick { position: absolute; top: 18px; bottom: 6px; width: 1px; background: var(--line); }
+.xch { position: absolute; top: 12px; bottom: 4px; padding: 0 3px; border-radius: 8px; text-align: left; overflow: hidden; border: 1px solid transparent; }
+.xch b { display: block; font: 500 15px/1.15 var(--serif); color: var(--tc); white-space: nowrap; }
+.xch small { display: block; font-size: 10px; color: var(--faint); white-space: nowrap; }
+.xch.chg { background: rgba(255, 255, 255, .04); }
+.xch.sel { border-color: var(--gold); background: rgba(232, 194, 122, .1); }
+.xch.play { box-shadow: 0 0 0 2px rgba(232, 194, 122, .6) inset; }
+.xctl { display: flex; align-items: center; gap: 10px; margin: 14px 0 8px; }
+.xplay { padding: 9px 18px; border-radius: 999px; background: var(--gold); color: #1a1408; font: 500 16px var(--serif); }
+.xplay.on { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+.xctl .chip { padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); font-size: 14px; }
+.xctl .chip.on { border-color: var(--gold); color: var(--gold); }
+.xbpm { margin-left: auto; font-size: 13px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+.xbpm button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); }
+.xwhy { list-style: none; padding: 0; margin: 4px 0 10px; }
+.xwhy li { font-size: 13.5px; color: var(--dim); padding: 5px 0 5px 10px; border-left: 2px solid var(--tc); margin-bottom: 4px; }
+.xwhy li span { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--tc); margin-right: 6px; }
+.xnote { font: italic 15px var(--serif); color: var(--dim); }
+.xpanel { display: grid; grid-template-columns: 38% 1fr; gap: 14px; margin-top: 14px; }
+.xchg { font-size: 13.5px; color: var(--dim); border-left: 2px solid var(--tc); padding-left: 8px; margin: 10px 0; }
+.xvoice { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.xvoice div { flex: 1; text-align: center; }
+.xvoice b { display: block; font: 500 17px var(--serif); }
+.xvoice small { font-size: 11px; color: var(--faint); }
+.xnotes { list-style: none; padding: 0; margin: 10px 0 0; }
+.xnotes li { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+.xnotes li b { font: 500 18px var(--serif); min-width: 30px; }
+.xnotes li span { font-size: 12px; color: var(--faint); }
+.xnotes li i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.xnotes .k-r i { color: var(--r); } .xnotes .k-t3 i { color: var(--t3); } .xnotes .k-t5 i { color: var(--t5); } .xnotes .k-t7 i { color: var(--t7); } .xnotes .k-tx i { color: var(--tx); }

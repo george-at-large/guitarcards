@@ -86,7 +86,7 @@ export function grips(rootPc, q, bassIv = '1') {
 }
 // the best grip after `prev`: little movement, a colourful top note, a full sound, the middle of the neck
 // style: close, spread, fourths, cluster, open (open strings); topPc: the melody note that must be on top
-function choose(list, prev, area, win = null, { style = null, topPc = null, prevTop = null } = {}) {
+export function choose(list, prev, area, win = null, { style = null, topPc = null, prevTop = null } = {}) {
   const score = (g) => {
     const m = g.notes.map((n) => n.midi);
     let c = 0;
