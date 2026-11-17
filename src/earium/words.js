@@ -125,6 +125,13 @@ export const SPOT_TO = ['1', '3', 'b3', '4', '5', '7', 'b7', '6', '9', 'b9', '#9
 export const SPOT_SAY = (a, b, dir) => (dir === 0 ? `the ${degWord(a)} holds, as the ${degWord(b)}` : `the ${degWord(a)} ${dir < 0 ? 'falls' : 'rises'} to the ${degWord(b)}`);
 // Tension: the voice marks the high point and the release
 export const TENSION_SAY = { peak: 'the peak', release: 'release' };
+// Voice leading: a voice's note, where it goes, and which voice
+export const VL = {
+  the: (d) => `the ${degWord(d)}`,
+  move: (b, dir, same = false) => (dir === 0 ? `holds, as the ${degWord(b)}` : `${dir < 0 ? 'falls' : 'rises'} to the ${same ? 'new ' : ''}${degWord(b)}`),
+  voice: (name) => `the ${name}`,
+  four: 'In four voices.', three: 'In three voices.', inTime: 'Now in time.',
+};
 export const AMB = {
   movingTo: 'moving to',
   then: 'then',
@@ -156,6 +163,9 @@ export function allPhrases() {
   Object.values(VOICING_SAY).forEach((x) => P.add(x));
   for (const g of GUIDE) for (const t of SPOT_TO) for (const d of [-1, 0, 1]) P.add(SPOT_SAY(g, t, d));
   Object.values(TENSION_SAY).forEach((x) => P.add(x));
+  for (const d of [...DEGS, '2', '4', '6', 'b6']) { P.add(VL.the(d)); for (const dir of [-1, 0, 1]) P.add(VL.move(d, dir)); P.add(VL.move(d, -1, true)); P.add(VL.move(d, 1, true)); }
+  ['bass', 'tenor', 'alto', 'soprano', 'middle voice', 'top voice'].forEach((v) => P.add(VL.voice(v)));
+  [VL.four, VL.three, VL.inTime].forEach((x) => P.add(x));
   ['The melody alone.', 'Now with the chords.', 'Slowly, chord by chord.'].forEach((x) => P.add(x));
   [...DEGS, '2', '4', '6', 'b6'].forEach((d) => P.add(MELODY_SAY(d)));
   feelPhrases().forEach((x) => P.add(x));

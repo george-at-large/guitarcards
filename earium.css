@@ -196,3 +196,9 @@ details.guide summary { cursor: pointer; padding: 12px 0; font-size: 14px; color
 details.guide p { font-size: 14px; color: var(--dim); margin: 0 0 10px; }
 details.guide b { color: var(--ink); font-weight: 600; }
 details.guide b.faint { color: var(--faint); }
+/* voice leading */
+.vmap { width: 100%; height: auto; display: block; margin-top: 14px; }
+.vmap .vline { fill: none; stroke-linejoin: round; }
+.vmap .vnow { fill: rgba(232, 194, 122, .1); }
+.vmap .vrn { font: 10px var(--sans); fill: var(--faint); text-anchor: middle; }
+.vmap .vrn.on { fill: var(--gold); font-weight: 600; }

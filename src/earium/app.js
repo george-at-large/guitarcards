@@ -10,6 +10,7 @@ import { neckSVG } from './neck.js';
 import { guided, LESSONS } from './guided.js';
 import { ambient, PROGRESSIONS, LEVEL_NAMES, GROUPS, details } from './ambient.js';
 import { degText } from './words.js';
+import { PACKS as ALL_PACKS, GROUPS as ALL_GROUPS } from './packs.js';
 import { TIERS } from './reharm.js';
 import { inversions, QUALITIES, SETS as INV_SETS, INV_NAMES } from './inversions.js';
 import { rhythm, SETS as R_SETS, inSet } from './rhythm.js';
@@ -23,7 +24,7 @@ const ROOTS = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B�
 
 const DEF = {
   inst: 'guitar', space: 0.55, vvol: 0.7,
-  g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random' },
+  g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random', vlSource: 'pack:voicelead', vlVoices: 4, vlBass: 'root', vlMoves: 'one', vlFollow: 'all' },
   i: { root: 'C', q: 'maj', set: 'any', move: 'bounce', pace: 5, arp: false, voice: true, bassSay: false },
   r: { set: 'core', bpm: 72, loops: 4, count: true, voice: true, view: 'auto' },
   a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, more: false },
@@ -73,9 +74,9 @@ function setupG() {
   <header class="bar"><button class="icon" data-go="home" aria-label="Back">‹</button><h2>Guided</h2><span></span></header>
   <section class="card">
     ${row('Lesson', seg('g.lesson', LESSONS.map((l) => [l.id, l.name]), g.lesson), LESSONS.find((l) => l.id === g.lesson).blurb)}
-    ${row('Colours', slider('g.level', 1, 5, 1, g.level, lv.name), lv.blurb)}
-    ${g.lesson === 'build' ? row('Up to', seg('g.maxNotes', [3, 4, 5, 6, 7].map((n) => [n, `${n} notes`]), g.maxNotes)) : ''}
-    ${g.lesson !== 'intervals' ? row('Bass', seg('g.bass', [['root', 'Root lowest'], ['inv', 'Inversions']], g.bass)) : ''}
+    ${g.lesson === 'voicelead' ? vlRows(g) : row('Colours', slider('g.level', 1, 5, 1, g.level, lv.name), lv.blurb)}
+    ${g.lesson === 'build' && g.lesson !== 'voicelead' ? row('Up to', seg('g.maxNotes', [3, 4, 5, 6, 7].map((n) => [n, `${n} notes`]), g.maxNotes)) : ''}
+    ${g.lesson !== 'intervals' && g.lesson !== 'voicelead' ? row('Bass', seg('g.bass', [['root', 'Root lowest'], ['inv', 'Inversions']], g.bass)) : ''}
     ${row('Ask me', seg('g.prompts', [['off', 'Never'], ['imagine', 'Imagine it'], ['quiz', 'Name it'], ['mix', 'Both']], g.prompts),
     g.prompts === 'imagine' ? 'Now and then you’ll be told which note is coming, and given time to hear it in your head before it sounds.' : g.prompts === 'quiz' ? 'Now and then a note comes in unnamed: name it (tap, or just say it), then you’re told.' : g.prompts === 'mix' ? 'Sometimes imagine it first, sometimes name it.' : 'Everything is named as it happens.')}
     ${row('Voice', seg('g.voice', [['rich', 'Full'], ['minimal', 'Just names'], ['off', 'Off']], g.voice), g.voice === 'rich' ? 'Each note’s name and its character, and the chord’s name.' : g.voice === 'minimal' ? 'The note and the chord, nothing more.' : 'Silent: everything is still written on screen.')}
@@ -84,6 +85,46 @@ function setupG() {
   </section>
   ${sound()}
   <button class="play" data-play="g">Begin</button>`;
+}
+// Voice leading's settings: which progression (or a whole pack), how many voices, the bass, how the voices move
+function vlRows(g) {
+  const opts = ALL_GROUPS.map((gr) => `<optgroup label="${esc(gr.name)}">${gr.packs.map((p) => {
+    const pk = ALL_PACKS.find((x) => x.id === p.id); if (!pk) return '';
+    return `<option value="pack:${pk.id}" ${g.vlSource === `pack:${pk.id}` ? 'selected' : ''}>All of: ${fmt(pk.name)}</option>${pk.items.map((it) => `<option value="item:${it.id}" ${g.vlSource === `item:${it.id}` ? 'selected' : ''}>  ${fmt(it.name)}</option>`).join('')}`;
+  }).join('')}</optgroup>`).join('');
+  const n = Number(g.vlVoices), names = n === 4 ? ['Bass', 'Tenor', 'Alto', 'Soprano'] : ['Bass', 'Middle', 'Top'];
+  if (g.vlFollow !== 'all' && Number(g.vlFollow) >= n) g.vlFollow = 'all';
+  return row('Progression', `<select data-set="g.vlSource" class="sel">${opts}</select>`, 'One progression, or a whole pack in turn.')
+    + row('Voices', seg('g.vlVoices', [[3, 'Three'], [4, 'Four']], n))
+    + row('Bass', seg('g.vlBass', [['root', 'Root in the bass'], ['free', 'Inversions allowed']], g.vlBass), g.vlBass === 'free' ? 'The bass moves smoothly too: the smoothest voice leading of all.' : 'The bass plays each chord’s root (or the bass written); the upper voices do the leading.')
+    + row('Moves', seg('g.vlMoves', [['one', 'One at a time'], ['together', 'Together']], g.vlMoves), g.vlMoves === 'one' ? 'Each voice moves on its own, the smallest move first, and is named.' : 'All voices move at once; the moves that matter are named.')
+    + row('Follow', seg('g.vlFollow', [['all', 'All'], ...names.map((nm, i) => [i, nm])], g.vlFollow), g.vlFollow === 'all' ? '' : 'The other voices move quietly together; this one moves on its own, louder, and is named.');
+}
+const VCOL = { 4: ['var(--t3)', 'var(--t5)', 'var(--t7)', 'var(--gold)'], 3: ['var(--t3)', 'var(--t5)', 'var(--gold)'] };
+// the voice map: one line per voice through the progression
+function vmapSVG(st) {
+  const { path, chords, k, n, follow } = st;
+  const W = 230, H = 150, x = (i) => 10 + (i * (W - 20)) / Math.max(1, path.length - 1);
+  const lo = Math.min(...path.flatMap((v) => v.midis)) - 2, hi = Math.max(...path.flatMap((v) => v.midis)) + 2;
+  const y = (m) => 8 + ((hi - m) / (hi - lo)) * (H - 30);
+  const parts = [`<rect x="${x(k) - 8}" y="2" width="16" height="${H - 18}" rx="5" class="vnow"/>`];
+  for (let v = 0; v < n; v++) {
+    const dim = follow != null && v !== follow;
+    parts.push(`<polyline points="${path.map((p, i) => `${x(i)},${y(p.midis[v])}`).join(' ')}" style="stroke:${VCOL[n][v]};opacity:${dim ? 0.25 : 0.85};stroke-width:${follow === v ? 3 : 1.6}" class="vline"/>`);
+    path.forEach((p, i) => parts.push(`<circle cx="${x(i)}" cy="${y(p.midis[v])}" r="${i === k ? 4.2 : 2.6}" style="fill:${VCOL[n][v]};opacity:${dim ? 0.3 : 1}"/>`));
+  }
+  chords.forEach((c, i) => parts.push(`<text x="${x(i)}" y="${H - 4}" class="vrn${i === k ? ' on' : ''}">${fmt(c.rn)}</text>`));
+  return `<svg class="vmap" viewBox="0 0 ${W} ${H}">${parts.join('')}</svg>`;
+}
+function showVL(st) {
+  $('#neck').innerHTML = neckSVG(st.neck);
+  const c = st.chords[st.k];
+  $('#chord').innerHTML = `<div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(st.keyLabel)} · ${esc(st.item.name)}</div>`;
+  const order = st.sounding.map((m, v) => ({ m, v, iv: st.ivs[v] })).sort((a, b) => b.m - a.m);
+  $('#stack').innerHTML = `<ol>${order.map((o) => `<li class="${st.moving === o.v || (st.moved || []).includes(o.v) ? 'fresh' : ''}" style="color:${VCOL[st.n][o.v]}"><i></i><b>${degText(o.iv)}</b><span>${esc(st.vnames[o.v])}${st.follow === o.v ? ' ●' : ''}</span></li>`).join('')}</ol>${vmapSVG(st)}`;
+  if (st.caption) $('#caption').innerHTML = st.caption.map((l) => `<p>${fmt(l)}</p>`).join('');
+  const p = st.prompt;
+  $('#prompt').innerHTML = p ? `<div class="prompt"><div class="ring" style="--secs:${p.secs}s"></div><p>${fmt(p.text)}</p></div>` : '';
 }
 function setupA() {
   view = 'a';
@@ -344,7 +385,7 @@ async function begin(mode) {
   if (mode === 'r') { runScreenR(); const O = { ...S.r, vvol: S.vvol * 4 }; run = rhythm(O, rUI); run.mode = mode; return; }
   runScreen(mode);
   const O = { ...(mode === 'g' ? S.g : S.a), vvol: S.vvol * 4 };
-  if (mode === 'g') run = guided(O, { show: showG, quiz: quizUI }, voices);
+  if (mode === 'g') run = guided(O, { show: showG, quiz: quizUI, vl: showVL }, voices);
   else run = ambient(O, { show: showA, intro: introA, caption: (lines) => { const el = $('#caption'); if (el) el.innerHTML = lines.map((l) => `<p>${esc(l)}</p>`).join(''); } }, voices);
   run.mode = mode; run.O = O;
 }

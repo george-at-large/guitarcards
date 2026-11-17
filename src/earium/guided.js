@@ -6,7 +6,12 @@ import * as A from '../audio.js';
 import * as T from '../theory.js';
 import * as V from '../caged/voice.js';
 import * as H from './harm.js';
-import { G, COLOUR, degText, rootName } from './words.js';
+import { G, COLOUR, degText, rootName, degWord } from './words.js';
+import * as L from '../caged/library.js';
+import * as Hc from '../caged/harmony.js';
+import { PACKS, packById, itemOf, speakable } from './packs.js';
+import { solve, movesBetween, VOICE_NAMES } from './vlead.js';
+import { VL } from './words.js';
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const wpick = (pairs) => { let r = Math.random() * pairs.reduce((s, p) => s + p[1], 0); for (const [v, w] of pairs) { r -= w; if (r <= 0) return v; } return pairs[0][0]; };
@@ -15,6 +20,7 @@ export const LESSONS = [
   { id: 'build', name: 'Build & morph', blurb: 'Notes come in one by one until a chord stands, then it morphs, one voice at a time.' },
   { id: 'colours', name: 'Triad + colours', blurb: 'A triad holds; colours (7ths, 9ths, 11ths, 13ths…) come in and leave, one at a time.' },
   { id: 'intervals', name: 'Intervals', blurb: 'Just the drone and one other note at a time.' },
+  { id: 'voicelead', name: 'Voice leading', blurb: 'A progression in three or four voices. Each voice moves to the next chord on its own, the smallest move first, and is named as it goes.' },
 ];
 
 export function guided(O, ui, voices) {
@@ -245,10 +251,128 @@ export function guided(O, ui, voices) {
     await until(now() + 2);
   }
 
+  // ---------- Voice leading: a progression, every voice traced ----------
+  function vlItems() {
+    const [kind, id] = String(O.vlSource || 'pack:voicelead').split(':');
+    if (kind === 'pack') { const pk = packById(id) || PACKS[0]; return pk.items.map((it) => ({ ...itemOf(it), name: it.name || itemOf(it).name, note: it.note })); }
+    const it = PACKS.flatMap((pk) => pk.items).find((x) => x.id === id);
+    return [it ? { ...itemOf(it), name: it.name, note: it.note } : L.byId(id)];
+  }
+  const NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  function chordWords(c) {
+    let w = V.chordWords(c, 'num', true)[0] || [];
+    if (w[1] === 'minor') w = [`minor ${w[0]}`, ...w.slice(2)];
+    return w;
+  }
+  let vlPc = null;
+  async function voiceLead() {
+    const n = Number(O.vlVoices) || 4;
+    for (const item of vlItems()) {
+      if (!alive) return;
+      vlPc = O.root === 'random' ? (vlPc == null ? Math.floor(Math.random() * 12) : (vlPc + pick([5, 7, 2, 10])) % 12) : Number(O.root);
+      const minor = !!item.minor;
+      const tonic = T.parseNote(minor ? ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'][vlPc] : NAMES[vlPc]);
+      const specs = L.resolve(item).flat();
+      const chords = specs.map((spec) => { const root = Hc.spell(tonic, spec.iv); return { spec, q: spec.q, root, rootPc: T.notePc(root), bass: spec.bass, rn: Hc.label(spec, spec.q, spec.bass), name: Hc.slashName(root, spec.q, spec.bass) }; });
+      const path = solve(chords, n, O.vlBass === 'free');
+      if (!path) continue;
+      const follow = O.vlFollow === 'all' || O.vlFollow == null ? null : Number(O.vlFollow);
+      const vnames = VOICE_NAMES[n];
+      let place = null, sounding = [...path[0].midis], sivs = [...path[0].ivs];
+      const show = (k, extra = {}) => {
+        place = H.place([...sounding].sort((a, b) => a - b), place);
+        ui.vl({ item, chords, path, k, n, sounding: [...sounding], ivs: [...sivs], vnames, follow, keyLabel: `${T.noteName(tonic, true)} ${minor ? 'minor' : 'major'}`,
+          neck: place.notes.map((pn) => { const i = sounding.indexOf(pn.midi); const iv = sivs[i] || '1'; return { ...pn, label: degText(iv), kind: H.KIND(iv.replace(/^(b|#)?(2|4|6)$/, (m, a, d) => (d === '6' ? (a || '') + '6' : (a || '') + { 2: '9', 4: '11' }[d]))), spot: follow != null && i === follow }; }),
+          ...extra });
+      };
+      const boost = () => (follow != null ? [sounding[follow]] : null);
+      // introduce
+      let t = now();
+      voices.set(sounding, t, { boost: boost() });
+      const intro = [speakable(item.name), n === 4 ? VL.four : VL.three];
+      show(0, { caption: intro, fresh: null });
+      t = await say(intro, t + 0.3);
+      const first = chordWords(chords[0]);
+      if (O.voice !== 'off') { const e = await V.say([first], t + 0.1, { vol: O.vvol }); t = e || t + 1.5; }
+      show(0, { caption: [first.join(' ')] });
+      await until(t + pace() * 0.8);
+      // chord by chord, voice by voice
+      for (let k = 1; k < chords.length; k++) {
+        const mv = movesBetween(path[k - 1], path[k]);
+        const moving = mv.filter((m) => m.d !== 0).sort((a, b) => Math.abs(a.d) - Math.abs(b.d));
+        const holding = mv.filter((m) => m.d === 0 && m.a !== m.b);
+        const together = O.vlMoves === 'together' || follow != null;
+        if (together) {
+          // the others move together; a followed voice moves last, on its own
+          const others = moving.filter((m) => m.voice !== follow);
+          others.forEach((m) => { sounding[m.voice] = m.to; sivs[m.voice] = m.b; });
+          holding.forEach((m) => { sivs[m.voice] = m.b; });
+          if (follow == null) mv.forEach((m) => { sivs[m.voice] = m.b; });
+          t = now(); voices.set(sounding, t, { stagger: 0.05, boost: boost() });
+          show(k, { moved: others.map((m) => m.voice) });
+          if (follow == null) {
+            const key = moving.filter((m) => /3|7/.test(m.a) || /3|7/.test(m.b)).slice(0, 2);
+            const lines = [...key.map((m) => [VL.the(m.a), VL.move(m.b, m.d, m.a === m.b)].join(' ')), chordWords(chords[k]).join(' ')];
+            show(k, { caption: lines, moved: others.map((m) => m.voice) });
+            if (O.voice !== 'off') { const e = await V.say([...key.map((m) => [VL.the(m.a), VL.move(m.b, m.d, m.a === m.b)]), chordWords(chords[k])], t + 0.3, { vol: O.vvol }); t = e || t + 2; }
+            await until(t + pace() * 0.7);
+            continue;
+          }
+          await until(t + Math.max(1, pace() * 0.3));
+        }
+        const solo = follow != null ? mv.filter((m) => m.voice === follow) : moving;
+        for (const m of solo) {
+          const mode = promptMode();
+          if (mode === 'imagine') {
+            show(k, { caption: [G.imagineMove], prompt: { kind: 'imagine', text: `${vnames[m.voice]}: ${degText(m.a)} → ${degText(m.b)}`, secs: Math.max(3, pace() * 0.6) } });
+            t = await say([G.imagineMove], now());
+            await until(t + Math.max(3, pace() * 0.6));
+          }
+          sounding[m.voice] = m.to; sivs[m.voice] = m.b;
+          t = now(); voices.set(sounding, t, { boost: boost() });
+          const words = [...(follow != null ? [VL.voice(vnames[m.voice])] : []), VL.the(m.a), VL.move(m.b, m.d, m.a === m.b)];
+          if (mode === 'quiz') {
+            show(k, { caption: [G.quizMove], moving: m.voice, prompt: { kind: 'imagine', text: 'Which voice moved, and where to?', secs: Math.max(4, pace() * 0.6) } });
+            t = await say([G.quizMove], t + 0.2);
+            await until(t + Math.max(4, pace() * 0.6));
+          }
+          show(k, { caption: [words.join(' ')], moving: m.voice });
+          if (O.voice !== 'off') { const e = await V.say([words], now() + 0.15, { vol: O.vvol }); t = e || now() + 1.5; }
+          await until(Math.max(t, now()) + Math.max(0.8, pace() * 0.35));
+        }
+        // the holds that change role, then the chord's name
+        holding.forEach((m) => { sivs[m.voice] = m.b; });
+        if (follow == null) mv.forEach((m) => { sivs[m.voice] = m.b; });
+        const hold = O.voice === 'rich' && follow == null ? holding.slice(0, 1).map((m) => [VL.the(m.a), VL.move(m.b, 0)]) : [];
+        const name = chordWords(chords[k]);
+        show(k, { caption: [...hold.map((h) => h.join(' ')), name.join(' ')] });
+        if (O.voice !== 'off') { const e = await V.say([...hold, name], now() + 0.1, { vol: O.vvol }); t = e || now() + 1.5; } else t = now();
+        await until(t + pace() * 0.6);
+      }
+      // the whole progression, in time
+      t = await say([VL.inTime], now());
+      show(0, { caption: [VL.inTime] });
+      const spc = 60 / 72 * 4;
+      for (let k = 0; k < chords.length; k++) {
+        sounding = [...path[k].midis]; sivs = [...path[k].ivs];
+        const at = Math.max(t, now()) + 0.1;
+        voices.set(sounding, at, { boost: boost() });
+        await until(at);
+        show(k, { caption: [VL.inTime] });
+        t = at + spc * (specs[k] ? 1 : 1);
+        await until(t - 0.05);
+      }
+      await until(now() + 1.5);
+      voices.releaseAll(now(), 2);
+      await until(now() + 2.5);
+    }
+  }
+
   async function run() {
     let first = true;
     while (alive) {
       try {
+        if (O.lesson === 'voicelead') { await voiceLead(); continue; }
         await opening(first); first = false;
         if (O.lesson === 'colours') await colours();
         else if (O.lesson === 'intervals') await intervals();
