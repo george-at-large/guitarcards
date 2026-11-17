@@ -16,7 +16,6 @@ import { inversions, QUALITIES, SETS as INV_SETS, INV_NAMES } from './inversions
 import { rhythm, SETS as R_SETS, inSet } from './rhythm.js';
 import { gridSVG, circleSVG } from './rview.js';
 import { exploder } from './exploder.js';
-import * as TGB from './tgbook.js';
 
 const $ = (s) => document.querySelector(s);
 const app = $('#earium');
@@ -30,7 +29,7 @@ const DEF = {
   i: { root: 'C', q: 'maj', set: 'any', move: 'bounce', pace: 5, arp: false, voice: true, bassSay: false },
   r: { set: 'core', bpm: 72, loops: 4, count: true, voice: true, view: 'auto' },
   x: { prog: null, key: 'C', version: 1, level: 4, explain: true, bpm: 72, shape: 'auto', tour: false, vl: 'off' },
-  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, tgv: false, more: false },
+  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, forms: false, more: false },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
@@ -67,7 +66,6 @@ function home() {
   <button class="mode" data-go="i"><span class="glyph">◇</span><span><b>Inversions</b><small>One chord in one key, bouncing around its inversions, on one string set or the whole neck.</small></span></button>
   <button class="mode" data-go="r"><span class="glyph">◷</span><span><b>Rhythm</b><small>Strums and rhythms from around the world, built up a layer at a time and described, on a grid or a circle.</small></span></button>
   ${sound()}
-  <section class="card tgcard"><h3>Ted Greene (private)</h3>${TGB.ready() ? `<p class="hint">Your copy of <i>Modern Chord Progressions</i> is on this device (${TGB.from() === 'files' ? 'from the book file on this Mac' : 'from the imported pack'}): his progressions are in the Exploder, his grips in the Exploder, Inversions and Ambient. It never leaves this device.</p>` : `<p class="hint">Import your private pack (<b>tedgreene-pack.json</b>, from the <i>private</i> folder on your Mac; AirDrop it to the phone) to add his progressions and grips. It stays on this device, never uploaded.</p>`}<label class="chip filechip">${TGB.ready() ? 'Update the pack' : 'Import the pack'}<input type="file" id="tgpack" accept=".json,application/json" hidden></label><p class="hint" id="tgmsg"></p></section>
   <p class="foot">Use headphones. The neck shows where each note lives; it isn't always a grip you'd play.</p>`;
 }
 
@@ -147,7 +145,7 @@ function setupA() {
     ${row('Complexity', slider('a.level', 1, 5, 1, a.level, LEVEL_NAMES[a.level - 1]), a.src === 'wander' ? ['Triads of the key.', 'Sevenths, add9s.', 'Borrowed chords, secondary dominants, 9ths.', 'Jazz: ii–Vs everywhere, tritone subs, 13ths, altered.', 'Far out: chromatic mediants, distant keys.'][a.level - 1] : ['Chords as written.', 'Chords as written.', 'Now and then a chord gets a colour (a 9th, a 13th…).', 'Most chords get colours.', 'Colours everywhere.'][a.level - 1])}
     ${row('Key', `<div class="keyrow"><select data-set="a.key" class="sel"><option value="random" ${a.key === 'random' ? 'selected' : ''}>Any, changing</option>${['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map((k) => `<option value="${k}" ${a.key === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}</select>${a.src === 'wander' ? seg('a.minor', [[false, 'Major'], [true, 'Minor']], a.minor) : ''}</div>`)}
     ${row('Each chord', slider('a.secs', 5, 30, 1, a.secs, `${a.secs} s`))}
-    ${TGB.ready() ? row('Voicings', seg('a.tgv', [[false, 'Guitar grips'], [true, 'Ted Greene forms']], a.tgv), a.tgv ? 'Every chord in one of his grips from the book, moved to its root.' : '') : ''}
+    ${row('Voicings', seg('a.forms', [[false, 'Guitar grips'], [true, 'Jazz forms']], a.forms), a.forms ? 'Every chord in a classic jazz-guitar shape, with its tensions, moved to its root.' : '')}
     ${row('Position', seg('a.shape', [['auto', 'Auto'], ['C', 'C'], ['A', 'A'], ['G', 'G'], ['E', 'E'], ['D', 'D']], a.shape), a.shape === 'auto' ? 'Grips anywhere on the neck, each one close to the last.' : `Every chord voiced inside the ${a.shape} shape of its key. Change it while playing, too.`)}
     ${row('Movement', seg('a.motion', [['still', 'Still'], ['gentle', 'Gentle'], ['flowing', 'Flowing']], a.motion), a.motion === 'still' ? 'Only the chord changes move.' : a.motion === 'gentle' ? 'The top voice wanders to another chord tone.' : 'Suspensions resolve and the top voice sings a little.')}
     ${row('Narration', seg('a.narr', [['on', 'On'], ['off', 'Off']], a.narr), a.narr === 'off' ? 'Silent: names and theory still shown on screen.' : 'Chord names, briefly. How much theory, and whether extensions are named, you set with the buttons while it plays.')}
@@ -159,13 +157,13 @@ function setupA() {
 function setupI() {
   view = 'i';
   const o = S.i, size = ['maj7', '7', 'm7', 'm7b5', 'dim7', 'mMaj7', '6', 'm6'].includes(o.q) ? 4 : 3;
-  if (o.set !== 'any' && o.set !== 'tg' && !INV_SETS[size].some(([id]) => id === o.set)) o.set = 'any';
+  if (o.set !== 'any' && o.set !== 'forms' && !INV_SETS[size].some(([id]) => id === o.set)) o.set = 'any';
   app.innerHTML = `
   <header class="bar"><button class="icon" data-go="home" aria-label="Back">‹</button><h2>Inversions</h2><span></span></header>
   <section class="card">
     ${row('Key', `<select data-set="i.root" class="sel">${['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map((k) => `<option value="${k}" ${o.root === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}</select>`)}
     ${row('Chord', `<select data-set="i.q" class="sel">${QUALITIES.map(([q, l]) => `<option value="${q}" ${o.q === q ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`)}
-    ${row('Strings', seg('i.set', [['any', 'Anywhere'], ...INV_SETS[size], ...(TGB.ready() ? [['tg', 'Ted Greene forms']] : [])], o.set), size === 4 ? 'Sevenths as drop 2 or drop 3 voicings, one note per string.' : 'Triads on three neighbouring strings, one note per string.')}
+    ${row('Strings', seg('i.set', [['any', 'Anywhere'], ...INV_SETS[size], ['forms', 'Jazz forms']], o.set), size === 4 ? 'Sevenths as drop 2 or drop 3 voicings, one note per string.' : 'Triads on three neighbouring strings, one note per string.')}
     ${row('Move', seg('i.move', [['bounce', 'Bounce'], ['up', 'Up the neck'], ['updown', 'Up and down']], o.move), o.move === 'bounce' ? 'Each time a different inversion, nearby.' : '')}
     ${row('Each voicing', slider('i.pace', 2, 12, 1, o.pace, `${o.pace} s`))}
     ${row('Play', seg('i.arp', [[false, 'Together'], [true, 'Arpeggio']], o.arp))}
@@ -462,7 +460,7 @@ app.addEventListener('input', (e) => {
   }
 });
 app.addEventListener('change', async (e) => { const el = e.target;
-  if (el.id === 'tgpack' && el.files?.[0]) { const m = $('#tgmsg'); try { if (m) m.textContent = 'Reading…'; await TGB.importPack(el.files[0]); home(); } catch (err) { if (m) m.textContent = err.message; } return; } if (el.tagName === 'SELECT' && el.dataset.set) { put(el.dataset.set, el.value); rerender(); } else if (el.type === 'range') rerender(); });
+  if (el.tagName === 'SELECT' && el.dataset.set) { put(el.dataset.set, el.value); rerender(); } else if (el.type === 'range') rerender(); });
 function rerender() { const y = window.scrollY; const f = { home, g: setupG, a: setupA, i: setupI, r: setupR }[view]; if (f) f(); window.scrollTo(0, y); }
 // the run reads its options live: pace changes take effect at the next step
 function liveOpts() { if (!run?.O) return; if (run.mode === 'g') run.O.pace = S.g.pace; else if (run.mode === 'a') run.O.secs = S.a.secs; }
@@ -481,4 +479,3 @@ async function preview() {
 document.addEventListener('visibilitychange', async () => { if (!document.hidden && run) { try { await A.ensureRunning(); if (navigator.wakeLock && !lock) lock = await navigator.wakeLock.request('screen'); } catch (e) { /* */ } } });
 if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 home();
-TGB.load().then((ok) => { if (ok && view === 'home') home(); });

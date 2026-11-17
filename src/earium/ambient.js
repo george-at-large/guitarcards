@@ -17,7 +17,7 @@ import * as Gr from '../caged/grips.js';
 import { ROLE, ROLE_SHORT, whyOf, EXTS, EXT_SAY, EXT_INFO, COLOUR, WHY, degWord, degText } from './words.js';
 import { PACKS, GROUPS, packById, packSay, itemSay, itemOf } from './packs.js';
 import { reharmStream } from './reharm.js';
-import * as TGB from './tgbook.js';
+import { formsFor } from './forms.js';
 import { VOICING_SAY, MELODY_SAY, GUIDE, SPOT_SAY, TENSION_SAY } from './words.js';
 import { sourceMode, MODE_SAY, feelLines, FEEL, FEEL_WHY, FEEL_ROLE, FEEL_ROLE_WHY } from './feel.js';
 
@@ -262,7 +262,7 @@ export function ambient(O, ui, voices) {
     const win = O.shape && O.shape !== 'auto' ? Gr.positionOf(c.key.tonic, O.shape) : null;
     const near = win ? win.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || area : area;
     const o = { style: c.style || null, topPc: c.top ? (T.notePc(c.key.tonic) + semis(c.top)) % 12 : null, prevTop: c.top && prev ? Math.max(...prev.notes.map((n) => n.midi)) : null };
-    const his = O.tgv && !c.spec.bass ? TGB.formsFor(c.root, c.q, win ? { lo: win.lo, hi: win.hi } : { lo: 0, hi: 15 }) : [];
+    const his = O.forms && !c.spec.bass ? formsFor(c.root, c.q, win ? { lo: win.lo, hi: win.hi } : { lo: 0, hi: 15 }) : [];
     let g = choose(his.length ? his : grips(T.notePc(c.root), c.q, c.spec.bass || '1'), win ? null : prev, near, win, o);
     if (!g) g = choose(grips(T.notePc(c.root), c.q, '1'), win ? null : prev, near, win, o) || choose(grips(T.notePc(c.root), Hc.toSeventh(Hc.toTriad(c.q), c.spec.iv, {}), '1'), prev, near, win);
     return g;

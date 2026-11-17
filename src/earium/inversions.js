@@ -6,7 +6,7 @@ import * as A from '../audio.js';
 import * as V from '../caged/voice.js';
 import { OPEN, fingerable } from './harm.js';
 import { degWord } from './words.js';
-import * as TGB from './tgbook.js';
+import { formsFor } from './forms.js';
 
 export const QUALITIES = [['maj', 'Major'], ['min', 'Minor'], ['dim', 'Diminished'], ['aug', 'Augmented'], ['sus4', 'Sus 4'], ['sus2', 'Sus 2'],
   ['maj7', 'Major 7'], ['7', 'Dominant 7'], ['m7', 'Minor 7'], ['m7b5', 'Half-diminished'], ['dim7', 'Diminished 7'], ['mMaj7', 'Minor-major 7'], ['6', 'Major 6'], ['m6', 'Minor 6']];
@@ -64,9 +64,9 @@ export function inversions(O, ui, voices) {
   const ctx = () => A.audioCtx();
   const rootPc = T.notePc(T.parseNote(O.root));
   const size = T.getChord(O.q).ivs.length >= 4 ? 4 : 3;
-  const sets = O.set === 'any' ? SETS[size].map(([id]) => id) : O.set === 'tg' ? [] : [O.set];
+  const sets = O.set === 'any' ? SETS[size].map(([id]) => id) : O.set === 'forms' ? [] : [O.set];
   let all = sets.flatMap((id) => voicings(rootPc, O.q, id));
-  if (O.set === 'tg') all = TGB.formsFor(T.parseNote(O.root), O.q).filter((g) => g.notes.length <= 5).map((g) => { const fr = g.notes.filter((n) => n.fret > 0).map((n) => n.fret); return { notes: g.notes, set: 'tg', inv: ORDER[g.notes[0].iv] ?? 0, bass: g.notes[0].iv, at: fr.length ? fr.reduce((a, b) => a + b, 0) / fr.length : 0, tg: true }; });
+  if (O.set === 'forms') all = formsFor(T.parseNote(O.root), O.q).filter((g) => g.notes.length <= 5).map((g) => { const fr = g.notes.map((n) => n.fret); return { notes: g.notes, set: 'forms', inv: ORDER[g.notes[0].iv] ?? 0, bass: g.notes[0].iv, at: fr.reduce((a, b) => a + b, 0) / fr.length, form: true }; });
   all.sort((a, b) => a.at - b.at);
   let alive = true, paused = false, timer = null, idx = -1, dir = 1, prev = null;
   const history = []; let back = 0; // voicings already played, and how far back we've stepped
