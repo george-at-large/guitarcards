@@ -85,7 +85,14 @@ export function exploder(app, { S, save, back, unlock }) {
     if (!O.explain) return '';
     const st = states.slice(1, O.level + 1);
     if (!st.length) return '<p class="xnote">As written. Move the slider to explode it.</p>';
-    return `<ol class="xwhy">${st.map((s) => `<li style="--tc:${TIER_COL[s.tier]}"><span>${esc(TIERS[s.tier - 1].name)}</span> ${fmt(s.change.why)}</li>`).join('')}</ol>`;
+    const keyName = T.noteName(tonic(), true) + (item.minor ? ' minor' : '');
+    return `<ol class="xwhy">${states.slice(1, O.level + 1).map((s, j) => {
+      const prevState = states[j], c = s.change, at = c.at ?? 0, sl = s.slots;
+      const nm = (x) => (x ? chordOf(x).name : '');
+      const here = sl[at], after = sl[(at + 1) % sl.length], before = prevState.slots[at];
+      const eg = c.swap ? `${nm(here)} in place of ${nm(before)}, then ${nm(after)}` : c.ins ? `${c.ins.length > 1 ? `${nm(sl[at])} ${nm(sl[at + 1])}` : nm(here)} → ${nm(sl[(at + c.ins.length) % sl.length])}` : `${nm(sl[(at - 1 + sl.length) % sl.length])} → ${nm(here)}`;
+      return `<li style="--tc:${TIER_COL[s.tier]}"><span>${esc(TIERS[s.tier - 1].name)}</span> <b>${fmt(c.why)}</b>${c.detail ? `<p>${fmt(c.detail)}</p>` : ''}<em>In ${fmt(keyName)}: ${fmt(eg)}</em></li>`;
+    }).join('')}</ol>`;
   }
   function chordPanel() {
     const sl = slots(), x = sl[sel];
@@ -98,7 +105,7 @@ export function exploder(app, { S, save, back, unlock }) {
     const fr = v ? v.notes.filter((n) => n.fret > 0).map((n) => n.fret) : [];
     return `<div class="xpanel"><div class="neckcol">${neckSVG(notes)}</div><div class="info">
       <div class="chord"><div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(c.role && ROLE[c.role] ? ROLE[c.role] : '')}</div></div>
-      ${x.changed ? `<p class="xchg" style="--tc:${TIER_COL[x.tier]}">${fmt(x.changed)}</p>` : ''}
+      ${x.changed ? `<div class="xchg" style="--tc:${TIER_COL[x.tier]}"><b>${fmt(x.changed)}</b>${x.detail ? `<p>${fmt(x.detail)}</p>` : ''}</div>` : ''}
       ${v ? `<div class="xvoice"><button data-act="vprev" aria-label="Previous voicing">‹</button><div><b>${esc(INV[INV_OF[v.bass] ?? 0] || '')}</b><small>${esc(degText(v.bass))} in the bass · frets ${fr.length ? `${Math.min(...fr)}–${Math.max(...fr)}` : 'open'} · ${vIdx + 1} of ${voicingsOf.length}</small></div><button data-act="vnext" aria-label="Next voicing">›</button></div>
       <ol class="xnotes">${[...v.notes].sort((a, b) => b.midi - a.midi).map((n) => `<li class="k-${IVK(n.iv)}"><i></i><b>${degText(n.iv)}</b> <span>${fmt(T.noteName(T.transpose(c.root, n.iv), true))}</span></li>`).join('')}</ol>` : '<p class="xnote">No playable grip for this one.</p>'}
     </div></div>`;

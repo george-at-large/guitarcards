@@ -247,3 +247,8 @@ details.guide b.faint { color: var(--faint); }
 .xnotes li span { font-size: 12px; color: var(--faint); }
 .xnotes li i { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
 .xnotes .k-r i { color: var(--r); } .xnotes .k-t3 i { color: var(--t3); } .xnotes .k-t5 i { color: var(--t5); } .xnotes .k-t7 i { color: var(--t7); } .xnotes .k-tx i { color: var(--tx); }
+.xwhy li b { font-weight: 500; color: var(--ink); }
+.xwhy li p { margin: 3px 0 2px; font-size: 13px; line-height: 1.45; color: var(--dim); }
+.xwhy li em { display: block; font: italic 14px var(--serif); color: var(--tc); }
+.xchg b { display: block; font-weight: 500; color: var(--ink); font-size: 13.5px; }
+.xchg p { margin: 4px 0 0; font-size: 13px; line-height: 1.45; }
