@@ -281,3 +281,4 @@ details.guide b.faint { color: var(--faint); }
 .xstep { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 12px; }
 .xstep button { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold); font: 500 15px var(--serif); }
 .xstep span { font-size: 12px; color: var(--faint); }
+.xauto { font: italic 13px var(--serif); color: var(--faint); margin-left: 2px; }

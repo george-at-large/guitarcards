@@ -125,8 +125,9 @@ export function choose(list, prev, area, win = null, { style = null, topPc = nul
       const top = Math.max(...m);
       c += top % 12 !== topPc ? 40 : prevTop ? Math.abs(top - prevTop) * 2 : 0;
     }
-    if (win) { // stay inside the chosen CAGED position
-      for (const n of g.notes) c += n.fret === 0 ? (win.lo > 1 ? 6 : 0) : Math.max(0, win.lo - n.fret, n.fret - win.hi) * 5;
+    if (win) { // stay inside the chosen CAGED position (Auto's area only pulls gently)
+      const k = win.soft ? 1.3 : 5;
+      for (const n of g.notes) c += n.fret === 0 ? (win.lo > 1 ? (win.soft ? 1.2 : 6) : 0) : Math.max(0, win.lo - n.fret, n.fret - win.hi) * k;
     }
     if (prev) {
       const pm = prev.notes.map((n) => n.midi), k = style ? 0.4 : 1; // a voicing style matters more than moving little
@@ -280,17 +281,28 @@ export function ambient(O, ui, voices) {
   const area = 3 + Math.floor(Math.random() * 5);
 
   // the grip: near the last one, or inside the chosen CAGED position of the chord's key
+  // Auto: a CAGED area chosen at random and kept loosely; at a new progression it may move to a neighbouring shape,
+  // and the first chord there is chosen across both areas, as a connector
+  const AREAS = ['C', 'A', 'G', 'E', 'D'];
+  let autoShape = AREAS[Math.floor(Math.random() * 5)], bridge = null;
+  function moveArea() { if (Math.random() < 0.6) { bridge = autoShape; autoShape = AREAS[(AREAS.indexOf(autoShape) + (Math.random() < 0.5 ? 1 : 4)) % 5]; } }
+  function autoWin(tonic) {
+    const w = Gr.positionOf(tonic, autoShape);
+    if (bridge) { const b = Gr.positionOf(tonic, bridge); bridge = null; const lo = Math.min(w.lo, b.lo), hi = Math.max(w.hi, b.hi); if (hi - lo <= 9) return { lo, hi, mid: (lo + hi) / 2, soft: true }; }
+    return { ...w, soft: true };
+  }
   function gripFor(c, prev) {
-    const win = O.shape && O.shape !== 'auto' ? Gr.positionOf(c.key.tonic, O.shape) : null;
-    const near = win ? win.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || area : area;
+    const win = O.shape && O.shape !== 'auto' ? Gr.positionOf(c.key.tonic, O.shape) : autoWin(c.key.tonic);
+    const near = win && !win.soft ? win.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || area : area;
     const o = { style: c.style || null, topPc: c.top ? (T.notePc(c.key.tonic) + semis(c.top)) % 12 : null, prevTop: c.top && prev ? Math.max(...prev.notes.map((n) => n.midi)) : null };
     const his = O.forms && !c.spec.bass ? formsFor(c.root, c.q, win ? { lo: win.lo, hi: win.hi } : { lo: 0, hi: 15 }) : [];
-    let g = choose(his.length ? his : grips(T.notePc(c.root), c.q, c.spec.bass || '1'), win ? null : prev, near, win, o);
+    let g = choose(his.length ? his : grips(T.notePc(c.root), c.q, c.spec.bass || '1'), win && !win.soft ? null : prev, near, win, o);
     if (!g) g = choose(grips(T.notePc(c.root), c.q, '1'), win ? null : prev, near, win, o) || choose(grips(T.notePc(c.root), Hc.toSeventh(Hc.toTriad(c.q), c.spec.iv, {}), '1'), prev, near, win);
     return g;
   }
   function make() {
     const it = stream.next();
+    if (it.intro && O.shape === 'auto' && played.length) moveArea();
     const tonic = T.parseNote(keyAt(home + it.key.off, it.key.minor));
     const root = Hc.spell(tonic, it.spec.iv);
     const q = it.spec.q;
