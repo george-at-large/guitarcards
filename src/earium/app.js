@@ -18,9 +18,9 @@ const fmt = (s) => esc(T.pretty(String(s ?? '')));
 const ROOTS = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
 
 const DEF = {
-  inst: 'guitar', space: 0.55, vvol: 0.45,
+  inst: 'guitar', space: 0.55, vvol: 0.7,
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random' },
-  a: { src: 'packs', pack: 'all', loops: 2, prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', narr: 'rich' },
+  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', narr: 'rich' },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
@@ -41,7 +41,7 @@ function sound() {
     <h3>Sound</h3>
     <div class="insts">${E.INSTRUMENTS.map((i) => `<button data-set="inst" data-v="${i.id}" class="inst ${S.inst === i.id ? 'on' : ''}"><b>${i.name}</b><small>${i.blurb}</small></button>`).join('')}</div>
     ${row('Space', slider('space', 0, 1, 0.05, S.space, S.space < 0.3 ? 'close' : S.space < 0.7 ? 'hall' : 'cathedral'))}
-    ${row('Voice volume', slider('vvol', 0.1, 0.9, 0.05, S.vvol, Math.round(S.vvol * 100) + '%'))}
+    ${row('Voice volume', slider('vvol', 0.1, 1, 0.05, S.vvol, Math.round(S.vvol * 100) + '%'))}
   </section>`;
 }
 
@@ -91,6 +91,7 @@ function setupA() {
     ${row('Complexity', slider('a.level', 1, 5, 1, a.level, LEVEL_NAMES[a.level - 1]), a.src === 'wander' ? ['Triads of the key.', 'Sevenths, add9s.', 'Borrowed chords, secondary dominants, 9ths.', 'Jazz: ii–Vs everywhere, tritone subs, 13ths, altered.', 'Far out: chromatic mediants, distant keys.'][a.level - 1] : ['Chords as written.', 'Chords as written.', 'Now and then a chord gets a colour (a 9th, a 13th…).', 'Most chords get colours.', 'Colours everywhere.'][a.level - 1])}
     ${row('Key', `<div class="keyrow"><select data-set="a.key" class="sel"><option value="random" ${a.key === 'random' ? 'selected' : ''}>Any, changing</option>${['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map((k) => `<option value="${k}" ${a.key === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}</select>${a.src === 'wander' ? seg('a.minor', [[false, 'Major'], [true, 'Minor']], a.minor) : ''}</div>`)}
     ${row('Each chord', slider('a.secs', 5, 30, 1, a.secs, `${a.secs} s`))}
+    ${row('Position', seg('a.shape', [['auto', 'Auto'], ['C', 'C'], ['A', 'A'], ['G', 'G'], ['E', 'E'], ['D', 'D']], a.shape), a.shape === 'auto' ? 'Grips anywhere on the neck, each one close to the last.' : `Every chord voiced inside the ${a.shape} shape of its key. Change it while playing, too.`)}
     ${row('Movement', seg('a.motion', [['still', 'Still'], ['gentle', 'Gentle'], ['flowing', 'Flowing']], a.motion), a.motion === 'still' ? 'Only the chord changes move.' : a.motion === 'gentle' ? 'The top voice wanders to another chord tone.' : 'Suspensions resolve and the top voice sings a little.')}
     ${row('Narration', seg('a.narr', [['rich', 'Describe'], ['minimal', 'Chords only'], ['off', 'Off']], a.narr), a.narr === 'rich' ? 'Each progression introduced with its theory; each chord and what it’s doing: “moving to the minor four, borrowed from the parallel minor”.' : a.narr === 'minimal' ? 'Each progression’s name, and just the chords: “four, major seven”.' : 'Silent: names and theory still shown on screen.')}
   </section>
@@ -114,6 +115,13 @@ function runScreen(mode) {
       <div id="next" class="next"></div>
     </div>
   </main>
+  ${mode === 'a' ? `<div class="transport">
+    ${S.a.src !== 'wander' ? '<button data-act="prevProg" aria-label="Previous progression"><b>⏮</b><small>progression</small></button>' : ''}
+    <button data-act="prevChord" aria-label="Previous chord"><b>‹</b><small>chord</small></button>
+    <button data-act="nextChord" aria-label="Next chord"><b>›</b><small>chord</small></button>
+    ${S.a.src !== 'wander' ? '<button data-act="nextProg" aria-label="Next progression"><b>⏭</b><small>progression</small></button>' : ''}
+  </div>
+  <div class="shapes"><span>Position</span>${[['auto', 'Auto'], ['C', 'C'], ['A', 'A'], ['G', 'G'], ['E', 'E'], ['D', 'D']].map(([v, l]) => `<button data-shape="${v}" class="${S.a.shape === v ? 'on' : ''}">${l}</button>`).join('')}</div>` : ''}
   <footer class="runbar">${mode === 'g' ? `<button data-act="slower">−</button><span id="pace">${S.g.pace} s</span><button data-act="faster">+</button>` : `<button data-act="slower">−</button><span id="pace">${S.a.secs} s</span><button data-act="faster">+</button>`}
     <span class="instname">${E.INSTRUMENTS.find((i) => i.id === S.inst).name}</span></footer>`;
 }
@@ -174,7 +182,7 @@ async function begin(mode) {
   voices = E.voices(S.inst);
   runScreen(mode);
   try { if (navigator.wakeLock) lock = await navigator.wakeLock.request('screen'); } catch (e) { lock = null; }
-  const O = { ...(mode === 'g' ? S.g : S.a), vvol: S.vvol };
+  const O = { ...(mode === 'g' ? S.g : S.a), vvol: S.vvol * 4 };
   if (mode === 'g') run = guided(O, { show: showG, quiz: quizUI }, voices);
   else run = ambient(O, { show: showA, intro: introA, caption: (lines) => { const el = $('#caption'); if (el) el.innerHTML = lines.map((l) => `<p>${esc(l)}</p>`).join(''); } }, voices);
   run.mode = mode; run.O = O;
@@ -197,7 +205,14 @@ app.addEventListener('click', async (e) => {
     rerender();
     return;
   }
+  if (b.dataset.shape && run?.setShape) {
+    S.a.shape = b.dataset.shape; save();
+    run.setShape(b.dataset.shape);
+    document.querySelectorAll('[data-shape]').forEach((x) => x.classList.toggle('on', x === b));
+    return;
+  }
   const act = b.dataset.act;
+  if (run && ['prevProg', 'prevChord', 'nextChord', 'nextProg'].includes(act) && run[act]) { run[act](); return; }
   if (act === 'stop') { const m = run?.mode; end(); m === 'g' ? setupG() : setupA(); }
   if (act === 'pause' && run) { const p = !run.paused; run.pause(p); b.textContent = p ? '▶' : '❚❚'; b.classList.toggle('on', p); }
   if (act === 'slower' || act === 'faster') {

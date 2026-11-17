@@ -346,10 +346,17 @@ export function padLine({ vel = 0.55 } = {}) {
 }
 // the spoken voice: straight to the speakers past the compressor (so the music never dips while it talks), with a
 // touch of the hall so it sits in the same room
+let voiceLimiter = null;
 export function voiceBus(vol = 0.4) {
   const c = audioCtx();
   const g = c.createGain(); g.gain.value = vol;
-  g.connect(c.destination);
+  // a limiter, so a loud voice setting can't clip (it only acts on peaks)
+  if (!voiceLimiter) {
+    voiceLimiter = c.createDynamicsCompressor();
+    voiceLimiter.threshold.value = -8; voiceLimiter.knee.value = 3; voiceLimiter.ratio.value = 14; voiceLimiter.attack.value = 0.002; voiceLimiter.release.value = 0.15;
+    voiceLimiter.connect(c.destination);
+  }
+  g.connect(voiceLimiter);
   const send = c.createGain(); send.gain.value = 0.1;
   g.connect(send).connect(hallIn);
   return g;

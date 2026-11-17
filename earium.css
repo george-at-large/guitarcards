@@ -120,3 +120,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .intro .chart { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 8px; }
 .intro .chart span { font: 500 15px var(--serif); color: var(--faint); transition: color .4s; }
 .intro .chart span.on { color: var(--gold); }
+
+/* ambient transport and CAGED position */
+.transport { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+.transport button { min-width: 64px; padding: 8px 10px 6px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255, 255, 255, .03); display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.transport button:active { background: rgba(232, 194, 122, .15); }
+.transport b { font-size: 20px; line-height: 1; font-weight: 400; color: var(--ink); }
+.transport small { font-size: 10px; letter-spacing: .08em; color: var(--faint); }
+.shapes { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 12px; }
+.shapes span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-right: 4px; }
+.shapes button { min-width: 36px; height: 36px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--line); font: 500 17px var(--serif); color: var(--dim); }
+.shapes button.on { background: var(--gold); border-color: var(--gold); color: #1a1408; }

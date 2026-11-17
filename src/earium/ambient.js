@@ -12,6 +12,7 @@ import * as L from '../caged/library.js';
 import * as Hc from '../caged/harmony.js';
 import * as E from '../caged/evolve.js';
 import { OPEN } from './harm.js';
+import * as Gr from '../caged/grips.js';
 import { ROLE, AMB } from './words.js';
 import { PACKS, GROUPS, packById, packSay, itemSay } from './packs.js';
 
@@ -80,10 +81,13 @@ export function grips(rootPc, q, bassIv = '1') {
   return out.filter((g) => { const k = g.notes.map((n) => `${n.string}:${n.fret}`).join(' '); if (seen.has(k)) return false; seen.add(k); return true; });
 }
 // the best grip after `prev`: little movement, a colourful top note, a full sound, the middle of the neck
-function choose(list, prev, area) {
+function choose(list, prev, area, win = null) {
   const score = (g) => {
     const m = g.notes.map((n) => n.midi);
     let c = 0;
+    if (win) { // stay inside the chosen CAGED position
+      for (const n of g.notes) c += n.fret === 0 ? (win.lo > 1 ? 6 : 0) : Math.max(0, win.lo - n.fret, n.fret - win.hi) * 5;
+    }
     if (prev) {
       const pm = prev.notes.map((n) => n.midi);
       c += m.reduce((s, x) => s + Math.min(...pm.map((y) => Math.abs(x - y))), 0) / m.length * 1.4;
@@ -142,6 +146,7 @@ function packStream(O, home) {
   }
   load();
   return {
+    skip() { if (O.src !== 'prog') { i = cur.chords.length; pass = Math.max(pass, O.loops); } else { i = 0; pass = 0; } }, // the next next() moves on
     next() {
       if (i >= cur.chords.length) { i = 0; pass++; if (O.src !== 'prog' && pass >= O.loops) load(); }
       const x = cur.chords[i], nx = cur.chords[(i + 1) % cur.chords.length];
@@ -192,18 +197,23 @@ export function ambient(O, ui, voices) {
   const stream = O.src === 'wander' ? M.meander({ minor: O.minor, level: O.level, grow: false, modulate: O.level >= 3, rhythm: 'varied', bar: 4 }) : packStream(O, home);
   let quietUntil = 0; // the voice is introducing a progression: no chord names over it
   let prevGrip = null, prevChord = null, t = ctx().currentTime + 0.3, timers = [], queue = [];
+  const played = []; let current = null, startedAt = 0;
   const area = 3 + Math.floor(Math.random() * 5);
 
+  // the grip: near the last one, or inside the chosen CAGED position of the chord's key
+  function gripFor(c, prev) {
+    const win = O.shape && O.shape !== 'auto' ? Gr.positionOf(c.key.tonic, O.shape) : null;
+    const near = win ? win.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || area : area;
+    let g = choose(grips(T.notePc(c.root), c.q, c.spec.bass || '1'), win ? null : prev, near, win);
+    if (!g) g = choose(grips(T.notePc(c.root), c.q, '1'), win ? null : prev, near, win) || choose(grips(T.notePc(c.root), Hc.toSeventh(Hc.toTriad(c.q), c.spec.iv, {}), '1'), prev, near, win);
+    return g;
+  }
   function make() {
     const it = stream.next();
     const tonic = T.parseNote(keyAt(home + it.key.off, it.key.minor));
     const root = Hc.spell(tonic, it.spec.iv);
     const q = it.spec.q;
-    const list = grips(T.notePc(root), q, it.spec.bass || '1');
-    let g = choose(list, prevGrip, prevGrip ? prevGrip.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || area : area);
-    if (!g) { // nothing playable with that bass: let the bass go
-      g = choose(grips(T.notePc(root), q, '1'), prevGrip, area) || choose(grips(T.notePc(root), Hc.toSeventh(Hc.toTriad(q), it.spec.iv, {}), '1'), prevGrip, area);
-    }
+    const g = gripFor({ root, q, spec: it.spec, key: { tonic } }, prevGrip);
     prevGrip = g || prevGrip;
     const key = { tonic, minor: it.key.minor };
     const keyLabel = `${T.noteName(tonic, true)} ${key.minor ? 'minor' : 'major'}`;
@@ -269,7 +279,9 @@ export function ambient(O, ui, voices) {
 
   function schedule() {
     while (queue.length < 2) queue.push(make());
-    const c = queue.shift(); queue.push(make());
+    const c = queue.shift();
+    played.push(c); if (played.length > 400) played.splice(0, 100);
+    current = c; startedAt = t;
     const dur = Math.max(3, O.secs * (c.beats / 4));
     const ms = c.grip ? moments(c, dur) : [{ at: 0, notes: [] }];
     ms.forEach((m, i) => {
@@ -300,7 +312,48 @@ export function ambient(O, ui, voices) {
     timer = setTimeout(pump, 120);
   }
   pump();
+  // jump: drop what's scheduled and play from the head of the queue now
+  function jump() {
+    clearTimeout(timer); timers.forEach(clearTimeout); timers = [];
+    V.hush(); quietUntil = 0;
+    t = ctx().currentTime + 0.12;
+    voices.cut(t);
+    if (!paused) pump();
+  }
+  const progStart = (k) => { let s0 = k; while (s0 > 0 && played[s0 - 1].prog === played[k].prog && !played[s0].intro) s0--; return s0; };
   return {
+    // back one chord: the one before plays now, then this one again
+    prevChord() { if (played.length < 2) return; const cur = played.pop(), prev = played.pop(); queue.unshift(prev, cur); prevChord = null; jump(); },
+    nextChord() { jump(); },
+    // back to the start of the previous progression (or of this one, if there is none before it)
+    prevProg() {
+      if (!played.length) return;
+      const here = progStart(played.length - 1);
+      const from = here > 0 ? progStart(here - 1) : here;
+      queue.unshift(...played.splice(from));
+      prevChord = null; jump();
+    },
+    // on to the next progression: chords already queued for this one are dropped
+    nextProg() {
+      const p = current?.prog;
+      while (queue.length && queue[0].prog === p && !queue[0].intro) queue.shift();
+      if (!queue.length || (queue[0].prog === p && !queue[0].intro)) { stream.skip?.(); queue.length = 0; }
+      prevChord = null; jump();
+    },
+    // a new CAGED position (or 'auto'): this chord and the queued ones re-voiced, the change heard now
+    setShape(sh) {
+      O.shape = sh;
+      let pg = played.length > 1 ? played[played.length - 2].grip : null;
+      if (current) { current.grip = gripFor(current, pg) || current.grip; pg = current.grip; }
+      for (const q of queue) { q.grip = gripFor(q, pg) || q.grip; pg = q.grip; }
+      prevGrip = pg;
+      if (current?.grip && !paused) {
+        const now = ctx().currentTime + 0.05;
+        voices.set(current.grip.notes.map((n) => n.midi), now, { stagger: 0.6 });
+        ui.show({ c: current, notes: current.grip.notes, next: queue[0], first: true });
+      }
+    },
+    canProg: O.src !== 'wander',
     stop() { alive = false; clearTimeout(timer); timers.forEach(clearTimeout); V.hush(); voices.releaseAll(ctx().currentTime, 2); },
     pause(p) {
       paused = p;

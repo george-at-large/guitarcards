@@ -267,14 +267,20 @@ export function voices(inst = 'guitar') {
   let cur = inst;
   const panOf = (m) => Math.max(-0.6, Math.min(0.6, (m - 62) / 24));
   const levelFor = (n) => 0.42 / Math.sqrt(Math.max(1, n));
+  // every voice made, until it has finished: a stop reaches the ones already leaving or not yet started, too
+  const live = new Set();
   function stopVoice(v, t, rel = v.release) {
-    v.level.gain.cancelScheduledValues(t);
-    v.level.gain.setValueAtTime(v.level.gain.value || v.vel, t);
-    v.level.gain.setTargetAtTime(0, t, rel / 3);
+    if (v.endAt !== undefined && v.endAt <= t) return; // already gone
     const end = t + rel * 3 + 0.2;
-    v.nodes.forEach((o) => { try { o.stop(end); } catch (e) { /* */ } });
+    const fade = (gn) => { gn.cancelScheduledValues(t); gn.setValueAtTime(t < v.startAt ? 0 : gn.value || v.vel, t); gn.setTargetAtTime(0, t, rel / 3); };
+    fade(v.level.gain);
+    (v.nodes.gainNodes || []).forEach((gn) => fade(gn.gain)); // the shimmer, which bypasses the note's own level
+    v.nodes.forEach((o) => { try { o.stop(t < v.startAt ? v.startAt + 0.01 : end); } catch (e) { /* */ } });
     clearTimeout(v.timer);
+    v.endAt = Math.min(v.endAt ?? Infinity, end);
+    v.dead = true;
   }
+  const prune = () => { const now = c.currentTime; for (const v of live) if (v.endAt !== undefined && v.endAt < now) live.delete(v); };
   function ringOn(v) { // chimes: touched again now and then
     if (!v.strike) return;
     const next = () => {
@@ -294,13 +300,15 @@ export function voices(inst = 'guitar') {
     set(midis, t, { stagger = 0, vel = 1 } = {}) {
       const want = [...new Set(midis)];
       const lv = levelFor(want.length) * vel;
-      for (const [m, v] of held) if (!want.includes(m)) { stopVoice(v, t + (stagger ? Math.random() * stagger : 0)); v.dead = true; held.delete(m); }
+      prune();
+      for (const [m, v] of held) if (!want.includes(m)) { stopVoice(v, t + (stagger ? Math.random() * stagger : 0)); held.delete(m); }
       want.forEach((m, i) => {
         const v = held.get(m);
         if (v) { v.level.gain.setTargetAtTime(lv, t, 0.6); v.vel = lv; return; }
         const at = t + (stagger ? (i / Math.max(1, want.length - 1)) * stagger * rnd(0.6, 1) : 0);
         const nv = MAKERS[cur](g, m, at, lv, panOf(m));
-        nv.vel = lv;
+        nv.vel = lv; nv.startAt = at;
+        live.add(nv);
         held.set(m, nv);
         ringOn(nv);
       });
@@ -317,7 +325,10 @@ export function voices(inst = 'guitar') {
         else if (cur === 'guitar') { const pl = c.createBufferSource(); pl.buffer = ksBuffer(m); const gg = c.createGain(); gg.gain.value = 0.3; pl.connect(gg).connect(v.level); pl.start(t + Math.random() * 0.25); }
       }
     },
-    releaseAll(t, rel) { for (const [, v] of held) { stopVoice(v, t, rel); v.dead = true; } held.clear(); },
+    // everything stops: what's held, what's leaving, what was due to start
+    releaseAll(t, rel) { for (const v of live) stopVoice(v, t, Math.min(rel ?? v.release, v.release)); live.clear(); held.clear(); },
+    // a jump (skip): notes still on their way out, or due later, are cut now; what's held stays for the next set()
+    cut(t) { const keep = new Set(held.values()); for (const v of live) if (!keep.has(v) || v.startAt > t) { stopVoice(v, t, 0.5); live.delete(v); if (keep.has(v)) for (const [m, x] of held) if (x === v) held.delete(m); } },
   };
 }
 
