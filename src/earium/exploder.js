@@ -33,7 +33,11 @@ export const VL_MODES = [['off', 'Off', 'Each chord’s voicing chosen near the 
   ['contrary', 'Contrary', 'The top and the bass move in opposite directions.'],
   ['top', 'Melodic top', 'The top note moves by step: a melody on top.'],
   ['bass', 'Bass line', 'Inversions chosen so the bass moves by step.'],
-  ['parallel', 'Parallel', 'The same shape moved as a block: planing.']];
+  ['parallel', 'Parallel', 'The same shape moved as a block: planing.'],
+  ['strings', 'Same string set', 'Every voicing on one set of strings, changing sets only when it must.'],
+  ['tenths', 'Outer 10ths', 'The bass and the top a tenth apart, moving together.'],
+  ['heldtop', 'Held top', 'The top note stays put as long as it can while the harmony moves under it.'],
+  ['heldbass', 'Held bass', 'The bass stays put as long as it can while the harmony moves over it.']];
 const isGuide = (iv) => /^(b)?3$|^(b|bb)?7$/.test(iv) || iv === '6';
 const mids = (g) => g.notes.map((n) => n.midi).sort((a, b) => a - b);
 function smoothCost(a, b) {
@@ -54,6 +58,14 @@ function vlCost(mode, a, b) {
   if (mode === 'contrary') return (db && dt ? (Math.sign(db) !== Math.sign(dt) ? -4 : 2.5) : 1) + Math.max(0, Math.abs(dt) - 4) * 0.8 + Math.max(0, Math.abs(db) - 7) * 0.5 + sm * 0.3 + thin;
   if (mode === 'top') { const d = Math.abs(dt); return (d === 0 ? 0.6 : d <= 2 ? 0 : (d - 2) * 1.5) + sm * 0.3 + thin; }
   if (mode === 'bass') { const d = Math.abs(db); return (d === 0 ? 1 : d <= 2 ? 0 : (d - 2) * 1.5) + sm * 0.3 + thin; }
+  if (mode === 'strings') {
+    const sa = a.notes.map((n) => n.string).sort().join(), sb = b.notes.map((n) => n.string).sort().join();
+    const shared = b.notes.filter((n) => a.notes.some((m) => m.string === n.string)).length;
+    return (sa === sb ? -3 : (b.notes.length - shared) * 1.2) + (b.notes.length !== a.notes.length ? 1 : 0) + sm * 0.4 + thin;
+  }
+  if (mode === 'tenths') { const iv = B[B.length - 1] - B[0], tenth = iv === 15 || iv === 16 || iv === 27 || iv === 28; const was = A[A.length - 1] - A[0]; return (tenth ? -2.5 : 1.2) + (tenth && (was === 15 || was === 16) ? -0.8 : 0) + Math.max(0, Math.abs(db) - 5) * 0.4 + sm * 0.3 + thin; }
+  if (mode === 'heldtop') { const d = Math.abs(dt); return (d === 0 ? -3 : d <= 2 ? 0 : d) + sm * 0.3 + thin; }
+  if (mode === 'heldbass') { const d = Math.abs(db); return (d === 0 ? -3 : d <= 2 ? 0 : d) + sm * 0.3 + thin; }
   if (mode === 'parallel') {
     const ia = A.slice(1).map((x, i) => x - A[i]).join(), ib = B.slice(1).map((x, i) => x - B[i]).join();
     const strings = a.notes.map((n) => n.string).join() === b.notes.map((n) => n.string).join();
