@@ -21,7 +21,7 @@ const ROOTS = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B�
 const DEF = {
   inst: 'guitar', space: 0.55, vvol: 0.7,
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random' },
-  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', more: false },
+  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, more: false },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
@@ -159,15 +159,22 @@ function quizUI({ choices, answer, secs, text }) {
 }
 // Ambient
 const IVK = (iv) => H.KIND(String(iv).replace(/^(b|#)?(2|4|6)$/, (m, a, n) => (n === '6' ? (a || '') + '6' : (a || '') + { 2: '9', 4: '11' }[n])));
-function introA({ pack, it, rns, changed, lines }) {
+// the tension curve of a progression: a soft line, a dot per chord
+function tensionSVG(ts) {
+  if (!ts || ts.length < 2) return '';
+  const W = 200, H = 34, mx = Math.max(4, ...ts), x = (i) => 6 + (i * (W - 12)) / (ts.length - 1), y = (v) => H - 4 - (v / mx) * (H - 10);
+  return `<svg class="tens" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${ts.map((v, i) => `${x(i)},${y(v)}`).join(' ')}"/>${ts.map((v, i) => `<circle data-i="${i}" cx="${x(i)}" cy="${y(v)}" r="2.6"/>`).join('')}</svg>`;
+}
+function introA({ pack, it, rns, changed, lines, tension }) {
   const el = $('#intro');
   if (!el) return;
-  el.innerHTML = `${pack ? `<div class="pk">${esc(pack.group)} · ${fmt(pack.name)}</div>` : ''}<div class="pn">${fmt(it.name)}</div>${it.note ? `<div class="pt">${fmt(it.note)}</div>` : ''}<div class="chart">${rns.map((r, i) => `<span data-i="${i}" class="${changed?.[i] ? 'chg' : ''}">${fmt(r)}</span>`).join('')}</div>`;
+  el.innerHTML = `${pack ? `<div class="pk">${esc(pack.group)} · ${fmt(pack.name)}</div>` : ''}<div class="pn">${fmt(it.name)}</div>${it.note ? `<div class="pt">${fmt(it.note)}</div>` : ''}${tensionSVG(tension)}<div class="chart">${rns.map((r, i) => `<span data-i="${i}" class="${changed?.[i] ? 'chg' : ''}">${fmt(r)}</span>`).join('')}</div>`;
   const cap = $('#caption'); if (cap) cap.innerHTML = '';
 }
 function showA({ c, notes, next, first }) {
   document.querySelectorAll('#intro .chart span').forEach((s) => s.classList.toggle('on', Number(s.dataset.i) === c.idx));
-  $('#neck').innerHTML = neckSVG(notes.map((n) => ({ ...n, label: degText(n.iv), kind: IVK(n.iv), fresh: false })));
+  $('#neck').innerHTML = neckSVG(notes.map((n) => ({ ...n, label: degText(n.iv), kind: IVK(n.iv), fresh: false, spot: S.a.spotlight && ['3', 'b3', '7', 'b7'].includes(n.iv) })));
+  document.querySelectorAll('#intro .tens circle').forEach((d) => d.classList.toggle('on', Number(d.dataset.i) === c.idx));
   if (!first) return;
   $('#chord').innerHTML = `<div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(c.keyLabel)}</div>`;
   lastA = c;
@@ -186,7 +193,7 @@ function drawDetails() {
   if (!c || !el) return;
   const d = details(c);
   const notes = [...d.notes].sort((a, b) => a.midi - b.midi).map((n) => `<span class="k-${IVK(n.iv)}"><i></i>${degText(n.iv)} <small>${fmt(T.noteName(T.transpose(c.root, n.iv), true))}</small></span>`).join('');
-  el.innerHTML = `<div class="fn">${esc(ROLE_LABEL[c.role] || '')}</div>
+  el.innerHTML = `${c.label ? `<div class="lbl2">${fmt(c.label)}</div>` : ''}${c.style && c.prog?.item?.voicings ? `<div class="lbl2">${esc({ close: 'Close voicing', spread: 'Spread voicing', fourths: 'In fourths', cluster: 'A cluster', open: 'Open strings' }[c.style] || '')}</div>` : ''}<div class="fn">${esc(ROLE_LABEL[c.role] || '')}</div>
     ${d.mode ? `<div class="exl">From <b>${esc(d.mode)}</b></div>` : ''}
     ${S.a.feel !== 'off' && d.feel.length ? `<div class="feel">${fmt(d.feel.join(' '))}</div>` : ''}
     ${d.exts.length ? `<div class="exl">Extensions: ${d.exts.map((x) => `<b>${degText(x.e)}</b>`).join(' · ')}</div>` : ''}
@@ -211,6 +218,8 @@ const TOGGLES = [
   ['arp', 'Arpeggio', [['off', 'off'], ['on', 'on'], ['named', 'named']]],
   ['modeSay', 'Mode', [[false, 'off'], [true, 'on']]],
   ['feel', 'Feel', [['off', 'off'], ['on', 'on'], ['why', '+ why']]],
+  ['spotlight', 'Spotlight', [[false, 'off'], [true, 'on']]],
+  ['tension', 'Tension', [[false, 'off'], [true, 'on']]],
 ];
 const toggleHTML = () => TOGGLES.map(([k, l, opts]) => { const cur = opts.find(([v]) => v === S.a[k]) || opts[0]; return `<button data-tog="${k}" class="${cur[0] && cur[0] !== 'off' ? 'on' : ''}">${l}<small>${cur[1]}</small></button>`; }).join('');
 

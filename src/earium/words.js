@@ -116,6 +116,15 @@ export const EXT_INFO = {
   b13: 'The ♭13 is a dominant’s dark tension: heading to minor, it is already the new tonic’s 3rd.',
   13: 'The 13th is the 6th up high: on dominants and major chords, sweet and full, often on top.',
 };
+// listening demos: the voicing style, and the held melody note's role in each chord
+export const VOICING_SAY = { close: 'close voicing', spread: 'spread voicing', fourths: 'in fourths', cluster: 'a cluster', open: 'with open strings' };
+export const MELODY_SAY = (iv) => `the melody is the ${degWord(iv)}`;
+// Spotlight: how a guide tone (3rd or 7th) moves into the next chord
+export const GUIDE = ['3', 'b3', '7', 'b7'];
+export const SPOT_TO = ['1', '3', 'b3', '4', '5', '7', 'b7', '6', '9', 'b9', '#9', '11', '#11', '13', 'b13'];
+export const SPOT_SAY = (a, b, dir) => (dir === 0 ? `the ${degWord(a)} holds, as the ${degWord(b)}` : `the ${degWord(a)} ${dir < 0 ? 'falls' : 'rises'} to the ${degWord(b)}`);
+// Tension: the voice marks the high point and the release
+export const TENSION_SAY = { peak: 'the peak', release: 'release' };
 export const AMB = {
   movingTo: 'moving to',
   then: 'then',
@@ -144,6 +153,10 @@ export function allPhrases() {
   EXTS.forEach((e) => P.add(EXT_SAY(e)));
   DEGS.forEach((d) => P.add(degWord(d)));
   REHARM_SAYS.forEach((x) => P.add(x));
+  Object.values(VOICING_SAY).forEach((x) => P.add(x));
+  for (const g of GUIDE) for (const t of SPOT_TO) for (const d of [-1, 0, 1]) P.add(SPOT_SAY(g, t, d));
+  Object.values(TENSION_SAY).forEach((x) => P.add(x));
+  [...DEGS, '2', '4', '6', 'b6'].forEach((d) => P.add(MELODY_SAY(d)));
   feelPhrases().forEach((x) => P.add(x));
   for (const acc of ['', 'flat ', 'sharp ']) for (const n of [1, 2, 3, 4, 5, 6, 7]) { P.add(acc + NUM[n]); P.add(`minor ${acc}${NUM[n]}`); P.add(`of ${acc}${NUM[n]}`); P.add(`over ${acc}${NUM[n]}`); }
   QUAL_WORDS.forEach((q) => P.add(q));

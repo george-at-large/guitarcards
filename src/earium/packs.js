@@ -6,6 +6,7 @@ import * as L from '../caged/library.js';
 import { BORROWED } from '../caged/borrowdata.js';
 import { CHROMATIC } from '../caged/chromdata.js';
 import { MODULATIONS } from '../caged/moddata.js';
+import { MORE_GROUPS } from './morepacks.js';
 
 // ---------- text for the voice ----------
 const NUM = { I: 'one', II: 'two', III: 'three', IV: 'four', V: 'five', VI: 'six', VII: 'seven' };
@@ -116,6 +117,7 @@ export const GROUPS = [
     { id: 'blues', name: 'Blues', intro: 'The blues: dominant sevens everywhere, and the twelve-bar form.', items: lib('Blues').map((p) => libItem(p)) },
   ] },
   { name: 'Key changes', packs: MODULATIONS.map((m) => ({ id: `mod-${m.id}`, name: m.name, intro: `${m.name}. ${m.sound || ''}`, items: fromData('mod', m, 4) })) },
+  ...MORE_GROUPS
 ];
 export const PACKS = GROUPS.flatMap((g) => g.packs.map((p) => ({ ...p, group: g.name, items: p.items.filter((it) => it.chart || L.ALL.some((x) => x.id === it.id)) }))).filter((p) => p.items.length);
 // a pack's progression as the library would have it (its own chart, or the library's)

@@ -16,6 +16,7 @@ import * as Gr from '../caged/grips.js';
 import { ROLE, ROLE_SHORT, whyOf, EXTS, EXT_SAY, EXT_INFO, COLOUR, WHY, degWord, degText } from './words.js';
 import { PACKS, GROUPS, packById, packSay, itemSay, itemOf } from './packs.js';
 import { reharmStream } from './reharm.js';
+import { VOICING_SAY, MELODY_SAY, GUIDE, SPOT_SAY, TENSION_SAY } from './words.js';
 import { sourceMode, MODE_SAY, feelLines, FEEL, FEEL_WHY, FEEL_ROLE, FEEL_ROLE_WHY } from './feel.js';
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -34,7 +35,7 @@ function needs(ivs, bassIv) {
   const by = (f) => ivs.filter((iv) => fam(iv) === f);
   const exts = by('ext');
   // the essentials: the 3rd (or sus), the 7th (or 6th), up to two colours; the 5th only if altered
-  const must = [...by('third'), ...by('seventh'), ...exts.slice(-2), ...by('fifth').filter((x) => x !== '5')];
+  const must = [...by('third'), ...by('seventh'), ...exts.slice(-1), ...by('fifth').filter((x) => x !== '5')]; // the top colour only: more voicings to choose from
   if (bassIv && !must.includes(bassIv)) must.unshift(bassIv);
   return { must: [...new Set(must)] };
 }
@@ -83,17 +84,30 @@ export function grips(rootPc, q, bassIv = '1') {
   return out.filter((g) => { const k = g.notes.map((n) => `${n.string}:${n.fret}`).join(' '); if (seen.has(k)) return false; seen.add(k); return true; });
 }
 // the best grip after `prev`: little movement, a colourful top note, a full sound, the middle of the neck
-function choose(list, prev, area, win = null) {
+// style: close, spread, fourths, cluster, open (open strings); topPc: the melody note that must be on top
+function choose(list, prev, area, win = null, { style = null, topPc = null, prevTop = null } = {}) {
   const score = (g) => {
     const m = g.notes.map((n) => n.midi);
     let c = 0;
+    if (style) {
+      const ms = [...m].sort((a, b) => a - b), gaps = ms.slice(1).map((x, k) => x - ms[k]), span = ms[ms.length - 1] - ms[0];
+      if (style === 'fourths') c += gaps.reduce((s, d) => s + Math.min(Math.abs(d - 5), Math.abs(d - 6) + 0.5), 0) * 1.6;
+      if (style === 'cluster') c += gaps.reduce((s, d) => s + (d <= 2 ? -5 : d >= 7 ? 1.5 : 0), 0) - g.notes.filter((n) => n.fret === 0).length;
+      if (style === 'open') c -= g.notes.filter((n) => n.fret === 0).length * 2.2 + gaps.filter((d) => d <= 2).length * 1.2;
+      if (style === 'close') c += Math.max(0, span - 11) * 0.8 + (g.notes.length < 4 ? 3 : 0);
+      if (style === 'spread') c -= span * 0.35 + (g.notes.length >= 5 ? 2 : 0);
+    }
+    if (topPc != null) {
+      const top = Math.max(...m);
+      c += top % 12 !== topPc ? 40 : prevTop ? Math.abs(top - prevTop) * 2 : 0;
+    }
     if (win) { // stay inside the chosen CAGED position
       for (const n of g.notes) c += n.fret === 0 ? (win.lo > 1 ? 6 : 0) : Math.max(0, win.lo - n.fret, n.fret - win.hi) * 5;
     }
     if (prev) {
-      const pm = prev.notes.map((n) => n.midi);
-      c += m.reduce((s, x) => s + Math.min(...pm.map((y) => Math.abs(x - y))), 0) / m.length * 1.4;
-      c += pm.reduce((s, y) => s + Math.min(...m.map((x) => Math.abs(x - y))), 0) / pm.length * 0.8;
+      const pm = prev.notes.map((n) => n.midi), k = style ? 0.4 : 1; // a voicing style matters more than moving little
+      c += m.reduce((s, x) => s + Math.min(...pm.map((y) => Math.abs(x - y))), 0) / m.length * 1.4 * k;
+      c += pm.reduce((s, y) => s + Math.min(...m.map((x) => Math.abs(x - y))), 0) / pm.length * 0.8 * k;
     }
     const top = g.notes[g.notes.length - 1].iv;
     if (top === '1') c += 2.2; else if (top === '5') c += 1;
@@ -142,8 +156,9 @@ function packStream(O, home) {
     L.resolve(item).forEach((b) => b.forEach((spec) => chords.push({ spec, beats: 4 / b.length })));
     // a new progression: the same key, or (key: any) a new one a 4th, 5th or step away
     if (O.key === 'random' && cur) keyPc = (keyPc + pick([5, 7, 2, 10, 3, 9])) % 12;
+    if (item.home) keyPc = T.notePc(T.parseNote(item.home)); // open strings need their key
     const minor = !!item.minor;
-    cur = { pack, it, item, chords, minor, newPack: !!pack && pack !== lastPack, rns: chords.map((x) => Hc.label(x.spec, x.spec.q, x.spec.bass)) };
+    cur = { pack, it, item, chords, minor, newPack: !!pack && pack !== lastPack, rns: chords.map((x) => Hc.label(x.spec, x.spec.q, x.spec.bass)), tension: chords.map((x) => tensionOf(x.spec, x.spec.q, minor)) };
     lastPack = pack; pass = 0; i = 0;
   }
   load();
@@ -153,7 +168,8 @@ function packStream(O, home) {
       if (i >= cur.chords.length) { i = 0; pass++; if (O.src !== 'prog' && pass >= O.loops) load(); }
       const x = cur.chords[i], nx = cur.chords[(i + 1) % cur.chords.length];
       // a comparison pack (its own chart) plays exactly as written
-      const out = { spec: { ...x.spec, q: cur.item.chart ? x.spec.q : colourPack(x.spec, O.level, nx.spec, cur.minor) }, key: { off: (keyPc - home + 12) % 12, minor: cur.minor }, beats: x.beats, ann: [], idx: i, prog: cur };
+      const out = { spec: { ...x.spec, q: cur.item.chart ? x.spec.q : colourPack(x.spec, O.level, nx.spec, cur.minor) }, key: { off: (keyPc - home + 12) % 12, minor: cur.minor }, beats: x.beats, ann: [], idx: i, prog: cur,
+        style: cur.item.voicings ? cur.item.voicings[i] : cur.item.voicing, top: cur.item.top, label: cur.item.labels?.[i], styleSaid: !!cur.item.voicings };
       if (i === 0 && pass === 0) out.intro = { pack: cur.newPack ? cur.pack : null, it: cur.it };
       i++;
       return out;
@@ -161,6 +177,16 @@ function packStream(O, home) {
   };
 }
 
+// how tense a chord is in its key: its kind, its colours, its function (for the tension curve)
+export function tensionOf(spec, q, minor) {
+  const fam = V.familyOf(q), ivs = T.getChord(q).ivs, role = roleOf(spec, q, minor);
+  let t = { maj: 0.5, min: 1.2, sus: 1.8, dom: 2.6, hd: 2.8, dim: 3.2, aug: 3, five: 0.6, quartal: 1.4 }[fam] ?? 1;
+  if (q === 'maj7' || q === '6' || q === '6/9') t += 0.15;
+  t += ivs.filter((iv) => ['b9', '#9', 'b13', '#5', 'b5', '#11'].includes(iv)).length * 0.5 + ivs.filter((iv) => ['9', '11', '13'].includes(iv)).length * 0.15;
+  t += { tonic: -0.8, tonicMinor: -0.6, picardy: -0.5, sub: 0.2, super: 0.6, dom: 0.6, secondary: 0.8, tritone: 0.8, passing: 0.6, borrowed: 0.4, subMinor: 0.5, mediantChrom: 0.8, neapolitan: 0.7, lead: 0.6, backdoor: 0.4 }[role] ?? 0;
+  if (spec.bass) t += 0.3;
+  return Math.max(0, Math.round(t * 10) / 10);
+}
 // what the chord is doing in its key (rich narration)
 function roleOf(spec, q, minor) {
   if (spec.rel) return 'secondary';
@@ -207,8 +233,9 @@ export function ambient(O, ui, voices) {
   function gripFor(c, prev) {
     const win = O.shape && O.shape !== 'auto' ? Gr.positionOf(c.key.tonic, O.shape) : null;
     const near = win ? win.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || area : area;
-    let g = choose(grips(T.notePc(c.root), c.q, c.spec.bass || '1'), win ? null : prev, near, win);
-    if (!g) g = choose(grips(T.notePc(c.root), c.q, '1'), win ? null : prev, near, win) || choose(grips(T.notePc(c.root), Hc.toSeventh(Hc.toTriad(c.q), c.spec.iv, {}), '1'), prev, near, win);
+    const o = { style: c.style || null, topPc: c.top ? (T.notePc(c.key.tonic) + semis(c.top)) % 12 : null, prevTop: c.top && prev ? Math.max(...prev.notes.map((n) => n.midi)) : null };
+    let g = choose(grips(T.notePc(c.root), c.q, c.spec.bass || '1'), win ? null : prev, near, win, o);
+    if (!g) g = choose(grips(T.notePc(c.root), c.q, '1'), win ? null : prev, near, win, o) || choose(grips(T.notePc(c.root), Hc.toSeventh(Hc.toTriad(c.q), c.spec.iv, {}), '1'), prev, near, win);
     return g;
   }
   function make() {
@@ -216,13 +243,13 @@ export function ambient(O, ui, voices) {
     const tonic = T.parseNote(keyAt(home + it.key.off, it.key.minor));
     const root = Hc.spell(tonic, it.spec.iv);
     const q = it.spec.q;
-    const g = gripFor({ root, q, spec: it.spec, key: { tonic } }, prevGrip);
+    const g = gripFor({ root, q, spec: it.spec, key: { tonic }, style: it.style, top: it.top }, prevGrip);
     prevGrip = g || prevGrip;
     const key = { tonic, minor: it.key.minor };
     const keyLabel = `${T.noteName(tonic, true)} ${key.minor ? 'minor' : 'major'}`;
     const fill = (s) => String(typeof s === 'function' ? s() : s).replace('{key}', keyLabel);
     const c = { spec: it.spec, q, root, key, keyLabel, grip: g, beats: it.beats, rn: Hc.label(it.spec, q), name: Hc.slashName(root, q, it.spec.bass),
-      ann: (it.ann || []).map((a) => ({ ...a, text: fill(a.text) })), role: roleOf(it.spec, q, key.minor), bass: it.spec.bass, idx: it.idx, prog: it.prog, intro: it.intro };
+      ann: (it.ann || []).map((a) => ({ ...a, text: fill(a.text) })), role: roleOf(it.spec, q, key.minor), bass: it.spec.bass, idx: it.idx, prog: it.prog, intro: it.intro, style: it.style, top: it.top, label: it.label, styleSaid: it.styleSaid };
     if (O.narr !== 'off') V.prefetch([...words(c, { dry: true }), ...extWords(c, true)]);
     return c;
   }
@@ -247,6 +274,10 @@ export function ambient(O, ui, voices) {
     if (O.narr === 'off') return [];
     dryRun = dry;
     const g = [nameWords(c, later ? baseQ(c.q) : c.q)];
+    if (c.styleSaid && c.style && VOICING_SAY[c.style]) g.push([VOICING_SAY[c.style]]);
+    if (O.spotlight && c.spot) g.push([c.spot]);
+    if (O.tension && c.tcue && fresh(c.tcue + (c.prog ? c.prog.it?.name : ''), 12)) g.push([TENSION_SAY[c.tcue]]);
+    if (c.top && c.grip) { const t = [...c.grip.notes].sort((a, b) => b.midi - a.midi)[0]; if (t?.iv) g.push([MELODY_SAY(t.iv)]); }
     const th = O.theory;
     const mode = O.modeSay ? sourceMode(c.spec, c.q, c.key.minor) : null;
     let role = c.role && ROLE_SHORT[c.role];
@@ -284,7 +315,7 @@ export function ambient(O, ui, voices) {
       out.push({ at: 0, notes: full.filter((n) => !isExt(n.iv)) });
       out.push({ at: extAt, notes: full, ext: true });
     } else out.push({ at: 0, notes: full });
-    if (O.motion === 'still' || dur < 5) return out;
+    if (O.motion === 'still' || dur < 5 || c.top || c.styleSaid) return out; // a demo's voicing (or held melody) stays as it is
     const base = full;
     const top = base[base.length - 1];
     const rootPc = T.notePc(c.root);
@@ -326,14 +357,37 @@ export function ambient(O, ui, voices) {
     played.push(c); if (played.length > 400) played.splice(0, 100);
     current = c; startedAt = t; count++;
     if (c.intro) said.clear(); // a new progression: everything may be said again once
+    c.spot = null;
+    const sameChord = prevChord && T.notePc(prevChord.root) === T.notePc(c.root) && prevChord.q === c.q;
+    if (prevChord?.grip && c.grip && !sameChord) {
+      // the most telling move: a 7th falling to a 3rd, else any guide tone moving by step (or holding)
+      let best = null;
+      for (const p of prevChord.grip.notes.filter((n) => GUIDE.includes(n.iv))) for (const n of c.grip.notes) {
+        const d = n.midi - p.midi;
+        if (Math.abs(d) > 2 || p.iv === n.iv) continue;
+        const score = (/7/.test(p.iv) && /3/.test(n.iv) ? 3 : 0) + (d ? 1 : 0) - Math.abs(d) * 0.1;
+        if (!best || score > best.score) best = { score, line: SPOT_SAY(p.iv, n.iv, Math.sign(d)) };
+      }
+      c.spot = best?.line || null;
+    }
+    // tension: the peak of the progression, and the release after it
+    c.tcue = null;
+    if (c.prog?.tension && c.idx != null) {
+      const ts = c.prog.tension, mx = Math.max(...ts), k = c.idx;
+      if (ts[k] === mx && ts.indexOf(mx) === k) c.tcue = 'peak';
+      else if (k > 0 && ts[k - 1] === mx && mx - ts[k] >= 1.2) c.tcue = 'release';
+    }
     let dur = Math.max(3, O.secs * (c.beats / 4));
     // the voice first (its length decides when extensions can come in)
     let speakEnd = t + 0.9, g = [];
     if (c.intro) {
       const lines = c.intro.lines || [...(c.intro.pack ? [packSay(c.intro.pack)] : []), ...itemSay(c.intro.it, O.theory >= 1)];
-      later(t, () => ui.intro({ pack: c.prog.pack, it: c.intro.it, rns: c.prog.rns, changed: c.prog.changed, keyLabel: c.keyLabel, lines }));
+      const tension = c.prog.tension || (c.prog.specs ? c.prog.specs.map((sp) => tensionOf(sp, sp.q, c.key.minor)) : null);
+      c.prog.tension = tension;
+      later(t, () => ui.intro({ pack: c.prog.pack, it: c.intro.it, rns: c.prog.rns, changed: c.prog.changed, keyLabel: c.keyLabel, lines, tension }));
       if (O.narr !== 'off') {
         quietUntil = t + 0.4 + lines.join(' ').length * 0.07;
+        dur = Math.max(dur, quietUntil - t + 1); // the first chord rings until the introduction is over
         V.say(lines.map((l) => [l]), t + 0.4, { vol: O.vvol }).then((end) => { if (end) quietUntil = end; });
       }
     } else if (O.narr !== 'off' && t >= quietUntil) {
@@ -358,11 +412,12 @@ export function ambient(O, ui, voices) {
       const at = t + m.at;
       const arp = O.arp !== 'off' && O.arp && (i === 0 || m.ext);
       const sorted = [...m.notes].sort((a, b) => a.midi - b.midi);
+      const boost = O.spotlight ? m.notes.filter((n) => GUIDE.includes(n.iv)).map((n) => n.midi) : null; // the guide tones a little louder
       if (i === 0 && nameNotes) {
-        voices.set(sorted.map((n) => n.midi), at, { arp: sorted.map((_, k) => nStart + k * nGap) });
+        voices.set(sorted.map((n) => n.midi), at, { arp: sorted.map((_, k) => nStart + k * nGap), boost });
         sorted.forEach((n, k) => V.say([[degWord(n.iv)]], at + nStart + k * nGap + 0.05, { vol: O.vvol }));
         later(at + nStart, () => ui.caption([...g.map((x) => x.join(' ')), sorted.map((n) => degText(n.iv)).join(' · ')], c));
-      } else voices.set(sorted.map((n) => n.midi), at, arp ? { arp: Math.min(0.55, Math.max(0.22, dur * 0.045)) } : { stagger: i === 0 ? Math.min(1.6, dur * 0.12) : 0.3 });
+      } else voices.set(sorted.map((n) => n.midi), at, arp ? { arp: Math.min(0.55, Math.max(0.22, dur * 0.045)), boost } : { stagger: i === 0 ? Math.min(1.6, dur * 0.12) : 0.3, boost });
       later(at, () => ui.show({ c, notes: m.notes, next: queue[0], first: i === 0, ext: m.ext }));
       if (m.ext) { const ew = extWords(c); if (ew.length && at >= quietUntil) { V.say(ew, at, { vol: O.vvol }); later(at, () => ui.caption(ew.map((x) => x.join(' ')), c)); } }
     });

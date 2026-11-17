@@ -305,7 +305,8 @@ export function voices(inst = 'guitar') {
     held: () => [...held.keys()],
     // sound exactly these notes from t: common tones hold, new ones enter (staggered if asked), old ones leave
     // arp: a gap in seconds (low to high, evenly), or a list of offsets, one per note in order
-    set(midis, t, { stagger = 0, vel = 1, arp = null } = {}) {
+    set(midis, t, { stagger = 0, vel = 1, arp = null, boost = null } = {}) {
+      const up = (m) => (boost && boost.includes(m) ? 1.7 : 1);
       const want = [...new Set(midis)];
       const lv = levelFor(want.length) * vel;
       prune();
@@ -313,16 +314,16 @@ export function voices(inst = 'guitar') {
       want.forEach((m, i) => {
         const v = held.get(m);
         const slot = arp == null ? null : Array.isArray(arp) ? (arp[i] ?? arp[arp.length - 1]) : i * arp;
-        if (v) { v.level.gain.setTargetAtTime(lv, t, 0.6); v.vel = lv; if (slot != null) touch(m, v, t + slot); return; }
+        if (v) { v.level.gain.setTargetAtTime(lv * up(m), t, 0.6); v.vel = lv * up(m); if (slot != null) touch(m, v, t + slot); return; }
         const at = t + (slot != null ? slot : stagger ? (i / Math.max(1, want.length - 1)) * stagger * rnd(0.6, 1) : 0);
-        const nv = MAKERS[cur](g, m, at, lv, panOf(m));
-        nv.vel = lv; nv.startAt = at;
+        const nv = MAKERS[cur](g, m, at, lv * up(m), panOf(m));
+        nv.vel = lv * up(m); nv.startAt = at;
         live.add(nv);
         held.set(m, nv);
         ringOn(nv);
       });
       // levels follow the number of notes
-      for (const [, v] of held) { v.level.gain.setTargetAtTime(lv, t + 0.05, 0.8); v.vel = lv; }
+      for (const [m, v] of held) { v.level.gain.setTargetAtTime(lv * up(m), t + 0.05, 0.8); v.vel = lv * up(m); }
     },
     // one note in or out
     add(m, t) { this.set([...held.keys(), m], t); },

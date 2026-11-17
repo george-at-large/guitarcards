@@ -129,7 +129,7 @@ export function reharmStream(O, home) {
       name = `${item.name} · variation ${vn}`;
       note = made.map((c) => c.why).join(' · ');
     }
-    prog = { pack: null, it: { id: item.id, name, note }, rns: label(), changed: cur.map((x) => !!x.changed), lines, changes: cur.filter((x) => x.changed).map((x) => x.changed) };
+    prog = { pack: null, it: { id: item.id, name, note }, rns: label(), specs: cur.map((x) => x.spec), changed: cur.map((x) => !!x.changed), lines, changes: cur.filter((x) => x.changed).map((x) => x.changed) };
     i = 0; rep = 0;
   }
   function advance() {
