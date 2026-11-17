@@ -11,7 +11,7 @@ import * as M from '../caged/meander.js';
 import * as L from '../caged/library.js';
 import * as Hc from '../caged/harmony.js';
 import * as E from '../caged/evolve.js';
-import { OPEN } from './harm.js';
+import { OPEN, fingerable } from './harm.js';
 import { voices as makeVoices } from './engine.js';
 import * as Gr from '../caged/grips.js';
 import { ROLE, ROLE_SHORT, whyOf, EXTS, EXT_SAY, EXT_INFO, COLOUR, WHY, degWord, degText } from './words.js';
@@ -72,6 +72,7 @@ export function grips(rootPc, q, bassIv = '1') {
         if (Object.entries(counts).some(([p, n]) => n > (Number(p) === rootPc || (played.length >= 6 && Number(p) === (rootPc + 7) % 12) ? 2 : 1))) return;
         const fr = played.filter((p) => p.f > 0).map((p) => p.f);
         if (fr.length && Math.max(...fr) - Math.min(...fr) > 4) return;
+        if (!fingerable(played.map((p) => ({ fret: p.f })))) return;
         out.push({ notes: played.map((p) => ({ string: 6 - p.s, fret: p.f, midi: p.midi, iv: pcs.get(p.midi % 12) })), lo });
         return;
       }

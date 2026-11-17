@@ -193,3 +193,20 @@ export function place(midis, prev = null, maxFret = 15) {
   const fr = a.filter((x) => x.fret > 0).map((x) => x.fret);
   return { notes: a, centre: fr.length ? fr.reduce((s, f) => s + f, 0) / fr.length : centre };
 }
+
+// ---------- can a hand play it? ----------
+// fretted notes within a 3-fret span below the 7th fret (4 above, where frets are narrower); up to four fretted
+// notes, or more only with an index-finger barre on the lowest fret and at most three notes above it; open strings
+// only in open position (everything else within the first four frets)
+export function fingerable(notes) {
+  const fr = notes.filter((n) => n.fret > 0);
+  if (!fr.length) return true;
+  const lo = Math.min(...fr.map((n) => n.fret)), hi = Math.max(...fr.map((n) => n.fret));
+  if (hi - lo > (lo >= 7 ? 4 : 3)) return false;
+  if (notes.some((n) => n.fret === 0) && hi > 5) return false;
+  if (fr.length <= 4) return true;
+  const atLo = fr.filter((n) => n.fret === lo), above = fr.filter((n) => n.fret > lo);
+  if (atLo.length < 2 || above.length > 3) return false;
+  // the barre lies across the strings between its outer notes: notes above it must be on strings inside or beside it
+  return true;
+}

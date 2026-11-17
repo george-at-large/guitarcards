@@ -4,7 +4,7 @@
 import * as T from '../theory.js';
 import * as A from '../audio.js';
 import * as V from '../caged/voice.js';
-import { OPEN } from './harm.js';
+import { OPEN, fingerable } from './harm.js';
 import { degWord } from './words.js';
 
 export const QUALITIES = [['maj', 'Major'], ['min', 'Minor'], ['dim', 'Diminished'], ['aug', 'Augmented'], ['sus4', 'Sus 4'], ['sus2', 'Sus 2'],
@@ -17,7 +17,17 @@ export const SETS = {
 export const INV_NAMES = ['root position', 'first inversion', 'second inversion', 'third inversion'];
 const ORDER = { 1: 0, 3: 1, b3: 1, 2: 1, 4: 1, 5: 2, b5: 2, '#5': 2, 7: 3, b7: 3, bb7: 3, 6: 3 };
 
-// every voicing of the chord on a string set: one chord tone per string, all tones present, a hand-sized span
+// the standard voicing groups: close triads on three neighbouring strings; on four neighbouring strings, drop 2
+// (a close voicing with its second-highest note an octave lower); on 6-4-3-2 and 5-3-2-1, drop 3 (the third-highest
+// dropped). Checked by undoing the drop and asking whether the result is a close voicing.
+function standard(midis, setId) {
+  const v = [...midis].sort((a, b) => a - b);
+  const close = (x) => { const y = [...x].sort((a, b) => a - b); return y[y.length - 1] - y[0] < 12; };
+  if (v.length === 3) return close(v);
+  if (setId === '6432' || setId === '5321') return close([v[1], v[2], v[3], v[0] + 12]) && v[0] + 12 > v[1] && v[0] + 12 < v[2]; // drop 3
+  return close([v[1], v[2], v[3], v[0] + 12]) && v[0] + 12 > v[2] && v[0] + 12 < v[3]; // drop 2
+}
+// every voicing of the chord on a string set: one chord tone per string, all tones present, playable
 export function voicings(rootPc, q, setId) {
   const ivs = T.getChord(q).ivs;
   const pcs = new Map(ivs.map((iv) => [(rootPc + T.intervalSemis(iv)) % 12, iv]));
@@ -29,7 +39,8 @@ export function voicings(rootPc, q, setId) {
       const used = new Set(cur.map((n) => n.iv));
       if (used.size !== ivs.length) return;
       const fr = cur.filter((n) => n.fret > 0).map((n) => n.fret);
-      if (fr.length && Math.max(...fr) - Math.min(...fr) > (strings.length === 4 ? 4 : 3)) return;
+      if (!fingerable(cur)) return;
+      if (!standard(cur.map((n) => n.midi), setId)) return;
       const notes = cur.map((n) => ({ ...n }));
       const bass = notes[0].iv;
       out.push({ notes, set: setId, inv: ORDER[bass] ?? 0, bass, at: fr.length ? fr.reduce((a, b) => a + b, 0) / fr.length : 0 });
@@ -45,7 +56,6 @@ export function voicings(rootPc, q, setId) {
     }
   };
   go(0);
-  // the voicings within one set must rise: a lower string can't sound higher (that's a different set)
   return out.filter((v) => v.notes.every((n, i) => i === 0 || n.midi > v.notes[i - 1].midi)).sort((a, b) => a.at - b.at);
 }
 
