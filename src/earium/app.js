@@ -8,7 +8,7 @@ import * as E from './engine.js';
 import * as H from './harm.js';
 import { neckSVG } from './neck.js';
 import { guided, LESSONS } from './guided.js';
-import { ambient, PROGRESSIONS, LEVEL_NAMES } from './ambient.js';
+import { ambient, PROGRESSIONS, LEVEL_NAMES, GROUPS } from './ambient.js';
 import { degText } from './words.js';
 
 const $ = (s) => document.querySelector(s);
@@ -20,7 +20,7 @@ const ROOTS = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B�
 const DEF = {
   inst: 'guitar', space: 0.55, vvol: 0.45,
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random' },
-  a: { src: 'wander', prog: 'major-ii-v-i', level: 3, key: 'random', minor: false, secs: 12, motion: 'gentle', narr: 'rich' },
+  a: { src: 'packs', pack: 'all', loops: 2, prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', narr: 'rich' },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
@@ -79,17 +79,20 @@ function setupG() {
 function setupA() {
   view = 'a';
   const a = S.a;
+  const packOpts = GROUPS.map((g) => `<optgroup label="${esc(g.name)}">${g.packs.map((p) => `<option value="${p.id}" ${p.id === a.pack ? 'selected' : ''}>${fmt(p.name)}</option>`).join('')}</optgroup>`).join('');
   const progs = PROGRESSIONS().map((g) => `<optgroup label="${esc(g.cat)}">${g.items.map((p) => `<option value="${p.id}" ${p.id === a.prog ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</optgroup>`).join('');
   app.innerHTML = `
   <header class="bar"><button class="icon" data-go="home" aria-label="Back">‹</button><h2>Ambient</h2><span></span></header>
   <section class="card">
-    ${row('Music', seg('a.src', [['wander', 'Wandering'], ['prog', 'A progression']], a.src), a.src === 'wander' ? 'Endless phrases that move through the key and close with cadences; at higher complexity, borrowed chords, secondary dominants and new keys.' : '')}
+    ${row('Music', seg('a.src', [['packs', 'Packs'], ['wander', 'Wandering'], ['prog', 'One progression']], a.src),
+    a.src === 'packs' ? 'Progressions play one after another, each introduced by name with a line of theory.' : a.src === 'wander' ? 'Endless phrases that move through the key and close with cadences; at higher complexity, borrowed chords, secondary dominants and new keys.' : '')}
+    ${a.src === 'packs' ? row('Play', `<select data-set="a.pack" class="sel"><option value="all" ${a.pack === 'all' ? 'selected' : ''}>All packs, in turn</option><option value="random" ${a.pack === 'random' ? 'selected' : ''}>Random mix</option>${packOpts}</select>`) + row('Each progression', seg('a.loops', [1, 2, 3, 4].map((n) => [n, `${n}×`]), a.loops), 'How many times round before the next one.') : ''}
     ${a.src === 'prog' ? row('Progression', `<select data-set="a.prog" class="sel">${progs}</select>`) : ''}
-    ${row('Complexity', slider('a.level', 1, 5, 1, a.level, LEVEL_NAMES[a.level - 1]), ['Triads of the key.', 'Sevenths, add9s.', 'Borrowed chords, secondary dominants, 9ths.', 'Jazz: ii–Vs everywhere, tritone subs, 13ths, altered.', 'Far out: chromatic mediants, distant keys.'][a.level - 1])}
-    ${row('Key', `<div class="keyrow"><select data-set="a.key" class="sel"><option value="random" ${a.key === 'random' ? 'selected' : ''}>Any</option>${['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map((k) => `<option value="${k}" ${a.key === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}</select>${seg('a.minor', [[false, 'Major'], [true, 'Minor']], a.minor)}</div>`)}
+    ${row('Complexity', slider('a.level', 1, 5, 1, a.level, LEVEL_NAMES[a.level - 1]), a.src === 'wander' ? ['Triads of the key.', 'Sevenths, add9s.', 'Borrowed chords, secondary dominants, 9ths.', 'Jazz: ii–Vs everywhere, tritone subs, 13ths, altered.', 'Far out: chromatic mediants, distant keys.'][a.level - 1] : ['Chords as written.', 'Chords as written.', 'Now and then a chord gets a colour (a 9th, a 13th…).', 'Most chords get colours.', 'Colours everywhere.'][a.level - 1])}
+    ${row('Key', `<div class="keyrow"><select data-set="a.key" class="sel"><option value="random" ${a.key === 'random' ? 'selected' : ''}>Any, changing</option>${['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map((k) => `<option value="${k}" ${a.key === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}</select>${a.src === 'wander' ? seg('a.minor', [[false, 'Major'], [true, 'Minor']], a.minor) : ''}</div>`)}
     ${row('Each chord', slider('a.secs', 5, 30, 1, a.secs, `${a.secs} s`))}
     ${row('Movement', seg('a.motion', [['still', 'Still'], ['gentle', 'Gentle'], ['flowing', 'Flowing']], a.motion), a.motion === 'still' ? 'Only the chord changes move.' : a.motion === 'gentle' ? 'The top voice wanders to another chord tone.' : 'Suspensions resolve and the top voice sings a little.')}
-    ${row('Narration', seg('a.narr', [['rich', 'Describe'], ['minimal', 'Chords only'], ['off', 'Off']], a.narr), a.narr === 'rich' ? 'Each chord and what it’s doing: “moving to the minor four, borrowed from the parallel minor”.' : a.narr === 'minimal' ? 'Just the chord: “four, major seven”.' : '')}
+    ${row('Narration', seg('a.narr', [['rich', 'Describe'], ['minimal', 'Chords only'], ['off', 'Off']], a.narr), a.narr === 'rich' ? 'Each progression introduced with its theory; each chord and what it’s doing: “moving to the minor four, borrowed from the parallel minor”.' : a.narr === 'minimal' ? 'Each progression’s name, and just the chords: “four, major seven”.' : 'Silent: names and theory still shown on screen.')}
   </section>
   ${sound()}
   <button class="play" data-play="a">Begin</button>`;
@@ -103,6 +106,7 @@ function runScreen(mode) {
   <main class="stage">
     <div class="neckcol" id="neck">${neckSVG([])}</div>
     <div class="info">
+      <div id="intro" class="intro"></div>
       <div class="chord" id="chord"><div class="sym">…</div></div>
       <div id="stack" class="stack"></div>
       <div id="prompt"></div>
@@ -144,7 +148,14 @@ function quizUI({ choices, answer, secs, text }) {
 }
 // Ambient
 const IVK = (iv) => H.KIND(String(iv).replace(/^(b|#)?(2|4|6)$/, (m, a, n) => (n === '6' ? (a || '') + '6' : (a || '') + { 2: '9', 4: '11' }[n])));
+function introA({ pack, it, rns, lines }) {
+  const el = $('#intro');
+  if (!el) return;
+  el.innerHTML = `${pack ? `<div class="pk">${esc(pack.group)} · ${fmt(pack.name)}</div>` : ''}<div class="pn">${fmt(it.name)}</div>${it.note ? `<div class="pt">${fmt(it.note)}</div>` : ''}<div class="chart">${rns.map((r, i) => `<span data-i="${i}">${fmt(r)}</span>`).join('')}</div>`;
+  const cap = $('#caption'); if (cap) cap.innerHTML = '';
+}
 function showA({ c, notes, next, first }) {
+  document.querySelectorAll('#intro .chart span').forEach((s) => s.classList.toggle('on', Number(s.dataset.i) === c.idx));
   $('#neck').innerHTML = neckSVG(notes.map((n) => ({ ...n, label: degText(n.iv), kind: IVK(n.iv), fresh: false })));
   if (!first) return;
   $('#chord').innerHTML = `<div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(c.keyLabel)}</div>`;
@@ -165,7 +176,7 @@ async function begin(mode) {
   try { if (navigator.wakeLock) lock = await navigator.wakeLock.request('screen'); } catch (e) { lock = null; }
   const O = { ...(mode === 'g' ? S.g : S.a), vvol: S.vvol };
   if (mode === 'g') run = guided(O, { show: showG, quiz: quizUI }, voices);
-  else run = ambient(O, { show: showA, caption: (lines) => { const el = $('#caption'); if (el) el.innerHTML = lines.map((l) => `<p>${esc(l)}</p>`).join(''); } }, voices);
+  else run = ambient(O, { show: showA, intro: introA, caption: (lines) => { const el = $('#caption'); if (el) el.innerHTML = lines.map((l) => `<p>${esc(l)}</p>`).join(''); } }, voices);
   run.mode = mode; run.O = O;
 }
 function end() {

@@ -110,3 +110,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .runbar #pace { min-width: 48px; text-align: center; font: italic 18px var(--serif); color: var(--gold); }
 .runbar .instname { margin-left: 14px; font-size: 13px; color: var(--faint); }
 @media (min-width: 700px) { #earium { max-width: 720px; } .stage { grid-template-columns: 220px 1fr; } }
+
+/* ambient: the progression now playing */
+.intro:empty { display: none; }
+.intro { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); animation: rise .8s ease-out; }
+.intro .pk { font-size: 12px; letter-spacing: .06em; color: var(--faint); }
+.intro .pn { font: 500 21px/1.2 var(--serif); margin-top: 4px; }
+.intro .pt { font: italic 15.5px/1.35 var(--serif); color: var(--dim); margin-top: 4px; }
+.intro .chart { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 8px; }
+.intro .chart span { font: 500 15px var(--serif); color: var(--faint); transition: color .4s; }
+.intro .chart span.on { color: var(--gold); }

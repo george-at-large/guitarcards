@@ -87,7 +87,7 @@ export function allPhrases() {
   // ambient
   Object.values(ROLE).forEach((s) => P.add(s));
   Object.values(AMB).forEach((s) => P.add(s));
-  for (const acc of ['', 'flat ', 'sharp ']) for (const n of [1, 2, 3, 4, 5, 6, 7]) { P.add(acc + NUM[n]); P.add(`of ${acc}${NUM[n]}`); P.add(`over ${acc}${NUM[n]}`); }
+  for (const acc of ['', 'flat ', 'sharp ']) for (const n of [1, 2, 3, 4, 5, 6, 7]) { P.add(acc + NUM[n]); P.add(`minor ${acc}${NUM[n]}`); P.add(`of ${acc}${NUM[n]}`); P.add(`over ${acc}${NUM[n]}`); }
   QUAL_WORDS.forEach((q) => P.add(q));
   return [...P].filter(Boolean);
 }
