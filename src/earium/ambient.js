@@ -14,8 +14,9 @@ import * as E from '../caged/evolve.js';
 import { OPEN } from './harm.js';
 import * as Gr from '../caged/grips.js';
 import { ROLE, ROLE_SHORT, whyOf, EXTS, EXT_SAY, EXT_INFO, COLOUR, WHY, degWord, degText } from './words.js';
-import { PACKS, GROUPS, packById, packSay, itemSay } from './packs.js';
+import { PACKS, GROUPS, packById, packSay, itemSay, itemOf } from './packs.js';
 import { reharmStream } from './reharm.js';
+import { sourceMode, MODE_SAY, feelLines, FEEL, FEEL_WHY, FEEL_ROLE, FEEL_ROLE_WHY } from './feel.js';
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const semis = (iv) => T.intervalSemis(iv) % 12;
@@ -136,7 +137,7 @@ function packStream(O, home) {
   function load() {
     if (li >= list.length) { li = 0; if (O.pack === 'random') build(); }
     const { pack, it } = list[li++];
-    const item = L.byId(it.id);
+    const item = itemOf(it);
     const chords = [];
     L.resolve(item).forEach((b) => b.forEach((spec) => chords.push({ spec, beats: 4 / b.length })));
     // a new progression: the same key, or (key: any) a new one a 4th, 5th or step away
@@ -151,7 +152,8 @@ function packStream(O, home) {
     next() {
       if (i >= cur.chords.length) { i = 0; pass++; if (O.src !== 'prog' && pass >= O.loops) load(); }
       const x = cur.chords[i], nx = cur.chords[(i + 1) % cur.chords.length];
-      const out = { spec: { ...x.spec, q: colourPack(x.spec, O.level, nx.spec, cur.minor) }, key: { off: (keyPc - home + 12) % 12, minor: cur.minor }, beats: x.beats, ann: [], idx: i, prog: cur };
+      // a comparison pack (its own chart) plays exactly as written
+      const out = { spec: { ...x.spec, q: cur.item.chart ? x.spec.q : colourPack(x.spec, O.level, nx.spec, cur.minor) }, key: { off: (keyPc - home + 12) % 12, minor: cur.minor }, beats: x.beats, ann: [], idx: i, prog: cur };
       if (i === 0 && pass === 0) out.intro = { pack: cur.newPack ? cur.pack : null, it: cur.it };
       i++;
       return out;
@@ -246,8 +248,11 @@ export function ambient(O, ui, voices) {
     dryRun = dry;
     const g = [nameWords(c, later ? baseQ(c.q) : c.q)];
     const th = O.theory;
-    const role = c.role && ROLE_SHORT[c.role];
+    const mode = O.modeSay ? sourceMode(c.spec, c.q, c.key.minor) : null;
+    let role = c.role && ROLE_SHORT[c.role];
+    if (mode && role && /^from /.test(role)) role = null; // the mode says it more precisely
     if (th >= 1 && role && fresh(role, 6)) g.push([role]);
+    if (mode && fresh(MODE_SAY(mode), 6)) g.push([MODE_SAY(mode)]);
     if (th >= 1) for (const a of c.ann) {
       if (/borrowed/.test(a.say) && /parallel/.test(role || '')) continue; // said already, in other words
       if (c.role === 'secondary' && /secondary/.test(a.say)) continue;
@@ -256,6 +261,8 @@ export function ambient(O, ui, voices) {
     }
     if (th >= 2) { const w = whyOf(c.role, semis(c.spec.iv)); if (w && fresh(w, 16)) g.push([w]); }
     if (!later && O.extTalk === 'why') for (const e of extsOf(c)) if (fresh(COLOUR[e], 8)) g.push([COLOUR[e]]);
+    // Feel: what it feels like (and why), in plain words
+    if (O.feel && O.feel !== 'off') for (const l of feelLines(later ? baseQ(c.q) : c.q, c.role, [], O.feel === 'why')) if (fresh(l, 6)) g.push([l]);
     dryRun = false;
     return g;
   }
@@ -332,6 +339,7 @@ export function ambient(O, ui, voices) {
     } else if (O.narr !== 'off' && t >= quietUntil) {
       g = words(c, { later: O.extLater });
       speakEnd = t + 0.9 + g.flat().join(' ').length * 0.065 + g.length * 0.3;
+      dur = Math.max(dur, speakEnd - t + 1.2); // a long description: the chord rings on until it's said
       later(t + 0.5, () => ui.caption(g.map((x) => x.join(' ')), c));
       V.say(g, t + 0.9, { vol: O.vvol });
     } else later(t + 0.5, () => ui.caption([], c));
@@ -426,5 +434,6 @@ export { roleOf, GROUPS };
 export function details(c) {
   const exts = [...new Set((c.grip?.notes || []).map((n) => n.iv).filter((iv) => EXTS.includes(iv)))];
   return { role: c.role ? ROLE[c.role] : '', why: c.role ? whyOf(c.role, semis(c.spec.iv)) : '', exts: exts.map((e) => ({ e, info: EXT_INFO[e], colour: COLOUR[e] })),
+    mode: sourceMode(c.spec, c.q, c.key.minor), feel: feelLines(c.q, c.role, [], false), feelWhy: feelLines(c.q, c.role, [], true).slice(feelLines(c.q, c.role, [], false).length),
     notes: (c.grip?.notes || []).map((n) => ({ iv: n.iv, midi: n.midi })) };
 }

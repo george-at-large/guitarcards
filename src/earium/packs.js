@@ -54,7 +54,32 @@ const COMBOS = ['bVI-bVII', 'iv-bVII', 'bIII-bVII', 'II-iv', 'bII-V', 'h-paralle
 const B = (id) => BORROWED.find((b) => b.id === id);
 const C = (name) => CHROMATIC.find((c) => c.name === name);
 
+// melodic minor: progressions written here (their own charts), in C for reading; they play in any key
+const MM = (id, name, chart, note, minor = false) => ({ id: `mm-${id}`, name, chart, note, minor });
+const MM_CHORDS = [
+  MM('scale', 'The scale in sevenths', '| i:mMaj7 | ii:m7 | bIII:maj7#5 | IV:7#11 | V:7b13 | vi:m7b5 | vii:m7b5 | i:mMaj7 |', 'The home key’s melodic minor stacked in thirds: minor major seven, minor seven, major seven sharp five, Lydian dominant, Mixolydian flat six, half diminished, and on the seventh step the altered sound.', true),
+  MM('251', 'Minor two, five, one, all melodic minor', '| ii:m7b5 | V:7alt | i:mMaj7 | i:m6 |', 'Locrian natural two over the two, the altered scale over the five, and a minor major seven at home: each chord drawn from a melodic minor scale.', true),
+  MM('vamp', 'Minor vamp with the Lydian dominant', '| i:m6 | IV:7#11 | i:m6 | IV:7#11 |', 'Both chords come from the home melodic minor: the minor six at home and the Lydian dominant on four. The raised sixth is the bright note in the minor key.', true),
+  MM('cliche', 'The Lydian augmented climb', '| I:maj7 | I:maj7#5 | I:6 | I:maj7 |', 'The fifth rises a half step and back: the major seven sharp five is the third mode of melodic minor, the Lydian augmented sound.'),
+  MM('tonic', 'Three minor tonics', '| i:m6 | i:mMaj7 | i:m6/9 | i:mMaj7 |', 'The tonic of melodic minor heard three ways: minor six, minor major seven, minor six nine. Darker in the middle, poised at the ends.', true),
+];
+const MM_SUBS = [
+  MM('dom-a', 'The five slot: plain', '| ii:m7 | V:7 | I:maj7 | I:maj7 |', 'The frame: two, five, one with a plain dominant seven.'),
+  MM('dom-b', 'The five slot: altered', '| ii:m7 | V:7alt | I:maj7 | I:maj7 |', 'The same frame, the five now altered: the seventh mode of the melodic minor a half step above the five. Every tension pulls toward home.'),
+  MM('dom-c', 'The five slot: tritone sub', '| ii:m7 | bII:7#11 | I:maj7 | I:maj7 |', 'Flat two seven sharp eleven, the Lydian dominant: the same melodic minor scale as the altered five. The bass now slides down by half step.'),
+  MM('dom-d', 'The five slot: backdoor', '| ii:m7 | bVII:7#11 | I:maj7 | I:maj7 |', 'Flat seven seven sharp eleven: Lydian dominant, from the melodic minor built on four. Home by the back door.'),
+  MM('dom-e', 'The five slot: augmented', '| ii:m7 | V:7#5 | I:maj7 | I:maj7 |', 'Five seven sharp five, from the altered scale: the raised fifth pushes up into the third of home.'),
+  MM('iv-a', 'The four slot: minor four six', '| I:maj7 | IV:maj7 | iv:m6 | I:maj7 |', 'The frame: four, then the minor four six, the tonic chord of the melodic minor built on four.'),
+  MM('iv-b', 'The four slot: flat seven, Lydian dominant', '| I:maj7 | IV:maj7 | bVII:7#11 | I:maj7 |', 'The same slot, flat seven seven sharp eleven: from that same melodic minor scale as the minor four six. One scale, two chords, two feelings.'),
+  MM('ii-a', 'The two slot in minor: half diminished', '| ii:m7b5 | V:7b9 | i:m6 | i:m6 |', 'The frame: minor two, five, one with a plain half diminished two.', true),
+  MM('ii-b', 'The two slot in minor: Locrian natural two', '| ii:m7b5 | V:7alt | i:mMaj7 | i:mMaj7 |', 'The two with its natural ninth, the sixth mode of melodic minor, then the altered five: a smoother, more modern sound.', true),
+];
+
 export const GROUPS = [
+  { name: 'Melodic minor', packs: [
+    { id: 'mm-chords', name: 'Melodic minor chords', intro: 'Melodic minor: its seven chords, and how jazz uses them.', items: MM_CHORDS },
+    { id: 'mm-subs', name: 'Melodic minor substitutions', intro: 'One progression held still, one chord swapped each time for a melodic minor colour: hear how each one feels.', items: MM_SUBS },
+  ] },
   { name: 'Modal interchange', packs: [
     ...CORE.map((id) => { const b = B(id); return { id: `mi-${id}`, name: `${b.rn} · ${b.name}`, intro: `${b.name}, borrowed from ${cleanFrom(b.from)}. ${b.sound}`, items: fromData('borrow', b) }; }),
     { id: 'mi-combos', name: 'Borrowed chords together', intro: 'Borrowed chords together: two or more colours from the parallel modes in one progression.',
@@ -92,7 +117,9 @@ export const GROUPS = [
   ] },
   { name: 'Key changes', packs: MODULATIONS.map((m) => ({ id: `mod-${m.id}`, name: m.name, intro: `${m.name}. ${m.sound || ''}`, items: fromData('mod', m, 4) })) },
 ];
-export const PACKS = GROUPS.flatMap((g) => g.packs.map((p) => ({ ...p, group: g.name, items: p.items.filter((it) => L.ALL.some((x) => x.id === it.id)) }))).filter((p) => p.items.length);
+export const PACKS = GROUPS.flatMap((g) => g.packs.map((p) => ({ ...p, group: g.name, items: p.items.filter((it) => it.chart || L.ALL.some((x) => x.id === it.id)) }))).filter((p) => p.items.length);
+// a pack's progression as the library would have it (its own chart, or the library's)
+export const itemOf = (it) => (it.chart ? it : L.byId(it.id));
 export const packById = (id) => PACKS.find((p) => p.id === id);
 
 // what the voice says: a pack's opening, a progression's name and its line of theory

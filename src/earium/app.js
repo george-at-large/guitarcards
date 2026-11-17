@@ -21,7 +21,7 @@ const ROOTS = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B�
 const DEF = {
   inst: 'guitar', space: 0.55, vvol: 0.7,
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random' },
-  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', more: false },
+  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', more: false },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
@@ -187,11 +187,16 @@ function drawDetails() {
   const d = details(c);
   const notes = [...d.notes].sort((a, b) => a.midi - b.midi).map((n) => `<span class="k-${IVK(n.iv)}"><i></i>${degText(n.iv)} <small>${fmt(T.noteName(T.transpose(c.root, n.iv), true))}</small></span>`).join('');
   el.innerHTML = `<div class="fn">${esc(ROLE_LABEL[c.role] || '')}</div>
+    ${d.mode ? `<div class="exl">From <b>${esc(d.mode)}</b></div>` : ''}
+    ${S.a.feel !== 'off' && d.feel.length ? `<div class="feel">${fmt(d.feel.join(' '))}</div>` : ''}
     ${d.exts.length ? `<div class="exl">Extensions: ${d.exts.map((x) => `<b>${degText(x.e)}</b>`).join(' · ')}</div>` : ''}
     ${c.ann.map((a) => `<div class="ann">${fmt(a.text)}</div>`).join('')}
     <button class="morebtn" data-act="more">${S.a.more ? 'Less ▴' : 'More ▾'}</button>
     ${S.a.more ? `<div class="more">
       ${d.why ? `<p><b>Why it works.</b> ${fmt(d.why)}</p>` : ''}
+      ${d.feel.length ? `<p><b>How it feels.</b> ${fmt(d.feel.join(' '))}</p>` : ''}
+      ${d.feelWhy.length ? `<p><b>Why it feels that way.</b> ${fmt(d.feelWhy.join(' '))}</p>` : ''}
+      ${d.mode ? `<p><b>Where it comes from.</b> ${fmt(d.mode)}: the mode of the same home note that holds every note of this chord.</p>` : ''}
       <div class="nlist">${notes}</div>
       ${d.exts.map((x) => `<p><b>${degText(x.e)}.</b> ${fmt(x.info)} <i>${fmt(x.colour)}</i></p>`).join('')}
       ${c.bass ? `<p><b>Slash chord.</b> ${fmt(c.name)}: the bass is the chord’s ${degText(c.bass)}, not its root, so the bass line moves more smoothly (or holds still while the harmony changes).</p>` : ''}
@@ -204,6 +209,8 @@ const TOGGLES = [
   ['extTalk', 'Extensions', [['off', 'off'], ['names', 'named'], ['why', 'why']]],
   ['extLater', 'Ext. later', [[false, 'off'], [true, 'on']]],
   ['arp', 'Arpeggio', [['off', 'off'], ['on', 'on'], ['named', 'named']]],
+  ['modeSay', 'Mode', [[false, 'off'], [true, 'on']]],
+  ['feel', 'Feel', [['off', 'off'], ['on', 'on'], ['why', '+ why']]],
 ];
 const toggleHTML = () => TOGGLES.map(([k, l, opts]) => { const cur = opts.find(([v]) => v === S.a[k]) || opts[0]; return `<button data-tog="${k}" class="${cur[0] && cur[0] !== 'off' ? 'on' : ''}">${l}<small>${cur[1]}</small></button>`; }).join('');
 

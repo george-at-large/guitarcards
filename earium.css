@@ -146,10 +146,11 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .nlist small { font: 12px var(--sans); color: var(--faint); }
 .nlist i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .nlist .k-r i { color: var(--r); } .nlist .k-t3 i { color: var(--t3); } .nlist .k-t5 i { color: var(--t5); } .nlist .k-t7 i { color: var(--t7); } .nlist .k-tx i { color: var(--tx); }
-.toggles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 18px; }
+.toggles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 18px; }
 .toggles button { padding: 7px 4px 6px; border-radius: 14px; border: 1px solid var(--line); font-size: 12.5px; color: var(--dim); display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
 .toggles button small { font: italic 14px var(--serif); color: var(--faint); }
 .toggles button.on { border-color: rgba(232, 194, 122, .55); color: var(--ink); }
 .toggles button.on small { color: var(--gold); }
 .intro .chart span.chg { color: var(--t5); }
 .intro .chart span.chg.on { color: var(--gold); }
+.feel { font: italic 16px/1.35 var(--serif); color: #d9cfb8; margin-top: 8px; }

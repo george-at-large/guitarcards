@@ -3,6 +3,7 @@
 // same sentence, so what is heard is always written down too.
 import { DEGS, MOVE_PAIRS, ALL_SAYS, FAMILY } from './harm.js';
 import { SAYS as REHARM_SAYS } from './reharm.js';
+import { allPhrases as feelPhrases } from './feel.js';
 
 const NUM = { 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 9: 'nine', 11: 'eleven', 13: 'thirteen' };
 const ACC = { b: 'flat ', bb: 'double flat ', '#': 'sharp ' };
@@ -143,6 +144,7 @@ export function allPhrases() {
   EXTS.forEach((e) => P.add(EXT_SAY(e)));
   DEGS.forEach((d) => P.add(degWord(d)));
   REHARM_SAYS.forEach((x) => P.add(x));
+  feelPhrases().forEach((x) => P.add(x));
   for (const acc of ['', 'flat ', 'sharp ']) for (const n of [1, 2, 3, 4, 5, 6, 7]) { P.add(acc + NUM[n]); P.add(`minor ${acc}${NUM[n]}`); P.add(`of ${acc}${NUM[n]}`); P.add(`over ${acc}${NUM[n]}`); }
   QUAL_WORDS.forEach((q) => P.add(q));
   return [...P].filter(Boolean);
