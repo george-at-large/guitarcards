@@ -280,6 +280,13 @@ export function voices(inst = 'guitar') {
     v.endAt = Math.min(v.endAt ?? Infinity, end);
     v.dead = true;
   }
+  // a held note sounded again: re-plucked, re-struck, or (sustained instruments) a soft swell
+  function touch(m, v, at) {
+    if (v.strike) { v.strike(at, 0.6); return; }
+    if (cur === 'guitar') { const pl = c.createBufferSource(); pl.buffer = ksBuffer(m); const gg = c.createGain(); gg.gain.value = 0.45; pl.connect(gg).connect(v.level); pl.start(at); return; }
+    const gn = v.level.gain, base = v.vel || 0.2;
+    gn.setTargetAtTime(base * 1.7, at, 0.04); gn.setTargetAtTime(base, at + 0.25, 0.5);
+  }
   const prune = () => { const now = c.currentTime; for (const v of live) if (v.endAt !== undefined && v.endAt < now) live.delete(v); };
   function ringOn(v) { // chimes: touched again now and then
     if (!v.strike) return;
@@ -297,15 +304,17 @@ export function voices(inst = 'guitar') {
     set inst(i) { cur = i; },
     held: () => [...held.keys()],
     // sound exactly these notes from t: common tones hold, new ones enter (staggered if asked), old ones leave
-    set(midis, t, { stagger = 0, vel = 1 } = {}) {
+    // arp: a gap in seconds (low to high, evenly), or a list of offsets, one per note in order
+    set(midis, t, { stagger = 0, vel = 1, arp = null } = {}) {
       const want = [...new Set(midis)];
       const lv = levelFor(want.length) * vel;
       prune();
       for (const [m, v] of held) if (!want.includes(m)) { stopVoice(v, t + (stagger ? Math.random() * stagger : 0)); held.delete(m); }
       want.forEach((m, i) => {
         const v = held.get(m);
-        if (v) { v.level.gain.setTargetAtTime(lv, t, 0.6); v.vel = lv; return; }
-        const at = t + (stagger ? (i / Math.max(1, want.length - 1)) * stagger * rnd(0.6, 1) : 0);
+        const slot = arp == null ? null : Array.isArray(arp) ? (arp[i] ?? arp[arp.length - 1]) : i * arp;
+        if (v) { v.level.gain.setTargetAtTime(lv, t, 0.6); v.vel = lv; if (slot != null) touch(m, v, t + slot); return; }
+        const at = t + (slot != null ? slot : stagger ? (i / Math.max(1, want.length - 1)) * stagger * rnd(0.6, 1) : 0);
         const nv = MAKERS[cur](g, m, at, lv, panOf(m));
         nv.vel = lv; nv.startAt = at;
         live.add(nv);
@@ -318,6 +327,8 @@ export function voices(inst = 'guitar') {
     // one note in or out
     add(m, t) { this.set([...held.keys(), m], t); },
     remove(m, t) { this.set([...held.keys()].filter((x) => x !== m), t); },
+    // the held notes struck again one after another, low to high (an arpeggio over a sustained chord)
+    roll(midis, t, gap) { [...midis].sort((a, b) => a - b).forEach((m, i) => { const v = held.get(m); if (v) touch(m, v, t + i * gap); }); },
     // pluck / strike what's held again, softly (the guitar and keys)
     retouch(t) {
       for (const [m, v] of held) {

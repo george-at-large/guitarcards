@@ -8,8 +8,9 @@ import * as E from './engine.js';
 import * as H from './harm.js';
 import { neckSVG } from './neck.js';
 import { guided, LESSONS } from './guided.js';
-import { ambient, PROGRESSIONS, LEVEL_NAMES, GROUPS } from './ambient.js';
+import { ambient, PROGRESSIONS, LEVEL_NAMES, GROUPS, details } from './ambient.js';
 import { degText } from './words.js';
+import { TIERS } from './reharm.js';
 
 const $ = (s) => document.querySelector(s);
 const app = $('#earium');
@@ -20,11 +21,12 @@ const ROOTS = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B�
 const DEF = {
   inst: 'guitar', space: 0.55, vvol: 0.7,
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random' },
-  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', narr: 'rich' },
+  a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', more: false },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
 S = { ...DEF, ...(S || {}), g: { ...DEF.g, ...(S?.g || {}) }, a: { ...DEF.a, ...(S?.a || {}) } };
+if (S.a.narr !== 'off') S.a.narr = 'on'; // older settings: Describe / Chords only
 const save = () => { try { localStorage.setItem('earium', JSON.stringify(S)); } catch (e) { /* */ } };
 
 let run = null, voices = null, lock = null, view = 'home';
@@ -84,16 +86,17 @@ function setupA() {
   app.innerHTML = `
   <header class="bar"><button class="icon" data-go="home" aria-label="Back">‹</button><h2>Ambient</h2><span></span></header>
   <section class="card">
-    ${row('Music', seg('a.src', [['packs', 'Packs'], ['wander', 'Wandering'], ['prog', 'One progression']], a.src),
-    a.src === 'packs' ? 'Progressions play one after another, each introduced by name with a line of theory.' : a.src === 'wander' ? 'Endless phrases that move through the key and close with cadences; at higher complexity, borrowed chords, secondary dominants and new keys.' : '')}
+    ${row('Music', seg('a.src', [['packs', 'Packs'], ['meander', 'Meander'], ['wander', 'Wandering'], ['prog', 'One progression']], a.src),
+    a.src === 'packs' ? 'Progressions play one after another, each introduced by name with a line of theory.' : a.src === 'meander' ? 'One progression, as written, then altered a little more each time round, each change named. Then as written again, and a new path.' : a.src === 'wander' ? 'Endless phrases that move through the key and close with cadences; at higher complexity, borrowed chords, secondary dominants and new keys.' : '')}
     ${a.src === 'packs' ? row('Play', `<select data-set="a.pack" class="sel"><option value="all" ${a.pack === 'all' ? 'selected' : ''}>All packs, in turn</option><option value="random" ${a.pack === 'random' ? 'selected' : ''}>Random mix</option>${packOpts}</select>`) + row('Each progression', seg('a.loops', [1, 2, 3, 4].map((n) => [n, `${n}×`]), a.loops), 'How many times round before the next one.') : ''}
-    ${a.src === 'prog' ? row('Progression', `<select data-set="a.prog" class="sel">${progs}</select>`) : ''}
+    ${a.src === 'prog' || a.src === 'meander' ? row('Progression', `<select data-set="a.prog" class="sel">${progs}</select>`) : ''}
+    ${a.src === 'meander' ? row('How far', slider('a.far', 1, 5, 1, a.far, TIERS[a.far - 1].name), TIERS.slice(0, a.far).map((t) => t.blurb).join(' ')) + row('Each version', seg('a.loops', [1, 2, 3].map((n) => [n, `${n}×`]), a.loops), 'How many times round before the next change.') : ''}
     ${row('Complexity', slider('a.level', 1, 5, 1, a.level, LEVEL_NAMES[a.level - 1]), a.src === 'wander' ? ['Triads of the key.', 'Sevenths, add9s.', 'Borrowed chords, secondary dominants, 9ths.', 'Jazz: ii–Vs everywhere, tritone subs, 13ths, altered.', 'Far out: chromatic mediants, distant keys.'][a.level - 1] : ['Chords as written.', 'Chords as written.', 'Now and then a chord gets a colour (a 9th, a 13th…).', 'Most chords get colours.', 'Colours everywhere.'][a.level - 1])}
     ${row('Key', `<div class="keyrow"><select data-set="a.key" class="sel"><option value="random" ${a.key === 'random' ? 'selected' : ''}>Any, changing</option>${['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'].map((k) => `<option value="${k}" ${a.key === k ? 'selected' : ''}>${fmt(k)}</option>`).join('')}</select>${a.src === 'wander' ? seg('a.minor', [[false, 'Major'], [true, 'Minor']], a.minor) : ''}</div>`)}
     ${row('Each chord', slider('a.secs', 5, 30, 1, a.secs, `${a.secs} s`))}
     ${row('Position', seg('a.shape', [['auto', 'Auto'], ['C', 'C'], ['A', 'A'], ['G', 'G'], ['E', 'E'], ['D', 'D']], a.shape), a.shape === 'auto' ? 'Grips anywhere on the neck, each one close to the last.' : `Every chord voiced inside the ${a.shape} shape of its key. Change it while playing, too.`)}
     ${row('Movement', seg('a.motion', [['still', 'Still'], ['gentle', 'Gentle'], ['flowing', 'Flowing']], a.motion), a.motion === 'still' ? 'Only the chord changes move.' : a.motion === 'gentle' ? 'The top voice wanders to another chord tone.' : 'Suspensions resolve and the top voice sings a little.')}
-    ${row('Narration', seg('a.narr', [['rich', 'Describe'], ['minimal', 'Chords only'], ['off', 'Off']], a.narr), a.narr === 'rich' ? 'Each progression introduced with its theory; each chord and what it’s doing: “moving to the minor four, borrowed from the parallel minor”.' : a.narr === 'minimal' ? 'Each progression’s name, and just the chords: “four, major seven”.' : 'Silent: names and theory still shown on screen.')}
+    ${row('Narration', seg('a.narr', [['on', 'On'], ['off', 'Off']], a.narr), a.narr === 'off' ? 'Silent: names and theory still shown on screen.' : 'Chord names, briefly. How much theory, and whether extensions are named, you set with the buttons while it plays.')}
   </section>
   ${sound()}
   <button class="play" data-play="a">Begin</button>`;
@@ -115,7 +118,7 @@ function runScreen(mode) {
       <div id="next" class="next"></div>
     </div>
   </main>
-  ${mode === 'a' ? `<div class="transport">
+  ${mode === 'a' ? `<div class="toggles" id="toggles">${toggleHTML()}</div><div class="transport">
     ${S.a.src !== 'wander' ? '<button data-act="prevProg" aria-label="Previous progression"><b>⏮</b><small>progression</small></button>' : ''}
     <button data-act="prevChord" aria-label="Previous chord"><b>‹</b><small>chord</small></button>
     <button data-act="nextChord" aria-label="Next chord"><b>›</b><small>chord</small></button>
@@ -156,10 +159,10 @@ function quizUI({ choices, answer, secs, text }) {
 }
 // Ambient
 const IVK = (iv) => H.KIND(String(iv).replace(/^(b|#)?(2|4|6)$/, (m, a, n) => (n === '6' ? (a || '') + '6' : (a || '') + { 2: '9', 4: '11' }[n])));
-function introA({ pack, it, rns, lines }) {
+function introA({ pack, it, rns, changed, lines }) {
   const el = $('#intro');
   if (!el) return;
-  el.innerHTML = `${pack ? `<div class="pk">${esc(pack.group)} · ${fmt(pack.name)}</div>` : ''}<div class="pn">${fmt(it.name)}</div>${it.note ? `<div class="pt">${fmt(it.note)}</div>` : ''}<div class="chart">${rns.map((r, i) => `<span data-i="${i}">${fmt(r)}</span>`).join('')}</div>`;
+  el.innerHTML = `${pack ? `<div class="pk">${esc(pack.group)} · ${fmt(pack.name)}</div>` : ''}<div class="pn">${fmt(it.name)}</div>${it.note ? `<div class="pt">${fmt(it.note)}</div>` : ''}<div class="chart">${rns.map((r, i) => `<span data-i="${i}" class="${changed?.[i] ? 'chg' : ''}">${fmt(r)}</span>`).join('')}</div>`;
   const cap = $('#caption'); if (cap) cap.innerHTML = '';
 }
 function showA({ c, notes, next, first }) {
@@ -167,13 +170,42 @@ function showA({ c, notes, next, first }) {
   $('#neck').innerHTML = neckSVG(notes.map((n) => ({ ...n, label: degText(n.iv), kind: IVK(n.iv), fresh: false })));
   if (!first) return;
   $('#chord').innerHTML = `<div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(c.keyLabel)}</div>`;
-  const role = c.role ? ({ tonic: 'Tonic: home', tonicMinor: 'Tonic: home', super: 'Pre-dominant', mediant: 'Mediant', sub: 'Subdominant', dom: 'Dominant', rel: 'Relative minor', lead: 'Leading-tone chord',
-    borrowed: 'Borrowed from the parallel minor', borrowedMaj: 'Borrowed from the parallel major', secondary: 'Secondary dominant', tritone: 'Tritone substitute', passing: 'Passing diminished',
-    mediantChrom: 'Chromatic mediant', neapolitan: 'Neapolitan', subMinor: 'Minor subdominant (borrowed)', domMinor: 'Minor dominant', backdoor: 'Backdoor dominant', picardy: 'Picardy third',
-    sus: 'Suspended', relMaj: 'Relative major', flatSix: '♭VI', subtonic: 'Subtonic ♭VII' })[c.role] : '';
-  $('#stack').innerHTML = `<div class="fn">${esc(role)}</div>${c.ann.map((a) => `<div class="ann">${fmt(a.text)}</div>`).join('')}`;
+  lastA = c;
+  drawDetails();
   $('#next').innerHTML = next ? `<span>next</span> <b>${fmt(next.rn)}</b> ${fmt(next.name)}` : '';
 }
+
+let lastA = null;
+const ROLE_LABEL = { tonic: 'Tonic: home', tonicMinor: 'Tonic: home', super: 'Pre-dominant', mediant: 'Mediant', sub: 'Subdominant', dom: 'Dominant', rel: 'Relative minor', lead: 'Leading-tone chord',
+  borrowed: 'From the parallel minor', borrowedMaj: 'From the parallel major', secondary: 'Secondary dominant', tritone: 'Tritone substitute', passing: 'Passing diminished',
+  mediantChrom: 'Chromatic mediant', neapolitan: 'Neapolitan', subMinor: 'Minor subdominant, from the parallel minor', domMinor: 'Minor dominant', backdoor: 'Backdoor dominant', picardy: 'Picardy third',
+  sus: 'Suspended', relMaj: 'Relative major', flatSix: '♭VI', subtonic: 'Subtonic ♭VII' };
+// the chord's details: its function and extensions always; More opens why it works, its notes, why each extension fits
+function drawDetails() {
+  const c = lastA, el = $('#stack');
+  if (!c || !el) return;
+  const d = details(c);
+  const notes = [...d.notes].sort((a, b) => a.midi - b.midi).map((n) => `<span class="k-${IVK(n.iv)}"><i></i>${degText(n.iv)} <small>${fmt(T.noteName(T.transpose(c.root, n.iv), true))}</small></span>`).join('');
+  el.innerHTML = `<div class="fn">${esc(ROLE_LABEL[c.role] || '')}</div>
+    ${d.exts.length ? `<div class="exl">Extensions: ${d.exts.map((x) => `<b>${degText(x.e)}</b>`).join(' · ')}</div>` : ''}
+    ${c.ann.map((a) => `<div class="ann">${fmt(a.text)}</div>`).join('')}
+    <button class="morebtn" data-act="more">${S.a.more ? 'Less ▴' : 'More ▾'}</button>
+    ${S.a.more ? `<div class="more">
+      ${d.why ? `<p><b>Why it works.</b> ${fmt(d.why)}</p>` : ''}
+      <div class="nlist">${notes}</div>
+      ${d.exts.map((x) => `<p><b>${degText(x.e)}.</b> ${fmt(x.info)} <i>${fmt(x.colour)}</i></p>`).join('')}
+      ${c.bass ? `<p><b>Slash chord.</b> ${fmt(c.name)}: the bass is the chord’s ${degText(c.bass)}, not its root, so the bass line moves more smoothly (or holds still while the harmony changes).</p>` : ''}
+      ${c.prog?.it?.note ? `<p class="pnote">${fmt(c.prog.it.note)}</p>` : ''}
+    </div>` : ''}`;
+}
+// the live buttons (Ambient): each cycles through its settings, and takes effect from the next chord
+const TOGGLES = [
+  ['theory', 'Theory', [[0, 'off'], [1, 'short'], [2, 'more']]],
+  ['extTalk', 'Extensions', [['off', 'off'], ['names', 'named'], ['why', 'why']]],
+  ['extLater', 'Ext. later', [[false, 'off'], [true, 'on']]],
+  ['arp', 'Arpeggio', [['off', 'off'], ['on', 'on'], ['named', 'named']]],
+];
+const toggleHTML = () => TOGGLES.map(([k, l, opts]) => { const cur = opts.find(([v]) => v === S.a[k]) || opts[0]; return `<button data-tog="${k}" class="${cur[0] && cur[0] !== 'off' ? 'on' : ''}">${l}<small>${cur[1]}</small></button>`; }).join('');
 
 // ---------- start / stop ----------
 async function begin(mode) {
@@ -205,6 +237,15 @@ app.addEventListener('click', async (e) => {
     rerender();
     return;
   }
+  if (b.dataset.tog) {
+    const [k, , opts] = TOGGLES.find(([x]) => x === b.dataset.tog);
+    const i = opts.findIndex(([v]) => v === S.a[k]);
+    S.a[k] = opts[(i + 1) % opts.length][0]; save();
+    if (run?.O) run.O[k] = S.a[k];
+    $('#toggles').innerHTML = toggleHTML();
+    return;
+  }
+  if (b.dataset.act === 'more') { S.a.more = !S.a.more; save(); drawDetails(); return; }
   if (b.dataset.shape && run?.setShape) {
     S.a.shape = b.dataset.shape; save();
     run.setShape(b.dataset.shape);
@@ -232,7 +273,7 @@ app.addEventListener('input', (e) => {
   if (out) {
     const k = el.dataset.set;
     out.textContent = k === 'space' ? (S.space < 0.3 ? 'close' : S.space < 0.7 ? 'hall' : 'cathedral') : k === 'vvol' ? Math.round(S.vvol * 100) + '%' : k === 'g.level' ? H.LEVELS[S.g.level - 1].name
-      : k === 'a.level' ? LEVEL_NAMES[S.a.level - 1] : k === 'g.pace' ? `${S.g.pace} s` : k === 'a.secs' ? `${S.a.secs} s` : el.value;
+      : k === 'a.far' ? TIERS[S.a.far - 1].name : k === 'a.level' ? LEVEL_NAMES[S.a.level - 1] : k === 'g.pace' ? `${S.g.pace} s` : k === 'a.secs' ? `${S.a.secs} s` : el.value;
   }
 });
 app.addEventListener('change', (e) => { const el = e.target; if (el.tagName === 'SELECT' && el.dataset.set) { put(el.dataset.set, el.value); rerender(); } else if (el.type === 'range') rerender(); });

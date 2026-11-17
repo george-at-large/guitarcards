@@ -131,3 +131,25 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .shapes span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-right: 4px; }
 .shapes button { min-width: 36px; height: 36px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--line); font: 500 17px var(--serif); color: var(--dim); }
 .shapes button.on { background: var(--gold); border-color: var(--gold); color: #1a1408; }
+
+/* ambient: details, More, live toggles */
+.exl { color: var(--dim); font-size: 14px; margin-top: 6px; }
+.exl b { color: var(--tx); font: 500 17px var(--serif); }
+.morebtn { margin-top: 10px; font-size: 13px; color: var(--gold); letter-spacing: .04em; padding: 4px 0; }
+.more { margin-top: 6px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .035); border: 1px solid var(--line); animation: rise .5s ease-out; }
+.more p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.45; color: var(--dim); }
+.more p b { color: var(--ink); font-weight: 500; }
+.more p i { font-family: var(--serif); font-size: 15px; color: var(--gold); }
+.more .pnote { font: italic 15px var(--serif); color: var(--dim); }
+.nlist { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 2px 0 10px; }
+.nlist span { font: 500 16px var(--serif); color: var(--ink); display: inline-flex; align-items: center; gap: 5px; }
+.nlist small { font: 12px var(--sans); color: var(--faint); }
+.nlist i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.nlist .k-r i { color: var(--r); } .nlist .k-t3 i { color: var(--t3); } .nlist .k-t5 i { color: var(--t5); } .nlist .k-t7 i { color: var(--t7); } .nlist .k-tx i { color: var(--tx); }
+.toggles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 18px; }
+.toggles button { padding: 7px 4px 6px; border-radius: 14px; border: 1px solid var(--line); font-size: 12.5px; color: var(--dim); display: flex; flex-direction: column; align-items: center; line-height: 1.2; }
+.toggles button small { font: italic 14px var(--serif); color: var(--faint); }
+.toggles button.on { border-color: rgba(232, 194, 122, .55); color: var(--ink); }
+.toggles button.on small { color: var(--gold); }
+.intro .chart span.chg { color: var(--t5); }
+.intro .chart span.chg.on { color: var(--gold); }

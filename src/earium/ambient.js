@@ -13,8 +13,9 @@ import * as Hc from '../caged/harmony.js';
 import * as E from '../caged/evolve.js';
 import { OPEN } from './harm.js';
 import * as Gr from '../caged/grips.js';
-import { ROLE, AMB } from './words.js';
+import { ROLE, ROLE_SHORT, whyOf, EXTS, EXT_SAY, EXT_INFO, COLOUR, WHY, degWord, degText } from './words.js';
 import { PACKS, GROUPS, packById, packSay, itemSay } from './packs.js';
+import { reharmStream } from './reharm.js';
 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const semis = (iv) => T.intervalSemis(iv) % 12;
@@ -194,7 +195,7 @@ export function ambient(O, ui, voices) {
   const ctx = () => A.audioCtx();
   let alive = true, paused = false, timer = null;
   const home = O.key === 'random' ? Math.floor(Math.random() * 12) : T.notePc(T.parseNote(O.key));
-  const stream = O.src === 'wander' ? M.meander({ minor: O.minor, level: O.level, grow: false, modulate: O.level >= 3, rhythm: 'varied', bar: 4 }) : packStream(O, home);
+  const stream = O.src === 'wander' ? M.meander({ minor: O.minor, level: O.level, grow: false, modulate: O.level >= 3, rhythm: 'varied', bar: 4 }) : O.src === 'meander' ? reharmStream(O, home) : packStream(O, home);
   let quietUntil = 0; // the voice is introducing a progression: no chord names over it
   let prevGrip = null, prevChord = null, t = ctx().currentTime + 0.3, timers = [], queue = [];
   const played = []; let current = null, startedAt = 0;
@@ -220,37 +221,73 @@ export function ambient(O, ui, voices) {
     const fill = (s) => String(typeof s === 'function' ? s() : s).replace('{key}', keyLabel);
     const c = { spec: it.spec, q, root, key, keyLabel, grip: g, beats: it.beats, rn: Hc.label(it.spec, q), name: Hc.slashName(root, q, it.spec.bass),
       ann: (it.ann || []).map((a) => ({ ...a, text: fill(a.text) })), role: roleOf(it.spec, q, key.minor), bass: it.spec.bass, idx: it.idx, prog: it.prog, intro: it.intro };
-    if (O.narr !== 'off') V.prefetch(words(c, null));
+    if (O.narr !== 'off') V.prefetch([...words(c, { dry: true }), ...extWords(c, true)]);
     return c;
   }
-  // what the voice says
-  function words(c, prev) {
+  // ---------- what the voice says: economical, nothing repeated while it's still obvious ----------
+  const said = new Map(); // phrase → the chord count when it was last said
+  let count = 0;
+  let dryRun = false; // fetching ahead: nothing counts as said
+  const fresh = (p, gap) => { const k = said.get(p); if (k !== undefined && count - k < gap) return false; if (!dryRun) said.set(p, count); return true; };
+  const isExt = (iv) => EXTS.includes(iv);
+  const extsOf = (c) => [...new Set((c.grip?.notes || []).map((n) => n.iv).filter(isExt))].sort((a, b) => EXTS.indexOf(a) - EXTS.indexOf(b));
+  // the chord without its extensions (what sounds first when extensions come in later)
+  function baseQ(q) {
+    const ivs = T.getChord(q).ivs.filter((iv) => !isExt(iv));
+    return T.recogniseChord(ivs.length >= 3 ? ivs : [...ivs, '5']) || Hc.toTriad(q);
+  }
+  function nameWords(c, q = c.q) {
+    let w = V.chordWords({ ...c, q }, 'num', true)[0] || [];
+    if (w[1] === 'minor') w = [`minor ${w[0]}`, ...w.slice(2)]; // "minor four", as musicians say it
+    return w;
+  }
+  function words(c, { later = false, dry = false } = {}) {
     if (O.narr === 'off') return [];
-    let main = (V.chordWords(c, 'num', true)[0] || []).map((w, i) => (i ? { seven: 'dominant seven', nine: 'dominant nine', thirteen: 'dominant thirteen' }[w] || w : w));
-    if (main[1] === 'minor') main = [`minor ${main[0]}`, ...main.slice(2)]; // "minor four", as musicians say it
-    if (O.narr === 'minimal') return [main];
-    const g = [[...(prev ? [AMB.movingTo] : []), ...main]];
-    if (c.role && ROLE[c.role]) g.push([ROLE[c.role]]);
-    for (const a of c.ann) if (!(c.role === 'secondary' && /secondary/.test(a.say))) g.push(...V.annWords(a.say, c.key));
+    dryRun = dry;
+    const g = [nameWords(c, later ? baseQ(c.q) : c.q)];
+    const th = O.theory;
+    const role = c.role && ROLE_SHORT[c.role];
+    if (th >= 1 && role && fresh(role, 6)) g.push([role]);
+    if (th >= 1) for (const a of c.ann) {
+      if (/borrowed/.test(a.say) && /parallel/.test(role || '')) continue; // said already, in other words
+      if (c.role === 'secondary' && /secondary/.test(a.say)) continue;
+      const aw = V.annWords(a.say, c.key);
+      if (aw.length && fresh(aw[0].join(' '), 4)) g.push(...aw);
+    }
+    if (th >= 2) { const w = whyOf(c.role, semis(c.spec.iv)); if (w && fresh(w, 16)) g.push([w]); }
+    if (!later && O.extTalk === 'why') for (const e of extsOf(c)) if (fresh(COLOUR[e], 8)) g.push([COLOUR[e]]);
+    dryRun = false;
     return g;
   }
-  const roleText = (c) => (c.role && ROLE[c.role] ? ROLE[c.role] : '');
+  // the extensions as they come in (Ext. later)
+  function extWords(c, dry = false) {
+    if (O.narr === 'off' || O.extTalk === 'off') return [];
+    dryRun = dry;
+    const out = extsOf(c).flatMap((e) => [[EXT_SAY(e)], ...(O.extTalk === 'why' && fresh(COLOUR[e], 8) ? [[COLOUR[e]]] : [])]);
+    dryRun = false;
+    return out;
+  }
 
-  // inside one chord: the moments its notes change (motion)
-  function moments(c, dur) {
-    const base = c.grip.notes.map((n) => ({ ...n }));
-    const out = [{ at: 0, notes: base }];
+  // inside one chord: the moments its notes change (extensions arriving, motion)
+  function moments(c, dur, extAt) {
+    const full = c.grip.notes.map((n) => ({ ...n }));
+    const hasExt = full.some((n) => isExt(n.iv));
+    const out = [];
+    if (O.extLater && hasExt && dur >= 4) {
+      out.push({ at: 0, notes: full.filter((n) => !isExt(n.iv)) });
+      out.push({ at: extAt, notes: full, ext: true });
+    } else out.push({ at: 0, notes: full });
     if (O.motion === 'still' || dur < 5) return out;
+    const base = full;
     const top = base[base.length - 1];
     const rootPc = T.notePc(c.root);
     const ivs = T.getChord(c.q).ivs;
     const pcs = new Map(ivs.map((iv) => [(rootPc + semis(ext(iv))) % 12, iv]));
     // a suspension: the 3rd held a step up as a 4th, then resolving (flowing)
-    if (O.motion === 'flowing' && ivs.includes('3') && !c.spec.bass) {
+    if (O.motion === 'flowing' && !O.extLater && ivs.includes('3') && !c.spec.bass) {
       const thirdIdx = base.findIndex((n) => n.iv === '3');
       if (thirdIdx >= 0 && base[thirdIdx].fret + 1 <= 15) {
-        const sus = base.map((n, i) => (i === thirdIdx ? { ...n, fret: n.fret + 1, midi: n.midi + 1, iv: '4' } : n));
-        out[0] = { at: 0, notes: sus };
+        out[0] = { at: 0, notes: base.map((n, i) => (i === thirdIdx ? { ...n, fret: n.fret + 1, midi: n.midi + 1, iv: '4' } : n)) };
         out.push({ at: dur * 0.35, notes: base });
       }
     }
@@ -266,42 +303,63 @@ export function ambient(O, ui, voices) {
       if (f === top.fret || !colour.has(p) || Math.abs(m - top.midi) > 5 || colour.get(p) === '1' || others.includes(p)) continue;
       alts.push({ ...top, fret: f, midi: m, iv: colour.get(p) });
     }
-    if (alts.length) {
+    const after = out[out.length - 1].at;
+    if (alts.length && dur - after > 4) {
       const a = pick(alts);
-      const at = dur * (O.motion === 'flowing' ? 0.45 : 0.5);
-      const last = out[out.length - 1].notes;
-      out.push({ at, notes: last.map((n) => (n.string === top.string ? a : n)) });
-      // back home, unless the note it left is doubled elsewhere
-      if (dur > 7 && !others.includes(top.midi % 12)) out.push({ at: dur * 0.78, notes: last });
+      const at = Math.max(after + 1.5, dur * (O.motion === 'flowing' ? 0.5 : 0.55));
+      out.push({ at, notes: base.map((n) => (n.string === top.string ? a : n)) });
+      if (dur > 7 && !others.includes(top.midi % 12)) out.push({ at: Math.max(at + 1.5, dur * 0.8), notes: base });
     }
-    return out;
+    return out.filter((m) => m.at < dur);
   }
 
   function schedule() {
     while (queue.length < 2) queue.push(make());
     const c = queue.shift();
     played.push(c); if (played.length > 400) played.splice(0, 100);
-    current = c; startedAt = t;
-    const dur = Math.max(3, O.secs * (c.beats / 4));
-    const ms = c.grip ? moments(c, dur) : [{ at: 0, notes: [] }];
-    ms.forEach((m, i) => {
-      const at = t + m.at;
-      voices.set(m.notes.map((n) => n.midi), at, { stagger: i === 0 ? Math.min(1.6, dur * 0.12) : 0.3 });
-      later(at, () => ui.show({ c, notes: m.notes, next: queue[0], first: i === 0 }));
-    });
+    current = c; startedAt = t; count++;
+    if (c.intro) said.clear(); // a new progression: everything may be said again once
+    let dur = Math.max(3, O.secs * (c.beats / 4));
+    // the voice first (its length decides when extensions can come in)
+    let speakEnd = t + 0.9, g = [];
     if (c.intro) {
-      // a new progression (and maybe a new pack): its name and a line of theory, spoken and shown
-      const lines = [...(c.intro.pack ? [packSay(c.intro.pack)] : []), ...itemSay(c.intro.it, O.narr !== 'minimal')];
-      later(t, () => ui.intro({ pack: c.prog.pack, it: c.intro.it, rns: c.prog.rns, keyLabel: c.keyLabel, lines }));
+      const lines = c.intro.lines || [...(c.intro.pack ? [packSay(c.intro.pack)] : []), ...itemSay(c.intro.it, O.theory >= 1)];
+      later(t, () => ui.intro({ pack: c.prog.pack, it: c.intro.it, rns: c.prog.rns, changed: c.prog.changed, keyLabel: c.keyLabel, lines }));
       if (O.narr !== 'off') {
         quietUntil = t + 0.4 + lines.join(' ').length * 0.07;
         V.say(lines.map((l) => [l]), t + 0.4, { vol: O.vvol }).then((end) => { if (end) quietUntil = end; });
       }
     } else if (O.narr !== 'off' && t >= quietUntil) {
-      const g = words(c, prevChord);
+      g = words(c, { later: O.extLater });
+      speakEnd = t + 0.9 + g.flat().join(' ').length * 0.065 + g.length * 0.3;
       later(t + 0.5, () => ui.caption(g.map((x) => x.join(' ')), c));
       V.say(g, t + 0.9, { vol: O.vvol });
-    } else if (O.narr === 'off') later(t + 0.5, () => ui.caption([], c));
+    } else later(t + 0.5, () => ui.caption([], c));
+    if (O.arp === 'named' && O.narr !== 'off' && !c.intro && c.grip) {
+      const n = c.grip.notes.filter((x) => !(O.extLater && isExt(x.iv))).length;
+      dur = Math.max(dur, (speakEnd - t) + 0.3 + n * 0.95 + 2.5);
+    }
+    const extAt = Math.min(dur * 0.6, Math.max(dur * 0.3, speakEnd - t + 0.4));
+    const ms = c.grip ? moments(c, dur, extAt) : [{ at: 0, notes: [] }];
+    // Arpeggio: Named: after the chord's name, each note comes in on its own and is named
+    const n0 = ms[0].notes.length;
+    const named = O.arp === 'named' && O.narr !== 'off' && !c.intro;
+    const nStart = Math.max(0.6, speakEnd - t + 0.25), nGap = Math.min(1.25, (dur * 0.8 - nStart) / Math.max(1, n0));
+    const nameNotes = named && nGap >= 0.7;
+    ms.forEach((m, i) => {
+      const at = t + m.at;
+      const arp = O.arp !== 'off' && O.arp && (i === 0 || m.ext);
+      const sorted = [...m.notes].sort((a, b) => a.midi - b.midi);
+      if (i === 0 && nameNotes) {
+        voices.set(sorted.map((n) => n.midi), at, { arp: sorted.map((_, k) => nStart + k * nGap) });
+        sorted.forEach((n, k) => V.say([[degWord(n.iv)]], at + nStart + k * nGap + 0.05, { vol: O.vvol }));
+        later(at + nStart, () => ui.caption([...g.map((x) => x.join(' ')), sorted.map((n) => degText(n.iv)).join(' · ')], c));
+      } else voices.set(sorted.map((n) => n.midi), at, arp ? { arp: Math.min(0.55, Math.max(0.22, dur * 0.045)) } : { stagger: i === 0 ? Math.min(1.6, dur * 0.12) : 0.3 });
+      later(at, () => ui.show({ c, notes: m.notes, next: queue[0], first: i === 0, ext: m.ext }));
+      if (m.ext) { const ew = extWords(c); if (ew.length && at >= quietUntil) { V.say(ew, at, { vol: O.vvol }); later(at, () => ui.caption(ew.map((x) => x.join(' ')), c)); } }
+    });
+    // arpeggio: on a long chord, the notes roll again, softly
+    if (O.arp === 'on' && c.grip && dur > 8) voices.roll(c.grip.notes.map((n) => n.midi), t + dur * 0.62, Math.min(0.5, dur * 0.04));
     prevChord = c;
     t += dur;
   }
@@ -364,3 +422,9 @@ export function ambient(O, ui, voices) {
   };
 }
 export { roleOf, GROUPS };
+// the details shown under the chord (and in More)
+export function details(c) {
+  const exts = [...new Set((c.grip?.notes || []).map((n) => n.iv).filter((iv) => EXTS.includes(iv)))];
+  return { role: c.role ? ROLE[c.role] : '', why: c.role ? whyOf(c.role, semis(c.spec.iv)) : '', exts: exts.map((e) => ({ e, info: EXT_INFO[e], colour: COLOUR[e] })),
+    notes: (c.grip?.notes || []).map((n) => ({ iv: n.iv, midi: n.midi })) };
+}

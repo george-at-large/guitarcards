@@ -101,5 +101,6 @@ export const itemSay = (it, rich) => (rich && it.note ? [speakable(it.name), spe
 export function allPhrases() {
   const P = new Set();
   for (const p of PACKS) { P.add(packSay(p)); for (const it of p.items) itemSay(it, true).forEach((s) => P.add(s)); }
+  L.ALL.forEach((it) => P.add(speakable(it.name))); // any progression can be chosen alone (One progression, Meander)
   return [...P];
 }

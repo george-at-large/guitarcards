@@ -2,6 +2,7 @@
 // CAGED Listen section; tools/listenvoice/build.mjs records them into voice/theo). The text on screen is always the
 // same sentence, so what is heard is always written down too.
 import { DEGS, MOVE_PAIRS, ALL_SAYS, FAMILY } from './harm.js';
+import { SAYS as REHARM_SAYS } from './reharm.js';
 
 const NUM = { 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 9: 'nine', 11: 'eleven', 13: 'thirteen' };
 const ACC = { b: 'flat ', bb: 'double flat ', '#': 'sharp ' };
@@ -64,6 +65,56 @@ export const ROLE = {
   subMinor: 'the minor subdominant', domMinor: 'the minor dominant', backdoor: 'the backdoor dominant', picardy: 'a Picardy third', sus: 'suspended, waiting to resolve',
   relMaj: 'the relative major', flatSix: 'the flat six, warm and wide', subtonic: 'the flat seven, the subtonic',
 };
+// the function in two or three words (spoken, economically); null where the chord's name already says it
+export const ROLE_SHORT = {
+  tonic: 'home', tonicMinor: 'home', super: 'pre-dominant', mediant: 'mediant', sub: 'subdominant', dom: 'dominant', rel: 'relative minor', lead: 'leading tone',
+  borrowed: 'from parallel minor', borrowedMaj: 'from parallel major', secondary: null, tritone: 'tritone sub', passing: 'passing diminished', mediantChrom: 'chromatic mediant',
+  neapolitan: 'Neapolitan', subMinor: 'from parallel minor', domMinor: 'minor dominant', backdoor: 'backdoor dominant', picardy: 'Picardy third', sus: 'suspended',
+  relMaj: 'relative major', flatSix: null, subtonic: null,
+};
+// why it works, in one sentence (spoken at Theory: more; role, or role:root-semitones above the key)
+export const WHY = {
+  tonic: 'Home: every other chord is heard against it.',
+  tonicMinor: 'Home, in minor.',
+  super: 'Two leads to five: its root falls a fifth, the strongest move.',
+  mediant: 'Three shares two notes with one: a softer tonic.',
+  sub: 'Four steps away from home: it can go back, or on to five.',
+  dom: 'Five holds the leading tone, a half step below home: it wants to resolve.',
+  rel: 'Six minor shares two notes with one: home’s darker twin.',
+  lead: 'Built on the leading tone: a dominant without its root.',
+  'borrowed:8': 'Flat six: two flattened notes, a big shadow before home.',
+  'borrowed:10': 'Flat seven: a whole step below home, resolving without a leading tone.',
+  'borrowed:3': 'Flat three: the key’s minor third as a major chord, bold and bluesy.',
+  'borrowed:0': 'Home turned minor: the parallel key for a moment.',
+  borrowed: 'A flattened note from the parallel minor darkens the key.',
+  borrowedMaj: 'The Dorian four: a bright major chord inside a minor key.',
+  secondary: 'A dominant from another key: the next chord sounds like home for a moment.',
+  tritone: 'It shares its tritone with the dominant, and slides down a half step.',
+  passing: 'Every note a half step from the chords either side: pure motion.',
+  mediantChrom: 'A third away, the same quality, one note shared: a sudden change of light.',
+  neapolitan: 'A major chord on the flat two: dark, and heading for the dominant.',
+  subMinor: 'Its flat six falls to the five: a sigh on the way home.',
+  domMinor: 'No leading tone, so it floats instead of pulling home.',
+  backdoor: 'Flat seven dominant: it resolves up a whole step, home by the back door.',
+  picardy: 'A major chord ending a minor phrase: sudden light.',
+  sus: 'The fourth replaces the third: waiting to resolve.',
+  relMaj: 'The relative major: the minor key’s brighter side.',
+  flatSix: 'Flat six: warm and wide, often falling to five.',
+  subtonic: 'Flat seven: a whole step below home, leading back without a leading tone.',
+};
+export const whyOf = (role, semi) => WHY[`${role}:${semi}`] || WHY[role] || null;
+// extensions: what the voice says as one comes in, and what the screen says about why it fits
+export const EXT_SAY = (e) => `adding the ${degWord(e)}`;
+export const EXTS = ['b9', '9', '#9', '11', '#11', 'b13', '13'];
+export const EXT_INFO = {
+  9: 'The 9th is the 2nd an octave up. It fits major, minor and dominant chords: open and lush, no clash with the 3rd.',
+  b9: 'The ♭9 sits a half step above the root: a dominant’s tension, most at home resolving to minor, where it falls to the next chord’s 5th.',
+  '#9': 'The ♯9 is the minor 3rd over a major chord: the blues clash on a dominant.',
+  11: 'The 11th is the 4th up high. Natural on minor and sus chords; on a major chord it rubs against the 3rd, so major chords take the ♯11.',
+  '#11': 'The ♯11 is the Lydian note: on major and dominant chords it adds sparkle without the 11th’s clash.',
+  b13: 'The ♭13 is a dominant’s dark tension: heading to minor, it is already the new tonic’s 3rd.',
+  13: 'The 13th is the 6th up high: on dominants and major chords, sweet and full, often on top.',
+};
 export const AMB = {
   movingTo: 'moving to',
   then: 'then',
@@ -87,6 +138,11 @@ export function allPhrases() {
   // ambient
   Object.values(ROLE).forEach((s) => P.add(s));
   Object.values(AMB).forEach((s) => P.add(s));
+  Object.values(ROLE_SHORT).forEach((s) => s && P.add(s));
+  Object.values(WHY).forEach((s) => P.add(s));
+  EXTS.forEach((e) => P.add(EXT_SAY(e)));
+  DEGS.forEach((d) => P.add(degWord(d)));
+  REHARM_SAYS.forEach((x) => P.add(x));
   for (const acc of ['', 'flat ', 'sharp ']) for (const n of [1, 2, 3, 4, 5, 6, 7]) { P.add(acc + NUM[n]); P.add(`minor ${acc}${NUM[n]}`); P.add(`of ${acc}${NUM[n]}`); P.add(`over ${acc}${NUM[n]}`); }
   QUAL_WORDS.forEach((q) => P.add(q));
   return [...P].filter(Boolean);
