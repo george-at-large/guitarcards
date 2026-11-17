@@ -28,7 +28,7 @@ const DEF = {
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random', vlSource: 'pack:voicelead', vlVoices: 4, vlBass: 'root', vlMoves: 'one', vlFollow: 'all' },
   i: { root: 'C', q: 'maj', set: 'any', move: 'bounce', pace: 5, arp: false, voice: true, bassSay: false },
   r: { set: 'core', bpm: 72, loops: 4, count: true, voice: true, view: 'auto' },
-  x: { prog: null, key: 'C', version: 1, level: 4, explain: true, bpm: 72 },
+  x: { prog: null, key: 'C', version: 1, level: 4, explain: true, bpm: 72, shape: 'auto', tour: false },
   a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, more: false },
 };
 let S;

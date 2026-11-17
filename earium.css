@@ -252,3 +252,15 @@ details.guide b.faint { color: var(--faint); }
 .xwhy li em { display: block; font: italic 14px var(--serif); color: var(--tc); }
 .xchg b { display: block; font-weight: 500; color: var(--ink); font-size: 13.5px; }
 .xchg p { margin: 4px 0 0; font-size: 13px; line-height: 1.45; }
+.neck .band { fill: rgba(232, 194, 122, .1); }
+.xvers { display: flex; gap: 5px; }
+.xv { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.xv button { padding: 6px 8px; font-size: 14px; color: var(--dim); }
+.xv button + button { padding-left: 4px; font-size: 11px; color: var(--gold); }
+.xv.on { border-color: var(--gold); }
+.xv.on button:first-child { color: #1a1408; background: var(--gold); }
+.xslide button { width: 30px; height: 30px; flex: none; border-radius: 50%; border: 1px solid var(--line); color: var(--gold); font-size: 11px; }
+.xpos { gap: 5px; flex-wrap: wrap; }
+.xpos span { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin-right: 2px; }
+.xpos button { min-width: 34px; height: 32px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--line); font: 500 15px var(--serif); color: var(--dim); }
+.xpos button.on { background: var(--gold); border-color: var(--gold); color: #1a1408; }

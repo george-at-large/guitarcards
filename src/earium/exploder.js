@@ -14,6 +14,7 @@ import { grips, choose, roleOf } from './ambient.js';
 import { PACKS, GROUPS, itemOf } from './packs.js';
 import { degText, ROLE } from './words.js';
 import { KIND } from './harm.js';
+import * as Gr from '../caged/grips.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmt = (s) => esc(T.pretty(String(s ?? '')));
@@ -41,6 +42,9 @@ export function exploder(app, { S, save, back, unlock }) {
     save();
   }
   const slots = () => states[Math.min(O.level, states.length - 1)].slots;
+  const SHAPES = ['C', 'A', 'G', 'E', 'D'];
+  const win = () => (O.shape && O.shape !== 'auto' ? Gr.positionOf(tonic(), O.shape) : null);
+  const inWin = (g, w) => g.notes.every((n) => (n.fret === 0 ? w.lo <= 1 : n.fret >= w.lo - 1 && n.fret <= w.hi + 1));
   function chordOf(x) {
     const tn = tonic(), root = Hc.spell(tn, x.spec.iv), q = x.spec.q;
     return { root, rootPc: T.notePc(root), q, spec: x.spec, rn: Hc.label(x.spec, q, x.spec.bass), name: Hc.slashName(root, q, x.spec.bass), role: roleOf(x.spec, q, !!item.minor) };
@@ -59,10 +63,11 @@ export function exploder(app, { S, save, back, unlock }) {
     const best = new Map();
     for (const g of out) {
       const fr = g.notes.filter((n) => n.fret > 0).map((n) => n.fret), span = fr.length ? Math.max(...fr) - Math.min(...fr) : 0;
-      const k = `${INV_OF[g.bass] ?? g.bass}:${Math.round(g.at / 2.5)}`, sc = g.notes.length * 2 - span - (g.notes[g.notes.length - 1].iv === '1' ? 1 : 0);
+      const k = `${INV_OF[g.bass] ?? g.bass}:${Math.round(g.at / 2.5)}:${g.notes.some((n) => n.fret === 0) ? 'o' : 'f'}`, sc = g.notes.length * 2 - span - (g.notes[g.notes.length - 1].iv === '1' ? 1 : 0);
       if (!best.has(k) || sc > best.get(k).sc) best.set(k, { ...g, sc });
     }
-    return [...best.values()].sort((a, b) => a.at - b.at || (INV_OF[a.bass] ?? 0) - (INV_OF[b.bass] ?? 0));
+    const w = win(), list = [...best.values()].sort((a, b) => a.at - b.at || (INV_OF[a.bass] ?? 0) - (INV_OF[b.bass] ?? 0));
+    return w ? [...list.filter((g) => inWin(g, w)), ...list.filter((g) => !inWin(g, w))].map((g) => ({ ...g, inside: inWin(g, w) })) : list;
   }
   async function sound(notes) {
     await unlock();
@@ -103,10 +108,11 @@ export function exploder(app, { S, save, back, unlock }) {
     const v = chosen[sel] && voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === chosen[sel]) || voicingsOf[vIdx];
     const notes = v ? v.notes.map((n) => ({ ...n, label: degText(n.iv), kind: IVK(n.iv) })) : [];
     const fr = v ? v.notes.filter((n) => n.fret > 0).map((n) => n.fret) : [];
-    return `<div class="xpanel"><div class="neckcol">${neckSVG(notes)}</div><div class="info">
+    const w = win();
+    return `<div class="xpanel"><div class="neckcol">${neckSVG(notes, { band: w ? [w.lo, w.hi] : null })}</div><div class="info">
       <div class="chord"><div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(c.role && ROLE[c.role] ? ROLE[c.role] : '')}</div></div>
       ${x.changed ? `<div class="xchg" style="--tc:${TIER_COL[x.tier]}"><b>${fmt(x.changed)}</b>${x.detail ? `<p>${fmt(x.detail)}</p>` : ''}</div>` : ''}
-      ${v ? `<div class="xvoice"><button data-act="vprev" aria-label="Previous voicing">‹</button><div><b>${esc(INV[INV_OF[v.bass] ?? 0] || '')}</b><small>${esc(degText(v.bass))} in the bass · frets ${fr.length ? `${Math.min(...fr)}–${Math.max(...fr)}` : 'open'} · ${vIdx + 1} of ${voicingsOf.length}</small></div><button data-act="vnext" aria-label="Next voicing">›</button></div>
+      ${v ? `<div class="xvoice"><button data-act="vprev" aria-label="Previous voicing">‹</button><div><b>${esc(INV[INV_OF[v.bass] ?? 0] || '')}</b><small>${esc(degText(v.bass))} in the bass · frets ${fr.length ? `${Math.min(...fr)}–${Math.max(...fr)}` : 'open'}${w ? (v.inside ? ` · in the ${O.shape} shape` : ' · outside the shape') : ''} · ${vIdx + 1} of ${voicingsOf.length}</small></div><button data-act="vnext" aria-label="Next voicing">›</button></div>
       <ol class="xnotes">${[...v.notes].sort((a, b) => b.midi - a.midi).map((n) => `<li class="k-${IVK(n.iv)}"><i></i><b>${degText(n.iv)}</b> <span>${fmt(T.noteName(T.transpose(c.root, n.iv), true))}</span></li>`).join('')}</ol>` : '<p class="xnote">No playable grip for this one.</p>'}
     </div></div>`;
   }
@@ -117,8 +123,9 @@ export function exploder(app, { S, save, back, unlock }) {
     app.innerHTML = `
     <header class="bar"><button class="icon" data-act="xback" aria-label="Back">‹</button><h2>Exploder</h2><span></span></header>
     <div class="xpick"><button data-act="xprev" aria-label="Previous progression">‹</button><select id="xprog" class="sel">${progOpts}</select><button data-act="xnext" aria-label="Next progression">›</button><button data-act="xrand" aria-label="Random progression">🎲</button></div>
-    <div class="xrow"><select id="xkey" class="sel">${keyOpts}</select><div class="seg xver">${[1, 2, 3, 4].map((n) => `<button data-ver="${n}" class="${O.version === n ? 'on' : ''}">${n}</button>`).join('')}<button data-ver="more" class="${O.version > 4 ? 'on' : ''}">${O.version > 4 ? O.version : '+'}</button></div></div>
-    <div class="xslide"><span>Plain</span><input id="xlevel" type="range" min="0" max="${states.length - 1}" step="1" value="${O.level}"><span>Exploded</span></div>
+    <div class="xrow"><select id="xkey" class="sel">${keyOpts}</select><div class="xvers">${[1, 2, 3, 4].map((n) => `<span class="xv ${O.version === n ? 'on' : ''}"><button data-ver="${n}">${n}</button><button data-vplay="${n}" aria-label="Play version ${n}">▶</button></span>`).join('')}<span class="xv ${O.version > 4 ? 'on' : ''}"><button data-ver="more">${O.version > 4 ? O.version : '+'}</button>${O.version > 4 ? `<button data-vplay="${O.version}" aria-label="Play">▶</button>` : ''}</span></div></div>
+    <div class="xrow xpos"><span>Position</span>${['auto', ...SHAPES].map((sh) => `<button data-shape="${sh}" class="${O.shape === sh ? 'on' : ''}">${sh === 'auto' ? 'Auto' : sh}</button>`).join('')}<button data-act="xtour" class="${O.tour ? 'on' : ''}" title="Move to the next shape each time round">Tour</button></div>
+    <div class="xslide"><button data-lplay="0" aria-label="Play it plain">▶</button><span>Plain</span><input id="xlevel" type="range" min="0" max="${states.length - 1}" step="1" value="${O.level}"><span>Exploded</span><button data-lplay="max" aria-label="Play it fully exploded">▶</button></div>
     <p class="xlvl">${O.level === 0 ? 'As written' : `${O.level} change${O.level > 1 ? 's' : ''} · up to ${esc(TIERS[Math.max(0, tier - 1)].name.toLowerCase())}`}${item.note ? ` · <i>${fmt(item.note)}</i>` : ''}</p>
     ${timeline()}
     <div class="xctl"><button class="xplay ${playing ? 'on' : ''}" data-act="xplay">${playing ? '■ Stop' : '▶ Play'}</button><button class="chip ${O.explain ? 'on' : ''}" data-act="xexplain">Explain</button><span class="xbpm"><button data-act="xslow">−</button>${O.bpm} bpm<button data-act="xfast">+</button></span></div>
@@ -143,12 +150,14 @@ export function exploder(app, { S, save, back, unlock }) {
       if (!x) { k = 0; return stepOnce(); }
       const c = chordOf(x);
       const vs = allVoicings(c);
-      const pick = (chosen[k] && vs.find((g) => g.notes.map((n) => n.midi).join() === chosen[k])) || choose(vs, prev, prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || 5 : 5);
+      const w = win();
+      const pick = (chosen[k] && vs.find((g) => g.notes.map((n) => n.midi).join() === chosen[k])) || choose(vs, w ? null : prev, w ? w.mid : prev ? prev.notes.filter((n) => n.fret > 0).reduce((s, n, _, a) => s + n.fret / a.length, 0) || 5 : 5, w);
       if (pick) { voices.set(pick.notes.map((n) => n.midi), A.audioCtx().currentTime + 0.02, { stagger: 0.03 }); prev = pick; }
       playing.k = k;
       app.querySelectorAll('.xch').forEach((b) => b.classList.toggle('play', Number(b.dataset.x) === k));
       const dur = (60 / O.bpm) * x.beats * 1000;
       k = (k + 1) % slots().length;
+      if (k === 0 && O.tour) { O.shape = SHAPES[(Math.max(0, SHAPES.indexOf(O.shape)) + 1) % 5]; chosen = {}; save(); playing.timer = setTimeout(() => { draw(); stepOnce(); }, dur); return; }
       playing.timer = setTimeout(stepOnce, dur);
     };
     stepOnce();
@@ -165,6 +174,9 @@ export function exploder(app, { S, save, back, unlock }) {
       if (v && !playing) sound(v.notes);
       return;
     }
+    if (b.dataset.vplay) { stop(); O.version = Number(b.dataset.vplay); states = explodeSteps(item, O.version, 5); if (O.level > states.length - 1) O.level = states.length - 1; save(); chosen = {}; sel = 0; await play(); draw(); return; }
+    if (b.dataset.lplay) { stop(); O.level = b.dataset.lplay === 'max' ? states.length - 1 : 0; save(); chosen = {}; sel = 0; await play(); draw(); return; }
+    if (b.dataset.shape) { O.shape = b.dataset.shape; save(); chosen = {}; vIdx = 0; draw(); const v = voicingsOf[0]; if (v && !playing) sound(v.notes); return; }
     if (b.dataset.ver) { stop(); O.version = b.dataset.ver === 'more' ? Math.max(5, O.version + 1) : Number(b.dataset.ver); states = explodeSteps(item, O.version, 5); if (O.level > states.length - 1) O.level = states.length - 1; save(); chosen = {}; sel = 0; draw(); return; }
     const a = b.dataset.act;
     if (a === 'xback') { stop(); app.onclick = null; back(); return; }
@@ -176,6 +188,7 @@ export function exploder(app, { S, save, back, unlock }) {
       draw(); sound(v.notes); return;
     }
     if (a === 'xplay') { if (playing) stop(); else await play(); draw(); return; }
+    if (a === 'xtour') { O.tour = !O.tour; if (O.tour && O.shape === 'auto') O.shape = 'C'; save(); draw(); return; }
     if (a === 'xexplain') { O.explain = !O.explain; save(); draw(); return; }
     if (a === 'xslow' || a === 'xfast') { O.bpm = Math.max(30, Math.min(160, O.bpm + (a === 'xfast' ? 6 : -6))); save(); draw(); return; }
   };

@@ -8,9 +8,10 @@ const pos = (() => { const L = 1 - Math.pow(2, -(FRETS + 0.6) / 12); return Arra
 const sx = (string) => X0 + ((6 - string) / 5) * (X1 - X0);
 const fy = (f) => (f === 0 ? TOP - 12 : (pos[f - 1] + pos[f]) / 2);
 
-export function neckSVG(notes = [], { labels = 'deg' } = {}) {
+export function neckSVG(notes = [], { labels = 'deg', band = null } = {}) {
   const parts = [];
   parts.push(`<rect x="${X0 - 9}" y="${TOP}" width="${X1 - X0 + 18}" height="${H - TOP - 6}" rx="6" class="board"/>`);
+  if (band) { const y0 = band[0] <= 0 ? TOP : pos[Math.max(0, band[0] - 1)], y1 = pos[Math.min(FRETS, band[1])]; parts.push(`<rect x="${X0 - 9}" y="${y0}" width="${X1 - X0 + 18}" height="${y1 - y0}" class="band"/>`); }
   for (let f = 1; f <= FRETS; f++) parts.push(`<line x1="${X0 - 9}" x2="${X1 + 9}" y1="${pos[f]}" y2="${pos[f]}" class="fret"/>`);
   parts.push(`<rect x="${X0 - 10}" y="${TOP - 3}" width="${X1 - X0 + 20}" height="5" rx="2" class="nut"/>`);
   for (const f of [3, 5, 7, 9, 15]) parts.push(`<circle cx="${(X0 + X1) / 2}" cy="${fy(f)}" r="3.4" class="inlay"/>`);
