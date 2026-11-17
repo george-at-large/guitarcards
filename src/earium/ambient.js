@@ -500,6 +500,7 @@ export function ambient(O, ui, voices) {
     t = ctx().currentTime + 0.12;
     voices.cut(t);
     if (!paused) pump();
+    else schedule(); // paused: the chord you stepped to sounds and shows, and it stays paused there
   }
   const progStart = (k) => { let s0 = k; while (s0 > 0 && played[s0 - 1].prog === played[k].prog && !played[s0].intro) s0--; return s0; };
   return {

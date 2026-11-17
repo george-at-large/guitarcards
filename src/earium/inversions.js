@@ -79,8 +79,9 @@ export function inversions(O, ui, voices) {
     const pool = cands.length ? cands : all.filter((v) => v !== prev);
     return pool[Math.floor(Math.random() * pool.length)];
   }
-  function step(v0 = null) {
-    if (!alive || (paused && !v0)) return;
+  // manual: a button press, which works while paused too (it shows and sounds the voicing, and stays paused)
+  function step(v0 = null, manual = false) {
+    if (!alive || (paused && !v0 && !manual)) return;
     const v = v0 || nextVoicing();
     if (!v0) { history.push(v); if (history.length > 200) history.shift(); }
     if (!v) { ui.none(); return; }
@@ -99,9 +100,9 @@ export function inversions(O, ui, voices) {
     stop() { alive = false; clearTimeout(timer); V.hush(); voices.releaseAll(ctx().currentTime, 1.5); },
     pause(p) { paused = p; clearTimeout(timer); if (!p) step(); },
     get paused() { return paused; },
-    next() { clearTimeout(timer); if (back > 0) { back--; step(history[history.length - 1 - back]); } else step(); },
+    next() { clearTimeout(timer); if (back > 0) { back--; step(history[history.length - 1 - back], true); } else step(null, true); },
     // back to the voicing before (and on back through what was played)
-    prev() { if (history.length - 1 - back <= 0) return; clearTimeout(timer); back++; step(history[history.length - 1 - back]); },
+    prev() { if (history.length - 1 - back <= 0) return; clearTimeout(timer); back++; step(history[history.length - 1 - back], true); },
     count: all.length,
   };
 }
