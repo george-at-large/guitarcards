@@ -109,14 +109,14 @@ const itemFor = (id) => { if (String(id).startsWith('tg-')) { const t = TGB.prog
 
 export function exploder(app, { S, save, back, unlock }) {
   const O = S.x;
-  let item = null, states = [], voices = null, sel = 0, vIdx = 0, voicingsOf = [], playing = null, chosen = {}, pathCache = null;
+  let item = null, states = [], voices = null, sel = 0, vIdx = 0, voicingsOf = [], playing = null, chosen = {}, pathCache = null, led = {}, shown = null;
   const tonic = () => T.parseNote((item?.minor ? MKEYS : KEYS)[O.key === 'random' ? (O.keyPc ?? 0) : KEYS.indexOf(O.key)]);
   function load(id) {
     O.prog = id || O.prog || BASE_LIST[0].id;
     item = itemFor(O.prog);
     states = explodeSteps(item, O.version, 5);
     if (O.level > states.length - 1) O.level = states.length - 1;
-    chosen = {}; sel = 0; vIdx = 0;
+    chosen = {}; led = {}; sel = 0; vIdx = 0;
     save();
   }
   const slots = () => states[Math.min(O.level, states.length - 1)].slots;
@@ -217,14 +217,17 @@ export function exploder(app, { S, save, back, unlock }) {
     const his = hisGrip(x, c);
     if (his) voicingsOf = [his, ...voicingsOf];
     if (vIdx >= voicingsOf.length) vIdx = 0;
-    const pth = path(), fromPath = pth && !chosen[sel] && vIdx === 0 ? pth[sel] : null;
-    const v = fromPath || (chosen[sel] && voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === chosen[sel])) || voicingsOf[vIdx];
+    const pth = path(), auto = !chosen[sel] && vIdx === 0;
+    const ledV = led[sel] && voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === led[sel]);
+    const v = (auto && pth ? pth[sel] : null) || (chosen[sel] && voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === chosen[sel])) || (auto && !his ? ledV : null) || voicingsOf[vIdx];
+    shown = v;
     const notes = v ? v.notes.map((n) => ({ ...n, label: degText(n.iv), kind: IVK(n.iv) })) : [];
     const fr = v ? v.notes.filter((n) => n.fret > 0).map((n) => n.fret) : [];
     const w = win();
     return `<div class="xpanel"><div class="neckcol">${neckSVG(notes, { band: w ? [w.lo, w.hi] : null })}</div><div class="info">
       <div class="chord"><div class="rn">${fmt(c.rn)}</div><div class="sym">${fmt(c.name)}</div><div class="say">${esc(c.role && ROLE[c.role] ? ROLE[c.role] : '')}</div></div>
       ${x.changed ? `<div class="xchg" style="--tc:${TIER_COL[x.tier]}"><b>${fmt(x.changed)}</b>${x.detail ? `<p>${fmt(x.detail)}</p>` : ''}</div>` : ''}
+      <div class="xstep"><button data-act="cprev" aria-label="Previous chord">‹ chord</button><span>${sel + 1} of ${sl.length}</span><button data-act="cnext" aria-label="Next chord">chord ›</button></div>
       ${v ? `<div class="xvoice"><button data-act="vprev" aria-label="Previous voicing">‹</button><div><b>${esc(INV[INV_OF[v.bass] ?? 0] || '')}</b>${v.his ? '<em class="tgtag">Ted Greene’s grip</em>' : v.tg ? '<em class="tgtag">Ted Greene form</em>' : ''}<small>${esc(degText(v.bass))} in the bass · frets ${fr.length ? `${Math.min(...fr)}–${Math.max(...fr)}` : 'open'}${w ? (v.inside ? ` · in the ${O.shape} shape` : ' · outside the shape') : ''} · ${vIdx + 1} of ${voicingsOf.length}</small></div><button data-act="vnext" aria-label="Next voicing">›</button></div>
       ${pth && sel > 0 && pth[sel - 1] ? `<div class="xmoves"><span>From ${fmt(chordOf(slots()[sel - 1]).name)}</span>${moves(pth[sel - 1], v).map((m) => `<p><b>${m.who}</b> ${fmt(m.text)}</p>`).join('')}</div>` : ''}
       <ol class="xnotes">${[...v.notes].sort((a, b) => b.midi - a.midi).map((n) => `<li class="k-${IVK(n.iv)}"><i></i><b>${degText(n.iv)}</b> <span>${fmt(T.noteName(T.transpose(c.root, n.iv), true))}</span></li>`).join('')}</ol>` : '<p class="xnote">No playable grip for this one.</p>'}
@@ -250,9 +253,9 @@ export function exploder(app, { S, save, back, unlock }) {
     ${explainHTML()}
     ${chordPanel()}`;
     app.querySelector('#xprog').addEventListener('change', (e) => { stop(); load(e.target.value); draw(); });
-    app.querySelector('#xvl').addEventListener('change', (e) => { O.vl = e.target.value; save(); chosen = {}; vIdx = 0; draw(); });
-    app.querySelector('#xkey').addEventListener('change', (e) => { O.key = e.target.value; if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); save(); chosen = {}; draw(); });
-    app.querySelector('#xlevel').addEventListener('input', (e) => { O.level = Number(e.target.value); save(); chosen = {}; if (sel >= slots().length) sel = 0; draw(); });
+    app.querySelector('#xvl').addEventListener('change', (e) => { O.vl = e.target.value; save(); chosen = {}; led = {}; vIdx = 0; draw(); });
+    app.querySelector('#xkey').addEventListener('change', (e) => { O.key = e.target.value; if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); save(); chosen = {}; led = {}; draw(); });
+    app.querySelector('#xlevel').addEventListener('input', (e) => { O.level = Number(e.target.value); save(); chosen = {}; led = {}; if (sel >= slots().length) sel = 0; draw(); });
   }
 
   // ---------- playing ----------
@@ -278,31 +281,41 @@ export function exploder(app, { S, save, back, unlock }) {
       app.querySelectorAll('.xch').forEach((b) => b.classList.toggle('play', Number(b.dataset.x) === k));
       const dur = (60 / O.bpm) * x.beats * 1000;
       k = (k + 1) % slots().length;
-      if (k === 0 && O.tour) { O.shape = SHAPES[(Math.max(0, SHAPES.indexOf(O.shape)) + 1) % 5]; chosen = {}; save(); playing.timer = setTimeout(() => { draw(); stepOnce(); }, dur); return; }
+      if (k === 0 && O.tour) { O.shape = SHAPES[(Math.max(0, SHAPES.indexOf(O.shape)) + 1) % 5]; chosen = {}; led = {}; save(); playing.timer = setTimeout(() => { draw(); stepOnce(); }, dur); return; }
       playing.timer = setTimeout(stepOnce, dur);
     };
     stepOnce();
   }
 
+  // go to a chord: unless one is fixed (or the strategy's path or his grip decides), its voicing is the one nearest the
+  // voicing on the neck now (inside the CAGED position, if one is set), so clicking through sounds like a progression
+  function goTo(k) {
+    const from = shown;
+    sel = k; vIdx = 0;
+    if (!chosen[k]) {
+      const x = slots()[k], c = chordOf(x), w = win();
+      const list = allVoicings(c), pool = w ? list.filter((g) => inWin(g, w)) : list;
+      const near = from ? from.notes.filter((n) => n.fret > 0).reduce((a2, n, _, arr) => a2 + n.fret / arr.length, 0) || 5 : w ? w.mid : 5;
+      const g = choose(pool.length ? pool : list, from, w ? w.mid : near, w);
+      if (g) led[k] = g.notes.map((n) => n.midi).join();
+    }
+    draw();
+    if (shown && !playing) sound(shown.notes);
+  }
   // ---------- events ----------
   app.onclick = async (e) => {
     const b = e.target.closest('button');
     if (!b) return;
-    if (b.dataset.x !== undefined) {
-      sel = Number(b.dataset.x); vIdx = 0;
-      draw();
-      const x = slots()[sel], v = chosen[sel] ? voicingsOf.find((g) => g.notes.map((n) => n.midi).join() === chosen[sel]) : voicingsOf[0];
-      if (v && !playing) sound(v.notes);
-      return;
-    }
-    if (b.dataset.vplay) { stop(); O.version = Number(b.dataset.vplay); states = explodeSteps(item, O.version, 5); if (O.level > states.length - 1) O.level = states.length - 1; save(); chosen = {}; sel = 0; await play(); draw(); return; }
-    if (b.dataset.lplay) { stop(); O.level = b.dataset.lplay === 'max' ? states.length - 1 : 0; save(); chosen = {}; sel = 0; await play(); draw(); return; }
-    if (b.dataset.shape) { O.shape = b.dataset.shape; save(); chosen = {}; vIdx = 0; draw(); const v = voicingsOf[0]; if (v && !playing) sound(v.notes); return; }
-    if (b.dataset.ver) { stop(); O.version = b.dataset.ver === 'more' ? Math.max(5, O.version + 1) : Number(b.dataset.ver); states = explodeSteps(item, O.version, 5); if (O.level > states.length - 1) O.level = states.length - 1; save(); chosen = {}; sel = 0; draw(); return; }
+    if (b.dataset.x !== undefined) { goTo(Number(b.dataset.x)); return; }
+    if (b.dataset.vplay) { stop(); O.version = Number(b.dataset.vplay); states = explodeSteps(item, O.version, 5); if (O.level > states.length - 1) O.level = states.length - 1; save(); chosen = {}; led = {}; sel = 0; await play(); draw(); return; }
+    if (b.dataset.lplay) { stop(); O.level = b.dataset.lplay === 'max' ? states.length - 1 : 0; save(); chosen = {}; led = {}; sel = 0; await play(); draw(); return; }
+    if (b.dataset.shape) { O.shape = b.dataset.shape; save(); chosen = {}; led = {}; vIdx = 0; draw(); const v = voicingsOf[0]; if (v && !playing) sound(v.notes); return; }
+    if (b.dataset.ver) { stop(); O.version = b.dataset.ver === 'more' ? Math.max(5, O.version + 1) : Number(b.dataset.ver); states = explodeSteps(item, O.version, 5); if (O.level > states.length - 1) O.level = states.length - 1; save(); chosen = {}; led = {}; sel = 0; draw(); return; }
     const a = b.dataset.act;
     if (a === 'xback') { stop(); app.onclick = null; back(); return; }
     if (a === 'xprev' || a === 'xnext') { stop(); const i = LIST_ALL().findIndex((p) => p.id === O.prog); load(LIST_ALL()[(i + (a === 'xnext' ? 1 : -1) + LIST_ALL().length) % LIST_ALL().length].id); if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); draw(); return; }
     if (a === 'xrand') { stop(); load(LIST_ALL()[Math.floor(Math.random() * LIST_ALL().length)].id); O.version = 1 + Math.floor(Math.random() * 4); states = explodeSteps(item, O.version, 5); O.level = Math.floor(states.length / 2); if (O.key === 'random') O.keyPc = Math.floor(Math.random() * 12); save(); draw(); return; }
+    if (a === 'cnext' || a === 'cprev') { goTo((sel + (a === 'cnext' ? 1 : -1) + slots().length) % slots().length); return; }
     if (a === 'vnext' || a === 'vprev') {
       vIdx = (vIdx + (a === 'vnext' ? 1 : -1) + voicingsOf.length) % voicingsOf.length;
       const v = voicingsOf[vIdx]; chosen[sel] = v.notes.map((n) => n.midi).join();
