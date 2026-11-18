@@ -684,3 +684,7 @@ svg.neck .addon text { font: 700 11px var(--f-ui); text-anchor: middle; fill: va
 .fszoom button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line, #444); background: transparent; color: inherit; font-size: 16px; line-height: 1; }
 .fszoom button:disabled { opacity: .35; }
 .fszoom small { opacity: .8; }
+
+/* Free scales: the step buttons sit right above the neck and stay in view while it scrolls */
+.fsnavwrap { position: sticky; top: var(--fsnav-top, 62px); z-index: 2; background: var(--bg); padding: 4px 0 6px; margin-top: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.fsnavwrap .fsbeats { margin: 2px 0 0; }

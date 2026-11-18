@@ -526,7 +526,7 @@ export function renderFreeScale($app, ctx) {
   const PADS = [[0, 0], [4, 2], [6, 6]];
   const padded = (lo, hi) => { const [d, u] = PADS[O.neckView] || PADS[1]; return { lo: Math.max(0, lo - d), hi: Math.min(22, hi + u) }; };
   function clNeck() {
-    const it = cur(), p = clPos(), { lo, hi } = padded(Math.max(0, p.lo - 1), p.hi + 1), tp = T.notePc(keyTonic());
+    const it = cur(), p = clPos(), { lo, hi: hi0 } = padded(Math.max(0, p.lo - 1), p.hi + 1), hi = Math.max(hi0, 12), tp = T.notePc(keyTonic());
     const was = it.prevV && it.prevV !== it.v ? it.prevV.notes : [];
     const notes = it.v.notes.map((n) => ({ ...n, kind: KIND(n.iv.replace('♭', 'b')), mark: was.length > 0 && !was.some((w) => w.string === n.string && w.fret === n.fret) }));
     // faintly: the roots in the area (most of these voicings leave the root out)
@@ -552,6 +552,7 @@ export function renderFreeScale($app, ctx) {
     const shape = { lo: win.lo, hi: win.hi };
     if (win.band) win = { ...win, ...padded(win.lo, win.hi) };
     if (pathArr && pathArr.length) { const fr = pathArr.map((n) => n.fret); win = { ...win, lo: Math.min(win.lo, ...fr), hi: Math.max(win.hi, ...fr) }; }
+    win = { ...win, hi: Math.max(win.hi, 12) }; // the neck always reaches the 12th fret
     for (let st = 1; st <= 6; st++) for (let f = win.lo; f <= win.hi; f++) {
       const r = ((F.OPEN[st] + f - tp) % 12 + 12) % 12;
       const t = tt.find((x) => x.pc === r);
@@ -1051,13 +1052,15 @@ export function renderFreeScale($app, ctx) {
     </div>
     ${playHTML()}
     ${optsHTML()}
-    <div class="fsnav">${many ? '<button class="icon" data-f="prev" aria-label="Previous">‹</button>' : '<span></span>'}<h2 class="fstitle">${titleHTML()}</h2>${many ? '<button class="icon" data-f="next" aria-label="Next">›</button>' : '<span></span>'}</div>
     ${stepHTML()}
-    <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
     ${patHTML()}
     ${isArp || isChord(it) ? '' : `<div class="fsfact in" id="fsfact">${factHTML()}</div>`}
     ${isChord(it) ? `<p class="fsnecklbl"><b class="fsroman">${clName(it)}</b> <small>${esc(BY[it.mode].name)}${placeOf(it.mode) ? ` · ${fmt(placeOf(it.mode))}` : ''} · ${({ tri: 'triad', 2: 'drop 2', 4: 'drop 3', shell: 'shell', root: 'rooted grip' })[it.v.group] || ''}, strings ${it.v.notes.map((n) => n.string).join('')}</small></p>` : land() && !isArp ? `<p class="fsnecklbl">${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)}${land().drift && driftDeg(it) ? ` <small>· <b class="fsroman">${fmt(driftDeg(it).roman)}</b> of ${fmt(T.noteName(keyTonic(), true))} ${esc(land().keyName || { aeolian: 'natural minor', ionian: 'major' }[land().ids[0]] || BY[land().ids[0]].name)}${shiftOf(it) ? ` (its ${driftDeg(it).ord})` : ''}</small>` : ''}${land().walk ? `<small> · ${it.kind === 'rung' ? `rung ${it.rung}` : it.kind === 'detour' ? `detour from ${esc(BY[it.base].name)}` : 'back on the rung'}${it.up ? `, upper structure ${it.uk + 1} of ${it.un}` : it.arp ? ', its extended arpeggio' : ''}</small>${walkLabel(it)}` : ''}${targetsHTML(it)}${land().walk ? '' : chordsHTML(it)}</p>` : ''}
     ${win.name ? `<p class="fswin">${esc(win.name)}${win.band ? ` <span class="fszoom"><button data-f="neck-" aria-label="Show less neck" ${O.neckView <= 0 ? 'disabled' : ''}>−</button><small>${['shape only', '+ the position below', 'wide'][O.neckView]}</small><button data-f="neck+" aria-label="Show more neck" ${O.neckView >= 2 ? 'disabled' : ''}>+</button></span>` : ''}</p>` : ''}
+    <div class="fsnavwrap">
+      <div class="fsnav">${many ? '<button class="icon" data-f="prev" aria-label="Previous">‹</button>' : '<span></span>'}<h2 class="fstitle">${titleHTML()}</h2>${many ? '<button class="icon" data-f="next" aria-label="Next">›</button>' : '<span></span>'}</div>
+      <div class="beats fsbeats">${O.metro !== 'off' || O.go === 'auto' ? '<i></i><i></i><i></i><i></i>' : ''}</div>
+    </div>
     <div class="stage fsneck">${neck()}</div>
     <div class="legend"><span class="k r">root</span><span class="k t3">3rd</span><span class="k t5">5th</span><span class="k t7">7th</span><span class="k tx">${isArp || O.content !== 'scale' ? 'tension' : 'colour note'}</span>${isArp ? '' : `<span class="k sc">${O.content !== 'scale' || (O.pat && O.hint) ? 'rest of the mode (faint)' : 'rest of the scale'}</span>`}</div>
     ${isArp || isChord(it) ? '' : `<section class="card fsglance"><h2>${fmt(T.noteName(tonic(), true))} ${esc(BY[O.scale].name)} at a glance</h2><dl>${glance(O.scale, tonic()).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join('')}<dt>Used for</dt><dd><ul>${(FACTS[O.scale] || [BY[O.scale].feel]).map((f) => `<li>${fmt(f)}</li>`).join('')}</ul></dd></dl><button class="linkish" data-f="about">More: its family, its triads, ways to practise it</button></section>`}
