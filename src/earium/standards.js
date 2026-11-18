@@ -75,7 +75,7 @@ export const RUNGS = [
     T('Donna Lee', { by: 'Charlie Parker (credited to Miles Davis)', key: 'Ab', form: 'ABAC, 32 bars: Indiana changes', teaches: 'Bebop at speed', rec: 'Charlie Parker (1947)', chart: '| Abmaj7 | Abmaj7 | F7 | F7 | Bb7 | Bb7 | Bbm7 | Eb7 | Abmaj7 | Abmaj7 | F7 | F7 | Bbm7 | Bbm7 | Bb7 | Eb7 | Abmaj7 | Abmaj7 | F7 | F7 | Bb7 | Bb7 | Bbm7 | Eb7 | Db7 | Dbm7 | Abmaj7 | F7 | Bbm7 | Eb7 | Abmaj7 | Bbm7 Eb7 |', check: true, about: 'The chords of Back Home Again in Indiana: VI7, II7 and V7 chains, then iv7.' }),
   ] },
   { id: 'r7', name: 'Rung 7: post-bop', tunes: [
-    T('Maiden Voyage', { by: 'Herbie Hancock', key: 'D', form: 'AABA, 32 bars', teaches: 'Sus chords, planing', rec: 'Herbie Hancock, Maiden Voyage (1965)', chart: null, about: 'Four sus chords, four bars each, none of them functional: D, F, E♭ and D♭ suspended.' }),
+    T('Maiden Voyage', { by: 'Herbie Hancock', key: 'D', form: 'AABA, 32 bars', teaches: 'Sus chords, planing', rec: 'Herbie Hancock, Maiden Voyage (1965)', chart: null, about: 'Four chords of four bars each, none of them functional: D and F suspended, E♭ suspended, then C♯ minor.' }),
     T('Recorda Me', { by: 'Joe Henderson', key: 'A', minor: true, form: '16 bars', teaches: 'Minor ii–Vs moving by step', rec: 'Joe Henderson, Page One (1963)', chart: null, about: 'A minor bossa with ii–Vs falling into new keys.' }),
     T('Speak No Evil', { by: 'Wayne Shorter', key: 'C', minor: true, form: 'AABA', teaches: 'Modal and non-functional harmony', rec: 'Wayne Shorter, Speak No Evil (1964)', chart: null, about: 'Minor chords and sus sounds moving freely, with a bridge that slows the harmony right down.' }),
     T('Windows', { by: 'Chick Corea', key: 'E', minor: true, beats: 3, form: 'Jazz waltz', teaches: 'Modern waltz harmony', rec: 'Stan Getz, Sweet Rain (1967)', chart: null, about: 'Long chords in 3/4: minor, then major 7th chords with ♯11s moving by step.' }),
@@ -100,3 +100,13 @@ export const RUNGS = [
 ];
 export const PRACTICE_ORDER = ['Learn the melody by ear from the original recording.', 'Play guide tones, then arpeggios, then comping.', 'Solo over it, then play it in a second key.'];
 export const ROTATION = 'Keep 4–6 tunes in rotation and add one every week or two: roughly a year to eighteen months for the whole list.';
+
+// the researched charts, merged in by title (they replace "no chart"; less certain ones are marked to check)
+import { JAZZ_CHARTS } from './jazzcharts.js';
+const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+for (const c of JAZZ_CHARTS) {
+  for (const r of RUNGS) for (const t of r.tunes) {
+    if (norm(t.t) !== norm(c.t) || t.chart || t.lib) continue;
+    Object.assign(t, { chart: c.chart, key: c.key, minor: c.minor, beats: c.beats === 4 ? undefined : c.beats, form: c.form, check: c.confidence !== 'high', versions: c.notes, sources: c.sources, confidence: c.confidence });
+  }
+}

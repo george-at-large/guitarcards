@@ -405,3 +405,8 @@ details.guide b.faint { color: var(--faint); }
 .tpeasy button small, .tpans span small, .tpentry small { font: 11px var(--sans); color: var(--dim); }
 .tpentry small { margin: 0 4px 0 2px; }
 .tpans span small { margin-left: 4px; }
+.tpsrc a { color: var(--dim); }
+.tpchart { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tpbar.dense .tpc b { font-size: 13px; } .tpbar.dense .tpc i { font-size: 10px; }
+.tpbar.dense { padding: 6px 2px; }
+@media (max-width: 520px) { .tpchart.busy { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tpchart.busy .tpbar.dense .tpc b { font-size: 14px; } }

@@ -107,7 +107,7 @@ function barsOf(item, keyPc, level = 0, seed = 1, bpb = 4) {
     const bass = c.bass && c.bass !== '1' ? `/${T.noteName(T.transpose(root, c.bass), true)}` : '';
     let rn = ''; try { rn = H.numeral(c.iv, c.q); } catch (e) { rn = ''; }
     return { name: T.chordSymbol(root, c.q) + bass, rn, say: DEG[semi(c.iv)], beats: c.beats };
-  }));
+  }).reduce((out, c) => { const l = out[out.length - 1]; if (l && l.name === c.name) l.beats += c.beats; else out.push(c); return out; }, [])); // a chord held for two beats of a bar is one chord
 }
 const levelsOf = (item) => { try { return explodeSteps(item, 1, 5).length - 1; } catch (e) { return 0; } };
 
@@ -164,7 +164,7 @@ export function repertoire(app, { S, save, back }) {
       <span class="tpdots">${Array.from({ length: bpb }, (_, i) => `<i class="${i === 0 ? 'one' : ''}"></i>`).join('')}</span>
     </div>`;
   const toggles = () => `<div class="tptog"><button data-t="nums" class="${O.nums ? 'on' : ''}">Numerals</button><button data-t="say" class="${O.say ? 'on' : ''}">Say it</button></div>`;
-  const chartHTML = (bars) => `<div class="tpchart">${bars.map((b, i) => `<div class="tpbar" data-bar="${i}">${b.map((c) => `<span class="tpc" style="flex:${c.beats}"><b>${fmt(c.name)}</b>${O.nums ? `<i>${fmt(c.rn)}</i>` : ''}</span>`).join('')}</div>`).join('')}</div>`;
+  const chartHTML = (bars) => `<div class="tpchart${bars.some((b) => b.length >= 3) ? ' busy' : ''}">${bars.map((b, i) => `<div class="tpbar${b.length >= 3 ? ' dense' : ''}" data-bar="${i}">${b.map((c) => `<span class="tpc" style="flex:${c.beats}"><b>${fmt(c.name)}</b>${O.nums ? `<i>${fmt(c.rn)}</i>` : ''}</span>`).join('')}</div>`).join('')}</div>`;
   const sayLine = (bars) => `<p class="tpsay">${bars.map((b) => b.map((c) => c.say).join(' ')).join(' | ')}</p>`;
   function keySelect(home, minor, cur) {
     const hp = pcOf(home);
@@ -207,7 +207,9 @@ export function repertoire(app, { S, save, back }) {
       ${metroBar(R.bpb)}
       ${bars ? `${toggles()}${chartHTML(bars)}${O.say ? sayLine(bars) : ''}
         ${levels ? `<div class="tpcx"><span>Complexity</span><button data-t="lv-">−</button><b>${O.level ? `${O.level} of ${levels}` : 'as written'}</b><button data-t="lv+">+</button>${O.level ? '<button data-t="seed">another version</button>' : ''}</div>` : ''}
-        ${t.check ? '<p class="hint">A common version of the changes: check it against the record, since versions differ.</p>' : ''}`
+        ${t.versions ? `<p class="hint"><b>Versions:</b> ${fmt(t.versions)}</p>` : ''}
+        ${t.check ? `<p class="hint">${t.confidence === 'low' ? 'Only one source could be checked: treat this as a starting point and check it against the record.' : 'A common version of the changes: check it against the record, since versions differ.'}</p>` : ''}
+        ${t.sources?.length ? `<p class="hint tpsrc">Sources: ${t.sources.map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a>`).join(' · ')}</p>` : ''}`
         : '<p class="say tpnone">No chart here yet: learn the changes from a lead sheet and the record. The notes below say what to listen for.</p>'}
       <section class="card tpabout">
         ${t.teaches ? `<p><b>What it teaches:</b> ${fmt(t.teaches)}</p>` : ''}
