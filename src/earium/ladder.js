@@ -228,6 +228,25 @@ function smoothest(lists, extra = () => 0) {
   return st.reduce((a, b) => (a.c <= b.c ? a : b)).path;
 }
 
+// ---------- nearby: the extensions and changes around a chord ----------
+// each note of the mode (or, with no mode, the usual tensions for the chord's family) that the chord doesn't play,
+// named from the chord's root: a tension (9, 11, 13 and their alterations), a 6th or 7th a triad could add, or a note a
+// half step above a chord tone (an avoid note: it clashes, except the ♭9 and ♭13 of a dominant chord)
+const GENERIC = { maj: [2, 6, 9, 11], dom: [1, 2, 3, 9], min: [2, 5, 9, 10], hd: [2, 5, 8], dim: [2, 5, 8, 11], aug: [2, 6, 11] };
+export function nearby(chordPc, tones, mode, keyPc) {
+  const have = new Set(tones.map(semi)), seventh = tones.some((iv) => /^(b|bb)?7$/.test(iv)) || (have.has(9) && tones.includes('6'));
+  const dom = have.has(4) && have.has(10), fam = dom ? 'dom' : have.has(3) && have.has(6) ? (have.has(10) ? 'hd' : 'dim') : have.has(3) ? 'min' : have.has(8) && have.has(4) ? 'aug' : 'maj';
+  const pcs = mode ? BY[mode].ivs.map((iv) => ((keyPc + semi(iv) - chordPc) % 12 + 12) % 12) : GENERIC[fam];
+  const name = (x) => ({ 1: 'b9', 2: '9', 3: have.has(4) ? '#9' : 'b3', 4: '3', 5: '11', 6: have.has(7) ? '#11' : 'b5', 7: '5', 8: have.has(7) ? 'b13' : '#5', 9: seventh ? '13' : '6', 10: 'b7', 11: '7' }[x]);
+  const out = new Map();
+  for (const x of pcs) {
+    if (have.has(x) || x === 0) continue;
+    const avoid = have.has((x + 11) % 12) && !(dom && (x === 1 || x === 8)) && !(x === 5 && !have.has(4) && !have.has(3));
+    out.set(x, { iv: name(x), avoid });
+  }
+  return out;
+}
+
 // ---------- the practices ----------
 export const WHAT = [
   ['bounce', 'Bounce', 'One chord’s inversions, one after another: bouncing about, up the neck, or up and down.'],
@@ -327,8 +346,8 @@ export function ladder(app, { S, save, back, sound }) {
     </section>
     <section class="card">
       <h3>See and hear</h3>
-      ${rowL('Ghost notes', seg('ghost', [['off', 'Off'], ['mode', 'Mode'], ['arp', 'Arpeggio']], O.ghost), O.ghost === 'mode' ? 'Every note of the mode, by interval.' : O.ghost === 'arp' ? 'The extended arpeggio: chord tones and the extensions.' : '')}
-      ${O.ghost !== 'off' ? rowL('Ghosts', seg('ghostArea', [['area', 'In the area'], ['neck', 'Whole neck']], O.ghostArea)) : ''}
+      ${rowL('Ghost notes', seg('ghost', [['off', 'Off'], ['mode', 'Mode'], ['arp', 'Arpeggio'], ['near', 'Nearby']], O.ghost), O.ghost === 'mode' ? 'Every note of the mode, by interval.' : O.ghost === 'arp' ? 'The extended arpeggio: chord tones and the extensions.' : O.ghost === 'near' ? 'Just the notes to be aware of, right around the voicing: the extensions you could add, the 6th or 7th a triad could take, and (ringed) the notes that clash. The mode decides them.' : '')}
+      ${O.ghost !== 'off' && O.ghost !== 'near' ? rowL('Ghosts', seg('ghostArea', [['area', 'In the area'], ['neck', 'Whole neck']], O.ghostArea)) : ''}
       ${rowL('Play', seg('play', [['together', 'Together'], ['arp', 'Arpeggiated'], ['silent', 'Silent']], O.play))}
       ${rowL('Voice', seg('voice', [[true, 'Names'], [false, 'Off']], O.voice), 'The mode and where it comes from; the inversion when there’s time.')}
     </section>
@@ -560,6 +579,19 @@ export function ladder(app, { S, save, back, sound }) {
   function ghosts(s) {
     if (O.ghost === 'off' || !s) return [];
     const rootPc = T.notePc(T.parseNote(O.root));
+    if (O.ghost === 'near') {
+      // around the voicing: its strings and one either side, two frets either way
+      if (s.kind !== 'chord') return [];
+      const base = s.chordRoot ?? rootPc, near = nearby(base, s.notes.map((n) => n.iv), s.mode, rootPc);
+      const fr = s.notes.filter((n) => n.fret > 0).map((n) => n.fret), ss = s.notes.map((n) => n.string);
+      const lo = Math.max(0, (fr.length ? Math.min(...fr) : 1) - 2), hi = Math.min(15, (fr.length ? Math.max(...fr) : 2) + 2);
+      const out = [];
+      for (let st = Math.min(6, Math.max(...ss) + 1); st >= Math.max(1, Math.min(...ss) - 1); st--) for (let f = lo; f <= hi; f++) {
+        const x = near.get(((openOf(st) + f - base) % 12 + 12) % 12);
+        if (x) out.push({ string: st, fret: f, label: degText(x.iv), kind: x.avoid ? 'q' : 'tx', ghost: !x.avoid, avoid: x.avoid });
+      }
+      return out;
+    }
     const tones = s.kind === 'chord' ? s.notes.map((n) => n.iv) : chordOf(O.mode || null, O.chord).tones;
     const own = s.chordRoot != null && O.ghost === 'arp';
     const base = own ? s.chordRoot : rootPc;
@@ -612,7 +644,13 @@ export function ladder(app, { S, save, back, sound }) {
     const root = s.chordNote || T.parseNote(O.root);
     el.innerHTML = `<div class="lpart">${esc(head)}</div>${s.rn ? `<div class="rn">${esc(s.rn)}</div>` : ''}<div class="sym">${fmt(s.title)}</div><div class="say">${esc(s.inv ? cap(s.inv) : '')}</div>`;
     document.querySelector('#lstack').innerHTML = `<ol>${[...s.notes].sort((a, b) => b.midi - a.midi).map((n) => `<li class="k-${KIND(n.iv)}${prev && prev.kind === 'chord' && !prev.notes.some((x) => x.midi === n.midi) ? ' fresh' : ''}"><i></i><b>${degText(n.iv)}</b><span>${fmt(T.noteName(T.transpose(root, F.simpleIv(n.iv)), true))} · string ${n.string}, fret ${n.fret}</span></li>`).join('')}</ol><div class="exl">${esc(s.set || '')}</div>`;
-    document.querySelector('#lmoved').innerHTML = (s.moved || []).map((m) => `<p>${fmt(m)}</p>`).join('');
+    let aware = '';
+    if (O.ghost === 'near') {
+      const near = [...nearby(s.chordRoot ?? T.notePc(T.parseNote(O.root)), s.notes.map((n) => n.iv), s.mode, T.notePc(T.parseNote(O.root))).values()];
+      const ok = near.filter((x) => !x.avoid).map((x) => degText(x.iv)), bad = near.filter((x) => x.avoid).map((x) => degText(x.iv));
+      aware = `<div class="aware">${ok.length ? `<span>Nearby: <b>${ok.join(' · ')}</b></span>` : ''}${bad.length ? `<span class="bad">Careful: <b>${bad.join(' · ')}</b></span>` : ''}</div>`;
+    }
+    document.querySelector('#lmoved').innerHTML = aware + (s.moved || []).map((m) => `<p>${fmt(m)}</p>`).join('');
   }
   function drawBeats(bi, len) {
     const el = document.querySelector('#lbeats');
@@ -635,7 +673,7 @@ export function ladder(app, { S, save, back, sound }) {
     </main>
     <div class="transport ltrans">
       <button data-l="prev" aria-label="Back"><b>‹</b><small>back</small></button>
-      <button data-l="cycGhost"><b>◌</b><small id="lgh">${O.ghost === 'off' ? 'no ghosts' : O.ghost === 'mode' ? 'mode' : 'arpeggio'}</small></button>
+      <button data-l="cycGhost"><b>◌</b><small id="lgh">${GHOST_NAME[O.ghost]}</small></button>
       <button data-l="togAuto" class="${O.auto ? 'on' : ''}"><b>↻</b><small>${O.auto ? 'auto' : 'by hand'}</small></button>
       <button data-l="togClick" class="${O.click ? 'on' : ''}"><b>♩</b><small>click</small></button>
       <button data-l="next" aria-label="Next"><b>›</b><small>next</small></button>
@@ -662,7 +700,7 @@ export function ladder(app, { S, save, back, sound }) {
     }
     if (a === 'next') { step(1); return; }
     if (a === 'prev') { step(-1); return; }
-    if (a === 'cycGhost') { O.ghost = { off: 'mode', mode: 'arp', arp: 'off' }[O.ghost]; save(); document.querySelector('#lgh').textContent = O.ghost === 'off' ? 'no ghosts' : O.ghost === 'mode' ? 'mode' : 'arpeggio'; if (run?.cur) drawNeck(run.cur); return; }
+    if (a === 'cycGhost') { O.ghost = { off: 'mode', mode: 'arp', arp: 'near', near: 'off' }[O.ghost] || 'off'; save(); document.querySelector('#lgh').textContent = GHOST_NAME[O.ghost]; if (run?.cur) { drawNeck(run.cur); drawInfo(run.cur, null); } return; }
     if (a === 'togAuto') { O.auto = !O.auto; save(); b.classList.toggle('on', O.auto); b.querySelector('small').textContent = O.auto ? 'auto' : 'by hand'; return; }
     if (a === 'togClick') { O.click = !O.click; save(); b.classList.toggle('on', O.click); return; }
     if (a === 'slower' || a === 'faster') { O.bpm = Math.max(40, Math.min(200, O.bpm + (a === 'faster' ? 4 : -4))); save(); document.querySelector('#lbpm').textContent = `${O.bpm} bpm`; return; }
@@ -683,6 +721,7 @@ export function ladder(app, { S, save, back, sound }) {
   window.scrollTo(0, 0);
 }
 
+const GHOST_NAME = { off: 'no ghosts', mode: 'mode', arp: 'arpeggio', near: 'nearby' };
 const PART_SAY = { scale: 'The scale.', arpeggio: 'The arpeggio.', extended: 'The extended arpeggio.', inversions: 'The inversions.', richer: 'Richer chords.', chords: 'The chords.' };
 export function allPhrases() {
   const out = new Set([...INV_NAMES, ...Object.values(PART_SAY), DIM_SAY]);

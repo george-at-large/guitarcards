@@ -300,3 +300,8 @@ details.guide b.faint { color: var(--faint); }
 .transport button.on { color: var(--gold); }
 .neck .dot.ghost circle { opacity: .28; r: 9.5; }
 .neck .dot.ghost text { font-size: 8.5px; fill: #e9dfc8; opacity: .75; }
+.neck .dot.avoid circle { fill: transparent !important; stroke: #c9776d; stroke-width: 1.8; opacity: .85; r: 9.5; }
+.neck .dot.avoid text { fill: #c9776d; font-size: 8.5px; }
+.aware { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--faint); margin-bottom: 8px; }
+.aware b { color: var(--tx); font: 500 16px var(--serif); }
+.aware .bad b { color: #c9776d; }

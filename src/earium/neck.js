@@ -21,7 +21,7 @@ export function neckSVG(notes = [], { labels = 'deg', band = null } = {}) {
   for (const n of notes) {
     const x = sx(n.string), y = fy(n.fret);
     const lab = labels === 'note' ? n.note : n.label;
-    parts.push(`<g class="dot k-${n.kind}${n.fresh ? ' fresh' : ''}${n.ghost ? ' ghost' : ''}${n.spot ? ' spot' : ''}${n.nextv ? ' nextv' : ''}"><circle cx="${x}" cy="${y}" r="12.5"/><text x="${x}" y="${y + 4.2}">${lab}</text></g>`);
+    parts.push(`<g class="dot k-${n.kind}${n.fresh ? ' fresh' : ''}${n.ghost ? ' ghost' : ''}${n.spot ? ' spot' : ''}${n.nextv ? ' nextv' : ''}${n.avoid ? ' avoid' : ''}"><circle cx="${x}" cy="${y}" r="12.5"/><text x="${x}" y="${y + 4.2}">${lab}</text></g>`);
   }
   return `<svg class="neck" viewBox="0 0 ${W} ${H}" role="img" aria-label="Guitar neck">${parts.join('')}</svg>`;
 }
