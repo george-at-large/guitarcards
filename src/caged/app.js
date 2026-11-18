@@ -1278,7 +1278,11 @@ function togglePause(btn) {
   R.paused = !R.paused;
   btn.textContent = R.paused ? '▶' : '❚❚';
   $app.classList.toggle('paused', R.paused);
-  if (R.paused) { clearTimeout(R.timer); R.ui.forEach(clearTimeout); R.ui = []; if (R.sound || D.pad) A.hush(); }
+  if (R.paused) {
+    clearTimeout(R.timer); R.ui.forEach(clearTimeout); R.ui = []; if (R.sound || D.pad) A.hush();
+    // paused in the count-in: the first chord comes up, ready to step through
+    if (R.countLeft > 0 && !(R.hist && R.hist.length) && R.queue[0] && !R.queue[0].end) { R.hist = []; stepChord(1); }
+  }
   else {
     // stepped while paused: play on from the chord on screen, the ones after it in order
     if (R.stepped && R.hist) {
@@ -1292,9 +1296,11 @@ function togglePause(btn) {
 }
 // paused: step through the chords, back through the ones played, forward through what's coming
 function stepChord(d) {
-  if (!R || !R.paused || !R.hist || !R.hist.length) return;
+  if (!R || !R.paused) return;
+  R.hist ||= [];
+  if (!R.hist.length && d < 0) return;
   if (d < 0) { if (R.ptr <= 0) return; R.ptr--; }
-  else if (R.ptr < R.hist.length - 1) R.ptr++;
+  else if (R.hist.length && R.ptr < R.hist.length - 1) R.ptr++;
   else {
     const c = R.queue[0];
     if (!c || c.end) return;
@@ -1305,6 +1311,11 @@ function stepChord(d) {
   const c = R.hist[R.ptr];
   showChord(c, { next: R.hist[R.ptr + 1] || R.queue[0], prev: R.hist[R.ptr - 1]?.grip || null });
   if (D.neck && D.diagram !== 'now') revealNeck();
+  // heard as you step (unless muted): one strum of the chord
+  if (!D.mute) {
+    const ms = c.grip ? c.grip.notes.filter((n) => D.tgExtras || !n.extra).map((n) => n.midi).sort((a, b) => a - b) : padVoicing(c);
+    A.unlockAudio().then(() => A.ensureRunning()).then(() => { A.hush(); A.strum(ms, A.audioCtx().currentTime + 0.03, { vel: 0.6, spread: 0.014 }); }).catch(() => {});
+  }
 }
 // numeral and name are both always in the page; classes on the app decide which show (at least one does), and
 // with the numeral off the name takes its place and size
