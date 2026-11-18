@@ -26,7 +26,7 @@ const OPEN = [40, 45, 50, 55, 59, 64]; // strings 6 → 1
 const openOf = (s) => OPEN[6 - s];
 const semi = (iv) => T.intervalSemis(F.simpleIv(String(iv))) % 12;
 const SHAPES = ['C', 'A', 'G', 'E', 'D'];
-const BY = Object.fromEntries(SC.SCALES.map((s) => [s.id, s]));
+export const BY = Object.fromEntries(SC.SCALES.map((s) => [s.id, s]));
 export const modeName = (m) => (BY[m] ? BY[m].name.replace(/\s*\(.*\)/, '').replace(/^./, (c) => c.toUpperCase()) : '');
 const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
@@ -119,7 +119,7 @@ export const SETS = {
 const SET_NAME = Object.fromEntries([...SETS[3], ...SETS[4]]);
 export const INV_NAMES = ['root position', 'first inversion', 'second inversion', 'third inversion'];
 const ORDER = { 1: 0, 3: 1, b3: 1, 2: 1, 4: 1, 5: 2, b5: 2, '#5': 2, 7: 3, b7: 3, bb7: 3, 6: 3 };
-const invName = (bass, tones) => (tones.length === 2 ? `the ${degWord(bass)} in the bass` : bass === '1' ? 'root position' : tones.includes('1') && ORDER[bass] != null ? INV_NAMES[ORDER[bass]] : `the ${degWord(bass)} in the bass`);
+export const invName = (bass, tones) => (tones.length === 2 ? `the ${degWord(bass)} in the bass` : bass === '1' ? 'root position' : tones.includes('1') && ORDER[bass] != null ? INV_NAMES[ORDER[bass]] : `the ${degWord(bass)} in the bass`);
 function standard(midis, setId) {
   const v = [...midis].sort((a, b) => a - b);
   const close = (x) => { const y = [...x].sort((a, b) => a - b); return y[y.length - 1] - y[0] < 12; };
@@ -153,7 +153,7 @@ export function onSet(rootPc, tones, setId) {
 const inside = (v, w) => v.notes.every((n) => (n.fret === 0 ? w.lo <= 1 : n.fret >= w.lo - 1 && n.fret <= w.hi + 1));
 // every voicing of the chord on the string sets asked for, in the area; Best keeps the nicest of each inversion on
 // each string set (no stretch past three frets, nothing muddy, not too high), All keeps every playable one
-function chordVoicings(rootPc, tones, { set = 'any', win = null, pick = 'best' } = {}) {
+export function chordVoicings(rootPc, tones, { set = 'any', win = null, pick = 'best' } = {}) {
   const size = tones.length >= 4 ? 4 : tones.length === 2 ? 2 : 3;
   const ids = set === 'any' || !SETS[size].some(([id]) => id === set) ? SETS[size].map(([id]) => id) : [set];
   let all = ids.flatMap((id) => onSet(rootPc, tones.slice(0, size), id));

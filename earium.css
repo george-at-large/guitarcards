@@ -305,3 +305,15 @@ details.guide b.faint { color: var(--faint); }
 .aware { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13.5px; color: var(--faint); margin-bottom: 8px; }
 .aware b { color: var(--tx); font: 500 16px var(--serif); }
 .aware .bad b { color: #c9776d; }
+
+/* Chord study */
+.stpick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0 4px; }
+.stpick .sel { width: 100%; min-width: 0; }
+.stpick select[data-st="view"] { grid-column: 1 / -1; }
+.stpick select[data-st="set"], .stpick select[data-st="inv"], .stpick select[data-st="shape"] { grid-column: 1 / -1; }
+.sttrans { margin: 10px 0 12px; }
+.stpos { font-size: 13.5px; color: var(--dim); margin: 6px 0 4px; }
+.stpos b { color: var(--ink); font-weight: 500; }
+.stprog { font-size: 12px; color: var(--faint); margin-top: 10px; }
+.stfoot { display: flex; justify-content: center; margin-top: 12px; }
+.stskip { font-size: 20px; }

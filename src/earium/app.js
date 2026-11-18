@@ -13,6 +13,7 @@ import { degText } from './words.js';
 import { PACKS as ALL_PACKS, GROUPS as ALL_GROUPS } from './packs.js';
 import { TIERS } from './reharm.js';
 import { ladder, DEF_L } from './ladder.js';
+import { study, DEF_ST } from './study.js';
 import { rhythm, SETS as R_SETS, inSet } from './rhythm.js';
 import { gridSVG, circleSVG } from './rview.js';
 import { exploder } from './exploder.js';
@@ -27,13 +28,14 @@ const DEF = {
   inst: 'guitar', space: 0.55, vvol: 0.7,
   g: { lesson: 'build', level: 2, maxNotes: 4, bass: 'root', prompts: 'off', voice: 'rich', pace: 8, root: 'random', vlSource: 'pack:voicelead', vlVoices: 4, vlBass: 'root', vlMoves: 'one', vlFollow: 'all' },
   l: { ...DEF_L },
+  st: { ...DEF_ST },
   r: { set: 'core', bpm: 72, loops: 4, count: true, voice: true, view: 'auto' },
   x: { prog: null, key: 'C', version: 1, level: 4, explain: true, bpm: 72, shape: 'auto', tour: false, vl: 'off' },
   a: { src: 'packs', pack: 'all', loops: 2, shape: 'auto', prog: 'major-ii-v-i', level: 2, key: 'random', minor: false, secs: 12, motion: 'gentle', far: 3, narr: 'on', theory: 1, extTalk: 'off', extLater: false, arp: 'off', modeSay: false, feel: 'off', spotlight: false, tension: false, forms: false, more: false },
 };
 let S;
 try { S = JSON.parse(localStorage.getItem('earium') || 'null'); } catch (e) { S = null; }
-S = { ...DEF, ...(S || {}), g: { ...DEF.g, ...(S?.g || {}) }, a: { ...DEF.a, ...(S?.a || {}) }, l: { ...DEF.l, ...(S?.l || {}) }, r: { ...DEF.r, ...(S?.r || {}) }, x: { ...DEF.x, ...(S?.x || {}) } };
+S = { ...DEF, ...(S || {}), g: { ...DEF.g, ...(S?.g || {}) }, a: { ...DEF.a, ...(S?.a || {}) }, l: { ...DEF.l, ...(S?.l || {}) }, st: { ...DEF.st, ...(S?.st || {}) }, r: { ...DEF.r, ...(S?.r || {}) }, x: { ...DEF.x, ...(S?.x || {}) } };
 if (S.a.narr !== 'off') S.a.narr = 'on'; // older settings: Describe / Chords only
 const save = () => { try { localStorage.setItem('earium', JSON.stringify(S)); } catch (e) { /* */ } };
 
@@ -64,6 +66,7 @@ function home() {
   <button class="mode" data-go="a"><span class="glyph">◌</span><span><b>Ambient</b><small>Rich chords drift and morph through progressions. A voice can name them, or tell you what they're doing.</small></span></button>
   <button class="mode" data-go="x"><span class="glyph">✺</span><span><b>Exploder</b><small>Any progression, and a slider from plain to fully exploded: passing chords, borrowed chords, subs. Tap a chord to see every way to play it.</small></span></button>
   <button class="mode" data-go="l"><span class="glyph">◇</span><span><b>Ladder</b><small>The ultimate ladder, mode by mode: bounce through a chord’s inversions, dive into one chord, run every arpeggio, walk the whole ladder, with a metronome and ghost notes.</small></span></button>
+  <button class="mode" data-go="st"><span class="glyph">▦</span><span><b>Chord study</b><small>One chord, every inversion, all over the neck: on each string set, across the strings, in each CAGED shape. Silent, with its extensions if you like.</small></span></button>
   <button class="mode" data-go="r"><span class="glyph">◷</span><span><b>Rhythm</b><small>Strums and rhythms from around the world, built up a layer at a time and described, on a grid or a circle.</small></span></button>
   ${sound()}
   <p class="foot">Use headphones. The neck shows where each note lives; it isn't always a grip you'd play.</p>`;
@@ -359,6 +362,7 @@ function end() {
 app.addEventListener('click', async (e) => {
   const b = e.target.closest('button');
   if (!b) return;
+  if (b.dataset.go === 'st') { view = 'st'; study(app, { S, save, back: home }); window.scrollTo(0, 0); return; }
   if (b.dataset.go === 'l') { view = 'l'; ladder(app, { S, save, back: home, sound }); return; }
   if (b.dataset.go === 'x') { view = 'x'; exploder(app, { S, save, back: home, unlock: async () => { await A.unlockAudio(); await A.ensureRunning(); E.setSpace(S.space); } }); window.scrollTo(0, 0); return; }
   if (b.dataset.go) { ({ home, g: setupG, a: setupA, r: setupR })[b.dataset.go](); window.scrollTo(0, 0); return; }
