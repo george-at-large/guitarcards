@@ -317,3 +317,53 @@ details.guide b.faint { color: var(--faint); }
 .stprog { font-size: 12px; color: var(--faint); margin-top: 10px; }
 .stfoot { display: flex; justify-content: center; margin-top: 12px; }
 .stskip { font-size: 20px; }
+
+/* Tunes */
+.tptabs { margin: 6px 0 12px; }
+.tprung h3 { margin: 0 0 8px; }
+.tprow { display: flex; flex-direction: column; align-items: flex-start; width: 100%; text-align: left; padding: 10px 2px; border: 0; border-top: 1px solid var(--line); background: none; color: var(--ink); gap: 2px; }
+.tprow b { font: 500 19px var(--serif); }
+.tprow span { font-size: 13px; color: var(--dim); }
+.tprow small { font-size: 12.5px; color: var(--faint); }
+.tpol { margin: 0 0 8px; padding-left: 20px; color: var(--dim); }
+.tpby { color: var(--dim); font-size: 14px; margin: -4px 0 10px; text-align: center; }
+.tpkeyrow { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.tpkeyrow .sel { flex: 1; min-width: 0; }
+.tphow { padding: 9px 12px; border-radius: 12px; border: 1px solid rgba(232, 194, 122, .4); background: rgba(232, 194, 122, .08); color: var(--gold); font: inherit; font-size: 14px; white-space: nowrap; }
+.tpmetro { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 8px; padding: 8px 0; background: var(--bg, #0d0b09); border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.tpmetro button { min-width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--ink); font: inherit; }
+.tpmetro .tpm { padding: 0 10px; } .tpmetro .tpm.on { color: var(--gold); border-color: var(--gold); }
+.tpmetro b { min-width: 30px; text-align: center; } .tpmetro small { color: var(--faint); font-size: 11px; }
+.tpdots { display: flex; gap: 5px; margin-left: auto; }
+.tpdots i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--faint); }
+.tpdots i.one { border-color: var(--gold); } .tpdots i.on { background: var(--ink); } .tpdots i.one.on { background: var(--gold); }
+.tptog { display: flex; gap: 8px; margin: 4px 0 10px; }
+.tptog button { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--dim); font: inherit; font-size: 13px; }
+.tptog button.on { color: var(--gold); border-color: rgba(232, 194, 122, .5); }
+.tpchart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-left: 1px solid var(--line); margin-bottom: 8px; }
+.tpbar { display: flex; min-height: 54px; border-right: 1px solid var(--line); border-bottom: 1px solid rgba(255, 255, 255, .05); padding: 6px 4px; transition: background .15s; }
+.tpbar.now { background: rgba(232, 194, 122, .14); }
+.tpc { display: flex; flex-direction: column; min-width: 0; padding-right: 3px; }
+.tpc b { font: 500 16px var(--serif); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tpc i { font-style: normal; font-size: 12px; color: var(--gold); opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tpsay { font: 500 15px/1.6 var(--sans); letter-spacing: .04em; color: var(--dim); margin: 6px 0 10px; word-spacing: 2px; }
+.tpcx { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 14px; color: var(--dim); flex-wrap: wrap; }
+.tpcx button { min-width: 34px; height: 32px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--ink); font: inherit; padding: 0 10px; }
+.tpcx b { color: var(--ink); font-weight: 500; }
+.tpnone { margin: 14px 0; }
+.tpabout p { margin: 0 0 8px; color: #cfc9ba; }
+.tplisten { color: var(--gold); text-decoration: none; border: 1px solid rgba(232, 194, 122, .4); border-radius: 999px; padding: 6px 12px; display: inline-block; }
+.tpprog { padding: 10px 0; border-top: 1px solid var(--line); }
+.tppn { margin: 0 0 4px; } .tppn b { font: 500 17px var(--serif); } .tppn small { color: var(--faint); font-size: 12.5px; }
+.tpline { margin: 0; line-height: 1.9; }
+.tpline b { font: 500 16px var(--serif); margin-right: 3px; }
+.tpline i { font-style: normal; font-size: 11.5px; color: var(--gold); margin-right: 8px; }
+.tpline .sep { color: var(--faint); margin: 0 8px; }
+.tpprog .tpsay { font-size: 13px; margin: 2px 0 4px; }
+.tpprog .hint { margin: 2px 0 0; }
+.tpcat summary { cursor: pointer; font: 500 18px var(--serif); } .tpcat summary small { color: var(--faint); font: 12px var(--sans); }
+.tpsheet { position: fixed; inset: 0; z-index: 20; overflow-y: auto; background: var(--bg, #0d0b09); padding: 20px 18px 40px; }
+.tpsheet h3 { font: 500 24px var(--serif); color: var(--gold); margin: 6px 40px 14px 0; }
+.tpsheet p { color: #cfc9ba; line-height: 1.55; margin: 0 0 12px; }
+.tpsheet p b { color: var(--ink); }
+.tpx { position: absolute; top: 14px; right: 14px; }
