@@ -21,7 +21,7 @@ import * as H from '../../src/caged/harmony.js';
 import * as EW from '../../src/earium/words.js';
 import * as EP from '../../src/earium/packs.js';
 import * as ER from '../../src/earium/rhythm.js';
-import * as EI from '../../src/earium/inversions.js';
+import * as EI from '../../src/earium/ladder.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');

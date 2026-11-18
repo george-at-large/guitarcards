@@ -107,7 +107,7 @@ export const ULT_INFO = {
   altered: { q: '7alt', use: ['b9', '#9', '#11', 'b13'], avoid: [], note: 'Read it as a dominant: its ♭4 sounds as the major 3rd and its ♭3 as the ♯9.' },
   'dim-hw': { q: '7b9', use: ['b9', '#9', '#11', '13'], avoid: [], note: 'The one exception to the one-note rule: eight notes, the altered scale with a natural 5 and 13 in place of the ♭13.' },
 };
-const ULT_WALK = [
+export const ULT_WALK = [
   ['lydian', 1], ['lyd-aug', 'detour'], ['lydian', 'back'], ['ionian', 2], ['mel-min', 'detour'], ['ionian', 'back'],
   ['mixolydian', 3], ['lyd-dom', 'detour'], ['mixolydian', 'back'],
   ['dorian', 4], ['dorian-b2', 'detour'], ['dorian', 'back'], ['aeolian', 5], ['harm-min', 'detour'], ['aeolian', 'back'], ['locrian-n2', 'detour'], ['aeolian', 'back'],

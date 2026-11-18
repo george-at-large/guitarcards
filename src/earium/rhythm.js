@@ -135,7 +135,7 @@ export function countOf(p, i) {
 // ---------- sounds ----------
 const SHAPES = { G: [43, 47, 50, 55, 59, 67], C: [48, 52, 55, 60, 64], D: [50, 57, 62, 66], Em: [40, 47, 52, 55, 59, 64], Am: [45, 52, 57, 60, 64], A: [45, 52, 57, 61, 64], E9: [40, 47, 50, 56, 59, 66], F: [41, 48, 53, 57, 60, 65] };
 const BASS = { G: [43, 50], C: [48, 43], D: [50, 45], Em: [40, 47], Am: [45, 40], A: [45, 40], E9: [40, 47], F: [41, 48] };
-function perc(type, t, vel) {
+export function perc(type, t, vel) {
   const g = graph(), c = g.c, out = c.createGain();
   out.connect(g.dry); const w = c.createGain(); w.gain.value = 0.35; out.connect(w).connect(g.send);
   const env = (node, a, d, peak) => { node.gain.setValueAtTime(0.0001, t); node.gain.exponentialRampToValueAtTime(peak, t + a); node.gain.exponentialRampToValueAtTime(0.0001, t + d); };
