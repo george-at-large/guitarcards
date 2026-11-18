@@ -307,7 +307,7 @@ export function ladder(app, { S, save, back, sound }) {
     const par = mode ? parentOf(mode, rootPc) : null, place = mode ? placeText(mode) : '';
     const chordWhat = ['bounce', 'next', 'dive'].includes(O.what);
     const csSize = O.csq === 'tri' ? 3 : 4;
-    if (O.what === 'cs' && !SETS[csSize].some(([id]) => id === O.csSet)) O.csSet = csSize === 4 ? '4321' : '432';
+    if (O.what === 'cs' && O.csSet !== 'all' && !SETS[csSize].some(([id]) => id === O.csSet)) O.csSet = csSize === 4 ? '4321' : '432';
     if (O.what === 'cs' && O.set !== 'any' && !SETS[csSize].some(([id]) => id === O.set)) O.set = 'any';
     if (O.csInv >= csSize) O.csInv = 0;
     const csText = O.what === 'cs' && mode ? chordScale(mode, T.parseNote(O.root), csSize).map((c) => `${c.rn}`).join(' · ') : '';
@@ -331,7 +331,7 @@ export function ladder(app, { S, save, back, sound }) {
       ${O.what === 'ladder' && O.pChords ? rowL('Chords', seg('rich', [[false, 'Triad and 7th'], [true, '+ richer chords']], O.rich)) : ''}
       ${O.what === 'arps' ? rowL('Arpeggio', seg('ext', [[false, '7th chord'], [true, 'Extended']], O.ext), O.ext ? 'The 7th chord plus the tensions the mode uses.' : 'Just the four notes of each mode’s 7th chord.') : ''}
       ${walkWhat ? rowL('Detours', seg('detours', [[true, 'On'], [false, 'Rungs only']], O.detours), 'A detour changes one note of its rung, then comes back.') : ''}
-      ${O.what === 'cs' && O.where === 'climb' ? rowL('Strings', seg('csSet', SETS[csSize].map(([id, l]) => [id, l.replace('Strings ', '').replace('Drop ', 'D')]), O.csSet)) + rowL('Inversion', seg('csInv', INV_NAMES.slice(0, csSize).map((l, i) => [i, cap(l.replace(' position', '').replace(' inversion', ''))]), O.csInv), 'Every chord in the same inversion, so the shape repeats as it climbs.') : ''}
+      ${O.what === 'cs' && O.where === 'climb' ? rowL('Strings', seg('csSet', [...SETS[csSize].map(([id, l]) => [id, l.replace('Strings ', '').replace('Drop ', 'D')]), ['all', 'Every set']], O.csSet), O.csSet === 'all' ? 'One climb on each string set in turn, low strings first.' : '') + rowL('Inversion', seg('csInv', [...INV_NAMES.slice(0, csSize).map((l, i) => [i, cap(l.replace(' position', '').replace(' inversion', ''))]), [-1, 'Each in turn']], O.csInv), O.csInv < 0 ? `All ${csSize === 3 ? 'three' : 'four'} ${csSize === 3 ? 'triad' : '7th-chord'} chord scales, one per inversion: root position, then first, then second${csSize === 4 ? ', then third' : ''}. Each keeps one shape as it climbs.` : 'Every chord in the same inversion, so the shape repeats as it climbs.') : ''}
       ${O.what === 'cs' && O.where !== 'climb' ? rowL('Strings', seg('set', [['any', 'Any'], ...SETS[csSize].map(([id, l]) => [id, l.replace('Strings ', '').replace('Drop ', 'D')])], O.set)) : ''}
       ${O.what === 'cs' ? rowL('Direction', seg('csDir', [['up', 'Up'], ['updown', 'Up and down']], O.csDir)) : ''}
       ${O.what === 'vl' ? rowL('Voicings', seg('lane', [['best', 'Best'], ['d2', 'Drop 2'], ['d3', 'Drop 3']], O.lane)) : ''}
@@ -396,34 +396,38 @@ export function ladder(app, { S, save, back, sound }) {
       const win = O.where === 'shape' ? winOf(O.shape) : NECK;
       let path = null;
       if (O.where === 'climb') {
-        // the same inversion on one string set, each chord the next one up the neck; the octave on top if it fits
-        const cands = (k) => { const c = chordAt(k); return onSet(c.rootPc, c.tones, O.csSet).filter((v) => v.notes[0].iv === c.tones[Math.min(O.csInv, c.tones.length - 1)]).sort((a, b) => a.at - b.at); };
-        const all = Array.from({ length: n + 1 }, (_, k) => cands(k));
-        const climb = (v0) => {
-          const up = [v0];
-          let at = v0.at, wraps = 0;
-          for (let k = 1; k <= n; k++) {
-            const vs = all[k];
-            if (!vs.length) { up.push(null); continue; }
-            const v = vs.find((x) => x.at > at + 0.4);
-            if (!v) { if (k === n) break; wraps++; up.push(vs[0]); at = vs[0].at; continue; }
-            up.push(v); at = v.at;
-          }
-          return { up, wraps };
-        };
-        const tries = all[0].map(climb).sort((a, b) => a.wraps - b.wraps || b.up.length - a.up.length || (a.up[0].at < 1) - (b.up[0].at < 1) || a.up[0].at - b.up[0].at);
-        const up = tries[0]?.up || [];
-        if (up.length > n && up[n] && up[n].notes.map((x) => x.midi).join() === up[0].notes.map((x) => x.midi).join()) up.pop(); // no octave room: no repeat
-        path = O.csDir === 'updown' ? [...up, ...up.slice(0, -1).reverse().slice(0, -1)] : up;
-        const ks = O.csDir === 'updown' ? [...up.keys(), ...[...up.keys()].reverse().slice(1, -1)] : [...up.keys()];
-        ks.forEach((k, i) => { const v = path[i]; if (v) list.push(csStep(chordAt(k), v, k)); });
+        // the same inversion on one string set, each chord the next one up the neck; the octave on top if it fits.
+        // Every set and/or each inversion: one climb after another (string set by string set, root position first)
+        const sets = O.csSet === 'all' ? SETS[size].map(([id]) => id) : [O.csSet], invs = O.csInv < 0 ? [...Array(size).keys()] : [Math.min(O.csInv, size - 1)];
+        for (const set of sets) for (const inv of invs) {
+          const cands = (k) => { const c = chordAt(k); return onSet(c.rootPc, c.tones, set).filter((v) => v.notes[0].iv === c.tones[inv]).sort((a, b) => a.at - b.at); };
+          const all = Array.from({ length: n + 1 }, (_, k) => cands(k));
+          const climb = (v0) => {
+            const up = [v0];
+            let at = v0.at, wraps = 0;
+            for (let k = 1; k <= n; k++) {
+              const vs = all[k];
+              if (!vs.length) { up.push(null); continue; }
+              const v = vs.find((x) => x.at > at + 0.4);
+              if (!v) { if (k === n) break; wraps++; up.push(vs[0]); at = vs[0].at; continue; }
+              up.push(v); at = v.at;
+            }
+            return { up, wraps };
+          };
+          const tries = all[0].map(climb).sort((a, b) => a.wraps - b.wraps || b.up.length - a.up.length || (a.up[0].at < 1) - (b.up[0].at < 1) || a.up[0].at - b.up[0].at);
+          const up = tries[0]?.up || [];
+          if (up.length > n && up[n] && up[n].notes.map((x) => x.midi).join() === up[0].notes.map((x) => x.midi).join()) up.pop(); // no octave room: no repeat
+          path = O.csDir === 'updown' ? [...up, ...up.slice(0, -1).reverse().slice(0, -1)] : up;
+          const ks = O.csDir === 'updown' ? [...up.keys(), ...[...up.keys()].reverse().slice(1, -1)] : [...up.keys()];
+          ks.forEach((k, i) => { const v = path[i]; if (v) list.push(csStep(chordAt(k), v, k, i === 0 && (sets.length > 1 || invs.length > 1))); });
+        }
       } else {
         const lists = order.map((k) => { const c = chordAt(k); return chordVoicings(c.rootPc, c.tones, { set: O.set, win: O.where === 'shape' ? win : null, pick: O.where === 'shape' ? 'all' : 'best' }); });
         path = smoothest(lists, (v) => v.span * 0.8 + (v.notes[0].iv === '1' ? 0 : 0.6));
         if (path) order.forEach((k, i) => list.push(csStep(chordAt(k), path[i], k)));
       }
-      function csStep(c, v, k) {
-        return { kind: 'chord', notes: v.notes, mode, part: 'chord scale', rn: c.rn, title: `${T.noteName(c.root, true)}${T.pretty(c.sym)}`, inv: invName(v.notes[0].iv, c.tones), set: SET_NAME[v.set] || '', win: O.where === 'shape' ? win : null, beats: O.beats, chordRoot: c.rootPc, chordNote: c.root, say: c.say, octave: k === n };
+      function csStep(c, v, k, first = false) {
+        return { kind: 'chord', notes: v.notes, mode, part: first ? 'chord scale run' : 'chord scale', rn: c.rn, title: `${T.noteName(c.root, true)}${T.pretty(c.sym)}`, inv: invName(v.notes[0].iv, c.tones), set: SET_NAME[v.set] || '', win: O.where === 'shape' ? win : null, beats: O.beats, chordRoot: c.rootPc, chordNote: c.root, say: c.say, octave: k === n };
       }
     }
     if (O.what === 'dive') {
@@ -549,7 +553,8 @@ export function ladder(app, { S, save, back, sound }) {
       lines.push([V.scaleWords(BY[s.mode].name)]); if (p) lines.push([p.say]);
     }
     if (s.part !== run.lastPart && PART_SAY[s.part] && O.what !== 'vl') lines.push([PART_SAY[s.part]]);
-    if (s.part === 'chord scale' && s.say && (s.beats * 60) / O.bpm >= 1.5) lines.push([s.say]);
+    if (s.part === 'chord scale run') lines.push([s.inv]); // a new run: which inversion it keeps
+    else if (s.part === 'chord scale' && s.say && (s.beats * 60) / O.bpm >= 1.5) lines.push([s.say]);
     else if (s.kind === 'chord' && !lines.length && s.inv && (s.beats * 60) / O.bpm >= 2.4 && ['bounce', 'next', 'dive'].includes(O.what)) lines.push([s.inv]);
     if (O.voice && lines.length) V.say(lines, t + 0.15, { vol: S.vvol * 4 });
     run.lastMode = s.mode; run.lastPart = s.part;
@@ -632,7 +637,7 @@ export function ladder(app, { S, save, back, sound }) {
     if (mh) mh.innerHTML = s.mode ? `<div class="lm">${esc(modeName(s.mode))}</div><div class="lp">${esc(p?.text || '')}</div><div class="lr">${esc(placeText(s.mode))}</div>` : '<div class="lp">No particular mode</div>';
     const el = document.querySelector('#lchord');
     if (!el) return;
-    const partName = { 'chord scale': 'Chord scale', arpeggio: 'Arpeggio', extended: 'Extended arpeggio', scale: 'Scale', inversions: 'Inversions', richer: 'The mode’s richer chords', chords: 'Chords', back: 'Back to the rung', 'voice leading': 'Voice leading' }[s.part] || '';
+    const partName = { 'chord scale': 'Chord scale', 'chord scale run': 'Chord scale · new run', arpeggio: 'Arpeggio', extended: 'Extended arpeggio', scale: 'Scale', inversions: 'Inversions', richer: 'The mode’s richer chords', chords: 'Chords', back: 'Back to the rung', 'voice leading': 'Voice leading' }[s.part] || '';
     const head = [partName, s.win?.label ? cap(s.win.label) : ''].filter(Boolean).join(' · ');
     if (s.kind === 'line') {
       const ivs = [...new Set(s.notes.map((n) => (s.part === 'scale' ? n.iv : asExt(n.iv))))];
