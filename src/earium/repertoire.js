@@ -226,6 +226,7 @@ export function repertoire(app, { S, save, back }) {
       <div class="tpbtns">${setTabs()}</div>
       <p class="tplbl">Easy: tap Roman numerals (the chords' names shown small)</p>
       <div class="tpbtns"><button class="play" data-t="stest" data-v="easy" data-k="major">Major keys</button><button class="play" data-t="stest" data-v="easy" data-k="minor">Minor keys</button></div>
+      <div class="tptog"><button data-t="erand" class="${O.erand ? 'on' : ''}">${O.erand ? '✓ ' : ''}Random key</button><span class="hint">${O.erand ? 'Each tune in a new key: the numerals stay the same, the note names change, so you learn both.' : 'Each tune in its own key.'}</span></div>
       <p class="tplbl">Harder: build each chord from its root and quality</p>
       <div class="tpbtns"><button class="play" data-t="stest" data-v="nums">Numbers</button><button class="play" data-t="stest" data-v="keys">Random key</button></div></section>`;
   }
@@ -248,7 +249,7 @@ export function repertoire(app, { S, save, back }) {
     const pool = (SETS[R.test.set] || RUNGS).flatMap((g) => g.tunes.map((t, i) => ({ t, id: `${g.id}:${i}` }))).filter((x) => itemOfTune(x.t) && (R.test.mode !== 'easy' || !!itemOfTune(x.t).minor === (R.test.tonality === 'minor')));
     let x; do { x = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && x.id === R.test.last);
     const it = itemOfTune(x.t);
-    const keyPc = R.test.mode === 'keys' ? Math.floor(Math.random() * 12) : pcOf(homeKey(it, x.t));
+    const keyPc = R.test.mode === 'keys' || (R.test.mode === 'easy' && R.test.rand) ? Math.floor(Math.random() * 12) : pcOf(homeKey(it, x.t));
     const target = collapse(flat(it).map((c) => (R.test.mode === 'keys' ? `${(keyPc + semi(c.iv)) % 12}` : `${semi(c.iv)}`) + `:${famOf(c.q)}`));
     Object.assign(R.test, { last: x.id, tune: x.t, it, keyPc, target, cur: [], root: null, shown: null });
   }
@@ -335,7 +336,8 @@ export function repertoire(app, { S, save, back }) {
       X.list.push({ seq: X.cur, match: dup ? null : match, dup }); X.cur = []; keep(); return;
     }
     if (a === 'pdone') { R.test.done = !R.test.done; keep(); return; }
-    if (a === 'stest') { R.test = { mode: b.dataset.v, set: O.set, tonality: b.dataset.k || null }; pickTune(); draw(); window.scrollTo(0, 0); return; }
+    if (a === 'erand') { O.erand = !O.erand; save(); keep(); return; }
+    if (a === 'stest') { R.test = { mode: b.dataset.v, set: O.set, tonality: b.dataset.k || null, rand: !!O.erand }; pickTune(); draw(); window.scrollTo(0, 0); return; }
     if (a === 'sback') { if (R.test.root != null) R.test.root = null; else R.test.cur.pop(); keep(); return; }
     if (a === 'scheck') { R.test.shown = 'check'; keep(); return; }
     if (a === 'sdk') { R.test.shown = 'reveal'; keep(); return; }
