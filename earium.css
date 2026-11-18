@@ -400,3 +400,8 @@ details.guide b.faint { color: var(--faint); }
 .tpans span.ok { border-color: rgba(120, 200, 140, .5); background: rgba(120, 200, 140, .08); }
 .tpans span.no { border-color: rgba(220, 120, 110, .5); background: rgba(220, 120, 110, .08); }
 .tpresult h3 { margin-top: 0; }
+.tpeasy { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+.tpeasy button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 4px 6px; }
+.tpeasy button small, .tpans span small, .tpentry small { font: 11px var(--sans); color: var(--dim); }
+.tpentry small { margin: 0 4px 0 2px; }
+.tpans span small { margin-left: 4px; }

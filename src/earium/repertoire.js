@@ -50,6 +50,16 @@ function romanId(iv, q) {
   if (f === 'dim' || f === 'hd') { if (s === 6) r = '♯iv'; if (s === 1) r = '♯i'; }
   return r + (f === 'hd' || f === 'dim' ? '°' : f === 'aug' ? '+' : '');
 }
+// the easy test: numerals with the chord's name in the key
+const EASY = {
+  major: [['In the key', [[0, 'maj'], [2, 'min'], [4, 'min'], [5, 'maj'], [7, 'dom'], [9, 'min'], [11, 'hd']]],
+    ['Common outside the key', [[7, 'maj'], [0, 'dom'], [2, 'dom'], [4, 'dom'], [9, 'dom'], [11, 'dom'], [5, 'min'], [5, 'dom'], [10, 'maj'], [10, 'dom'], [8, 'maj'], [8, 'dom'], [3, 'maj'], [1, 'dom'], [2, 'hd'], [1, 'dim'], [6, 'dim'], [6, 'hd']]]],
+  minor: [['In the key', [[0, 'min'], [2, 'hd'], [3, 'maj'], [5, 'min'], [7, 'min'], [8, 'maj'], [10, 'maj']]],
+    ['Common outside the key', [[7, 'dom'], [7, 'maj'], [5, 'dom'], [5, 'maj'], [2, 'min'], [11, 'dim'], [10, 'dom'], [8, 'dom'], [3, 'dom'], [1, 'maj'], [0, 'maj'], [0, 'dom'], [2, 'dom'], [9, 'hd']]]],
+};
+const romanOf = (s, f) => { let r = (s === 1 && f === 'dim') ? '♯I' : ROMAN[s]; if (f === 'min' || f === 'hd' || f === 'dim') r = r.replace(/[IV]+/, (x) => x.toLowerCase()); return r + ({ dom: '7', hd: 'ø', dim: '°', aug: '+', sus: 'sus' }[f] || ''); };
+const IVN = ['1', 'b2', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7'];
+const nameIn = (keyNote, s, f) => T.noteName(T.transpose(keyNote, s === 1 && f === 'dim' ? '#1' : IVN[s]), true) + ({ maj: '', dom: '7', min: 'm', hd: 'm7♭5', dim: '°', aug: '+', sus: 'sus' }[f]);
 const collapse = (a) => a.filter((x, i) => i === 0 || x !== a[i - 1]);
 const flat = (item) => L.resolve(item).flat();
 export const progIds = (p) => collapse(flat(p).map((c) => romanId(c.iv, c.q)));
@@ -214,6 +224,9 @@ export function repertoire(app, { S, save, back }) {
       <div class="tpbtns"><button class="play" data-t="ptest" data-v="major">Major</button><button class="play" data-t="ptest" data-v="minor">Minor</button></div></section>
       <section class="card"><h3>Standards test</h3><p class="hint">A tune comes up: give its chords, in order, without repeats. As numbers from the tonic first; with a random key and the actual chords later, which is harder.</p>
       <div class="tpbtns">${setTabs()}</div>
+      <p class="tplbl">Easy: tap Roman numerals (the chords' names shown small)</p>
+      <div class="tpbtns"><button class="play" data-t="stest" data-v="easy" data-k="major">Major keys</button><button class="play" data-t="stest" data-v="easy" data-k="minor">Minor keys</button></div>
+      <p class="tplbl">Harder: build each chord from its root and quality</p>
       <div class="tpbtns"><button class="play" data-t="stest" data-v="nums">Numbers</button><button class="play" data-t="stest" data-v="keys">Random key</button></div></section>`;
   }
   // progressions: build, add, see what's remembered
@@ -232,17 +245,28 @@ export function repertoire(app, { S, save, back }) {
   }
   // standards: a tune comes up, give its chords
   function pickTune() {
-    const pool = (SETS[R.test.set] || RUNGS).flatMap((g) => g.tunes.map((t, i) => ({ t, id: `${g.id}:${i}` }))).filter((x) => itemOfTune(x.t));
+    const pool = (SETS[R.test.set] || RUNGS).flatMap((g) => g.tunes.map((t, i) => ({ t, id: `${g.id}:${i}` }))).filter((x) => itemOfTune(x.t) && (R.test.mode !== 'easy' || !!itemOfTune(x.t).minor === (R.test.tonality === 'minor')));
     let x; do { x = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && x.id === R.test.last);
     const it = itemOfTune(x.t);
     const keyPc = R.test.mode === 'keys' ? Math.floor(Math.random() * 12) : pcOf(homeKey(it, x.t));
     const target = collapse(flat(it).map((c) => (R.test.mode === 'keys' ? `${(keyPc + semi(c.iv)) % 12}` : `${semi(c.iv)}`) + `:${famOf(c.q)}`));
     Object.assign(R.test, { last: x.id, tune: x.t, it, keyPc, target, cur: [], root: null, shown: null });
   }
-  const idText = (id) => { const [r, f] = id.split(':'); return `<b>${R.test.mode === 'keys' ? NOTE[r] : DEG[r]}</b><i>${FAM_SYM[f]}</i>`; };
+  const idText = (id) => {
+    const [r, f] = id.split(':');
+    if (R.test.mode === 'easy') return `<b>${esc(romanOf(Number(r), f))}</b><small>${esc(nameIn(T.parseNote(keyName(R.test.keyPc, !!R.test.it.minor)), Number(r), f))}</small>`;
+    return `<b>${R.test.mode === 'keys' ? NOTE[r] : DEG[r]}</b><i>${FAM_SYM[f]}</i>`;
+  };
   function stestHTML() {
     const X = R.test, t = X.tune, minor = !!X.it.minor;
     const roots = X.mode === 'keys' ? NOTE : DEG;
+    // the easy palette: the key's own chords, the usual ones from outside it, and any others this tune needs
+    const easyRows = () => {
+      const rows = EASY[X.tonality].map(([l, ids]) => [l, ids.map(([r, f]) => `${r}:${f}`)]);
+      const have = new Set(rows.flatMap(([, ids]) => ids)), extra = [...new Set(X.target.filter((id) => !have.has(id)))].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+      if (extra.length) rows.push(['Other chords', extra]);
+      return rows;
+    };
     let result = '';
     if (X.shown) {
       const m = lcs(X.target, X.cur);
@@ -255,10 +279,11 @@ export function repertoire(app, { S, save, back }) {
     }
     return `<header class="bar"><button class="icon" data-t="tclose" aria-label="Back">‹</button><h2>Standards test</h2><span></span></header>
       <div class="tpq"><b>${esc(t.t)}</b><span>${esc(t.by)}${t.form ? ` · ${esc(t.form)}` : ''}</span>
-      <em>${X.mode === 'keys' ? `In ${fmt(keyName(X.keyPc, minor))}${minor ? ' minor' : ''}: give the actual chords` : `As numbers from the ${minor ? 'minor ' : ''}tonic`}</em></div>
-      <div class="tpentry">${X.cur.length ? X.cur.map(idText).join('<i class="sep">·</i>') : '<span class="faint">a root, then its quality, for each chord in turn (no repeats)…</span>'}${X.root != null ? `<span class="tppend">${esc(roots[X.root])}…</span>` : ''}</div>
-      <p class="tplbl">Root</p><div class="tppal tproots">${roots.map((r, i) => `<button data-root="${i}" class="${X.root === i ? 'on' : ''}">${esc(r)}</button>`).join('')}</div>
-      <p class="tplbl">Quality</p><div class="tppal">${Object.entries(FAM_SYM).map(([f, s]) => `<button data-fam="${f}" ${X.root == null ? 'disabled' : ''}>${esc(s)}</button>`).join('')}</div>
+      <em>${X.mode === 'keys' ? `In ${fmt(keyName(X.keyPc, minor))}${minor ? ' minor' : ''}: give the actual chords` : X.mode === 'easy' ? `In ${fmt(keyName(X.keyPc, minor))}${minor ? ' minor' : ''}: tap its chords as numerals` : `As numbers from the ${minor ? 'minor ' : ''}tonic`}</em></div>
+      <div class="tpentry">${X.cur.length ? X.cur.map(idText).join('<i class="sep">·</i>') : `<span class="faint">${X.mode === 'easy' ? 'tap each chord in turn (no repeats)…' : 'a root, then its quality, for each chord in turn (no repeats)…'}</span>`}${X.root != null ? `<span class="tppend">${esc(roots[X.root])}…</span>` : ''}</div>
+      ${X.mode === 'easy' ? easyRows().map(([l, ids]) => `<p class="tplbl">${esc(l)}</p><div class="tppal tpeasy">${ids.map((id) => `<button data-eid="${id}">${idText(id)}</button>`).join('')}</div>`).join('')
+        : `<p class="tplbl">Root</p><div class="tppal tproots">${roots.map((r, i) => `<button data-root="${i}" class="${X.root === i ? 'on' : ''}">${esc(r)}</button>`).join('')}</div>
+      <p class="tplbl">Quality</p><div class="tppal">${Object.entries(FAM_SYM).map(([f, s]) => `<button data-fam="${f}" ${X.root == null ? 'disabled' : ''}>${esc(s)}</button>`).join('')}</div>`}
       <div class="tpbtns"><button data-t="sback">⌫</button><button class="on" data-t="scheck">Check</button><button data-t="sdk">Don’t know</button><button data-t="snext">Next tune ›</button></div>
       ${result}`;
   }
@@ -286,6 +311,7 @@ export function repertoire(app, { S, save, back }) {
     if (b.dataset.pal) { R.test.cur.push(b.dataset.pal); keep(); return; }
     // the standards test
     if (b.dataset.root) { R.test.root = Number(b.dataset.root); keep(); return; }
+    if (b.dataset.eid) { R.test.cur.push(b.dataset.eid); keep(); return; }
     if (b.dataset.fam) { if (R.test.root == null) return; R.test.cur.push(`${R.test.root}:${b.dataset.fam}`); R.test.root = null; keep(); return; }
     if (!a) return;
     if (a === 'back') { stopMetro(); app.onclick = null; app.onchange = null; back(); return; }
@@ -309,7 +335,7 @@ export function repertoire(app, { S, save, back }) {
       X.list.push({ seq: X.cur, match: dup ? null : match, dup }); X.cur = []; keep(); return;
     }
     if (a === 'pdone') { R.test.done = !R.test.done; keep(); return; }
-    if (a === 'stest') { R.test = { mode: b.dataset.v, set: O.set }; pickTune(); draw(); window.scrollTo(0, 0); return; }
+    if (a === 'stest') { R.test = { mode: b.dataset.v, set: O.set, tonality: b.dataset.k || null }; pickTune(); draw(); window.scrollTo(0, 0); return; }
     if (a === 'sback') { if (R.test.root != null) R.test.root = null; else R.test.cur.pop(); keep(); return; }
     if (a === 'scheck') { R.test.shown = 'check'; keep(); return; }
     if (a === 'sdk') { R.test.shown = 'reveal'; keep(); return; }
