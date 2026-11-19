@@ -20,7 +20,7 @@ const pcOf = (k) => T.notePc(T.parseNote(k));
 const keyName = (pc, minor) => (minor ? MKEYS : KEYS)[pc];
 const semi = (iv) => T.intervalSemis(iv) % 12;
 const libBy = (name) => L.ALL.find((p) => p.name === name);
-const SETS = { jazz: RUNGS, songs: SONG_GROUPS };
+const SETS = { jazz: RUNGS, guitar: RUNGS.filter((r) => r.guitar), songs: SONG_GROUPS };
 function tuneAt(id) { const [g, i] = id.split(':'); for (const set of Object.values(SETS)) { const grp = set.find((r) => r.id === g); if (grp) return grp.tunes[Number(i)]; } return null; }
 function itemOfTune(t) {
   if (t.lib) { const p = libBy(t.lib); return p ? { ...p, minor: t.minor ?? p.minor } : null; }
@@ -171,6 +171,7 @@ export function repertoire(app, { S, save, back }) {
     return `<select class="sel tpkey" data-tsel="tkey">${KEYS.map((k, i) => `<option value="${i}" ${i === cur ? 'selected' : ''}>${fmt(keyName(i, minor))}${minor ? ' minor' : ''}${i === hp ? '  ★ original' : ''}</option>`).join('')}</select>`;
   }
   const tabs = () => `<div class="seg tptabs">${[['tunes', 'Standards'], ['progs', 'Progressions'], ['test', 'Test']].map(([v, l]) => `<button data-t="tab" data-v="${v}" class="${O.tab === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const testSets = () => `<div class="seg tpsets">${[['jazz', 'All jazz'], ['guitar', 'Guitar canon'], ['songs', 'Everything else']].map(([v, l]) => `<button data-t="tset" data-v="${v}" class="${(O.tset || 'jazz') === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   const setTabs = () => `<div class="seg tpsets">${[['jazz', 'Jazz'], ['songs', 'Everything else']].map(([v, l]) => `<button data-t="set" data-v="${v}" class="${O.set === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
 
   // ----- lists -----
@@ -225,7 +226,7 @@ export function repertoire(app, { S, save, back }) {
     return `<section class="card"><h3>Progressions test</h3><p class="hint">Name as many progressions as you can remember: tap each one's chords, then Add. They pile up in a list, ticked when they match one of the ${PROGS.length} worth knowing. Do major, then minor.</p>
       <div class="tpbtns"><button class="play" data-t="ptest" data-v="major">Major</button><button class="play" data-t="ptest" data-v="minor">Minor</button></div></section>
       <section class="card"><h3>Standards test</h3><p class="hint">A tune comes up: give its chords, in order, without repeats. As numbers from the tonic first; with a random key and the actual chords later, which is harder.</p>
-      <div class="tpbtns">${setTabs()}</div>
+      <div class="tpbtns">${testSets()}</div>
       <p class="tplbl">Easy: tap Roman numerals (the chords' names shown small)</p>
       <div class="tpbtns"><button class="play" data-t="stest" data-v="easy" data-k="major">Major keys</button><button class="play" data-t="stest" data-v="easy" data-k="minor">Minor keys</button></div>
       <div class="tptog"><button data-t="erand" class="${O.erand ? 'on' : ''}">${O.erand ? '✓ ' : ''}Random key</button><span class="hint">${O.erand ? 'Each tune in a new key: the numerals stay the same, the note names change, so you learn both.' : 'Each tune in its own key.'}</span></div>
@@ -249,6 +250,7 @@ export function repertoire(app, { S, save, back }) {
   // standards: a tune comes up, give its chords
   function pickTune() {
     const pool = (SETS[R.test.set] || RUNGS).flatMap((g) => g.tunes.map((t, i) => ({ t, id: `${g.id}:${i}` }))).filter((x) => itemOfTune(x.t) && (R.test.mode !== 'easy' || !!itemOfTune(x.t).minor === (R.test.tonality === 'minor')));
+    if (!pool.length) { R.test.empty = true; return; }
     let x; do { x = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && x.id === R.test.last);
     const it = itemOfTune(x.t);
     const keyPc = R.test.mode === 'keys' || (R.test.mode === 'easy' && R.test.rand) ? Math.floor(Math.random() * 12) : pcOf(homeKey(it, x.t));
@@ -261,6 +263,7 @@ export function repertoire(app, { S, save, back }) {
     return `<b>${R.test.mode === 'keys' ? NOTE[r] : DEG[r]}</b><i>${FAM_SYM[f]}</i>`;
   };
   function stestHTML() {
+    if (R.test.empty) return `<header class="bar"><button class="icon" data-t="tclose" aria-label="Back">‹</button><h2>Standards test</h2><span></span></header><p class="say tpnone">No tunes with charts in this set${R.test.tonality ? ` in ${R.test.tonality} keys` : ''}.</p>`;
     const X = R.test, t = X.tune, minor = !!X.it.minor;
     const roots = X.mode === 'keys' ? NOTE : DEG;
     // the easy palette: the key's own chords, the usual ones from outside it, and any others this tune needs
@@ -320,6 +323,7 @@ export function repertoire(app, { S, save, back }) {
     if (a === 'back') { stopMetro(); app.onclick = null; app.onchange = null; back(); return; }
     if (a === 'close') { const was = O.open; O.open = null; save(); draw(); const el = app.querySelector(`[data-open="${was}"]`); if (el) el.scrollIntoView({ block: 'center' }); return; }
     if (a === 'tab') { O.tab = b.dataset.v; save(); draw(); return; }
+    if (a === 'tset') { O.tset = b.dataset.v; save(); keep(); return; }
     if (a === 'set') { O.set = b.dataset.v; save(); keep(); return; }
     if (a === 'how') { const s = app.querySelector('#tphow'); s.hidden = false; s.scrollTop = 0; return; }
     if (a === 'howx') { app.querySelector('#tphow').hidden = true; return; }
@@ -339,7 +343,7 @@ export function repertoire(app, { S, save, back }) {
     }
     if (a === 'pdone') { R.test.done = !R.test.done; keep(); return; }
     if (a === 'erand') { O.erand = !O.erand; save(); keep(); return; }
-    if (a === 'stest') { R.test = { mode: b.dataset.v, set: O.set, tonality: b.dataset.k || null, rand: !!O.erand }; pickTune(); draw(); window.scrollTo(0, 0); return; }
+    if (a === 'stest') { R.test = { mode: b.dataset.v, set: O.tset || 'jazz', tonality: b.dataset.k || null, rand: !!O.erand }; pickTune(); draw(); window.scrollTo(0, 0); return; }
     if (a === 'sback') { if (R.test.root != null) R.test.root = null; else R.test.cur.pop(); keep(); return; }
     if (a === 'scheck') { R.test.shown = 'check'; keep(); return; }
     if (a === 'sdk') { R.test.shown = 'reveal'; keep(); return; }

@@ -61,7 +61,7 @@ export const RUNGS = [
     T('Wave', { by: 'Antônio Carlos Jobim', key: 'D', form: 'AABA', teaches: 'Bossa harmony', rec: 'Antônio Carlos Jobim, Wave (1967)', chart: null, about: 'Dmaj7 to a diminished chord a minor 3rd up, then ii–V to IV and iv: lush and chromatic.' }),
     T('Manhã de Carnaval', { by: 'Luiz Bonfá', key: 'A', minor: true, form: 'ABAC, 32 bars', teaches: 'Minor ii–V–is in bossa', rec: 'Luiz Bonfá; Black Orpheus soundtrack', chart: '| Am7 | Bm7b5 E7 | Am7 | Bm7b5 E7 | Am7 | Dm7 G7 | Cmaj7 | Fmaj7 | Bm7b5 | E7 | Am7 | Bm7b5 E7 | Am7 | Bm7b5 E7 | Em7b5 | A7 | Dm7 | G7 | Cmaj7 | Fmaj7 | Bm7b5 | E7 | Am7 | Bm7b5 E7 |', check: true, about: 'A minor with minor ii–Vs, a trip to the relative major (C), and a ii–V into iv.' }),
   ] },
-  { id: 'r5', name: 'Rung 5: the guitar canon', tunes: [
+  { id: 'r5', name: 'Rung 5: the guitar canon', guitar: true, blurb: 'Tunes every jazz guitarist is expected to know: the guitarists’ own tunes and the standards they made famous.', tunes: [
     T('Four on Six', { by: 'Wes Montgomery', key: 'G', minor: true, form: 'AABA', teaches: 'Wes’s minor tune', rec: 'Wes Montgomery, The Incredible Jazz Guitar (1960)', chart: null, about: 'G minor over a riff, with ii–Vs sliding down by half steps.' }),
     T('West Coast Blues', { by: 'Wes Montgomery', key: 'Bb', beats: 3, form: '12-bar blues in 3/4', teaches: 'A blues with substitutions', rec: 'Wes Montgomery, The Incredible Jazz Guitar (1960)', chart: null, about: 'A jazz waltz blues with ii–Vs swapped in throughout.' }),
     T('Chitlins con Carne', { by: 'Kenny Burrell', key: 'Bb', form: '12-bar blues', teaches: 'A soul-jazz blues', rec: 'Kenny Burrell, Midnight Blue (1963)', chart: '| Bb7 | Bb7 | Bb7 | Bb7 | Eb7 | Eb7 | Bb7 | Bb7 | F7 | Eb7 | Bb7 | F7 |', check: true, about: 'A plain 12-bar blues with a Latin groove and stop-time hits: all about the feel.' }),
@@ -110,3 +110,10 @@ for (const c of JAZZ_CHARTS) {
     Object.assign(t, { chart: c.chart, key: c.key, minor: c.minor, beats: c.beats === 4 ? undefined : c.beats, form: c.form, check: c.confidence !== 'high', versions: c.notes, sources: c.sources, confidence: c.confidence });
   }
 }
+
+// more tunes: the commonly taught first standards (rung 1½, after rung 1) and more of the guitar canon (rung 5)
+import { TEACHING, GUITAR } from './moretunes.js';
+const asTune = (c) => ({ t: c.t, by: c.by, key: c.key, minor: !!c.minor, beats: c.beats === 4 ? undefined : c.beats, form: c.form, teaches: c.teaches, rec: c.rec, about: c.about,
+  chart: c.chart || null, check: !!c.chart && c.confidence !== 'high', versions: c.notes, sources: c.sources, confidence: c.confidence });
+RUNGS.splice(RUNGS.findIndex((r) => r.id === 'r1') + 1, 0, { id: 'r1b', name: 'Rung 1½: the teaching core', blurb: 'The tunes most jazz courses start with: easy blues heads, early standards and the first real tunes.', tunes: TEACHING.map(asTune) });
+RUNGS.find((r) => r.id === 'r5').tunes.push(...GUITAR.map(asTune));
