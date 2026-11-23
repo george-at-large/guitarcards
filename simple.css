@@ -266,3 +266,30 @@ h1 .tabs { margin-left: 8px; }
 .cctl [data-dr="go"].on { background: transparent; color: var(--amber); }
 .cctl .wide { flex: 1; font-size: 14px; }
 .cctl .wide .acc { font-size: 0.9em; margin: 0; }
+
+/* an example on the neck: a slice of rosewood under the example, chord chips, play and loop */
+.exneck { margin: -2px 0 4px; padding: 8px 8px 10px; border-radius: 14px; background: rgba(0, 0, 0, 0.28); border: 1px solid var(--line); cursor: default; }
+.exneck .nkwrap { margin: 0 -2px; }
+.neck.nw { min-width: 0; width: 100%; height: auto; }
+.neck .mute { fill: var(--muted); font: 600 14px var(--f-ui); }
+.exchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.exchips button { padding: 6px 10px; font-size: 13px; border-radius: 10px; color: var(--soft); }
+.exchips button.on { color: #15121b; background: var(--amber); border-color: var(--amber); }
+.exctl { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.exctl button { padding: 8px 14px; font-size: 13.5px; white-space: nowrap; }
+.exctl button.on { color: var(--amber); border-color: var(--amber); }
+.exctl span { font-size: 12px; color: var(--muted); }
+.hear.on { border-color: var(--amber); }
+
+/* the test: the title alone until Reveal */
+.card.test:not(.shown) .krow, .card.test:not(.shown) .crow, .card.test:not(.shown) .cbody, .card.test:not(.shown) .ceg,
+.card.test:not(.shown) .hear, .card.test:not(.shown) .cex, .card.test:not(.shown) .comp, .card.test:not(.shown) .exneck { display: none; }
+.card.test .tq { margin-top: 28px; color: var(--muted); font-size: 15px; line-height: 1.45; }
+.tctl { flex: 1; display: flex; gap: 10px; }
+.tctl button { flex: 1; padding: 12px 14px; font-size: 15px; }
+.tctl button:disabled { opacity: 0.35; }
+.tctl button.go { color: var(--amber); border-color: var(--amber); }
+#test.on { color: var(--amber); border-color: var(--amber); }
+.neck.nw .dot text { font-size: 15px; }
+.neck.nw .fn { font-size: 14px; }
+.neck.nw .mute { font-size: 16px; }

@@ -5,6 +5,9 @@ import * as T from '../theory.js';
 import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { DECKS } from './cards.js';
+import { exampleSteps } from './fingering.js';
+import { neckSlice } from './neck.js';
+import { OPEN } from '../fretboard.js';
 
 const ALL = DECKS.flatMap((d) => d.cards.map((c, i) => ({ ...c, deck: d.name, n: i + 1, of: d.cards.length })));
 const listFor = (id) => (id === 'all' ? ALL : ALL.filter((c) => c.deck === DECKS.find((d) => d.id === id)?.name));
@@ -65,12 +68,126 @@ const midiOf = (s) => { const m = /^([A-G](?:#|b)?)(-?\d)$/.exec(s); if (!m) thr
 export const exact = (play) => play.slice(1).split('|').map((ch) => ch.trim().split(/\s+/).map(midiOf));
 
 
+// ---------- an example on the neck: each chord's grip (finger numbers in the dots, the bass ringed), lit as it
+// sounds, three times through (or looping). Melody notes after a chord light one at a time over its grip. ----------
+let ex = null;
+const ROLE_IV = (iv) => { const v = String(iv || '').replace('♭', 'b').replace('♯', '#'); return v === '1' ? 'r' : ['3', 'b3'].includes(v) ? 't' : ['5', 'b5', '#5'].includes(v) ? 'f' : ['7', 'b7', 'bb7', '6'].includes(v) ? 's' : 'x'; };
+const midiOfN = (n) => OPEN[n.string] + n.fret;
+function stopEx(close = false) {
+  if (!ex) return;
+  clearInterval(ex.timer); ex.timers.forEach(clearTimeout); ex.timer = null; ex.timers = [];
+  const b = ex.panel?.querySelector('[data-ex="play"]'); if (b) { b.textContent = '▶ Play'; b.classList.remove('on'); }
+  ex.btn?.classList.remove('on');
+  if (close) { ex.panel?.remove(); ex = null; }
+}
+function exWindow(steps) {
+  const all = steps.flatMap((st) => [...(st.notes || []), ...st.line.filter(Boolean)]);
+  const fr = all.filter((n) => n.fret > 0).map((n) => n.fret);
+  if (!fr.length) return { from: 1, to: 5 };
+  const lo = Math.min(...fr), hi = Math.max(...fr), open = all.some((n) => n.fret === 0);
+  const from = open || lo <= 2 ? 1 : lo - 1;
+  return { from, to: Math.max(hi + 1, from + 4) };
+}
+function drawEx(i, j = -1) {
+  const st = ex.steps[i];
+  const exact = ex.exact;
+  const notes = st.notes || [];
+  const bass = notes.length ? notes.reduce((a, n) => (midiOfN(n) < midiOfN(a) ? n : a)) : null;
+  const top = notes.length ? notes.reduce((a, n) => (midiOfN(n) > midiOfN(a) ? n : a)) : null;
+  const chordDots = notes.map((n) => ({ string: n.string, fret: n.fret, cls: exact ? (n === top ? 'r' : 'x') : ROLE_IV(n.iv), label: n.fret ? String(n.finger || '') : '', ring: n === bass }));
+  const mutes = notes.length ? [1, 2, 3, 4, 5, 6].filter((s) => !notes.some((n) => n.string === s)) : [];
+  const line = j >= 0 ? st.line[j] : null;
+  const svg = line
+    ? neckSlice({ ...ex.win, ghosts: chordDots.map((d) => ({ ...d })), dots: [{ string: line.string, fret: line.fret, cls: 'r', label: '' }], mutes })
+    : neckSlice({ ...ex.win, dots: chordDots, mutes });
+  ex.panel.querySelector('.nkwrap').innerHTML = svg;
+  ex.panel.querySelectorAll('[data-exi]').forEach((c) => c.classList.toggle('on', Number(c.dataset.exi) === i));
+}
+// the timeline of one pass: chords ring, melody notes run in eighths
+function exEvents(steps, exact) {
+  const evs = []; let t = 0;
+  steps.forEach((st, i) => {
+    const midis = st.notes ? st.notes.map(midiOfN).sort((a, b) => a - b) : st.midis || [];
+    const hasLine = st.line.length > 0;
+    if (midis.length) { evs.push({ t, i, j: -1, midis }); t += hasLine ? 0.45 : exact ? 1.25 : 1.5; }
+    st.line.forEach((n, j) => { if (n) evs.push({ t, i, j, midis: [midiOfN(n)], note: true }); t += 0.3; });
+    if (hasLine) t += 0.4;
+  });
+  return { evs, len: t + 0.6 };
+}
+function playEx() {
+  stopEx();
+  A.unlockAudio();
+  const c = A.audioCtx();
+  const { evs, len } = exEvents(ex.steps, ex.exact);
+  if (!evs.length) return;
+  const m = ex; m.pass = 0; m.k = 0; m.base = c.currentTime + 0.08;
+  const tick = () => {
+    while (m.timer && m.k < evs.length && m.base + evs[m.k].t < c.currentTime + 0.15) {
+      const e = evs[m.k], at = m.base + e.t;
+      if (e.note) A.pluck(e.midis[0], at, { vel: 0.85, dur: 0.42 });
+      else A.strum(e.midis, at, { spread: 0.035, vel: 0.8 });
+      m.timers.push(setTimeout(() => { if (ex === m) drawEx(e.i, e.j); }, Math.max(0, (at - c.currentTime) * 1000)));
+      if (m.timers.length > 40) m.timers.splice(0, 20);
+      m.k++;
+    }
+    if (m.k >= evs.length && m.timer) {
+      if (m.loop || m.pass < 2) { m.pass++; m.k = 0; m.base += len; }
+      else if (c.currentTime > m.base + len - 0.4) stopEx();
+    }
+  };
+  m.timer = setInterval(tick, 25); tick();
+  const b = m.panel.querySelector('[data-ex="play"]'); b.textContent = '■ Stop'; b.classList.add('on');
+  m.btn.classList.add('on');
+}
+function openEx(btn) {
+  const play = btn.dataset.play;
+  if (ex && ex.btn === btn) { if (ex.timer) stopEx(); else playEx(); return; }
+  stopEx(true);
+  let steps = null;
+  try { steps = exampleSteps(play); } catch (e) { steps = null; }
+  if (!steps || !steps.some((st) => st.notes || st.line.length)) { hear(play); return; }
+  const exact = play.startsWith('=');
+  let names = steps.map((st) => st.label);
+  if (exact) {
+    const lab = btn.querySelector('b')?.textContent || '';
+    const parts = lab.split(/\s*(?:→|·)\s*/).filter(Boolean);
+    const chordSteps = steps.filter((st) => st.notes).length;
+    names = steps.map((st, i) => (parts.length === chordSteps ? parts[steps.slice(0, i + 1).filter((x) => x.notes).length - 1] : `${i + 1}`));
+  }
+  const panel = document.createElement('div');
+  panel.className = 'exneck';
+  panel.innerHTML = `<div class="nkwrap"></div>
+    <div class="exchips">${steps.map((st, i) => `<button data-exi="${i}">${acc(esc(names[i] || String(i + 1)))}</button>`).join('')}</div>
+    <div class="exctl"><button data-ex="play">▶ Play</button><button data-ex="loop">Loop</button><span>Numbers are fingers · ringed = bass${exact ? ' · amber = top note' : ''}</span></div>`;
+  btn.after(panel);
+  ex = { btn, panel, steps, exact, win: exWindow(steps), timers: [], timer: null, loop: false };
+  drawEx(0);
+  playEx();
+}
+function exControl(el) {
+  if (!ex) return;
+  if (el.dataset.ex === 'play') { if (ex.timer) stopEx(); else playEx(); return; }
+  if (el.dataset.ex === 'loop') { ex.loop = !ex.loop; el.classList.toggle('on', ex.loop); return; }
+  if (el.dataset.exi != null) { // one chord: show it and sound it
+    stopEx();
+    const i = Number(el.dataset.exi), st = ex.steps[i];
+    drawEx(i);
+    A.unlockAudio();
+    const t = A.audioCtx().currentTime + 0.05;
+    const midis = st.notes ? st.notes.map(midiOfN).sort((a, b) => a - b) : [];
+    if (midis.length) A.strum(midis, t, { spread: 0.035, vel: 0.8 });
+    st.line.forEach((n, j) => n && A.pluck(midiOfN(n), t + 0.45 + j * 0.3, { vel: 0.85, dur: 0.42 }));
+  }
+}
+
 // ---------- comping cards: a progression that loops on soft keys, with a click you can turn off and a tempo you can
 // change while it plays. One bar of count-in, then round and round; the bar being played lights up. ----------
 let comp = null;
 const symOf = (c) => T.pretty(T.chordSymbol(c.root, c.quality)) + (c.bass ? '/' + T.noteName(c.bass, true) : '');
 export function stopComp() {
   stopDrill();
+  stopEx();
   if (!comp) return;
   clearInterval(comp.timer); comp.timers.forEach(clearTimeout);
   comp.el?.querySelectorAll('.cbarx.on').forEach((b) => b.classList.remove('on'));
@@ -202,14 +319,43 @@ export function mountCards(root, S, save) {
 
   root.querySelector('.cbar').innerHTML = `
     <button id="home" class="chome">☰ <span></span></button>
+    <button id="test" class="">Test</button>
     <button id="shuf" class="${st.shuffle ? 'on' : ''}" aria-pressed="${st.shuffle}">Shuffle</button>`;
   const stage = root.querySelector('.stage'), foot = root.querySelector('.cfoot');
   const deckName = (id) => (id === 'all' ? 'All decks' : DECKS.find((d) => d.id === id).name);
   let card = null, mode = 'home', openDeck = null;
   // the contents: carry on where you were, start any deck, or jump to any card
   const cs = { bpm: 80, click: st.click !== false, card: null, drill: { bpm: 60, sub: 1 } }; // the players' tempo, click and subdivision
+  // the test: a random card, title only; Reveal shows the rest, Next brings another (no repeats until all are seen)
+  const NOT_TESTED = new Set(['comping', 'fluency']);
+  let tq = [], tcard = null, shown = false, tcount = 0;
+  const TPOOL = ALL.filter((c) => !NOT_TESTED.has(DECKS.find((d) => d.name === c.deck)?.id)); // every deck but the exercises
+  const tpool = () => TPOOL;
+  const testDraw = () => {
+    if (!tq.length) tq = shuffled(tpool().length);
+    tcard = tpool()[tq.pop()]; shown = false; tcount++;
+  };
+  const testShow = (from = 0) => {
+    stopComp(); stopEx(true);
+    mode = 'test';
+    root.querySelector('#home span').textContent = `Test · ${TPOOL.length} cards`;
+    root.querySelector('#test').classList.add('on');
+    stage.innerHTML = `<article class="card test${shown ? ' shown' : ''}${from ? ' from-r' : ''}">${cardHTML(tcard, cs)}${shown ? '' : '<div class="tq">What’s on this card? Say it, or play it, then reveal.</div>'}</article>`;
+    card = stage.firstElementChild;
+    foot.innerHTML = `<div class="tctl"><button id="tRev" ${shown ? 'disabled' : ''}>Reveal</button><button id="tNext" class="go">Next ▶</button></div><span>${tcount}</span>`;
+    foot.querySelector('#tRev').onclick = () => { shown = true; testShow(); };
+    foot.querySelector('#tNext').onclick = () => testNext();
+  };
+  const testNext = () => {
+    if (busy) return;
+    busy = true;
+    card.style.transition = 'transform .2s ease-in, opacity .2s ease-in';
+    card.style.transform = 'translateX(-115%) rotate(-6deg)'; card.style.opacity = '0';
+    setTimeout(() => { testDraw(); testShow(1); busy = false; }, 170);
+  };
   const home = () => {
-    stopComp();
+    stopComp(); stopEx(true);
+    root.querySelector('#test')?.classList.remove('on');
     mode = 'home'; card = null;
     root.querySelector('#home span').textContent = 'Contents';
     const c = current(), n = list().length;
@@ -226,9 +372,10 @@ export function mountCards(root, S, save) {
   };
   const show = (from = 0) => {
     mode = 'card';
+    root.querySelector('#test').classList.remove('on');
     root.querySelector('#home span').textContent = deckName(st.deck);
     const n = list().length, p = pos();
-    stopComp();
+    stopComp(); stopEx(true);
     const cur = current();
     if (cur?.comp && cs.card !== cur) { cs.card = cur; cs.bpm = cur.comp.bpm; } // each comping card starts at its own tempo
     if (cur?.drill && cs.card !== cur) { cs.card = cur; cs.drill = { bpm: cur.drill.bpm, sub: cur.drill.sub || 1 }; }
@@ -257,6 +404,7 @@ export function mountCards(root, S, save) {
   };
 
   root.querySelector('#home').onclick = () => (mode === 'home' ? show() : home());
+  root.querySelector('#test').onclick = () => { if (mode === 'test') { show(); return; } tq = []; tcount = 0; testDraw(); testShow(1); };
   root.querySelector('#shuf').onclick = (e) => {
     st.shuffle = !st.shuffle;
     if (st.shuffle) st.order[st.deck] = shuffled(list().length);
@@ -273,7 +421,7 @@ export function mountCards(root, S, save) {
   // tap: next. Drag sideways: the card follows the finger and flicks on release. Vertical drags scroll a long card.
   let x0 = null, y0 = 0, t0 = 0, dx = 0, drag = false;
   stage.onpointerdown = (e) => {
-    if (mode === 'home' || e.target.closest('.hear, .comp') || busy) return; // the players' buttons aren't taps on the card
+    if (mode === 'home' || e.target.closest('.hear, .comp, .exneck, .tctl') || busy) return; // the players' buttons aren't taps on the card
     x0 = e.clientX; y0 = e.clientY; t0 = performance.now(); dx = 0; drag = false;
   };
   stage.onpointermove = (e) => {
@@ -286,6 +434,12 @@ export function mountCards(root, S, save) {
     if (x0 == null) return;
     const moved = Math.hypot(e.clientX - x0, e.clientY - y0), fast = Math.abs(dx) / Math.max(1, performance.now() - t0) > 0.5;
     x0 = null;
+    if (mode === 'test') {
+      if (drag && (Math.abs(dx) > 70 || (fast && Math.abs(dx) > 25))) { drag = false; testNext(); return; }
+      if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; }
+      else if (moved < 10 && e.type === 'pointerup') { if (shown) testNext(); else { shown = true; testShow(); } }
+      drag = false; return;
+    }
     if (drag && (Math.abs(dx) > 70 || (fast && Math.abs(dx) > 25))) go(dx < 0 ? 1 : -1);
     else if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; }
     else if (moved < 10 && e.type === 'pointerup') go(1);
@@ -294,7 +448,9 @@ export function mountCards(root, S, save) {
   stage.onpointerup = end;
   stage.onpointercancel = (e) => { if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; } x0 = null; drag = false; };
   stage.onclick = (e) => {
-    const h = e.target.closest('.hear'); if (h) { e.stopPropagation(); hear(h.dataset.play); return; }
+    const xc = e.target.closest('.exneck [data-ex], .exneck [data-exi]'); if (xc) { e.stopPropagation(); exControl(xc); return; }
+    if (e.target.closest('.exneck')) { e.stopPropagation(); return; }
+    const h = e.target.closest('.hear'); if (h) { e.stopPropagation(); openEx(h); return; }
     const dr = e.target.closest('[data-dr]');
     if (dr) {
       e.stopPropagation();
@@ -323,5 +479,7 @@ export function mountCards(root, S, save) {
     else if (b.dataset.jump) { const [d, i] = b.dataset.jump.split(':'); jump(d, Number(i)); }
   };
   home();
-  return { key: (k) => { if (mode === 'home') return; if (k === 'ArrowRight' || k === ' ') go(1); if (k === 'ArrowLeft') go(-1); if (k === 'Escape') home(); } };
+  return { key: (k) => {
+    if (mode === 'test') { if (k === 'ArrowRight' || k === ' ') { if (shown) testNext(); else { shown = true; testShow(); } } if (k === 'Escape') home(); return; }
+    if (mode === 'home') return; if (k === 'ArrowRight' || k === ' ') go(1); if (k === 'ArrowLeft') go(-1); if (k === 'Escape') home(); } };
 }

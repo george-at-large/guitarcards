@@ -1228,7 +1228,7 @@ DECKS.push(
         '- Use 4ths (So What voicings) and a pedal in the bass',
         '- Move voicings up and down the mode over one bass note',
       ], ex: [
-        ['Quartal voicings moving up D Dorian over a D pedal', '=D2 E3 A3 D4 G4 | D2 F3 B3 E4 A4 | D2 G3 C4 F4 B4 | D2 F3 B3 E4 A4', 'Dm11 in 4ths, up and back'],
+        ['Quartal voicings moving up D Dorian over a D pedal', '=D3 E3 A3 D4 G4 | D3 F3 B3 E4 A4 | D3 G3 C4 F4 B4 | D3 F3 B3 E4 A4', 'Dm11 in 4ths, up and back'],
       ] },
     ],
   },
@@ -1717,7 +1717,7 @@ const MORE2 = [
     ['E Phrygian dominant over E7♭9, resolving to Am', run('E2 D3 G#3 F4', 'E3', 'phrygian-dominant') + ' | A2 E3 G3 C4', 'E Phrygian dominant → Am7'],
   ]],
   ['chordmelody', 'Bass on the downbeat', [
-    ['Open-string bass under a high voicing: A, then D', '=A2 G4 C#5 E5 | D3 F4 C5 A5', 'A7 → Dm7, bass on open strings'],
+    ['Open-string bass under a high voicing: A, then D', '=A2 G4 C#5 E5 | D3 F4 A4 C5', 'A7 → Dm7, bass on open strings'],
   ]],
   ['other', 'Picardy third', [
     ['In A minor: … E7 → A major', 'A:min D:m7 E:7 A:maj'],
@@ -2008,7 +2008,7 @@ DECKS.unshift(
         '<b>Natural tensions only</b>: 9, ♯11, 13. No ♭9 or ♭13, because this dominant isn’t heading for a minor chord.',
         '- 7♯11, 9♯11 and 13♯11 are the same idea with more or fewer colours; 7♭5 is its bare form',
       ], ex: [
-        ['C7 with the 11 (F) on top, then the ♯11 (F♯): hear the rub go', '=C3 E3 Bb3 C4 F4 | C3 E3 Bb3 C4 F#4', 'C7(11) → C7♯11'],
+        ['C7 with the 11 (F) on top, then the ♯11 (F♯): hear the rub go', '=C3 Bb3 E4 F4 | C3 Bb3 E4 F#4', 'C7(11) → C7♯11'],
         ['C9 – C13♯11 as a vamp: Lydian dominant', 'C:9 C:13#11 C:9 C:13#11'],
       ] },
       { t: 'The ♯11 is the next chord’s note', s: '7♯11 unpacked · 2 of 3', b: [
@@ -2484,8 +2484,8 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'bass') + 1, 0, {
       '- <b>♭V</b> (G♭): ♯11 ♭7 ♭9',
     ], ex: [
       ['D over C7 (C13♯11), resolving to F', '=C3 E3 Bb3 D4 F#4 A4 | F2 C3 A3 F4', 'D/C7 → F'],
-      ['A over C7 (C13♭9), resolving to F', '=C3 E3 Bb3 C#4 E4 A4 | F2 C3 A3 F4', 'A/C7 → F'],
-      ['A♭ over C7 (C7♯9♭13), resolving to Fm', '=C3 E3 Bb3 C4 Eb4 Ab4 | F2 C3 Ab3 F4', 'A♭/C7 → Fm'],
+      ['A over C7 (C13♭9), resolving to F', '=C3 E3 Bb3 C#4 A4 | F2 C3 A3 F4', 'A/C7 → F'],
+      ['A♭ over C7 (C7♯9♭13), resolving to Fm', '=C3 E3 Bb3 Eb4 Ab4 | F2 C3 Ab3 F4', 'A♭/C7 → Fm'],
     ] },
     { t: 'On the guitar', s: 'bass low, triad on top', b: [
       'Put the bass on the 6th or 5th string and the triad on three of the top four strings. Skip a string if you need to.',
@@ -2558,7 +2558,7 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'voicelead'), 0, {
       'These are the chromatic mediants. Hold the note on top, then confirm the new key with a cadence.',
     ], ex: [
       ['C → E♭, G held on top', '=C3 G3 E4 G4 | Eb3 Bb3 Eb4 G4', 'C → E♭'],
-      ['C → A♭, C held on top', '=C3 G3 E4 C5 | Ab2 Eb4 Ab4 C5', 'C → A♭'],
+      ['C → A♭, C held on top', '=C3 E3 G3 C4 | Ab2 Eb3 Ab3 C4', 'C → A♭'],
       ['Then confirm A♭: C – A♭ – D♭ – E♭7 – A♭', 'C:maj Ab:maj Db:maj Eb:7 Ab:maj'],
     ] },
     { t: 'Parallel: major ↔ minor', s: 'same tonic, new mode', b: [

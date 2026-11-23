@@ -60,6 +60,35 @@ export function neckUpright({ win, ghosts = [], dots = [], tap = false } = {}) {
   return svg + marks(ghosts, dots, (n) => sx(n.string), (n) => mid(n.fret), 13, 16.5) + hits + '</svg>';
 }
 
+// a slice of the neck, frets `from`..`to` (from 1 shows the nut and open strings), across, sized for a card;
+// mutes: strings marked ✕ at the left edge
+export function neckSlice({ from = 1, to = 5, ghosts = [], dots = [], mutes = [] } = {}) {
+  const W = 520, H = 230, top = 24, bot = 28, padR = 8, nut = from <= 1;
+  const padL = nut ? 46 : 30;
+  const a = fx(from - 1), b = fx(to);
+  const X = (f) => padL + ((fx(f) - a) / (b - a)) * (W - padL - padR);
+  const mid = (f) => (f === 0 ? padL - 20 : (X(f - 1) + X(f)) / 2);
+  const sy = (s) => top + ((s - 1) * (H - top - bot)) / 5;
+  const y0 = top - 11, h = H - top - bot + 22;
+  let svg = `<svg class="neck nw" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="woods" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2417"/><stop offset=".5" stop-color="#4a2e1c"/><stop offset="1" stop-color="#2f1d12"/></linearGradient>
+      <linearGradient id="frets" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a9a9a"/><stop offset=".5" stop-color="#eeeeee"/><stop offset="1" stop-color="#8a8a8a"/></linearGradient>
+      <radialGradient id="pearls"><stop offset="0" stop-color="#fbf7ee"/><stop offset="1" stop-color="#cfc6b4"/></radialGradient>
+    </defs>
+    <rect x="${nut ? padL : padL - 8}" y="${y0}" width="${W - padR - (nut ? padL : padL - 8)}" height="${h}" rx="4" fill="url(#woods)"/>`;
+  for (let f = from; f <= to; f++) {
+    if ([3, 5, 7, 9, 15].includes(f)) svg += `<circle cx="${mid(f)}" cy="${(sy(3) + sy(4)) / 2}" r="6" fill="url(#pearls)" opacity=".85"/>`;
+    if (f === 12) svg += `<circle cx="${mid(12)}" cy="${(sy(2) + sy(3)) / 2}" r="6" fill="url(#pearls)" opacity=".85"/><circle cx="${mid(12)}" cy="${(sy(4) + sy(5)) / 2}" r="6" fill="url(#pearls)" opacity=".85"/>`;
+  }
+  if (nut) svg += `<rect x="${padL - 6}" y="${y0}" width="7" height="${h}" fill="#efe6d2"/>`;
+  for (let f = from; f <= to; f++) svg += `<rect x="${X(f) - 1.6}" y="${y0}" width="3.2" height="${h}" fill="url(#frets)"/>`;
+  for (let f = from; f <= to; f++) svg += `<text class="fn" x="${mid(f)}" y="${H - 5}" text-anchor="middle">${f}</text>`;
+  for (let s = 1; s <= 6; s++) svg += `<line x1="${nut ? padL - 34 : padL - 8}" y1="${sy(s)}" x2="${W - padR}" y2="${sy(s)}" stroke="${s <= 3 ? '#e9e6df' : '#d9b77a'}" stroke-width="${0.9 + (s - 1) * 0.45}" opacity=".9"/>`;
+  for (const s of mutes) svg += `<text class="mute" x="${nut ? padL - 38 : padL - 20}" y="${sy(s) + 4.5}" text-anchor="middle">✕</text>`;
+  return svg + marks(ghosts, dots, (n) => mid(n.fret), (n) => sy(n.string), 15, 19) + '</svg>';
+}
+
 // the ghosts, then the dots (a ring for the bass or the first note; a small tag, e.g. the order in a line)
 function marks(ghosts, dots, cx, cy, r, ringR) {
   const lit = new Set(dots.map((n) => n.string + ':' + n.fret));
