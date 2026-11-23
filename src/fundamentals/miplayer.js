@@ -6,7 +6,8 @@ import * as T from '../theory.js';
 import * as G from '../caged/grips.js';
 import * as H from '../caged/harmony.js';
 import { resolve } from '../caged/library.js';
-import { CORE, MORE, DATA, ALL_DATA, chordOf, rnOf, nameOf, barsHTML, voiceRun } from './micore.js';
+import { CORE, MORE, DATA, ALL_DATA, chordOf, rnOf, nameOf, barsHTML } from './micore.js';
+import { voice, panel } from './theorycard.js';
 import { spellTonic, nn, pick, esc } from './core.js';
 import { diagrams } from './shapes.js';
 
@@ -49,7 +50,7 @@ export default {
     };
   },
   mount(q, el, ctx) {
-    const grips = voiceRun(q.flat, q.tonic, q.shape);
+    const grips = voice(q.flat, q.tonic, q.shape).grips;
     // the data's text is written in C major (A minor for minor-key topics)
     const ref = q.minor ? 'A' : 'C';
     const inC = T.noteName(q.tonic) !== ref;
@@ -58,7 +59,7 @@ export default {
     el.innerHTML = `
       ${barsHTML(q.flat, q.hl)}
       <p class="note">${esc(q.prog.note || '')}</p>
-      ${diagrams(uniq.map((u) => ({ notes: u.g.notes, cap: `${u.name} · ${u.rn}`, q: u.q, set: u.g.notes.map((n) => n.string) })))}
+      ${panel(q.flat, q.tonic, q.minor, { shape: q.shape, hits: [...q.hl] })}
       <div class="info">
         ${inC ? `<p class="note">The text’s examples are in ${q.minor ? 'A minor' : 'C major'}.</p>` : ''}
         <div class="k">What it is</div><p>${esc(q.d.where || '')}</p>

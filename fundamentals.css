@@ -218,3 +218,10 @@ svg.neck { display: block; max-width: 100%; height: auto; }
 .sect { margin: 22px 0 2px; font: 600 13px var(--f-ui); text-transform: uppercase; letter-spacing: 0.09em; color: var(--amber); }
 .sect small { display: block; text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; font-size: 13px; margin-top: 2px; }
 .mode .mp { font-style: normal; color: var(--good); font-size: 12.5px; margin-top: 2px; }
+
+/* chord by chord */
+.cbc { padding: 8px 0; border-top: 1px solid var(--line); }
+.cbc:first-of-type { border-top: 0; }
+.cbc b { font-family: var(--f-num); }
+.cbc p { margin: 3px 0; }
+.cbc.hl > b { color: var(--violet); }

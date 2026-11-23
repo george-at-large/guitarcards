@@ -14,6 +14,7 @@ import { resolve, ALL } from '../caged/library.js';
 import { BORROWED } from '../caged/borrowdata.js';
 import { CHROMATIC } from '../caged/chromdata.js';
 import { barsHTML, voiceRun } from './micore.js';
+import { panel } from './theorycard.js';
 import * as C from './core.js';
 
 const KNOW = 3; // clean in a row to master a chord
@@ -200,22 +201,15 @@ export function makeMastery(trackId) {
 
 // what the chord is, how it's used, how it sounds, and the progressions with the chord picked out (tap to hear)
 function explain(d, list, afterQuiz) {
+  const shape = () => C.pick(['C', 'A', 'G', 'E', 'D']);
   if (d.chart) {
-    return list.map((u) => {
-      const g = voiceRun(u.chords, u.tonic, C.pick(['C', 'A', 'G', 'E', 'D']));
-      const prog = JSON.stringify(g.map((x) => (x ? x.notes.map((n) => n.midi).sort((a, b) => a - b) : [])));
-      return `<div class="info"><div class="k">${C.esc(d.name)} · in ${C.esc(u.keyName)}</div>${barsHTML(u.chords)}<div class="row"><button class="ghost" data-prog='${prog}'>▶ Hear it</button></div></div>`;
-    }).join('') + `<div class="info"><div class="k">${C.esc(d.name)}</div><p class="f" style="font-size:16px">${C.esc(d.rn)}</p>${d.by ? `<p>${C.esc(d.by)}</p>` : ''}<p class="note">Say the numerals as you read the chord names: that's the skill, in any key.</p></div>`;
+    return list.map((u, k) => `<div class="info"><div class="k">${C.esc(d.name)} · in ${C.esc(u.keyName)}</div>${barsHTML(u.chords)}</div>${k === 0 ? panel(u.chords, u.tonic, u.minor, { shape: shape() }) : ''}`).join('') + `<div class="info"><div class="k">${C.esc(d.name)}</div><p class="f" style="font-size:16px">${C.esc(d.rn)}</p>${d.by ? `<p>${C.esc(d.by)}</p>` : ''}<p class="note">Say the numerals as you read the chord names: that's the skill, in any key.</p></div>`;
   }
   const ref = list.some((u) => u.minor) ? 'A minor' : 'C major';
-  return `${list.map((u, k) => {
-    const g = voiceRun(u.chords, u.tonic, C.pick(['C', 'A', 'G', 'E', 'D']));
-    const prog = JSON.stringify(g.map((x) => (x ? x.notes.map((n) => n.midi).sort((a, b) => a - b) : [])));
-    return `<div class="info"><div class="k">${C.esc(u.keyName)} · ${C.esc(u.p.song ? `${u.p.name}${u.p.by ? ` (${u.p.by})` : ''}` : u.p.name)}</div>
+  return `${list.map((u, k) => `<div class="info"><div class="k">${C.esc(u.keyName)} · ${C.esc(u.p.song ? `${u.p.name}${u.p.by ? ` (${u.p.by})` : ''}` : u.p.name)}</div>
       ${barsHTML(u.chords, new Set(u.hits))}
-      ${u.p.note ? `<p>${C.esc(u.p.note)}</p>` : ''}
-      <div class="row"><button class="ghost" data-prog='${prog}'>▶ Hear it</button></div></div>`;
-  }).join('')}
+      ${u.p.note ? `<p>${C.esc(u.p.note)}</p>` : ''}</div>
+      ${k === 0 ? panel(u.chords, u.tonic, u.minor, { shape: shape(), hits: u.hits }) : `<div class="row"><button class="ghost" data-prog='${JSON.stringify(voiceRun(u.chords, u.tonic, shape()).map((x) => (x ? x.notes.map((n) => n.midi).sort((a, b) => a - b) : [])))}'>▶ Hear it</button></div>`}`).join('')}
   <div class="info"><div class="k">${C.esc(d.name)} · ${C.esc(T.prettyRoman(d.rn))}</div>
     ${d.where ? `<p><b>What it is:</b> ${C.esc(d.where)}</p>` : ''}
     ${d.how ? `<p><b>How it’s used:</b> ${C.esc(d.how)}</p>` : ''}

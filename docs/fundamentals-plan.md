@@ -308,6 +308,28 @@ is. The choices give each one's name and numerals, and look-alikes with the same
 Home is now split into **With your guitar** and **Phone only**. Phone only holds the two mastery tracks, the Modal
 Interchange Quiz, Chord Finder, Scale Formulas and Interval Finder.
 
+## 4i. On the neck and in theory (added 2026-11-23)
+
+The Mastery tracks, Chords in Context and the MI Player show each progression on the neck and in theory
+(`src/fundamentals/theorycard.js`).
+- **Voicings, as a player would choose them.** 7th-chord progressions are in drop 2, voice-led inside one CAGED area,
+  each chord the smallest move from the last (`caged/grips.js` voiceLeadPick). Triad and pop progressions use CAGED
+  grips in one position. The top-voice line is named.
+- **Chord by chord.** Each chord gets:
+  - its numeral;
+  - its job (tonic, predominant, dominant, and their substitutes);
+  - the mode to play over it, with where that mode comes from ("F Dorian, the 2nd mode of E♭ major").
+- **Chords outside the key, in more depth.** Each one also gets:
+  - which notes leave the key, and their degrees;
+  - what it is:
+    - borrowed, with its source parallel mode and what that mode is a mode of (`caged/borrowed.js` sourcesOf);
+    - a secondary dominant, with Mixolydian or Mixolydian ♭6 over it;
+    - a tritone sub, with Lydian dominant over it;
+    - passing, leading-tone or common-tone °7, with whole-half diminished over it;
+    - augmented;
+  - how its 3rd and 7th move into the next chord.
+- **Checked.** Every panel builds in all twelve keys: 1,224 in Mastery and 2,424 in Chords in Context.
+
 ## 5. Screens
 
 1. **Home.** The ten modes, a Fuzzy button with a count, today's points and the best scores.

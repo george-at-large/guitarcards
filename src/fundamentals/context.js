@@ -7,7 +7,8 @@ import * as H from '../caged/harmony.js';
 import { resolve } from '../caged/library.js';
 import { BORROWED } from '../caged/borrowdata.js';
 import { CHROMATIC } from '../caged/chromdata.js';
-import { barsHTML, voiceRun } from './micore.js';
+import { barsHTML } from './micore.js';
+import { voice, panel } from './theorycard.js';
 import { diagrams } from './shapes.js';
 import { spellTonic, nn, pick, shuffle, esc } from './core.js';
 
@@ -95,7 +96,7 @@ export default {
     const tonic = spellTonic(pc, 'major');
     return {
       kicker: `${esc(nn(tonic))} · ${shape} shape`, title: `${esc(info.name)} <span class="psub">${esc(T.prettyRoman(info.rn))}</span>`,
-      sub: `${rows.length} ways it’s used. Tap ▶ to hear one, Grips to see it in the ${shape} shape.`, info, rows, shape, bpm: Number(ctx.cfg.bpm) || 76,
+      sub: `${rows.length} ways it’s used. Tap ▶ to hear one, Neck & theory to see it voiced in the ${shape} shape and explained.`, info, rows, shape, bpm: Number(ctx.cfg.bpm) || 76,
       droneMidi: 40 + ((pc - 4 + 12) % 12),
     };
   },
@@ -108,11 +109,11 @@ export default {
         <div class="ol">${i + 1}. ${esc(r.p.name)}${r.minor ? ' · minor' : ''}</div>
         ${barsHTML(r.flat, r.hl)}
         ${r.p.note ? `<p class="note">${esc(r.p.note)}</p>` : ''}
-        <div class="row"><button class="ghost" data-play="${i}">▶ Play</button><button class="ghost" data-grips="${i}">Grips</button></div>
+        <div class="row"><button class="ghost" data-play="${i}">▶ Play</button><button class="ghost" data-grips="${i}">Neck &amp; theory</button></div>
         <div class="grips" id="grips${i}"></div></div>`).join('')}`;
     let cur = -1;
     const voiced = new Map();
-    const grips = (i) => { if (!voiced.has(i)) voiced.set(i, voiceRun(q.rows[i].flat, q.rows[i].tonic, q.shape)); return voiced.get(i); };
+    const grips = (i) => { if (!voiced.has(i)) voiced.set(i, voice(q.rows[i].flat, q.rows[i].tonic, q.shape).grips); return voiced.get(i); };
     const mark = (i, k) => el.querySelectorAll('.ctx').forEach((card) => card.querySelectorAll('[data-bar]').forEach((b) => b.classList.toggle('now', Number(card.dataset.row) === i && Number(b.dataset.bar) === k)));
     const stop = () => { A.stopPlayer(); cur = -1; mark(-1, -1); el.querySelectorAll('[data-play]').forEach((b) => (b.textContent = '▶ Play')); };
     el.querySelectorAll('[data-play]').forEach((b) => (b.onclick = () => {
@@ -128,10 +129,8 @@ export default {
     el.querySelectorAll('[data-grips]').forEach((b) => (b.onclick = () => {
       const i = Number(b.dataset.grips), box = el.querySelector('#grips' + i);
       if (box.innerHTML) { box.innerHTML = ''; return; }
-      const g = grips(i), seen = new Set();
-      const list = [];
-      q.rows[i].flat.forEach((c, k) => { const nm = T.pretty(T.chordSymbol(c.root, c.quality)); if (g[k] && !seen.has(nm)) { seen.add(nm); list.push({ notes: g[k].notes, cap: `${nm} · ${c.rn}`, q: c.quality, set: g[k].notes.map((n) => n.string) }); } });
-      box.innerHTML = diagrams(list);
+      const r = q.rows[i];
+      box.innerHTML = panel(r.flat, r.tonic, r.minor, { shape: q.shape, hits: [...r.hl] });
     }));
     ctx.buttons([{ label: 'Next chord', kind: 'go', on: () => { stop(); ctx.next(); } }]);
     ctx.onLeave = stop;
