@@ -102,7 +102,8 @@ export function mountCards(root, S, save) {
     const n = list().length, p = pos();
     stage.innerHTML = `<article class="card${from ? (from > 0 ? ' from-r' : ' from-l') : ''}">${cardHTML(current())}</article>`;
     card = stage.firstElementChild;
-    foot.innerHTML = `<div class="cprog"><i style="width:${(100 * Math.min(p + 1, n)) / n}%"></i></div><span>${Math.min(p + 1, n)} / ${n}</span>`;
+    foot.innerHTML = `<button class="cback" ${p === 0 ? 'disabled' : ''}>◀ Back</button><div class="cprog"><i style="width:${(100 * Math.min(p + 1, n)) / n}%"></i></div><span>${Math.min(p + 1, n)} / ${n}</span>`;
+    foot.querySelector('.cback').onclick = () => go(-1); // go is defined below; it runs only on a tap
     save();
   };
   const step = (d) => {
