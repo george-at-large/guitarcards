@@ -8,6 +8,7 @@ import * as A from '../audio.js';
 import * as G from '../caged/grips.js';
 import { spellRoot, typeName, esc } from '../fundamentals/core.js';
 import { mountCards } from './cardsview.js';
+import { mountSing } from './sing.js';
 
 // ---------- chords and exercises ----------
 const CHORDS = [
@@ -236,16 +237,35 @@ function role(iv) {
 
 // ---------- the screen ----------
 const $app = document.getElementById('simple');
-let cardsUI = null;
+let cardsUI = null, singUI = null;
+const VIEWS = [['neck', 'Neck'], ['cards', 'Cards'], ['sing', 'Sing']];
+const tabs = () => VIEWS.filter(([v]) => v !== (S.view || 'neck')).map(([v, l]) => `<button class="tab" data-view="${v}">${l}</button>`).join('');
+// switching views: the neck's click, auto and drone stop when you leave it, and Sing's drone when you leave that
+function switchView(v) {
+  if ((S.view || 'neck') === 'neck') { stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; } }
+  if (singUI) { singUI.leave(); singUI = null; }
+  cardsUI = null;
+  S.view = v; save(); render();
+  if (v === 'neck') syncDrone();
+}
+const bindTabs = () => $app.querySelectorAll('[data-view]').forEach((b) => (b.onclick = () => switchView(b.dataset.view)));
 function renderCards() {
   $app.className = 'cards';
-  $app.innerHTML = `<header><h1>Simple</h1><button class="tab" id="toNeck">Neck</button></header>
+  $app.innerHTML = `<header><h1>Simple</h1><span class="tabs">${tabs()}</span></header>
     <div class="cbar"></div><div class="stage"></div><div class="cfoot"></div>`;
-  $app.querySelector('#toNeck').onclick = () => { S.view = 'neck'; cardsUI = null; save(); render(); };
+  bindTabs();
   cardsUI = mountCards($app, S, save);
+}
+function renderSing() {
+  $app.className = 'sing';
+  $app.innerHTML = `<header><h1>Simple</h1><span class="tabs">${tabs()}</span></header>
+    <div class="sbody"></div><div class="menus sopts"></div>`;
+  bindTabs();
+  singUI = mountSing($app, S, save);
 }
 function render() {
   if (S.view === 'cards') return renderCards();
+  if (S.view === 'sing') { if (singUI && $app.className === 'sing') return; return renderSing(); }
   const step = steps[at];
   const r = root();
   const symb = T.pretty(T.chordSymbol(r, S.q));
@@ -255,7 +275,7 @@ function render() {
   const v = upright();
   $app.className = v ? 'v' : 'h';
   $app.innerHTML = `
-    <header><h1>Simple <button class="tab" id="toCards">Cards</button></h1><span class="key">${esc(symb)}${typeName(S.q) ? ` <i>${typeName(S.q)}</i>` : ''}</span></header>
+    <header><h1>Simple <span class="tabs">${tabs()}</span></h1><span class="key">${esc(symb)}${typeName(S.q) ? ` <i>${typeName(S.q)}</i>` : ''}</span></header>
     <div class="neckbox" id="neckbox">${v ? neckV(step) : neckSVG(step)}</div>
     <div class="panel">
     <div class="cap"><b>${step ? esc(step.text) : 'No shapes for this one'}</b><span>${steps.length ? `${at + 1} / ${steps.length}` : ''}</span></div>
@@ -309,7 +329,7 @@ function glide(box, to) {
 }
 function bind() {
   const $ = (id) => $app.querySelector('#' + id);
-  $('toCards').onclick = () => { stop(); stopPulse(); S.view = 'cards'; save(); render(); };
+  bindTabs();
   $('q').onchange = (e) => { S.q = e.target.value; const exs = exercisesFor(S.q).flatMap((g) => g[1].map((x) => x[0])); if (!exs.includes(S.ex)) S.ex = exs[0]; restart(); };
   $('ex').onchange = (e) => { S.ex = e.target.value; restart(); };
   $('key').onchange = (e) => { S.key = e.target.value; restart(); };
@@ -395,13 +415,19 @@ steps = build();
 render();
 let lastV = upright();
 document.addEventListener('keydown', (e) => { if (S.view === 'cards' && cardsUI && !e.target.closest('select')) cardsUI.key(e.key); });
-window.addEventListener('resize', () => { if (S.view !== 'cards' && upright() !== lastV) { lastV = upright(); render(); } });
+window.addEventListener('resize', () => { if ((S.view || 'neck') === 'neck' && upright() !== lastV) { lastV = upright(); render(); } });
 // sound can only start from a tap (iOS): Click and Drone left on pick up again on the first tap
 document.addEventListener('pointerdown', () => {
-  if (S.view === 'cards') return;
+  if (S.view === 'sing' && singUI) singUI.wake();
+  if (S.view === 'cards' || S.view === 'sing') return;
   if (S.drone && droneAt == null) syncDrone();
   if (S.mode === 'manual' && S.click && !pulse) syncPulse();
 }, true);
 // leaving the app silences everything; Click and Drone stay switched on and come back with a tap
-document.addEventListener('visibilitychange', () => { if (document.hidden) { stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; } render(); } });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) return;
+  stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; }
+  if (singUI) singUI.leave();
+  if ((S.view || 'neck') === 'neck') render();
+});
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

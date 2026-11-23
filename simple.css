@@ -123,3 +123,38 @@ button.on { color: var(--amber); border-color: rgba(255, 181, 71, 0.6); backgrou
 .cprog { flex: 1; height: 4px; border-radius: 4px; background: var(--surface2); overflow: hidden; }
 .cprog i { display: block; height: 100%; background: var(--amber); transition: width .2s; }
 .acc { font-family: var(--f-ui); font-weight: 500; font-size: 0.86em; margin: 0 0.02em; }
+
+/* the view pills */
+.tabs { display: inline-flex; gap: 6px; vertical-align: middle; }
+h1 .tabs { margin-left: 8px; }
+.tabs .tab { margin-left: 0; }
+#simple.v header h1 .tabs { margin-left: 0; display: flex; margin-top: 6px; }
+#simple.v header h1 { display: flex; flex-direction: column; align-items: flex-start; }
+
+/* Sing: the root, the mode, the numbers; options underneath */
+#simple.sing { max-width: 640px; }
+#simple.sing header { align-items: center; }
+.sroot { display: flex; flex-direction: column; gap: 4px; padding: 6px 0 12px; }
+.snote { font: 600 64px/1 var(--f-num); color: var(--amber); display: flex; align-items: center; gap: 14px; }
+.sreg { font: 700 12px var(--f-ui); letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.sreg.lo { color: var(--cyan); }
+.sreg.hi { color: var(--rose); }
+.sdir { color: var(--soft); font-size: 15px; }
+.sdir b { color: var(--text); }
+.smode { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); }
+.smode b { font: 600 22px/1.2 var(--f-num); }
+.smode span { color: var(--violet); font-size: 14px; }
+.sstruct { margin-top: 8px; padding: 12px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); color: var(--soft); font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.sstruct .f { font: 600 18px var(--f-ui); color: var(--text); letter-spacing: 0.02em; }
+.sstruct .sn { color: var(--amber); }
+.sseq { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 10px; }
+.sd { flex: 1 0 52px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 4px; border-radius: 16px; background: var(--surface2); border: 1px solid var(--line); }
+.sd b { font: 700 30px/1 var(--f-ui); font-variant-numeric: tabular-nums; }
+.sd b i { font-style: normal; font-size: 16px; color: var(--rose); margin-left: 1px; }
+.sd span { color: var(--cyan); font-size: 13px; }
+.sd em { font-style: normal; color: var(--amber); font-size: 13px; }
+.sbtns button { flex: 1; }
+.row.big #sNext { background: var(--amber); color: #1a1206; border-color: var(--amber); font-size: 18px; font-weight: 600; }
+.sopts { margin-top: 14px; grid-template-columns: 1fr 1fr !important; }
+.sopts label:first-child { grid-column: 1 / -1; }
+.sopts select { padding: 10px 26px 10px 10px; font-size: 14px; }
