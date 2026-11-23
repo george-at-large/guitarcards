@@ -83,3 +83,5 @@ button.on { color: var(--amber); border-color: rgba(255, 181, 71, 0.6); backgrou
 #simple.v .toggles button { flex: 1 1 45%; padding: 9px 4px; font-size: 13px; }
 .panel .wide { flex: 1; }
 #simple.v .row .bpm { white-space: nowrap; font-size: 13.5px; }
+#simple.v .row .sq { width: 34px; flex: none; padding: 8px 0; }
+#simple.v .row .bpm { flex: 1; min-width: 0; font-size: 13px; }

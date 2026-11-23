@@ -29,6 +29,7 @@ const EX_SEV = [
 const exercisesFor = (q) => (isTriad(q) ? EX_TRIAD : EX_SEV);
 const KEYS = [['cycle', 'Cycle of 4ths'], ...['C', 'F', 'B♭', 'E♭', 'A♭', 'D♭', 'F♯', 'B', 'E', 'A', 'D', 'G'].map((k, i) => [String([0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7][i]), k])];
 const FOURTHS = [0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7];
+const KEYNAME = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 const SHAPES = ['C', 'A', 'G', 'E', 'D'];
 const INV = ['Root position', '1st inversion', '2nd inversion', '3rd inversion'];
 const BASS = { '1': 'root', '3': '3rd', b3: '♭3', '5': '5th', b5: '♭5', '#5': '♯5', '7': '7th', b7: '♭7', bb7: '𝄫7', '6': '6th', '4': '4th', '2': '2nd' };
@@ -38,7 +39,7 @@ const MAXF = 15;
 const KEY = 'simple.v1';
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { S = {}; }
-S = Object.assign({ q: 'maj7', ex: 'drop2:4321', key: '0', mode: 'manual', sound: true, click: true, bpm: 60, beats: 4, labels: 'deg' }, S);
+S = Object.assign({ q: 'maj7', ex: 'drop2:4321', key: '0', mode: 'manual', sound: true, click: false, bpm: 60, beats: 4, labels: 'deg', drone: false }, S);
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* */ } };
 let cyclePc = 0, steps = [], at = 0, timer = null;
 const keyPc = () => (S.key === 'cycle' ? cyclePc : Number(S.key));
@@ -197,12 +198,13 @@ function render() {
     <div class="seg"><button data-mode="manual" class="${S.mode === 'manual' ? 'on' : ''}">Manual</button><button data-mode="auto" class="${S.mode === 'auto' ? 'on' : ''}">Auto</button></div>
     ${S.mode === 'manual'
       ? `<div class="row big"><button id="prev">◀</button><button id="next">▶</button></div>`
-      : `<div class="row big"><button id="run" class="${timer ? 'on' : ''}">${timer ? '■ Stop' : '▶ Start'}</button></div>
-         <div class="row"><button class="sq" id="down">−</button><span class="bpm">${S.bpm} bpm</span><button class="sq" id="up">+</button></div>
-         <div class="row"><button id="beats" class="wide">A shape every ${S.beats} beats</button></div>`}
+      : `<div class="row big"><button id="run" class="${timer ? 'on' : ''}">${timer ? '■ Stop' : '▶ Start'}</button></div>`}
+    ${S.mode === 'auto' || S.click ? `<div class="row"><button class="sq" id="down">−</button><span class="bpm">${S.bpm} bpm</span><button class="sq" id="up">+</button></div>` : ''}
+    ${S.mode === 'auto' ? `<div class="row"><button id="beats" class="wide">A shape every ${S.beats} beats</button></div>` : ''}
     <div class="row toggles">
       <button id="sound" class="${S.sound ? 'on' : ''}" aria-pressed="${S.sound}">${S.sound ? '♪ Sound' : 'Sound off'}</button>
-      ${S.mode === 'auto' ? `<button id="click" class="${S.click ? 'on' : ''}">Click</button>` : ''}
+      <button id="click" class="${S.click ? 'on' : ''}" aria-pressed="${S.click}">Click</button>
+      <button id="drone" class="${S.drone ? 'on' : ''}" aria-pressed="${S.drone}">Drone ${esc(T.noteName(T.parseNote(KEYNAME[keyPc()]), true))}</button>
       <button id="labels">${S.labels === 'deg' ? 'Degrees' : 'Notes'}</button>
     </div>
     </div>`;
@@ -241,17 +243,21 @@ function bind() {
   $('q').onchange = (e) => { S.q = e.target.value; const exs = exercisesFor(S.q).flatMap((g) => g[1].map((x) => x[0])); if (!exs.includes(S.ex)) S.ex = exs[0]; restart(); };
   $('ex').onchange = (e) => { S.ex = e.target.value; restart(); };
   $('key').onchange = (e) => { S.key = e.target.value; restart(); };
-  $app.querySelectorAll('[data-mode]').forEach((b) => (b.onclick = () => { S.mode = b.dataset.mode; stop(); save(); render(); }));
+  $app.querySelectorAll('[data-mode]').forEach((b) => (b.onclick = () => { S.mode = b.dataset.mode; stop(); stopPulse(); save(); syncPulse(); render(); }));
   if (S.mode === 'manual') {
     $('prev').onclick = () => go(-1);
     $('next').onclick = () => go(1);
   } else {
     $('run').onclick = () => { if (timer) { stop(); render(); } else run(); };
+    $('beats').onclick = () => { S.beats = S.beats === 4 ? 2 : 4; save(); if (timer) { stop(); run(); } else render(); };
+  }
+  if ($('down')) {
     $('down').onclick = () => { S.bpm = Math.max(30, S.bpm - 4); save(); retime(); render(); };
     $('up').onclick = () => { S.bpm = Math.min(200, S.bpm + 4); save(); retime(); render(); };
-    $('beats').onclick = () => { S.beats = S.beats === 4 ? 2 : 4; save(); if (timer) { stop(); run(); } else render(); };
-    $('click').onclick = () => { S.click = !S.click; save(); if (timer) { stop(); run(); } else render(); };
   }
+  // Click: in Auto it's the click the shapes change on; in Manual a plain metronome to step through over
+  $('click').onclick = () => { A.unlockAudio(); S.click = !S.click; save(); if (timer) { stop(); run(); } else { syncPulse(); render(); } };
+  $('drone').onclick = () => { A.unlockAudio(); S.drone = !S.drone; save(); syncDrone(); render(); };
   $('sound').onclick = () => { S.sound = !S.sound; if (S.sound) A.unlockAudio(); save(); render(); };
   $('labels').onclick = () => { S.labels = S.labels === 'deg' ? 'note' : 'deg'; save(); render(); };
   // swipe the neck to step through
@@ -263,13 +269,13 @@ function bind() {
 }
 
 // ---------- moving through ----------
-function restart() { stop(); steps = build(); at = 0; save(); render(); }
+function restart() { stop(); steps = build(); at = 0; save(); syncDrone(); render(); }
 function go(d, fromAuto = false) {
   if (!steps.length) return;
   at += d;
   if (at >= steps.length) {
     // the cycle of 4ths moves on a key when an exercise is done
-    if (S.key === 'cycle') { cyclePc = FOURTHS[(FOURTHS.indexOf(cyclePc) + 1) % 12]; steps = build(); }
+    if (S.key === 'cycle') { cyclePc = FOURTHS[(FOURTHS.indexOf(cyclePc) + 1) % 12]; steps = build(); syncDrone(); }
     at = 0;
   }
   if (at < 0) at = steps.length - 1;
@@ -290,6 +296,7 @@ function sound(step, on) {
 // auto: the shared Web Audio metronome keeps time; the next shape comes on beat 1 of each bar (silent when Click is off)
 function run() {
   A.unlockAudio();
+  stopPulse(); // Auto's own click takes over from Manual's
   let first = true;
   timer = A.startMetronome({
     bpm: S.bpm, meter: `${S.beats}/4`, gap: S.click ? null : { play: 0, mute: 1 },
@@ -297,12 +304,32 @@ function run() {
   });
   render();
 }
-function retime() { if (timer) A.setMetronomeBpm(S.bpm); }
+function retime() { if (timer || pulse) A.setMetronomeBpm(S.bpm); }
 function stop() { if (timer) { A.stopMetronome(); timer = null; } }
+// manual mode's own metronome, when Click is on
+let pulse = null;
+function syncPulse() {
+  if (S.mode === 'manual' && S.click) { if (!pulse) { A.unlockAudio(); pulse = A.startMetronome({ bpm: S.bpm, meter: '4/4' }); } }
+  else stopPulse();
+}
+function stopPulse() { if (pulse) { A.stopMetronome(); pulse = null; } }
+// the drone: the key's root, low (E2 to D♯3), following the key
+let droneAt = null;
+function syncDrone() {
+  if (!S.drone) { if (droneAt != null) { A.stopDrone(); droneAt = null; } return; }
+  const midi = 40 + ((keyPc() - 4 + 12) % 12);
+  if (droneAt !== midi) { A.startDrone(midi, false); droneAt = midi; }
+}
 
 steps = build();
 render();
 let lastV = upright();
 window.addEventListener('resize', () => { if (upright() !== lastV) { lastV = upright(); render(); } });
-document.addEventListener('visibilitychange', () => { if (document.hidden && timer) { stop(); render(); } });
+// sound can only start from a tap (iOS): Click and Drone left on pick up again on the first tap
+document.addEventListener('pointerdown', () => {
+  if (S.drone && droneAt == null) syncDrone();
+  if (S.mode === 'manual' && S.click && !pulse) syncPulse();
+}, true);
+// leaving the app silences everything; Click and Drone stay switched on and come back with a tap
+document.addEventListener('visibilitychange', () => { if (document.hidden) { stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; } render(); } });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
