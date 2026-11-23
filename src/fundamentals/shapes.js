@@ -153,23 +153,20 @@ export default {
       const tonic = spellTonic(pc, p.sc === 'major' ? 'major' : p.sc);
       const size = Number(p.n);
       const v = size === 3 ? 'close' : 'drop2';
-      const invIdx = Math.floor(Math.random() * size);
-      const chords = [];
-      let prev = -1;
+      const degs = [];
       for (let i = 0; i <= 7; i++) {
         const c = T.diatonicChord(tonic, p.sc, i % 7, size);
         if (!c.quality) continue;
-        const pl = F.chordVoicings({ root: c.root, quality: c.quality, voicing: v, stringSet: ss, inversion: invIdx }).sort((a, b) => avg(a) - avg(b));
-        let pickPl = pl.find((x) => avg(x) > prev + 0.5) || pl[0];
-        if (i === 0) pickPl = pl.find((x) => x.minFret >= 0) || pl[0];
-        if (!pickPl) continue;
-        prev = avg(pickPl);
         const semis = (T.notePc(c.root) - T.notePc(tonic) + 12) % 12;
-        chords.push({ notes: pickPl.notes, cap: `${roman(i % 7, semis, c.quality)} ${sym(c.root, c.quality)}`, set: ss });
+        degs.push({ root: c.root, q: c.quality, rn: roman(i % 7, semis, c.quality) });
       }
+      const got = climbAny(degs, v, ss, size);
+      if (!got) throw new Error('no climb fits');
+      const invIdx = got.inv;
+      const chords = got.list.map((pl, i) => ({ notes: pl.notes, cap: `${degs[i].rn} ${sym(degs[i].root, degs[i].q)}`, set: ss }));
       return {
         title: `${nn(tonic)} ${DSCALE[p.sc]}: diatonic ${size === 3 ? 'triads' : '7ths'}`,
-        sub: `${VNAME[v]} · strings ${p.ss} · stay in ${invIdx ? ordinal(invIdx) + ' inversion' : 'root position'} and climb the key, I to I`,
+        sub: `${VNAME[v]} · strings ${p.ss} · stay in ${invIdx ? ordinal(invIdx) + ' inversion' : 'root position'} and climb the key, I to I${got.wrap ? WRAP_NOTE : ''}`,
         target: 8 * 4000, droneMidi: droneOf(pc),
         reveal: () => diagrams(chords),
       };
@@ -181,6 +178,31 @@ export default {
 };
 
 const avg = (p) => p.notes.reduce((s, n) => s + n.fret, 0) / p.notes.length;
+// a run of chords climbing one string set, every one higher than the last, in one inversion (chords may carry their
+// own). Tries each starting position of the first chord; null when the run can't climb without running out of neck.
+export function climb(chords, voicing, ss, inv) {
+  const pls = chords.map((c) => { try { return F.chordVoicings({ root: c.root, quality: c.q, voicing, stringSet: ss, inversion: c.inv ?? inv }).sort((a, b) => avg(a) - avg(b)); } catch (e) { return []; } });
+  if (pls.some((x) => !x.length)) return null;
+  for (const start of pls[0]) {
+    const out = [start];
+    for (let i = 1; i < pls.length; i++) { const nx = pls[i].find((x) => avg(x) > avg(out[i - 1]) + 0.4); if (!nx) break; out.push(nx); }
+    if (out.length === pls.length) return out;
+  }
+  return null;
+}
+// the inversion asked for if its climb fits on the neck, else the first one that does
+export function climbAny(chords, voicing, ss, n) {
+  const first = Math.floor(Math.random() * n);
+  for (let k = 0; k < n; k++) { const inv = (first + k) % n; const r = climb(chords, voicing, ss, inv); if (r) return { inv, list: r }; }
+  // no inversion fits a whole octave below the 17th fret: climb from the lowest I and drop an octave when the neck
+  // runs out
+  const pls = chords.map((c) => { try { return F.chordVoicings({ root: c.root, quality: c.q, voicing, stringSet: ss, inversion: c.inv ?? first }).sort((a, b) => avg(a) - avg(b)); } catch (e) { return []; } });
+  if (pls.some((x) => !x.length)) return null;
+  const list = [pls[0][0]];
+  for (let i = 1; i < pls.length; i++) list.push(pls[i].find((x) => avg(x) > avg(list[i - 1]) + 0.4) || pls[i][0]);
+  return { inv: first, list, wrap: true };
+}
+export const WRAP_NOTE = ' (drop an octave when the neck runs out)';
 const droneOf = (pc) => 40 + ((pc - 4 + 12) % 12);
 function invCap(x) {
   const names = ['Root pos', '1st inv', '2nd inv', '3rd inv'];

@@ -1,6 +1,6 @@
 # Fundamentals: plan v1
 
-**Status (2026-11-23):** built as `fundamentals.html` with all seven modes and tested at phone width. Nothing is committed yet.
+**Status (2026-11-23):** built as `fundamentals.html` with ten modes and tested at phone width.
 
 A fast, game-like drill app for the things a guitarist should know cold. It's a separate installable page
 (`fundamentals.html`), like `caged.html`, `ear.html` and `earium.html`. It's built on the existing engine:
@@ -231,9 +231,39 @@ There are no points. Each card has:
 Play loops the progression and highlights the bar that's sounding. The drone and click switch on. "Everything" uses
 all 46 borrowed and chromatic topics, including the mediants.
 
+## 4e. Chord Scales (added 2026-11-23)
+
+A play-it mode with a reveal.
+- **Scales:** major, melodic minor, harmonic minor, harmonic major, natural minor, and Barry Harris's 6th-diminished
+  (the 6th chord and its °7 alternating).
+- **Tasks:**
+  - Chords up a string set. Drop 2 or drop 3 7ths, or close triads, in one inversion, I to I. The app picks an
+    inversion whose whole climb fits below the 17th fret. The rare runs that can't fit say "drop an octave".
+  - Chords in a CAGED area. Triads, 7ths, or 7ths with extensions (with the reason for each extension, from
+    `src/caged/cscale.js`), voice-led in position.
+  - The scale in intervals. 3rds, 4ths, 6ths, triads, 7th arpeggios or groups of 4, in an area, up and back.
+
+## 4f. Chords in Context (added 2026-11-23)
+
+Skippable cards. Each card is one functional chord with its explanation and five or six progressions that use it, in
+a key. Each progression is playable, with grips in one CAGED position.
+- **Chord-type topics written for this mode:** °7, ø7, 7♭5, 7sus4, plus augmented and m(maj7) drawn from the data.
+- **Topics from the CAGED app's data:** every single-chord borrowed and chromatic topic.
+
+## 4g. Progressions (added 2026-11-23)
+
+A progression from the CAGED app's library: about 340 of them, from cadences and pop to standards.
+- **Hide and peek.** Names, numerals or both can be hidden for memorising; tap a chord to peek.
+- **The spider under each chord** opens its substitutes from `src/subs.js`.
+- **A + in each gap** adds an approach chord: its V7, a ii–V, ♭II7, a passing °7, a chromatic approach, or the
+  backdoor ♭VII7. An added chord takes half the time of the chord before it, so bars keep their length and the loop
+  stays on the click.
+- **Changes** show in violet. Reset restores the original.
+- **Loop** plays it in time, with an optional click and adjustable tempo.
+
 ## 5. Screens
 
-1. **Home.** The seven modes, a Fuzzy button with a count, today's points and the best scores.
+1. **Home.** The ten modes, a Fuzzy button with a count, today's points and the best scores.
 2. **Mode setup.** What's in, session length, metronome and drone. The last choice is remembered.
 3. **Drill.** The prompt, the neck or answer pad, Got it / Reveal, the score, the streak, and the clock or countdown.
 4. **Session summary.** Points, clean rate, newly fuzzy items and items cleared.

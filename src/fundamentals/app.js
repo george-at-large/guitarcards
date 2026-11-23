@@ -10,8 +10,11 @@ import modetest from './modetest.js';
 import intervals from './intervals.js';
 import miquiz from './miquiz.js';
 import miplayer from './miplayer.js';
+import chordscales from './chordscales.js';
+import context from './context.js';
+import progressions from './progressions.js';
 
-const MODES = [shapes, finder, formulas, modetest, intervals, miquiz, miplayer];
+const MODES = [shapes, chordscales, finder, formulas, modetest, intervals, context, progressions, miquiz, miplayer];
 const BY = Object.fromEntries(MODES.map((m) => [m.id, m]));
 const $app = document.getElementById('fun');
 const S = C.state();

@@ -172,3 +172,33 @@ svg.neck { display: block; max-width: 100%; height: auto; }
 .kw .bar i { display: block; height: 100%; background: var(--amber); }
 .kw .n { width: 16px; text-align: center; color: var(--soft); font-variant-numeric: tabular-nums; }
 .kw .sq { width: 34px; padding: 5px 0 !important; border-radius: 10px !important; }
+
+/* chords in context */
+.ctx .prog-bars { margin: 4px 0; }
+.grips:not(:empty) { margin-top: 6px; }
+
+/* progressions: bars with a spider under each chord and a + in each gap */
+.pmtools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 2px 0 10px; }
+.pmtools .tog { padding: 6px 11px !important; border-radius: 10px !important; font-size: 14px !important; color: var(--soft) !important; }
+.pmtools .tog.on { color: var(--amber) !important; border-color: rgba(255, 181, 71, 0.6) !important; background: rgba(255, 181, 71, 0.12) !important; }
+.pmtools .sq { width: 32px; padding: 6px 0 !important; border-radius: 10px !important; }
+.pmtools .bpm { min-width: 30px; text-align: center; color: var(--soft); font-variant-numeric: tabular-nums; }
+.pmbars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+@media (min-width: 520px) { .pmbars { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.pmbar { position: relative; display: flex; align-items: stretch; border: 1px solid var(--line); border-radius: 12px; padding: 14px 3px 3px; min-height: 84px; background: var(--surface); }
+.pmbar.wide { grid-column: span 2; }
+.pmbar .bn { position: absolute; top: 2px; left: 7px; font-size: 10px; color: var(--muted); }
+.pmc { min-width: 0; display: flex; flex-direction: column; align-items: center; border-radius: 9px; }
+.pmc.now { background: rgba(255, 181, 71, 0.14); }
+.pmc.sub .pmname b { color: var(--violet); }
+.pmc.open { outline: 1px solid var(--amber); }
+.pmname { background: none !important; border: 0 !important; padding: 2px 1px !important; width: 100%; text-align: center; }
+.pmname b { display: block; font: 600 15px/1.15 var(--f-num); overflow-wrap: anywhere; letter-spacing: -0.02em; }
+.pmname small { display: block; color: var(--muted); font-size: 11.5px; }
+.pmname small i { font-style: normal; color: var(--cyan); }
+.spider { background: none !important; border: 0 !important; padding: 2px 4px !important; color: var(--muted) !important; margin-top: auto; }
+.spider:active, .pmc.open .spider { color: var(--amber) !important; }
+.gap { align-self: center; background: none !important; border: 1px dashed var(--line2) !important; color: var(--muted) !important; width: 18px; height: 26px; padding: 0 !important; border-radius: 7px !important; font-size: 13px !important; flex: none; }
+.gap.open { border-color: var(--amber) !important; color: var(--amber) !important; }
+#pmenu .choices button b { font-family: var(--f-num); margin-right: 4px; }
+#pmenu .choices button small, .choices button small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
