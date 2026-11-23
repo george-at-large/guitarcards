@@ -69,10 +69,15 @@ function bodyHTML(lines = []) {
 const chordsLine = (play) => play.split(/\s+/).map((tok) => { const c = T.parseChordToken(tok); return T.chordSymbol(c.root, c.quality) + (c.bass ? '/' + T.noteName(c.bass, true) : ''); }).join(' – ');
 // ♭ and ♯ from the UI font: the serif's fallback glyphs sit loose
 const acc = (s) => String(s).replace(/[♭♯𝄫]/g, (m) => `<span class="acc">${m}</span>`);
+// a key's seven notes under their degree numbers; root, 3rd, 5th and 7th in the neck's colours
+const DEG = { false: ['1', '2', '3', '4', '5', '6', '7'], true: ['1', '2', '♭3', '4', '5', '♭6', '♭7'] };
+const ROLE = ['r', '', 't', '', 'f', '', 's'];
+const keyRow = (k) => `<div class="krow">${k.notes.map((n, i) => `<div class="kc ${ROLE[i]}"><span>${DEG[k.minor][i]}</span><b>${acc(T.pretty(n))}</b></div>`).join('')}</div>`;
 function cardHTML(c) {
   if (!c) return `<div class="cdeck">&nbsp;</div><h2>That’s the deck</h2><div class="cbody"><p>Tap to go through it again.</p></div>`;
   return `<div class="cdeck">${esc(c.deck)} · ${c.n} / ${c.of}</div>
     <h2>${acc(c.t)}</h2>${c.s ? `<div class="csrc">${c.s}</div>` : ''}
+    ${c.key ? keyRow(c.key) : ''}
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
     ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}

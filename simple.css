@@ -170,3 +170,13 @@ h1 .tabs { margin-left: 8px; }
 .cex .hear small { font-size: 13.5px; line-height: 1.35; color: var(--soft); }
 .cex .hear small .acc { font-size: 1em; margin: 0; }
 .cex .hear b { font-weight: 600; font-size: 13.5px; color: var(--amber); }
+/* a key: its seven notes under their numbers */
+.krow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 16px 0 6px; }
+.kc { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0 12px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--line); }
+.kc span { font: 600 12px var(--f-ui); color: var(--muted); }
+.kc b { font: 700 22px/1 var(--f-ui); color: var(--text); }
+.kc b .acc { font-size: 0.8em; margin: 0; font-weight: 600; }
+.kc.r { border-color: rgba(255, 181, 71, 0.55); } .kc.r b { color: var(--amber); }
+.kc.t { border-color: rgba(92, 205, 242, 0.5); } .kc.t b { color: var(--cyan); }
+.kc.f b { color: var(--bone); }
+.kc.s { border-color: rgba(255, 143, 177, 0.45); } .kc.s b { color: var(--rose); }

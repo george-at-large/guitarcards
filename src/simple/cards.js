@@ -5,6 +5,8 @@
 //   t: title  s: where it comes from / what it is  b: lines ('- ' starts a bullet)  eg: the example  play: chords
 //   ex: [[caption, chords], …]
 
+import * as T from '../theory.js';
+
 export const DECKS = [
   {
     id: 'borrowed', name: 'Borrowed chords', cards: [
@@ -581,3 +583,273 @@ export const DECKS = [
     ],
   },
 ];
+
+// ---------- more examples in context for the chord cards ----------
+// [deck, card title, examples]: each card's own example comes first, then how else it's used.
+const MORE = [
+  ['melmin', 'm(maj7)', [
+    ['Minor ii–V–i landing on m(maj7)', 'D:m7b5 G:7alt C:mMaj7'],
+    ['The line cliché: one voice falls C → B → B♭ → A', 'C:min C:mMaj7 C:m7 C:m6'],
+    ['The last chord of a minor tune, with a sting', 'F:m7 G:7b9 C:mMaj7'],
+  ]],
+  ['melmin', '7♯11', [
+    ['II7♯11 in major: Lydian colour on the II', 'C:maj7 D:7#11 C:maj7'],
+    ['As a tritone sub: ♭II7♯11 → I', 'D:m7 Db:7#11 C:maj7'],
+    ['IV7♯11 in a blues: its ♯11 is the key’s 7th (B)', 'C:7 F:7#11 C:7'],
+    ['♭VI7♯11 → V: the German 6th', 'Ab:7#11 G:7 C:maj7'],
+  ]],
+  ['melmin', '7alt', [
+    ['Minor ii–V–i', 'D:m7b5 G:7alt C:m6'],
+    ['Into major as well: the altered V makes I sound brighter', 'D:m7 G:7alt C:maj7'],
+    ['VI7alt → ii in a turnaround', 'C:maj7 A:7alt D:m7 G:7alt C:maj7'],
+  ]],
+  ['melmin', 'ø9', [
+    ['Minor ii–V–i', 'D:m7b5 G:7b9 C:m6'],
+    ['viiø in major, as the ii of vi: Bø7 – E7 – Am', 'B:m7b5 E:7b9 A:m7'],
+    ['♯ivø in major, as the ii of iii: F♯ø7 – B7 – Em', 'C:maj7 F#:m7b5 B:7b9 E:m7'],
+  ]],
+  ['melmin', 'maj7♯5', [
+    ['♭III+ in C minor', 'C:mMaj7 Eb:maj7#5 F:m7 G:7alt C:m6'],
+    ['Imaj7♯5 → Imaj7: the ♯5 settles down to the 5th (G♯ → G)', 'C:maj7#5 C:maj7'],
+    ['A rising line: the 5th climbs G → G♯ → A', 'C:maj7 C:maj7#5 C:6'],
+  ]],
+  ['melmin', '7♭13', [
+    ['V7♭13 → i', 'D:m7b5 G:7b13 C:m6'],
+    ['A darker V into major: G7♭13 → Cmaj7', 'D:m7 G:7b13 C:maj7'],
+    ['III7♭13 → vi: E7’s ♭13 (C) holds into Am', 'C:maj7 E:7b13 A:m7'],
+  ]],
+  ['nopull', 'I7', [
+    ['Blues tonic: I7 – IV7 – I7', 'G:7 C:9 G:7'],
+    ['Funk vamp: one dominant, no resolution', 'G:9 G:13 G:9 G:13'],
+    ['Bar 4 of a blues: here I7 does pull, to IV7', 'G:7 C:7 G:7 G:7b9 C:9'],
+  ]],
+  ['nopull', 'IV7', [
+    ['G – C7 – G: plagal', 'G:maj7 C:7#11 G:maj7'],
+    ['IV7 – iv6 – I: the 3rd sinks E → E♭ → D', 'C:9 C:m6 G:maj7'],
+    ['The blues: I7 – IV7 – I7', 'G:7 C:9 G:7'],
+  ]],
+  ['nopull', '♭VII7', [
+    ['Cm7 – F7 – G: the backdoor', 'C:m7 F:9 G:maj7'],
+    ['IV – iv – ♭VII7 – I', 'C:maj7 C:m7 F:9 G:maj7'],
+    ['G – F7 – G: a vamp', 'G:maj7 F:9 G:maj7'],
+  ]],
+  ['nopull', '♭VI7 → V', [
+    ['E♭7 → D7 → G', 'G:maj7 Eb:7#11 D:7 G:maj7'],
+    ['ii – ♭VI7 – V – I', 'A:m7 Eb:7#11 D:7 G:maj7'],
+    ['A turnaround with the bass walking down G, E, E♭, D', 'G:maj7 E:m7 Eb:7#11 D:7 G:maj7'],
+  ]],
+  ['nopull', '♭VI7 → I', [
+    ['E♭7 – F7 – G', 'Eb:7#11 F:9 G:maj7'],
+    ['iv – ♭VI7 – I: Cm7 – E♭7 – G', 'C:m7 Eb:7#11 G:maj7'],
+  ]],
+  ['nopull', '♭II7', [
+    ['Am7 – A♭7 – G', 'A:m7 Ab:7#11 G:maj7'],
+    ['ii – V – ♭II7 – I: the V slides down before landing', 'A:m7 D:7 Ab:7#11 G:maj7'],
+    ['E♭m7 – A♭7 – G: the whole tritone ii–V', 'Eb:m7 Ab:7 G:maj7'],
+  ]],
+  ['nopull', 'II7 not going to V', [
+    ['G – A7 – Am7 – A♭7 – G (“Ipanema”)', 'G:maj7 A:7#11 A:m7 Ab:7#11 G:maj7'],
+    ['I – II7 – IV – I', 'G:maj A:7 C:maj G:maj'],
+    ['G – A7♯11 vamp: the sound of Lydian', 'G:maj7 A:7#11 G:maj7 A:7#11'],
+  ]],
+  ['secdom', 'V7/ii', [
+    ['I – VI7 – ii – V', 'C:maj7 A:7b9 D:m7 G:7 C:maj7'],
+    ['iii – VI7 – ii – V', 'E:m7 A:7b9 D:m7 G:7 C:maj7'],
+    ['With its own ii: Eø7 – A7♭9 – Dm7', 'E:m7b5 A:7b9 D:m7'],
+  ]],
+  ['secdom', 'V7/iii', [
+    ['B7♭9 → Em7', 'C:maj7 B:7b9 E:m7'],
+    ['With its own ii: F♯ø7 – B7♭9 – Em7', 'F#:m7b5 B:7b9 E:m7'],
+    ['VII7 – iii – VI7 – ii – V – I: the long way home', 'B:7b9 E:m7 A:7 D:m7 G:7 C:maj7'],
+  ]],
+  ['secdom', 'V7/IV', [
+    ['C – C9 – F', 'C:maj7 C:9 F:maj7'],
+    ['With its own ii (the borrowed v): Gm7 – C7 – F', 'G:m7 C:7 F:maj7'],
+    ['I – I7 – IV – iv – I', 'C:maj7 C:9 F:maj7 F:m6 C:maj7'],
+  ]],
+  ['secdom', 'V7/V', [
+    ['II7 – V7 – I', 'C:maj7 D:9 G:13 C:maj7'],
+    ['With its own ii: Am7 – D7 – G7 – C', 'A:m7 D:9 G:7 C:maj7'],
+  ]],
+  ['secdom', 'V7/vi', [
+    ['E7♭9 → Am7', 'C:maj7 E:7b9 A:m7'],
+    ['The “All of Me” shape: I – III7 – VI7 – ii', 'C:6 E:7 A:7 D:m7'],
+    ['With its own ii: Bø7 – E7♭9 – Am', 'B:m7b5 E:7b9 A:m7'],
+  ]],
+  ['tritone', '♭II7 → I', [
+    ['Dm7 – D♭7 – C', 'D:m7 Db:7#11 C:maj7'],
+    ['A♭m7 – D♭7 – C: the whole ii–V moved a tritone', 'Ab:m7 Db:7 C:maj7'],
+    ['In a turnaround: C – A7 – Dm7 – D♭7', 'C:maj7 A:7 D:m7 Db:7#11 C:maj7'],
+  ]],
+  ['tritone', '♭III7 → ii', [
+    ['C – E♭7 – Dm7 – G7', 'C:maj7 Eb:7#11 D:m7 G:7 C:maj7'],
+    ['iii – ♭III7 – ii – V: the bass walks E, E♭, D, then G', 'E:m7 Eb:7#11 D:m7 G:7 C:maj7'],
+  ]],
+  ['tritone', '♭VI7 → V', [
+    ['C – A♭7 – G7 – C', 'C:maj7 Ab:7#11 G:7 C:maj7'],
+    ['ii – ♭VI7 – V – I', 'D:m7 Ab:7#11 G:7 C:maj7'],
+  ]],
+  ['tritone', '♭VII7 → vi', [
+    ['B♭7 → Am7', 'C:maj7 Bb:7#11 A:m7'],
+    ['Same chord, two jobs: B♭7 → C (backdoor), then B♭7 → Am (tritone sub)', 'Bb:9 C:maj7 Bb:7#11 A:m7'],
+  ]],
+  ['tritone', 'IV7 → iii', [
+    ['F7 → Em7', 'C:maj7 F:7#11 E:m7'],
+    ['F7 – Em7 – A7 – Dm7 – G7: stepping down into a turnaround', 'F:7#11 E:m7 A:7 D:m7 G:7 C:maj7'],
+  ]],
+  ['tritone', '♭V7 → IV', [
+    ['G♭7 → Fmaj7', 'C:maj7 Gb:7#11 F:maj7'],
+    ['Compare: C7 → F, then G♭7 → F', 'C:maj7 C:7 F:maj7 C:maj7 Gb:7#11 F:maj7'],
+  ]],
+  ['dim', 'Four dominants in one', [
+    ['One °7, two places to go: C♯°7 → Dm, then C♯°7 → F', 'C#:dim7 D:m7 C#:dim7 F:maj7'],
+  ]],
+  ['dim', 'Rising diminished', [
+    ['C – C♯°7 – Dm7 – D♯°7 – Em7', 'C:maj7 C#:dim7 D:m7 D#:dim7 E:m7'],
+    ['♯IV°7: F – F♯°7 – C/G – G7 – C', 'F:maj7 F#:dim7 C:maj/5 G:7 C:maj7'],
+    ['♯V°7 → vi: G7 – G♯°7 – Am', 'G:7 G#:dim7 A:m7'],
+  ]],
+  ['dim', 'Descending diminished', [
+    ['Em7 – E♭°7 – Dm7 – G7', 'E:m7 Eb:dim7 D:m7 G:7 C:maj7'],
+    ['Up and back: Dm7 – D♯°7 – Em7 – E♭°7 – Dm7', 'D:m7 D#:dim7 E:m7 Eb:dim7 D:m7'],
+  ]],
+  ['dim', 'Common-tone diminished', [
+    ['C – C°7 – C', 'C:6 C:dim7 C:6'],
+    ['On the V: G7 – G°7 – G7 – C', 'G:7 G:dim7 G:7 C:maj7'],
+  ]],
+  ['dim', 'vii°7 → I', [
+    ['B°7 → C', 'B:dim7 C:maj7'],
+    ['Next to the chord it stands for: G7♭9 → C, then B°7 → C', 'G:7b9 C:maj7 B:dim7 C:maj7'],
+    ['In minor: B°7 → Cm', 'B:dim7 C:m6'],
+  ]],
+  ['mediants', 'I → III', [
+    ['C – E – C', 'C:maj E:maj C:maj'],
+    ['C – E – F – C: E as pure colour, not as V of vi', 'C:maj E:maj F:maj C:maj'],
+  ]],
+  ['mediants', 'I → ♭VI', [
+    ['C – A♭ – C', 'C:maj Ab:maj C:maj'],
+    ['C – A♭ – E – C: three major 3rds split the octave', 'C:maj Ab:maj E:maj C:maj'],
+  ]],
+  ['mediants', 'I → VI', [
+    ['C – A – C', 'C:maj A:maj C:maj'],
+    ['C – A – F – C: the A’s C♯ slides back to C', 'C:maj A:maj F:maj C:maj'],
+  ]],
+  ['mediants', 'I → ♭III', [
+    ['C – E♭ – C', 'C:maj Eb:maj C:maj'],
+    ['The minor-3rd cycle: C – E♭ – G♭ – A – C', 'C:maj Eb:maj Gb:maj A:maj C:maj'],
+  ]],
+  ['other', 'V7♯5 / V+', [
+    ['G7♯5 → C', 'D:m7 G:7#5 C:maj7'],
+    ['In minor: the ♯5 (D♯, really E♭) is the 3rd of Cm', 'D:m7b5 G:7#5 C:m6'],
+  ]],
+  ['other', 'Line clichés', [
+    ['Minor: Cm – Cm(maj7) – Cm7 – Cm6', 'C:min C:mMaj7 C:m7 C:m6'],
+    ['Major: C – C+ – C6 – C7 → F', 'C:maj C:aug C:6 C:7 F:maj7'],
+    ['In the bass: Am – Am/G♯ – Am/G – Am/F♯', 'A:min A:min/7 A:min/b7 A:min/6'],
+  ]],
+  ['other', 'V7sus4', [
+    ['G7sus4 – G7 – C', 'G:7sus4 G:7 C:maj7'],
+    ['Instead of ii–V: Dm7 – G9sus4 – C', 'D:m7 G:9sus4 C:maj7'],
+  ]],
+  ['other', 'IV7 in minor', [
+    ['Am7 – D7 vamp', 'A:m7 D:9 A:m7 D:9'],
+    ['A Dorian groove: i – IV7 – i – ♭VII', 'A:m7 D:9 A:m7 G:maj'],
+  ]],
+  ['other', 'V7♭9 in minor', [
+    ['iiø – V7♭9 – i', 'A:m7 B:m7b5 E:7b9 A:m7'],
+    ['i – iv – V7♭9 – i', 'A:m7 D:m7 E:7b9 A:m7'],
+  ]],
+  ['other', 'The Neapolitan', [
+    ['D♭/F – G7 – Cm', 'Db:maj/3 G:7 C:min'],
+    ['In major, the jazz version: D♭maj7 slides to C', 'D:m7 Db:maj7 C:maj7'],
+  ]],
+  ['other', '7♯9', [
+    ['E7♯9 – A7 – E7♯9', 'E:7#9 A:7 E:7#9'],
+    ['As a V going to minor: E7♯9 → Am', 'B:m7b5 E:7#9 A:m7'],
+  ]],
+];
+for (const [deck, title, ex] of MORE) {
+  const c = DECKS.find((d) => d.id === deck)?.cards.find((x) => x.t === title);
+  if (!c) { console.warn('no card', deck, title); continue; }
+  c.ex = ex; delete c.play;
+}
+
+// ---------- the keys: every note of every key, numbered, most useful first ----------
+// Built from the theory engine so the spelling is always right; the tips are hand-written.
+const SHARPS = ['F#', 'C#', 'G#', 'D#', 'A#', 'E#', 'B#'], FLATS = ['Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb', 'Fb'];
+const P = (x) => T.pretty(x);
+function signature(names) {
+  const sh = SHARPS.filter((n) => names.includes(n)), fl = FLATS.filter((n) => names.includes(n));
+  if (!sh.length && !fl.length) return 'No sharps or flats';
+  const l = sh.length ? sh : fl;
+  return `${l.length} ${sh.length ? 'sharp' : 'flat'}${l.length > 1 ? 's' : ''}: ${l.map(P).join(' ')}`;
+}
+function keyCard(root, minor, tips) {
+  const notes = T.scaleNotes(root, minor ? 'aeolian' : 'major').map((n) => T.noteName(n));
+  return { t: `${P(root)} ${minor ? 'minor' : 'major'}`, s: signature(notes), key: { root, minor, notes }, b: tips };
+}
+const MAJORS = [
+  ['C', ['All natural notes: the white keys.', '- Relative minor: A minor']],
+  ['G', ['One sharp, F♯: the 7th. Each new sharp key gets its new sharp on its 7th, a half step below the root.', '- Relative minor: E minor']],
+  ['F', ['One flat, B♭: the 4th. Each new flat key gets its new flat on its 4th.', '- Relative minor: D minor']],
+  ['D', ['F♯ and C♯: the 3rd and the 7th.', '- Relative minor: B minor']],
+  ['Bb', ['B♭ and E♭: the root and the 4th. In a flat key the second-to-last flat names the key.', '- Relative minor: G minor']],
+  ['A', ['F♯, C♯ and G♯: the 6th, the 3rd and the 7th. The 3rd of A is C♯, 4 frets above A.', '- Relative minor: F♯ minor']],
+  ['Eb', ['B♭, E♭ and A♭: the 5th, the root and the 4th. The jazz horn key.', '- Relative minor: C minor']],
+  ['E', ['Four sharps: only E, A and B are natural. The guitar’s home key: its open strings are all in it.', '- Relative minor: C♯ minor']],
+  ['Ab', ['Four flats: only C, F and G are natural.', '- Relative minor: F minor']],
+  ['Db', ['Five flats: only F and C are natural. Same sounds as C♯ major (seven sharps), which almost nobody writes.', '- Relative minor: B♭ minor']],
+  ['B', ['Five sharps: only E and B are natural. Same sounds as C♭ major.', '- Relative minor: G♯ minor']],
+  ['F#', ['Six sharps, including E♯ (the 7th, the same note as F). Same sounds as G♭ major, which has six flats including C♭.', '- Relative minor: D♯ minor']],
+];
+const MINORS = ['A', 'E', 'D', 'B', 'G', 'F#', 'C', 'C#', 'F', 'G#', 'Bb', 'Eb'];
+function minorTips(root) {
+  const r = T.parseNote(root);
+  const rel = T.noteName(T.transpose(r, 'b3'));
+  const same = (n) => { const x = T.parseNote(n); return Math.abs(x.acc) > 1 || ['E#', 'B#', 'Cb', 'Fb'].includes(n) ? ` (the same note as ${P(T.noteName(T.enharmonic(x)))})` : ''; };
+  const lt = T.noteName(T.transpose(r, '7')), b6 = T.noteName(T.transpose(r, 'b6')), six = T.noteName(T.transpose(r, '6'));
+  return [
+    `Same notes as ${P(rel)} major (a minor 3rd up), starting on ${P(root)}.`,
+    `- Harmonic minor raises the 7th to ${P(lt)}${same(lt)}: that’s the leading tone in the V7 chord`,
+    `- Melodic minor raises the 6th too: ${P(six)} instead of ${P(b6)}`,
+  ];
+}
+const majorThirds = [...MAJORS.map(([r]) => r)].map((r) => `${P(r)} → ${P(T.noteName(T.transpose(T.parseNote(r), '3')))}`);
+
+DECKS.push(
+  {
+    id: 'majkeys', name: 'Major keys', cards: [
+      { t: 'Every letter once', s: 'the rule that spells every key', b: [
+        'A major or minor scale uses each letter A to G exactly once, in order. So the 3rd of A is some kind of C (it’s C♯), never a D♭.',
+        'To find any degree, count letters first (A, B, C: the 3rd is a C), then add the sharp or flat the key needs.',
+      ] },
+      { t: 'Sharps and flats, in order', s: 'they always come in the same order', b: [
+        '- <b>Sharps</b>: F C G D A E B (“Father Charles Goes Down And Ends Battle”)',
+        '- <b>Flats</b>: B E A D G C F, the same list backwards',
+        'Three sharps is always F♯, C♯ and G♯; three flats is always B♭, E♭ and A♭.',
+      ] },
+      { t: 'Name the key', s: 'from its sharps or flats', b: [
+        '- <b>Sharps</b>: the last sharp is the 7th, so go up a half step. F♯ C♯ G♯ → A major',
+        '- <b>Flats</b>: the second-to-last flat is the key. B♭ E♭ A♭ → E♭ major',
+        '- One flat is F major',
+      ] },
+      { t: 'The 3rd on the neck', s: 'where it is from any root', b: [
+        'A major 3rd is 4 frets up the same string.',
+        '- On the next string up: one fret back (on the G to B strings, the same fret)',
+        '- A minor 3rd: two frets back (on G to B, one fret back)',
+      ] },
+      { t: 'Major 3rds, all 12', s: 'the 3rd of each key', b: majorThirds.map((x) => '- ' + x) },
+      ...MAJORS.map(([r, tips]) => keyCard(r, false, tips)),
+    ],
+  },
+  {
+    id: 'minkeys', name: 'Minor keys', cards: [
+      { t: 'Minor keys', s: 'the relative major’s notes', b: [
+        'A minor key has the same sharps and flats as the major key a minor 3rd above it, its relative major: A minor and C major, E minor and G major.',
+        '- Its 3rd, 6th and 7th are flat compared with the major on the same root',
+        '- In practice the 7th is often raised (harmonic minor), which gives V7 its leading tone',
+      ] },
+      ...MINORS.map((r) => keyCard(r, true, minorTips(r))),
+    ],
+  },
+);
