@@ -300,6 +300,11 @@ The topic chord of a chromatic pair is the one outside the key. Chords in a prog
 so iv7 counts as iv and V7♭9 as V7. A check confirmed every topic makes a Learn card and a Practice card (with four
 distinct choices) in all twelve keys. A learner who answers everything right masters a track in about 70 prompts.
 
+A third track, **Common Progressions: Mastery**, has 33 progressions in teaching order, from I–IV–V and ii–V–I
+through the axis, the blues, the minor cadences, the backdoor, the turnarounds, rhythm changes and the Royal Road.
+Learn shows a progression in two keys. Practice shows its chord names in a third key and asks which progression it
+is. The choices give each one's name and numerals, and look-alikes with the same triad shape are kept out.
+
 Home is now split into **With your guitar** and **Phone only**. Phone only holds the two mastery tracks, the Modal
 Interchange Quiz, Chord Finder, Scale Formulas and Interval Finder.
 

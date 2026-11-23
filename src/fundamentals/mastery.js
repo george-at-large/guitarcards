@@ -10,7 +10,7 @@ import * as A from '../audio.js';
 import * as T from '../theory.js';
 import * as F from '../fretboard.js';
 import * as H from '../caged/harmony.js';
-import { resolve } from '../caged/library.js';
+import { resolve, ALL } from '../caged/library.js';
 import { BORROWED } from '../caged/borrowdata.js';
 import { CHROMATIC } from '../caged/chromdata.js';
 import { barsHTML, voiceRun } from './micore.js';
@@ -47,6 +47,25 @@ export const TRACKS = {
     blurb: 'Secondary dominants, tritone subs, diminished, augmented and mediants: one at a time, in progressions.',
     entries: CHROMATIC.filter((d) => d.chords && d.chords.length) },
 };
+
+// the progressions every player should know on sight, in the order a teacher would bring them in
+const PROGS = ['three-chord-rock', 'authentic-cadence-iv-v7-i', 'plagal-cadence-iv-i', 'major-ii-v-i', 'the-axis-i-v-vi-iv', 'doo-wop-i-vi-iv-v',
+  'i-vi-ii-v', '12-bar-blues', 'half-cadence', 'deceptive-cadence-v-vi', 'mixolydian-rock', 'minor-ii-v-i', 'harmonic-minor-cadence',
+  'andalusian-cadence', 'epic-minor-i-vi-vii', 'aeolian-rock', 'minor-plagal-iv-iv-i', 'backdoor-cadence', 'iii-vi-ii-v-i', 'i-vi7-ii-v7',
+  'tritone-sub-turnaround', 'passing-diminished', 'pachelbel-s-canon', 'the-axis-from-vi', 'dorian-i-iv', 'rhythm-changes-a-section',
+  'rhythm-changes-bridge', 'jazz-blues', 'minor-blues', 'circle-of-fifths-in-sevenths', 'the-royal-road', 'gospel-walk-up', 'minor-turnaround'];
+TRACKS.progressions = { id: 'progressions', kind: 'progs', title: 'Common Progressions: Mastery', noun: 'progression', short: 'Progressions',
+  blurb: 'The progressions every player knows on sight: see the chord names in any key, know the progression.',
+  entries: PROGS.map((id) => ALL.find((x) => x.id === id)).filter(Boolean).map((x) => ({ ...x, rn: numerals(x) })) };
+// a progression's numerals, each change once: I – vi – ii – V
+function numerals(item) {
+  const flat = resolve(item).flat();
+  const out = [];
+  for (const c of flat) { const r = H.numeral(c.iv, c.q); if (out[out.length - 1] !== r) out.push(r); }
+  return out.join(' – ');
+}
+// the same progression in plain triad numerals, to keep look-alikes (I–IV–V–I and I–IV–V7–I) out of the choices
+const shape = (rn) => rn.split(' – ').map((x) => x.replace(/(maj|m|ø|°|\+)?\d.*$/, '').replace(/[ø°+]$/, '')).join('-');
 
 const M = () => { const S = C.state(); return S.mastery || (S.mastery = {}); };
 const recOf = (track, id) => { const m = M(); m[track] = m[track] || {}; return m[track][id] || (m[track][id] = { stage: 'new', streak: 0, n: 0, last: 0 }); };
@@ -85,6 +104,7 @@ export function makeMastery(trackId) {
     },
     make(it, pc) {
       const d = t.entries.find((x) => x.id === it.params.e);
+      if (t.kind === 'progs') return makeProg(d, it, pc);
       const topic = topicChord(d);
       // the progressions that really contain the chord, each resolved to bars of chords in this key
       const usable = d.progs.map((p) => {
@@ -149,6 +169,28 @@ export function makeMastery(trackId) {
     },
   };
 
+  // a progression: learn it in two keys; then name it from its chord names in a third
+  function makeProg(d, it, pc) {
+    const inKey = (k) => {
+      const tonic = C.spellTonic(k, d.minor ? 'aeolian' : 'major');
+      const chords = resolve(d).flatMap((b) => b.map((c) => ({ root: H.spell(tonic, c.iv), quality: c.q, rn: H.numeral(c.iv, c.q), beats: 4 / b.length })));
+      return { p: d, minor: !!d.minor, tonic, chords, hits: [], keyName: `${C.nn(tonic)} ${d.minor ? 'minor' : 'major'}` };
+    };
+    const p = progress(trackId);
+    const kicker = `${t.short} · ${p.known} of ${p.total} known`;
+    if (it.params.learn) {
+      const other = (pc + C.pick([2, 5, 7, 10])) % 12;
+      return { learn: true, d, ex: [inKey(pc), inKey(other)], kicker: `${kicker} · new`, title: C.esc(d.name), sub: C.esc(d.by || '') };
+    }
+    const u = inKey(pc);
+    const len = resolve(d).length;
+    const pool = t.entries.filter((x) => x.id !== d.id && shape(x.rn) !== shape(d.rn));
+    const near = C.shuffle(pool.filter((x) => !!x.minor === !!d.minor && Math.abs(resolve(x).length - len) <= 4));
+    const wrong = [...near, ...C.shuffle(pool.filter((x) => !near.includes(x)))].slice(0, 3);
+    const choices = C.shuffle([d, ...wrong]).map((x) => ({ v: x.id, l: `${x.name} · ${x.rn}` }));
+    return { learn: false, d, u, choices, kicker, title: `In ${C.esc(u.keyName)}`, sub: 'Which progression is this?' };
+  }
+
   function learnCard(q, el, ctx) {
     recOf(trackId, q.d.id).stage = 'learning'; C.save();
     el.innerHTML = explain(q.d, q.ex, false);
@@ -158,6 +200,13 @@ export function makeMastery(trackId) {
 
 // what the chord is, how it's used, how it sounds, and the progressions with the chord picked out (tap to hear)
 function explain(d, list, afterQuiz) {
+  if (d.chart) {
+    return list.map((u) => {
+      const g = voiceRun(u.chords, u.tonic, C.pick(['C', 'A', 'G', 'E', 'D']));
+      const prog = JSON.stringify(g.map((x) => (x ? x.notes.map((n) => n.midi).sort((a, b) => a - b) : [])));
+      return `<div class="info"><div class="k">${C.esc(d.name)} · in ${C.esc(u.keyName)}</div>${barsHTML(u.chords)}<div class="row"><button class="ghost" data-prog='${prog}'>▶ Hear it</button></div></div>`;
+    }).join('') + `<div class="info"><div class="k">${C.esc(d.name)}</div><p class="f" style="font-size:16px">${C.esc(d.rn)}</p>${d.by ? `<p>${C.esc(d.by)}</p>` : ''}<p class="note">Say the numerals as you read the chord names: that's the skill, in any key.</p></div>`;
+  }
   const ref = list.some((u) => u.minor) ? 'A minor' : 'C major';
   return `${list.map((u, k) => {
     const g = voiceRun(u.chords, u.tonic, C.pick(['C', 'A', 'G', 'E', 'D']));

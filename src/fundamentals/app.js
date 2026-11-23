@@ -16,10 +16,10 @@ import progressions from './progressions.js';
 import game, { LEVELS, gameLevel } from './game.js';
 import { makeMastery } from './mastery.js';
 
-const mBorrowed = makeMastery('borrowed'), mChromatic = makeMastery('chromatic');
+const mBorrowed = makeMastery('borrowed'), mChromatic = makeMastery('chromatic'), mProgs = makeMastery('progressions');
 // Home is split by what you need: the guitar in your hands, or just the phone
 const GUITAR = [shapes, chordscales, modetest, context, progressions, miplayer];
-const PHONE = [mBorrowed, mChromatic, miquiz, finder, formulas, intervals];
+const PHONE = [mProgs, mBorrowed, mChromatic, miquiz, finder, formulas, intervals];
 const MODES = [...GUITAR, ...PHONE];
 const ALLM = [game, ...MODES];
 const BY = Object.fromEntries(ALLM.map((m) => [m.id, m]));
