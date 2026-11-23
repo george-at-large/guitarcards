@@ -7,7 +7,7 @@ import * as F from '../fretboard.js';
 import * as A from '../audio.js';
 import * as G from '../caged/grips.js';
 import { spellRoot, typeName, esc } from '../fundamentals/core.js';
-import { mountCards } from './cardsview.js';
+import { mountCards, stopComp } from './cardsview.js';
 import { mountSing } from './sing.js';
 import { mountSingNeck } from './singneck.js';
 import * as N from './neck.js';
@@ -187,7 +187,7 @@ const tabs = () => VIEWS.filter(([v]) => v !== (S.view || 'neck')).map(([v, l]) 
 function switchView(v) {
   if ((S.view || 'neck') === 'neck') { stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; } }
   if (singUI) { singUI.leave(); singUI = null; }
-  cardsUI = null;
+  stopComp(); cardsUI = null;
   S.view = v; save(); render();
   if (v === 'neck') syncDrone();
 }
@@ -382,6 +382,7 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) return;
   stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; }
   if (singUI) singUI.leave();
+  stopComp();
   if ((S.view || 'neck') === 'neck') render();
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

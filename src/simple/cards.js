@@ -1833,3 +1833,90 @@ DECKS.unshift(
     ],
   },
 );
+
+// ---------- comping and soloing: a progression loops (Play), you follow the card. Easiest first. ----------
+// comp.chart: bars split by '|', one or two chords a bar, '%' repeats the bar; comp.bpm: where it starts.
+DECKS.splice(DECKS.findIndex((d) => d.id === 'chordmelody'), 0, {
+  id: 'comping', name: 'Comping and soloing', cards: [
+    { t: 'One chord: Dorian', s: 'level 1 · a Dm7 vamp', comp: { chart: 'D:m7 | % | % | %', bpm: 80 }, b: [
+      '<b>Comp</b>: a Dm7 shell (D, C, F: root, ♭7, ♭3) on beat 1 of each bar. Then move it to beats 2 and 4.',
+      '<b>Solo</b>: D Dorian (the notes of C major from D). Land on F (♭3) or C (♭7) at the start of each bar.',
+    ] },
+    { t: 'i – IV: the Dorian vamp', s: 'level 1 · one note moves', comp: { chart: 'D:m7 | G:7 | D:m7 | G:7', bpm: 80 }, b: [
+      '<b>Comp</b>: just two notes. F and C on Dm7, then F and B on G7: only C → B moves. Hold each for the whole bar.',
+      '<b>Solo</b>: D Dorian over both. On G7, aim for B: it’s the note that makes it Dorian.',
+    ] },
+    { t: 'ii – V – I', s: 'level 2 · guide tones', comp: { chart: 'D:m7 | G:7 | C:maj7 | %', bpm: 80 }, b: [
+      '<b>Comp</b>: 3rds and 7ths only, on beats 1 and 3: F–C → F–B → E–B. Each change moves one note a half step.',
+      '<b>Solo</b>: arpeggios. D F A C, then G B D F, then C E G B, with a chord tone on beat 1 of every bar.',
+    ] },
+    { t: 'ii – V – I with colour', s: 'level 2 · Charleston rhythm', comp: { chart: 'D:m9 | G:13 | C:maj9 | %', bpm: 90 }, b: [
+      '<b>Comp</b>: rootless voicings (F A C E → F A B E → E G B D). Play them on beat 1 and the “and” of 2: the Charleston.',
+      '<b>Solo</b>: C major over all three, but start each bar on the chord’s 3rd: F, B, E.',
+    ] },
+    { t: 'Minor ii – V – i', s: 'level 3 · the ♭9', comp: { chart: 'B:m7b5 | E:7b9 | A:m6 | %', bpm: 80 }, b: [
+      '<b>Comp</b>: shells, and put the ♭9 (F) on top of E7.',
+      '<b>Solo</b>: A harmonic minor over Bø7 and E7 (on E7 that’s E Phrygian dominant), then A melodic minor (A B C D E F♯ G♯) on Am6. Hear the F → F♯ change.',
+    ] },
+    { t: 'I – vi – ii – V', s: 'level 3 · two chords a bar', comp: { chart: 'C:maj7 A:m7 | D:m7 G:7 | C:maj7 A:m7 | D:m7 G:7', bpm: 90 }, b: [
+      '<b>Comp</b>: one guide-tone pair per chord, half notes, always the smallest move.',
+      '<b>Solo</b>: C major pentatonic over everything first. Then play the 3rd of each chord as it arrives: E, C, F, B.',
+    ] },
+    { t: 'I – VI7 – ii – V', s: 'level 3 · a secondary dominant', comp: { chart: 'C:maj7 A:7b9 | D:m7 G:7 | C:maj7 A:7b9 | D:m7 G:7', bpm: 90 }, b: [
+      '<b>Comp</b>: on A7, make C♯ the top note; it rises to D on Dm7.',
+      '<b>Solo</b>: C major, but over A7 play D harmonic minor (A Phrygian dominant): C becomes C♯, with B♭ as the ♭9.',
+    ] },
+    { t: 'Dominant chain', s: 'level 4 · the rhythm-changes bridge', comp: { chart: 'E:7 | A:7 | D:7 | G:7', bpm: 90 }, b: [
+      '<b>Comp</b>: the 3rd and 7th of each chord; they take turns falling a half step (G♯ D → G C♯ → F♯ C → F B).',
+      '<b>Solo</b>: Mixolydian on each chord, and play its 3rd on beat 1: G♯, C♯, F♯, B.',
+    ] },
+    { t: 'The blues', s: 'level 4 · 12 bars in C', comp: { chart: 'C:7 | F:7 | C:7 | C:7 | F:7 | F:7 | C:7 | A:7 | D:m7 | G:7 | C:7 A:7 | D:m7 G:7', bpm: 100 }, b: [
+      '<b>Comp</b>: 3–7 shells (E–B♭ on C7, A–E♭ on F7) on beats 2 and 4, like a hi-hat.',
+      '<b>Solo</b>: the C blues scale for one chorus. Next chorus, hit E on every C7 and A on every F7.',
+    ] },
+    { t: 'The minor blues', s: 'level 5 · ♭VI7 to V7', comp: { chart: 'C:m9 | % | % | % | F:m9 | % | C:m9 | % | Ab:7#11 | G:7alt | C:m9 | G:7alt', bpm: 90 }, b: [
+      '<b>Comp</b>: m9 voicings; in bars 9–10, slide A♭7 down a half step to G7.',
+      '<b>Solo</b>: C minor pentatonic over the i and iv. Then A♭ Lydian dominant (E♭ melodic minor) on A♭7, and G altered (A♭ melodic minor) on G7alt.',
+    ] },
+    { t: 'Three ways home', s: 'level 5 · front, back and side door', comp: { chart: 'D:m7 G:7 | C:maj7 | F:m7 Bb:7 | C:maj7 | D:m7 Db:7#11 | C:maj7', bpm: 90 }, b: [
+      '<b>Comp</b>: keep a common tone on top through each cadence.',
+      '<b>Solo</b>: C major for the ii–V; F Dorian into B♭ Mixolydian for the backdoor; D♭ Lydian dominant (A♭ melodic minor) for the tritone sub.',
+    ] },
+    { t: 'Borrowed chords', s: 'level 5 · modal interchange', comp: { chart: 'C:maj7 | F:maj7 | F:m6 | C:maj7 | C:maj7 | Ab:maj7 | Bb:7 | C:maj7', bpm: 80 }, b: [
+      '<b>Comp</b>: let the inner voice sing A → A♭ → G through F – Fm6 – C.',
+      '<b>Solo</b>: C Ionian, F Lydian, F melodic minor on Fm6, then A♭ Lydian and B♭ Mixolydian. Lean on the borrowed notes (A♭, E♭, B♭) when they arrive.',
+    ] },
+    { t: 'Secondary dominants', s: 'level 6 · the “All of Me” shape', comp: { chart: 'C:6 | % | E:7 | % | A:7 | % | D:m7 | G:7', bpm: 110 }, b: [
+      '<b>Comp</b>: follow the 3rds as the chords move: E (C6) → G♯ (E7) → C♯ (A7) → F (Dm7) → B (G7).',
+      '<b>Solo</b>: C major, then A harmonic minor over E7, D harmonic minor over A7, D Dorian, G Mixolydian.',
+    ] },
+    { t: 'Rhythm changes', s: 'level 6 · the A section in B♭', comp: { chart: 'Bb:6 G:7 | C:m7 F:7 | Bb:6 G:7 | C:m7 F:7 | Bb:6 Bb:7 | Eb:6 Eb:m6 | Bb:6 F:7 | Bb:6', bpm: 120 }, b: [
+      '<b>Comp</b>: two shells a bar, short and on the beat. Fast, so keep the moves tiny.',
+      '<b>Solo</b>: the B♭ blues scale works over the first four bars. Then outline bars 5–6: B♭7 into E♭, and E♭ melodic minor on E♭m6.',
+    ] },
+    { t: 'Autumn Leaves, A section', s: 'level 6 · relative major and minor', comp: { chart: 'A:m7 | D:7 | G:maj7 | C:maj7 | F#:m7b5 | B:7b9 | E:m7 | %', bpm: 100 }, b: [
+      '<b>Comp</b>: drop 2, voice-led in one area of the neck.',
+      '<b>Solo</b>: G major (E natural minor) for bars 1–4. Then E harmonic minor for F♯ø7 – B7 (the D♯), and E Dorian on Em.',
+    ] },
+    { t: 'The diatonic cycle', s: 'level 7 · “Fly Me to the Moon”', comp: { chart: 'A:m7 | D:m7 | G:7 | C:maj7 | F:maj7 | B:m7b5 | E:7b9 | A:m7', bpm: 110 }, b: [
+      '<b>Comp</b>: the guide-tone line through all eight: C/G → F/C → F/B → E/B → E/A → D/A → D/G♯ → C/G.',
+      '<b>Solo</b>: C major everywhere except E7: there, A harmonic minor, with the G♯ leading back to A.',
+    ] },
+    { t: 'The Bird blues', s: 'level 8 · falling ii–Vs', comp: { chart: 'C:maj7 | B:m7b5 E:7 | A:m7 D:7 | G:m7 C:7 | F:7 | F:m7 Bb:7 | E:m7 A:7 | Eb:m7 Ab:7 | D:m7 | G:7 | C:maj7 A:7 | D:m7 G:7', bpm: 100 }, b: [
+      '<b>Comp</b>: shells, two a bar; each ii–V is a half step or a whole step lower than the last.',
+      '<b>Solo</b>: treat every ii–V as its own key. Guide tones first: the 3rd of each chord on its first beat.',
+    ] },
+    { t: 'Major-3rd cycle', s: 'level 9 · Coltrane changes', comp: { chart: 'B:maj7 D:7 | G:maj7 Bb:7 | Eb:maj7 | % | A:m7 D:7 | G:maj7 Bb:7 | Eb:maj7 | %', bpm: 70 }, b: [
+      '<b>Comp</b>: find the three tonics (B, G, E♭) first, then add each V7.',
+      '<b>Solo</b>: 1 – 2 – 3 – 5 in each key (B C♯ D♯ F♯, G A B D, E♭ F G B♭), switching exactly on the chord. Slow is fine.',
+    ] },
+    { t: 'Modal', s: 'level 9 · “So What” form, half size', comp: { chart: 'D:m11 | % | % | % | Eb:m11 | % | % | %', bpm: 120 }, b: [
+      '<b>Comp</b>: So What voicings (stacks of 4ths) moving up and down D Dorian, then the same a half step up.',
+      '<b>Solo</b>: D Dorian, then E♭ Dorian. Make the jump on bar 5 obvious: play E♭ Dorian’s B♭ and E♭ right away.',
+    ] },
+    { t: 'Ballad: rich colours', s: 'level 10 · tensions on top', comp: { chart: 'C:maj9 | A:7b9 | D:m9 | G:13b9 | E:m7 | A:7alt | D:m9 | Db:7#11', bpm: 60 }, b: [
+      '<b>Comp</b>: rootless voicings with the colour tone on top: the 9 on Cmaj9, the ♭9 on A7, the 9 on Dm9, the 13 on G13♭9, the ♯11 on D♭7.',
+      '<b>Solo</b>: aim for the same tensions. Half-whole on G13♭9, altered on A7alt, Lydian dominant on D♭7♯11. Leave lots of space.',
+    ] },
+  ],
+});

@@ -27,7 +27,7 @@ function uppers(c) {
 export function voiceProg(tokens) {
   let prev = null;
   return tokens.map((tok) => {
-    const c = T.parseChordToken(tok);
+    const c = typeof tok === 'string' ? T.parseChordToken(tok) : tok;
     const bassPc = T.notePc(c.bass || c.root);
     const bass = 40 + ((bassPc - 4 + 12) % 12);
     const pcs = uppers(c).sort((a, b) => a - b);
@@ -64,6 +64,58 @@ function hear(play) {
 const midiOf = (s) => { const m = /^([A-G](?:#|b)?)(-?\d)$/.exec(s); if (!m) throw new Error(`Bad note "${s}"`); return T.notePc(T.parseNote(m[1])) + (Number(m[2]) + 1) * 12; };
 export const exact = (play) => play.slice(1).split('|').map((ch) => ch.trim().split(/\s+/).map(midiOf));
 
+
+// ---------- comping cards: a progression that loops on soft keys, with a click you can turn off and a tempo you can
+// change while it plays. One bar of count-in, then round and round; the bar being played lights up. ----------
+let comp = null;
+const symOf = (c) => T.pretty(T.chordSymbol(c.root, c.quality)) + (c.bass ? '/' + T.noteName(c.bass, true) : '');
+export function stopComp() {
+  if (!comp) return;
+  clearInterval(comp.timer); comp.timers.forEach(clearTimeout);
+  comp.el?.querySelectorAll('.cbarx.on').forEach((b) => b.classList.remove('on'));
+  const btn = comp.el?.querySelector('[data-cp="play"]'); if (btn) { btn.textContent = '▶ Play'; btn.classList.remove('on'); }
+  comp = null;
+}
+function startComp(card, el, st) {
+  stopComp();
+  A.unlockAudio();
+  const bars = T.parseChart(card.comp.chart);
+  const evs = []; let beat = 0;
+  bars.forEach((bar, bi) => { const each = 4 / bar.length; bar.forEach((ch, ci) => evs.push({ ch, beat: beat + ci * each, dur: each, bi })); beat += 4; });
+  const total = beat, voiced = voiceProg(evs.map((e) => e.ch));
+  const c = A.audioCtx();
+  const m = { el, timers: [], next: c.currentTime + 0.1, pos: -4, timer: null };
+  const tick = () => {
+    while (m.next < c.currentTime + 0.15) {
+      const spb = 60 / st.bpm, t = m.next;
+      if (m.pos < 0) A.click(t, m.pos === -4 ? 2 : 1); // count-in
+      else {
+        const b = m.pos % total;
+        if (st.click) A.click(t, b % 4 === 0 ? 2 : 1);
+        evs.forEach((e, i) => {
+          if (e.beat !== b) return;
+          const hold = e.dur * spb * 0.96, [bass, ...up] = voiced[i];
+          A.keys(bass - 12 >= 33 ? bass - 12 : bass, t, hold, 0.55);
+          up.forEach((n) => A.keys(n, t + 0.006, hold, 0.42));
+          m.timers.push(setTimeout(() => { el.querySelectorAll('.cbarx').forEach((x, j) => x.classList.toggle('on', j === e.bi)); }, Math.max(0, (t - c.currentTime) * 1000)));
+        });
+      }
+      m.pos++; m.next += spb;
+      if (m.timers.length > 64) m.timers.splice(0, 32);
+    }
+  };
+  m.timer = setInterval(tick, 25); tick();
+  comp = m;
+  const btn = el.querySelector('[data-cp="play"]'); btn.textContent = '■ Stop'; btn.classList.add('on');
+}
+const compHTML = (c, st) => {
+  const bars = T.parseChart(c.comp.chart);
+  return `<div class="comp">
+    <div class="cbars">${bars.map((bar) => `<div class="cbarx">${bar.map((ch) => `<b>${acc(esc(symOf(ch)))}</b>`).join('')}</div>`).join('')}</div>
+    <div class="cctl"><button data-cp="play">▶ Play</button><button data-cp="down" class="sq">−</button><span class="cbpm">${st.bpm} bpm</span><button data-cp="up" class="sq">+</button><button data-cp="click" class="${st.click ? 'on' : ''}">Click</button></div>
+  </div>`;
+};
+
 // ---------- a card ----------
 function bodyHTML(lines = []) {
   let out = '', list = false;
@@ -89,11 +141,12 @@ function chordRow(tok) {
   return `<div class="krow" style="grid-template-columns: repeat(${ivs.length}, minmax(0, 1fr))">${ivs.map((iv, i) => `<div class="kc ${role(iv)}"><span>${acc(T.prettyIv(iv))}</span><b>${acc(T.noteName(notes[i], true))}</b></div>`).join('')}</div>`;
 }
 const chordsRow = (row) => `<div class="crow">${row.map(([n, sym]) => `<div><span>${acc(n)}</span><b>${acc(sym)}</b></div>`).join('')}</div>`;
-function cardHTML(c) {
+function cardHTML(c, cs) {
   if (!c) return `<div class="cdeck">&nbsp;</div><h2>That’s the deck</h2><div class="cbody"><p>Tap to go through it again.</p></div>`;
   return `<div class="cdeck">${esc(c.deck)} · ${c.n} / ${c.of}</div>
     <h2>${acc(c.t)}</h2>${c.s ? `<div class="csrc">${c.s}</div>` : ''}
     ${c.key ? keyRow(c.key) : ''}${c.chord ? chordRow(c.chord) : ''}${c.row ? chordsRow(c.row) : ''}
+    ${c.comp ? compHTML(c, cs) : ''}
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
     ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}
@@ -122,7 +175,9 @@ export function mountCards(root, S, save) {
   const deckName = (id) => (id === 'all' ? 'All decks' : DECKS.find((d) => d.id === id).name);
   let card = null, mode = 'home', openDeck = null;
   // the contents: carry on where you were, start any deck, or jump to any card
+  const cs = { bpm: 80, click: st.click !== false, card: null }; // the comp player's tempo and click
   const home = () => {
+    stopComp();
     mode = 'home'; card = null;
     root.querySelector('#home span').textContent = 'Contents';
     const c = current(), n = list().length;
@@ -141,7 +196,10 @@ export function mountCards(root, S, save) {
     mode = 'card';
     root.querySelector('#home span').textContent = deckName(st.deck);
     const n = list().length, p = pos();
-    stage.innerHTML = `<article class="card${from ? (from > 0 ? ' from-r' : ' from-l') : ''}">${cardHTML(current())}</article>`;
+    stopComp();
+    const cur = current();
+    if (cur?.comp && cs.card !== cur) { cs.card = cur; cs.bpm = cur.comp.bpm; } // each comping card starts at its own tempo
+    stage.innerHTML = `<article class="card${from ? (from > 0 ? ' from-r' : ' from-l') : ''}">${cardHTML(cur, cs)}</article>`;
     card = stage.firstElementChild;
     foot.innerHTML = `<button class="cback" ${p === 0 ? 'disabled' : ''}>◀ Back</button><div class="cprog"><i style="width:${(100 * Math.min(p + 1, n)) / n}%"></i></div><span>${Math.min(p + 1, n)} / ${n}</span>`;
     foot.querySelector('.cback').onclick = () => go(-1); // go is defined below; it runs only on a tap
@@ -182,7 +240,7 @@ export function mountCards(root, S, save) {
   // tap: next. Drag sideways: the card follows the finger and flicks on release. Vertical drags scroll a long card.
   let x0 = null, y0 = 0, t0 = 0, dx = 0, drag = false;
   stage.onpointerdown = (e) => {
-    if (mode === 'home' || e.target.closest('.hear') || busy) return;
+    if (mode === 'home' || e.target.closest('.hear, .comp') || busy) return;
     x0 = e.clientX; y0 = e.clientY; t0 = performance.now(); dx = 0; drag = false;
   };
   stage.onpointermove = (e) => {
@@ -204,6 +262,15 @@ export function mountCards(root, S, save) {
   stage.onpointercancel = (e) => { if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; } x0 = null; drag = false; };
   stage.onclick = (e) => {
     const h = e.target.closest('.hear'); if (h) { e.stopPropagation(); hear(h.dataset.play); return; }
+    const cp = e.target.closest('[data-cp]');
+    if (cp) {
+      e.stopPropagation();
+      const el = cp.closest('.comp'), what = cp.dataset.cp;
+      if (what === 'play') { if (comp) stopComp(); else startComp(current(), el, cs); }
+      if (what === 'up' || what === 'down') { cs.bpm = Math.max(40, Math.min(240, cs.bpm + (what === 'up' ? 5 : -5))); el.querySelector('.cbpm').textContent = `${cs.bpm} bpm`; }
+      if (what === 'click') { cs.click = !cs.click; st.click = cs.click; cp.classList.toggle('on', cs.click); save(); }
+      return;
+    }
     if (mode !== 'home') return;
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.cont != null) show(1);
