@@ -79,10 +79,12 @@ export function makeLine(st) {
 function ivLabel(n) { return n.semi === 12 ? '8' : n.semi === -12 ? '8↓' : T.prettyIv(n.iv) + (n.semi < 0 ? '↓' : ''); }
 const noteLabel = (n) => T.noteName(n.note, true);
 
-export function mountSingNeck(root, S, save, { upright, onPage }) {
+// find: the other way round. The first note shows and the line plays unseen; tap its notes on the neck in order.
+export function mountSingNeck(root, S, save, { upright, onPage, find = false }) {
   S.singNeck = Object.assign({ area: 'neck', labels: 'iv', len: 2, scale: 'chromatic', drone: false }, S.singNeck || {});
   const st = S.singNeck;
   let q = makeLine(st), checked = false, droning = false;
+  let k = 1, misses = 0, bad = null; // Find it: the next note to find, wrong taps, the last wrong spot
   const box = root.querySelector('.neckbox'), panel = root.querySelector('.panel');
   const lab = (n, other = false) => ((st.labels === 'iv') !== other ? ivLabel(n) : noteLabel(n));
   const drone = () => { if (st.drone) { A.unlockAudio(); A.startDrone(40 + ((q.pc - 4 + 12) % 12), false); droning = true; } else { A.stopDrone(); droning = false; } };
@@ -94,16 +96,23 @@ export function mountSingNeck(root, S, save, { upright, onPage }) {
     if (q.line.length === 2) A.strum(q.line.map((n) => n.midi), t + 1.5, { spread: 0.02, vel: 0.7 }); // and together
   };
   const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
+  const done = () => k >= q.line.length;
+  const shown = (i) => !find || i === 0 || i < k || checked;
   const render = () => {
-    const dots = q.line.map((n, i) => ({ string: n.string, fret: n.fret, cls: i === 0 ? 'r' : checked ? 's' : 'x', ring: i === 0, label: lab(n), tag: q.line.length > 2 ? i + 1 : null }));
-    box.innerHTML = (upright() ? N.neckUpright : N.neckAcross)({ win: q.win, dots });
+    const dots = q.line.map((n, i) => ({ string: n.string, fret: n.fret, cls: i === 0 ? 'r' : find ? (i < k ? 'ok' : 's') : checked ? 's' : 'x', ring: i === 0, label: lab(n), tag: q.line.length > 2 ? i + 1 : null, i })).filter((d) => shown(d.i));
+    if (find && bad) dots.push({ ...bad, cls: 'bad', label: '✕' });
+    box.innerHTML = (upright() ? N.neckUpright : N.neckAcross)({ win: q.win, dots, tap: find && !done() && !checked });
     panel.innerHTML = `
-      <div class="seg sub"><button data-page="deg">Degrees</button><button data-page="neck" class="on">On the neck</button></div>
+      <div class="seg sub three"><button data-page="deg">Degrees</button><button data-page="neck" class="${find ? '' : 'on'}">Sing it</button><button data-page="find" class="${find ? 'on' : ''}">Find it</button></div>
       <div class="cap"><b>${q.shape ? `${esc(q.shape)} shape, frets ${q.win.lo}–${q.win.hi}` : 'Anywhere on the neck'}</b><span>${st.scale === 'chromatic' ? 'any interval' : esc(scaleName(st.scale))}</span></div>
-      <div class="nline">${q.line.map((n, i) => `<div class="${i === 0 ? 'first' : ''}"><b>${esc(lab(n))}</b>${checked ? `<span>${esc(lab(n, true))}</span>` : ''}</div>`).join('')}</div>
-      <div class="row big"><button id="nCheck" class="${checked ? 'on' : ''}">${checked ? '▶ Again' : '▶ Check'}</button></div>
+      <div class="nline">${q.line.map((n, i) => `<div class="${i === 0 ? 'first' : ''}${find && i > 0 && i < k ? ' got' : ''}"><b>${shown(i) ? esc(lab(n)) : '?'}</b>${(find ? shown(i) && i > 0 : checked) ? `<span>${esc(lab(n, true))}</span>` : ''}</div>`).join('')}</div>
+      ${find ? `<div class="nscore">${done() ? `<b class="good">✓ All ${q.line.length - 1} found</b>` : checked ? 'Answer shown' : `Tap note ${k + 1} of ${q.line.length}`}${misses ? ` · ${misses} miss${misses > 1 ? 'es' : ''}` : ''}</div>
+      <div class="row big"><button id="nCheck">▶ Play it</button></div>
       <div class="row"><button id="nNext" class="wide">Next ▶</button></div>
-      <div class="row toggles"><button id="nFirst">▶ First</button><button id="nDrone" class="${st.drone ? 'on' : ''}">Drone</button></div>
+      <div class="row toggles"><button id="nShow" class="${checked ? 'on' : ''}">Answer</button><button id="nDrone" class="${st.drone ? 'on' : ''}">Drone</button></div>`
+      : `<div class="row big"><button id="nCheck" class="${checked ? 'on' : ''}">${checked ? '▶ Again' : '▶ Check'}</button></div>
+      <div class="row"><button id="nNext" class="wide">Next ▶</button></div>
+      <div class="row toggles"><button id="nFirst">▶ First</button><button id="nDrone" class="${st.drone ? 'on' : ''}">Drone</button></div>`}
       <div class="menus">
         <label><span>Area</span><select id="nArea">${[['neck', 'Whole neck'], ['caged', 'One CAGED shape']].map(([v, l]) => opt(v, l, st.area)).join('')}</select></label>
         <label><span>Show</span><select id="nLab">${[['iv', 'Intervals'], ['note', 'Note names']].map(([v, l]) => opt(v, l, st.labels)).join('')}</select></label>
@@ -111,17 +120,28 @@ export function mountSingNeck(root, S, save, { upright, onPage }) {
         <label><span>Scale</span><select id="nScale">${opt('chromatic', 'Chromatic (any)', st.scale)}${['core', 'jazz'].map((t) => `<optgroup label="${TIER_NAMES[t]}">${TIERS[t].map((id) => opt(id, scaleName(id), st.scale)).join('')}</optgroup>`).join('')}</select></label>
       </div>
       <div class="nform">${st.scale === 'chromatic' ? 'All 12 intervals' : esc(formula(st.scale))}</div>
-      <p class="nhelp">The first note sounds. Sing the rest from it, then play them; Check plays them all.${st.labels === 'iv' ? ' Intervals are from the first note; ↓ means below it.' : ''}</p>`;
+      <p class="nhelp">${find ? 'The first note shows; then the line plays. Tap its notes on the neck in order (the same pitch anywhere counts). Wrong taps sound too, so you can hear the difference.' : `The first note sounds. Sing the rest from it, then play them; Check plays them all.${st.labels === 'iv' ? ' Intervals are from the first note; ↓ means below it.' : ''}`}</p>`;
     const $ = (id) => panel.querySelector('#' + id);
     panel.querySelectorAll('[data-page]').forEach((b) => (b.onclick = () => onPage(b.dataset.page)));
-    $('nCheck').onclick = () => { checked = true; render(); playAll(); };
+    $('nCheck').onclick = () => { if (!find) { checked = true; render(); } playAll(); };
     $('nNext').onclick = () => next();
-    $('nFirst').onclick = () => playFirst();
+    if (find) $('nShow').onclick = () => { checked = !checked; render(); };
+    else $('nFirst').onclick = () => playFirst();
     $('nDrone').onclick = () => { st.drone = !st.drone; save(); drone(); render(); };
     const set = (id, k, num) => { $(id).onchange = (e) => { st[k] = num ? Number(e.target.value) : e.target.value; save(); next(); }; };
     set('nArea', 'area'); set('nLab', 'labels'); set('nLen', 'len', true); set('nScale', 'scale');
   };
-  const next = () => { q = makeLine(st); checked = false; render(); if (st.drone) drone(); playFirst(); };
+  const next = () => { q = makeLine(st); checked = false; k = 1; misses = 0; bad = null; render(); if (st.drone) drone(); if (find) playAll(); else playFirst(); };
+  // Find it: a tap on the neck sounds that note; the right pitch (on any string) counts
+  box.onclick = (e) => {
+    const h = e.target.closest('.hit');
+    if (!find || !h || done() || checked) return;
+    const s = Number(h.dataset.s), f = Number(h.dataset.f), m = F.midiAt(s, f);
+    A.unlockAudio(); A.pluck(m, A.audioCtx().currentTime + 0.02, { vel: 0.85, dur: 0.8 });
+    if (m === q.line[k].midi) { q.line[k] = { ...q.line[k], string: s, fret: f }; k++; bad = null; if (done()) setTimeout(playAll, 700); }
+    else { misses++; bad = { string: s, fret: f }; }
+    render();
+  };
   render();
   return {
     render,

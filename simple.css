@@ -234,3 +234,13 @@ h1 .tabs { margin-left: 8px; }
 #simple.h.singneck .panel { display: flex; flex-direction: column; gap: 10px; }
 #simple.v .panel > * { flex: none; }
 #simple.singneck .neck rect[fill^="rgba(255,181,71"] { fill: rgba(255, 181, 71, 0.2); }
+.neck .hit { fill: transparent; cursor: pointer; }
+.neck .dot.bad circle { fill: #ff6b6b; }
+.neck .dot.ok circle { fill: #7ee2a8; }
+/* Find it */
+.seg.sub.three button { padding: 9px 2px; font-size: 13px; }
+#simple.v .seg.sub.three button { font-size: 12px; }
+.nline div.got { border-color: rgba(126, 226, 168, 0.6); }
+.nline div.got b { color: #7ee2a8; }
+.nscore { font-size: 13.5px; color: var(--soft); }
+.nscore .good { color: #7ee2a8; }

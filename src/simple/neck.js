@@ -6,8 +6,9 @@ import { esc } from '../fundamentals/core.js';
 export const NF = 15;
 export const fx = (f) => 1 - Math.pow(2, -f / 12);
 
-// opts: { win: {lo, hi}, ghosts: [{string, fret, cls}], dots: [{string, fret, cls, label, ring, tag}] }
-export function neckAcross({ win, ghosts = [], dots = [] } = {}) {
+// opts: { win: {lo, hi}, ghosts: [{string, fret, cls}], dots: [{string, fret, cls, label, ring, tag}], tap }
+// tap: lay invisible targets over every string and fret (data-s, data-f) so a page can take taps on the neck
+export function neckAcross({ win, ghosts = [], dots = [], tap = false } = {}) {
   const W = 1000, H = 190, padL = 34, padR = 14, top = 22, bot = 26;
   const scale = (W - padL - padR) / fx(NF + 0.6);
   const X = (f) => padL + fx(f) * scale;
@@ -27,10 +28,12 @@ export function neckAcross({ win, ghosts = [], dots = [] } = {}) {
   for (let f = 1; f <= NF; f++) svg += `<rect x="${X(f) - 1.6}" y="${top - 12}" width="3.2" height="${H - top - bot + 24}" fill="url(#fret)"/>`;
   for (let f = 1; f <= NF; f++) if ([3, 5, 7, 9, 12, 15].includes(f)) svg += `<text class="fn" x="${mid(f)}" y="${H - 6}" text-anchor="middle">${f}</text>`;
   for (let s = 1; s <= 6; s++) svg += `<line x1="${padL - 30}" y1="${sy(s)}" x2="${X(NF + 0.6)}" y2="${sy(s)}" stroke="${s <= 3 ? '#e9e6df' : '#d9b77a'}" stroke-width="${0.9 + (s - 1) * 0.45}" opacity=".9"/>`;
-  return svg + marks(ghosts, dots, (n) => mid(n.fret), (n) => sy(n.string), 12.5, 16) + '</svg>';
+  const gap = (H - top - bot) / 5;
+  const hits = tap ? hitRects((s, f) => [f === 0 ? padL - 30 : X(f - 1), sy(s) - gap / 2, f === 0 ? 30 : X(f) - X(f - 1), gap]) : '';
+  return svg + marks(ghosts, dots, (n) => mid(n.fret), (n) => sy(n.string), 12.5, 16) + hits + '</svg>';
 }
 
-export function neckUpright({ win, ghosts = [], dots = [] } = {}) {
+export function neckUpright({ win, ghosts = [], dots = [], tap = false } = {}) {
   const W = 220, H = 860, padL = 16, padR = 30, padT = 34, padB = 8;
   const scale = (H - padT - padB) / fx(NF + 0.6);
   const Y = (f) => padT + fx(f) * scale;
@@ -52,7 +55,9 @@ export function neckUpright({ win, ghosts = [], dots = [] } = {}) {
   for (let f = 1; f <= NF; f++) svg += `<rect x="${x0}" y="${Y(f) - 1.6}" width="${x1 - x0}" height="3.2" fill="url(#fretv)"/>`;
   for (let f = 1; f <= NF; f++) if ([3, 5, 7, 9, 12, 15].includes(f)) svg += `<text class="fn" x="${W - 3}" y="${mid(f) + 4}" text-anchor="end">${f}</text>`;
   for (let s = 1; s <= 6; s++) svg += `<line x1="${sx(s)}" y1="${padT - 30}" x2="${sx(s)}" y2="${Y(NF + 0.6)}" stroke="${s <= 3 ? '#e9e6df' : '#d9b77a'}" stroke-width="${0.9 + (s - 1) * 0.45}" opacity=".9"/>`;
-  return svg + marks(ghosts, dots, (n) => sx(n.string), (n) => mid(n.fret), 13, 16.5) + '</svg>';
+  const gap = (W - padL - padR - 28) / 5;
+  const hits = tap ? hitRects((s, f) => [sx(s) - gap / 2, f === 0 ? padT - 32 : Y(f - 1), gap, f === 0 ? 32 : Y(f) - Y(f - 1)]) : '';
+  return svg + marks(ghosts, dots, (n) => sx(n.string), (n) => mid(n.fret), 13, 16.5) + hits + '</svg>';
 }
 
 // the ghosts, then the dots (a ring for the bass or the first note; a small tag, e.g. the order in a line)
@@ -67,3 +72,8 @@ function marks(ghosts, dots, cx, cy, r, ringR) {
   }
   return out;
 }
+const hitRects = (box) => {
+  let out = '<g class="hits">';
+  for (let s = 1; s <= 6; s++) for (let f = 0; f <= NF; f++) { const [x, y, w, h] = box(s, f); out += `<rect class="hit" data-s="${s}" data-f="${f}" x="${x}" y="${y}" width="${w}" height="${h}"/>`; }
+  return out + '</g>';
+};

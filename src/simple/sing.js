@@ -81,7 +81,7 @@ export function mountSing(root, S, save, { onPage } = {}) {
     const mode = `${nm(q.root)} ${scaleName(q.id)}`;
     const over = q.dir === 'over';
     root.querySelector('.sbody').innerHTML = `
-      <div class="seg sub"><button data-page="deg" class="on">Degrees</button><button data-page="neck">On the neck</button></div>
+      <div class="seg sub three"><button data-page="deg" class="on">Degrees</button><button data-page="neck">Sing it</button><button data-page="find">Find it</button></div>
       <div class="sroot">
         <div class="snote">${acc(nm(q.root))}<span class="sreg ${over ? 'lo' : 'hi'}">${over ? 'low' : 'high'}</span></div>
         <div class="sdir">${over ? 'The root is low: sing and play <b>above</b> it' : 'The root is high: sing and play <b>below</b> it'}</div>

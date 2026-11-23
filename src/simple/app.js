@@ -201,12 +201,12 @@ function renderCards() {
 }
 function renderSing() {
   const onPage = (pg) => { if (singUI) singUI.leave(); singUI = null; S.sing = { ...(S.sing || {}), page: pg }; save(); render(); };
-  if (S.sing?.page === 'neck') {
+  if (S.sing?.page === 'neck' || S.sing?.page === 'find') {
     $app.className = (upright() ? 'v' : 'h') + ' singneck';
     $app.innerHTML = `<header><h1>Simple <span class="tabs">${tabs()}</span></h1><span class="key">Sing</span></header>
       <div class="neckbox"></div><div class="panel"></div>`;
     bindTabs();
-    singUI = mountSingNeck($app, S, save, { upright, onPage });
+    singUI = mountSingNeck($app, S, save, { upright, onPage, find: S.sing.page === 'find' });
     return;
   }
   $app.className = 'sing';
@@ -368,7 +368,7 @@ render();
 let lastV = upright();
 document.addEventListener('keydown', (e) => { if (S.view === 'cards' && cardsUI && !e.target.closest('select')) cardsUI.key(e.key); });
 window.addEventListener('resize', () => {
-  if (S.view === 'sing' && S.sing?.page === 'neck' && upright() !== lastV) { lastV = upright(); if (singUI) { singUI.leave(); singUI = null; } render(); return; }
+  if (S.view === 'sing' && ['neck', 'find'].includes(S.sing?.page) && upright() !== lastV) { lastV = upright(); if (singUI) { singUI.leave(); singUI = null; } render(); return; }
   if ((S.view || 'neck') === 'neck' && upright() !== lastV) { lastV = upright(); render(); } });
 // sound can only start from a tap (iOS): Click and Drone left on pick up again on the first tap
 document.addEventListener('pointerdown', () => {
