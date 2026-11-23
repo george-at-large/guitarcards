@@ -1,0 +1,16 @@
+{
+  "id": "./simple.html",
+  "name": "Simple",
+  "short_name": "Simple",
+  "description": "The neck, a chord and an exercise: step through the shapes a teacher would have you drill, by hand or on a click.",
+  "start_url": "./simple.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0c10",
+  "theme_color": "#0b0c10",
+  "icons": [
+    { "src": "icons/simple-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/simple-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/simple-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
