@@ -2117,3 +2117,76 @@ DECKS.push(
     ],
   },
 );
+
+// ---------- slash chords, unpacked: ten cards, placed right after the bass-line deck ----------
+DECKS.splice(DECKS.findIndex((d) => d.id === 'bass') + 1, 0, {
+  id: 'slash', name: 'Slash chords, unpacked', cards: [
+    { t: 'Two different things', s: 'the question to ask', b: [
+      'A slash chord is a chord over a bass note. Ask one question: <b>is the bass note in the chord?</b>',
+      '- <b>Yes</b> (C/E, C/G): an <b>inversion</b>. Same chord, same job; only the bass line changes',
+      '- <b>No</b> (D/C, F/G): a <b>new chord</b>. The triad on top and the bass make something richer than either',
+      'Most confusion comes from treating these as the same thing.',
+    ], ex: [['C/E (an inversion), then D/C (a new chord)', 'C:maj C:maj/3 C:maj D:maj/b7']] },
+    { t: 'How to read any slash chord', s: 'three steps', b: [
+      '- 1. Treat the bass as the root',
+      '- 2. Name each note of the top chord as an interval over that bass',
+      '- 3. Name the result',
+      '<b>D/C</b>: over C, D is the 9, F♯ the ♯11, A the 13. So it’s C with 9, ♯11 and 13: a C Lydian sound.',
+      'The bass gives the function; the triad gives the colour.',
+    ], ex: [['C, then D/C, then C', 'C:maj D:maj/b7 C:maj']] },
+    { t: 'Inversions make bass lines', s: '3rd, 5th or 7th in the bass', b: [
+      '- <b>3rd in the bass</b> (C/E): light, moving; great for walking up or down by step',
+      '- <b>5th in the bass</b> (C/G): unstable; a passing chord or a pedal',
+      '- <b>7th in the bass</b> (C7/B♭): very unstable; the bass must fall a step',
+      'Write the bass line first, then put the chords over it.',
+    ], ex: [['C – G/B – Am: the bass walks down C, B, A', 'C:maj G:maj/3 A:min'], ['C – C/E – F: the bass walks up', 'C:maj C:maj/3 F:maj']] },
+    { t: 'The cadential 6/4', s: 'I/5 is really a V', b: [
+      'C/G before G7 isn’t really a C chord: it’s G with two suspensions (C and E) that fall to B and D. That’s why it sounds like an arrival at V, not at home.',
+      'In classical theory it’s called I6/4. You hear it at the end of countless hymns and ballads.',
+    ], ex: [['F – C/G – G7 – C', 'F:maj C:maj/5 G:7 C:maj']] },
+    { t: 'The 7th in the bass', s: 'it has to fall', b: [
+      'Put a dominant’s 7th in the bass and it wants to step down to the 3rd of the next chord.',
+      '- G7/F → C/E',
+      '- C7/B♭ → F/A',
+      'It’s the smoothest way into a first-inversion chord.',
+    ], ex: [['G7/F → C/E', 'G:7/b7 C:maj/3'], ['C – C7/B♭ – F/A', 'C:maj C:7/b7 F:maj/3']] },
+    { t: 'The sus slash chords', s: 'a triad a whole step below the bass', b: [
+      'A major triad a whole step below its bass is a 9sus4 chord: ♭7, 9 and 11 over the root, with no 3rd.',
+      '- F/G = G9sus4',
+      '- B♭/C = C9sus4',
+      '- D/E = E9sus4',
+      'That’s IV/V: a soft dominant, used everywhere from gospel to film to modal jazz.',
+    ], ex: [['F/G → C', 'F:maj/2 C:maj'], ['B♭/C → F', 'Bb:maj/2 F:maj'], ['D/E → A', 'D:maj/2 A:maj']] },
+    { t: 'The Lydian slash chords', s: 'a triad a whole step above the bass', b: [
+      'A major triad a whole step above its bass gives 9, ♯11 and 13: the Lydian colour, bright and floating.',
+      '- D/C over a C tonic',
+      '- G/F on IV (it’s Fmaj7♯11 without the 3rd and 7th)',
+      '- B♭/A♭ on a borrowed ♭VI',
+    ], ex: [['C – D/C – C', 'C:maj D:maj/b7 C:maj'], ['F – G/F – C', 'F:maj G:maj/b7 C:maj']] },
+    { t: 'Minor triads over a bass', s: 'three to know', b: [
+      '- <b>A minor triad on the 6th</b>: Am/C = C6',
+      '- <b>on the 3rd</b>: Em/C = Cmaj7',
+      '- <b>on the 5th</b>: Gm/C = C9sus4 (and Gm7/C = C11)',
+      'So the chords you already know, played over a different bass, are the extended chords you’re trying to learn.',
+    ], ex: [['Am/C, Em/C, Gm/C', 'A:min/b3 E:min/b6 G:min/4']] },
+    { t: 'Slash chord or polychord?', s: 'over a bass note vs over a chord', b: [
+      '<b>D/C</b> means a D triad over a C <i>bass note</i>. <b>D over C7</b> (written with a horizontal line) means a D triad over a whole C7 chord: C13♯11. These are the upper-structure triads, five worth knowing over any dominant:',
+      '- <b>II</b> (D): 9 ♯11 13',
+      '- <b>VI</b> (A): 13 ♭9 3',
+      '- <b>♭III</b> (E♭): ♯9 5 ♭7',
+      '- <b>♭VI</b> (A♭): ♭13 1 ♯9',
+      '- <b>♭V</b> (G♭): ♯11 ♭7 ♭9',
+    ], ex: [
+      ['D over C7 (C13♯11), resolving to F', '=C3 E3 Bb3 D4 F#4 A4 | F2 C3 A3 F4', 'D/C7 → F'],
+      ['A over C7 (C13♭9), resolving to F', '=C3 E3 Bb3 C#4 E4 A4 | F2 C3 A3 F4', 'A/C7 → F'],
+      ['A♭ over C7 (C7♯9♭13), resolving to Fm', '=C3 E3 Bb3 C4 Eb4 Ab4 | F2 C3 Ab3 F4', 'A♭/C7 → Fm'],
+    ] },
+    { t: 'On the guitar', s: 'bass low, triad on top', b: [
+      'Put the bass on the 6th or 5th string and the triad on three of the top four strings. Skip a string if you need to.',
+      '- <b>D/C</b>: x3x232 (C on the 5th string, D triad on strings 3-2-1)',
+      '- <b>F/G</b>: 3x3211 (G on the 6th string, F triad above)',
+      '- <b>C/E</b>: 032010 (open C with E in the bass)',
+      'Once you see “triad plus bass”, every upper-structure chord is a grip you already know.',
+    ], ex: [['D/C, F/G, C/E as played', '=C3 A3 D4 F#4 | G2 F3 A3 C4 F4 | E2 C3 E3 G3 C4 E4', 'x3x232 – 3x3211 – 032010']] },
+  ],
+});
