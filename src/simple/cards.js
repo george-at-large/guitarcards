@@ -1920,3 +1920,200 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'chordmelody'), 0, {
     ] },
   ],
 });
+
+// ---------- at the end: fluency drills (with a click and a drone), and the Menu System from the Guitar Routine ----------
+DECKS.push(
+  {
+    id: 'fluency', name: 'Fluency drills', cards: [
+      { t: 'How to build speed', s: 'read this first', b: [
+        '- Start where it’s clean, not where it’s hard. Clean means even, in time, no buzz',
+        '- Up 5 bpm only after three clean repetitions in a row',
+        '- If it falls apart, drop back 10 and climb again',
+        '- Practise bursts: one beat of fast notes, then rest. Then two beats',
+        '- Play with the drone so your ear keeps up with your hands, and say the degrees',
+        'The goals on these cards are good targets for a fluent player; take weeks, not days.',
+      ] },
+      { t: 'Chromatic warm-up', s: '1-2-3-4 on every string', drill: { bpm: 60, sub: 4, goal: '16ths at 120', from: '16ths at 60', drone: 'E' }, b: [
+        'Frets 1-2-3-4 on the low E, one finger per fret, across all six strings and back; then move up a fret and repeat.',
+        '- Keep fingers close to the strings; alternate pick strictly',
+        '- Variation: 1-3-2-4, 4-3-2-1',
+      ] },
+      { t: 'Major scale in position', s: 'two octaves, from the root', drill: { bpm: 70, sub: 4, goal: '16ths at 110', from: '8ths at 80', drone: 'G' }, b: [
+        'G major from the 6th-string root (fret 3), two octaves up and back, staying in one position.',
+        '- Then the other four CAGED positions of G',
+        '- Say the degree of the first note of every beat',
+      ] },
+      { t: 'Three notes per string, diagonal', s: 'three octaves', drill: { bpm: 60, sub: 4, goal: '16ths at 120', from: '8ths at 80', drone: 'G' }, b: [
+        'G major, three notes on every string, from G on the 6th string (fret 3) up to G at the 15th fret of the high E. Shift up every string or two.',
+        '- Always shift with the same finger (the index sliding up)',
+        '- Then come back down',
+        '- This is the fingering for speed: every string the same picking',
+      ] },
+      { t: 'The pentatonic ladder', s: 'all five boxes, up the neck', drill: { bpm: 70, sub: 2, goal: '8ths at 180', from: '8ths at 90', drone: 'A' }, b: [
+        'A minor pentatonic. Climb box 1 (5th fret) to the top string, then slide up into box 2 and come down it; up box 3, down box 4, up box 5. Then all the way back.',
+        '- Each box shares its edge notes with the next: the slide is the rung of the ladder',
+        '- Then go diagonally: two notes a string, shifting up a box every two strings, from the low A to the top',
+      ] },
+      { t: 'Pentatonic in fours', s: 'a sequence', drill: { bpm: 70, sub: 4, goal: '16ths at 110', from: '16ths at 70', drone: 'A' }, b: [
+        'In box 1 of A minor pentatonic: four notes up from each note in turn (A C D E, C D E G, D E G A…), then the same coming down.',
+        '- Then groups of three, then fives (count “u-ni-ver-si-ty” against the click)',
+      ] },
+      { t: 'Scale in 3rds', s: 'diatonic intervals', drill: { bpm: 70, sub: 2, goal: '8ths at 180', from: '8ths at 100', drone: 'C' }, b: [
+        'C major in one position: C E, D F, E G, F A… up, then the same down (C A, B G, A F…).',
+        '- Then 4ths, then 6ths',
+        '- Alternate direction (up a 3rd, down the next) once it’s easy',
+      ] },
+      { t: 'Single-string scale', s: 'the Goodrick drill', drill: { bpm: 60, sub: 2, goal: '8ths at 140', from: '8ths at 80', drone: 'A' }, b: [
+        'A Dorian up and down the G string only, from the open string to the 14th fret. Then improvise on that one string.',
+        '- Rotate to every string',
+        '- It cures box thinking: you see the scale as a line along the neck',
+      ] },
+      { t: 'maj7 arpeggio, three octaves', s: '1 3 5 7, up and back', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: 'quarters at 80', drone: 'G' }, b: [
+        'Gmaj7 (G B D F♯) from G on the 6th string, fret 3, up three octaves to the 15th fret of the high E, two notes a string, sliding up as you go. Then back down.',
+        '- Say the degree on every beat',
+        '- Then start on the 3rd, the 5th and the 7th',
+      ] },
+      { t: 'm7 arpeggio, three octaves', s: '1 ♭3 5 ♭7', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: 'quarters at 80', drone: 'F' }, b: [
+        'Fm7 (F A♭ C E♭) from F at the 1st fret of the low E, three octaves up to the 13th fret of the high E, and back.',
+        '- Then the same shape from G and from A (it moves; the fingering doesn’t)',
+      ] },
+      { t: 'Dominant 7 arpeggio, three octaves', s: '1 3 5 ♭7', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: 'quarters at 80', drone: 'G' }, b: [
+        'G7 (G B D F) from the 3rd fret of the low E, three octaves up and back.',
+        '- Then land each octave’s top note on the beat',
+        '- Then add the 9 (A): G B D F A, the 9th-chord arpeggio',
+      ] },
+      { t: 'ø7 arpeggio: the ♭5', s: '1 ♭3 ♭5 ♭7', drill: { bpm: 60, sub: 2, goal: '8ths at 150', from: 'quarters at 70', drone: 'A' }, b: [
+        'Aø7 (A C E♭ G) from the 5th fret of the low E, two octaves up and back; then three octaves once it’s clean.',
+        '- Hear the ♭5 against the drone: that’s the sound of iiø in a minor key',
+        '- Then play Cm6 (C E♭ G A): the same four notes',
+      ] },
+      { t: '°7 arpeggio', s: 'minor 3rds all the way', drill: { bpm: 60, sub: 3, goal: 'triplets at 140', from: 'triplets at 70', drone: 'G' }, b: [
+        'G°7 (G B♭ D♭ E) from the low G, three octaves. The shape repeats every 3 frets, so the same fingering climbs the neck.',
+        '- Then on one string: each note three frets up',
+        '- It’s four rootless 7♭9 chords at once: E♭7♭9, G♭7♭9, A7♭9 and C7♭9 (a root a major 3rd below any note)',
+      ] },
+      { t: 'Augmented arpeggio', s: 'major 3rds, every 4 frets', drill: { bpm: 60, sub: 3, goal: 'triplets at 140', from: 'triplets at 70', drone: 'C' }, b: [
+        'C+ (C E G♯) up three octaves. Symmetrical again: the shape repeats every 4 frets.',
+        '- Then two augmented triads a whole step apart (C+ and D+): the whole-tone scale',
+      ] },
+      { t: 'Arpeggio from any chord tone', s: 'start and end anywhere', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: '8ths at 80', drone: 'C' }, b: [
+        'Cmaj7 in one position: up from the root, then from the 3rd, the 5th and the 7th; each time end on a different chord tone.',
+        '- It breaks the “always from the root” habit, which is what solos need',
+      ] },
+      { t: 'Diatonic 7ths, alternating', s: 'through the key', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: '8ths at 80', drone: 'C' }, b: [
+        'In one position of C major: Cmaj7 up, Dm7 down, Em7 up, Fmaj7 down, G7 up, Am7 down, Bø7 up, Cmaj7 down.',
+        '- Name each chord as you start it',
+      ] },
+      { t: 'Triads up one string set', s: 'all inversions', drill: { bpm: 60, sub: 1, goal: 'a shape per beat at 120', from: 'a shape per beat at 50', drone: 'C' }, b: [
+        'C major on strings 3-2-1: root position, 1st, 2nd inversion and up again to the 12th fret, one shape per click. Then minor, then the other string sets.',
+        '- Name the top note’s degree as you land each shape',
+      ] },
+      { t: 'Digital patterns through the key', s: '1-2-3-5', drill: { bpm: 60, sub: 4, goal: '16ths at 110', from: '16ths at 60', drone: 'C' }, b: [
+        '1-2-3-5 on every degree of C major (C D E G, D E F A, E F G B…), up the key and back. Coltrane’s favourite cell.',
+        '- Then 1-3-5-7 and 3-5-7-9 (arpeggios from the 3rd)',
+      ] },
+      { t: 'Enclosures', s: 'surround the target', drill: { bpm: 70, sub: 2, goal: '8ths at 200', from: '8ths at 100', drone: 'C' }, b: [
+        'Target each chord tone of Cmaj7 (C, E, G, B) with the scale note above, the half step below, then the target on the beat.',
+        '- Then below–above–target, and the chromatic double approach',
+        '- The target always lands on the beat',
+      ] },
+      { t: 'Bebop scale down', s: 'chord tones on the beats', drill: { bpm: 80, sub: 2, goal: '8ths at 220', from: '8ths at 120', drone: 'G' }, b: [
+        'G bebop dominant (G F♯ F E D C B A) down two octaves in 8ths from a chord tone on the beat. The passing F♯ keeps G, F, D and B on the beats.',
+        '- Then start from B, D and F',
+        '- 8ths at 200+ is bebop tempo',
+      ] },
+      { t: 'One position, 12 keys', s: 'by 4ths', drill: { bpm: 60, sub: 2, goal: '8ths at 160, two bars a key', from: '8ths at 80', drone: 'C' }, b: [
+        'Stay between the 4th and 8th frets and play the major scale in C, F, B♭, E♭… round all 12 keys without leaving the window.',
+        '- Each key changes only one note from the last: find it before you play',
+      ] },
+    ],
+  },
+  {
+    id: 'menu', name: 'The Menu System', cards: [
+      { t: 'The Menu System', s: 'superimposition, room by room', b: [
+        'Each <b>room</b> is a chord and its scale. Each room has a few <b>superimpositions</b>: a shape you already own (a maj7, a triad, a pentatonic, a °7) played from another degree, so its notes land on the room’s tensions.',
+        '- <b>Relative address</b>: the offset from the chord you’re on (“maj7 on the ♭3”)',
+        '- <b>Absolute address</b>: where it sits in the key (“IVmaj7 of C”)',
+        'Per room: arpeggio in three positions saying the resulting degrees; improvise with only that shape; take it round the cycle; then camp on the key.',
+      ] },
+      { t: 'Tier-one order', s: 'learn these first', b: [
+        '- 1. maj7 on the ♭3 (m7 rooms)',
+        '- 2. maj7 on the ♭7',
+        '- 3. m7 on the 3 (maj7 rooms)',
+        '- 4. maj7 on the 5 (Lydian)',
+        '- 5. The destination’s harmonic minor, and the °7 grip (Phrygian dominant)',
+        '- 6. dom7 on the ♭5 over 7alt, melodic minor on the ♭2, plus the catches and aliases',
+        'Then tier two, then tier three as tunes call for them. ★ marks how much each one is worth.',
+      ] },
+      { t: 'Dorian', s: 'Dm7 in C · ii', b: [
+        '- <b>maj7 on the ♭3</b> (Fmaj7): ♭3 5 ♭7 9 = Dm9 ★★★',
+        '- <b>maj7 on the ♭7</b> (Cmaj7): ♭7 9 11 13 = Dm13 ★★★',
+        '- <b>min pent on the 5</b> (A minor pent.): 5 ♭7 1 9 11 ★★',
+        '<b>Catch</b>: none. A free room with no avoid notes; the ♭3 shape works on any m7 with a natural 9.',
+      ], ex: [
+        ['Fmaj7 over Dm7: Dm9', '=D3 C4 F4 | F4 | A4 | C5 | E5'],
+        ['Cmaj7 over Dm7: Dm13', '=D3 C4 F4 | C4 | E4 | G4 | B4'],
+      ] },
+      { t: 'Ionian', s: 'Cmaj7 · I', b: [
+        '- <b>m7 on the 3</b> (Em7): 3 5 7 9 = Cmaj9 ★★★',
+        '<b>Catch</b>: the 4 is the avoid note over a held maj7. Lydian sidesteps it.',
+      ], ex: [['Em7 over Cmaj7: Cmaj9', '=C3 B3 E4 | E4 | G4 | B4 | D5']] },
+      { t: 'Lydian', s: 'Fmaj7 in C · IV', b: [
+        '- <b>maj7 on the 5</b> (Cmaj7): 5 7 9 ♯11 = Fmaj9♯11 ★★★',
+        '- <b>triad on the 2</b> (G): 9 ♯11 13 ★★',
+        '- <b>min pent on the 7</b> (E minor pent.): 7 9 3 ♯11 13 ★★',
+        '<b>Catch</b>: none. A free room.',
+      ], ex: [['Cmaj7 over Fmaj7: Fmaj9♯11', '=F2 E3 A3 | C4 | E4 | G4 | B4'], ['G triad over Fmaj7', '=F2 E3 A3 | G4 | B4 | D5']] },
+      { t: 'Mixolydian', s: 'G7 in C · V', b: [
+        '- <b>maj7 on the ♭7</b> (Fmaj7): ♭7 9 11 13 = G13sus ★★',
+        '- <b>triad on the ♭7</b> (F): ♭7 9 11 = G9sus ★★',
+        '<b>Catch</b>: these carry the 11, which clashes with a comper’s 3rd. Free when you’re alone or the comper is listening.',
+      ], ex: [['F triad over G: G9sus', '=G2 F3 C4 | F4 | A4 | C5']] },
+      { t: 'Aeolian', s: 'Am7 in C · vi', b: [
+        '- <b>maj7 on the ♭3</b> (Cmaj7): ♭3 5 ♭7 9 = Am9 ★★★',
+        '- <b>maj7 on the ♭6</b> (Fmaj7): ♭6 1 ♭3 5 ★★',
+        '<b>Catch</b>: maj7 on the ♭7 (Gmaj7) brings Dorian’s 6: wrong in a functional minor key, a deliberate colour on a vamp.',
+      ], ex: [['Cmaj7 over Am7: Am9', '=A2 G3 C4 | C4 | E4 | G4 | B4']] },
+      { t: 'Phrygian', s: 'Em7 in C · iii', b: [
+        '- <b>maj7 on the ♭2</b> (Fmaj7): ♭9 11 ♭13 1 ★',
+        '<b>Catch</b>: that’s four of the mode’s seven notes, not the whole mode. The ♭3 shape (Gmaj7) clashes here: its F♯ is a natural 9.',
+      ], ex: [['Fmaj7 over Em7', '=E2 D3 G3 | F4 | A4 | C5 | E5']] },
+      { t: 'Phrygian dominant', s: 'G7♭9 → Cm · V of minor', b: [
+        '- <b>The destination’s harmonic minor</b> (C harmonic minor) ★★★',
+        '- <b>°7 on the 3</b> (B°7 = the vii°7 of the target): 3 5 ♭7 ♭9 ★★★',
+        '<b>Catch</b>: it’s the V of every minor key. Always land it on the minor tonic.',
+      ], ex: [['B°7 over G7, landing on Cm6', '=G2 F3 B3 | B3 | D4 | F4 | Ab4 | C3 A3 Eb4 G4']] },
+      { t: 'Locrian ♮2', s: 'Dø7 → G7alt → Cm · iiø', b: [
+        '- <b>m6 on the ♭3</b> (Fm6): the same four notes as Dø7 ★★★',
+        'Its parent is the melodic minor a minor 3rd up (F melodic minor).',
+      ], ex: [['Fm6 over Dø7', '=D3 Ab3 C4 | F4 | Ab4 | C5 | D5']] },
+      { t: 'Altered', s: 'G7alt → C', b: [
+        '- <b>dom7 on the ♭5</b> (D♭7): ♯11 ♭7 ♭9 3 ★★★',
+        '- <b>melodic minor on the ♭2</b> (A♭ melodic minor) ★★★',
+        '- <b>major triad on the ♭6</b> (E♭): ♭13 1 ♯9 ★★',
+        '- <b>minor triad on the ♭2</b> (A♭m): ♭9 3 ♭13 ★',
+        '<b>Catch</b>: everything leans and nothing lands. Practise only with the target attached; each altered note resolves by half step on the downbeat.',
+      ], ex: [['D♭7 over G7, resolving to Cmaj7', '=G2 F3 B3 | Db4 | F4 | Ab4 | B4 | C3 B3 E4 G4']] },
+      { t: 'Lydian dominant', s: 'D♭7♯11 → C · the tritone sub', b: [
+        '- <b>triad on the 2</b> (E♭): 9 ♯11 13 ★★',
+        '- <b>Alias</b>: X7♯11 = the altered dominant a tritone away (D♭7♯11 = G7alt, same seven notes) ★★★',
+        'Use it on tritone subs, ♭VII7 and II7. Parent: A♭ melodic minor.',
+      ], ex: [['E♭ triad over D♭7', '=Db3 B3 F4 | Eb4 | G4 | Bb4']] },
+      { t: 'Melodic minor tonic', s: 'Cm6 · i', b: [
+        '- <b>triad on the 5</b> (G): 5 7 9 ★★',
+        '- <b>Alias</b>: m6 = m7♭5 on the 6 (Cm6 = Aø7) ★',
+        '<b>Catch</b>: the major 7 wants length or resolution. Don’t noodle through it.',
+      ], ex: [['G triad over Cm6', '=C3 A3 Eb4 | G4 | B4 | D5']] },
+      { t: 'Half-whole', s: 'G13♭9 → C', b: [
+        '- <b>°7 on the ♭9</b> (A♭°7): ♭9 3 5 ♭7 ★★★',
+        '- <b>Major triads on 1, ♭3, ♭5 and 6</b> (G, B♭, D♭, E) ★★',
+        '- <b>Two dom7 arpeggios</b>, on 1 and ♭5 (G7 and D♭7) ★',
+        '<b>Catch</b>: symmetric, so no gravity. Sequences in minor 3rds must land somewhere or they sound mechanical.',
+      ], ex: [['E triad then B♭ triad over G7', '=G2 F3 B3 | E4 | G#4 | B4 | Bb4 | D5 | F5']] },
+      { t: 'Whole tone', s: 'G7♯5 → C', b: [
+        '- <b>Augmented triads on 1 and 2</b> (G+ and A+): together, the whole-tone scale ★',
+        '<b>Catch</b>: two bars at most, then resolve.',
+      ], ex: [['G+ then A+ over G7♯5, into C', '=G2 F3 B3 | G4 | B4 | D#5 | A4 | C#5 | F5 | C3 B3 E4 G4']] },
+    ],
+  },
+);

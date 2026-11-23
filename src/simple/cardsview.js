@@ -70,6 +70,7 @@ export const exact = (play) => play.slice(1).split('|').map((ch) => ch.trim().sp
 let comp = null;
 const symOf = (c) => T.pretty(T.chordSymbol(c.root, c.quality)) + (c.bass ? '/' + T.noteName(c.bass, true) : '');
 export function stopComp() {
+  stopDrill();
   if (!comp) return;
   clearInterval(comp.timer); comp.timers.forEach(clearTimeout);
   comp.el?.querySelectorAll('.cbarx.on').forEach((b) => b.classList.remove('on'));
@@ -108,6 +109,37 @@ function startComp(card, el, st) {
   comp = m;
   const btn = el.querySelector('[data-cp="play"]'); btn.textContent = '■ Stop'; btn.classList.add('on');
 }
+
+// ---------- drill cards: a click (with optional subdivisions) and a drone on the key, tempo adjustable live ----------
+let drill = null, droneOn = false;
+const DRONE_MIDI = (name) => 40 + ((T.notePc(T.parseNote(name)) - 4 + 12) % 12);
+function stopDrill() {
+  if (drill) { clearInterval(drill.timer); drill.el?.querySelector('[data-dr="go"]')?.classList.remove('on'); const b = drill.el?.querySelector('[data-dr="go"]'); if (b) b.textContent = '▶ Click'; drill = null; }
+  if (droneOn) { A.stopDrone(); droneOn = false; }
+}
+function startClick(el, ds) {
+  if (drill) { clearInterval(drill.timer); }
+  A.unlockAudio();
+  const c = A.audioCtx();
+  const m = { el, next: c.currentTime + 0.08, slot: 0, timer: null };
+  const tick = () => {
+    while (m.next < c.currentTime + 0.12) {
+      const sub = ds.sub, k = m.slot % sub, beat = Math.floor(m.slot / sub) % 4;
+      A.click(m.next, k ? 0 : beat === 0 ? 2 : 1);
+      m.next += 60 / ds.bpm / sub; m.slot++;
+    }
+  };
+  m.timer = setInterval(tick, 25); tick();
+  drill = m;
+  const b = el.querySelector('[data-dr="go"]'); b.textContent = '■ Stop'; b.classList.add('on');
+}
+const SUBS = { 1: 'Beats', 2: '8ths', 3: 'Triplets', 4: '16ths' };
+const drillHTML = (c, ds) => `<div class="comp drill">
+    ${c.drill.goal ? `<div class="dgoal">Goal: <b>${esc(c.drill.goal)}</b>${c.drill.from ? ` · start around ${c.drill.from}` : ''}</div>` : ''}
+    <div class="cctl"><button data-dr="go">▶ Click</button><button data-dr="down" class="sq">−</button><span class="cbpm">${ds.bpm} bpm</span><button data-dr="up" class="sq">+</button></div>
+    <div class="cctl"><button data-dr="sub" class="wide">${SUBS[ds.sub]}</button>${c.drill.drone ? `<button data-dr="drone" class="wide ${droneOn ? 'on' : ''}">Drone ${acc(T.pretty(c.drill.drone))}</button>` : ''}</div>
+  </div>`;
+
 const compHTML = (c, st) => {
   const bars = T.parseChart(c.comp.chart);
   return `<div class="comp">
@@ -141,16 +173,16 @@ function chordRow(tok) {
   return `<div class="krow" style="grid-template-columns: repeat(${ivs.length}, minmax(0, 1fr))">${ivs.map((iv, i) => `<div class="kc ${role(iv)}"><span>${acc(T.prettyIv(iv))}</span><b>${acc(T.noteName(notes[i], true))}</b></div>`).join('')}</div>`;
 }
 const chordsRow = (row) => `<div class="crow">${row.map(([n, sym]) => `<div><span>${acc(n)}</span><b>${acc(sym)}</b></div>`).join('')}</div>`;
-function cardHTML(c, cs) {
+export function cardHTML(c, cs) {
   if (!c) return `<div class="cdeck">&nbsp;</div><h2>That’s the deck</h2><div class="cbody"><p>Tap to go through it again.</p></div>`;
   return `<div class="cdeck">${esc(c.deck)} · ${c.n} / ${c.of}</div>
     <h2>${acc(c.t)}</h2>${c.s ? `<div class="csrc">${c.s}</div>` : ''}
     ${c.key ? keyRow(c.key) : ''}${c.chord ? chordRow(c.chord) : ''}${c.row ? chordsRow(c.row) : ''}
-    ${c.comp ? compHTML(c, cs) : ''}
+    ${c.comp ? compHTML(c, cs) : ''}${c.drill ? drillHTML(c, cs.drill) : ''}
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
     ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}
-    ${c.ex ? `<div class="cex"><div class="cexh">In context</div>${c.ex.map(([cap, play, label]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small><b>${esc(label || chordsLine(play))}</b></div></button>`).join('')}</div>` : ''}`;
+    ${c.ex ? `<div class="cex"><div class="cexh">In context</div>${c.ex.map(([cap, play, label]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small>${label || !play.startsWith('=') ? `<b>${esc(label || chordsLine(play))}</b>` : ''}</div></button>`).join('')}</div>` : ''}`;
 }
 
 // ---------- the screen ----------
@@ -175,7 +207,7 @@ export function mountCards(root, S, save) {
   const deckName = (id) => (id === 'all' ? 'All decks' : DECKS.find((d) => d.id === id).name);
   let card = null, mode = 'home', openDeck = null;
   // the contents: carry on where you were, start any deck, or jump to any card
-  const cs = { bpm: 80, click: st.click !== false, card: null }; // the comp player's tempo and click
+  const cs = { bpm: 80, click: st.click !== false, card: null, drill: { bpm: 60, sub: 1 } }; // the players' tempo, click and subdivision
   const home = () => {
     stopComp();
     mode = 'home'; card = null;
@@ -199,6 +231,7 @@ export function mountCards(root, S, save) {
     stopComp();
     const cur = current();
     if (cur?.comp && cs.card !== cur) { cs.card = cur; cs.bpm = cur.comp.bpm; } // each comping card starts at its own tempo
+    if (cur?.drill && cs.card !== cur) { cs.card = cur; cs.drill = { bpm: cur.drill.bpm, sub: cur.drill.sub || 1 }; }
     stage.innerHTML = `<article class="card${from ? (from > 0 ? ' from-r' : ' from-l') : ''}">${cardHTML(cur, cs)}</article>`;
     card = stage.firstElementChild;
     foot.innerHTML = `<button class="cback" ${p === 0 ? 'disabled' : ''}>◀ Back</button><div class="cprog"><i style="width:${(100 * Math.min(p + 1, n)) / n}%"></i></div><span>${Math.min(p + 1, n)} / ${n}</span>`;
@@ -240,7 +273,7 @@ export function mountCards(root, S, save) {
   // tap: next. Drag sideways: the card follows the finger and flicks on release. Vertical drags scroll a long card.
   let x0 = null, y0 = 0, t0 = 0, dx = 0, drag = false;
   stage.onpointerdown = (e) => {
-    if (mode === 'home' || e.target.closest('.hear, .comp') || busy) return;
+    if (mode === 'home' || e.target.closest('.hear, .comp') || busy) return; // the players' buttons aren't taps on the card
     x0 = e.clientX; y0 = e.clientY; t0 = performance.now(); dx = 0; drag = false;
   };
   stage.onpointermove = (e) => {
@@ -262,6 +295,16 @@ export function mountCards(root, S, save) {
   stage.onpointercancel = (e) => { if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; } x0 = null; drag = false; };
   stage.onclick = (e) => {
     const h = e.target.closest('.hear'); if (h) { e.stopPropagation(); hear(h.dataset.play); return; }
+    const dr = e.target.closest('[data-dr]');
+    if (dr) {
+      e.stopPropagation();
+      const el = dr.closest('.comp'), what = dr.dataset.dr, ds = cs.drill, card = current();
+      if (what === 'go') { if (drill) { clearInterval(drill.timer); drill = null; dr.textContent = '▶ Click'; dr.classList.remove('on'); } else startClick(el, ds); }
+      if (what === 'up' || what === 'down') { ds.bpm = Math.max(30, Math.min(300, ds.bpm + (what === 'up' ? 5 : -5))); el.querySelector('.cbpm').textContent = `${ds.bpm} bpm`; }
+      if (what === 'sub') { ds.sub = { 1: 2, 2: 3, 3: 4, 4: 1 }[ds.sub]; dr.textContent = SUBS[ds.sub]; }
+      if (what === 'drone') { A.unlockAudio(); if (droneOn) { A.stopDrone(); droneOn = false; } else { A.startDrone(DRONE_MIDI(card.drill.drone), true); droneOn = true; } dr.classList.toggle('on', droneOn); }
+      return;
+    }
     const cp = e.target.closest('[data-cp]');
     if (cp) {
       e.stopPropagation();

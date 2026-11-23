@@ -259,3 +259,10 @@ h1 .tabs { margin-left: 8px; }
 .cctl .cbpm { min-width: 62px; text-align: center; font-size: 13.5px; color: var(--soft); font-variant-numeric: tabular-nums; }
 .cctl [data-cp="click"] { font-size: 14px; }
 .cctl [data-cp="play"] { white-space: nowrap; min-width: 92px; padding: 10px 8px; }
+/* drill cards: goal, click, subdivision, drone */
+.drill .dgoal { font-size: 14px; color: var(--soft); }
+.drill .dgoal b { color: var(--amber); }
+.cctl [data-dr="go"] { flex: 1; font-weight: 600; background: var(--amber); color: #1a1206; border-color: var(--amber); white-space: nowrap; }
+.cctl [data-dr="go"].on { background: transparent; color: var(--amber); }
+.cctl .wide { flex: 1; font-size: 14px; }
+.cctl .wide .acc { font-size: 0.9em; margin: 0; }
