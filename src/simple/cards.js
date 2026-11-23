@@ -313,42 +313,92 @@ export const DECKS = [
   },
   {
     id: 'dim', name: 'Diminished chords', cards: [
-      { t: 'It repeats every 3 frets', s: 'symmetry', b: [
-        'A °7 is stacked minor 3rds, so moving it 3 frets gives the same notes in a new inversion.',
-        '- There are only three different °7 chords: C°7, C♯°7, D°7',
-        '- On guitar: one shape, slid up in 3-fret jumps',
+      { t: 'A °7 is a rootless 7♭9', s: 'the core idea · examples in G', chord: 'B:dim7', b: [
+        'Take G7♭9 (G B D F A♭) and drop the root: B D F A♭ is <b>B°7</b>. So a °7 can stand in for a dominant, but specifically a 7♭9, not a plain 7.',
+        'That’s why it pulls so hard: it has the dominant’s 3rd (the leading tone) and 7th, plus the ♭9.',
+      ], ex: [['G7♭9 → C, then B°7 → C: the same pull', 'G:7b9 C:maj7 B:dim7 C:maj7']] },
+      { t: 'Finding it', s: 'from any dominant', b: [
+        'Build the °7 on the dominant’s <b>3rd</b>, or a <b>half step above its root</b>. Both give the same chord.',
+        '- G7 → B°7 (on the 3rd) = A♭°7 (a half step above G)',
+        '- D7 → F♯°7 = E♭°7',
+        '- E7 → G♯°7 = F°7',
+      ], ex: [['D7 → G, then F♯°7 → G', 'D:7 G:maj7 F#:dim7 G:maj7']] },
+      { t: 'Only three exist', s: 'symmetry', b: [
+        'A °7 is stacked minor 3rds, so any of its notes can be the root: B°7 = D°7 = F°7 = A♭°7. There are only three different °7 chords.',
+        '- On guitar, slide any °7 shape 3 frets and it’s the same chord in a new voicing',
+      ], ex: [['One grip at frets 3, 6, 9 and 12: the same four notes each time', '=F3 B3 D4 G#4 | Ab3 D4 F4 B4 | B3 F4 Ab4 D5 | D4 Ab4 B4 F5', 'B°7, four voicings']] },
+      { t: 'One °7, four dominants', s: 'the flip side', b: [
+        'Put a root a major 3rd below any of its notes and you get a 7♭9. So B°7 is rootless G7♭9, B♭7♭9, D♭7♭9 or E7♭9.',
+        'The bass and the next chord decide which one you hear.',
+      ], ex: [
+        ['B°7 → C (as G7♭9)', 'B:dim7 C:maj7'],
+        ['B°7 → Am (as E7♭9)', 'B:dim7 A:m7'],
+        ['B°7 → E♭ (as B♭7♭9)', 'B:dim7 Eb:maj7'],
+        ['B°7 → G♭ (as D♭7♭9)', 'B:dim7 Gb:maj7'],
       ] },
-      { t: 'Four dominants in one', s: 'a °7 is a rootless 7♭9', b: [
-        'Put a root a major 3rd below any note of a °7 and you get a 7♭9.',
-        '- C♯°7 (C♯ E G B♭) = A7♭9, C7♭9, E♭7♭9 or F♯7♭9 without the root',
-        '- So C♯°7 can lead to Dm, F, A♭ or B',
+      { t: 'The dominants of G, swapped', s: 'every secondary dominant has its °7', b: [
+        '- D7 (V → G): F♯°7',
+        '- E7 (→ Am): G♯°7',
+        '- A7 (→ D): C♯°7',
+        '- B7 (→ Em): D♯°7',
+        '- G7 (→ C): B°7',
+        '- F♯7 (→ Bm): A♯°7 (rarer)',
+      ], ex: [
+        ['G – G♯°7 – Am7 (E7♭9 in disguise)', 'G:maj7 G#:dim7 A:m7'],
+        ['C – C♯°7 – D (A7♭9 in disguise)', 'C:maj7 C#:dim7 D:7'],
+        ['D – D♯°7 – Em (B7♭9 in disguise)', 'D:maj D#:dim7 E:m7'],
       ] },
-      { t: 'Rising diminished', s: '♯I°7 → ii, ♯II°7 → iii, ♯IV°7 → V, ♯V°7 → vi', b: [
-        'A °7 a half step under its target: each one is the rootless V7♭9 of the chord it leads to.',
-        '- C♯°7 = A7♭9 → Dm7',
-      ], eg: 'In C: C – C♯°7 – Dm7 – D♯°7 – Em7', play: 'C:maj7 C#:dim7 D:m7 D#:dim7 E:m7' },
-      { t: 'Descending diminished', s: '♭III°7 → ii', b: [
-        'A chromatic passing chord on the way down.',
-        '- iii – ♭iii°7 – ii – V',
-      ], eg: 'In C: Em7 – E♭°7 – Dm7 – G7', play: 'E:m7 Eb:dim7 D:m7 G:7 C:maj7' },
-      { t: 'Common-tone diminished', s: 'I°7 → I', b: [
-        'A neighbour chord that shares the root and has no pull. Over a C pedal, D♯ rises to E, F♯ rises to G, and A stays as the 6th.',
-        '- Also on V: G°7 → G7',
-      ], eg: 'In C: C – C°7 – C', play: 'C:6 C:dim7 C:6' },
-      { t: 'vii°7 → I', s: 'the leading-tone chord', b: [
-        'A rootless V7♭9. In major its ♭6 (A♭) is borrowed from harmonic minor.',
-        '- B → C, F → E, A♭ → G',
-      ], eg: 'In C: B°7 → C', play: 'B:dim7 C:maj7' },
+      { t: 'They collapse to three', s: 'the three °7 families in G', b: [
+        '- D7 and B7 share <b>F♯°7</b> (= A°7 = C°7 = D♯°7)',
+        '- E7 and G7 share <b>G♯°7</b> (= B°7 = D°7 = F°7)',
+        '- A7 and F♯7 share <b>C♯°7</b> (= E°7 = G°7 = B♭°7)',
+        'Learn three grips and you have every dominant in the key.',
+      ] },
+      { t: 'When the swap doesn’t work', s: 'three warnings', b: [
+        '- On a <b>non-pulling dominant</b> (G7 as home in a blues) it just sounds unstable',
+        '- When the melody is on the <b>natural 9</b> (E over D7), it clashes with the °7’s ♭9 (E♭)',
+        '- It sounds most natural <b>resolving to minor</b>. Into a major chord it works, but darker and jazzier',
+      ], ex: [['Into minor: G♯°7 → Am', 'G#:dim7 A:m7'], ['Into major: F♯°7 → G, darker', 'F#:dim7 G:maj7']] },
+      { t: 'Common-tone diminished', s: 'out and back, no pull', b: [
+        'The °7 contains the root of the chord it decorates. You leave and come straight back: a neighbour chord, not a dominant.',
+        '- G – A♯°7 – G: A♯ and C♯ rise by step, E falls to D, G holds',
+        '- D – G♯°7 – D',
+        'It works on major and dominant chords, not on minor ones.',
+      ], ex: [['G – A♯°7 – G', 'G:maj A#:dim7 G:maj'], ['D – G♯°7 – D', 'D:maj G#:dim7 D:maj']] },
+      { t: 'Descending passing', s: 'a chromatic slide', b: [
+        'Between two chords a whole step apart going down, usually on ♭iii: the °7 fills the gap. Common in jazz and Brazilian music.',
+      ], eg: 'In G: Bm7 – B♭°7 – Am7 – D7 – G', ex: [['iii – ♭iii°7 – ii – V – I', 'B:m7 Bb:dim7 A:m7 D:7 G:maj7']] },
+      { t: '♯iv°7 back to the tonic', s: 'the gospel and stride move', b: [
+        'IV – ♯iv°7 – I/5: the bass climbs C – C♯ – D into G over D, usually followed by D7.',
+      ], eg: 'In G: C – C♯°7 – G/D – D7 – G', ex: [['C – C♯°7 – G/D – D7 – G', 'C:maj7 C#:dim7 G:maj/5 D:7 G:maj7']] },
+      { t: 'A pivot to far keys', s: 'modulation', b: [
+        'Any of a °7’s four notes can act as the leading tone, so one chord opens four keys.',
+        '- F♯°7 → G',
+        '- respelled D♯°7 → Em',
+        '- as A°7 → B♭',
+        '- as C°7 → D♭',
+      ], ex: [
+        ['F♯°7 → G', 'F#:dim7 G:maj7'],
+        ['the same chord as D♯°7 → Em', 'D#:dim7 E:m7'],
+        ['as A°7 → B♭', 'A:dim7 Bb:maj7'],
+        ['as C°7 → D♭', 'C:dim7 Db:maj7'],
+      ] },
+      { t: 'Rule of thumb', s: 'which job is it doing?', b: [
+        '- If the next chord is <b>a half step above one of its notes</b>, it’s a dominant (a rootless 7♭9)',
+        '- The common rising move G – G♯°7 – Am7 is the dominant swap in disguise (E7♭9)',
+        '- If it <b>shares a root</b> with the chords around it, it’s common-tone',
+        '- If it <b>slides down by step</b>, it’s passing',
+      ] },
       { t: 'The scales', s: 'two sides of one scale', b: [
-        '- <b>Whole-half</b> over °7: C D E♭ F G♭ A♭ A B',
-        '- <b>Half-whole</b> over 7♭9: G A♭ B♭ B C♯ D E F',
-        'Same eight-note family, starting on a different step.',
+        '- <b>Whole-half</b> over a °7 heard as its own chord: G♯ A♯ B C♯ D E F G',
+        '- <b>Half-whole</b> over the 7♭9 it stands for: E F G G♯ A♯ B C♯ D',
+        'Same eight notes; it depends which chord you hear.',
       ] },
-      { t: '°7 vs ø7', s: "don't mix them up", b: [
-        '- <b>°7</b> (diminished 7th): 1 ♭3 ♭5 𝄫7. Symmetrical, passing, a rootless 7♭9',
-        '- <b>ø7</b> (half-diminished, m7♭5): 1 ♭3 ♭5 ♭7. A real chord: iiø in minor, viiø in major',
+      { t: '°7 vs ø7', s: 'don’t mix them up', b: [
+        '- <b>°7</b> (diminished 7th): 1 ♭3 ♭5 𝄫7. Symmetrical; a rootless 7♭9, passing or common-tone',
+        '- <b>ø7</b> (half-diminished, m7♭5): 1 ♭3 ♭5 ♭7. A real chord: iiø in minor, viiø in major (a rootless 9, not 7♭9)',
         '- Locrian (or Locrian ♮2) over ø7, whole-half over °7',
-      ], eg: 'C°7 has A; Cø7 has B♭' },
+      ], eg: 'A°7 has G♭ (F♯); Aø7 has G' },
     ],
   },
   {
@@ -701,27 +751,6 @@ const MORE = [
   ['tritone', '♭V7 → IV', [
     ['G♭7 → Fmaj7', 'C:maj7 Gb:7#11 F:maj7'],
     ['Compare: C7 → F, then G♭7 → F', 'C:maj7 C:7 F:maj7 C:maj7 Gb:7#11 F:maj7'],
-  ]],
-  ['dim', 'Four dominants in one', [
-    ['One °7, two places to go: C♯°7 → Dm, then C♯°7 → F', 'C#:dim7 D:m7 C#:dim7 F:maj7'],
-  ]],
-  ['dim', 'Rising diminished', [
-    ['C – C♯°7 – Dm7 – D♯°7 – Em7', 'C:maj7 C#:dim7 D:m7 D#:dim7 E:m7'],
-    ['♯IV°7: F – F♯°7 – C/G – G7 – C', 'F:maj7 F#:dim7 C:maj/5 G:7 C:maj7'],
-    ['♯V°7 → vi: G7 – G♯°7 – Am', 'G:7 G#:dim7 A:m7'],
-  ]],
-  ['dim', 'Descending diminished', [
-    ['Em7 – E♭°7 – Dm7 – G7', 'E:m7 Eb:dim7 D:m7 G:7 C:maj7'],
-    ['Up and back: Dm7 – D♯°7 – Em7 – E♭°7 – Dm7', 'D:m7 D#:dim7 E:m7 Eb:dim7 D:m7'],
-  ]],
-  ['dim', 'Common-tone diminished', [
-    ['C – C°7 – C', 'C:6 C:dim7 C:6'],
-    ['On the V: G7 – G°7 – G7 – C', 'G:7 G:dim7 G:7 C:maj7'],
-  ]],
-  ['dim', 'vii°7 → I', [
-    ['B°7 → C', 'B:dim7 C:maj7'],
-    ['Next to the chord it stands for: G7♭9 → C, then B°7 → C', 'G:7b9 C:maj7 B:dim7 C:maj7'],
-    ['In minor: B°7 → Cm', 'B:dim7 C:m6'],
   ]],
   ['mediants', 'I → III', [
     ['C – E – C', 'C:maj E:maj C:maj'],
