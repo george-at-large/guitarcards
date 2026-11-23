@@ -213,3 +213,8 @@ svg.neck { display: block; max-width: 100%; height: auto; }
 .mode.play { margin: 14px 0 4px; background: linear-gradient(135deg, rgba(255, 181, 71, 0.2), rgba(255, 181, 71, 0.06)) !important; border-color: rgba(255, 181, 71, 0.55) !important; }
 .mode.play b { color: var(--amber); font-size: 22px; }
 .mode.play span { color: var(--soft); }
+
+/* home: with the guitar, or phone only */
+.sect { margin: 22px 0 2px; font: 600 13px var(--f-ui); text-transform: uppercase; letter-spacing: 0.09em; color: var(--amber); }
+.sect small { display: block; text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; font-size: 13px; margin-top: 2px; }
+.mode .mp { font-style: normal; color: var(--good); font-size: 12.5px; margin-top: 2px; }

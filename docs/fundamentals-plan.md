@@ -280,6 +280,29 @@ A progression from the CAGED app's library: about 340 of them, from cadences and
 - **Changes** show in violet. Reset restores the original.
 - **Loop** plays it in time, with an optional click and adjustable tempo.
 
+## 4h. Mastery: borrowed chords and chromatic chords (added 2026-11-23)
+
+These are phone only, and they teach one chord at a time until it's known cold:
+- **Borrowed chords:** the 17 single-chord topics in `src/caged/borrowdata.js`.
+- **Chromatic chords:** the 18 topics in `chromdata.js` (secondary dominants, tritone subs, diminished, augmented and
+  line clichés, chromatic mediants).
+
+The cycle:
+- **Learn.** A card shows the chord, where it comes from, how it's used and how it sounds, with two of its progressions
+  in your key, the chord picked out, and tap to hear. It isn't scored.
+- **Practice.** One of its progressions in a weighted key, chord names only: "which borrowed chord does this use?" The
+  wrong answers are chords of the track that aren't in the progression and aren't this chord in another form. The
+  reveal shows the numerals, the chord, the explanation and the sound.
+- **Mastered.** Three clean in a row, then the next chord comes in. At most two are being learned at once. Mastered
+  chords come back as review, and a miss sends one back to learning.
+
+The topic chord of a chromatic pair is the one outside the key. Chords in a progression match it by root and family,
+so iv7 counts as iv and V7♭9 as V7. A check confirmed every topic makes a Learn card and a Practice card (with four
+distinct choices) in all twelve keys. A learner who answers everything right masters a track in about 70 prompts.
+
+Home is now split into **With your guitar** and **Phone only**. Phone only holds the two mastery tracks, the Modal
+Interchange Quiz, Chord Finder, Scale Formulas and Interval Finder.
+
 ## 5. Screens
 
 1. **Home.** The ten modes, a Fuzzy button with a count, today's points and the best scores.

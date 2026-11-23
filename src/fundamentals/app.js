@@ -14,8 +14,13 @@ import chordscales from './chordscales.js';
 import context from './context.js';
 import progressions from './progressions.js';
 import game, { LEVELS, gameLevel } from './game.js';
+import { makeMastery } from './mastery.js';
 
-const MODES = [shapes, chordscales, finder, formulas, modetest, intervals, context, progressions, miquiz, miplayer];
+const mBorrowed = makeMastery('borrowed'), mChromatic = makeMastery('chromatic');
+// Home is split by what you need: the guitar in your hands, or just the phone
+const GUITAR = [shapes, chordscales, modetest, context, progressions, miplayer];
+const PHONE = [mBorrowed, mChromatic, miquiz, finder, formulas, intervals];
+const MODES = [...GUITAR, ...PHONE];
 const ALLM = [game, ...MODES];
 const BY = Object.fromEntries(ALLM.map((m) => [m.id, m]));
 const $app = document.getElementById('fun');
@@ -48,10 +53,13 @@ function home() {
     <header class="top"><h1>Fundamentals</h1>
       <div class="sub">${pts ? `${pts.toLocaleString()} points today` : 'The things to know cold.'}</div></header>
     <button class="mode play" id="game"><b>▶ ${esc(game.title)}</b><span>Level ${gameLevel() + 1} of ${LEVELS.length}: ${esc(LEVELS[gameLevel()].name)}. Nothing to set, just play.</span></button>
-    <div class="modes">${MODES.map((m) => {
+    ${[['With your guitar', 'Play it, then check it.', GUITAR], ['Phone only', 'No guitar needed: on the bus, in a queue, in bed.', PHONE]].map(([h, sub, list]) => `
+    <h2 class="sect">${h}<small>${sub}</small></h2>
+    <div class="modes">${list.map((m) => {
       const n = fz.filter((x) => x.mode === m.id).length;
-      return `<button class="mode" data-mode="${m.id}"><b>${esc(m.title)}</b><span>${esc(m.blurb)}</span>${n ? `<i class="fz">${n} fuzzy</i>` : ''}</button>`;
-    }).join('')}</div>
+      const prog = m.progressLabel ? m.progressLabel() : '';
+      return `<button class="mode" data-mode="${m.id}"><b>${esc(m.title)}</b><span>${esc(m.blurb)}</span>${prog ? `<em class="mp">${esc(prog)}</em>` : ''}${n ? `<i class="fz">${n} fuzzy</i>` : ''}</button>`;
+    }).join('')}</div>`).join('')}
     <div class="row wide">
       <button class="big ${fz.length ? 'warn' : ''}" id="fuzzy">Fuzzy material${fz.length ? ` · ${fz.length}` : ''}</button>
       <button class="big ghost" id="settings">Settings</button>
@@ -223,6 +231,7 @@ function drill(q, cfg) {
       if (done) return; done = true;
       ctx.stopCountdown();
       if (player) return;
+      if (res.noScore) { const id = setTimeout(next, res.delay || 10); cleanup = () => clearTimeout(id); return; }
       s.asked++;
       let gained = 0;
       if (res.clean) {
