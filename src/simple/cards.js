@@ -3,7 +3,8 @@
 // as root:quality tokens; Simple voice-leads it in close position over the bass. `ex` gives several examples in
 // context, each [caption, chords], each playable.
 //   t: title  s: where it comes from / what it is  b: lines ('- ' starts a bullet)  eg: the example  play: chords
-//   ex: [[caption, chords], …]
+//   ex: [[caption, chords, label?], …]. Chords starting with '=' are exact voicings, low to high, one chord per '|'
+//   (e.g. '=C3 B3 E4 G4 | …'), for when the top note matters; then the label names them.
 
 import * as T from '../theory.js';
 
@@ -817,6 +818,122 @@ function minorTips(root) {
 const majorThirds = [...MAJORS.map(([r]) => r)].map((r) => `${P(r)} → ${P(T.noteName(T.transpose(T.parseNote(r), '3')))}`);
 
 DECKS.push(
+  {
+    id: 'chordmelody', name: 'Chord melody', cards: [
+      { t: 'What it is', s: 'one guitar playing the whole tune', b: [
+        'The melody on top, the harmony underneath, the bass at the bottom.',
+        'The melody is the boss. Every chord, bass note and fill is there to serve it, and anything that hides it goes.',
+      ] },
+      { t: 'Learn the melody first', s: 'before any chords', b: [
+        'Sing it. Learn the words, since they tell you the phrasing and where to breathe.',
+        '- Play it single-note in two or three positions',
+        '- Then learn the changes and the bass line on their own',
+        'Only then put them together.',
+      ] },
+      { t: 'Put the melody up high', s: 'room underneath', b: [
+        'The melody wants the top two strings, roughly from open E up to the 12th fret, so the chords fit under it.',
+        '- Usually that means playing the lead sheet’s melody an octave up',
+        '- Pick a key where the melody fits and the bass notes fall on the low strings. Change the key if you need to',
+        '- C, F, G, D and B♭ tend to sit well; open E, A and D basses help a lot',
+      ] },
+      { t: 'The melody is always the top note', s: 'the one rule', b: [
+        'Build each chord down from the melody note. If a voicing puts any note above the melody, it’s the wrong voicing: find another or drop that note.',
+      ] },
+      { t: 'Every chord, every top note', s: 'the vocabulary you need', b: [
+        'For each chord type, know a voicing with the 1, 3, 5 and 7 (and 9 and 13) on the top string. Then any melody note has a home.',
+        '- Drop 2 on strings 4-3-2-1: melody on the high E',
+        '- Drop 3 with the root on the 6th string: melody on the B string',
+      ], ex: [
+        ['One chord, four melody notes: each voicing built down from the top', '=C3 G3 B3 E4 | C3 B3 E4 G4 | C3 E4 G4 B4 | C3 E4 B4 D5', 'Cmaj7: E, G, B, D on top'],
+      ] },
+      { t: 'A melody note outside the chord', s: 'it’s a tension, or it’s passing', b: [
+        'Hear it as a colour and pick the voicing with it on top: D over C is Cmaj9, A over G7 is G9, E♭ over G7 is G7♭13.',
+        '- If it clashes (the 4th over a major chord, say), treat it as a passing note and play it alone, or reharmonise it',
+      ], ex: [
+        ['Melody E, then E♭ over G7, landing on D over C', '=G2 F3 B3 E4 | G2 F3 B3 Eb4 | C3 E3 B3 D4', 'G13 – G7♭13 – Cmaj9'],
+      ] },
+      { t: 'One note, many chords', s: 'where reharmonising starts', b: [
+        'A melody note fits many chords. G can be the 5th of C, the ♭3 of Em, the 3rd of E♭, the 7th of A♭maj7. The melody stays put and the harmony changes colour underneath.',
+      ], ex: [
+        ['G stays on top while the chord under it changes', '=C3 B3 E4 G4 | E2 B3 D4 G4 | Eb3 Bb3 D4 G4 | Ab2 Eb3 C4 G4', 'Cmaj7 – Em7 – E♭maj7 – A♭maj7'],
+      ] },
+      { t: 'Three voices are enough', s: 'bass, guide tone, melody', b: [
+        'The cleanest texture is the root in the bass, one guide tone (the 3rd or 7th) in the middle, and the melody on top. It’s easy to finger and it leaves the melody clear.',
+        'Add notes only where the arrangement needs more weight.',
+      ], ex: [
+        ['Bass, one guide tone, and the melody E – F – D – E', '=C3 B3 E4 | D3 C4 F4 | G2 B3 D4 | C3 B3 E4', 'Cmaj7 – Dm7 – G7 – Cmaj7'],
+      ] },
+      { t: 'Not every note gets a chord', s: 'harmonise the strong ones', b: [
+        'Put chords under the long notes and the notes on strong beats. Let the quick notes in between ring on their own.',
+        '- Change chord where the harmony changes, usually on beat 1',
+        '- Too many chords sound busy and slow the tune down',
+      ] },
+      { t: 'Bass on the downbeat', s: 'the bass carries the harmony', b: [
+        'When the chord changes, put its root (or the bass note the chart asks for) on beat 1. Then the inner voices can be sparse and the ear still hears the changes.',
+        '- Open E, A and D strings let you play the bass while your hand is high up the neck',
+      ] },
+      { t: 'Let the melody sing', s: 'sound and touch', b: [
+        '- The melody should be louder than the chord under it',
+        '- Fingerstyle: thumb on the bass, fingers on the chord, the ring or middle finger on the melody. Or hybrid picking',
+        '- Hold each melody note for its full length: don’t cut it short to reach the next chord',
+        '- Roll the chord a little so the top note comes last',
+      ] },
+      { t: 'Fill the long notes', s: 'when the melody holds', b: [
+        'Under a held melody note, keep something moving:',
+        '- An inner voice (a line cliché)',
+        '- A walking bass',
+        '- A passing chord: a secondary dominant, a tritone sub or a °7',
+        '- A short lick in the gap, then back to the melody',
+      ], ex: [
+        ['E held on top while an inner voice falls B → B♭ → A', '=C3 B3 E4 | C3 Bb3 E4 | C3 A3 E4 | F2 A3 E4', 'Cmaj7 – C7 – C6 – Fmaj7'],
+      ] },
+      { t: 'Approach chords', s: 'harmonising the passing notes', b: [
+        'A melody note just before a chord change can take its own chord leading into the next one:',
+        '- The same shape a fret above, sliding down',
+        '- The V7 of the next chord',
+        '- A °7 a half step below the next chord’s root',
+      ], ex: [
+        ['The same shape a fret above, sliding down', '=Db3 C4 F4 | C3 B3 E4', 'D♭maj7 → Cmaj7'],
+        ['The target’s own V7, with the melody E → F', '=A2 G3 C#4 E4 | D3 A3 C4 F4', 'A7 → Dm7'],
+        ['A °7 a half step below, with the melody E → F', '=C#3 G3 Bb3 E4 | D3 A3 C4 F4', 'C♯°7 → Dm7'],
+      ] },
+      { t: 'Plan the fingering', s: 'a position per phrase', b: [
+        '- Work each phrase out in one position before you move',
+        '- Shift during a single note, a rest, or an open string',
+        '- Look for a finger that stays on its string from chord to chord, and slide on it',
+        '- If a grip is too hard, leave a note out. The melody matters more than the full chord',
+      ] },
+      { t: 'Arrange in passes', s: 'a working order', b: [
+        '- 1. The melody alone, up an octave',
+        '- 2. The bass notes on the chord changes',
+        '- 3. A guide tone under each chord',
+        '- 4. Fills, approach chords, reharmonisation',
+        '- 5. An intro and an ending',
+        'Then play it slowly and take out anything that gets in the melody’s way.',
+      ] },
+      { t: 'Intros and endings', s: 'framing the tune', b: [
+        '- <b>Intro</b>: the last four bars of the tune, or a I – vi – ii – V vamp',
+        '- <b>Ending</b>: tag the last ii–V two or three times, or land via ♭IImaj7 or ♭VImaj7',
+        '- A final chord with a 6 or 9 on top rings beautifully',
+      ], ex: [
+        ['Ending on ♭VI → I, with G held on top', '=Ab2 Eb3 C4 G4 | C3 B3 E4 G4', 'A♭maj7 → Cmaj7'],
+        ['Ending on ♭II → I: the same shape a fret down', '=Db3 C4 F4 Ab4 | C3 B3 E4 G4', 'D♭maj7 → Cmaj7'],
+      ] },
+      { t: 'The second time through', s: 'vary it', b: [
+        'The first chorus states the melody plainly. After that:',
+        '- Reharmonise',
+        '- Change register',
+        '- Add a walking bass under the melody (Martin Taylor does this)',
+        '- Or go to single-note soloing and come back for the last chorus',
+      ] },
+      { t: 'Listen and steal', s: 'who to learn from', b: [
+        '- Joe Pass, <i>Virtuoso</i>',
+        '- Ted Greene, <i>Solo Guitar</i>',
+        '- Lenny Breau, George Van Eps, Martin Taylor',
+        'Good first tunes: “Autumn Leaves”, “Fly Me to the Moon”, “Misty”.',
+      ] },
+    ],
+  },
   {
     id: 'majkeys', name: 'Major keys', cards: [
       { t: 'Every letter once', s: 'the rule that spells every key', b: [

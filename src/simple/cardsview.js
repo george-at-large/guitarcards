@@ -52,8 +52,12 @@ export function voiceProg(tokens) {
 function hear(play) {
   A.unlockAudio();
   const c = A.audioCtx(), t0 = c.currentTime + 0.05;
-  voiceProg(play.split(/\s+/)).forEach((ch, i) => A.strum(ch, t0 + i * 1.15, { spread: 0.03 }));
+  const chords = play.startsWith('=') ? exact(play) : voiceProg(play.split(/\s+/));
+  chords.forEach((ch, i) => A.strum(ch, t0 + i * 1.15, { spread: ch.length > 3 ? 0.03 : 0.04 }));
 }
+// '=C3 B3 E4 G4 | …': exact voicings, low to high (chord melody, where the top note is the point)
+const midiOf = (s) => { const m = /^([A-G](?:#|b)?)(-?\d)$/.exec(s); if (!m) throw new Error(`Bad note "${s}"`); return T.notePc(T.parseNote(m[1])) + (Number(m[2]) + 1) * 12; };
+export const exact = (play) => play.slice(1).split('|').map((ch) => ch.trim().split(/\s+/).map(midiOf));
 
 // ---------- a card ----------
 function bodyHTML(lines = []) {
@@ -81,7 +85,7 @@ function cardHTML(c) {
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
     ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}
-    ${c.ex ? `<div class="cex"><div class="cexh">In context</div>${c.ex.map(([cap, play]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small><b>${esc(chordsLine(play))}</b></div></button>`).join('')}</div>` : ''}`;
+    ${c.ex ? `<div class="cex"><div class="cexh">In context</div>${c.ex.map(([cap, play, label]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small><b>${esc(label || chordsLine(play))}</b></div></button>`).join('')}</div>` : ''}`;
 }
 
 // ---------- the screen ----------
@@ -100,11 +104,30 @@ export function mountCards(root, S, save) {
   const current = () => (pos() < list().length ? list()[order()[pos()]] : null);
 
   root.querySelector('.cbar').innerHTML = `
-    <select id="deck"><option value="all">All decks (${ALL.length})</option>${DECKS.map((d) => `<option value="${d.id}" ${st.deck === d.id ? 'selected' : ''}>${esc(d.name)} (${d.cards.length})</option>`).join('')}</select>
+    <button id="home" class="chome">☰ <span></span></button>
     <button id="shuf" class="${st.shuffle ? 'on' : ''}" aria-pressed="${st.shuffle}">Shuffle</button>`;
   const stage = root.querySelector('.stage'), foot = root.querySelector('.cfoot');
-  let card = null;
+  const deckName = (id) => (id === 'all' ? 'All decks' : DECKS.find((d) => d.id === id).name);
+  let card = null, mode = 'home', openDeck = null;
+  // the contents: carry on where you were, start any deck, or jump to any card
+  const home = () => {
+    mode = 'home'; card = null;
+    root.querySelector('#home span').textContent = 'Contents';
+    const c = current(), n = list().length;
+    stage.innerHTML = `<div class="home">
+      <button class="hcont" data-cont><small>Carry on · ${esc(deckName(st.deck))} · ${Math.min(pos() + 1, n)} / ${n}</small><b>${c ? acc(c.t) : 'Back to the start'}</b><span>▶</span></button>
+      <button class="hall" data-all>All decks in a row <span>${ALL.length} cards</span></button>
+      ${DECKS.map((d) => `<section class="hsec${openDeck === d.id ? ' open' : ''}">
+        <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-start="${d.id}">Start</button></div>
+        ${openDeck === d.id ? `<div class="hcards">${d.cards.map((x, i) => `<button data-jump="${d.id}:${i}"><span>${i + 1}</span>${acc(x.t)}</button>`).join('')}</div>` : ''}
+      </section>`).join('')}
+    </div>`;
+    foot.innerHTML = '';
+    save();
+  };
   const show = (from = 0) => {
+    mode = 'card';
+    root.querySelector('#home span').textContent = deckName(st.deck);
     const n = list().length, p = pos();
     stage.innerHTML = `<article class="card${from ? (from > 0 ? ' from-r' : ' from-l') : ''}">${cardHTML(current())}</article>`;
     card = stage.firstElementChild;
@@ -130,19 +153,24 @@ export function mountCards(root, S, save) {
     setTimeout(() => { step(d); show(d); busy = false; }, 170);
   };
 
-  root.querySelector('#deck').onchange = (e) => { st.deck = e.target.value; show(); };
+  root.querySelector('#home').onclick = () => (mode === 'home' ? show() : home());
   root.querySelector('#shuf').onclick = (e) => {
     st.shuffle = !st.shuffle;
     if (st.shuffle) st.order[st.deck] = shuffled(list().length);
     st.pos[st.deck] = 0;
     e.currentTarget.classList.toggle('on', st.shuffle);
-    show();
+    if (mode === 'home') home(); else show();
+  };
+  const jump = (deck, i) => {
+    st.deck = deck;
+    st.pos[deck] = i == null ? 0 : st.shuffle ? Math.max(0, order().indexOf(i)) : i;
+    show(1);
   };
 
   // tap: next. Drag sideways: the card follows the finger and flicks on release. Vertical drags scroll a long card.
   let x0 = null, y0 = 0, t0 = 0, dx = 0, drag = false;
   stage.onpointerdown = (e) => {
-    if (e.target.closest('.hear') || busy) return;
+    if (mode === 'home' || e.target.closest('.hear') || busy) return;
     x0 = e.clientX; y0 = e.clientY; t0 = performance.now(); dx = 0; drag = false;
   };
   stage.onpointermove = (e) => {
@@ -162,7 +190,16 @@ export function mountCards(root, S, save) {
   };
   stage.onpointerup = end;
   stage.onpointercancel = (e) => { if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; } x0 = null; drag = false; };
-  stage.onclick = (e) => { const h = e.target.closest('.hear'); if (h) { e.stopPropagation(); hear(h.dataset.play); } };
-  show();
-  return { key: (k) => { if (k === 'ArrowRight' || k === ' ') go(1); if (k === 'ArrowLeft') go(-1); } };
+  stage.onclick = (e) => {
+    const h = e.target.closest('.hear'); if (h) { e.stopPropagation(); hear(h.dataset.play); return; }
+    if (mode !== 'home') return;
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.cont != null) show(1);
+    else if (b.dataset.all != null) { st.deck = 'all'; show(1); }
+    else if (b.dataset.open) { const sc = stage.querySelector('.home').scrollTop; openDeck = openDeck === b.dataset.open ? null : b.dataset.open; home(); stage.querySelector('.home').scrollTop = sc; }
+    else if (b.dataset.start) jump(b.dataset.start, null);
+    else if (b.dataset.jump) { const [d, i] = b.dataset.jump.split(':'); jump(d, Number(i)); }
+  };
+  home();
+  return { key: (k) => { if (mode === 'home') return; if (k === 'ArrowRight' || k === ' ') go(1); if (k === 'ArrowLeft') go(-1); if (k === 'Escape') home(); } };
 }
