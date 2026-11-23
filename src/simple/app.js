@@ -10,6 +10,7 @@ import { spellRoot, typeName, esc } from '../fundamentals/core.js';
 import { mountCards, stopComp } from './cardsview.js';
 import { mountSing } from './sing.js';
 import { mountSingNeck } from './singneck.js';
+import { mountScales } from './scales.js';
 import * as N from './neck.js';
 
 // ---------- chords and exercises ----------
@@ -180,13 +181,14 @@ function role(iv) {
 
 // ---------- the screen ----------
 const $app = document.getElementById('simple');
-let cardsUI = null, singUI = null;
-const VIEWS = [['neck', 'Neck'], ['cards', 'Cards'], ['sing', 'Sing']];
+let cardsUI = null, singUI = null, scalesUI = null;
+const VIEWS = [['neck', 'Neck'], ['cards', 'Cards'], ['sing', 'Sing'], ['scales', 'Scales']];
 const tabs = () => VIEWS.filter(([v]) => v !== (S.view || 'neck')).map(([v, l]) => `<button class="tab" data-view="${v}">${l}</button>`).join('');
 // switching views: the neck's click, auto and drone stop when you leave it, and Sing's drone when you leave that
 function switchView(v) {
   if ((S.view || 'neck') === 'neck') { stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; } }
   if (singUI) { singUI.leave(); singUI = null; }
+  if (scalesUI) { scalesUI.leave(); scalesUI = null; }
   stopComp(); cardsUI = null;
   S.view = v; save(); render();
   if (v === 'neck') syncDrone();
@@ -215,8 +217,16 @@ function renderSing() {
   bindTabs();
   singUI = mountSing($app, S, save, { onPage });
 }
+function renderScales() {
+  $app.className = (upright() ? 'v' : 'h') + ' singneck scl';
+  $app.innerHTML = `<header><h1>Simple <span class="tabs">${tabs()}</span></h1><span class="key">Scales</span></header>
+    <div class="neckbox"></div><div class="panel"></div>`;
+  bindTabs();
+  scalesUI = mountScales($app, S, save, { upright });
+}
 function render() {
   if (S.view === 'cards') return renderCards();
+  if (S.view === 'scales') { if (scalesUI) return; return renderScales(); }
   if (S.view === 'sing') { if (singUI) return; return renderSing(); }
   const step = steps[at];
   const r = root();
@@ -368,12 +378,14 @@ render();
 let lastV = upright();
 document.addEventListener('keydown', (e) => { if (S.view === 'cards' && cardsUI && !e.target.closest('select')) cardsUI.key(e.key); });
 window.addEventListener('resize', () => {
+  if (S.view === 'scales' && upright() !== lastV) { lastV = upright(); if (scalesUI) { scalesUI.leave(); scalesUI = null; } render(); return; }
   if (S.view === 'sing' && ['neck', 'find'].includes(S.sing?.page) && upright() !== lastV) { lastV = upright(); if (singUI) { singUI.leave(); singUI = null; } render(); return; }
   if ((S.view || 'neck') === 'neck' && upright() !== lastV) { lastV = upright(); render(); } });
 // sound can only start from a tap (iOS): Click and Drone left on pick up again on the first tap
 document.addEventListener('pointerdown', () => {
   if (S.view === 'sing' && singUI) singUI.wake();
-  if (S.view === 'cards' || S.view === 'sing') return;
+  if (S.view === 'scales' && scalesUI) scalesUI.wake();
+  if (S.view === 'cards' || S.view === 'sing' || S.view === 'scales') return;
   if (S.drone && droneAt == null) syncDrone();
   if (S.mode === 'manual' && S.click && !pulse) syncPulse();
 }, true);
@@ -382,6 +394,7 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) return;
   stop(); stopPulse(); if (droneAt != null) { A.stopDrone(); droneAt = null; }
   if (singUI) singUI.leave();
+  if (scalesUI) { scalesUI.leave(); scalesUI.render(); }
   stopComp();
   if ((S.view || 'neck') === 'neck') render();
 });

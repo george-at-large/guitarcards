@@ -293,3 +293,18 @@ h1 .tabs { margin-left: 8px; }
 .neck.nw .dot text { font-size: 15px; }
 .neck.nw .fn { font-size: 14px; }
 .neck.nw .mute { font-size: 16px; }
+
+/* Scales: the formula as coloured degrees, the how-to, the lit note */
+#simple.scl .menus { grid-template-columns: 1fr; }
+@media (min-width: 700px) { #simple.h.scl .menus { grid-template-columns: 2fr 2fr 1fr; } }
+.xinfo { display: flex; flex-direction: column; gap: 8px; }
+.xform { display: flex; flex-wrap: wrap; gap: 5px; }
+.xform span { min-width: 30px; padding: 4px 6px; border-radius: 8px; text-align: center; font: 700 13px var(--f-ui); color: #15121b; background: var(--violet); }
+.xform span.r { background: var(--amber); } .xform span.t { background: var(--cyan); } .xform span.f { background: var(--bone); } .xform span.s { background: var(--rose); }
+.xinfo p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--soft); }
+.xinfo p b { color: var(--text); }
+.neck .dot.lit circle:first-child { stroke: #fff; stroke-width: 3; }
+/* four views: the header pills wrap rather than spill */
+.tabs { flex-wrap: wrap; }
+#simple.v header h1 .tabs { gap: 5px; }
+#simple.v header h1 .tab { margin-left: 0; padding: 5px 8px; font-size: 11px; }
