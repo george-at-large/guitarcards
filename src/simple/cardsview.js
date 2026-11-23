@@ -164,6 +164,12 @@ function openEx(btn) {
   ex = { btn, panel, steps, exact, win: exWindow(steps), timers: [], timer: null, loop: false };
   drawEx(0);
   playEx();
+  // the neck opens under the example: scroll the card so all of it is in view
+  const card = panel.closest('.card');
+  if (card) {
+    const cr = card.getBoundingClientRect(), pr = panel.getBoundingClientRect(), br = btn.getBoundingClientRect();
+    if (pr.bottom > cr.bottom - 8) card.scrollTo({ top: card.scrollTop + Math.min(pr.bottom - cr.bottom + 16, br.top - cr.top - 8), behavior: 'smooth' });
+  }
 }
 function exControl(el) {
   if (!ex) return;
