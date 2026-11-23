@@ -127,6 +127,43 @@ function neckSVG(step) {
   }
   return svg + '</svg>';
 }
+// the same neck upright, for a phone held upright: the nut at the top, low E on the left (as in a chord diagram),
+// all 15 frets in view, fret numbers down the right
+function neckV(step) {
+  const W = 220, H = 860, padL = 16, padR = 30, padT = 34, padB = 8;
+  const scale = (H - padT - padB) / fx(NF + 0.6);
+  const Y = (f) => padT + fx(f) * scale;
+  const mid = (f) => (f === 0 ? padT - 17 : (Y(f - 1) + Y(f)) / 2);
+  const sx = (s) => padL + 14 + ((6 - s) * (W - padL - padR - 28)) / 5;
+  const x0 = sx(6) - 15, x1 = sx(1) + 15;
+  const r = root();
+  let svg = `<svg class="neck v" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="woodv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f1d12"/><stop offset=".5" stop-color="#4a2e1c"/><stop offset="1" stop-color="#2f1d12"/></linearGradient>
+      <linearGradient id="fretv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a8a8a"/><stop offset=".5" stop-color="#eeeeee"/><stop offset="1" stop-color="#8a8a8a"/></linearGradient>
+      <radialGradient id="pearlv"><stop offset="0" stop-color="#fbf7ee"/><stop offset="1" stop-color="#cfc6b4"/></radialGradient>
+    </defs>
+    <rect x="${x0}" y="${padT}" width="${x1 - x0}" height="${Y(NF + 0.6) - padT}" rx="4" fill="url(#woodv)"/>`;
+  if (step && step.win) svg += `<rect x="${x0}" y="${Y(Math.max(0, step.win.lo - 1))}" width="${x1 - x0}" height="${Y(step.win.hi) - Y(Math.max(0, step.win.lo - 1))}" fill="rgba(255,181,71,0.12)"/>`;
+  const cx = (sx(3) + sx(4)) / 2;
+  for (const f of [3, 5, 7, 9, 15]) if (f <= NF) svg += `<circle cx="${cx}" cy="${mid(f)}" r="6" fill="url(#pearlv)" opacity=".85"/>`;
+  svg += `<circle cx="${(sx(2) + sx(3)) / 2}" cy="${mid(12)}" r="6" fill="url(#pearlv)" opacity=".85"/><circle cx="${(sx(4) + sx(5)) / 2}" cy="${mid(12)}" r="6" fill="url(#pearlv)" opacity=".85"/>`;
+  svg += `<rect x="${x0}" y="${padT - 5}" width="${x1 - x0}" height="7" fill="#efe6d2"/>`;
+  for (let f = 1; f <= NF; f++) svg += `<rect x="${x0}" y="${Y(f) - 1.6}" width="${x1 - x0}" height="3.2" fill="url(#fretv)"/>`;
+  for (let f = 1; f <= NF; f++) if ([3, 5, 7, 9, 12, 15].includes(f)) svg += `<text class="fn" x="${W - 3}" y="${mid(f) + 4}" text-anchor="end">${f}</text>`;
+  for (let s = 1; s <= 6; s++) svg += `<line x1="${sx(s)}" y1="${padT - 30}" x2="${sx(s)}" y2="${Y(NF + 0.6)}" stroke="${s <= 3 ? '#e9e6df' : '#d9b77a'}" stroke-width="${0.9 + (s - 1) * 0.45}" opacity=".9"/>`;
+  const all = F.regionNotes({ root: r, quality: S.q, region: { frets: [0, NF] } });
+  const lit = new Set((step?.notes || []).map((n) => n.string + ':' + n.fret));
+  for (const n of all) if (!lit.has(n.string + ':' + n.fret)) svg += `<circle cx="${sx(n.string)}" cy="${mid(n.fret)}" r="5" class="ghost ${role(n.iv)}"/>`;
+  const bass = step && !step.arp ? Math.max(...step.notes.map((n) => n.string)) : null;
+  for (const n of step?.notes || []) {
+    const lab = S.labels === 'deg' ? T.prettyIv(n.iv) : T.noteName(n.note, true);
+    svg += `<g class="dot ${role(n.iv)}"><circle cx="${sx(n.string)}" cy="${mid(n.fret)}" r="13"/>${n.string === bass ? `<circle class="ring" cx="${sx(n.string)}" cy="${mid(n.fret)}" r="16.5"/>` : ''}<text x="${sx(n.string)}" y="${mid(n.fret) + 4.3}" text-anchor="middle">${esc(lab)}</text></g>`;
+  }
+  return svg + '</svg>';
+}
+// upright on a phone held upright; across in landscape and on wide screens
+const upright = () => window.innerHeight > window.innerWidth && window.innerWidth < 700;
 function role(iv) {
   const s = F.simpleIv(iv);
   if (s === '1') return 'r';
@@ -145,9 +182,12 @@ function render() {
   const exs = exercisesFor(S.q);
   const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
   const prevScroll = document.getElementById('neckbox')?.scrollLeft || 0;
+  const v = upright();
+  $app.className = v ? 'v' : 'h';
   $app.innerHTML = `
     <header><h1>Simple</h1><span class="key">${esc(symb)}${typeName(S.q) ? ` <i>${typeName(S.q)}</i>` : ''}</span></header>
-    <div class="neckbox" id="neckbox">${neckSVG(step)}</div>
+    <div class="neckbox" id="neckbox">${v ? neckV(step) : neckSVG(step)}</div>
+    <div class="panel">
     <div class="cap"><b>${step ? esc(step.text) : 'No shapes for this one'}</b><span>${steps.length ? `${at + 1} / ${steps.length}` : ''}</span></div>
     <div class="menus">
       <label><span>Chord</span><select id="q">${CHORDS.map(([g, list]) => `<optgroup label="${g}">${list.map(([v, l]) => opt(v, l, S.q)).join('')}</optgroup>`).join('')}</select></label>
@@ -158,11 +198,13 @@ function render() {
     ${S.mode === 'manual'
       ? `<div class="row big"><button id="prev">◀</button><button id="next">▶</button></div>`
       : `<div class="row big"><button id="run" class="${timer ? 'on' : ''}">${timer ? '■ Stop' : '▶ Start'}</button></div>
-         <div class="row"><button class="sq" id="down">−</button><span class="bpm">${S.bpm} bpm · ${S.beats} beats a shape</span><button class="sq" id="up">+</button><button id="beats">${S.beats === 4 ? '2 beats' : '4 beats'}</button></div>`}
+         <div class="row"><button class="sq" id="down">−</button><span class="bpm">${S.bpm} bpm</span><button class="sq" id="up">+</button></div>
+         <div class="row"><button id="beats" class="wide">A shape every ${S.beats} beats</button></div>`}
     <div class="row toggles">
-      <button id="sound" class="${S.sound ? 'on' : ''}">${S.sound ? 'Sound on' : 'Sound off'}</button>
+      <button id="sound" class="${S.sound ? 'on' : ''}" aria-pressed="${S.sound}">${S.sound ? '♪ Sound' : 'Sound off'}</button>
       ${S.mode === 'auto' ? `<button id="click" class="${S.click ? 'on' : ''}">Click</button>` : ''}
-      <button id="labels">${S.labels === 'deg' ? 'Showing degrees' : 'Showing notes'}</button>
+      <button id="labels">${S.labels === 'deg' ? 'Degrees' : 'Notes'}</button>
+    </div>
     </div>`;
   document.getElementById('neckbox').scrollLeft = prevScroll; // glide from where it was, not from the nut
   bind();
@@ -171,7 +213,7 @@ function render() {
 // keep the lit shape in view on a narrow screen
 function follow() {
   const box = document.getElementById('neckbox'), step = steps[at];
-  if (!box || !step || box.scrollWidth <= box.clientWidth) return;
+  if (!box || !step || upright() || box.scrollWidth <= box.clientWidth) return;
   const svg = box.querySelector('svg');
   const k = svg.getBoundingClientRect().width / 1000;
   const fs = step.notes.map((n) => n.fret);
@@ -216,7 +258,7 @@ function bind() {
   const box = $('neckbox');
   let x0 = null;
   box.ontouchstart = (e) => { x0 = e.touches[0].clientX; };
-  box.ontouchend = (e) => { if (x0 == null || S.mode !== 'manual') return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 60 && box.scrollWidth <= box.clientWidth) go(dx < 0 ? 1 : -1); };
+  box.ontouchend = (e) => { if (x0 == null || S.mode !== 'manual') return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 60 && (upright() || box.scrollWidth <= box.clientWidth)) go(dx < 0 ? 1 : -1); };
   box.onclick = () => { if (steps[at]) sound(steps[at], true); };
 }
 
@@ -260,5 +302,7 @@ function stop() { if (timer) { A.stopMetronome(); timer = null; } }
 
 steps = build();
 render();
+let lastV = upright();
+window.addEventListener('resize', () => { if (upright() !== lastV) { lastV = upright(); render(); } });
 document.addEventListener('visibilitychange', () => { if (document.hidden && timer) { stop(); render(); } });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

@@ -60,3 +60,26 @@ button.on { color: var(--amber); border-color: rgba(255, 181, 71, 0.6); backgrou
 .row .sq { width: 44px; padding: 10px 0; }
 .row .bpm { flex: 1; text-align: center; color: var(--soft); font-variant-numeric: tabular-nums; }
 .toggles button { flex: 1; font-size: 14px; color: var(--soft); }
+
+/* upright: the neck down the left, everything else in a column beside it, no scrolling */
+#simple.v { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr; column-gap: 12px; height: 100dvh; overflow: hidden; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+#simple.v header { grid-column: 2; grid-row: 1; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 0 8px; }
+#simple.v header h1 { font-size: 20px; color: var(--muted); }
+#simple.v header .key { text-align: left; font-size: 26px; }
+#simple.v .neckbox { grid-column: 1; grid-row: 1 / span 2; margin: 0; padding: 0; overflow: visible; height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 26px); }
+#simple.v .neck.v { min-width: 0; width: auto; height: 100%; }
+#simple.v .panel { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; }
+#simple.v .cap { flex-direction: column; gap: 2px; margin: 0; }
+#simple.v .cap b { font-size: 14px; line-height: 1.3; }
+#simple.v .menus { gap: 8px; }
+#simple.v select { padding: 10px 24px 10px 9px; font-size: 13px; border-radius: 12px; background-position: calc(100% - 13px) 52%, calc(100% - 8px) 52%; }
+#simple.v .seg { margin: 4px 0 0; }
+#simple.v .seg button { padding: 9px 4px; font-size: 14px; }
+#simple.v .row { margin: 0; gap: 6px; }
+#simple.v .row.big button { padding: 16px 0; font-size: 20px; }
+#simple.v .row .sq { width: 40px; }
+#simple.v .row .wide { flex: 1; font-size: 13px; padding: 9px 4px; }
+#simple.v .toggles { flex-wrap: wrap; }
+#simple.v .toggles button { flex: 1 1 45%; padding: 9px 4px; font-size: 13px; }
+.panel .wide { flex: 1; }
+#simple.v .row .bpm { white-space: nowrap; font-size: 13.5px; }
