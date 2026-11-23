@@ -52,8 +52,13 @@ export function voiceProg(tokens) {
 function hear(play) {
   A.unlockAudio();
   const c = A.audioCtx(), t0 = c.currentTime + 0.05;
-  const chords = play.startsWith('=') ? exact(play) : voiceProg(play.split(/\s+/));
-  chords.forEach((ch, i) => A.strum(ch, t0 + i * 1.15, { spread: ch.length > 3 ? 0.03 : 0.04 }));
+  if (!play.startsWith('=')) { voiceProg(play.split(/\s+/)).forEach((ch, i) => A.strum(ch, t0 + i * 1.15, { spread: 0.03 })); return; }
+  // exact events: a chord rings for a beat; single notes are a line in eighths, over the chord before them
+  let t = t0;
+  exact(play).forEach((ch, i, all) => {
+    if (ch.length > 1) { A.strum(ch, t, { spread: ch.length > 3 ? 0.03 : 0.04, vel: all[i + 1]?.length === 1 ? 0.6 : 0.8 }); t += all[i + 1]?.length === 1 ? 0.45 : 1.15; }
+    else { A.pluck(ch[0], t, { vel: 0.85, dur: 0.42 }); t += all[i + 1]?.length > 1 ? 0.55 : 0.28; }
+  });
 }
 // '=C3 B3 E4 G4 | …': exact voicings, low to high (chord melody, where the top note is the point)
 const midiOf = (s) => { const m = /^([A-G](?:#|b)?)(-?\d)$/.exec(s); if (!m) throw new Error(`Bad note "${s}"`); return T.notePc(T.parseNote(m[1])) + (Number(m[2]) + 1) * 12; };
