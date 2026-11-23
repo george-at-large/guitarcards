@@ -18,8 +18,9 @@ export const DECKS = [
         ['The three notes, one at a time: E♭ in Cm, A♭ in Fm, B♭ in B♭7', 'C:maj7 C:m7 C:maj7 F:m6 C:maj7 Bb:9 C:maj7'],
         ['A plain I – IV – V – I, then the same with iv: one note (A → A♭) changes the mood', 'C:maj7 F:maj7 G:7 C:maj7 F:m6 G:7 C:maj7'],
       ] },
-      { t: 'iv7 (m9, m6)', s: 'from Aeolian', b: [
+      { t: 'iv7 (m9, m6)', s: 'from Aeolian', chord: 'F:m7', b: [
         'The “sad IV”. Its ♭3 is the key’s ♭6 (A♭), which falls a half step to the 5th (G) as it goes home.',
+        '<b>Function</b>: predominant: a darker IV, going to I or on to V.',
         '- Play F Dorian over it: Aeolian’s notes on its 4th degree (the 2nd mode of E♭ major)',
         '- Fm6 has the same notes as Dø7, so iv6 and iiø7 are one sound',
       ], eg: 'In C: Fm7, Fm6, Fm9', ex: [
@@ -28,8 +29,9 @@ export const DECKS = [
         ['I – I7 – IV – iv – I: a move all over the standards', 'C:maj7 C:9 F:maj7 F:m6 C:maj7'],
         ['Over a tonic pedal: Fm/C – C, the minor plagal “amen”', 'C:maj F:min/5 C:maj'],
       ] },
-      { t: '♭VImaj7♯11', s: 'from Aeolian', b: [
+      { t: '♭VImaj7♯11', s: 'from Aeolian', chord: 'Ab:maj7#11', b: [
         'The lush, cinematic one: a major chord a major 3rd below home, sharing only C with it.',
+        '<b>Function</b>: predominant (on to V, ♭VII or iv), or a soft deceptive landing in place of I.',
         '- Its ♯11 is the key’s own 2nd (D), so it sits easily',
         '- Play Lydian over it: Aeolian’s notes on ♭6 are A♭ Lydian',
       ], eg: 'In C: A♭maj7♯11', ex: [
@@ -38,24 +40,27 @@ export const DECKS = [
         ['The deceptive cadence: you expect C after G7 and get A♭', 'D:m7 G:7 Ab:maj7#11'],
         ['I – ♭VI as a two-chord vamp: the film-score shimmer', 'C:maj7 Ab:maj7#11 C:maj7 Ab:maj7#11'],
       ] },
-      { t: '♭VI7 (7♯11)', s: 'from Aeolian, made a dominant', b: [
+      { t: '♭VI7 (7♯11)', s: 'from Aeolian, made a dominant', chord: 'Ab:7#11', b: [
         'The ♭6 with a ♭7 added: a dominant that doesn’t pull (see that deck). Its G♭ is really F♯, the leading tone to G.',
+        '<b>Function</b>: a dominant that doesn’t pull: into V (the German 6th) or straight to I.',
         '- Lydian dominant over it (E♭ melodic minor)',
       ], eg: 'In C: A♭7♯11', ex: [
         ['♭VI7 → V → I: the German 6th, and the tritone sub of D7', 'C:maj7 Ab:7#11 G:7 C:maj7'],
         ['I – vi – ♭VI7 – V: a turnaround where the bass walks down C, A, A♭, G', 'C:maj7 A:m7 Ab:7#11 G:7 C:maj7'],
         ['♭VI7 – ♭VII7 – I: the darker backdoor, rising by whole steps', 'Ab:7#11 Bb:9 C:maj7'],
       ] },
-      { t: '♭VII7 (9, 13, ♯11)', s: 'from Aeolian: the backdoor dominant', b: [
+      { t: '♭VII7 (9, 13, ♯11)', s: 'from Aeolian: the backdoor dominant', chord: 'Bb:9', b: [
         'Steps up a whole tone to I instead of falling a 5th. Its ♭7 (A♭) falls to G and its 3rd (D) moves to C or E.',
+        '<b>Function</b>: dominant: it does V’s job, from a whole step below.',
         '- Mixolydian (rootsy) or Lydian dominant (floaty) over it',
       ], eg: 'In C: B♭7 → C', ex: [
         ['iv7 – ♭VII7 – I: the backdoor ii–V, as in “Lady Bird”', 'F:m7 Bb:9 C:maj7'],
         ['IV – iv7 – ♭VII7 – I: one inner voice sinks A → A♭ → G', 'F:maj7 F:m7 Bb:9 C:maj7'],
         ['I – ♭VII7 – I: a soft dominant for a vamp or a final cadence', 'C:maj7 Bb:13 C:maj7'],
       ] },
-      { t: '♭VIImaj7♯11', s: 'from Mixolydian', b: [
+      { t: '♭VIImaj7♯11', s: 'from Mixolydian', chord: 'Bb:maj7#11', b: [
         'The rock ♭VII, made lush. Mixolydian’s notes on ♭7 are a Lydian scale, hence the ♯11.',
+        '<b>Function</b>: a soft dominant substitute (♭VII → I), or a colour chord in a vamp.',
         '- No leading tone anywhere, so the cadence lands softly',
       ], eg: 'In C: B♭maj7♯11', ex: [
         ['♭VII – IV – I: the classic rock cadence', 'Bb:maj F:maj C:maj'],
@@ -63,16 +68,18 @@ export const DECKS = [
         ['I – ♭VII vamp: Mixolydian, as in “Norwegian Wood”', 'C:maj Bb:maj C:maj Bb:maj'],
         ['♭VIImaj7 → Imaj7: planing up a whole step, jazz style', 'Bb:maj7#11 C:maj7'],
       ] },
-      { t: '♭IIImaj7 (9, 13)', s: 'from Aeolian', b: [
+      { t: '♭IIImaj7 (9, 13)', s: 'from Aeolian', chord: 'Eb:maj7', b: [
         'The relative major of the parallel minor. Bright but foreign: it swaps E for E♭.',
+        '<b>Function</b>: a tonic substitute (the parallel minor’s relative major) that usually moves on to iv, ♭VI or ii.',
         '- Play E♭ major (Ionian) over it',
       ], eg: 'In C: E♭maj7', ex: [
         ['I – ♭III – IV: the rock riff move (“Smoke on the Water”)', 'C:maj Eb:maj F:maj'],
         ['I – ♭III – ♭VI – V: all three borrowed notes, then home', 'C:maj7 Eb:maj7 Ab:maj7 G:7 C:maj7'],
         ['Reached by its own ii–V, a quick trip to E♭ and back', 'C:maj7 F:m7 Bb:7 Eb:maj7 D:m7 G:7 C:maj7'],
       ] },
-      { t: 'iiø7 (♭9, 11, ♭13)', s: 'from Aeolian', b: [
+      { t: 'iiø7 (♭9, 11, ♭13)', s: 'from Aeolian', chord: 'D:m7b5', b: [
         'The minor ii, used in a major key. Its ♭5 is the key’s ♭6 (A♭), which falls to G in the V chord.',
+        '<b>Function</b>: predominant, into V7 (often V7♭9).',
         '- Locrian over it, or Locrian ♮2 for a sweeter 9',
         '- Same notes as Fm6: borrowed iv6 with D in the bass',
       ], eg: 'In C: Dm7♭5', ex: [
@@ -80,8 +87,9 @@ export const DECKS = [
         ['ii – iiø – V – I: the 5th of the ii sinks A → A♭ → G', 'D:m7 D:m7b5 G:7b9 C:maj7'],
         ['The same sound as iv6: Fm6 – G7 – C', 'F:m6 G:7 C:maj7'],
       ] },
-      { t: 'i7 or i6', s: 'from Aeolian (m7) or Dorian (m6)', b: [
+      { t: 'i7 or i6', s: 'from Aeolian (m7) or Dorian (m6)', chord: 'C:m6', b: [
         'The tonic turned minor: E → E♭. The most direct darkening there is.',
+        '<b>Function</b>: tonic, darkened.',
         '- m6 has Dorian’s major 6th: the film-noir ending',
         '- i7 is also the ii of ♭VII, so it can open a door to a new key',
       ], eg: 'In C: Cm7, Cm6', ex: [
@@ -89,15 +97,16 @@ export const DECKS = [
         ['i7 as a pivot: Cm7 – F7 is a ii–V to B♭', 'C:maj7 C:m7 F:7 Bb:maj7'],
         ['Same root, new mood: I – IV, then i – iv', 'C:maj7 F:maj7 C:m7 F:m7'],
       ] },
-      { t: 'v7 (m9)', s: 'from Mixolydian', b: [
+      { t: 'v7 (m9)', s: 'from Mixolydian', chord: 'G:m7', b: [
         'The dominant without its leading tone (B♭ instead of B): no pull at all.',
+        '<b>Function</b>: a weak dominant, or the ii of IV (Gm7 – C7 – F).',
         '- Dorian over it (Mixolydian’s notes on its 5th)',
       ], eg: 'In C: Gm7', ex: [
         ['v7 – I7 – IV: a ii–V into IV', 'C:maj7 G:m7 C:7 F:maj7'],
         ['I – v – IV – I: the folk/modal soft dominant', 'C:maj G:m7 F:maj C:maj'],
         ['v in place of V: a cadence with no leading tone lands softly', 'F:maj7 G:m9 C:maj7'],
       ] },
-      { t: 'II7 (9, 13)', s: 'from Lydian', b: [
+      { t: 'II7 (9, 13)', s: 'from Lydian', chord: 'D:9', b: [
         'Lydian’s ♯4 (F♯) becomes the 3rd of II. Going to V, it’s a secondary dominant; going anywhere else, it’s pure Lydian colour.',
         '- Mixolydian over it (Lydian’s notes on its 2nd)',
       ], eg: 'In C: D7', ex: [
@@ -105,8 +114,9 @@ export const DECKS = [
         ['C – D/C: the Lydian vamp itself (F♯ is the ♯4 of C)', 'C:maj7 D:maj/b7 C:maj7 D:maj/b7'],
         ['II7 – ii7 – V7 – I: the 3rd sinks F♯ → F', 'C:maj7 D:9 D:m7 G:7 C:maj7'],
       ] },
-      { t: '♭IImaj7♯11', s: 'from Phrygian: the Neapolitan', b: [
+      { t: '♭IImaj7♯11', s: 'from Phrygian: the Neapolitan', chord: 'Db:maj7#11', b: [
         'A half step above home. It slides down to I like a tritone sub without the tritone.',
+        '<b>Function</b>: a dominant substitute: it slides down to I like ♭II7.',
         '- Lydian over it (Phrygian’s notes on ♭2)',
       ], eg: 'In C: D♭maj7♯11', ex: [
         ['ii – ♭IImaj7 – I: the side-slip home', 'D:m7 Db:maj7#11 C:maj7'],
@@ -144,33 +154,45 @@ export const DECKS = [
         '- 6 Locrian ♮2: ø9',
         '- 7 altered: 7alt',
       ], eg: 'C melodic minor: C D E♭ F G A B' },
-      { t: 'm(maj7)', s: '1st mode: melodic minor', b: [
+      { t: 'm(maj7)', s: '1st mode: melodic minor', chord: 'C:mMaj7', b: [
         'The minor tonic with a major 7th: dark and suspended.',
+        '<b>Built</b>: a minor triad (C E♭ G) with a major 7th (B) on top. The ♭3, 5 and 7 form an augmented triad (E♭ G B), which is where the tension comes from.',
+        '<b>Function</b>: the minor tonic (i). Its B is a leading tone that doesn’t need to resolve.',
         '- i(maj7) as a home chord, especially at the end',
         '- The line cliché: i – i(maj7) – i7 – i6',
         '- Scale: melodic minor on the same root',
       ], eg: 'In C minor: Cm(maj7)', play: 'D:m7b5 G:7alt C:mMaj7' },
-      { t: '7♯11', s: '4th mode: Lydian dominant', b: [
+      { t: '7♯11', s: '4th mode: Lydian dominant', chord: 'D:7#11', b: [
         'The dominant that floats. Use it on any dominant that doesn’t pull, and on tritone subs.',
+        '<b>Built</b>: a dominant 7th (D F♯ A C) with the 9 (E) and ♯11 (G♯). The ♯11 is a tritone above the root, so the chord holds two tritones: D–G♯ and F♯–C.',
+        '<b>Function</b>: here D7 is II7 in C: it colours the I instead of pulling on to G.',
         '- Scale: melodic minor a 5th above the root',
       ], eg: 'D7♯11 uses A melodic minor', play: 'C:maj7 D:7#11 C:maj7' },
-      { t: '7alt', s: '7th mode: altered', b: [
+      { t: '7alt', s: '7th mode: altered', chord: 'G:7alt', b: [
         'Every tension altered: ♭9, ♯9, ♯11, ♭13. For any V7 that resolves, especially to minor.',
+        '<b>Built</b>: the dominant’s core (root, 3rd, ♭7: G B F; B–F is the tritone that pulls) plus all four altered tensions: ♭9 A♭, ♯9 A♯ (= B♭), ♯11 C♯ (= D♭), ♭13 E♭. No 5th, and no natural 9 or 13.',
+        '<b>Function</b>: a dominant (V7). Each altered note sits a half step from the next chord: A♭ → G, C♯ (D♭) → C, and E♭ holds as the 3rd of Cm.',
         '- Scale: melodic minor a half step above the root',
         '- G7alt is A♭ melodic minor, the same notes as D♭7♯11 (its tritone sub)',
       ], eg: 'G7alt → Cm', play: 'D:m7b5 G:7alt C:m6' },
-      { t: 'ø9', s: '6th mode: Locrian ♮2', b: [
+      { t: 'ø9', s: '6th mode: Locrian ♮2', chord: 'D:m7b5', b: [
         'A sweeter iiø: plain Locrian has a ♭9, this has a natural 9.',
+        '<b>Built</b>: a ø7 (D F A♭ C: a diminished triad with a ♭7) plus the natural 9 (E). The 9 is what melodic minor adds; plain Locrian would give E♭.',
+        '<b>Function</b>: predominant: the ii of a minor ii–V–i. Its ♭5 (A♭) falls to G in the V.',
         '- The ii of a minor ii–V–i',
         '- Scale: melodic minor a minor 3rd above the root',
       ], eg: 'Dø9 uses F melodic minor', play: 'D:m7b5 G:7b9 C:m6' },
-      { t: 'maj7♯5', s: '3rd mode: Lydian augmented', b: [
+      { t: 'maj7♯5', s: '3rd mode: Lydian augmented', chord: 'Eb:maj7#5', b: [
         'Bright, unstable, glassy. In a minor key it’s ♭III+, straight from melodic minor.',
+        '<b>Built</b>: an augmented triad (two major 3rds: E♭ G B) plus a major 7th (D).',
+        '<b>Function</b>: ♭III+ in a minor key, moving on to iv or ii; or a tense Imaj7. In C minor its ♯5 (B) is the leading tone and rises to C.',
         '- Also a tense Imaj7 that wants to settle',
         '- Scale: melodic minor a minor 3rd below the root',
       ], eg: 'In C minor: E♭maj7♯5', play: 'C:mMaj7 Eb:maj7#5 F:m7 G:7alt C:m6' },
-      { t: '7♭13', s: '5th mode: Mixolydian ♭6', b: [
+      { t: '7♭13', s: '5th mode: Mixolydian ♭6', chord: 'G:7b13', b: [
         'A V7 going to minor, with a natural 9 and a ♭13. Darker than Mixolydian, softer than altered.',
+        '<b>Built</b>: a dominant 7th (G B D F) plus the ♭13 (E♭), a half step above the 5th. The 9 stays natural (A).',
+        '<b>Function</b>: a dominant (V7) into minor: the ♭13 is the tonic’s ♭3, so it holds into Cm.',
         '- Scale: melodic minor a 4th above the root',
       ], eg: 'G7♭13 → Cm uses C melodic minor', play: 'D:m7b5 G:7b13 C:m6' },
       { t: 'Find the scale fast', s: 'melodic minor, from the chord', b: [
@@ -294,14 +316,15 @@ export const DECKS = [
         'A tritone sub’s ♯11 is the original V’s root, so 7♯11 is the natural colour.',
         '- D♭7♯11 uses A♭ melodic minor, the same notes as G7alt',
       ] },
-      { t: '♭II7 → I', s: 'subs for V7', eg: 'In C: D♭7 → C', play: 'D:m7 Db:7#11 C:maj7' },
-      { t: '♭III7 → ii', s: 'subs for V7/ii (VI7)', eg: 'In C: E♭7 → Dm7', play: 'C:maj7 Eb:7#11 D:m7' },
-      { t: '♭VI7 → V', s: 'subs for V7/V (II7)', eg: 'In C: A♭7 → G7', play: 'C:maj7 Ab:7#11 G:7 C:maj7' },
-      { t: '♭VII7 → vi', s: 'subs for V7/vi (III7)', b: [
+      { t: '♭II7 → I', s: 'subs for V7', chord: 'Db:7#11', b: ['<b>Function</b>: dominant of I, standing in for G7. Its 3rd and 7th (F, C♭) are G7’s 7th and 3rd (F, B), and its ♯11 (G) is G7’s root.'], eg: 'In C: D♭7 → C', play: 'D:m7 Db:7#11 C:maj7' },
+      { t: '♭III7 → ii', s: 'subs for V7/ii (VI7)', chord: 'Eb:7#11', b: ['<b>Function</b>: dominant of Dm7, standing in for A7 (VI7). It shares A7’s 3rd and 7th (G and D♭ = C♯), and its ♯11 (A) is A7’s root.'], eg: 'In C: E♭7 → Dm7', play: 'C:maj7 Eb:7#11 D:m7' },
+      { t: '♭VI7 → V', s: 'subs for V7/V (II7)', chord: 'Ab:7#11', b: ['<b>Function</b>: dominant of G7, standing in for D7 (II7). It shares D7’s 3rd and 7th (C and G♭ = F♯), and its ♯11 (D) is D7’s root.'], eg: 'In C: A♭7 → G7', play: 'C:maj7 Ab:7#11 G:7 C:maj7' },
+      { t: '♭VII7 → vi', s: 'subs for V7/vi (III7)', chord: 'Bb:7#11', b: [
         'The same chord as the backdoor dominant, but a different job: the backdoor goes up to I, this one goes down to vi.',
+        '<b>Function</b>: dominant of Am7, standing in for E7 (III7). It shares E7’s 3rd and 7th (D and A♭ = G♯), and its ♯11 (E) is E7’s root.',
       ], eg: 'In C: B♭7 → Am7', play: 'C:maj7 Bb:7#11 A:m7' },
-      { t: 'IV7 → iii', s: 'subs for V7/iii (VII7)', eg: 'In C: F7 → Em7', play: 'C:maj7 F:7#11 E:m7' },
-      { t: '♭V7 → IV', s: 'subs for V7/IV (I7)', eg: 'In C: G♭7 → Fmaj7', play: 'C:maj7 Gb:7#11 F:maj7' },
+      { t: 'IV7 → iii', s: 'subs for V7/iii (VII7)', chord: 'F:7#11', b: ['<b>Function</b>: dominant of Em7, standing in for B7 (VII7). It shares B7’s 3rd and 7th (A and E♭ = D♯), and its ♯11 (B) is B7’s root.'], eg: 'In C: F7 → Em7', play: 'C:maj7 F:7#11 E:m7' },
+      { t: '♭V7 → IV', s: 'subs for V7/IV (I7)', chord: 'Gb:7#11', b: ['<b>Function</b>: dominant of Fmaj7, standing in for C7 (I7). It shares C7’s 3rd and 7th (B♭ and F♭ = E), and its ♯11 (C) is C7’s root.'], eg: 'In C: G♭7 → Fmaj7', play: 'C:maj7 Gb:7#11 F:maj7' },
       { t: 'Sub the ii as well', s: 'the tritone ii–V', b: [
         '- ii – ♭II7 – I: only the V is subbed',
         '- ♭vi7 – ♭II7 – I: the whole ii–V moved a tritone',
@@ -548,8 +571,10 @@ export const DECKS = [
   },
   {
     id: 'other', name: 'Other chords worth knowing', cards: [
-      { t: 'V7♯5 / V+', s: 'passing into I', b: [
+      { t: 'V7♯5 / V+', s: 'passing into I', chord: 'G:7#5', b: [
         'The ♯5 (D♯) rises to the 3rd of I (E).',
+        '<b>Built</b>: an augmented triad (G B D♯) plus the ♭7 (F).',
+        '<b>Function</b>: dominant (V7) into major: B → C, F → E, and D♯ → E.',
         '- Whole-tone or altered scale over it',
       ], eg: 'In C: G7♯5 → C', play: 'D:m7 G:7#5 C:maj7' },
       { t: 'Line clichés', s: 'one voice moving inside a chord', b: [
@@ -557,18 +582,23 @@ export const DECKS = [
         '- Minor: i – i(maj7) – i7 – i6 (C – B – B♭ – A in Cm)',
         '- “My Funny Valentine” opens on the minor one',
       ], play: 'C:m C:mMaj7 C:m7 C:m6' },
-      { t: 'V7sus4', s: 'IV/V', b: [
+      { t: 'V7sus4', s: 'IV/V', chord: 'G:7sus4', b: [
         'A soft dominant with no pull. It often goes to V7 and then I, or straight to I.',
+        '<b>Built</b>: the 3rd replaced by the 4th: G C D F, which is an F triad over G. With no B there’s no tritone.',
+        '<b>Function</b>: a dominant that suspends instead of pulling.',
       ], eg: 'In C: G7sus4 = F/G', play: 'G:7sus4 G:7 C:maj7' },
       { t: 'Picardy third', s: 'a major I in a minor key', b: [
         'End a minor-key piece on a major tonic: sudden light.',
       ], eg: 'In A minor: … E7 → A major', play: 'A:min D:m7 E:7 A:maj' },
-      { t: 'IV7 in minor', s: 'from Dorian', b: [
+      { t: 'IV7 in minor', s: 'from Dorian', chord: 'D:7', b: [
         'Dorian’s major 6th gives the minor key a major IV.',
+        '<b>Function</b>: subdominant colour, not a pull to G. Its 3rd (F♯) is Dorian’s major 6th.',
         '- i7 – IV7 vamp: “Oye Como Va”',
       ], eg: 'In A minor: Am7 – D7', play: 'A:m7 D:9 A:m7 D:9' },
-      { t: 'V7♭9 in minor', s: 'from harmonic minor', b: [
+      { t: 'V7♭9 in minor', s: 'from harmonic minor', chord: 'E:7b9', b: [
         'The raised 7th (G♯ in A minor) gives the minor key a real dominant.',
+        '<b>Built</b>: a dominant 7th (E G♯ B D) plus the ♭9 (F). The top four notes are G♯°7.',
+        '<b>Function</b>: dominant of A minor: G♯ → A, D → C, F → E.',
         '- Phrygian dominant over it',
       ], eg: 'In A minor: E7♭9 → Am', play: 'A:m7 B:m7b5 E:7b9 A:m7' },
       { t: 'Augmented sixths', s: '♭VI → V, classical names', b: [
@@ -577,8 +607,9 @@ export const DECKS = [
         '- French: A♭ C D F♯',
         '- German: A♭ C E♭ F♯ (sounds like A♭7: the tritone sub of D7)',
       ], play: 'Ab:7 G:maj C:maj' },
-      { t: 'The Neapolitan', s: '♭II, usually in first inversion', b: [
+      { t: 'The Neapolitan', s: '♭II, usually in first inversion', chord: 'Db:maj', b: [
         'A predominant from Phrygian: ♭II → V → i. Its ♭2 falls through the leading tone to the tonic.',
+        '<b>Built</b>: a major triad on ♭2 (D♭ F A♭). In first inversion F is in the bass, the same bass as iv.',
       ], eg: 'In C minor: D♭/F – G7 – Cm', play: 'Db:maj/3 G:7 C:min' },
       { t: 'Tonic colours', s: 'what jazz players end on', b: [
         '- Major: maj7, 6, 6/9, maj9 (not the 11)',
