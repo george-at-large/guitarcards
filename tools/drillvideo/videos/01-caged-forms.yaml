@@ -1,0 +1,87 @@
+# Video 1: the CAGED forms. One chord climbed through its five forms, root string and finger named for each; the
+# in-time practice section of the 01s pilot is cut (content, not practice).
+id: 01-caged-forms
+title: The CAGED forms
+rule: Find the root. Its string and finger name the form.
+bpm: 72
+captions: false
+
+steps:
+  - card: {title: The CAGED forms, lines: ['Climb one chord through its five forms,', 'naming where each root is and which finger plays it.']}
+    hold: 4
+
+  # ---------- the drill, slowly ----------
+  - card: null
+    section: The drill
+    key: Key of G
+    now: Climb G through the five forms
+    sub: E · D · C · A · G, then back down
+    show: {kind: caged, root: G, form: E}
+    band: true
+    finger: true
+    notes: ['No open strings: start on the lowest form that has none.']
+    say: Climb G through its five forms, then back down. For each one, say where the root is and which finger plays it. In G, start with the E form at the third fret.
+  - now: E form
+    sub: root on string 6 · index finger
+    notes: ['Index on string 6 = E form']
+    play: [strum, up]
+    hold: 0.4
+  - now: D form
+    sub: root on string 4 · index finger
+    show: {kind: caged, root: G, form: D}
+    notes: ['Index on string 4 = D form', 'It starts on the G the E form had on string 4.']
+    play: [strum, up]
+    hold: 0.4
+  - now: C form
+    sub: root on string 5 · ring finger or pinky
+    show: {kind: caged, root: G, form: C}
+    notes: ['Ring or pinky on string 5 = C form', 'The shape reaches back toward the nut.']
+    play: [strum, up]
+    hold: 0.4
+  - now: A form
+    sub: root on string 5 · index finger
+    show: {kind: caged, root: G, form: A}
+    notes: ['Index on string 5 = A form', 'Same root as the C form; the shape reaches up the neck.']
+    play: [strum, up]
+    hold: 0.4
+  - now: G form
+    sub: root on string 6 · ring finger or pinky
+    show: {kind: caged, root: G, form: G}
+    notes: ['Ring or pinky on string 6 = G form', 'Next comes the E form again, an octave up.']
+    play: [strum, up]
+    hold: 0.4
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    now: Then every key
+    sub: round the cycle of fourths · same order of forms
+    show: null
+    band: null
+    finger: false
+    notes: null
+    table:
+      title: "Where each key's climb starts"
+      head: [Key, First form, Its root]
+      widths: [0.2, 0.36, 0.44]
+      rows_from: {kind: climbTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], cols: ['{key}', '{form} form', 'string {string}, fret {fret}']}
+    say: Then every key, round the cycle of fourths. Start each one on the form in the table, and keep the same order.
+    hold: 6
+  - notes: ['The order never changes: C A G E D, and round again.', 'Ten minutes a day: two or three new keys, plus one old one.']
+    hold: 6
+
+  # ---------- extras, as text ----------
+  - section: Watch out
+    table:
+      title: Watch out
+      head: [Mistake, Instead]
+      widths: [0.4, 0.6]
+      rows: [[Open strings, they let you leave the area without noticing], [Naming frets, say "C in the A form", not "C at fret 3"], [Forcing full barres, three or four strings of a form are enough]]
+    notes: null
+    hold: 7
+  - table: null
+    section: null
+    card:
+      title: You've got it when
+      lines: ["you can climb any key's five forms without stopping,", "naming each root's string and finger.", '', 'Next level: stay in frets 2–6 of G and play G – Cm – F – E° – D,', 'one root and one form per chord.']
+    hold: 8

@@ -1,0 +1,31 @@
+# Chord melody: Danny Boy. The melody from a public-domain source, arranged for the course by chordmelody.py.
+id: cm1-danny-boy
+title: "Danny Boy"
+rule: "The melody on top, sustained; the harmony moves under it."
+bpm: 72
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Danny Boy", lines: ["The Londonderry Air as chord melody, in D:", "the tune on the top strings, a full grip under it at every change."]}
+    hold: 3
+
+  - card: null
+    section: "Chord melody"
+    key: "D major"
+    notes: ["The traditional air (Paul Hardy’s tunebook, CC BY-NC-SA); triads made into 7ths, 9ths and 13ths for the chord melody."]
+    page:
+      root: D
+      repeat: 1
+      harmony: ["", "Dmaj7:Imaj7", "G6/9:IV6/9", "Dmaj7:Imaj7 Bm7:vi7", "E9:II9 A13:V13", "Dmaj7:Imaj7", "G6/9:IV6/9 A13:V13", "Dmaj7:Imaj7 A13:V13", "Dmaj7:Imaj7 A13:V13", "Dmaj7:Imaj7 G6/9:IV6/9 A13:V13", "Dmaj7:Imaj7 G6/9:IV6/9 A13:V13", "Dmaj7:Imaj7 G6/9:IV6/9 B7♭9:VI7♭9", "E9:II9 A13:V13", "Dmaj7:Imaj7 G6/9:IV6/9", "Dmaj7:Imaj7 Bm7:vi7 G6/9:IV6/9 A13:V13", "Dmaj7:Imaj7 A13:V13", "Dmaj7:Imaj7 G6/9:IV6/9 Dmaj7:Imaj7"]
+      pickup: true
+      voices: ["2.2:0.5 2.3:0.5 2.5:0.5 | 2.7:1.5 2.5:0.5 2.7:0.5 1.7:0.5 1.5:0.5 2.7:0.5 | 1.0:0.5 3.7:0.5 2.0:1 r:0.5 2.3:0.5 1.2:0.5 1.3:0.5 | 1.5:1.5 1.7:0.5 1.5:0.5 1.2:0.5 2.3:0.5 1.2:0.5 | 1.0:2 r:0.5 2.2:0.5 2.3:0.5 2.5:0.5 | 2.7:1.5 2.5:0.5 2.7:0.5 1.7:0.5 1.5:0.5 2.7:0.5 | 1.0:0.5 3.7:0.5 2.0:1 r:0.5 2.2:0.5 2.3:0.5 1.0:0.5 | 1.2:1.5 1.3:0.5 1.2:0.5 1.0:0.5 2.3:0.5 2.5:0.5 | 3.7:2 r:0.5 1.5:0.5 1.7:0.5 1.9:0.5 | 1.10:1.5 1.9:0.5 1.9:0.5 1.7:0.5 1.5:0.5 1.7:0.5 | 1.5:0.5 1.2:0.5 2.3:1 r:0.5 1.5:0.5 1.7:0.5 1.9:0.5 | 1.10:1.5 1.9:0.5 1.9:0.5 1.7:0.5 2.10:0.5 2.7:0.5 | 3.9:2 r:0.5 2.10:0.5 2.10:0.5 2.10:0.5 | 1.14:1.5 1.12:0.5 1.12:0.5 1.10:0.5 2.12:0.5 1.10:0.5 | 2.10:0.5 2.7:0.5 3.7:1 r:0.5 2.2:0.5 2.3:0.5 2.5:0.5 | 2.7:0.5 1.7:0.5 1.5:0.5 1.2:0.5 1.0:0.5 2.3:0.5 2.0:0.5 2.2:0.5 | 2.3:2.5 r:1.5 |", "r:1.5 | 5.5+3.6:4 | 5.10+4.7+2.0:4 | 4.0+3.6+2.7:3 5.2+3.2:1 | 6.0+4.0+3.1:2 5.0+3.0+2.2+1.2:2 | 5.5+3.6:4 | 5.10+4.7+2.0:2 5.0+3.0+2.2+1.2:2 | 4.0+2.2:2 5.0+3.0+2.2:2 | 5.5+4.7:2 5.0+4.5+3.6+1.5:2 | 6.10+5.9+4.11:2 5.10+4.9+3.9:1 5.0+4.5+3.6:1 | 4.0+3.6+2.7:1 6.3+4.2+3.4:1 5.0+3.0+2.2+1.2:2 | 6.10+5.9+4.11:2 5.10+4.9+3.9:1 6.7+3.8:1 | 6.0+5.11+4.12:2 5.0+3.0+1.9:2 | 4.12+2.14:2 3.0+2.0:2 | 6.10+4.11+3.11:1 6.7+4.7:1 3.0+2.0+1.0:1 5.0+4.5+3.6:1 | 4.0+3.6:2 5.0+3.0+2.2:2 | 5.5+4.4+3.6:1 6.3+5.7+3.4:1 5.5+4.4+3.6:0.5 r:1.5 |"]
+      marks: [[1, "Every chord change: bass, 3rd and 7th under the melody note, all in one grip."], [9, "The climb to the high notes: the grips move up the neck with the tune."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the melody sings over every chord,", "and each grip lands without a gap in the tune."]
+    hold: 3

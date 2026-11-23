@@ -1,0 +1,82 @@
+# Video 9d: double stops (plan v3). G major harmonised in 3rds, 6ths, 10ths and octaves, up the whole neck on each
+# string pair, each ending on its map.
+id: 09d-double-stops
+title: Double stops
+rule: Two notes of the scale at once, a fixed interval apart.
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: Double stops, lines: ['G major in 3rds, 6ths, 10ths and octaves,', 'up the whole neck on each pair of strings.']}
+    hold: 4
+  - card: {title: The drill, lines: ["1   One interval on one string pair: up the neck and back", "2   The same interval on its second string pair", "3   Next interval (3rds, 6ths, 10ths, octaves); then the next key"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: G major in pairs
+    sub: 3rds · 6ths · 10ths · octaves · up the whole neck
+    notes: ['Every pair stays inside the scale, so the interval is sometimes major, sometimes minor.']
+    say: G major in two-note pairs, up the whole neck. Thirds, sixths, tenths and octaves.
+
+  - section: 3rds · strings 2-1
+    say: Thirds.
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [2, 1], step: 2, bars: 0.25, sub: 'strings 2-1', map: true, mapNow: '3rds on strings 2-1 · the whole neck'}
+  - section: 3rds · strings 3-2
+    notes: ['The G–B strings are tuned a 3rd apart, so these shapes differ from 2-1.']
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [3, 2], step: 2, bars: 0.25, sub: 'strings 3-2', map: true, mapNow: '3rds on strings 3-2 · the whole neck'}
+
+  - section: 6ths · strings 3-1
+    notes: ['6ths skip a string: the sound of soul and R&B fills.']
+    say: Sixths, skipping a string.
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [3, 1], step: 5, bars: 0.25, sub: 'strings 3-1', map: true, mapNow: '6ths on strings 3-1 · the whole neck'}
+  - section: 6ths · strings 4-2
+    notes: ['Mute the string in between with the fretting fingers.']
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [4, 2], step: 5, bars: 0.25, sub: 'strings 4-2', map: true, mapNow: '6ths on strings 4-2 · the whole neck'}
+
+  - section: 10ths · strings 5-2
+    notes: ['A 10th is a 3rd an octave wider: a bass note with a melody above it.']
+    say: Tenths, skipping two strings.
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [5, 2], step: 9, bars: 0.25, sub: 'strings 5-2', map: true, mapNow: '10ths on strings 5-2 · the whole neck'}
+  - section: 10ths · strings 6-3
+    notes: null
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [6, 3], step: 9, bars: 0.25, sub: 'strings 6-3', map: true, mapNow: '10ths on strings 6-3 · the whole neck'}
+
+  - section: Octaves · strings 6-4
+    notes: ['Wes Montgomery’s sound: one shape, the middle string muted.']
+    say: Octaves.
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [6, 4], step: 7, bars: 0.25, sub: 'strings 6-4', map: true, mapNow: 'octaves on strings 6-4 · the whole neck'}
+  - section: Octaves · strings 5-3
+    notes: null
+    play: strum 1
+    click: false
+    expand: {kind: dyads, root: G, scale: major, strings: [5, 3], step: 7, bars: 0.25, sub: 'strings 5-3', map: true, mapNow: 'octaves on strings 5-3 · the whole neck'}
+
+  - section: All 12 keys
+    key: null
+    now: Then every key
+    sub: the same pairs · the scale moved
+    show: null
+    notes: ['Each key’s pairs start from the key’s own scale: find the lowest pair on the string pair, then climb.', 'Each day: one interval on its string pairs, in two or three keys.']
+    say: Then every key, round the cycle of fourths, one interval at a time.
+    hold: 7
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can run any key in 3rds, 6ths, 10ths or octaves', 'up the whole neck on any string pair,', 'without a wrong note.']
+    hold: 6

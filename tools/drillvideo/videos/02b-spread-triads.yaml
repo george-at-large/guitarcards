@@ -1,0 +1,90 @@
+# Video 2b: spread (open) triads.
+# Written by gen.py: change the loops there, not the steps here.
+id: 02b-spread-triads
+title: "Spread triads"
+rule: "Name the lowest note; mute the string you skip."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Spread triads", lines: ["Every inversion of G spread over a skipped string,", "on 6-4-3, 5-3-2 and 4-2-1, across the whole neck,", "then morphed to minor, diminished and augmented."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One string set: G spread, every inversion up the neck", "2   Name the lowest note (1, 3 or 5); mute the skipped string", "3   Morph each to minor, diminished and augmented", "4   Next set; then the next key from the table"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G major, spread · G B D"
+    sub: "strings 6-4-3, 5-3-2, 4-2-1 · every inversion · bottom to top"
+    notes: ["The middle note of a close triad drops an octave: the triad opens out over a 10th.", "Mute the skipped string with the finger on the string below it."]
+    say: "Spread triads: every inversion of G on each skipped-string set, bottom of the neck to the top. Then each one morphed."
+  - section: G · strings 6-4-3
+    notes: ['The open sound of classical and fingerstyle guitar: the bass and top a 10th apart.']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj, voicing: spread, strings: [6, 4, 3], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G · strings 5-3-2
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj, voicing: spread, strings: [5, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G · strings 4-2-1
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj, voicing: spread, strings: [4, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Major → minor → dim · strings 6-4-3
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: spread, strings: [6, 4, 3], count: 3, bars: 0.5, chain: [[maj], [min, '3', b3, lower the 3rd], [dim, '5', b5, lower the 5th]]}
+  - section: Major → minor → dim · strings 5-3-2
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: spread, strings: [5, 3, 2], count: 3, bars: 0.5, chain: [[maj], [min, '3', b3, lower the 3rd], [dim, '5', b5, lower the 5th]]}
+  - section: Major → minor → dim · strings 4-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: spread, strings: [4, 2, 1], count: 3, bars: 0.5, chain: [[maj], [min, '3', b3, lower the 3rd], [dim, '5', b5, lower the 5th]]}
+  - section: Major → augmented · strings 6-4-3
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: spread, strings: [6, 4, 3], count: 3, bars: 0.5, chain: [[maj], [aug, '5', '#5', raise the 5th]]}
+  - section: Major → augmented · strings 5-3-2
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: spread, strings: [5, 3, 2], count: 3, bars: 0.5, chain: [[maj], [aug, '5', '#5', raise the 5th]]}
+  - section: Major → augmented · strings 4-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: spread, strings: [4, 2, 1], count: 3, bars: 0.5, chain: [[maj], [aug, '5', '#5', raise the 5th]]}
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths
+    show: null
+    band: null
+    notes: null
+    table:
+      title: "Where each key starts: the bass degree and fret of the lowest spread G-type triad"
+      head: [Key, 6-4-3, 5-3-2, 4-2-1]
+      widths: [0.25, 0.25, 0.25, 0.25]
+      rows_from: {kind: ladderTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], quality: maj, voicing: spread, lowFret: 0, sets: [[6, 4, 3], [5, 3, 2], [4, 2, 1]], cols: ['{chord}', '{sets[0][bass]} · {sets[0][at]}', '{sets[1][bass]} · {sets[1][at]}', '{sets[2][bass]} · {sets[2][at]}']}
+    say: Then every key, round the cycle of fourths. The table shows where each key starts.
+    hold: 6
+  - notes: ['Each day: one string set in two or three keys, plus one old key.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can find any spread triad on any set, in any key,', 'name its lowest note before you play it,', 'and keep the skipped string silent.']
+    hold: 6

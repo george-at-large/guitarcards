@@ -1,0 +1,60 @@
+# Genre intro: Gypsy jazz.
+# Written by gen.py: change the loops there, not the steps here.
+id: G5-gypsy-jazz
+title: "Gypsy jazz"
+rule: "Down on 1 and 3, a choked chop on 2 and 4."
+bpm: 150
+captions: false
+
+steps:
+  - card: {title: "Gypsy jazz", lines: ["La pompe, Django’s rhythm guitar,", "on the m6, 6/9 and 7 grips", "of a minor swing progression."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The pompe on one chord until it swings", "2   Am6 – Dm6 – E7 – Am6", "3   Then the 6/9 major colour"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: A minor
+    now: "La pompe"
+    sub: "Am6 – Dm6 – E7 – Am6"
+    notes: ["The chop on 2 and 4 is choked by lifting the left hand right after the strum."]
+    say: "Gypsy jazz. La pompe on the minor swing grips."
+  - section: "La pompe"
+    now: "The pompe"
+    sub: "a low down-strum on 1 and 3, a short choked chop on 2 and 4"
+    show: {kind: grip, root: A, quality: m6, frets: [[5, 0], [4, 2], [3, 2], [2, 1], [1, 2]]}
+    notes: null
+    play: {groove: "D - u - D - u -", grid: 2, repeat: 2, accents: [2, 6]}
+    hold: 0.2
+  - section: "Minor swing"
+    now: "Am6"
+    sub: "the gypsy minor: m6, not m7"
+    show: {kind: grip, root: A, quality: m6, frets: [[5, 0], [4, 2], [3, 2], [2, 1], [1, 2]]}
+    notes: null
+    play: {groove: "D - u - D - u -", grid: 2, repeat: 2, accents: [2, 6]}
+    hold: 0.2
+  - now: "Dm6"
+    sub: "iv6"
+    show: {kind: grip, root: D, quality: m6, frets: [[4, 0], [3, 2], [2, 0], [1, 1]]}
+    notes: null
+    play: {groove: "D - u - D - u -", grid: 2, repeat: 2, accents: [2, 6]}
+    hold: 0.2
+  - now: "E7"
+    sub: "V7, back to Am6"
+    show: {kind: grip, root: E, quality: '7', frets: [[6, 0], [5, 2], [4, 0], [3, 1], [2, 0], [1, 0]]}
+    notes: null
+    play: {groove: "D - u - D - u -", grid: 2, repeat: 2, accents: [2, 6]}
+    hold: 0.2
+  - now: "G6/9 colour"
+    sub: "the 6/9 major: G B D E A"
+    show: {kind: grip, root: G, quality: '6', frets: [[6, 3], [4, 2], [3, 2], [2, 3], [1, 3]]}
+    notes: null
+    play: {groove: "D - u - D - u -", grid: 2, repeat: 2, accents: [2, 6]}
+    hold: 0.2
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play la pompe at 180 without tiring,", "change between m6, 6/9 and 7 grips in time,", "and keep the chop short."]
+    hold: 6

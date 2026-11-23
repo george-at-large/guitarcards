@@ -1,0 +1,32 @@
+# Repertoire R3: delta blues turnarounds in the Robert Johnson style.
+# Written for the course (not a transcription).
+id: r3-delta-turnarounds
+title: Delta blues turnarounds
+rule: An inside line falls while the high E rings.
+bpm: 72
+captions: false
+steps:
+- card:
+    title: Delta blues turnarounds
+    lines: ['Three turnarounds in E, in the Robert Johnson style:', 'a chromatic inside line under a high E pedal, then into B7.']
+  hold: 4
+- card: null
+  section: Roots and ragtime
+  key: E · the delta blues
+  page:
+    root: E
+    harmony: ['E7:I7', 'E7:I7 - B7:V7 -', 'E7:I7', 'E7:I7 - B7:V7 -', 'E7:I7', 'E7:I7 - B7:V7 -']
+    voices: ['6.0+3.4+1.0:1 3.3+1.0:1 3.2+1.0:1 3.1+1.0:1 | 6.0+3.0+1.0:2 5.2+4.1+3.2+2.0+1.2:2 | 6.0+3.4+1.0:0.333333 1.0:0.333333 1.0:0.333333 3.3+1.0:0.333333 1.0:0.333333 1.0:0.333333 3.2+1.0:0.333333 1.0:0.333333 1.0:0.333333 3.1+1.0:0.333333 1.0:0.333333 1.0:0.333333 | 6.0+3.0+1.0:2 5.2+4.1+3.2+2.0+1.2:2 | 6.0+3.4+1.0:1 6.2+3.3+1.0:1 6.3+3.2+1.0:1 6.4+3.1+1.0:1 | 5.2+3.0+1.0:2 5.2+4.1+3.2+2.0+1.2:2 |']
+    marks:
+    - [1, 'Turnaround 1: the inside line falls B – A♯ – A – G♯ (the 5th down to the 3rd) under the open high E.']
+    - [2, 'Then E with G♮, the blue 3rd, and B7: the turnaround hands the blues back to bar 1.']
+    - [3, 'Turnaround 2: the same line in triplets: the shuffle feel of the delta.']
+    - [5, 'Turnaround 3: the bass climbs E F♯ G G♯ as the line falls: contrary motion.']
+  notes: ['Robert Johnson, Kind Hearted Woman and others: the descending inside line is the signature.']
+- section: null
+  key: null
+  card:
+    title: You've got it when
+    lines: ['you can play all three turnarounds with the high E ringing,', 'drop one into any blues in E,', and start a blues with one as the intro.]
+  hold: 5
+page_neck: true

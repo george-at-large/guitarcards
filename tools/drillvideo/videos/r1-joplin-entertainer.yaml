@@ -1,0 +1,32 @@
+# Repertoire R1: Joplin, The Entertainer (1902, public domain), the intro and the first 12 bars of the theme, drop D.
+# Written by songs.py from joplin_the_entertainer.txt: change it there, not here.
+id: r1-joplin-entertainer
+title: "Joplin: The Entertainer"
+rule: "Ragtime: a steady bass, a syncopated tune."
+tuning: ["D2", "A2", "D3", "G3", "B3", "E4"]
+bpm: 80
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Joplin: The Entertainer", lines: ["Scott Joplin’s rag, on guitar in C, drop D:", "the intro and the opening theme, its chromatic pickups and passing chords."]}
+    hold: 3
+
+  - card: null
+    section: "Roots and ragtime"
+    key: "C major · drop D · 2/4"
+    notes: ["Not fast: Joplin wrote “it is never right to play ragtime fast”."]
+    page:
+      root: C
+      repeat: 1
+      harmony: ["", "", "", "G7:V7", "C7/E:I7", "F:IV F♯°7:vii°7/V", "C/G:I⁶₄ G7:V7", "C:I", "C7/E:I7", "F:IV", "D7:V7/V", "D7:V7/V G:V", "C7/E:I7", "F:IV F♯°7:vii°7/V", "C/G:I⁶₄ G7:V7", "C:I"]
+      voices: ["1.10:0.25 1.12:0.25 2.13:0.25 2.10:0.5 2.12:0.25 3.12:0.5 | 3.7:0.25 3.9:0.25 4.10:0.25 4.7:0.5 4.9:0.25 5.10:0.5 | 5.5:0.25 5.7:0.25 6.8:0.25 6.5:0.5 6.7:0.25 6.5:0.25 6.4:0.25 | 6.3:1 4.12+3.12+2.12+1.15:0.5 4.0:0.25 4.1:0.25 | 4.2:0.25 3.0+2.1:0.5 4.2:0.25 3.3+2.1:0.5 4.2:0.5 | 4.3+3.2+2.1:0.5 4.3:0.5 4.2:0.25 4.2+2.1:0.25 4.3+2.3:0.25 4.4+2.4:0.25 | 4.5+2.5:0.25 4.2+2.1:0.25 4.3+2.3:0.25 4.5+2.5:0.5 4.0+2.0:0.25 4.3+2.3:0.5 | 4.2+2.1:0.5 3.0:0.5 5.3:0.5 4.0:0.25 4.1:0.25 | 4.2:0.25 3.0+2.1:0.5 4.2:0.25 3.3+2.1:0.5 4.2:0.5 | 4.3+3.2+2.1:0.5 4.3:0.5 4.2:0.5 3.2:0.25 4.5:0.25 | 5.5+4.4:0.25 3.2:0.25 3.5:0.25 2.3+1.0:0.5 2.3:0.25 3.5:0.25 3.2:0.25 | 5.5+4.4+3.5+2.3:0.5 2.3:0.5 5.5+4.5+3.4+2.3:0.5 4.0:0.25 4.1:0.25 | 4.2:0.25 3.0+2.1:0.5 4.2:0.25 3.3+2.1:0.5 4.2:0.5 | 4.3+3.2+2.1:0.5 4.3:0.5 4.2:0.25 4.2+2.1:0.25 4.3+2.3:0.25 4.4+2.4:0.25 | 4.5+2.5:0.25 4.2+2.1:0.25 4.3+2.3:0.25 4.5+2.5:0.5 4.0+2.0:0.25 4.3+2.3:0.5 | 4.2+2.1:0.5 3.0:0.5 5.3:0.25 2.1:0.25 2.3:0.25 2.4:0.25 |"]
+      marks: [[1, "Bars 1–4: the intro, a run falling in octaves, landing on G7."], [5, "Bar 5: the theme: the chromatic pickup D – D♯ – E, and B♭ makes C into C7."], [6, "Bars 6–7: F – F♯°7 walks the bass up to G; C/G – G7, the cadential six-four, then V7 – I."], [11, "Bars 11–12: D7 – G, the V of V: the turn every rag uses."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 16 bars at 80 with the bass steady,", "land the syncopations cleanly,", "and name the passing chords."]
+    hold: 3

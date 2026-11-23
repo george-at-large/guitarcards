@@ -1,0 +1,53 @@
+# Repertoire S2: Soleá: the 12-beat compás and a falseta, written for the course.
+id: s2-solea-compas
+title: 'Soleá: compás and falseta'
+rule: Twelve beats; the accents on 3, 6, 8, 10 and 12.
+bpm: 120
+captions: false
+steps:
+- card:
+    title: 'Soleá: compás and falseta'
+    lines: ['The mother of flamenco forms:', 'its 12-beat compás, and a falseta (a melodic phrase) in E Phrygian.']
+  hold: 4
+- card:
+    title: The rhythm
+    lines: ['Count 1 to 12; the accents fall on 3, 6, 8, 10 and 12', 'Clap them, then strum the compás on E, the accents louder', The falseta lands on beat 10]
+  hold: 6
+- card: null
+  section: The compás
+  key: E Phrygian
+  now: 12 beats, five accents
+  sub: 3 · 6 · 8 · 10 · 12
+  show:
+    kind: grip
+    root: E
+    quality: maj
+    frets:
+    - [6, 0]
+    - [5, 2]
+    - [4, 2]
+    - [3, 1]
+    - [2, 0]
+    - [1, 0]
+  notes: ['Like 6/8 + 3/4: 1 2 [3] 4 5 [6] | 7 [8] 9 [10] 11 [12].']
+  play:
+    groove: DDDDDDDDDDDD
+    grid: 1
+    accents: [2, 5, 7, 9, 11]
+    counts: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    repeat: 2
+- section: The falseta
+  show: null
+  notes: ['Down E Phrygian, landing on 10: F → E: the ♭2 falling home', 'The falseta resolves on beat 10, the remate: flamenco phrases end there, not on 12.']
+  page:
+    root: E
+    harmony: ['E:I']
+    voices: ['1.0:.5 1.1:.5 1.0:.5 2.3:.5 2.1:.5 2.0:.5 3.2:.5 3.0:.5 3.2:.5 2.0:.5 2.1:.5 2.0:.5 3.2:.5 3.0:.5 4.3:.5 4.2:.5 4.3:.5 4.2:.5 6.0+5.2+4.2+3.1+2.0+1.0:1 r:2 | 1.0:.5 1.1:.5 1.0:.5 2.3:.5 2.1:.5 2.0:.5 3.2:.5 3.0:.5 3.2:.5 2.0:.5 2.1:.5 2.0:.5 3.2:.5 3.0:.5 4.3:.5 4.2:.5 4.3:.5 4.2:.5 6.0+5.2+4.2+3.1+2.0+1.0:1 r:2 |']
+    marks: []
+- section: null
+  key: null
+  card:
+    title: You've got it when
+    lines: ['you can count and clap the compás without losing your place,', 'strum it with the accents, at 120,', and land the falseta on 10.]
+  hold: 5
+page_neck: true

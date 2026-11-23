@@ -1,0 +1,32 @@
+# Counterpoint: Mudarra, a fantasía from Tres libros (1546), book 1, bars 1–12.
+# Written by songs.py from mudarra_tres_libros_l1_f13.txt: change it there, not here.
+id: cp12-mudarra-fantasia
+title: "Mudarra: Fantasía"
+rule: "Imitation: one voice states a motif, the next one copies it."
+tuning: ["E2", "A2", "D3", "F#3", "B3", "E4"]
+bpm: 80
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Mudarra: Fantasía", lines: ["A fantasía by Alonso Mudarra (1546), for vihuela:", "a motif passed between voices and moved up a step."]}
+    hold: 3
+
+  - card: null
+    section: "Renaissance counterpoint"
+    key: "A · 3rd string to F♯"
+    notes: ["Tab: classtab.org. Tune the 3rd string down a half step."]
+    page:
+      root: A
+      repeat: 1
+      harmony: ["", "", "", "", "", "", "", "", "", "", "", ""]
+      voices: ["r:2 1.0:1.5 2.3:0.5 | 2.2:1 3.3:1 4.2:1 5.0:1 | 5.0:2 1.0:1.5 2.3:0.5 | 2.2:1 3.3:1 4.2:1 5.0:1 | 5.0:2 3.3:0.5 2.0:0.5 2.2:0.5 2.4:0.5 | 2.5:0.5 2.2:0.5 2.4:0.5 2.5:0.5 2.2:0.5 2.4:0.5 2.5:0.5 2.4:0.5 | 2.5:0.5 2.2:0.5 2.4:0.5 2.5:0.5 2.2:0.5 2.4:0.5 2.5:0.5 2.2:0.5 | 2.4:1 3.5:1 4.4:1 5.2:1 | 5.2:2 1.2:1.5 1.0:0.5 | 2.4:1 3.5:1 4.4:1 5.2:1 | 5.2:2 2.0:0.5 2.2:0.5 2.4:0.5 2.5:0.5 | r:0.25 2.7:0.5 2.4:0.5 2.5:0.5 2.7:0.25 2.4:0.5 2.5:0.5 2.7:0.5 2.5:0.5 |"]
+      marks: [[1, "Vihuela tuning: the 3rd string down to F♯."], [8, "The opening idea again, a step higher: a sequence."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["each entry of the motif is clear,", "and the voices stay even with each other."]
+    hold: 3

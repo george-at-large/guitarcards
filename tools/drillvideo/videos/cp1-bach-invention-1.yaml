@@ -1,0 +1,31 @@
+# Repertoire CP1: Bach, Two-Part Invention No. 1 in C, BWV 772, bars 1–7 (to the cadence in G), solo guitar.
+# Written by songs.py from bach_js_bwv0772_two-part_invention_01.txt: change it there, not here.
+id: cp1-bach-invention-1
+title: "Bach: Invention No. 1"
+rule: "One idea, imitated and turned upside down."
+bpm: 66
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Bach: Invention No. 1", lines: ["The opening of the first two-part invention:", "a subject, its imitation, and its inversion moving against it."]}
+    hold: 3
+
+  - card: null
+    section: "Counterpoint"
+    key: "C major"
+    notes: ["Bring out whichever voice has the subject; the other accompanies."]
+    page:
+      root: C
+      repeat: 1
+      harmony: ["C:I -", "G7:V7 -", "Am:vi Em:iii", "C/E:I Am:vi", "D7:V7/V G:V", "Em:vi D7/F♯:V7", "@G_major G:I -"]
+      voices: ["r:0.25 5.3:0.25 4.0:0.25 4.2:0.25 4.3:0.25 4.0:0.25 4.2:0.25 5.3:0.25 3.0:0.25 5.3:0.25 4.0+2.1:0.25 4.2:0.25 4.3+2.0:0.25 4.0:0.25 4.2+2.1:0.25 5.3:0.25 | 4.5+2.3:0.25 3.0:0.25 6.3+3.2:0.25 2.0:0.25 2.1:0.25 3.2:0.25 2.0:0.25 3.0:0.25 2.3:0.25 6.3:0.25 5.0+1.3:0.25 5.2:0.25 5.3+1.1:0.25 5.0:0.25 5.2+1.3:0.25 6.3:0.25 | 5.3+2.5:0.25 1.5:0.25 5.2+1.3:0.25 2.6:0.25 5.3+2.5:0.25 1.3:0.25 4.0+2.6:0.25 1.5:0.25 4.2+1.3:0.25 1.1:0.25 6.3+1.0:0.25 2.3:0.25 5.0+2.1:0.25 1.0:0.25 5.2+2.3:0.25 1.1:0.25 | 5.3+1.0:0.25 2.3:0.25 6.0+2.1:0.25 2.0:0.25 6.2+3.2:0.25 2.1:0.25 6.3+2.0:0.25 2.3:0.25 5.0+2.1:0.25 2.0:0.25 5.2+3.2:0.25 3.0:0.25 5.3+4.4:0.25 3.2:0.25 3.0:0.25 2.0:0.25 | 3.2:0.25 4.0:0.25 5.5+4.2:0.25 4.4:0.25 3.0+2.1:0.25 4.2:0.25 4.4:0.25 4.0+2.3:0.25 6.3+2.0:0.25 3.2:0.25 5.2+3.0:0.25 4.4:0.25 5.3+4.2:0.25 3.0:0.25 5.5+4.4:0.25 3.2:0.25 | 4.2+3.0:0.25 2.0:0.25 4.4+3.2:0.25 2.1:0.25 3.0+2.0:0.25 2.3:0.25 4.2+2.1:0.25 1.0:0.25 5.2+2.3:0.25 2.0:0.25 2.13:0.25 5.3+1.3:0.25 4.0+2.0:0.5 4.0+3.2:0.25 3.0:0.25 | 3.0:0.25 6.3:0.25 5.0:0.25 5.2:0.25 5.3:0.25 5.0:0.25 5.2:0.25 6.3:0.25 4.0:0.25 3.0:0.25 4.5+3.2:0.25 2.0:0.25 4.4+2.1:0.25 3.2:0.25 4.5+2.0:0.25 3.0:0.25 |"]
+      marks: [[1, "Bar 1: the subject, C D E F D E C, in one voice; half a bar later the other voice imitates it."], [3, "Bars 3–4: the subject upside down (inversion): one voice rises while the other falls, contrary motion by design."], [5, "Bars 5–6: D7, the V of V, turns the music towards G."], [7, "Bar 7: the cadence in G, the dominant: the first section ends."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play bars 1–7 at 66 with both voices clear,", "point to every entry of the subject and its inversion,", "and hear the move to G."]
+    hold: 3

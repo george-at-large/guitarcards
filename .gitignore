@@ -18,3 +18,5 @@ tools/audiation/out/
 # drill video builder: speech cache and renders
 tools/drillvideo/cache/
 tools/drillvideo/out/
+tools/drillvideo/export/
+guitarnautics/

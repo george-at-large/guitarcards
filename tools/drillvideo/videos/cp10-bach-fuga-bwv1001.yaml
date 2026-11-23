@@ -1,0 +1,31 @@
+# Counterpoint: Bach, Fuga from the Violin Sonata No. 1, BWV 1001, in Tárrega’s arrangement (A minor), bars 1–8.
+# Written by songs.py from bach_js_bwv1001_violin_sonata_no1_in_gm_2_fuga.txt: change it there, not here.
+id: cp10-bach-fuga-bwv1001
+title: "Bach: Fuga BWV 1001"
+rule: "Hold every voice for its full length: the counterpoint lives in the sustain."
+bpm: 72
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Bach: Fuga BWV 1001", lines: ["The G minor violin fugue, in Tárrega’s guitar version in A minor:", "the subject alone, then the voices entering one by one."]}
+    hold: 3
+
+  - card: null
+    section: "Counterpoint"
+    key: "A minor"
+    notes: ["Tab: Rod Kahler (classtab.org), after Tárrega’s 1908 arrangement."]
+    page:
+      root: A
+      repeat: 1
+      harmony: ["Am:i", "", "", "", "", "", "", ""]
+      voices: ["r:0.25 2.5:0.75 2.5:0.5 2.5:0.5 2.5:0.5 2.3:0.25 2.1:0.25 2.3:0.5 2.0:0.5 | r:0.25 2.1:0.25 3.2:0.5 3.2+1.1:0.5 3.2:0.5 3.2+2.0:0.5 3.0:0.25 4.3:0.25 3.0+1.0:0.5 4.2:0.5 | r:0.25 4.3+2.5:0.25 1.5:0.5 4.3+2.3+1.5:0.5 1.5:0.5 5.7+3.5+1.5:0.5 2.8:0.25 2.6:0.25 4.2+2.0+1.3:0.5 1.0:0.5 | r:0.25 3.2+1.1:0.25 5.0:0.5 4.0:0.25 2.1:0.25 2.0:0.25 2.1:0.25 2.3:0.25 4.0+3.1:0.5 1.0:0.5 5.3+3.2+1.0:0.25 1.0:0.5 | r:0.25 5.2+4.4+2.5:0.25 2.3:0.5 3.5:0.25 4.2+3.1+2.3:0.5 2.0:0.25 5.0+3.2+2.1:0.5 3.0:0.25 5.8:0.25 4.0+2.5+1.8:0.5 5.7:0.5 | r:0.25 5.8+3.7+1.8:0.25 1.7:0.25 1.5:0.25 1.7:0.25 1.4:0.25 1.5:0.5 4.2+2.3+1.4:0.25 1.1:0.25 1.0:0.25 2.3:0.25 2.1:0.25 1.5:0.25 2.0:0.25 3.2:0.25 | 4.2:0.25 3.4:0.25 2.3:0.25 1.2:0.25 1.3:0.25 1.7:0.25 1.0:0.25 2.3:0.25 5.0+2.2:0.25 1.0:0.25 1.3:0.25 1.6:0.25 1.5:0.25 1.3:0.25 1.1:0.25 1.0:0.25 | 4.0+1.1:0.25 3.2:0.25 2.3:0.25 1.0:0.25 1.1:0.25 1.5:0.25 2.3:0.25 2.1:0.25 6.3+3.4:0.25 2.3:0.25 2.6:0.25 1.5:0.25 1.3:0.25 2.6:0.25 2.5:0.25 2.3:0.25 |"]
+      marks: [[1, "The subject, alone: E four times, then stepping down."], [2, "The next voice enters with the answer: keep the first one sounding under it."], [5, "Three voices: let each finger hold its note while the others move."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["each voice sustains for its full length,", "and you can hear every entry of the subject."]
+    hold: 3

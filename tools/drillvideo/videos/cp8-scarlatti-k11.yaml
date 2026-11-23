@@ -1,0 +1,31 @@
+# Repertoire CP8: D. Scarlatti, Sonata K. 11 (keyboard; Segovia’s guitar version in E minor), bars 1–12.
+# Written by songs.py from scarlatti_d_k011.txt: change it there, not here.
+id: cp8-scarlatti-k11
+title: "Scarlatti: Sonata K. 11"
+rule: "Keyboard writing: the motif passes from hand to hand."
+bpm: 84
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Scarlatti: Sonata K. 11", lines: ["A keyboard sonata on guitar, in E minor:", "two-part writing, harmonic minor colour, and a turn to the minor dominant."]}
+    hold: 3
+
+  - card: null
+    section: "Counterpoint"
+    key: "E minor · 3/4"
+    notes: ["Scarlatti wrote for harpsichord: keep it crisp, the notes short and even."]
+    page:
+      root: E
+      repeat: 1
+      harmony: ["Em:i", "B7:V7", "Em:i", "B7:V7", "G+:III+", "G+:III+", "Am/G:iv", "Am/G:iv", "F♯7:V7/v", "@B_minor Bm:i", "Bm/D:i", "Bm:i"]
+      voices: ["r:0.25 4.2+3.0+2.0:0.25 4.4+3.2+2.4:0.25 2.5:0.25 2.4:0.25 2.2:0.25 2.4:0.25 3.0+2.0+1.0:0.25 4.4+3.2:0.5 4.2+3.0:0.25 4.1+1.2:0.25 | r:0.25 4.2+2.0+1.3:0.25 4.4+1.5:0.5 4.5+1.7:0.25 4.7+1.0:0.25 5.2+3.4+2.4:0.5 5.4+2.2:0.25 4.4+2.0:0.5 5.2+3.2:0.25 | 6.0+4.2+3.0:0.5 6.2+3.2:0.25 6.3+3.4:0.25 5.0+4.2:0.5 5.2+4.1:0.5 5.4:0.25 5.2:0.25 4.1+1.2:0.5 | r:0.25 4.2+2.0+1.3:0.25 4.4+1.5:0.5 4.5+1.7:0.25 4.7+1.0:0.25 5.2+3.4+2.4:0.5 2.2:0.25 2.0:0.5 3.8+2.7:0.25 | 2.8+1.7:0.25 3.0:0.25 2.7+1.5:0.25 3.0:0.25 2.5+1.3:0.25 2.4:0.5 2.2:0.25 2.4+1.2:0.25 2.0:0.25 2.4:0.25 1.2:0.25 | r:0.25 2.8+1.7:0.25 3.0:0.25 2.7+1.5:0.25 3.0:0.25 2.5+1.3:0.25 2.4:0.25 2.2:0.25 2.4+1.2:0.25 2.0:0.25 2.4:0.25 1.2:0.25 | 2.10+1.8:0.25 3.0:0.25 2.8+1.7:0.25 3.0:0.25 3.11+2.10:0.5 3.9:0.25 3.8:0.25 3.9+2.8:0.25 3.8:0.25 3.9:0.25 3.11:0.25 | 2.10+1.8:0.5 3.0:0.25 2.8+1.7:0.25 3.0:0.25 3.11+2.10:0.25 3.9:0.25 3.8:0.25 3.9+2.8:0.25 3.8:0.25 3.9:0.25 3.11:0.25 | 3.12+1.12:0.25 3.11:0.25 3.9+1.10:0.25 3.7:0.25 3.7+1.9:0.25 3.6+1.7:0.25 3.6+1.6:0.25 3.4:0.25 3.3+1.4:0.25 3.3+1.2:0.25 4.4:0.25 3.3+1.0:0.25 | 3.4+2.3:0.25 4.4:0.25 3.4:0.25 2.3+1.2:0.25 3.0+1.0:0.25 4.4+2.3:0.25 2.3:0.25 2.2:0.25 2.0:0.25 4.2+2.3:0.25 3.4+2.2:0.25 3.3:0.25 | 4.0+2.0:0.25 4.4:0.25 3.4:0.25 2.3+1.2:0.25 3.0+1.0:0.25 4.4+2.3:0.25 2.3:0.25 2.2:0.25 2.0:0.25 4.2+2.3:0.25 3.4+2.2:0.25 3.3:0.25 | 4.0+1.2:0.25 3.4:0.25 2.3:0.25 1.7:0.25 6.0+3.0+2.2+1.0:0.25 6.2+4.4+2.3:0.25 2.3:0.25 2.2:0.25 3.4:0.25 6.2+4.2+2.3:0.25 3.4+2.2:0.25 3.3:0.25 |"]
+      marks: [[1, "Bars 1–4: i – V7 – i – V7: the motif in the treble, answered in the bass."], [5, "Bars 5–6: G with D♯: III+, the augmented chord of harmonic minor (D♯ is the leading tone)."], [9, "Bar 9: F♯7, the V of B minor: the music turns to the minor dominant."], [10, "Bars 10–12: B minor, v: the first half heads away from home, as sonatas do."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 12 bars at 84, crisp and even,", "follow the motif between treble and bass,", "and hear the move to B minor."]
+    hold: 3

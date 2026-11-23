@@ -1,0 +1,91 @@
+# Video F2: the Travis catalogue.
+# Written by gen.py: change the loops there, not the steps here.
+id: F2-travis-catalogue
+title: "The Travis catalogue"
+rule: "The thumb never changes; the fingers fill the gaps."
+bpm: 90
+captions: false
+
+steps:
+  - card: {title: "The Travis catalogue", lines: ["Travis picking on C: the alternating thumb first,", "then each classic finger pattern over it,", "from the pinch to syncopated melody."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The thumb alone until it runs by itself", "2   Each finger pattern over it, two bars", "3   Then on Am and G with the same thumb", "4   Tempo up only when the thumb never wavers"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: C major
+    now: "Travis picking on C"
+    sub: "pinky on 6.3: the thumb plays 5 4 6 4 (Atkins)"
+    notes: ["Merle Travis, Chet Atkins: a steady alternating bass, the fingers syncopating above it."]
+    say: "Travis picking. The thumb alternates five four six four; then each finger pattern over it."
+  - section: "Thumb"
+    now: "Root and 5th"
+    sub: "5 and 6 on beats 1 and 3"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 - - - 6 - - -", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Four to the bar"
+    sub: "5 4 6 4: the Atkins thumb"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: "Mute the bass slightly with the heel of the hand: it keeps the thumb from booming."
+    play: {groove: "5 - 4 - 6 - 4 -", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Reverse"
+    sub: "6 4 5 4: start on the alternate bass"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "6 - 4 - 5 - 4 -", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: "Fingers"
+    now: "Pinch on 1"
+    sub: "p + a on beat 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "51 - 4 - 6 - 4 -", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Fingers on the &s"
+    sub: "m and i between the thumbs"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 2 4 3 6 2 4 3", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "The Travis pattern"
+    sub: "pinch on 1, then i and m off the beat"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: "The classic: pinch, then a finger on each & between the thumbs."
+    play: {groove: "52 - 4 3 6 2 4 3", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Syncopated pinch"
+    sub: "the pinch on the & of 2"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 - 4 1 6 - 4 2", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Melody on top"
+    sub: "a picks a tune on string 1 over the thumb"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "51 - 4 1 6 2 41 -", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: "Other chords"
+    now: "On Am"
+    sub: "thumb 5 4 6 4: 6 is the open E"
+    show: {kind: grip, root: A, quality: min, frets: [[5, 0], [4, 2], [3, 2], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "52 - 4 3 6 2 4 3", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "On G"
+    sub: "thumb 6 4 5 4: root on 6"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "62 - 4 3 5 2 4 3", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["your thumb runs 5 4 6 4 without thinking,", "you can put any finger pattern over it,", "and change chord without the thumb missing a beat."]
+    hold: 6

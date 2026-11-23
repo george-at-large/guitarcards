@@ -1,0 +1,22 @@
+# Video 0: how to use these videos. Cards only: the format, how to read the screen, how to practise.
+id: 00-how-to-use
+title: How to use these videos
+rule: Read the drill card; do exactly that; then the next key.
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: How to use these videos, lines: ['Every video is the complete content of one drill:', 'watch it once, then practise exactly what the drill card says.']}
+    hold: 5
+  - card: {title: The drill card, lines: ['1   Opens every video: 2–4 numbered steps', '2   That is the whole exercise: do it in that order', '3   Optional devices are drilled both ways: without, with, then by choice']}
+    hold: 8
+  - card: {title: Reading the neck, lines: ['Dots show the interval from the root: 1 3 5 7, 9 11 13', 'Colours: orange the root, pink the 3rd, blue the 5th, violet the 7th', 'A ringed dot is the note that moved, or the colour note', 'The band marks the region; the line above names the shape']}
+    hold: 10
+  - card: {title: The grids, lines: ['↓ ↑ strums · × muted · – the hand moves, missing the strings', 'p5 p4 p6 the thumb on that string · i m a strings 3 2 1', 'The count is above each box; the lit box is sounding now']}
+    hold: 9
+  - card: {title: Songs, lines: ['A playthrough with the tab scrolling under the neck,', 'the chord and its Roman numeral above the tab,', 'then the whole excerpt as a page, annotated, played again slower']}
+    hold: 9
+  - card: {title: Practising, lines: ['Short and daily: 10–20 minutes beats one long session', 'Slow enough to be clean; speed up only when it is', 'Say what you play: the degree, the chord, the key', 'Every drill ends in all 12 keys: two or three new keys a day']}
+    hold: 10
+  - card: {title: "You've got it when", lines: ['each video ends with the test:', 'when you can do that, move on.']}
+    hold: 5

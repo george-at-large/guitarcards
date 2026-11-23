@@ -1,0 +1,117 @@
+# Video 8: modes (plan v3). The brightness ladder on G over a G drone, one note lower each step, colour note ringed;
+# then each mode's whole-neck map.
+id: 08-modes
+title: Modes on one root
+rule: Every mode has one colour note. Hear it against the drone.
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: Modes on one root, lines: ['The seven modes on G, brightest to darkest,', 'each one note lower than the last,', 'over a G drone, with the colour note ringed.']}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   A drone on the root (an open string, an app, a held note)", "2   One mode in one region: land on its colour note and hold it", "3   Down the ladder, one mode at a time, hearing the lowered note", "4   Next root"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Root G
+    now: Seven modes on G
+    sub: Lydian → Ionian → Mixolydian → Dorian → Aeolian → Phrygian → Locrian
+    notes: ['The drone keeps G as home, so you hear each mode’s colour, not its parent key.']
+    say: The seven modes on G, from brightest to darkest, over a G drone. Each one lowers a single note of the one before.
+    drone: G2
+
+  - section: The brightness ladder · E-form region
+    now: G Lydian
+    sub: 'colour note: ♯4 (C♯)'
+    show: {kind: run, root: G, scale: lydian, region: {caged: E}, path: up, ring: ['#4']}
+    band: true
+    notes: ['Fits maj7♯11.']
+    play: run 0.5
+    hold: 0.6
+  - now: G Ionian
+    sub: '♯4 → 4 (C♯ → C) · colour note: 7 (F♯)'
+    show: {kind: run, root: G, scale: ionian, region: {caged: E}, path: up, ring: ['7']}
+    notes: ['Fits maj7. The 4 clashes with the 3rd: an avoid note.']
+    play: run 0.5
+    hold: 0.6
+  - now: G Mixolydian
+    sub: '7 → ♭7 (F♯ → F) · colour note: ♭7'
+    show: {kind: run, root: G, scale: mixolydian, region: {caged: E}, path: up, ring: ['b7']}
+    notes: ['Fits 7.']
+    play: run 0.5
+    hold: 0.6
+  - now: G Dorian
+    sub: '3 → ♭3 (B → B♭) · colour note: 6 (E)'
+    show: {kind: run, root: G, scale: dorian, region: {caged: E}, path: up, ring: ['6']}
+    notes: ['Fits m7 and m6: the bright minor.']
+    play: run 0.5
+    hold: 0.6
+  - now: G Aeolian
+    sub: '6 → ♭6 (E → E♭) · colour note: ♭6'
+    show: {kind: run, root: G, scale: aeolian, region: {caged: E}, path: up, ring: ['b6']}
+    notes: ['Natural minor.']
+    play: run 0.5
+    hold: 0.6
+  - now: G Phrygian
+    sub: '2 → ♭2 (A → A♭) · colour note: ♭2'
+    show: {kind: run, root: G, scale: phrygian, region: {caged: E}, path: up, ring: ['b2']}
+    notes: ['The dark, Spanish minor.']
+    play: run 0.5
+    hold: 0.6
+  - now: G Locrian
+    sub: '5 → ♭5 (D → D♭) · colour note: ♭5'
+    show: {kind: run, root: G, scale: locrian, region: {caged: E}, path: up, ring: ['b5']}
+    notes: ['Fits m7♭5.']
+    play: run 0.5
+    hold: 1
+
+  - section: The whole neck
+    now: Each mode on the whole neck
+    sub: colour note ringed
+    band: null
+    notes: null
+    say: And each mode across the whole neck.
+  - now: G Lydian
+    sub: '♯4 ringed'
+    show: {kind: run, root: G, scale: lydian, region: {frets: [0, 17]}, ring: ['#4']}
+    hold: 3
+  - now: G Ionian
+    sub: '7 ringed'
+    show: {kind: run, root: G, scale: ionian, region: {frets: [0, 17]}, ring: ['7']}
+    hold: 3
+  - now: G Mixolydian
+    sub: '♭7 ringed'
+    show: {kind: run, root: G, scale: mixolydian, region: {frets: [0, 17]}, ring: ['b7']}
+    hold: 3
+  - now: G Dorian
+    sub: '6 ringed'
+    show: {kind: run, root: G, scale: dorian, region: {frets: [0, 17]}, ring: ['6']}
+    hold: 3
+  - now: G Aeolian
+    sub: '♭6 ringed'
+    show: {kind: run, root: G, scale: aeolian, region: {frets: [0, 17]}, ring: ['b6']}
+    hold: 3
+  - now: G Phrygian
+    sub: '♭2 ringed'
+    show: {kind: run, root: G, scale: phrygian, region: {frets: [0, 17]}, ring: ['b2']}
+    hold: 3
+  - now: G Locrian
+    sub: '♭5 ringed'
+    show: {kind: run, root: G, scale: locrian, region: {frets: [0, 17]}, ring: ['b5']}
+    hold: 3
+
+  - section: Every root
+    key: null
+    drone: null
+    now: Then every root
+    sub: the same ladder on each of the twelve roots
+    show: null
+    notes: ['Practise each mode over a drone or a held chord on its root: without one, every mode sounds like its parent major scale.', 'Each day: the ladder on two or three roots.']
+    say: Then the same ladder on every root.
+    hold: 7
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can name and play any mode’s colour note', 'on any root, within a bar,', 'and hear it against the drone.']
+    hold: 6

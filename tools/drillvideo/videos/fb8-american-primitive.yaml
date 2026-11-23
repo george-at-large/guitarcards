@@ -1,0 +1,32 @@
+# Repertoire FB8: an American primitive study in open G, written for the course.
+# Written for the course (not a transcription).
+id: fb8-american-primitive
+title: An American primitive study
+rule: The thumb drones; the fingers repeat and vary.
+tuning: [D2, G2, D3, G3, B3, D4]
+bpm: 92
+captions: false
+steps:
+- card:
+    title: An American primitive study
+    lines: ['A study in John Fahey’s American primitive style, open G:', 'a monotonic thumb, modal riffs, and a ♭7.']
+  hold: 4
+- card: null
+  section: Folk baroque
+  key: G Mixolydian · open G
+  page:
+    root: G
+    harmony: ['G:I', 'G7:I7', 'G:I', 'G:I']
+    voices: ['r:.5 1.0:.5 2.0:.5 1.0:.5 2.3:.5 1.0:.5 2.0:1 | r:.5 1.3:.5 1.0:.5 2.3:.5 2.0:1 3.0:1 | r:.5 2.3s:.5 2.5:.5 2.3:.5 2.0:1 1.0:1 | 3.12n+2.12n+1.12n:4 |', '5.0:1 5.0:1 5.0:1 5.0:1 | 5.0:1 5.0:1 5.0:1 5.0:1 | 5.0:1 5.0:1 5.0:1 5.0:1 | 5.0:4 |']
+    marks:
+    - [1, 'Bar 1: the monotonic thumb: one note, every beat, the drum of American primitive guitar.']
+    - [2, 'Bar 2: F♮, the ♭7: G Mixolydian, the blues-and-raga colour Fahey loved.']
+    - [3, 'Bar 3: a slide into the riff: repetition with small changes is the whole style.']
+  notes: ['John Fahey, Robbie Basho, Leo Kottke: steel-string fingerstyle built from drones and repetition.']
+- section: null
+  key: null
+  card:
+    title: You've got it when
+    lines: ['you can keep the thumb steady for a whole minute,', 'vary the riff without breaking the drone,', and hear the ♭7 colour.]
+  hold: 5
+page_neck: true

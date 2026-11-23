@@ -1,0 +1,30 @@
+# Short series: Soukous seben. Written for the course (see the notes on screen).
+id: tp10-soukous-seben
+title: "Soukous seben"
+rule: "Fast, even 16ths high on the neck: the dance section."
+bpm: 116
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Soukous seben", lines: ["Congolese soukous: the seben, the guitar’s dance break:", "rolling triads over I – IV – V – IV."]}
+    hold: 3
+
+  - card: null
+    section: "Central African soukous"
+    key: "E major"
+    notes: ["Written for the course in the soukous style (Diblo Dibala, Dally Kimoko). Fingers or a pick."]
+    page:
+      root: E
+      repeat: 3
+      harmony: ["E:I", "A:IV", "B:V", "A:IV"]
+      voices: ["1.7:.25 2.9:.25 3.9:.25 2.9:.25 1.7:.25 2.9:.25 3.9:.25 2.9:.25 1.7:.25 1.9h:.25 1.7p:.25 2.9:.25 3.9:.25 2.9:.25 1.7:.25 2.9:.25 | 1.9:.25 2.10:.25 3.9:.25 2.10:.25 1.9:.25 2.10:.25 3.9:.25 2.10:.25 1.9:.25 1.12h:.25 1.9p:.25 2.10:.25 3.9:.25 2.10:.25 1.9:.25 2.10:.25 | 1.7:.25 2.7:.25 3.8:.25 2.7:.25 1.7:.25 2.7:.25 3.8:.25 2.7:.25 1.7:.25 1.9h:.25 1.7p:.25 2.7:.25 3.8:.25 2.7:.25 1.7:.25 2.7:.25 | 1.9:.25 2.10:.25 3.9:.25 2.10:.25 1.9:.25 2.10:.25 3.9:.25 2.10:.25 1.9:.25 1.12h:.25 1.9p:.25 2.10:.25 3.9:.25 2.10:.25 1.9:.25 2.10:.25 |", "6.0:2 6.0:2 | 5.0:2 5.0:2 | 6.7:2 6.7:2 | 5.0:2 5.0:2 |"]
+      marks: [[1, "Triads on strings 3-2-1, rolled over and over; beat 3, a hammer-on and pull-off on top."], [3, "B: the same shape down at fret 7, the thumb on the low B."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the 16ths stay even at 116,", "and the slurs sparkle without rushing."]
+    hold: 3

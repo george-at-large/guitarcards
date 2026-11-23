@@ -1,0 +1,32 @@
+# Repertoire W2: a slack-key study in open G (taro patch), written for the course.
+# Written for the course (not a transcription).
+id: w2-slack-key
+title: Hawaiian slack-key
+rule: The thumb alternates; the fingers sing above it.
+tuning: [D2, G2, D3, G3, B3, D4]
+bpm: 84
+captions: false
+steps:
+- card:
+    title: Hawaiian slack-key
+    lines: ['Slack-key in open G (taro patch, D G D G B D):', 'an alternating bass, hammer-ons, and harmonics to finish.']
+  hold: 4
+- card: null
+  section: World
+  key: G major · open G
+  page:
+    root: G
+    harmony: ['G:I', 'C:IV', 'D:V', 'G:I']
+    voices: ['r:.5 2.0:.25 2.3h:.25 1.0:.5 1.2:.5 r:.5 2.0:.5 2.3:1 | r:.5 2.5:.5 1.5:.5 2.5:.5 1.7:.5 2.5:.5 1.5:1 | r:.5 2.7:.5 1.7:.5 2.7:.25 2.9h:.25 1.9:.5 2.7:.5 1.7:1 | 3.12n+2.12n+1.12n:4 |', '5.0:1 4.0:1 5.0:1 4.0:1 | 5.5:1 4.5:1 5.5:1 4.5:1 | 5.7:1 4.7:1 5.7:1 4.7:1 | 5.0:2 4.0:2 |']
+    marks:
+    - [1, 'Bar 1: open G: the thumb alternates G and D; the hammer-on B → D is the slack-key sound.']
+    - [2, 'Bar 2: C, a straight barre at the 5th fret: every chord in open tuning is one finger.']
+    - [4, 'Bar 4: G as harmonics at the 12th fret: the chime ending of Hawaiian guitar.']
+  notes: ['G – C – D – G: barre at 5 for C, at 7 for D', 'Slack key = loosened strings: the open tuning makes the whole guitar ring like one chord.']
+- section: null
+  key: null
+  card:
+    title: You've got it when
+    lines: ['you can keep the thumb alternating through G – C – D,', 'place the hammer-ons cleanly,', and end on ringing harmonics.]
+  hold: 5
+page_neck: true

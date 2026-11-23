@@ -1,0 +1,31 @@
+# Technique: Carcassi, Study Op. 60 No. 3 in A, bars 1–8.
+# Written by songs.py from carcassi_op60_no03_study_in_a.txt: change it there, not here.
+id: c14-carcassi-op60-no3
+title: "Carcassi: Study Op. 60 No. 3"
+rule: "Even triplets: the thumb on the bass, the fingers rolling through the chord."
+bpm: 72
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Carcassi: Study Op. 60 No. 3", lines: ["Carcassi’s A major study:", "running triplet arpeggios through I – V7 – I and on to the dominant."]}
+    hold: 3
+
+  - card: null
+    section: "Classical technique"
+    key: "A major"
+    notes: ["Tab: Kevin J. Manges (classtab.org)."]
+    page:
+      root: A
+      repeat: 2
+      harmony: ["A:I", "E7:V7", "E7:V7", "A:I", "A:I", "A♯°7:vii°7/V", "B7:V7/V", "E:V"]
+      voices: ["5.0:0.166667 3.2:0.166667 2.2:0.166667 1.2:0.166667 3.2:0.166667 2.2:0.166667 1.0:0.166667 3.2:0.166667 2.2:0.166667 5.0:0.166667 3.2:0.166667 2.2:0.166667 | 6.4:0.166667 3.4:0.166667 2.3:0.166667 1.2:0.166667 3.4:0.166667 2.3:0.166667 1.0:0.166667 3.4:0.166667 2.3:0.166667 6.4:0.166667 3.4:0.166667 2.3:0.166667 | 6.0:0.166667 3.4:0.166667 2.3:0.166667 1.5:0.166667 3.4:0.166667 2.3:0.166667 1.4:0.166667 3.4:0.166667 2.3:0.166667 6.0:0.166667 3.4:0.166667 2.3:0.166667 | 5.0:0.166667 3.6:0.166667 2.5:0.166667 1.7:0.166667 3.6:0.166667 2.5:0.166667 1.5:0.166667 3.6:0.166667 2.5:0.166667 5.0:0.166667 3.6:0.166667 2.5:0.166667 | 5.0:0.166667 3.2:0.166667 2.2:0.166667 1.4:0.166667 3.2:0.166667 2.2:0.166667 1.2:0.166667 3.2:0.166667 2.2:0.166667 5.0:0.166667 3.2:0.166667 2.2:0.166667 | 5.1:0.166667 3.0:0.166667 2.2:0.166667 1.2:0.166667 3.0:0.166667 2.2:0.166667 1.0:0.166667 3.0:0.166667 2.2:0.166667 5.1:0.166667 3.0:0.166667 2.2:0.166667 | 5.2:0.166667 4.4:0.166667 3.2:0.166667 2.5:0.166667 4.4:0.166667 3.2:0.166667 5.2:0.166667 4.4:0.166667 3.2:0.166667 2.4:0.166667 4.4:0.166667 3.2:0.166667 | 6.0:0.166667 3.1:0.166667 2.0:0.166667 1.0:0.166667 3.1:0.166667 2.0:0.166667 4.2:1 |"]
+      marks: [[1, "Even triplets: p on the bass, the fingers rolling upward."], [6, "A♯°7 – B7 – E: the music turns to the dominant."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the triplets stay even through every chord change,", "and the bass rings under them."]
+    hold: 3

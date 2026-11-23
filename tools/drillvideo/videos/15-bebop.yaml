@@ -1,0 +1,94 @@
+# Video 15: bebop scales, enclosures, digital patterns.
+# Written by gen.py: change the loops there, not the steps here.
+id: 15-bebop
+title: "Bebop scales and line vocabulary"
+rule: "Chord tones on the beat."
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: "Bebop scales and line vocabulary", lines: ["The bebop dominant, major and Dorian scales,", "enclosures round a target note,", "and 1-2-3-5 cells through a ii – V – I."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Each bebop scale down from the top of the region, in 8ths", "2   Enclose each chord tone: above, below, target", "3   1-2-3-5 on each chord of the ii – V – I", "4   Then in the other regions and keys"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Bebop scales"
+    sub: "eight notes, so chord tones fall on the beats"
+    notes: ["The added passing note (♮7 on a dominant, ♯5 on major) puts every chord tone on a downbeat."]
+    say: "Bebop scales, enclosures, and digital patterns through a two five one."
+  - section: Bebop scales
+    now: "D bebop dominant over D7"
+    sub: "Mixolydian + ♮7: D E F♯ G A B C C♯"
+    show: {kind: run, root: D, scale: bebop-dominant, region: {caged: E}, path: down}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: Bebop scales
+    now: "G bebop major over Gmaj7"
+    sub: "major + ♯5: G A B C D D♯ E F♯"
+    show: {kind: run, root: G, scale: bebop-major, region: {caged: E}, path: down}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: Bebop scales
+    now: "A bebop Dorian over Am7"
+    sub: "Dorian + ♮3: A B C C♯ D E F♯ G"
+    show: {kind: run, root: A, scale: bebop-dorian, region: {caged: E}, path: down}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: Enclosures
+    now: "Enclose B"
+    sub: "C above, A♯ below, then B: the 3rd of Gmaj7"
+    show: {kind: line, root: G, pitches: ["C4", "A#3", "B3"], strings: [4, 3, 2, 1], labels: ["4", "#2", "3"]}
+    band: null
+    notes: ['Approach from above and below, then land on the beat.']
+    play: run 0.5
+    hold: 0.3
+  - section: Enclosures
+    now: "Enclose D"
+    sub: "E♭ above, C♯ below, then D: the 5th"
+    show: {kind: line, root: G, pitches: ["Eb4", "C#4", "D4"], strings: [4, 3, 2, 1], labels: ["b6", "#4", "5"]}
+    band: null
+    notes: ['Approach from above and below, then land on the beat.']
+    play: run 0.5
+    hold: 0.3
+  - section: Enclosures
+    now: "Enclose F♯"
+    sub: "G above, E♯ below, then F♯: the 7th"
+    show: {kind: line, root: G, pitches: ["G4", "E#4", "F#4"], strings: [4, 3, 2, 1], labels: ["1", "#6", "7"]}
+    band: null
+    notes: ['Approach from above and below, then land on the beat.']
+    play: run 0.5
+    hold: 0.3
+  - section: 1-2-3-5
+    now: "1 2 3 5 on Am7"
+    sub: the digital pattern through ii – V – I
+    show: {kind: line, root: A, pitches: ["A3", "B3", "C4", "E4"], strings: [4, 3, 2, 1], labels: ['1', '2', '3', '5']}
+    notes: null
+    play: run 0.5
+    hold: 0.3
+  - section: 1-2-3-5
+    now: "1 2 3 5 on D7"
+    sub: the digital pattern through ii – V – I
+    show: {kind: line, root: D, pitches: ["D4", "E4", "F#4", "A4"], strings: [4, 3, 2, 1], labels: ['1', '2', '3', '5']}
+    notes: null
+    play: run 0.5
+    hold: 0.3
+  - section: 1-2-3-5
+    now: "1 2 3 5 on Gmaj7"
+    sub: the digital pattern through ii – V – I
+    show: {kind: line, root: G, pitches: ["G4", "A4", "B4", "D5"], strings: [4, 3, 2, 1], labels: ['1', '2', '3', '5']}
+    notes: null
+    play: run 0.5
+    hold: 0.3
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can run each bebop scale with chord tones on the beats,", "enclose any chord tone,", "and string 1-2-3-5 cells through a ii – V – I."]
+    hold: 6

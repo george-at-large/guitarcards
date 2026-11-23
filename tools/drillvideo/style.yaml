@@ -1,0 +1,81 @@
+# How every drill video looks, sounds and is paced. A video (videos/<id>.yaml) says what happens; this file says how.
+# The neck, the dots and the voice are the audiation videos' (tools/audiation), so the two series look like one.
+
+visual:
+  size: [1920, 1080]
+  fps: 24
+  background: '#000000'
+  font: /System/Library/Fonts/HelveticaNeue.ttc
+  font_light: 7            # face indexes in the .ttc
+  font_medium: 10
+  fallback: /System/Library/Fonts/Supplemental/Arial Unicode.ttf   # ♭ ♯ → and anything else Helvetica Neue lacks
+  ink: '#f2f0ea'
+  title: {size: 40, x: 90, y: 74}
+  rule: {size: 28, alpha: 0.6}
+  section: {size: 24, alpha: 0.55}
+  now: {size: 64, y: 248}
+  sub: {size: 32, alpha: 0.72}
+  next: {size: 28, alpha: 0.5}
+  caption: {size: 38, margin_bottom: 64}
+  card: {title_size: 76, line_size: 36}
+  table: {size: 31, head_size: 24}
+  keys: {size: 34, y: 866}
+  notes: {size: 29, y: 952, gap: 42, alpha: 0.8}
+  tab: {y: 836, gap: 21, size: 22, playhead: 640, px_per_beat: 150}   # the scrolling tab under the neck
+  # song videos (any step with a tab): the neck moves up, and the harmony strip (chord and numeral per change) sits over the tab
+  song:
+    neck: {y: [372, 622]}
+    now: {y: 184}
+    keys: {y: 806}
+    tab: {y: 806}
+    notes: {y: 906}
+  harmony: {chord_size: 30, roman_size: 23, dy: 86, gap: 34}
+  # the whole excerpt as a page of tab (systems), the annotations under it, a cursor while it plays
+  page: {x0: 150, x1: 1800, top: 196, sys_h: 205, per_page: 3, unit: 30, digit: 21, chord: 26, roman: 20, gap: 19, legend: 25}
+  # a video with `page_neck: true`: the neck stays on screen, slimmer, over the page of tab
+  page_neck:
+    neck: {y: [196, 356]}
+    page: {top: 458, sys_h: 180, per_page: 2}
+    dot: {radius: 18}
+  # read by the audiation painter, which draws the neck and the dots
+  cue: {size: 30}
+  chord: {size: 72, ivs_size: 34, about_size: 30}
+  neck:
+    frets: 17
+    x: [205, 1800]         # nut and the last fret drawn
+    y: [505, 755]          # high E string and low E string
+    dim: 0.72
+  dot: {radius: 24, glow: 2.4}
+  colours: {r: '#ffb547', t3: '#ff7a9a', t5: '#5ccdf2', t7: '#b49cff', tx: '#efe8da'}
+  fade_s: 0.35             # anything changing on screen crossfades this long
+  glow_s: 0.7              # a played note's bloom dies away over this long
+
+voice:
+  provider: elevenlabs
+  voice: UmQN7jS1Ee8B1czsUtQh      # Theo Silk, the Mila house voice
+  name: Theo Silk
+  model: eleven_multilingual_v2
+  settings: {stability: 0.6, similarity_boost: 0.75, style: 0, use_speaker_boost: true, speed: 1.0}
+  seed: 7
+
+sound:
+  rate: 48000
+  pluck: {decay_s: 1.9, position: 0.18}
+  level: 0.5
+  roll_s: 0.028            # a strum, low string to high
+  damp_s: 0.03             # a note is cut this fast when its string plays again
+  mute_s: 0.045            # a muted (scratched) stroke dies this fast
+  drone: {level: 0.05, attack_s: 1.5, release_s: 2.0, detune_cents: 3, swell: {depth: 0.05, period_s: 9}}
+  click: {freq: 1850, decay_s: 0.035, level: 0.16, accent: 1.6}
+  reverb: {seconds: 2.5, rt60: 1.4, rt60_high: 0.7, predelay_ms: 14, wet: 0.16}
+  voice_db: 3.0            # the voice's speaking level against the guitar while it plays
+  peak: 0.89
+
+pacing:
+  lead_in_s: 0.6
+  tail_s: 1.5
+  say_after_s: 0.25        # a step's line starts this long after its picture changes
+  play_after_s: 0.35       # and its playing starts this long after the line ends
+  gap_s: 0.45              # between steps
+  count_in: 4              # clicks before anything played in time
+  preview_beats: 1         # the next item's name shows this many beats before it sounds

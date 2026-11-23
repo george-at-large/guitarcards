@@ -1,0 +1,96 @@
+# Video 14a: pentatonics, blues scales and triad pairs.
+# Written by gen.py: change the loops there, not the steps here.
+id: 14a-pentatonics
+title: "Pentatonics, blues scales, triad pairs"
+rule: "Five notes, many colours: name the scale before you play it."
+bpm: 110
+captions: false
+
+steps:
+  - card: {title: "Pentatonics, blues scales, triad pairs", lines: ["Major, minor, dominant and minor 6 pentatonics,", "the minor and major blues scales,", "and a triad pair, in the E-form region of G."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Each scale in the region, lowest to highest and back", "2   Name its formula as you play", "3   The other four regions", "4   Then the next key"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Seven small scales on G"
+    sub: "one region · lowest note to highest"
+    notes: ["G major pentatonic = E minor pentatonic: the same notes, a different home."]
+    say: "Pentatonics, blues scales and a triad pair, in one region of G."
+  - section: "G major pentatonic"
+    now: "G major pentatonic"
+    sub: "1 2 3 5 6"
+    show: {kind: run, root: G, scale: major-pentatonic, region: {caged: E}, path: up}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: "G minor pentatonic"
+    now: "G minor pentatonic"
+    sub: "1 ♭3 4 5 ♭7"
+    show: {kind: run, root: G, scale: minor-pentatonic, region: {caged: E}, path: up}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: "G blues"
+    now: "G blues"
+    sub: "1 ♭3 4 ♭5 5 ♭7: minor pentatonic + ♭5"
+    show: {kind: run, root: G, scale: blues, region: {caged: E}, path: up}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: "G major blues"
+    now: "G major blues"
+    sub: "1 2 ♭3 3 5 6: major pentatonic + ♭3"
+    show: {kind: run, root: G, scale: major-blues, region: {caged: E}, path: up}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: "G dominant pentatonic"
+    now: "G dominant pentatonic"
+    sub: "1 2 3 5 ♭7: for G7"
+    show: {kind: run, root: G, scale: dominant-pentatonic, region: {caged: E}, path: up}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: "G minor 6 pentatonic"
+    now: "G minor 6 pentatonic"
+    sub: "1 ♭3 4 5 6: for Gm6, Dorian"
+    show: {kind: run, root: G, scale: minor6-pentatonic, region: {caged: E}, path: up}
+    band: true
+    notes: null
+    play: run 0.5
+  - section: Triad pair
+    now: F and G triads over G7sus
+    sub: 'G B D + F A C = 1 3 5 + ♭7 9 11, a six-note scale'
+    show: {kind: run, root: G, tones: ['1', '9', '3', '11', '5', 'b7'], region: {caged: E}, sequence: {kind: groups, size: 3}}
+    band: true
+    notes: ['Two triads a step apart cover six notes with no avoid note: alternate them, three notes each.']
+    play: run 0.25
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths
+    show: null
+    band: null
+    notes: null
+    table:
+      title: "Where each key's regions sit: the root's string and fret in each form"
+      head: [Key, E form, D form, C form, A form, G form]
+      widths: [0.16, 0.168, 0.168, 0.168, 0.168, 0.168]
+      rows_from: {kind: areasTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], forms: [E, D, C, A, G], cols: ['{key}', '{at[0]}', '{at[1]}', '{at[2]}', '{at[3]}', '{at[4]}']}
+    say: Then every key. The table shows where each region sits.
+    hold: 6
+  - notes: ['Each day: two scales in all five regions.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play every pentatonic and blues scale in any region,', 'name its formula,', 'and run a triad pair without losing the form.']
+    hold: 6

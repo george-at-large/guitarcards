@@ -1,0 +1,55 @@
+# Video 13a: harmonic minor and harmonic major harmony.
+# Written by gen.py: change the loops there, not the steps here.
+id: 13a-harmonic-harmony
+title: "Harmonic minor and major harmony"
+rule: "The raised 7th makes the dominant; the ♭6 makes the colour."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Harmonic minor and major harmony", lines: ["The seven chords of G harmonic minor and G harmonic major,", "in drop 2, and Phrygian dominant over", "the V7 of a minor key."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   G harmonic minor, the seven chords, naming each", "2   G harmonic major, the same", "3   D Phrygian dominant over D7, resolving to Gm"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Two scales, harmonised"
+    sub: "G harmonic minor · G harmonic major"
+    notes: ["Harmonic minor: a real V7 in a minor key. Harmonic major: a minor iv and a °7 in a major key."]
+    say: "The seven chords of G harmonic minor, then G harmonic major, in drop 2."
+  - section: "Harmonic minor"
+    notes: ["V7 and vii°7 both lead home: the raised 7th (F♯) is the leading tone."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| i:mMaj7 | ii:m7b5 | bIII:maj7#5 | iv:m7 | V:7 | bVI:maj7 | vii:dim7 | i:mMaj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 0.5, sub: "{roman}"}
+  - section: "Harmonic major"
+    notes: ["The minor iv in a major key: the sound of “borrowed” harmony, from one scale."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:maj7 | ii:m7b5 | iii:m7 | iv:mMaj7 | V:7 | bVI:maj7#5 | vii:dim7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 0.5, sub: "{roman}"}
+  - section: Phrygian dominant
+    now: D Phrygian dominant over D7♭9
+    sub: the 5th mode of G harmonic minor · D E♭ F♯ G A B♭ C
+    show: {kind: run, root: D, scale: phrygian-dominant, region: {caged: E}, path: up}
+    drone: D3
+    band: true
+    notes: ['Over the V7 of a minor key, this is the scale: ♭9 and ♭13 pulling into the tonic’s 5th and 3rd.']
+    play: run 0.5
+    hold: 0.5
+  - now: The minor ii – V – i
+    sub: Am7♭5 – D7♭9 – Gm(maj7)
+    show: null
+    drone: null
+    band: null
+    play: strum 4
+    click: false
+    expand: {kind: prog, key: G, chart: '| ii:m7b5 | V:7b9 | i:mMaj7 | i:mMaj7 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 1, sub: '{roman}'}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play both harmonised scales in drop 2 and name each chord,", "run Phrygian dominant over any V7 of a minor key,", "and hear the ♭9 resolve."]
+    hold: 6

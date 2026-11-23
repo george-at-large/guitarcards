@@ -1,0 +1,32 @@
+# Repertoire R6: Soldier's Joy (traditional fiddle tune), flatpicked, both parts, from the ABC at natunelist.net.
+# Written by songs.py from the ABC at abcnotation.com, natunelist.net/soldiers-joy/index.html/0001: change it there, not here.
+id: r6-soldiers-joy
+title: "Soldier's Joy"
+rule: "Alternate picking: down on the beat, up off it."
+bpm: 100
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Soldier's Joy", lines: ["The bluegrass and old-time fiddle tune, flatpicked:", "the melody alone, in first position in D."]}
+    hold: 3
+
+  - card: null
+    section: "Roots and ragtime"
+    key: "D major"
+    notes: ["Fiddle tunes are played twice through each part (AABB): repeat each part before moving on."]
+    page:
+      root: D
+      repeat: 1
+      harmony: ["", "D:I - - -", "", "", "A:V - - -", "D:I - - -", "", "- - A:V -", "D:I - - -", "D:I - - -", "A:V - - -", "D:I - - -", "A:V - - -", "D:I - - -", "A:V - - -", "D:I - A:V -", "D:I - -"]
+      pickup: true
+      voices: ["4.4:0.5 4.5:0.5 | 3.2:0.5 4.4:0.5 5.5:0.5 4.4:0.5 3.2:0.5 4.4:0.5 5.5:0.5 4.4:0.5 | 3.2:1 2.3:1 2.3:1 2.2:0.5 2.0:0.5 | 3.2:0.5 4.4:0.5 5.5:0.5 4.4:0.5 3.2:0.5 4.4:0.5 5.5:0.5 4.4:0.5 | 4.5:1 4.2:1 4.2:1 4.4:0.5 4.5:0.5 | 3.2:0.5 4.4:0.5 5.5:0.5 4.4:0.5 3.2:0.5 4.4:0.5 5.5:0.5 4.4:0.5 | 3.2:1 2.3:1 2.3:1 2.5:1 | 1.2:0.5 1.5:0.5 1.3:0.5 1.2:0.5 1.0:0.5 1.3:0.5 1.2:0.5 1.0:0.5 | 2.3:1 2.3:1 2.3:1 2.3:0.5 2.5:0.5 | 1.2:1 1.2:1 1.2:0.5 1.5:0.5 1.3:0.5 1.2:0.5 | 1.0:1 1.0:1 1.0:0.5 1.3:0.5 1.2:0.5 1.0:0.5 | 1.2:1 1.2:1 1.2:0.5 1.5:0.5 1.3:0.5 1.2:0.5 | 1.0:0.5 2.3:0.5 2.2:0.5 2.0:0.5 3.2:2 | 1.2:1 1.2:1 1.2:0.5 1.5:0.5 1.3:0.5 1.2:0.5 | 1.0:1 1.0:1 1.0:0.5 1.3:0.5 1.2:0.5 1.0:0.5 | 1.2:0.5 1.5:0.5 1.3:0.5 1.2:0.5 1.0:0.5 1.3:0.5 1.2:0.5 1.0:0.5 | 2.3:1 2.3:1 2.3:1 |"]
+      marks: [[1, "Bars 1–4: the A part spells D (A F♯ D F♯): keep the pick moving down-up even through the long notes."], [4, "Bar 4: A, the V, then back to D: the whole tune is I and V."], [9, "Bars 9–16: the B part climbs to F♯ and E, the top of first position."], [15, "Bars 15–16: f a g f, e g f e, d: the closing run, a scale falling home."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can flatpick both parts at 100 with strict alternate picking,", "play each part twice through without stopping,", "and hear I and V under the tune."]
+    hold: 3

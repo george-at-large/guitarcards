@@ -1,0 +1,62 @@
+# Genre intro: Samba.
+# Written by gen.py: change the loops there, not the steps here.
+id: G2-samba
+title: "Samba"
+rule: "The thumb is the surdo: the weight is on 2."
+bpm: 84
+captions: false
+
+steps:
+  - card: {title: "Samba", lines: ["The samba right hand: a surdo thumb, tamborim fingers,", "and the i – ♭VII vamp of the Afro-sambas,", "played straight, then with the push."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The thumb alone, the weight on 2", "2   The fingers alone, then together", "3   The Am7 – G vamp: plain, then pushed into each change"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: A minor
+    now: "Samba on Am7"
+    sub: "thumb = surdo · fingers = tamborim"
+    notes: ["Samba is in 2: feel two big beats a bar, the second one heavier."]
+    say: "Samba. The thumb plays the surdo, the fingers the tamborim."
+  - section: "The surdo"
+    now: "The thumb alone"
+    sub: "the bass drum: soft on 1, strong on 2"
+    show: {kind: grip, root: A, quality: m7, frets: [[5, 0], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "T - - - T - - - T - - - T - - -", grid: 4, repeat: 2, accents: [4, 12]}
+    hold: 0.2
+  - section: "The tamborim"
+    now: "The fingers alone"
+    sub: "16ths, accents off the beat"
+    show: {kind: grip, root: A, quality: m7, frets: [[5, 0], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "- F - F F - F - - F - F F - F -", grid: 4, repeat: 2, accents: [1, 4, 6, 9, 12, 14]}
+    hold: 0.2
+  - section: "Together"
+    now: "Thumb and fingers"
+    sub: "the samba groove"
+    show: {kind: grip, root: A, quality: m7, frets: [[5, 0], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "T F - F TF - F - T F - F TF - F -", grid: 4, repeat: 2, accents: [4, 12]}
+    hold: 0.2
+  - section: "The vamp"
+    now: "On G"
+    sub: "the i – ♭VII vamp: Am7 to G"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "T F - F TF - F - T F - F TF - F -", grid: 4, repeat: 1, accents: [4, 12]}
+    hold: 0.2
+  - now: "Pushed"
+    sub: "the last 16th plays the next chord early"
+    show: {kind: grip, root: A, quality: m7, frets: [[5, 0], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "T F - F TF - F - T F - F TF - F N", grid: 4, repeat: 1, accents: [4, 12, 15]}
+    hold: 0.2
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can hold the surdo thumb under the 16th fingers,", "play the vamp plain and pushed,", "and feel the bar in two."]
+    hold: 6

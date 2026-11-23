@@ -1,0 +1,31 @@
+# Repertoire C9: Tárrega, Adelita (mazurka, public domain), bars 1–16: E minor, then E major.
+# Written by songs.py from tarrega_adelita.txt: change it there, not here.
+id: c9-tarrega-adelita
+title: "Tárrega: Adelita"
+rule: "A mazurka: lean on beat 2."
+bpm: 66
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Tárrega: Adelita", lines: ["Tárrega’s mazurka Adelita:", "eight bars in E minor, then the turn to the parallel major."]}
+    hold: 3
+
+  - card: null
+    section: "Classical guitar"
+    key: "E minor · 3/4"
+    notes: ["Mazurka: three beats, but the weight falls on the second."]
+    page:
+      root: E
+      repeat: 1
+      harmony: ["Em:i", "F♯ø7/A:iiø7", "B7:V7", "Em:i", "Em:i", "F♯ø7/A:iiø7", "B7:V7", "Em:i", "@E_major E:I", "E:I", "E:I", "B7:V7", "E:I", "E:I", "B7:V7", "E:I"]
+      voices: ["r:0.25 1.12:0.25 6.0:0.5 1.11:1 1.7:0.5 3.9+2.8:0.5 | 1.10:0.25 5.0:0.5 1.8:1 2.7:0.5 4.10:0.25 3.9:0.5 | 6.7+1.8:0.5 1.7:1 3.8:1 6.7+4.7+3.8+2.8:0.5 | 6.0+2.7:0.25 2.8:0.5 2.7:0.5 3.9:0.25 2.0:0.5 1.0:0.25 2.8:0.5 1.7:0.25 | 1.12:0.25 6.0:0.5 1.11:1.25 1.7:0.5 3.9+2.8:0.5 | 1.10:0.25 5.0:0.5 1.8:1 2.7:0.5 4.10:0.25 3.9:0.5 | 6.7+1.8:0.5 1.7:1 3.8:1 6.7+4.7+3.8+2.8:0.5 | r:0.5 4.5+3.4+2.5:1 6.0:1.5 | r:0.25 6.0+1.4:0.5 4.6+3.4+2.5:0.5 1.7:0.75 5.0+3.6+2.5:0.5 2.7:0.5 | 6.0+1.4:0.75 4.6+3.4+2.5:0.5 1.7:0.5 5.0+3.6+2.5:0.75 2.7:0.5 | 6.0+3.4+2.5+1.4:0.25 1.7:0.25 1.12:0.5 1.11:0.5 1.11:0.25 1.12:0.5 1.11:0.25 5.9+3.9:0.25 1.9:0.25 | 1.9:0.25 1.11:0.5 6.7+4.7+3.8+1.9:0.5 1.7:0.25 2.10:0.5 2.7:0.25 3.8:0.5 4.9:0.25 | 6.0+4.6:0.5 2.0+1.0:0.75 2.0:0.5 5.0+4.2+2.2+1.0:0.75 4.4:0.5 | 6.0+3.1:0.25 3.4:0.5 1.4:0.25 2.4:0.5 3.9:0.25 3.11:0.5 6.8+4.8+3.9:0.5 4.8:0.25 | 6.7+4.9:0.75 4.7+3.6:0.5 4.6+3.4:0.75 4.4+3.2:0.5 5.2+2.4:0.5 | r:0.5 4.2+3.1+2.0+1.0:1 6.0:1.5 |"]
+      marks: [[1, "Bars 1–4: i – iiø7 – V7 – i, the minor cadence, with the mazurka’s accent on beat 2."], [3, "Bar 3: B7 with C and G above it: the ♭9 and ♭13, the dark colours of a minor-key dominant."], [9, "Bar 9: E major, the parallel major: same tonic, the third raised."], [12, "Bar 12: B7 again, now leading home to E major."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 16 bars at 66 with the mazurka lilt,", "hear the switch from minor to major,", "and name i – iiø7 – V7 – i."]
+    hold: 3

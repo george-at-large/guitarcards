@@ -1,0 +1,36 @@
+# Repertoire C1: Bach, Cello Suite No. 1, Prelude BWV 1007, bars 1–12, in D on guitar (drop D). Notes from the cello
+# original transposed up a 5th; fingering from George Lin's classtab version (the standard guitar version in D).
+id: r3a-bach-prelude-opening
+title: 'Bach: Cello Suite No. 1, Prelude'
+rule: One line that is really three voices and a chord.
+tuning: [D2, A2, D3, G3, B3, E4]
+bpm: 72
+captions: false
+steps:
+- card:
+    title: 'Bach: Cello Suite No. 1, Prelude'
+    lines: ['The opening 12 bars in D, drop D tuning:', 'harmony as a single line, from the tonic towards the dominant and on.']
+  hold: 4
+- card: null
+  section: Roots and ragtime
+  key: D major · drop D
+  notes: ['Keep the 16ths even: the phrasing comes from the harmony, not from accents.']
+  page:
+    root: D
+    harmony: ['D:I', 'G/D:IV⁶₄', 'A7/D:V⁷', 'D:I', 'Bm/D:vi⁶', 'E7/G♯:V⁷/V', 'A:V', 'Bm:vi', 'E7/B:V⁷/V - E7:V⁷/V -', 'A:V', 'B7:V⁷/ii', 'Em:ii']
+    voices: ['4.0:.25 3.2:.25 1.2:.25 1.0:.25 1.2:.25 3.2:.25 1.2:.25 3.2:.25 6.0:.25 3.2:.25 1.2:.25 1.0:.25 1.2:.25 3.2:.25 1.2:.25 3.2:.25 | 4.0:.25 2.0:.25 1.3:.25 1.2:.25 1.3:.25 2.0:.25 1.3:.25 2.0:.25 6.0:.25 2.0:.25 1.3:.25 1.2:.25 1.3:.25 2.0:.25 1.3:.25 2.0:.25 | 4.0:.25 2.2:.25 1.3:.25 1.2:.25 1.3:.25 2.2:.25 1.3:.25 2.2:.25 6.0:.25 2.2:.25 1.3:.25 1.2:.25 1.3:.25 2.2:.25 1.3:.25 2.2:.25 | 4.0:.25 2.3:.25 1.2:.25 1.0:.25 1.2:.25 2.3:.25 1.2:.25 2.3:.25 6.0:.25 2.3:.25 1.2:.25 1.0:.25 1.2:.25 2.3:.25 1.2:.25 2.2:.25 | 4.0:.25 2.0:.25 1.2:.25 1.0:.25 1.2:.25 2.3:.25 2.2:.25 2.3:.25 2.0:.25 2.3:.25 2.2:.25 2.3:.25 4.4:.25 3.2:.25 3.1:.25 4.4:.25 | 3.1:.25 2.3:.25 1.0:.25 2.3:.25 1.0:.25 2.3:.25 1.0:.25 2.3:.25 3.1:.25 2.3:.25 1.0:.25 2.3:.25 1.0:.25 2.3:.25 1.0:.25 2.3:.25 | 5.0+2.2:.25 1.0:.25 1.5:.25 1.4:.25 1.5:.25 1.0:.25 2.3:.25 1.0:.25 2.2:.25 1.0:.25 2.3:.25 1.0:.25 3.2:.25 2.2:.25 2.0:.25 3.2:.25 | 5.2:.25 4.4:.25 2.3:.25 2.2:.25 2.3:.25 4.4:.25 2.3:.25 4.4:.25 5.2:.25 4.4:.25
+        2.3:.25 2.2:.25 2.3:.25 4.4:.25 2.3:.25 4.4:.25 | 5.2:.25 3.1:.25 3.2:.25 2.0:.25 3.2:.25 3.1:.25 4.4:.25 4.2:.25 6.0+2.3:.25 2.2:.25 2.0:.25 1.5:.25 1.4:.25 1.2:.25 1.0:.25 2.3:.25 | 5.0+2.2:.25 2.0:.25 3.2:.25 1.5:.25 1.0:.25 1.5:.25 2.2:.25 1.0:.25 5.0+3.2:.25 3.4:.25 2.2:.25 2.5:.25 2.3:.25 2.2:.25 3.4:.25 3.2:.25 | 5.2+2.4:.25 3.2:.25 3.5:.25 3.4:.25 3.5:.25 3.2:.25 2.4:.25 3.2:.25 5.2+1.2:.25 3.2:.25 3.5:.25 3.4:.25 3.5:.25 3.2:.25 2.4:.25 3.2:.25 | 4.2+3.0:.25 2.0:.25 1.0:.25 1.2:.25 1.3:.25 1.0:.25 2.0:.25 3.2:.25 6.2+3.0:.25 2.0:.25 1.0:.25 1.2:.25 1.3:.25 1.0:.25 2.2:.25 2.0:.25 |']
+    marks:
+    - [1, 'Bars 1–4: one line, three voices: the D pedal, a middle voice climbing A B C♯ D, a top voice leaning F♯ G G F♯.']
+    - [3, 'Bar 3: A7 over the D pedal; its C♯ and G clash with the D, and resolve in bar 4.']
+    - [5, 'Bars 5–7: vi, then E7/G♯, the V of V, tips the music towards A, the dominant.']
+    - [9, 'Bars 9–10: E7 to A, the dominant’s own V – I.']
+    - [11, 'Bars 11–12: B7 to Em, a secondary dominant into ii: the next step of the journey.']
+- section: null
+  key: null
+  notes: ['Next: bars 13–22, the sequences down to the long A pedal.']
+  card:
+    title: You've got it when
+    lines: ['you can play the 12 bars at 72 with even 16ths,', 'hear the three voices inside the line,', and name each bar’s chord as you play it.]
+  hold: 5
+page_neck: true

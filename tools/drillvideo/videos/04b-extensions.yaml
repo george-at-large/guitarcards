@@ -1,0 +1,53 @@
+# Video 4b: extensions on four-note shapes.
+# Written by gen.py: change the loops there, not the steps here.
+id: 04b-extensions
+title: "Extensions on four-note shapes"
+rule: "The 9 replaces the root; the 13 replaces the 5th."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Extensions on four-note shapes", lines: ["Colour tones on the drop 2 shapes you know:", "the root up to the 9th, the 5th up to the 13th,", "then the alterations, one fret each."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One inversion: move the root to the 9th, then the 5th to the 13th", "2   Every inversion; then each chord type below", "3   Alter them: ♭9, ♯9, ♭13, one fret each", "4   Then the next key: the shapes move with the root"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Four notes, richer chords"
+    sub: "every inversion on the top four strings"
+    notes: ["On four strings something has to go: the root (the bass player has it) and the 5th (it adds nothing).", "Each extension is one fret or two from the chord tone it replaces."]
+    say: "Extensions: raise the root to the ninth, the fifth to the thirteenth, then alter them, one fret at a time."
+  - section: G7 → G9 → G13 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [['7'], ['9', '1', '9', raise the root to the 9th], ['13', '5', '13', raise the 5th to the 13th]]}
+  - section: G7 → G7♭9 → G7♭9♭13 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [['7'], [7b9, '1', b9, raise the root to the ♭9], [7b9b13, '5', b13, raise the 5th to the ♭13]]}
+  - section: G7 → G7♯9 → G7♯9♭13 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [['7'], [7#9, '1', '#9', raise the root to the ♯9], [7#9b13, '5', b13, raise the 5th to the ♭13]]}
+  - section: Gmaj7 → Gmaj9 → Gmaj13 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[maj7], [maj9, '1', '9', raise the root to the 9th], [maj13, '5', '13', raise the 5th to the 13th]]}
+  - section: Gm7 → Gm9 → Gm11 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[m7], [m9, '1', '9', raise the root to the 9th], [m11, '5', '11', lower the 5th to the 11th]]}
+
+  - section: null
+    show: null
+    notes: ['The 7♭9 and 7♯9♭13 shapes are the altered dominant: use them on V7 resolving to minor.']
+    card:
+      title: You've got it when
+      lines: ['you can turn any drop 2 seventh into its 9th, 13th or altered form,', 'name the colour tone under each finger,', 'and do it in any key without looking it up.']
+    hold: 6

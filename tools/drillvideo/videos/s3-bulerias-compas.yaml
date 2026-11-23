@@ -1,0 +1,33 @@
+# Repertoire S3: Bulerías: the fast 12-beat compás counted from 12, and the remate on 10, written for the course.
+id: s3-bulerias-compas
+title: 'Bulerías: compás and remate'
+rule: Start on 12; the accents fall on 12, 3, 6, 8 and 10.
+bpm: 200
+captions: false
+
+steps:
+  - card: {title: 'Bulerías: compás and remate', lines: ['The fastest, wildest flamenco form:', 'the soleá’s accents at twice the speed, counted from 12.']}
+    hold: 4
+  - card: {title: The drill, lines: ['1   Count 12 1 2 3 … 11; clap 12, 3, 6, 8, 10', '2   The accents alone on the guitar, at 200', '3   Then the golpe (×) on 3 and 10']}
+    hold: 8
+
+  - card: null
+    section: The compás
+    key: A Phrygian
+    now: Counted from 12
+    sub: 12 · 3 · 6 · 8 · 10
+    show: {kind: grip, root: A, quality: maj, frets: [[5, 0], [4, 2], [3, 2], [2, 2], [1, 0]]}
+    notes: ['Bulerías is felt from 12: the cycle starts with an accent.']
+    play: {groove: 'D--D--D-D-D-', grid: 1, accents: [0, 3, 6, 8, 10], counts: [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], repeat: 3}
+  - now: With the golpe
+    sub: × = a tap on the guitar’s top, on 3 and 10
+    notes: ['The phrase ends on 10 (the remate): stop dead, then come back in on 12.']
+    play: {groove: 'D--x--D-D-x-', grid: 1, accents: [0, 3, 6, 8, 10], counts: [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], repeat: 3}
+
+  - section: null
+    key: null
+    show: null
+    card:
+      title: You've got it when
+      lines: ['you can count bulerías from 12 at 200,', 'play the accents with the golpe,', 'and stop dead on 10.']
+    hold: 5

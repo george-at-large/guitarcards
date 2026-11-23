@@ -1,0 +1,46 @@
+# Explainer: Why iii – VI7 – ii – V works.
+# Written by gen.py: change the loops there, not the steps here.
+id: 11-3-explain-iii-vi-ii-v
+title: "Why iii – VI7 – ii – V works"
+rule: "Function first: what does each chord want to do?"
+bpm: 84
+captions: false
+
+steps:
+  - card: {title: "Why iii – VI7 – ii – V works", lines: ["Bm7 – E7 – Am7 – D7:", "what each chord does,", "and the guide tones that lead it."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Hear the progression and say each Roman numeral", "2   Play the guide tones: the 3rd and 7th of each chord", "3   Name each chord’s job from the table, then play it in another key"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Bm7 – E7 – Am7 – D7"
+    sub: "in G · drop 2, then the guide tones"
+    notes: ["Making vi a dominant (E7) turns the turnaround into a chain of dominants falling in 5ths."]
+    say: "Why iii – VI7 – ii – V works."
+  - section: The progression
+    play: strum 4
+    click: false
+    expand: {kind: prog, key: G, chart: "| iii:m7 | VI:7 | ii:m7 | V:7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: '{roman}'}
+  - section: Guide tones
+    notes: ['The 3rd and 7th of each chord: the two notes that say what the chord is, moving by step.']
+    play: strum 4
+    click: false
+    expand: {kind: loop, chart: "| iii:m7 | VI:7 | ii:m7 | V:7 |", keys: [G], voicing: close, strings: [3, 2], guide: true, startFret: 5, bars: 1, now: '{chord}', sub: '{roman}'}
+  - section: What each chord does
+    now: null
+    sub: null
+    show: null
+    notes: null
+    table:
+      title: "Bm7 – E7 – Am7 – D7"
+      head: [Chord, Function, Why]
+      widths: [0.18, 0.32, 0.5]
+      rows: [["Bm7", "iii · tonic substitute", "shares 3 notes with I"], ["E7", "VI7 · V of ii", "a borrowed dominant: G♯ leads to A"], ["Am7", "ii · pre-dominant", "arrives like a little tonic"], ["D7", "V · dominant", "home next"]]
+    hold: 9
+  - section: null
+    table: null
+    card:
+      title: You've got it when
+      lines: ['you can name each chord’s job as it sounds,', 'play the guide tones without the full chords,', 'and find the progression in another key.']
+    hold: 5

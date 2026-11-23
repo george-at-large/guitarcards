@@ -1,0 +1,135 @@
+# Video 9a: scale geography (plan v3). G major in the five CAGED regions, three notes per string in all seven
+# positions, Marbin's pentatonic ladder, and the whole-neck map. Every run is the engine's.
+id: 09a-scale-geography
+title: Scale geography
+rule: Every region, lowest note to highest, naming the degree you're on.
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: Scale geography, lines: ['G major in the five CAGED regions,', 'in all seven three-notes-per-string positions,', 'and the pentatonic ladder across three octaves.']}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One region: lowest note to highest and back, saying each degree", "2   The next region up the neck, until all five are done", "3   Then the 3-notes-per-string positions, then the ladder", "4   Next key from the table"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: G major · G A B C D E F♯
+    sub: each region from its lowest note to its highest, not root to root
+    notes: ['Playing the whole region, not root to root, is what teaches the box.']
+    say: G major in each region of the neck, from the lowest note to the highest. Five CAGED regions first.
+
+  # ---------- five CAGED regions ----------
+  - section: CAGED regions
+    now: G-form region
+    sub: lowest note to highest · the open position
+    show: {kind: run, root: G, scale: major, region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+    hold: 0.3
+  - now: E-form region
+    sub: lowest note to highest
+    show: {kind: run, root: G, scale: major, region: {caged: E}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: D-form region
+    sub: lowest note to highest
+    show: {kind: run, root: G, scale: major, region: {caged: D}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: C-form region
+    sub: lowest note to highest
+    show: {kind: run, root: G, scale: major, region: {caged: C}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: A-form region
+    sub: lowest note to highest · then the G form again at 12
+    show: {kind: run, root: G, scale: major, region: {caged: A}, path: up}
+    notes: ['The five regions overlap: each starts where the last one ends.']
+    play: run 0.5
+    hold: 0.3
+
+  # ---------- three notes per string ----------
+  - section: Three notes per string
+    now: Seven positions
+    sub: three notes on every string · one position from each degree
+    band: null
+    show: null
+    notes: ['Three notes per string: longer stretches, but every string picks the same way.']
+    say: Then three notes per string, one position starting from each degree.
+  - now: Position 1 · from G
+    sub: string 6 starts on the root
+    show: {kind: run, root: G, scale: major, region: {nps3: 1}, path: up}
+    notes: null
+    play: run 0.5
+    hold: 0.3
+  - now: Position 2 · from A
+    sub: string 6 starts on the 2
+    show: {kind: run, root: G, scale: major, region: {nps3: 2}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: Position 3 · from B
+    sub: string 6 starts on the 3
+    show: {kind: run, root: G, scale: major, region: {nps3: 3}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: Position 4 · from C
+    sub: string 6 starts on the 4
+    show: {kind: run, root: G, scale: major, region: {nps3: 4}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: Position 5 · from D
+    sub: string 6 starts on the 5
+    show: {kind: run, root: G, scale: major, region: {nps3: 5}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: Position 6 · from E
+    sub: string 6 starts on the 6
+    show: {kind: run, root: G, scale: major, region: {nps3: 6}, path: up}
+    play: run 0.5
+    hold: 0.3
+  - now: Position 7 · from F♯
+    sub: string 6 starts on the 7
+    show: {kind: run, root: G, scale: major, region: {nps3: 7}, path: up}
+    play: run 0.5
+    hold: 0.3
+
+  # ---------- the pentatonic ladder (Marbin) ----------
+  - section: The pentatonic ladder
+    now: G major pentatonic · three octaves
+    sub: 'whole steps along the string, minor 3rds across: the 3-2 shape'
+    show: {kind: run, root: G, scale: major-pentatonic, region: {octaves: 3}, path: up}
+    notes: ['After Marbin: the ladder climbs through all five CAGED forms of the key.', 'Slide with the ring finger from one group to the next.']
+    say: And the pentatonic ladder. Whole steps along the string, minor thirds across.
+    play: run 0.5
+    hold: 0.5
+
+  # ---------- the whole neck ----------
+  - section: The whole neck
+    now: G major · the whole neck
+    sub: every region is a window onto this
+    show: {kind: run, root: G, scale: major, region: {frets: [0, 17]}}
+    notes: null
+    hold: 4
+
+  - section: All 12 keys
+    key: null
+    now: Then every key
+    sub: round the cycle of fourths · the same regions, moved
+    show: null
+    table:
+      title: "Where each key's regions start: the root of the key in each CAGED form (string: fret)"
+      head: [Key, E form, D form, C form, A form, G form]
+      widths: [0.2, 0.16, 0.16, 0.16, 0.16, 0.16]
+      rows_from: {kind: areasTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], forms: [E, D, C, A, G], cols: ['{key}', '{at[0]}', '{at[1]}', '{at[2]}', '{at[3]}', '{at[4]}']}
+    say: Then every key, round the cycle of fourths. The table shows where each region starts.
+    hold: 6
+  - notes: ['Each day: the week’s key in all five regions and one 3nps position, plus the ladder.']
+    hold: 5
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play any key in any of the five regions without looking,', 'from the lowest note to the highest,', 'naming the degree you start on.']
+    hold: 6

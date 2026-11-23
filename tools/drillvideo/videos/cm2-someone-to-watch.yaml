@@ -1,0 +1,30 @@
+# Chord melody: Gershwin: Someone to Watch Over Me. The melody from a public-domain source, arranged for the course by chordmelody.py.
+id: cm2-someone-to-watch
+title: "Gershwin: Someone to Watch Over Me"
+rule: "Gershwin’s own harmony: diminished chords passing under the tune."
+bpm: 76
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Gershwin: Someone to Watch Over Me", lines: ["The 1926 ballad as chord melody, in D, A section and bridge:", "the melody on top, Gershwin’s chords under it."]}
+    hold: 3
+
+  - card: null
+    section: "Chord melody"
+    key: "D major"
+    notes: ["Gershwin, 1926 (public domain): the melody and chords from the ABC at trillian.mit.edu, arranged for the course."]
+    page:
+      root: D
+      repeat: 1
+      harmony: ["D6:I6 D7:I7", "G6:IV6 G°7:iv°7", "D/F♯:I F°7:♭iii°7", "A/E:V E♭°7:♭ii°7", "Em7:ii7", "A♭m7♭5:♯ivø7 A7:V7", "Dmaj7:Imaj7", "", "Gmaj7:IVmaj7", "", "", "D6:I6", "A♭m7♭5:♯ivø7 D♭7:VII7", "F♯7:III7", "B7:VI7", "Em7:ii7 A7:V7"]
+      voices: ["r:1 3.7:0.5 2.5:0.5 2.7:0.5 1.5:0.5 1.7:0.5 1.10:0.5 | 1.12:0.5 1.12:1 1.10:0.5 2.12:2 | 1.10:0.5 1.10:1 1.9:0.5 2.12:2 | 1.9:0.5 1.9:1 1.7:0.5 1.5:2 | r:1 1.7:1 1.5:1 2.8:1 | 1.10:2 3.7:0.5 3.9:1.5 | 3.11:4 | r:2 3.9:2 | 1.9:1 1.10:1 1.9:1 1.10:1 | 1.12:1 1.10:2 1.9:1 | 1.12:1 1.10:2 1.9:1 | 1.12:1 1.10:2 1.7:1 | 1.10:1 1.9:2 1.7:1 | 1.10:1 1.9:2 1.6:1 | 1.2:4 | r:2 1.0:2 |", "3.7+2.7+1.7:2 4.0+3.5:2 | 3.0+2.0:2 5.10+4.8+3.9:2 | 5.9+3.11:2 6.13+5.11+4.9:2 | 6.0+5.0:2 5.6+3.5+2.7:2 | 6.0+5.5+4.5+1.0:4 | 5.11+4.9+2.7:2 5.0+4.7:2 | 6.10+5.9+4.11:4 | r:4 | 5.10+4.9+3.11:4 | r:4 | r:4 | 6.10+3.11+2.12:4 | 5.11+4.9+3.11:2 6.9+4.9+3.10:2 | 5.9+4.8+3.9:4 | 5.2+3.2+2.4:4 | 6.0+4.0+3.0:2 5.0+3.0+2.2:2 |"]
+      marks: [[1, "I6 – I7 – IV6 – iv°7: the classic Gershwin opening, the bass climbing by half steps."], [9, "The bridge: IVmaj7, then a chain of dominants back home."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the melody stays legato over the passing diminished chords,", "and the bass line climbs smoothly."]
+    hold: 3

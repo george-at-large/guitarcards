@@ -1,0 +1,120 @@
+# Melodic minor modes on one root (plan v3).
+# Written by gen.py: change the loops there, not the steps here.
+id: 12m-melodic-minor-modes
+title: "Melodic minor and its modes"
+rule: "Name the parent melodic minor; hear the colour notes."
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: "Melodic minor and its modes", lines: ["Melodic minor and the three of its modes jazz uses most,", "on G over a drone, colour notes ringed,", "in one region, then across the whole neck."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   A drone on G", "2   One scale in one region: land on its ringed notes and hold them", "3   Then the same scale across the whole neck", "4   Next scale; then the next root"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Root G
+    drone: G2
+    now: "Four scales worth knowing"
+    sub: "melodic minor · Lydian dominant · altered · Locrian ♮2"
+    notes: ["Melodic minor = the major scale with a ♭3. Each mode is that scale from another note."]
+    say: "Melodic minor, and the three of its modes that jazz uses most. All on G, over a drone."
+
+  # ---------- melodic minor ----------
+  - section: melodic minor
+    now: G melodic minor
+    sub: "Gm(maj7) and Gm6 · the ♭3 with a natural 7"
+    show: {kind: run, root: G, scale: melodic-minor, region: {caged: E}, path: up, ring: ["b3", "7"]}
+    band: true
+    notes: ["The tonic minor sound."]
+    say: "G melodic minor."
+    play: run 0.5
+    hold: 0.5
+  - now: G melodic minor · the whole neck
+    sub: "ringed: ♭3 7"
+    show: {kind: run, root: G, scale: melodic-minor, region: {frets: [0, 17]}, ring: ["b3", "7"]}
+    band: null
+    hold: 3.5
+
+  # ---------- Lydian dominant ----------
+  - section: Lydian dominant
+    now: G Lydian dominant
+    sub: "G7♯11 · the 4th mode of D melodic minor"
+    show: {kind: run, root: G, scale: lydian-dominant, region: {caged: E}, path: up, ring: ["#4", "b7"]}
+    band: true
+    notes: ["Fits IV7, ♭VII7 and the tritone sub."]
+    say: "G Lydian dominant."
+    play: run 0.5
+    hold: 0.5
+  - now: G Lydian dominant · the whole neck
+    sub: "ringed: ♯4 ♭7"
+    show: {kind: run, root: G, scale: lydian-dominant, region: {frets: [0, 17]}, ring: ["#4", "b7"]}
+    band: null
+    hold: 3.5
+
+  # ---------- altered ----------
+  - section: altered
+    now: G altered
+    sub: "G7alt · the 7th mode of A♭ melodic minor"
+    show: {kind: run, root: G, tones: ["1", "b9", "#9", "3", "b5", "b13", "b7"], region: {caged: E}, path: up, ring: ["b9", "#9", "b5", "b13"]}
+    band: true
+    notes: ["Melodic minor a half step above the root: every tension altered."]
+    say: "G altered."
+    play: run 0.5
+    hold: 0.5
+  - now: G altered · the whole neck
+    sub: "ringed: ♭9 ♯9 ♭5 ♭13"
+    show: {kind: run, root: G, tones: ["1", "b9", "#9", "3", "b5", "b13", "b7"], region: {frets: [0, 17]}, ring: ["b9", "#9", "b5", "b13"]}
+    band: null
+    hold: 3.5
+
+  # ---------- Locrian ♮2 ----------
+  - section: Locrian ♮2
+    now: G Locrian ♮2
+    sub: "Gø (m7♭5) · the 6th mode of B♭ melodic minor"
+    show: {kind: run, root: G, scale: locrian-nat2, region: {caged: E}, path: up, ring: ["2"]}
+    band: true
+    notes: ["The ii of a minor ii–V: Locrian with a natural 2."]
+    say: "G Locrian ♮2."
+    play: run 0.5
+    hold: 0.5
+  - now: G Locrian ♮2 · the whole neck
+    sub: "ringed: 2"
+    show: {kind: run, root: G, scale: locrian-nat2, region: {frets: [0, 17]}, ring: ["2"]}
+    band: null
+    hold: 3.5
+
+  - section: Also in the family
+    now: Worth recognising
+    sub: less used · know where they sit
+    show: null
+    notes: null
+    say: And the rest of the family, to recognise.
+  - now: G Lydian augmented
+    sub: "Gmaj7♯5 · the 3rd mode of E melodic minor"
+    show: {kind: run, root: G, scale: lydian-augmented, region: {frets: [0, 17]}, ring: ["#4", "#5"]}
+    hold: 3
+  - now: G Mixolydian ♭6
+    sub: "G7♭13 · the 5th mode of C melodic minor"
+    show: {kind: run, root: G, scale: mixolydian-b6, region: {frets: [0, 17]}, ring: ["b6"]}
+    hold: 3
+  - now: G Dorian ♭2
+    sub: "G7sus♭9 sound · the 2nd mode of F melodic minor"
+    show: {kind: run, root: G, scale: dorian-b2, region: {frets: [0, 17]}, ring: ["b2"]}
+    hold: 3
+
+  - section: Every root
+    key: null
+    drone: null
+    now: Then every root
+    sub: the same scales on each of the twelve roots, over a drone
+    show: null
+    notes: ["Find each mode from its parent: Lydian dominant = melodic minor a 5th above; altered = a half step above; Locrian ♮2 = a minor 3rd above.", "Each day: the four core scales on one root in one region, then across the neck."]
+    say: Then every root.
+    hold: 7
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play melodic minor, Lydian dominant, altered and Locrian ♮2", "on any root, in any region,", "and name the melodic minor each comes from."]
+    hold: 6

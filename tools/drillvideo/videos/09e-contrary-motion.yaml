@@ -1,0 +1,58 @@
+# Video 9e: contrary motion and counterpoint. Plain contrary motion in G major, Marbin's contrary dyads in the
+# 6th-diminished scale, and his "two pianos" (strings 3-2-1 and 6-5-4) walking I and vii° in opposite directions.
+id: 09e-contrary-motion
+title: Contrary motion
+rule: One voice climbs while the other falls.
+bpm: 66
+captions: false
+
+steps:
+  - card: {title: Contrary motion, lines: ['Two voices moving in opposite directions:', 'out from a unison, in the 6th-diminished scale,', 'and the guitar as two three-string pianos.']}
+    hold: 4
+  - card: {title: The drill, lines: ['1   Dyads out from the unison and back: both voices ringing', '2   The 6th-diminished dyads: chord tone, diminished, chord tone …', '3   Each piano alone, then answering: top, bottom, top …', '4   Then in the other four regions, and the next key']}
+    hold: 8.5
+
+  - card: null
+    section: Out and back
+    key: G major
+    now: From the unison to two octaves
+    sub: the top climbs G A B C D E F♯ G; the bottom falls G F♯ E D C B A G
+    notes: ['The interval between the voices opens by a 3rd at every step: the strip names it.']
+    say: Contrary motion. The top voice climbs while the bottom falls, out from the unison to two octaves, and back.
+    tab:
+      root: G
+      harmony: ["unison 3rd 5th 7th", "9th 11th 13th 2 octaves", "13th 11th 9th 7th", "5th 3rd unison -"]
+      voices: ["4.5+3.0:1 4.4+3.2:1 4.2+2.0:1 4.0+2.1:1 | 5.3+2.3:1 5.2+1.0:1 5.0+1.2:1 6.3+1.3:1 | 5.0+1.2:1 5.2+1.0:1 5.3+2.3:1 4.0+2.1:1 | 4.2+2.0:1 4.4+3.2:1 4.5+3.0:1 r:1 |"]
+
+  - section: 6th-diminished
+    now: G6 and F♯°7, alternating
+    sub: G A B C D E♭ E F♯ · the low voice climbs, the high voice falls
+    notes: ['Chord tones and diminished tones alternate, so contrary dyads land chord tone against chord tone,', 'then diminished against diminished: it cannot go wrong (Marbin, after Barry Harris).']
+    tab:
+      root: G
+      harmony: ["G6:chord_tones F♯°7:diminished G6:chord_tones F♯°7:diminished", "G6:chord_tones F♯°7:diminished G6:chord_tones F♯°7:diminished", "G6:chord_tones F♯°7:diminished G6:chord_tones F♯°7:diminished", "G6:chord_tones F♯°7:diminished G6:chord_tones F♯°7:diminished", "G6:chord_tones - - -"]
+      voices: ["6.3+1.3:1 5.0+1.2:1 5.2+1.0:1 5.3+2.4:1 | 4.0+2.3:1 4.1+2.1:1 4.2+2.0:1 4.4+3.2:1 | 4.5+3.0:1 4.4+3.2:1 4.2+2.0:1 4.1+2.1:1 | 4.0+2.3:1 5.3+2.4:1 5.2+1.0:1 5.0+1.2:1 | 6.3+1.3:1 r:1 r:1 r:1 |"]
+
+  - section: Two pianos
+    now: 'Top piano up, bottom piano down'
+    sub: strings 3-2-1 walk I – vii° up; strings 6-5-4 walk it down
+    notes: ['Marbin’s two pianos: the guitar split into two three-string keyboards, moving against each other.']
+    tab:
+      root: G
+      harmony: ["G/B:I F♯°/C:vii° G/D:I F♯°:vii°", "G:I F♯°/A:vii° - -", "G:I F♯°:vii° G/D:I F♯°/C:vii°", "G/B:I F♯°/A:vii° - -"]
+      voices: ["3.4+2.3+1.3:1 3.5+2.7+1.5:1 3.7+2.8+1.7:1 3.11+2.10+1.8:1 | 3.12+2.12+1.10:1 3.14+2.13+1.14:1 r:2 | 6.15+5.14+4.12:1 6.14+5.12+4.10:1 6.10+5.10+4.9:1 6.8+5.9+4.7:1 | 6.7+5.5+4.5:1 6.5+5.3+4.4:1 r:2 |"]
+  - now: Answering
+    sub: top, then bottom, chord by chord
+    notes: ['The two voices answer each other: the gap opens, then closes.']
+    tab:
+      root: G
+      harmony: ["G/B:I G:I F♯°/C:vii° F♯°:vii°", "G/D:I G/D:I F♯°:vii° F♯°/C:vii°", "G:I G/B:I F♯°/A:vii° F♯°/A:vii°"]
+      voices: ["3.4+2.3+1.3:1 6.15+5.14+4.12:1 3.5+2.7+1.5:1 6.14+5.12+4.10:1 | 3.7+2.8+1.7:1 6.10+5.10+4.9:1 3.11+2.10+1.8:1 6.8+5.9+4.7:1 | 3.12+2.12+1.10:1 6.7+5.5+4.5:1 3.14+2.13+1.14:1 6.5+5.3+4.4:1 |"]
+
+  - section: null
+    key: null
+    notes: ['Next: the same in the other four regions, and contrary motion in four-voice chords (the drop 2 harmonised scale).']
+    card:
+      title: You've got it when
+      lines: ['you can run contrary dyads out and back with both voices ringing,', 'hear the 6th-diminished alternation in every pair,', 'and answer one piano with the other without stopping.']
+    hold: 5

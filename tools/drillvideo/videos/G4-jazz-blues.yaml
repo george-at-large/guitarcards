@@ -1,0 +1,38 @@
+# Genre intro: jazz blues.
+# Written by gen.py: change the loops there, not the steps here.
+id: G4-jazz-blues
+title: "Jazz blues"
+rule: "Same 12 bars; the turnarounds make it jazz."
+bpm: 110
+captions: false
+
+steps:
+  - card: {title: "Jazz blues", lines: ["The 12-bar blues in drop 2, plain,", "then with the jazz changes:", "the ii – Vs, the ♯iv°7 and the turnaround."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The plain blues in drop 2", "2   The jazz blues from the same position", "3   Then mix: plain bars, jazz bars"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G blues"
+    sub: "plain, then the jazz changes"
+    notes: ["The jazz blues keeps the 12-bar shape but adds a ii – V into every arrival."]
+    say: "The jazz blues. Plain, then with the jazz changes."
+  - section: "Plain"
+    notes: ["Three dominant chords: I7, IV7, V7."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:7 I:7 | IV:7 IV:7 | I:7 I:7 | I:7 I:7 | IV:7 IV:7 | IV:7 IV:7 | I:7 I:7 | I:7 I:7 | V:7 V:7 | IV:7 IV:7 | I:7 I:7 | V:7 V:7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5, sub: "{roman}"}
+  - section: "Jazz changes"
+    notes: ["Bar 4: Dm7 – G7 (ii – V of IV). Bar 6: C♯°7 passing. Bars 8–10: E7 – Am7 – D7. Bars 11–12: the turnaround."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:7 I:7 | IV:7 IV:7 | I:7 I:7 | v:m7 I:7 | IV:7 IV:7 | #iv:dim7 #iv:dim7 | I:7 I:7 | VI:7 VI:7 | ii:m7 ii:m7 | V:7 V:7 | I:7 VI:7 | ii:m7 V:7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5, sub: "{roman}"}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the plain and the jazz blues in drop 2,", "say what each added chord does,", "and switch between them at any bar."]
+    hold: 6

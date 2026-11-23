@@ -1,0 +1,55 @@
+# Video 7b: minor ii–V–i through all twelve keys, cloned from 7a. Guide tones on strings 3-2 and 4-3, then drop 2 on the top
+# four strings, voice-led round the cycle of fourths; the key strip follows each I chord.
+id: 07b-minor-ii-v-i-keys
+title: Minor ii–V–i in every key
+rule: The 7th of each chord falls a half step to the 3rd of the next.
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: Minor ii–V–i in every key, lines: ['Aø – D7♭9 – Gm6 round the cycle of fourths,', 'as guide tones on two pairs of strings,', 'then as drop 2 voicings, always moving to the nearest chord.']}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Guide tones through all twelve keys on one string pair", "2   Say the key at every I chord", "3   The other string pair; then drop 2 through all twelve keys", "4   Then the whole-step and half-step key paths"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    now: ii – V – I · twelve keys
+    sub: G · C · F · B♭ · E♭ · A♭ · D♭ · G♭ · B · E · A · D
+    notes: ['Guide tones are the 3rd and 7th of each chord: the two notes that say what the chord is.']
+    say: The minor two five one, round the cycle of fourths, through all twelve keys. Guide tones first, then full voicings.
+    keys: {list: [G, C, F, B♭, E♭, A♭, D♭, G♭, B, E, A, D], at: 0}
+
+  - section: Guide tones · strings 3-2
+    notes: ['The 7th falls a half step to the 3rd; the other note holds and becomes the 7th.']
+    say: Guide tones on strings three and two.
+    play: strum 2
+    click: false
+    expand: {kind: loop, chart: '| ii:m7b5 | V:7b9 | i:m6 |', keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], voicing: close, strings: [3, 2], guide: true, startFret: 5, bars: 0.5}
+  - section: Guide tones · strings 4-3
+    notes: null
+    say: And on four and three.
+    play: strum 2
+    click: false
+    expand: {kind: loop, chart: '| ii:m7b5 | V:7b9 | i:m6 |', keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], voicing: close, strings: [4, 3], guide: true, startFret: 5, bars: 0.5}
+
+  - section: Drop 2 · strings 4-3-2-1
+    notes: ['Two notes move, two hold: the chords never leave the area for long.', 'After Marbin: over the ii–V, you can think just the V. The ii is its suspension.']
+    say: Then drop 2 on the top four strings.
+    play: strum 2
+    click: false
+    expand: {kind: loop, chart: '| ii:m7b5 | V:7b9 | i:m6 |', keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5}
+
+  - section: Other paths
+    keys: null
+    show: null
+    now: Then the other key paths
+    sub: whole steps (G F E♭ D♭ B A) · half steps (G G♭ F E …)
+    notes: ['Same voice leading, different order of keys: each path moves the hands differently.', 'Each day: one path, one voicing type.']
+    say: Then the same through the other key paths. Whole steps, and half steps.
+    hold: 6
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play guide tones through all twelve keys unbroken,', 'and drop 2 through all twelve,', 'always to the nearest voicing.']
+    hold: 6

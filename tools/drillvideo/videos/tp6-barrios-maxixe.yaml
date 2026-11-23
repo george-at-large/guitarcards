@@ -1,0 +1,31 @@
+# Short series: Barrios, Maxixe (his own guitar piece), the opening 16 bars.
+# Written by songs.py from barrios_maxixe.txt: change it there, not here.
+id: tp6-barrios-maxixe
+title: "Barrios: Maxixe"
+rule: "Bass on the beat, chords on the &: the maxixe swing."
+bpm: 96
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Barrios: Maxixe", lines: ["Agustín Barrios’s maxixe, the Brazilian tango:", "a bass on the beat, the chord answering off it."]}
+    hold: 3
+
+  - card: null
+    section: "Brazilian maxixe"
+    key: "A major"
+    notes: ["Tab: Luís Quinta (classtab.org)."]
+    page:
+      root: A
+      repeat: 2
+      harmony: ["A:I", "E7:V7", "A:I", "E7:V7", "A:I", "E7:V7", "E7:V7", "F♯7:V7/ii", "Bm:ii", "E:V", "A:I", "A:I", "D♯°7:♯iv°7", "E7:V7", "A:I", "A:I"]
+      voices: ["5.0:0.75 3.2+2.2:0.25 4.2:0.25 5.4:0.5 3.2+2.2:0.25 4.2:0.25 | 5.2:0.75 3.1+2.3:0.25 4.2:0.25 6.0+1.0:0.5 3.1:0.25 4.2:0.25 | 5.0+1.5:0.75 3.2:0.25 2.2:0.25 6.0+1.0:0.5 3.2:0.25 2.2:0.25 | 6.4+1.7:0.75 4.6:0.25 3.7:0.25 6.0+1.0:0.5 4.6+3.7:0.5 | 5.0+1.9:0.5 1.7:0.25 2.10:0.25 2.7:0.25 1.0:0.5 6.0:0.5 | 1.0:0.75 2.3:0.25 3.1:0.25 5.2:0.5 3.1+2.2:0.5 | 1.0:0.75 2.3:0.25 3.1:0.25 6.4:0.25 6.2:0.25 6.0:0.5 | 5.4+1.0:0.75 4.6:0.25 3.6:0.25 6.2+1.2:0.5 3.3:0.25 1.0:0.25 | 5.2+2.3:0.75 4.4:0.25 2.0:0.25 4.0:0.5 2.0:0.25 2.3:0.25 | 4.2+2.2:0.75 3.2:0.25 2.2:0.25 6.0+2.0:0.5 3.1:0.25 2.0:0.25 | 5.0+3.2:0.75 4.2:0.25 5.4:0.25 6.0:0.5 5.4+4.2:0.5 | 5.0+1.12:0.5 1.9:0.25 2.10:0.25 1.0:0.25 2.3:0.25 2.2:0.25 3.2:0.25 4.2:0.25 | 4.1:0.5 4.4:0.25 3.2:0.25 2.0:0.25 2.4:0.25 1.2:0.25 1.5:0.25 1.4:0.25 | 6.0+1.7:0.5 1.4:0.25 2.5:0.25 3.7:0.25 2.0:0.25 3.1:0.25 4.2:0.25 4.0:0.25 | 5.4:0.75 3.2:0.25 2.2:0.25 1.0:0.25 2.10:0.25 1.9:0.25 1.12:0.25 | 5.0+1.12:0.5 1.9:0.25 2.10:0.25 1.0:0.25 2.3:0.25 2.2:0.25 3.2:0.25 4.2:0.25 |"]
+      marks: [[1, "I – V7, the bass on 1 and 2, the chord pinched on the &s."], [8, "F♯7 – Bm: V7 of ii, the classic choro detour."], [13, "D♯°7 between A and E7: the passing diminished."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 16 bars twice at 96 without the bass rushing,", "and the off-beat chords stay light."]
+    hold: 3

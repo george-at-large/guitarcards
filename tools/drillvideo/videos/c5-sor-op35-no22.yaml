@@ -1,0 +1,31 @@
+# Repertoire C5: Sor, Study in B minor Op. 35 No. 22 (public domain), bars 1–16; the beat is the 8th note (6/8).
+# Written by songs.py from sor_op35_no22_allegretto_in_bm.txt: change it there, not here.
+id: c5-sor-op35-no22
+title: "Sor: Study in B minor"
+rule: "The melody in the fingers, the dominant in the thumb."
+bpm: 150
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Sor: Study in B minor", lines: ["Sor’s B minor study (Op. 35 No. 22):", "a melody in 3rds and 6ths over a dominant pedal."]}
+    hold: 3
+
+  - card: null
+    section: "Classical guitar"
+    key: "B minor · 6/8"
+    notes: ["6/8: feel two beats a bar; each beat is three 8ths."]
+    page:
+      root: B
+      repeat: 1
+      harmony: ["Bm:i", "D/F♯:III⁶", "F♯7:V7", "Bm/F♯:i⁶₄", "F♯:V", "Bm/F♯:i⁶₄", "Em/G:iv⁶", "F♯:V", "Bm:i", "D/F♯:III⁶", "F♯7:V7", "G:VI", "E♯°7:vii°7/V", "Bm/F♯:i⁶₄", "F♯:V", "Bm:i"]
+      voices: ["5.2+2.3:1 3.4:1 4.4:1 3.4:1 2.3:1.5 3.4:0.5 | 1.2:1 2.3:1 4.4:1 2.3:1 1.2:1.5 2.3:0.5 | 1.0:1 2.2:1 4.4:1 2.2:1 1.0:1.5 2.2:0.5 | 2.3:1 3.4:1 4.4:1 3.4:1 2.3:1.5 3.4:0.5 | 2.2:1 3.3:1 4.4:1 3.3:1 2.2:1.5 3.3:0.5 | 2.3:1 3.4:1 4.4:1 3.4:1 2.3:1.5 3.4:0.5 | 1.0:1 2.0:1 3.0:1 2.0:1 1.1:1.5 2.0:0.5 | 1.2:1 2.2:1 3.3:1 2.2:1 4.4:1.5 3.3:0.5 | 5.2+2.3:1 3.4:1 4.4:1 3.4:1 2.3:1.5 3.4:0.5 | 1.2:1 2.3:1 4.4:1 2.3:1 1.2:1.5 2.3:0.5 | 1.0:1 2.2:1 4.4:1 2.2:1 1.0:1.5 2.2:0.5 | 2.3:1 3.4:1 4.5:1 3.4:1 2.3:1.5 3.4:0.5 | 1.0:1 2.2:1 3.0:1 2.2:1 4.2+1.0:1.5 2.2:0.5 | 2.3:1 3.4:1 4.4:1 3.4:1 2.3:1.5 3.4:0.5 | 2.2:1 3.3:1 4.4:1 3.3:1 2.2:1.5 3.3:0.5 | 3.4:1 2.3:1 4.4:1 3.4:1 5.2:2 |"]
+      marks: [[1, "Bars 1–8: the F♯ in the bass under almost every chord: a dominant pedal, holding the tension."], [4, "Bm over F♯ then F♯: the cadential six-four, the strongest way to arrive on V."], [12, "Bar 12: G, the VI: a turn away before the cadence."], [13, "Bar 13: E♯°7, the leading-tone chord of F♯, pushes to the dominant."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 16 bars at tempo, the pedal steady,", "name the cadential six-four when it comes,", "and feel the bar in two."]
+    hold: 3

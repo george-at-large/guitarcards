@@ -1,0 +1,61 @@
+# Genre intro: Swing comping.
+# Written by gen.py: change the loops there, not the steps here.
+id: G3-swing-comping
+title: "Swing comping"
+rule: "Short chords; the swing is in the gaps."
+bpm: 120
+captions: false
+
+steps:
+  - card: {title: "Swing comping", lines: ["Comping on three-note shells:", "four to the bar, the Charleston,", "then anticipating the changes."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Four to the bar, short and even", "2   The Charleston on G7 and C7", "3   Then push each change on the & of 4"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Shells: root, 3rd and 7th"
+    sub: "G7 shell on 6-4-3 · C7 shell on 5-4-3"
+    notes: ["Shells leave out the 5th: the bass and soloist have the space."]
+    say: "Swing comping on shells. Four to the bar, the Charleston, then the anticipation."
+  - section: "Four to the bar"
+    now: "Freddie Green"
+    sub: "short, even quarters on the shell"
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [4, 3], [3, 4]]}
+    notes: null
+    play: {groove: "D - D - D - D -", grid: 2, repeat: 2, swing: 0.67}
+    hold: 0.2
+  - section: "The Charleston"
+    now: "The Charleston"
+    sub: "beat 1 and the & of 2"
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [4, 3], [3, 4]]}
+    notes: null
+    play: {groove: "D - - U - - - -", grid: 2, repeat: 2, accents: [0, 3], swing: 0.67}
+    hold: 0.2
+  - now: "On C7"
+    sub: "the same, on the IV chord"
+    show: {kind: grip, root: C, quality: '7', frets: [[5, 3], [4, 2], [3, 3]]}
+    notes: null
+    play: {groove: "D - - U - - - -", grid: 2, repeat: 2, accents: [0, 3], swing: 0.67}
+    hold: 0.2
+  - section: "Anticipation"
+    now: "The push into the next chord"
+    sub: "the & of 4 plays the next chord early"
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [4, 3], [3, 4]]}
+    notes: null
+    play: {groove: "D - - U - - - N", grid: 2, repeat: 1, accents: [0, 3, 7], swing: 0.67}
+    hold: 0.2
+  - now: "Onto C7"
+    sub: "and back"
+    show: {kind: grip, root: C, quality: '7', frets: [[5, 3], [4, 2], [3, 3]]}
+    notes: null
+    play: {groove: "D - - U - - - N", grid: 2, repeat: 1, accents: [0, 3, 7], swing: 0.67}
+    hold: 0.2
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can comp four to the bar and the Charleston,", "swing the 8ths without rushing,", "and anticipate a change when you choose."]
+    hold: 6

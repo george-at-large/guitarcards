@@ -1,0 +1,46 @@
+# Explainer: Why the backdoor works.
+# Written by gen.py: change the loops there, not the steps here.
+id: 11-4-explain-backdoor
+title: "Why the backdoor works"
+rule: "Function first: what does each chord want to do?"
+bpm: 84
+captions: false
+
+steps:
+  - card: {title: "Why the backdoor works", lines: ["Cm7 – F7 – Gmaj7:", "what each chord does,", "and the guide tones that lead it."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Hear the progression and say each Roman numeral", "2   Play the guide tones: the 3rd and 7th of each chord", "3   Name each chord’s job from the table, then play it in another key"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Cm7 – F7 – Gmaj7"
+    sub: "in G · drop 2, then the guide tones"
+    notes: ["Borrowed from the parallel minor: the dominant arrives from ♭VII instead of V."]
+    say: "Why the backdoor works."
+  - section: The progression
+    play: strum 4
+    click: false
+    expand: {kind: prog, key: G, chart: "| iv:m7 | bVII:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: '{roman}'}
+  - section: Guide tones
+    notes: ['The 3rd and 7th of each chord: the two notes that say what the chord is, moving by step.']
+    play: strum 4
+    click: false
+    expand: {kind: loop, chart: "| iv:m7 | bVII:7 | I:maj7 | I:maj7 |", keys: [G], voicing: close, strings: [3, 2], guide: true, startFret: 5, bars: 1, now: '{chord}', sub: '{roman}'}
+  - section: What each chord does
+    now: null
+    sub: null
+    show: null
+    notes: null
+    table:
+      title: "Cm7 – F7 – Gmaj7"
+      head: [Chord, Function, Why]
+      widths: [0.18, 0.32, 0.5]
+      rows: [["Cm7", "iv · borrowed from G minor", "E♭ is the ♭6, a darker pre-dominant"], ["F7", "♭VII7 · backdoor dominant", "A and E♭ resolve to B and D"], ["Gmaj7", "I · tonic", "home from a whole step below"]]
+    hold: 9
+  - section: null
+    table: null
+    card:
+      title: You've got it when
+      lines: ['you can name each chord’s job as it sounds,', 'play the guide tones without the full chords,', 'and find the progression in another key.']
+    hold: 5

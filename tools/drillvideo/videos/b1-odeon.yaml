@@ -1,0 +1,39 @@
+# Repertoire B1: Ernesto Nazareth, Odeon (tango brasileiro, 1909, public domain), the A section. Melody, bass line and
+# harmony read from Luciano Gallet's arrangement (Gallet d. 1931; Musica Brasilis edition), transposed from C♯/B minor
+# to E minor so the melody's lowest note is the open 6th string. Melody in the thumb, the off-beat chords in the fingers,
+# as in the piano original (tune in the left hand, the right hand answering).
+id: b1-odeon
+title: 'Nazareth: Odeon'
+rule: The thumb sings the tune; the fingers answer off the beat.
+bpm: 72
+captions: false
+steps:
+- card:
+    title: 'Nazareth: Odeon'
+    lines: ['The A section of the most famous Brazilian tango (1909):', 'a melody in the bass, chords on the off-beats, and the lilt of choro.']
+  hold: 4
+- card: null
+  section: Brazilian
+  bpm: 76
+  key: E minor
+  notes: ['The original is in C♯ minor. In E minor the tune’s lowest note is the open 6th string.', 'Tango brasileiro: lean on the long note of each long-short pair; keep the off-beat chords short.']
+  page:
+    root: E
+    harmony: ['', 'Em/G:i B7/F♯:V7', 'Em:i Em/D:i', 'C:♭VI B7sus4:V', 'Am:iv', 'F♯ø7:iiø7 Am/E:iv', 'Am/D:iv Am/C:iv', 'B7:V7', 'Em:i', 'Em/G:i B7/F♯:V7', 'Em:i Em/D:i', 'C:♭VI B7:V7', 'Am7:iv7 G+:♭III+', 'F♯ø7:iiø7 B7:V7', 'Em:i A♯°7:♯iv°7', 'B7:V7', 'Em:i']
+    pickup: true
+    voices: ['r:1.25 3.4:.25 3.3:.25 3.2:.25 | 3.0:.75 3.0:.25 4.4:.75 4.4:.25 | 4.2:.75 4.2:.25 4.0:.75 4.0:.25 | 5.3:.75 5.3:.25 5.2:.75 5.2:.25 | 5.0:.75 5.3:.25 4.2:.25 3.2:.25 2.1:.25 1.0:.25 | 1.2:.75 1.2:.25 1.0:.75 1.0:.25 | 2.3:.75 2.3:.25 2.1:.75 2.1:.25 | 2.4:.75 2.4:.25 2.0:.5 2.4:.5 | 1.0:1 r:.25 3.4:.25 3.3:.25 3.2:.25 | 3.0:.75 3.0:.25 4.4:.75 4.4:.25 | 4.2:.75 4.2:.25 4.0:.75 4.0:.25 | 5.3:.75 5.3:.25 5.2:.75 5.2:.25 | 5.0:.75 5.0:.25 6.3:.75 6.3:.25 | 6.2:.75 6.2:.25 5.2:.75 5.2:.25 | 6.0:.75 6.0:.25 5.1:.75 5.1:.25 | 5.2:.75 5.2:.25 5.2:.75 5.2:.25 | 6.0:.5 5.2:.5 4.2:1 |', 'r:2 | r:.5 2.0+1.0:.5 r:.5 2.4+1.5:.5 | r:.5 2.0+1.0:.5 r:.5 3.0+2.0:.5 | r:.5 3.0+2.1:.5 r:.5 2.3+1.0:.5 | r:.5 3.2+2.1:.5 r:1 | r:.5 3.2+2.1:.5 r:.5 3.2+2.1:.5 | r:.5 4.2+3.2:.5 r:.5 4.2+3.2:.5 | r:.5 4.4+3.2:.5 r:.5 4.4+3.2:.5 | r:.5 3.0+2.0:.5 r:1 | r:.5 2.0+1.0:.5 r:.5 2.4+1.5:.5 | r:.5 2.0+1.0:.5 r:.5 3.0+2.0:.5 | r:.5 3.0+2.1:.5 r:.5 4.1+3.2:.5 | r:.5 3.0+2.1:.5 r:.5 3.4+2.4:.5 | r:.5 3.2+2.1:.5
+        r:.5 4.1+3.2:.5 | r:.5 3.0+2.0:.5 r:.5 3.0+2.2:.5 | r:.5 4.1+3.2+2.0+1.2:.5 r:.5 4.1+3.2+2.0+1.2:.5 | r:1 3.0+2.0+1.0:1 |']
+    marks:
+    - [1, 'Bars 1–3: the tune falls down E minor a step every half bar (G F♯ E D C B), carried by the thumb.']
+    - [4, 'Bar 4: the leap up the Am arpeggio. iv is the plagal colour of the minor key.']
+    - [5, 'Bars 5–7: iv over a falling bass (F♯ E D C) into B7; F♯ø7 has the same notes as Am6. D♯ leads home.']
+    - [12, 'Bar 12: G+ (G B D♯): the augmented ♭III pushes up by half steps into F♯ø7 and B7.']
+    - [14, 'Bar 14: A♯°7, the diminished passing chord between Em and B7: the signature move of choro.']
+- section: null
+  key: null
+  notes: ['Next: the B section, where the melody climbs into the treble, and the trio in the major.']
+  card:
+    title: You've got it when
+    lines: ['you can play the 16 bars at 76 with the thumb singing,', 'the off-beat chords short and even,', and name every chord as it passes.]
+  hold: 5
+page_neck: true

@@ -1,0 +1,231 @@
+# Video 1: CAGED as root areas (plan v2, docs/drill-videos-plan.md). After Marbin (Dani Rabin), "This BORING
+# Practice Routine Will Teach You Harmony in WEEKS": the forms read as root string + finger, a progression mapped as
+# roots inside one area first. The progression is the Michelle-type descent I – iv – ♭VII – vi° – V, in G.
+id: 01-caged-root-areas
+title: CAGED as root areas
+rule: Find the root. Its string and finger name the form.
+bpm: 80
+
+steps:
+  - card: {title: CAGED as root areas, lines: ['Find the root. Its string and finger name the form.']}
+    say: This drill turns the five CAGED forms into a map of the roots. See the roots, and the chord shapes look after themselves.
+  - card:
+      title: What you'll do
+      lines: ['1   Climb one chord through the five forms', '2   Play a progression without leaving one area', '3   Take both through all twelve keys']
+    say: There are three parts. Climb one chord through the five forms. Play a short progression without leaving one area of the neck. Then take both through all twelve keys.
+
+  # ---------- part 1: the five forms ----------
+  - card: null
+    section: Learn it · part 1
+    key: Key of G
+    now: Five forms, one question
+    sub: Which string is the root on, and which finger plays it?
+    say: Each form is named by the string its root is on, and the finger that plays it. Here are the five forms of G, up the neck. No open strings, so start with the E form at the third fret.
+  - now: E form
+    sub: root on string 6 · index finger
+    show: {kind: caged, root: G, form: E}
+    band: true
+    finger: true
+    say: E form. The root is on the sixth string, under your index finger.
+    play: [strum, up]
+    over: true
+  - now: D form
+    sub: root on string 4 · index finger
+    show: {kind: caged, root: G, form: D}
+    say: D form. Root on the fourth string, index finger. It starts on the same G the E form had on that string.
+    play: [strum, up]
+    over: true
+  - now: C form
+    sub: root on string 5 · ring finger or pinky
+    show: {kind: caged, root: G, form: C}
+    say: C form. Root on the fifth string, under your ring finger or pinky. The shape reaches back toward the nut.
+    play: [strum, up]
+    over: true
+  - now: A form
+    sub: root on string 5 · index finger
+    show: {kind: caged, root: G, form: A}
+    say: A form. The same root on the same string, but now your index finger plays it, and the shape reaches up the neck.
+    play: [strum, up]
+    over: true
+  - now: G form
+    sub: root on string 6 · ring finger or pinky
+    show: {kind: caged, root: G, form: G}
+    say: G form. Root on the sixth string again, under your ring finger or pinky. After it comes the E form, an octave up.
+    play: [strum, up]
+    over: true
+  - show: null
+    band: null
+    finger: false
+    now: The whole map
+    sub: null
+    table:
+      title: Root string + finger = form
+      head: [Root on, Finger, Form]
+      widths: [0.34, 0.42, 0.24]
+      rows: [[string 6, index, E form], [string 6, ring or pinky, G form], [string 4, index, D form], [string 5, index, A form], [string 5, ring or pinky, C form]]
+    say: So any chord comes down to two questions. Index on six is the E form, ring or pinky on six is the G form. Index on four is the D form. On five, index is the A form, ring or pinky the C form.
+
+  - table: null
+    section: Practise it · part 1
+    now: The climb, in time
+    sub: strum on 1 · root on 3 · say the next form on 4
+    band: true
+    finger: true
+    say: Now in time, one bar per form. Strum on one, root on three, and on beat four, say the next form's name before it appears. Up the neck, then back down.
+    play: [strum, root]
+    items:
+      - {now: E form, show: {kind: caged, root: G, form: E}}
+      - {now: D form, show: {kind: caged, root: G, form: D}}
+      - {now: C form, show: {kind: caged, root: G, form: C}}
+      - {now: A form, show: {kind: caged, root: G, form: A}}
+      - {now: G form, show: {kind: caged, root: G, form: G}}
+      - {now: A form, show: {kind: caged, root: G, form: A}}
+      - {now: C form, show: {kind: caged, root: G, form: C}}
+      - {now: D form, show: {kind: caged, root: G, form: D}}
+      - {now: E form, show: {kind: caged, root: G, form: E}}
+
+  # ---------- part 2: one area, every root ----------
+  - section: Learn it · part 2
+    now: One area, every root
+    sub: G – Cm – F – E° – D  ·  I – iv – ♭VII – vi° – V
+    show: null
+    finger: false
+    band: [2, 6]
+    say: Part two. Play a progression without moving your hand from frets two to six. G, C minor, F, E diminished, D. One, minor four, flat seven, diminished six, five.
+  - now: Roots first
+    sub: every root is already under your hand
+    show:
+      - {kind: roots, root: G, frets: [2, 6], strings: [6], label: G, as: chord}
+      - {kind: roots, root: C, frets: [2, 6], strings: [5], label: Cm, as: chord}
+      - {kind: roots, root: F, frets: [2, 6], strings: [4], label: F, as: chord}
+      - {kind: roots, root: E, frets: [2, 6], strings: [4], label: E°, as: chord}
+      - {kind: roots, root: D, frets: [2, 6], strings: [5], label: D, as: chord}
+    say: Find the roots first. All five are under your hand, and each one's string and finger names the form.
+  - now: G · E form
+    sub: root on string 6 · index finger
+    show: {kind: caged, root: G, form: E}
+    finger: true
+    say: G. Root on the sixth string, index finger. E form.
+    play: [root, strum]
+    over: true
+  - now: Cm · A form
+    sub: root on string 5 · index finger · minor 3rd
+    show: {kind: caged, root: C, form: A, quality: min}
+    say: C minor. Root on the fifth string, index finger. A form, with a minor third.
+    play: [root, strum]
+    over: true
+  - now: F · D form
+    sub: root on string 4 · index finger
+    show: {kind: caged, root: F, form: D}
+    say: F. Root on the fourth string, index finger. D form.
+    play: [root, strum]
+    over: true
+  - now: E° · D form
+    sub: root on string 4 · index reaches back one fret · ♭3 and ♭5
+    show: {kind: caged, root: E, form: D, quality: dim}
+    say: E diminished. Root on the fourth string, with your index finger reaching back one fret. D form again, with a flat third and a flat fifth.
+    play: [root, strum]
+    over: true
+  - now: D · C form
+    sub: root on string 5 · ring finger or pinky
+    show: {kind: caged, root: D, form: C}
+    say: D. Root on the fifth string, under your ring finger or pinky. C form.
+    play: [root, strum]
+    over: true
+
+  - section: Practise it · part 2
+    now: Roots only
+    sub: one per bar · say the next chord on beat 4
+    finger: false
+    say: In time now. Roots only first, one per bar. Say the next chord's name on beat four.
+    play: root 4
+    items:
+      - {now: G, show: {kind: roots, root: G, frets: [2, 6], strings: [6], label: G, as: chord}}
+      - {now: Cm, show: {kind: roots, root: C, frets: [2, 6], strings: [5], label: Cm, as: chord}}
+      - {now: F, show: {kind: roots, root: F, frets: [2, 6], strings: [4], label: F, as: chord}}
+      - {now: E°, show: {kind: roots, root: E, frets: [2, 6], strings: [4], label: E°, as: chord}}
+      - {now: D, show: {kind: roots, root: D, frets: [2, 6], strings: [5], label: D, as: chord}}
+      - {now: G, show: {kind: roots, root: G, frets: [2, 6], strings: [6], label: G, as: chord}}
+  - now: Now the chords
+    sub: strum on 1 and 3 · the band never moves
+    finger: true
+    say: Now the chords, same area, same order. If you can, hum the roots while you play.
+    play: [strum, strum]
+    items:
+      - {now: G · E form, show: {kind: caged, root: G, form: E}}
+      - {now: Cm · A form, show: {kind: caged, root: C, form: A, quality: min}}
+      - {now: F · D form, show: {kind: caged, root: F, form: D}}
+      - {now: E° · D form, show: {kind: caged, root: E, form: D, quality: dim}}
+      - {now: D · C form, show: {kind: caged, root: D, form: C}}
+      - {now: G · E form, show: {kind: caged, root: G, form: E}}
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    now: Round the cycle of fourths
+    sub: one key at a time · both parts in each key
+    show: null
+    band: null
+    finger: false
+    keys: {list: [G, C, F, B♭, E♭, A♭, D♭, G♭, B, E, A, D], at: 0}
+    say: Now take both parts through all twelve keys, round the cycle of fourths. G, C, F, B flat, and on, ending on D.
+  - now: Part 1 in every key
+    sub: the order never changes · C A G E D, and round again
+    table:
+      title: "Part 1: where each key's climb starts"
+      head: [Key, First form, Its root]
+      widths: [0.2, 0.36, 0.44]
+      rows_from: {kind: climbTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], cols: ['{key}', '{form} form', 'string {string}, fret {fret}']}
+    say: For the climb, start each key on its lowest form with no open strings, shown here, and climb to the top of your neck and back. The order never changes. C, A, G, E, D, and round again.
+  - now: Part 2 in every key
+    sub: the one chord in the E form · the forms come out E, A, D, D, C
+    table:
+      title: "Part 2: where each key's area is"
+      head: [Key, Root of the one chord, Area]
+      widths: [0.2, 0.44, 0.36]
+      rows_from: {kind: cagedTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], form: E, minFret: 2, cols: ['{key}', 'string 6, fret {fret}', 'frets {lo}–{hi}']}
+    say: For the progression, put the one chord in the E form at the fret shown, and find the other roots in the same four frets. The forms come out the same in every key. E, A, D, D, C.
+  - table: null
+    now: G, then C
+    sub: the same forms, five frets higher
+    say: Here's the move from G to C. The same pattern of roots, five frets higher.
+    play: root 2
+    items:
+      - {bars: 0.5, now: G, band: [2, 6], show: {kind: roots, root: G, frets: [2, 6], strings: [6], label: G, as: chord}}
+      - {bars: 0.5, now: Cm, show: {kind: roots, root: C, frets: [2, 6], strings: [5], label: Cm, as: chord}}
+      - {bars: 0.5, now: F, show: {kind: roots, root: F, frets: [2, 6], strings: [4], label: F, as: chord}}
+      - {bars: 0.5, now: E°, show: {kind: roots, root: E, frets: [2, 6], strings: [4], label: E°, as: chord}}
+      - {bars: 0.5, now: D, show: {kind: roots, root: D, frets: [2, 6], strings: [5], label: D, as: chord}}
+      - {bars: 0.5, now: C, keys: {at: 1}, band: [7, 11], show: {kind: roots, root: C, frets: [7, 11], strings: [6], label: C, as: chord}}
+      - {bars: 0.5, now: Fm, show: {kind: roots, root: F, frets: [7, 11], strings: [5], label: Fm, as: chord}}
+      - {bars: 0.5, now: B♭, show: {kind: roots, root: Bb, frets: [7, 11], strings: [4], label: B♭, as: chord}}
+      - {bars: 0.5, now: A°, show: {kind: roots, root: A, frets: [7, 11], strings: [4], label: A°, as: chord}}
+      - {bars: 0.5, now: G, show: {kind: roots, root: G, frets: [7, 11], strings: [5], label: G, as: chord}}
+  - now: Then the other four areas
+    sub: put the one chord in the A, G, C and D forms too · five areas per key
+    show: null
+    band: null
+    keys: {at: 1}
+    say: When the E form area is easy, put the one chord in each of the other four forms. Five areas in every key.
+  - now: How much at a time
+    sub: ten minutes a day · two or three new keys · one old key
+    keys: null
+    say: "Don't do all twelve at once. Ten minutes a day: two or three new keys, plus one you've already done, so it doesn't fade."
+
+  # ---------- watch-outs and the target ----------
+  - section: Watch out
+    now: Three things to watch
+    sub: null
+    table:
+      title: Watch out
+      head: [Mistake, Instead]
+      widths: [0.4, 0.6]
+      rows: [[Open strings, they let you leave the area without noticing], [Naming frets, say "C in the A form", not "C at fret 3"], [Forcing full barres, three or four strings of a form are enough]]
+    say: Three things to watch. No open strings while you're mapping; they let you leave the area without noticing. Name the form, not the fret. And don't force full barres. Three or four strings of a form are enough.
+  - table: null
+    section: null
+    card:
+      title: You've got it when
+      lines: ["you can climb any key's five forms, naming each root's string and finger", "you can play the progression's roots in time, in any area, without stopping"]
+    say: You've got it when you can climb any key's five forms, naming each root's string and finger, and play the progression's roots in time, in any area, without stopping.
+    hold: 1.5

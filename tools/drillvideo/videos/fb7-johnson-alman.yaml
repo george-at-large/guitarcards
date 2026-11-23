@@ -1,0 +1,32 @@
+# Repertoire FB7: Robert Johnson (lutenist, c.1583–1633), Alman (Fitzwilliam Virginal Book 145; guitar version), bars 1–12.
+# Written by songs.py from johnson_robert_2_alman_fvb_145.txt: change it there, not here.
+id: fb7-johnson-alman
+title: "Robert Johnson: Alman"
+rule: "A Renaissance dance in two: steady, stately, the voices clear."
+bpm: 72
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Robert Johnson: Alman", lines: ["An alman (allemande) by the lutenist Robert Johnson:", "a dance in A minor, as the folk-baroque players arranged it."]}
+    hold: 3
+
+  - card: null
+    section: "Folk baroque"
+    key: "A minor"
+    notes: ["John Renbourn’s repertoire: Renaissance lute music on the steel-string guitar."]
+    page:
+      root: A
+      repeat: 1
+      harmony: ["", "Am:i", "C:III", "Am:i", "E:V", "", "Dm:iv", "E:V", "Am:i", "G:VII", "C:III", "Am:i"]
+      pickup: true
+      voices: ["4.2:4 | 5.0+4.2+3.2:1 2.1:1 6.3+5.0+2.0:1 2.3:1 | 5.3+4.2+2.1:1 2.1:0.5 2.3:0.5 3.0+2.5:1 2.1:0.5 2.3:0.5 | 5.3+1.0:1 5.2+2.3+1.3:1 5.0+3.5+2.5+1.5:1 1.8:1 | 6.4+1.7:1 5.0+1.5:1 6.0+3.4+2.5+1.4:1 1.0:0.5 1.2:0.5 | 6.0+1.3:1 1.3:0.5 1.1:0.5 5.3+1.0:1 2.3:0.5 1.0:0.5 | 4.0+3.2+1.1:0.5 1.3:0.5 1.1:0.5 1.0:0.5 3.0+2.3:1 4.2+1.0:0.5 2.3:0.5 | 4.3+2.1:1 4.0+2.3:0.5 2.1:0.5 4.2+2.0:0.5 3.2:0.5 6.0+3.1+2.0:1 | 5.0+3.2:1 4.2:1 5.0:1 4.2:1 | 5.0+4.2+3.2:0.5 2.0:0.5 2.1:0.5 3.2:0.5 6.3+4.0+2.0:0.5 2.1:0.5 2.3:0.5 2.0:0.5 | 5.3+4.2+2.1:0.5 2.0:0.5 2.1:0.5 2.3:0.5 3.0+2.5:1 2.1:0.5 2.3:0.5 | 5.3+1.0:1 5.2+2.3+1.3:1 5.0+3.5+2.5+1.5:1 1.8:1 |"]
+      marks: [[1, "Bars 1–3: i – III – i: A minor and its relative major, side by side."], [4, "Bar 4: E, the V, with G♯: the leading tone of A minor."], [6, "Bars 6–7: Dm – E, iv – V: the cadence of the first strain."], [9, "Bars 9–11: i – VII – III: the second strain starts by falling through the natural minor."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 12 bars at 72 with the voices clear,", "name i – III – V in the first strain,", "and feel the dance in 2."]
+    hold: 3

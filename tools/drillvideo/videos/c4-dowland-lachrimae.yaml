@@ -1,0 +1,31 @@
+# Repertoire C4: Dowland, Lachrimae Pavan (lute, public domain), the opening strain, bars 1–8, here in E minor.
+# Written by songs.py from dowland_john_lachrimae_pavan.txt: change it there, not here.
+id: c4-dowland-lachrimae
+title: "Dowland: Lachrimae"
+rule: "The falling tear: four notes, step by step, down."
+bpm: 60
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Dowland: Lachrimae", lines: ["Dowland’s Lachrimae (“tears”), the opening strain:", "the falling-tear motif and a Renaissance cadence with a major third."]}
+    hold: 3
+
+  - card: null
+    section: "Classical guitar"
+    key: "E minor"
+    notes: ["Renaissance lute style: let the voices overlap; every note rings to its full length."]
+    page:
+      root: E
+      repeat: 1
+      harmony: ["Em:i", "B:V", "Em:i", "Am:iv B:V", "Em:i B/D♯:V⁶", "C:VI G:III", "Am:iv B:V", "E:I"]
+      voices: ["6.0+3.0+2.0+1.0:1.25 4.2:0.5 4.4+2.3:0.25 2.1:0.25 6.0+3.0+2.0:0.5 3.2:0.5 2.0+1.3:1 | 5.3+4.5+3.5:0.75 1.5:0.25 1.3:0.25 3.2+1.2:0.5 2.5:0.5 5.2+4.4+2.4:2 | 6.0+5.2+4.2+3.0+2.0+1.0:1.25 2.0:0.5 6.0:0.5 6.3:0.5 2.0:0.5 3.4+2.3:0.5 6.3:0.5 | 5.0+3.2+2.1:0.75 3.0:0.5 5.3+4.4+3.2:0.5 4.2:0.5 5.2+4.4+2.0:0.5 4.2:0.5 4.1:0.5 1.2:0.5 | 6.0+4.2+2.0+1.3:0.75 3.2:0.5 2.0:0.5 4.2+1.3:0.5 4.0+2.3+1.2:1 5.2+4.4+2.4:1 | 5.3+1.0:0.5 2.0:0.25 3.2:0.25 3.0:0.25 3.2:0.25 2.0:0.25 1.0:0.25 3.2:0.25 5.2+4.4+3.4+2.4:1 6.3+3.0+2.0:0.5 1.3:0.5 | 5.0+3.2+1.2:0.75 3.0+1.0:0.5 5.3+1.0:0.5 4.2:0.5 5.2+4.4:0.25 1.0:0.25 2.4:0.25 2.2:0.25 2.4:0.25 1.0:0.25 3.2:0.25 2.4:0.25 | 6.0+5.2+4.2+3.1+2.0+1.0:1 2.3:0.25 2.0:0.25 3.2:0.25 3.0:0.25 4.4:0.25 6.0+3.1+2.0+1.0:0.5 4.2:0.5 6.0:1 |"]
+      marks: [[1, "Bar 1: the “falling tear”: the melody steps down a 4th, the most imitated motif of its age."], [4, "Bar 4: iv – V: the cadence approached from the subdominant."], [6, "Bar 6: C and G, VI and III: the relative major opening out before the fall back."], [8, "Bar 8: E major, not minor: the Picardy third, a bright chord ending a minor phrase."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the strain at 60 with the voices ringing,", "point to the falling tear,", "and hear the Picardy third at the end."]
+    hold: 3

@@ -1,0 +1,54 @@
+# Repertoire J2: rhythm changes, the harmony of Gershwin's I Got Rhythm (1930): the A section's I–vi–ii–V turnarounds
+# and the bridge's chain of dominants, in B♭ (the key jazz plays it in). Harmony only.
+id: j2-rhythm-changes
+title: Rhythm changes
+rule: A sections turn around; the bridge falls through dominants.
+bpm: 120
+captions: false
+
+steps:
+  - card: {title: Rhythm changes, lines: ['The harmony of I Got Rhythm, the most-played jazz form after the blues:', 'A A B A, 32 bars, in B♭.']}
+    hold: 4.5
+  - card: {title: The drill, lines: ['1   The A section in drop 2 on the top four strings, two chords a bar', '2   The bridge: four dominants, two bars each, falling in 4ths', '3   Then the bridge as guide tones: 7th falls to 3rd', '4   The whole form at tempo: A A B A']}
+    hold: 9.2
+
+  - card: null
+    section: The A section
+    key: B♭ major
+    now: I – VI7 – ii – V, twice; then I – I7 – IV – ♯iv°; then I – V – I
+    sub: two chords a bar
+    notes: ['Bars 1–4: B♭6 G7 | Cm7 F7, twice: a turnaround on repeat.', 'Bars 5–6: B♭7 → E♭6 → E°7: the IV and its passing diminished, then home.']
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: Bb, chart: '| I:6 VI:7 | ii:m7 V:7 | I:6 VI:7 | ii:m7 V:7 | I:7 I:7 | IV:6 #iv:dim7 | I:6 V:7 | I:6 I:6 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5, sub: '{roman}'}
+
+  - section: The bridge
+    now: D7 – G7 – C7 – F7
+    sub: III7 – VI7 – II7 – V7 · two bars each · each one the V of the next
+    notes: ['Secondary dominants chained round the cycle of fourths, landing on F7, the V of B♭, for the last A.']
+    play: strum 4
+    click: false
+    expand: {kind: prog, key: Bb, chart: '| III:7 | VI:7 | II:7 | V:7 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: '{roman}'}
+  - now: The bridge as guide tones
+    sub: the 7th of each chord falls a half step to the 3rd of the next
+    notes: ['Two notes carry the whole bridge: this is the line to hear when you improvise over it.']
+    play: strum 4
+    click: false
+    expand: {kind: loop, chart: '| III:7 | VI:7 | II:7 | V:7 |', keys: [Bb], voicing: close, strings: [3, 2], guide: true, startFret: 5, bars: 1, now: '{chord}', sub: '{roman}'}
+
+  - section: The whole form
+    now: A A B A
+    sub: 32 bars · the last A ends on B♭
+    notes: ['Hundreds of tunes use these changes. Learn them once, in B♭, and you can play them all.']
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: Bb, chart: '| I:6 VI:7 | ii:m7 V:7 | I:6 VI:7 | ii:m7 V:7 | I:7 I:7 | IV:6 #iv:dim7 | I:6 V:7 | I:6 I:6 | III:7 | III:7 | VI:7 | VI:7 | II:7 | II:7 | V:7 | V:7 | I:6 VI:7 | ii:m7 V:7 | I:6 VI:7 | ii:m7 V:7 | I:7 I:7 | IV:6 #iv:dim7 | I:6 V:7 | I:6 I:6 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5, sub: '{roman}'}
+
+  - section: null
+    key: null
+    show: null
+    notes: ['The melody of I Got Rhythm is public domain in the US and in life+70 countries: learn it by ear over these changes.']
+    card:
+      title: You've got it when
+      lines: ['you can comp the whole form in B♭ without a chart,', 'name every chord’s function,', 'and sing the bridge’s guide-tone line.']
+    hold: 6

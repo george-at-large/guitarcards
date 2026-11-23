@@ -1,0 +1,33 @@
+# Short series: Pernambuco, Sons de Carrilhões (João Pernambuco’s own guitar choro), the A section, drop D.
+# Written by songs.py from pernambuco_sounds_of_bells.txt: change it there, not here.
+id: tp5-pernambuco-carrilhoes
+title: "Pernambuco: Sons de Carrilhões"
+rule: "A choro bass under bells: harmonics ring over it."
+tuning: ["D2", "A2", "D3", "G3", "B3", "E4"]
+bpm: 76
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Pernambuco: Sons de Carrilhões", lines: ["“Sounds of the bells”, a choro-maxixe for guitar, drop D:", "syncopated bass, melody and harmonics on top."]}
+    hold: 3
+
+  - card: null
+    section: "Brazilian choro"
+    key: "D major · drop D"
+    notes: ["Transcription: Paul R. Estrada (classtab.org)."]
+    page:
+      root: D
+      repeat: 1
+      harmony: ["", "D:I", "Em7:ii7", "A7:V7", "D:I", "G/D:IV", "Em/D:ii", "A7:V7", "D:I", "D:I", "Em7:ii7", "A7:V7", "D:I", "D♯°7:vii°7/ii", "Em:ii", "A7:V7", "D:I"]
+      pickup: true
+      voices: ["r:1.25 1.10:0.25 3.7:0.25 2.7:0.25 | 6.0+1.9:0.5 3.7+2.7:0.25 3.7+2.7:0.25 5.0:0.25 2.12n:0.25 4.7n:0.25 3.12n:0.25 | 6.2+2.0:0.5 4.2+3.0:0.25 4.2+3.0:0.25 6.2:0.25 2.0:0.25 2.2:0.25 2.3:0.25 | 5.0+2.7:0.5 4.5+3.6:0.25 4.5+3.6:0.25 5.0:0.25 2.5:0.25 1.5:0.25 2.7:0.25 | 6.0+2.0:0.5 4.4+3.2:0.25 4.4+3.2:0.25 6.0:0.25 3.2:0.25 4.4:0.25 4.0:0.25 | 6.0:0.25 4.7:0.25 4.4:0.25 4.0:0.25 6.5+4.5:0.5 6.4+4.4:0.5 | 6.2+4.2:0.5 3.0+2.0:0.25 3.0+2.0:0.25 6.0:0.25 2.0:0.25 2.2:0.25 2.3:0.25 | 5.0+2.7:0.5 4.5+3.6:0.25 4.5+3.6:0.25 5.0:0.25 2.5:0.25 1.5:0.25 2.7:0.25 | 6.0+2.0:0.5 4.4+3.2:0.25 4.4+3.2:0.25 4.0:0.25 1.10:0.25 3.7:0.25 2.7:0.25 | 6.0+1.9:0.5 3.7+2.7:0.25 3.7+2.7:0.25 5.0:0.25 2.12n:0.25 4.7n:0.25 3.12n:0.25 | 6.2+2.0:0.5 4.2+3.0:0.25 4.2+3.0:0.25 6.2:0.25 2.0:0.25 2.2:0.25 2.3:0.25 | 5.0+2.7:0.5 4.5+3.6:0.25 4.5+3.6:0.25 5.0:0.25 2.5:0.25 1.5:0.25 2.7:0.25 | 6.0+2.0:0.5 4.4+3.2:0.25 4.4+3.2:0.25 6.0:0.25 3.2:0.25 4.4:0.25 4.0:0.25 | 4.1:0.25 4.4:0.25 4.7:0.25 3.5:0.25 2.4:0.25 2.7:0.25 1.5:0.25 1.7:0.25 | 1.7:0.25 2.8+1.5:0.25 1.0:0.25 2.0:0.25 3.0:0.25 4.2:0.25 5.2:0.25 5.1:0.25 | 5.0:0.25 3.2:0.25 4.4:0.25 4.0:0.25 6.2+4.2+3.0+2.0:0.5 5.0+4.2+3.0+2.2:0.5 | 6.0+4.4+3.2+2.3:0.5 5.0:0.5 4.0:0.25 1.10:0.25 3.7:0.25 2.7:0.25 |"]
+      marks: [[1, "I – ii7 – V7 – I, two bars each: the choro’s home loop."], [6, "The bass moves while the bells ring."], [13, "D♯°7: the diminished chord leading up to Em."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can keep the bass steady under the harmonics,", "and the syncopations sit like a dance."]
+    hold: 3

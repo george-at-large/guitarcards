@@ -1,0 +1,109 @@
+# Video 3d: drop 3, four more chords.
+# Written by gen.py: change the loops there, not the steps here.
+id: 03d-drop3-more
+title: "Drop 3: four more chords"
+rule: "Call the bass degree; mute the string you skip."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Drop 3: four more chords", lines: ["G6, Gm6, Gm(maj7) and G7sus4 in drop 3,", "on 6-4-3-2 and 5-3-2-1, across the whole neck,", "then each one morphed from the chord it comes from."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One chord, one string set: every inversion up the neck, bass degree first", "2   Then morph it from the chord it comes from", "3   Next string set; then the next key from the table"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Four more chords on G, drop 3"
+    sub: "G6 · Gm6 · Gm(maj7) · G7sus4 · strings 6-4-3-2, 5-3-2-1"
+    notes: ["G6 has the same notes as Em7, and Gm6 the same as Em7♭5."]
+    say: "Four more drop 3 chords on G, on both string sets, from the bottom of the neck to the top."
+  - section: G6 · strings 6-4-3-2
+    notes: ['G6 = G B D E']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: '6', voicing: drop3, strings: [6, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G6 · strings 5-3-2-1
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: '6', voicing: drop3, strings: [5, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm6 · strings 6-4-3-2
+    notes: ['Gm6 = G B♭ D E']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m6, voicing: drop3, strings: [6, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm6 · strings 5-3-2-1
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m6, voicing: drop3, strings: [5, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm(maj7) · strings 6-4-3-2
+    notes: ['Gm(maj7) = G B♭ D F♯']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: mMaj7, voicing: drop3, strings: [6, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm(maj7) · strings 5-3-2-1
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: mMaj7, voicing: drop3, strings: [5, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G7sus4 · strings 6-4-3-2
+    notes: ['G7sus4 = G C D F']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: 7sus4, voicing: drop3, strings: [6, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G7sus4 · strings 5-3-2-1
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: 7sus4, voicing: drop3, strings: [5, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+
+  - section: Morphing
+    now: Where they come from
+    sub: each is one note away from a chord you know
+    show: null
+    notes: ['The ringed note is the one that moved.']
+  - section: Gmaj7 → G6 · strings 5-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop3, strings: [5, 3, 2, 1], count: 4, bars: 0.5, chain: [[maj7], ['6', '7', '6', lower the 7th to the 6th]]}
+  - section: Gmaj7 → Gm(maj7) · strings 5-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop3, strings: [5, 3, 2, 1], count: 4, bars: 0.5, chain: [[maj7], [mMaj7, '3', b3, lower the 3rd]]}
+  - section: Gm7 → Gm6 · strings 5-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop3, strings: [5, 3, 2, 1], count: 4, bars: 0.5, chain: [[m7], [m6, b7, '6', lower the ♭7 to the 6th]]}
+  - section: G7 → G7sus4 · strings 5-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop3, strings: [5, 3, 2, 1], count: 4, bars: 0.5, chain: [['7'], [7sus4, '3', '4', raise the 3rd to the 4th]]}
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths
+    show: null
+    band: null
+    notes: null
+    table:
+      title: "Where each key starts: the bass degree and fret of the lowest G6-type drop 3"
+      head: [Key, 6-4-3-2, 5-3-2-1]
+      widths: [0.333, 0.333, 0.333]
+      rows_from: {kind: ladderTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], quality: '6', voicing: drop3, lowFret: 0, sets: [[6, 4, 3, 2], [5, 3, 2, 1]], cols: ['{chord}', '{sets[0][bass]} · {sets[0][at]}', '{sets[1][bass]} · {sets[1][at]}']}
+    say: Then every key, round the cycle of fourths. The table shows where each key starts.
+    hold: 6
+  - notes: ['Each day: one chord on both sets, in two or three keys.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can find G6, Gm6, Gm(maj7) and G7sus4 in drop 3,', 'any inversion, either set, any key,', 'and say which chord each one comes from.']
+    hold: 6

@@ -1,0 +1,48 @@
+# Video 13c: diminished on a blues (Marbin's diminished families).
+# Written by gen.py: change the loops there, not the steps here.
+id: 13c-diminished-blues
+title: "Diminished on a blues"
+rule: "The °7 on the root hovers, then returns."
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: "Diminished on a blues", lines: ["A G blues in drop 2 where every dominant", "steps to the °7 on its own root and back,", "in four positions: four top lines."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The blues with I7 → I°7, IV7 → IV°7, V7 → V°7 in every bar", "2   In four positions: listen to the top line", "3   Then the next key"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G7 → G°7 → G7"
+    sub: "the °7 on the root: a suspension of the chord"
+    notes: ["Three families of °7 (Marbin): on the root a suspension, on the 3rd a dominant, on the 7th the V of here.", "Here, the root family: every chord hovers on its °7 and comes back."]
+    say: "A blues where every dominant steps to the diminished seventh on its root and back. Four times, four top lines."
+  - section: "Top line 1 · from fret 3"
+    notes: ["Only one note moves a half step between each 7 and its °7: hear it in the top or inside."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:7 I:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | IV:7 IV:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | V:7 V:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | V:7 V:dim7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 0.5, sub: "{roman}"}
+  - section: "Top line 2 · from fret 6"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:7 I:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | IV:7 IV:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | V:7 V:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | V:7 V:dim7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 6, bars: 0.5, sub: "{roman}"}
+  - section: "Top line 3 · from fret 9"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:7 I:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | IV:7 IV:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | V:7 V:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | V:7 V:dim7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 9, bars: 0.5, sub: "{roman}"}
+  - section: "Top line 4 · from fret 12"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:7 I:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | IV:7 IV:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | I:7 I:dim7 | V:7 V:dim7 | IV:7 IV:dim7 | I:7 I:dim7 | V:7 V:dim7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 12, bars: 0.5, sub: "{roman}"}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can comp the blues with the °7 suspension on every chord,", "in four positions without looking,", "and say which family any °7 belongs to."]
+    hold: 6

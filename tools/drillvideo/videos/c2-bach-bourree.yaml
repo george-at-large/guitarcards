@@ -1,0 +1,36 @@
+# Repertoire C2: Bach, Bourrée in E minor BWV 996, the A section. Transcribed from the public-domain Mutopia edition
+# (Rudy Matela, after the 1921 Wolfenbüttel lute edition); the lute's low D (bar 7) is raised an octave for guitar.
+id: c2-bach-bourree
+title: 'Bach: Bourrée in E minor'
+rule: Two independent voices, played together from the start.
+bpm: 60
+captions: false
+steps:
+- card:
+    title: 'Bach: Bourrée in E minor'
+    lines: ['The A section of the Bourrée from the Lute Suite BWV 996:', 'two-voice counterpoint, and a move from E minor to G major.']
+  hold: 4.5
+- card: null
+  key: E minor
+  section: Classical guitar
+  bpm: 96
+  show: null
+  notes: ['Two independent voices: play the bass as smoothly as the melody.']
+  page:
+    harmony: ['', 'Em:i Am:iv B:V Am:iv', 'G:III B/F♯:V Em:i D7/F♯:V7/III', 'G:III Am:iv B:V Am:iv', 'G:III B:V Em:i -', 'Em:i Am:iv B:V Am:iv', 'G:III B/F♯:V Em:i D7/F♯:V7/III', '@G_major G:I C:IV D:V pickup: true -', 'G:I']
+    root: E
+    voices: ['1.0:.5 1.2:.5 | 1.3:1 1.2:.5 1.0:.5 2.4:1 1.0:.5 1.2:.5 | 2.0:1 2.2:.5 2.4:.5 2.5:1 2.3:.5 2.1:.5 | 2.0:1 3.2:.5 3.0:.5 4.4:1 3.0:.5 3.2:.5 | 2.0:.5 3.2:.5 3.0:.5 4.4:.5 4.2:1 1.0:.5 1.2:.5 | 1.3:1 1.2:.5 1.0:.5 2.4:1 1.0:.5 1.2:.5 | 2.0:1 2.2:.5 2.4:.5 2.5:1 2.3:.5 2.1:.5 | 2.0:1 3.2:.5 3.0:.5 4.4:1.5 3.0:.5 | 5.2+4.0+3.0:3', '6.3:.5 6.2:.5 | 6.0:1 5.0:1 5.2:1 5.0:1 | 6.3:1 6.2:1 6.0:1 6.2:1 | 6.3:1 5.0:1 5.2:1 5.0:1 | 6.3:1 5.2:1 6.0:.5 6.2:.5 6.3:.5 6.2:.5 | 6.0:1 5.0:1 5.2:1 5.0:1 | 6.3:1 6.2:1 6.0:1 6.2:1 | 6.3:1 5.3:1 5.5:1 5.5:1 | 6.3:3']
+    marks:
+    - [1, 'Bar 1: i – iv – V – iv over a walking bass; D♯ over the B is E minor’s leading tone.']
+    - [2, 'Bar 2: the top climbs B C♯ D♯ E (melodic minor rising), falls D C (natural minor falling).']
+    - [3, 'Bars 3–4: contrary motion: the top falls B A G F♯ E while the bass climbs G A B.']
+    - [7, 'Bars 7–8: IV – V – I in G, the relative major. The lute’s low D sounds an octave up.']
+- section: null
+  key: null
+  show: null
+  notes: ['Next: the B section, which travels through B minor and A minor before coming home to E minor.']
+  card:
+    title: You've got it when
+    lines: ['you can play the A section at tempo,', 'with the bass as even and as shaped as the melody,', 'and say where it goes: E minor to G major.']
+  hold: 5
+page_neck: true

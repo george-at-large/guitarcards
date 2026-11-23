@@ -1,0 +1,31 @@
+# Repertoire C11: Albéniz, Asturias (Leyenda), the opening, bars 1–12 (guitar version, public domain).
+# Written by songs.py from albeniz_isaac_op047_no5_espanola_asturias.txt: change it there, not here.
+id: c11-albeniz-asturias
+title: "Albéniz: Asturias"
+rule: "The open B never stops: the melody moves around it."
+bpm: 120
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Albéniz: Asturias", lines: ["The opening of Asturias:", "a melody woven round an open-B pedal, the Phrygian sound of Spain."]}
+    hold: 3
+
+  - card: null
+    section: "Classical guitar"
+    key: "B Phrygian · E minor"
+    notes: ["Alternate p and i (or i and m) for the pedal; keep the melody notes slightly louder."]
+    page:
+      root: B
+      repeat: 1
+      harmony: ["Em/B:iv", "Em/B:iv", "Em/B:iv", "D/F♯:♭III", "Em/B:iv", "Em/B:iv", "Em/B:iv", "C:♭II", "B:I", "B:I", "B:I", "B:I"]
+      voices: ["5.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 | 5.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 | 5.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 | 4.7:0.25 2.0:0.25 5.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 5.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 | 5.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 | 5.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 | 5.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 | 4.7:0.25 2.0:0.25 5.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 5.7:0.25 2.0:0.25 6.10:0.25 2.0:0.25 6.8:0.25 2.0:0.25 | 6.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.5 4.7+2.0:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.9:0.25 2.0:0.25 | 6.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.9:0.25 2.0:0.25 | 6.7:0.25 2.0:0.25 5.9:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.12:0.25 2.0:0.25 | 4.9:0.25 2.0:0.25 4.10:0.25 2.0:0.25 4.7:0.25 2.0:0.25 4.9:0.25 2.0:0.25 5.10:0.25 2.0:0.25 5.9:0.25 2.0:0.25 |"]
+      marks: [[1, "Bars 1–3: every other note is the open B: a pedal, imitating the guitar’s own flamenco drone."], [8, "Bar 8: C, the ♭II: the half step above B is the Phrygian, Spanish colour."], [9, "Bars 9–12: B major, the home of B Phrygian (and the V of E minor), the C still leaning on it."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 12 bars at 120 with the pedal even,", "bring the melody out over the B,", "and hear the ♭2 (C) pull down to B."]
+    hold: 3

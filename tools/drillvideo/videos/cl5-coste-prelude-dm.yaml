@@ -1,0 +1,32 @@
+# Repertoire CL5: Coste, Prélude in D minor Op. 38 No. 3 (drop D), bars 1–12.
+# Written by songs.py from coste_op38_no03_prelude_in_dm.txt: change it there, not here.
+id: cl5-coste-prelude-dm
+title: "Coste: Prélude in D minor"
+rule: "Six-chords falling by step: parallel, not contrary."
+tuning: ["D2", "A2", "D3", "G3", "B3", "E4"]
+bpm: 72
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Coste: Prélude in D minor", lines: ["Napoléon Coste’s D minor prelude, drop D:", "chords over an open-string pedal, then a chain of 6th chords falling by step."]}
+    hold: 3
+
+  - card: null
+    section: "Classical guitar"
+    key: "D minor · drop D"
+    notes: ["Parallel motion: the outer voices move in 6ths together, the opposite of contrary motion."]
+    page:
+      root: D
+      repeat: 1
+      harmony: ["A7:V7", "Dm:i", "A7:V7", "Dm:i", "B♭/D:VI⁶ A/C♯:V⁶", "G/B:IV⁶ F/A:III⁶", "E°/G:ii°⁶ Dm/F:i⁶", "C♯°/E:vii°⁶ B♭/D:VI⁶", "A/C♯:V⁶ G/B:IV⁶", "Dm/A:i⁶₄ A7:V7", "Dm:i", "Dm:i"]
+      voices: ["5.0:0.25 1.0:0.25 3.12:0.25 2.10:0.25 1.9:0.25 2.10:0.25 3.12:0.25 1.0:0.25 5.0:0.25 1.0:0.25 3.12:0.25 2.10:0.25 4.11+1.12:0.25 2.10:0.25 3.12:0.25 1.0:0.25 | 4.0:0.25 3.10:0.25 2.10:0.25 1.10:0.25 1.13:0.25 3.10:0.25 2.10:0.25 1.10:0.25 4.0:0.25 3.7:0.25 2.6:0.25 1.5:0.25 1.6:0.25 3.7:0.25 2.6:0.25 1.5:0.25 | 5.0:0.25 1.0:0.25 3.12:0.25 2.10:0.25 1.9:0.25 2.10:0.25 3.12:0.25 1.0:0.25 5.0:0.25 1.0:0.25 3.12:0.25 2.10:0.25 4.11+1.12:0.25 2.10:0.25 3.12:0.25 1.0:0.25 | 4.0:0.25 3.10:0.25 2.10:0.25 1.10:0.25 1.13:0.25 3.10:0.25 2.10:0.25 1.10:0.25 4.0:0.25 3.7:0.25 2.6:0.25 1.5:0.25 1.6:0.25 3.7:0.25 2.6:0.25 1.5:0.25 | 3.7:0.25 2.6:0.25 1.6:0.25 1.8:0.25 1.6:0.25 3.7:0.25 2.6:0.25 1.6:0.25 3.6:0.25 2.5:0.25 1.5:0.25 1.6:0.25 1.5:0.25 3.5:0.25 2.4:0.25 1.5:0.25 | 3.4:0.25 2.3:0.25 1.3:0.25 1.5:0.25 1.3:0.25 3.3:0.25 2.3:0.25 1.3:0.25 3.2:0.25 2.1:0.25 1.1:0.25 1.3:0.25 1.1:0.25 3.2:0.25 2.1:0.25 1.1:0.25 | 4.5:0.25 3.3:0.25 2.5:0.25 2.6:0.25 2.5:0.25 4.5:0.25 3.3:0.25 2.5:0.25 4.3:0.25 3.2:0.25 2.3:0.25 2.5:0.25 2.3:0.25 4.3:0.25 3.2:0.25 2.3:0.25 | 4.2:0.25 3.0:0.25 2.2:0.25 2.3:0.25 2.2:0.25 4.2:0.25 3.0:0.25 2.2:0.25 5.5:0.25 4.3:0.25 3.3:0.25 3.5:0.25 3.3:0.25 5.5:0.25 4.3:0.25 3.3:0.25 | 5.4:0.25 4.2:0.25 3.2:0.25 3.3:0.25 3.2:0.25 5.3:0.25 4.1:0.25 3.2:0.25 5.2:0.25 4.0:0.25 3.0:0.25 3.2:0.25 3.0:0.25 5.1:0.25 4.0:0.25 3.1:0.25 | 5.0+3.2:0.25 4.0:0.25 4.3:0.25 3.2:0.25 2.3:0.25 1.0:0.25 1.1:0.25 2.3:0.25 5.0+2.3:0.25 4.2:0.25 3.0:0.25 2.3:0.25 5.0+2.2:0.25 4.2:0.25 3.0:0.25 2.2:0.25 | 6.0+4.3+2.3:0.25 6.3:0.25 5.0:0.25 4.0:0.25 4.3:0.25 3.2:0.25 2.3:0.25 1.1:0.25 1.5:0.25 3.7:0.25 2.6:0.25 1.5:0.25 4.0+1.10:0.25 3.10:0.25 2.10:0.25 1.10:0.25 | 6.0+1.13:0.25 3.10:0.25 2.10:0.25 1.10:0.25 2.10:0.25 1.10:0.25 3.10:0.25 2.10:0.25 3.7:0.25 4.7:0.25 5.8:0.25 4.0:0.25 5.0:0.25 4.0:0.25 6.3:0.25 5.0:0.25 |"]
+      marks: [[1, "Bars 1–4: V7 – i twice, the open A and D strings ringing under the chords."], [5, "Bars 5–9: first-inversion chords falling a step every two beats: B♭/D, A/C♯, G/B, F/A, E°/G … (fauxbourdon)."], [6, "G/B: the raised 6th (B♮) of melodic minor, used on the way down."], [10, "Bars 10–12: i⁶₄ – V7 – i, the cadence."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 12 bars at 72 with the bass ringing,", "name every chord in the falling chain,", "and hear the parallel 6ths."]
+    hold: 3

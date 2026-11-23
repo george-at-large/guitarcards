@@ -1,0 +1,30 @@
+# Short series: Wayfaring Stranger. Written for the course (see the notes on screen).
+id: tp2-wayfaring-stranger
+title: "Wayfaring Stranger"
+rule: "Travis in minor: let the melody ring over the thumb."
+bpm: 84
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Wayfaring Stranger", lines: ["The traditional American song, Travis-picked in A minor:", "the thumb steady, the melody singing on top."]}
+    hold: 3
+
+  - card: null
+    section: "Travis picking"
+    key: "A minor"
+    notes: ["Melody: the traditional tune (thesession.org), set in A minor for open-position picking."]
+    page:
+      root: A
+      repeat: 2
+      harmony: ["Am:i", "Am:i", "Am:i", "Am:i", "Am:i", "Dm:iv", "Dm:iv", "Am:i"]
+      voices: ["r:1 3.2:1 3.2:1 1.0:1 | 1.0:4 | 1.0:1 2.1:1 2.3:1 2.1:1 | 2.1:.5 3.2:3.5 | r:1.5 3.2:.5 3.2:1 1.0:1 | r:1 2.3:3 | 2.3:1 3.2:1 2.1:.5 2.3:.5 1.0:1 | 1.0:4 |", "5.0:1 4.2:1 6.0:1 4.2:1 | 5.0:1 4.2:1 6.0:1 4.2:1 | 5.0:1 4.2:1 6.0:1 4.2:1 | 5.0:1 4.2:1 6.0:1 4.2:1 | 5.0:1 4.2:1 6.0:1 4.2:1 | 4.0:1 5.0:1 4.0:1 5.0:1 | 4.0:1 5.0:1 4.0:1 5.0:1 | 5.0:1 4.2:1 6.0:1 4.2:1 |"]
+      marks: [[1, "The thumb plays 5 4 6 4 on Am: A, E, low E, E."], [6, "Dm, the iv: the thumb moves to strings 4 and 5."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the thumb never stops under the long notes,", "and the melody sings over it."]
+    hold: 3

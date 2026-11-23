@@ -1,0 +1,31 @@
+# Repertoire CP3: Bach, Two-Part Invention No. 8 in F, BWV 779, bars 1–12 (to the cadence in C), solo guitar.
+# Written by songs.py from bach_js_bwv0779_two-part_invention_08.txt: change it there, not here.
+id: cp3-bach-invention-8
+title: "Bach: Invention No. 8"
+rule: "A canon: the second voice repeats the first, a bar later."
+bpm: 72
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Bach: Invention No. 8", lines: ["The eighth two-part invention, in F:", "a broken-chord subject in canon at the octave, then a turn to C."]}
+    hold: 3
+
+  - card: null
+    section: "Counterpoint"
+    key: "F major · 3/4"
+    notes: ["Practise each voice’s entry until you can hear the canon: one voice always echoes the other."]
+    page:
+      root: F
+      repeat: 1
+      harmony: ["F:I", "C7:V7", "F:I", "F:I", "", "", "G7/D:V7/V", "", "", "", "", "@C_major C:I"]
+      voices: ["r:0.5 4.3:0.5 3.2:0.5 4.3:0.5 2.1:0.5 4.3:0.5 | 1.1:0.5 6.3+1.0:0.25 2.3:0.25 5.0+2.1:0.25 2.3:0.25 6.3+2.1:0.25 3.3:0.25 5.3+3.2:0.25 3.3:0.25 6.3+3.2:0.25 3.0:0.25 | 4.3:0.5 4.2+3.2:0.25 4.0:0.25 5.3+2.1:0.25 4.0:0.25 5.3+3.2:0.25 5.1:0.25 6.7+2.6:0.25 6.8:0.25 6.7+3.5:0.25 6.5:0.25 | 5.8+1.5:0.25 1.8:0.25 4.7+1.6:0.25 1.8:0.25 3.5+1.5:0.25 1.8:0.25 4.7+1.6:0.25 1.8:0.25 2.6+1.5:0.25 1.8:0.25 3.5+1.6:0.25 1.8:0.25 | 3.2+1.1:0.25 3.5+1.5:0.25 3.3+1.3:0.25 3.5+1.5:0.25 3.2+1.1:0.25 3.5+1.5:0.25 3.3+1.3:0.25 3.5+1.5:0.25 3.2+2.6:0.25 3.5+1.5:0.25 3.3+1.3:0.25 3.5+1.5:0.25 | 4.3+2.3:0.25 3.2+1.1:0.25 4.5+2.5:0.25 3.2+1.1:0.25 4.3+2.3:0.25 3.2+1.1:0.25 3.0+1.0:0.25 3.2+1.1:0.25 4.3+2.3:0.25 3.2+1.1:0.25 3.0+1.0:0.25 3.2+1.1:0.25 | 4.0+2.0:0.25 4.3:0.25 4.2+3.0:0.25 4.3:0.25 4.0+2.3:0.25 4.3:0.25 4.2+2.0:0.25 4.3:0.25 5.5+2.6:0.25 4.3:0.25 4.2+2.3:0.25 4.3:0.25 | 5.2+1.3:0.25 1.5:0.25 6.5+1.3:0.25 2.6:0.25 5.3+2.5:0.25 2.6:0.25 6.5+2.5:0.25 2.3:0.25 4.2+2.1:0.25 2.3:0.25 5.3+3.5:0.25 3.3:0.25 | 4.3+3.2:0.25 3.0:0.25 4.3+2.3:0.25 4.2+2.1:0.25 4.0+2.0:0.25 4.2+2.1:0.25 4.0+2.0:0.25 5.3+3.2:0.25 5.2+3.0:0.25 5.3+3.2:0.25 5.2+3.0:0.25 5.0+4.3:0.25 | 6.5+4.2:0.25 4.3:0.25 5.3+4.2:0.25 5.2+4.0:0.25 6.7+5.3:0.25 5.2:0.25 5.0+2.1:0.25 6.5+2.0:0.25 6.3+2.1:0.25 6.5:0.25 6.3+4.2:0.25 6.2:0.25 | 6.0+4.3:0.25 6.2:0.25 6.0+2.1:0.25 5.3:0.25 6.5+4.2:0.25 6.3:0.25 6.2+2.1:0.25 6.3:0.25 6.5+4.0:0.5 6.5+2.0:0.5 | 2.1:0.5 5.3:0.5 4.2:0.5 5.3:0.5 3.0:0.5 5.3:0.5 |"]
+      marks: [[1, "Bar 1: the subject climbs the F chord (F A C F), then runs down the scale in 16ths."], [2, "Bar 2: the lower voice enters with the same subject an octave down: a canon at the octave."], [5, "Bars 5–6: a sequence: the same figure stepped down, over a moving bass."], [7, "Bar 7: G7, the V of V, starts the turn towards C."], [12, "Bar 12: the cadence in C, the dominant: the first section ends."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 12 bars at 72 with both voices clear,", "hear the second voice copying the first,", "and land the cadence in C."]
+    hold: 3

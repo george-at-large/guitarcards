@@ -1,0 +1,31 @@
+# Repertoire C12: Granados, Spanish Dance No. 5, Andaluza (public domain; guitar version), the opening, bars 1–12.
+# Written by songs.py from granados_danzas_espanolas_h142_05_andaluza.txt: change it there, not here.
+id: c12-granados-andaluza
+title: "Granados: Andaluza"
+rule: "The melody over a ringing E: Spain in a few notes."
+bpm: 80
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Granados: Andaluza", lines: ["Granados’s Spanish Dance No. 5:", "a melody over an E pedal, its chromatic sigh, then III – VII – VI."]}
+    hold: 3
+
+  - card: null
+    section: "Classical guitar"
+    key: "E minor · 2/4"
+    notes: ["Let the bass E ring under everything: it is a pedal, the drone of the dance."]
+    page:
+      root: E
+      repeat: 1
+      harmony: ["Em:i", "Em:i", "Em:i", "Em:i", "Em:i", "Em:i", "Em:i", "G:III", "D:VII", "C:VI", "Em:i", "Em:i"]
+      voices: ["6.0:0.25 6.7:0.25 6.6+3.0+2.0:0.25 6.6+3.0+2.0:0.25 6.7:0.25 6.7+3.0+2.0:0.25 2.5:0.25 2.8:0.25 | 2.12:0.25 6.0+4.9+3.9+2.12:0.25 5.10+4.9+3.9+2.12:0.25 4.9:0.25 5.9+2.12:0.25 4.10+3.9:0.25 4.10+3.9+2.10:0.25 5.9+4.10+3.9:0.25 | 6.7+2.12:0.25 6.0+4.7+3.8+1.0:0.25 6.6+3.0+2.0:0.25 6.7+3.0+2.0:0.25 6.7:0.25 6.7+3.0+2.0:0.25 6.6+3.0+2.0:0.25 6.7+3.0+2.0:0.25 | 6.0:0.25 6.7:0.25 6.6+3.0+2.0:0.25 6.7+3.0+2.0:0.25 6.7:0.25 6.7+3.0+2.0:0.25 2.5:0.25 2.8:0.25 | 2.12:0.25 6.0+4.9+3.9+2.12:0.25 5.10+2.12:0.25 4.9+3.9:0.25 5.9+2.12:0.25 4.10+3.9:0.25 4.10+3.9+2.10:0.25 5.9+4.10+3.9:0.25 | 4.0+1.7:0.25 6.3+3.5+2.3:0.25 4.5+3.4:0.25 5.5+4.5+3.4:0.25 5.5:0.25 5.5+4.5+3.4:0.25 5.4+4.5+3.4:0.25 5.5+4.5+3.4:0.25 | 4.0+2.3:0.25 4.4+1.5:0.25 3.2+2.3:0.25 4.0+3.2+2.3:0.25 4.4:0.25 4.0+3.2+2.3:0.25 3.2+2.3+1.2:0.25 1.2:0.25 | 5.3+1.3:0.25 4.2+3.0+2.1:0.25 3.0+2.1:0.25 5.3+3.0+2.1:0.25 5.7:0.25 6.8+4.5+3.5:0.25 4.5+3.5:0.25 5.0+4.5+3.5+2.5:0.25 | 6.0+2.8:0.25 4.9:0.25 6.7n+4.9:0.25 4.9+3.0:0.25 3.0:0.25 4.9+3.0:0.25 4.9:0.25 4.9+3.0:0.25 | 6.0:0.25 5.2+3.0:0.25 5.2:0.25 5.2+3.0:0.25 3.0:0.25 5.2+3.0:0.25 2.5:0.25 2.8:0.25 | 2.12:0.25 6.0+4.9+3.9+2.12:0.25 5.10+4.9+3.9+2.12:0.25 4.9:0.25 5.9+2.12:0.25 4.10+3.9:0.25 2.13:0.25 6.7+2.5:0.25 | 2.8:0.25 2.8:0.25 3.0:0.25 6.7n:0.25 3.0:0.5 2.7:0.25 4.7+3.8:0.25 |"]
+      marks: [[1, "Bars 1–7: the open E rings while the tune circles B, its chromatic neighbour A♯, and G."], [8, "Bars 8–10: G – D – C, III – VII – VI: falling through the relative major towards the Spanish cadence."], [11, "Bars 11–12: home on E."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the opening at 80 with the E ringing,", "shape the chromatic sigh B – A♯ – B,", "and name III – VII – VI."]
+    hold: 3

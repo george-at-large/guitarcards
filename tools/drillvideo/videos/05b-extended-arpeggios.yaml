@@ -1,0 +1,143 @@
+# Video 5b: 6, m6 and 3-to-9 arpeggios (Marbin's painful practice).
+# Written by gen.py: change the loops there, not the steps here.
+id: 05b-extended-arpeggios
+title: "6, m6 and extended arpeggios"
+rule: "The arpeggio from the 3rd is the chord with a 9th."
+bpm: 120
+captions: false
+
+steps:
+  - card: {title: "6, m6 and extended arpeggios", lines: ["G6 and Gm6 arpeggios in every region (Marbin’s “painful practice”),", "then arpeggios built from the 3rd:", "Bm7 over G is Gmaj9."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   G6 in one region, lowest to highest and back; then Gm6", "2   All five regions", "3   The 3-to-9 arpeggios over a G bass in mind", "4   Next key from the table"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G6, Gm6, and arpeggios from the 3rd"
+    sub: "five regions · then 3-5-7-9"
+    notes: ["Marbin: take the triad, add the 6th, then the m6, then the 7th, in all five forms.", "An arpeggio from the 3rd drops the root and adds the 9th: the colour without the bass."]
+    say: "Six and minor six arpeggios in every region. Then arpeggios from the third, which add the ninth."
+  - section: "G6"
+    notes: ["G6 = G B D E (Em7 from E)"]
+  - now: "G-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '6', region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+  - now: "E-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '6', region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+  - now: "D-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '6', region: {caged: D}, path: up}
+    band: true
+    play: run 0.5
+  - now: "C-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '6', region: {caged: C}, path: up}
+    band: true
+    play: run 0.5
+  - now: "A-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '6', region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+  - section: "Gm6"
+    notes: ["Gm6 = G B♭ D E: the Dorian minor"]
+  - now: "G-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m6, region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+  - now: "E-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m6, region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+  - now: "D-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m6, region: {caged: D}, path: up}
+    band: true
+    play: run 0.5
+  - now: "C-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m6, region: {caged: C}, path: up}
+    band: true
+    play: run 0.5
+  - now: "A-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m6, region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+  - section: From the 3rd
+    now: 3 5 7 9
+    sub: the arpeggio of the chord built on the 3rd
+    notes: ['Over a G bass, these arpeggios sound as the 9th chords: no root, all colour.']
+    say: Arpeggios from the third. Over G, they are the ninth chords.
+    hold: 0.3
+  - now: "Bm7 over G = Gmaj9 · E-form region"
+    sub: "B D F♯ A: the 3, 5, 7 and 9 of Gmaj9"
+    show: {kind: run, root: G, tones: ["3", "5", "7", "9"], region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+    hold: 0.2
+  - now: "Bm7 over G = Gmaj9 · A-form region"
+    sub: "B D F♯ A: the 3, 5, 7 and 9 of Gmaj9"
+    show: {kind: run, root: G, tones: ["3", "5", "7", "9"], region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+    hold: 0.2
+  - now: "Bm7♭5 over G = G9 · E-form region"
+    sub: "B D F A: the 3, 5, ♭7 and 9 of G9"
+    show: {kind: run, root: G, tones: ["3", "5", "b7", "9"], region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+    hold: 0.2
+  - now: "Bm7♭5 over G = G9 · A-form region"
+    sub: "B D F A: the 3, 5, ♭7 and 9 of G9"
+    show: {kind: run, root: G, tones: ["3", "5", "b7", "9"], region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+    hold: 0.2
+  - now: "B♭maj7 over G = Gm9 · E-form region"
+    sub: "B♭ D F A: the ♭3, 5, ♭7 and 9 of Gm9"
+    show: {kind: run, root: G, tones: ["b3", "5", "b7", "9"], region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+    hold: 0.2
+  - now: "B♭maj7 over G = Gm9 · A-form region"
+    sub: "B♭ D F A: the ♭3, 5, ♭7 and 9 of Gm9"
+    show: {kind: run, root: G, tones: ["b3", "5", "b7", "9"], region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+    hold: 0.2
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths
+    show: null
+    band: null
+    notes: null
+    table:
+      title: "Where each key's regions sit: the root's string and fret in each form"
+      head: [Key, E form, D form, C form, A form, G form]
+      widths: [0.16, 0.168, 0.168, 0.168, 0.168, 0.168]
+      rows_from: {kind: areasTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], forms: [E, D, C, A, G], cols: ['{key}', '{at[0]}', '{at[1]}', '{at[2]}', '{at[3]}', '{at[4]}']}
+    say: Then every key. The table shows where each region sits.
+    hold: 6
+  - notes: ['Each day: G6 and Gm6 through two regions; one 3-to-9 arpeggio in one key.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play 6 and m6 arpeggios in every region,', 'build the arpeggio from the 3rd of any chord,', 'and hear it as the chord with a 9th.']
+    hold: 6

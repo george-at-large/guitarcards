@@ -1,0 +1,31 @@
+# Repertoire CP9: Narváez, Diferencias sobre Guárdame las vacas (1538, vihuela; guitar version), theme and first variations.
+# Written by songs.py from narvaez_vol6_no2_guardame_las_vacas.txt: change it there, not here.
+id: cp9-narvaez-guardame-las-vacas
+title: "Narváez: Guárdame las vacas"
+rule: "The bass never changes; the counterpoint does."
+bpm: 84
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Narváez: Guárdame las vacas", lines: ["Variations on the Romanesca ground (1538):", "one four-bar bass pattern, new counterpoint over it each time."]}
+    hold: 3
+
+  - card: null
+    section: "Counterpoint"
+    key: "A minor · 3/4"
+    notes: ["Hear the bass first: once it is in your ear, every variation sits on it."]
+    page:
+      root: A
+      repeat: 1
+      harmony: ["C:III", "G:VII", "Am:i", "E:V", "C:III", "G:VII", "Am:i E:V -", "A:i", "C:III", "G:VII", "Am:i", "E:V", "C:III", "G:VII", "Am:i E:V -", "A:i"]
+      voices: ["5.3+1.0:0.5 2.1:0.5 3.2:0.5 3.0:0.5 4.2:0.5 5.3:0.5 | 6.3+2.0:0.5 2.3:0.5 2.0:0.5 3.0:0.5 4.0:0.5 6.3:0.5 | 5.0:0.5 4.2+2.1:0.5 6.3+4.0+2.0:0.5 5.0+4.2+3.2+2.1:0.5 2.3:0.25 2.1:0.25 2.0:0.25 3.2:0.25 | 6.0+3.1:0.25 4.4:0.25 3.1:0.25 3.2:0.25 2.0:0.5 4.2:0.5 5.2:0.5 6.0:0.5 | 5.3+1.0:0.5 2.1:0.5 3.2:0.5 3.0:0.5 4.2:0.5 5.3:0.5 | 6.3+2.0:0.5 2.3:0.5 2.0:0.5 3.0:0.5 4.0:0.5 6.3:0.5 | 5.0+4.2+2.1:0.25 2.3:0.25 2.1:0.25 2.0:0.25 3.2:0.25 3.1:0.25 5.0+3.2:0.5 6.0+4.2:0.5 3.1:0.5 | 5.0+3.2:3 | 5.3+1.0:0.5 2.1:0.25 2.3:0.25 1.0:0.25 2.3:0.25 5.3+1.1:0.25 1.0:0.25 2.3:0.25 2.1:0.25 2.0:0.25 3.2:0.25 | 6.3+2.0:0.25 4.4:0.25 3.0:0.25 3.2:0.25 2.0:0.25 3.2:0.25 2.0:0.25 2.2:0.25 6.3+2.3:0.25 2.2:0.25 2.3:0.25 2.0:0.25 | 5.0+2.1:0.25 2.0:0.25 2.1:0.25 2.3:0.25 1.0:0.25 2.3:0.25 5.0+1.1:0.25 1.0:0.25 2.3:0.25 2.1:0.25 2.0:0.25 3.2:0.25 | 3.1:0.25 4.4:0.25 3.1:0.25 3.2:0.25 2.0:0.5 4.2:0.5 5.2:0.5 6.0:0.5 | 5.3+1.0:0.5 2.1:0.25 2.3:0.25 1.0:0.25 2.3:0.25 5.3+1.1:0.25 1.0:0.25 2.3:0.25 2.1:0.25 2.0:0.25 3.2:0.25 | 6.3+2.0:0.25 4.4:0.25 3.0:0.25 3.2:0.25 2.0:0.25 3.2:0.25 2.0:0.25 2.2:0.25 2.3:0.25 2.2:0.25 2.3:0.25 2.0:0.25 | 5.0+2.1:0.25 2.0:0.25 2.1:0.25 2.3:0.25 1.0:0.25 1.2:0.25 1.4:0.25 1.5:0.25 6.0+1.4:0.5 1.0:0.5 | 5.0+1.5:3 |"]
+      marks: [[1, "Bars 1–4: the Romanesca ground: C – G – Am – E, III – VII – i – V, a bass that repeats under everything."], [7, "Bars 7–8: the cadence closes on A: the first statement ends."], [9, "Bars 9–16: the same ground, a new upper line: that is what a diferencia (variation) is."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the theme and variations over the ground at 84,", "sing the ground’s bass from memory,", "and invent one more variation over it."]
+    hold: 3

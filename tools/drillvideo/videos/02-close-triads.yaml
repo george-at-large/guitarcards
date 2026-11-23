@@ -1,0 +1,112 @@
+# Video 2: close triads (plan v3, docs/drill-videos-plan.md).
+# Written by gen.py: change the loops there, not the steps here.
+id: 02-close-triads
+title: "Close triads"
+rule: "Name the lowest note before you play each triad."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Close triads", lines: ["Every inversion of G on every set of three strings,", "across the whole neck, then each one morphed", "to minor, diminished and augmented."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One string set: G from its lowest inversion to the top of the neck", "2   Name the lowest note (1, 3 or 5) before each triad", "3   Morph each inversion to minor, diminished and augmented", "4   Next string set; then the next key from the table"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G major · G B D"
+    sub: "strings 3-2-1, 4-3-2, 5-4-3, 6-5-4 · every inversion · bottom to top"
+    notes: ["Each triad is named by its lowest note: 1, 3 or 5.", "Each set ends with all its triads on the neck at once."]
+    say: "Every inversion of G major on each set of three strings, from the bottom of the neck to the top. Then each one morphed, one note at a time."
+  - section: G · strings 3-2-1
+    notes: ['The G-B pair of strings bends every shape that crosses it: learn them by the lowest note.']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj, voicing: close, strings: [3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G · strings 4-3-2
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj, voicing: close, strings: [4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G · strings 5-4-3
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj, voicing: close, strings: [5, 4, 3], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G · strings 6-5-4
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj, voicing: close, strings: [6, 5, 4], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+
+  # ---------- morphing ----------
+  - section: Morphing
+    now: One triad, four qualities
+    sub: G → Gm → G° (lower the 3rd, then the 5th) · G → G+ (raise the 5th)
+    show: null
+    notes: ['The ringed note is the one that moved. The other two stay put.']
+    say: Now morph each one. Lower the third for minor, then the fifth for diminished. Raise the fifth for augmented.
+  - section: Major → minor → dim · strings 3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [3, 2, 1], count: 3, bars: 0.5, chain: [[maj], [min, '3', b3, lower the 3rd], [dim, '5', b5, lower the 5th]]}
+  - section: Major → minor → dim · strings 4-3-2
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [4, 3, 2], count: 3, bars: 0.5, chain: [[maj], [min, '3', b3, lower the 3rd], [dim, '5', b5, lower the 5th]]}
+  - section: Major → minor → dim · strings 5-4-3
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [5, 4, 3], count: 3, bars: 0.5, chain: [[maj], [min, '3', b3, lower the 3rd], [dim, '5', b5, lower the 5th]]}
+  - section: Major → minor → dim · strings 6-5-4
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [6, 5, 4], count: 3, bars: 0.5, chain: [[maj], [min, '3', b3, lower the 3rd], [dim, '5', b5, lower the 5th]]}
+  - section: Major → augmented · strings 3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [3, 2, 1], count: 3, bars: 0.5, chain: [[maj], [aug, '5', '#5', raise the 5th]]}
+  - section: Major → augmented · strings 4-3-2
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [4, 3, 2], count: 3, bars: 0.5, chain: [[maj], [aug, '5', '#5', raise the 5th]]}
+  - section: Major → augmented · strings 5-4-3
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [5, 4, 3], count: 3, bars: 0.5, chain: [[maj], [aug, '5', '#5', raise the 5th]]}
+  - section: Major → augmented · strings 6-5-4
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: close, strings: [6, 5, 4], count: 3, bars: 0.5, chain: [[maj], [aug, '5', '#5', raise the 5th]]}
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths
+    show: null
+    band: null
+    notes: null
+    table:
+      title: "Where each key starts: the bass degree and fret of the lowest G-type triad"
+      head: [Key, 3-2-1, 4-3-2, 5-4-3, 6-5-4]
+      widths: [0.2, 0.2, 0.2, 0.2, 0.2]
+      rows_from: {kind: ladderTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], quality: maj, voicing: close, lowFret: 0, sets: [[3, 2, 1], [4, 3, 2], [5, 4, 3], [6, 5, 4]], cols: ['{chord}', '{sets[0][bass]} · {sets[0][at]}', '{sets[1][bass]} · {sets[1][at]}', '{sets[2][bass]} · {sets[2][at]}', '{sets[3][bass]} · {sets[3][at]}']}
+    say: Then every key, round the cycle of fourths. The table shows where each key starts.
+    hold: 6
+  - notes: ['Minor, diminished and augmented: morph from the major triad, as shown.', 'Each day: one string set in two or three keys, plus one old key.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can name any triad by its lowest note,', 'find it on any string set in any key within a few seconds,', 'and morph it to minor, diminished or augmented without stopping.']
+    hold: 6

@@ -1,0 +1,30 @@
+# Chord melody: Gershwin: Embraceable You. The melody from a public-domain source, arranged for the course by chordmelody.py.
+id: cm3-embraceable-you
+title: "Gershwin: Embraceable You"
+rule: "A ballad: let every grip ring under the long melody notes."
+bpm: 84
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Gershwin: Embraceable You", lines: ["The 1930 ballad as chord melody, in G, the first A and B:", "the melody on top, rich jazz harmony under it."]}
+    hold: 3
+
+  - card: null
+    section: "Chord melody"
+    key: "G major"
+    notes: ["Gershwin, 1930 (public domain): the melody and chords from the ABC at trillian.mit.edu, arranged for the course."]
+    page:
+      root: G
+      repeat: 1
+      harmony: ["G6:I6", "B♭°7:♭iii°7", "Am7:ii7", "D7:V7 E7:VI7", "Am7:ii7", "F7:♭VII7", "G6:I6", "C7:IV7 B7:III7", "Em7:vi7 Em7/D:vi7", "D♭m7♭5:♯ivø7 F♯7:VII7", "Bm7:iii7 Bm7/A:iii7", "A♭m7♭5:♭iiø7 Gm6:i6", "F♯m7:vii7 B7:III7", "Em7:vi7 A7:II7", "Am7:ii7 B♭7:♭III7", "E♭maj7:♭VImaj7 D7:V7"]
+      voices: ["r:1 2.5:1 2.7:1 2.8:1 | r:1 1.0:1 1.2:1 1.3:1 | 1.5:0.5 r:0.5 r:0.5 2.3:0.5 2.3:1 2.3:1 | r:4 | r:1 1.5:1 1.7:1 1.8:1 | r:1 1.5:1 1.7:1 1.8:1 | 1.10:0.5 r:0.5 r:0.5 2.8:0.5 2.8:1 2.8:1 | r:4 | 1.7:1 2.8:1 2.10:1 2.8:1 | 1.7:1 2.8:1 2.10:1 2.8:1 | 1.7:0.5 r:0.5 r:0.5 2.7:0.5 2.7:1 2.7:1 | r:4 | 2.10:1 2.7:1 2.8:1 2.7:1 | 2.8:1 1.5:1 1.7:1 1.9:1 | 1.10:0.5 r:0.5 r:0.5 2.3:0.5 2.3:1 2.3:1 | r:4 |", "4.5+2.0+1.0:4 | 4.8+2.8+1.9:4 | 5.0+4.5+3.5:4 | 5.5+4.4+3.5:2 6.0+4.6:2 | 5.0+4.5+3.5+1.0:4 | 5.8+4.7+3.8+1.8:4 | 5.10+4.9+3.9:4 | 6.8+4.8+3.9:2 6.7+4.7+3.8:2 | 6.0+4.0+3.0:2 6.10+5.10+3.7:2 | 6.9+3.9:2 5.9+4.8+3.9:2 | 6.7+4.7+3.7:2 5.0+4.7+3.7:2 | 5.11+4.9:2 5.10+4.8+3.9:2 | 5.9+4.7+3.9:2 6.7+4.7+3.8:2 | 5.7+3.7:2 5.0+4.5+3.6:2 | 5.0+4.10+3.12:2 6.6+4.6:2 | 5.6+4.5:2 5.5+4.4+3.5:2 |"]
+      marks: [[1, "I6 – ♭iii°7 – ii7 – V7: the opening turn."], [9, "The B section: ii – V chains, half-diminished chords, a ♭VI in the turnaround."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the long melody notes ring over the chords,", "and the ii – V chains move without a break."]
+    hold: 3

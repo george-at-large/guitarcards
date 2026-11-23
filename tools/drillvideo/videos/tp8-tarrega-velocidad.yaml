@@ -1,0 +1,31 @@
+# Short series: Tárrega, Estudio de Velocidad, bars 1–16.
+# Written by songs.py from tarrega_estudio_de_velocidad.txt: change it there, not here.
+id: tp8-tarrega-velocidad
+title: "Tárrega: Estudio de Velocidad"
+rule: "Alternate i and m: speed comes from the slurs and the shifts."
+bpm: 92
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Tárrega: Estudio de Velocidad", lines: ["Tárrega’s velocity study:", "scale runs with slurs and shifts, i–m alternating throughout."]}
+    hold: 3
+
+  - card: null
+    section: "Classical speed"
+    key: "E major"
+    notes: ["Tab: Tarek Yazbek (classtab.org). Work up to speed: clean first, then 4 bpm a pass."]
+    page:
+      root: E
+      repeat: 2
+      harmony: ["E:I", "E:I", "E:I", "A:IV", "", "A:IV", "", "E:I", "B7:V7", "E:I", "F♯°7:", "F♯°7:", "", "", "", ""]
+      voices: ["r:0.25 6.0+1.7:0.25 1.4:0.25 2.5:0.25 2.7+1.4:0.25 1.5:0.25 1.7:0.25 1.9:0.25 | 1.9:0.25 1.7:0.25 2.9:0.25 1.0:0.25 2.2:0.25 2.0:0.25 3.1:0.25 4.2:0.25 | 3.9:0.25 3.11:0.25 2.9:0.25 2.10:0.25 2.12:0.25 1.9:0.25 1.11:0.25 1.12:0.25 | 1.12:0.5 1.11:0.25 1.11:0.25 1.9:0.25 1.9:0.25 1.7:0.25 1.5:0.25 | 1.4:0.25 1.7:0.25 1.4:0.25 2.5:0.25 1.2:0.25 1.5:0.25 1.2:0.25 2.4:0.25 | 1.0:0.25 1.4:0.25 1.0:0.25 2.0:0.25 2.2:0.25 2.5:0.25 2.2:0.25 3.2:0.25 | 3.1:0.25 3.4:0.25 3.1:0.25 4.2:0.25 4.4:0.25 4.7:0.25 4.4:0.25 5.6:0.25 | 5.7:0.25 4.4:0.25 4.6:0.25 4.7:0.25 3.4:0.25 3.6:0.25 2.4:0.25 2.5:0.25 | 3.4:0.25 3.6:0.25 2.4:0.25 2.5:0.25 2.7:0.25 1.4:0.25 1.5:0.25 1.7:0.25 | 2.5:0.25 2.7:0.25 1.4:0.25 1.5:0.25 1.7:0.25 1.11:0.5 1.12:0.25 | 1.12:0.5 1.11:0.25 1.11:0.25 1.8:0.25 1.5:0.25 1.5:0.25 2.7:0.25 | 2.4:0.25 2.7:0.25 2.4:0.25 3.5:0.25 3.2:0.25 3.5:0.25 3.2:0.25 4.4:0.25 | 4.1:0.25 4.4:0.25 4.1:0.25 5.3:0.25 5.2:0.25 5.4:0.25 4.1:0.25 4.2:0.25 | 4.4:0.25 3.1:0.25 3.2:0.25 3.4:0.25 2.2:0.25 2.4:0.25 2.5:0.25 1.2:0.25 | 1.4:0.25 1.7:0.25 1.4:0.25 2.5:0.25 1.2:0.25 1.5:0.25 1.2:0.25 2.4:0.25 | r:0.25 1.0:0.25 5.2+4.4+3.2+2.4:0.5 4.2+3.1+2.0+1.0:0.5 6.0:0.5 |"]
+      marks: [[1, "i m i m throughout: never the same finger twice."], [9, "B7, then the diminished: the run turns chromatic."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the 16 bars twice at 92 with i and m strictly alternating,", "then push the tempo up."]
+    hold: 3

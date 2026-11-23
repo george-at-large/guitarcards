@@ -1,0 +1,37 @@
+# Genre intro: soul and R&B.
+# Written by gen.py: change the loops there, not the steps here.
+id: G7-soul
+title: "Soul and R&B"
+rule: "The chord on the beat; the fill in the gap."
+bpm: 84
+captions: false
+
+steps:
+  - card: {title: "Soul and R&B", lines: ["Soul guitar: I – IV with double-stop fills", "in 6ths between the chords,", "played without fills, then with them."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The chords alone, leaving the gaps", "2   The fills alone: 6ths on strings 3 and 1", "3   Together: chord on the beat, fill in the gap"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G – C with 6ths"
+    sub: "the fills are 6ths on strings 3 and 1"
+    notes: ["Curtis Mayfield, Steve Cropper, Jimi: the fill answers the singer between chords."]
+    say: "Soul guitar. The chords, then 6th fills in the gaps."
+  - section: Without fills
+    now: G – C, the gaps empty
+    sub: chord on 1 and 3
+    tab: {root: G, roots: [G, C, G, C], harmony: ['G:I', 'C:IV', 'G:I', 'C:IV'], voices: ["6.3+5.2+4.0+3.0+2.0+1.3:1 r:1 6.3+5.2+4.0+3.0+2.0+1.3:1 r:1 | 5.3+4.2+3.0+2.1+1.0:1 r:1 5.3+4.2+3.0+2.1+1.0:1 r:1 | 6.3+5.2+4.0+3.0+2.0+1.3:1 r:1 6.3+5.2+4.0+3.0+2.0+1.3:1 r:1 | 5.3+4.2+3.0+2.1+1.0:1 r:1 5.3+4.2+3.0+2.1+1.0:1 r:1 |"]}
+  - section: With fills
+    now: G – C, with 6ths
+    sub: 'the fill walks down G major in 6ths: B/G, A/F♯, G/E'
+    notes: ['6ths on strings 3 and 1: the sweet, vocal sound of soul guitar (see video 9d).']
+    tab: {root: G, roots: [G, C, G, C], harmony: ['G:I', 'C:IV', 'G:I', 'C:IV'], voices: ["6.3+5.2+4.0+3.0+2.0+1.3:1 r:.5 3.4+1.3:.5 3.2+1.2:.5 3.0+1.0:.5 r:1 | 5.3+4.2+3.0+2.1+1.0:1 r:.5 3.5+1.5:.5 3.4+1.3:.5 3.2+1.2:.5 3.0+1.0:1 | 6.3+5.2+4.0+3.0+2.0+1.3:1 r:.5 3.4+1.3:.5 3.2+1.2:.5 3.0+1.0:.5 r:1 | 5.3+4.2+3.0+2.1+1.0:1 r:.5 3.5+1.5:.5 3.4+1.3:.5 3.2+1.2:.5 3.0+1.0:1 |"]}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the chord on the beat and leave the gap,", "fill it with 6ths in time,", "and choose when to fill and when to leave space."]
+    hold: 6

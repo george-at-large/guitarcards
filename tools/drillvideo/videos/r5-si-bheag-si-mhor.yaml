@@ -1,0 +1,47 @@
+# Repertoire R5: O'Carolan, Si Bheag Si Mhor (public domain), the A part, in DADGAD. Melody from the ABC transcription
+# at abcnotation.com (Waltz Jam 2018 no. 34), written for guitar, which sounds an octave below the written note, as in every DADGAD setting; a bass note per chord.
+id: r5-si-bheag-si-mhor
+title: 'O''Carolan: Si Bheag Si Mhor'
+rule: Let every open string ring under the melody.
+tuning: [D2, A2, D3, G3, A3, D4]
+bpm: 60
+captions: false
+steps:
+- card:
+    title: 'O''Carolan: Si Bheag Si Mhor'
+    lines: ['The A part of the harp tune, in DADGAD tuning:', 'a melody among ringing open strings, and the plagal close of Irish harp music.']
+  hold: 4.5
+- card: null
+  key: D major · DADGAD
+  section: The tuning
+  notes: ['D A D G A D: the open strings ring a Dsus4 chord · the 6th, 5th and 2nd strings drop a whole step', 'DADGAD keeps D and A ringing everywhere: the harp-like drone of Celtic guitar.']
+  hold: 1
+  page:
+    harmony: ['']
+    pickup: true
+    root: D
+    voices: ['6.0+5.0+4.0+3.0+2.0+1.0:3']
+    marks: []
+- section: Roots and ragtime
+  bpm: 92
+  show: null
+  notes: ['Let every open string ring: on the harp nothing stops until it is played again.']
+  page:
+    harmony: ['', 'D:I', 'Bm:vi', 'G:IV', 'D:I', 'G:IV', 'A:V', 'Bm:vi', 'D:I', 'G:IV', 'D:I', 'Bm:vi', 'D:I', 'G:IV', 'D:I', 'G:IV', 'D:I']
+    pickup: true
+    root: D
+    voices: ['1.0:.5 1.2:.5 | 1.4:1.5 1.2:.5 1.0:1 | 1.0:1.5 1.2:.5 1.0:1 | 2.2:2 2.0:1 | 4.4:2 2.0:1 | 2.2:.5 2.0:.5 2.2:.5 2.4:.5 1.0:1 | 1.2:2 1.0:.5 1.2:.5 | 1.4:2 1.2:.3333 1.4:.3333 1.2:.3334 | 1.0:2 1.4:1 | 2.2:2 1.2:1 | 2.0:2 1.0:1 | 4.4:2 4.2:.3333 4.4:.3333 4.2:.3334 | 4.0:2 1.4:1 | 2.2:2 1.2:1 | 2.0:2 1.0:.5 2.4:.5 | 1.0:2 1.0:1 | 1.0:2', 'r:1 | 6.0:3 | 5.2:3 | 6.5:3 | 6.0:3 | 6.5:3 | 5.0:3 | 5.2:3 | 6.0:3 | 6.5:3 | 6.0:3 | 5.2:3 | 6.0:3 | 6.5:3 | 6.0:3 | 6.5:3 | 6.0:2']
+    marks:
+    - [1, 'Bars 1–4: I – vi – IV – I. The tune spells D downward (F♯ E D) and settles on the 5th.']
+    - [5, 'Bars 5–8: IV – V – vi – I; B A B C♯ D climbs to the tonic, and the triplet is the harp’s turn.']
+    - [9, 'Bars 9–16: IV – I, over and over: the plagal “amen” close of Irish harp music.']
+    - [11, Bars 11–12 echo bars 3–4 an octave lower.]
+- section: null
+  key: null
+  show: null
+  notes: ['Next: the B part climbs to the top of the melody (A and B above) before the same plagal close.']
+  card:
+    title: You've got it when
+    lines: ['you can play the A part in DADGAD at tempo,', 'the open strings ringing under the melody,', and hear the IV – I close in every phrase.]
+  hold: 5
+page_neck: true

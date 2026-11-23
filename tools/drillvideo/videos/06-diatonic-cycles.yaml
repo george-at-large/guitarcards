@@ -1,0 +1,58 @@
+# Video 6: diatonic sevenths and voice-leading cycles.
+# Written by gen.py: change the loops there, not the steps here.
+id: 06-diatonic-cycles
+title: "Diatonic sevenths and voice-leading cycles"
+rule: "Each chord to the nearest voicing of the next."
+bpm: 96
+captions: false
+
+steps:
+  - card: {title: "Diatonic sevenths and voice-leading cycles", lines: ["G major’s seven chords in drop 2,", "voice-led round the cycles of 4ths, 2nds and 3rds,", "from different starting inversions."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Cycle 4 from one inversion: every chord to the nearest voicing", "2   The same from the other three starting inversions", "3   Then cycle 2 and cycle 3", "4   Then on the middle strings, and the next key"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G major, harmonised"
+    sub: "Gmaj7 Am7 Bm7 Cmaj7 D7 Em7 F♯m7♭5"
+    notes: ["Cycle 4 (roots up a 4th) is how most music moves; cycle 2 is the scale; cycle 3 links chords that share three notes."]
+    say: "The seven chords of G major, voice-led through the cycles of fourths, seconds and thirds."
+  - section: "Cycle 4 · from fret 2"
+    notes: ["In cycle 4 two voices hold or move by step: the 7th falls to the 3rd every time."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 | V:7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 2, bars: 0.5, sub: "{roman}"}
+  - section: "Cycle 4 · from fret 5"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 | V:7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5, sub: "{roman}"}
+  - section: "Cycle 4 · from fret 8"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 | V:7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 8, bars: 0.5, sub: "{roman}"}
+  - section: "Cycle 4 · from fret 12"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 | V:7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 12, bars: 0.5, sub: "{roman}"}
+  - section: "Cycle 2"
+    notes: ["Cycle 2: neighbouring chords share no notes in drop 2, so every voice moves."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:maj7 | ii:m7 | iii:m7 | IV:maj7 | V:7 | vi:m7 | vii:m7b5 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 0.5, sub: "{roman}"}
+  - section: "Cycle 3"
+    notes: ["Cycle 3: each chord shares three notes with the next: only one voice moves."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| I:maj7 | iii:m7 | V:7 | vii:m7b5 | ii:m7 | IV:maj7 | vi:m7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 0.5, sub: "{roman}"}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play cycle 4 from any inversion without stopping,", "and cycles 2 and 3,", "always to the nearest voicing."]
+    hold: 6

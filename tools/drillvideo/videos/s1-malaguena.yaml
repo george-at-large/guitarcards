@@ -1,0 +1,46 @@
+# Repertoire S1: a Malagueña study, written for the course in the traditional form: the Andalusian cadence
+# (Am – G – F – E) with the melody in the thumb and the open high E ringing between, then the Phrygian descent.
+id: s1-malaguena
+title: Malagueña
+rule: Four chords falling to E; the thumb sings, the open E rings.
+bpm: 60
+captions: false
+steps:
+- card:
+    title: Malagueña
+    lines: ['A study in the traditional form:', the Andalusian cadence and the Phrygian sound of flamenco.]
+  hold: 4
+- card: null
+  key: E Phrygian · A minor
+  section: Spanish
+  bpm: 96
+  show: null
+  notes: ['The open high E rings between every thumb note: one pedal over all four chords.']
+  page:
+    harmony: ['Am:iv', 'G:♭III', 'F:♭II', 'E:I', 'Am:iv', 'E:I', 'Am:iv', 'E:I']
+    root: E
+    voices: ['5.0:1 5.3:1 4.2:1 | 6.3:1 5.2:1 4.0:1 | 6.1:1 5.0:1 5.3:1 | 6.0:1 6.4:1 5.2:1 | 4.7:1 4.5:1 4.3:1 | 4.2:1 4.3:1 4.2:1 | 5.3:1 5.2:1 5.0:1 | 6.3:.5 6.1:.5 6.0:2 |', 'r:.5 1.0:1 1.0:1 1.0:.5 | r:.5 1.0:1 1.0:1 1.0:.5 | r:.5 1.0:1 1.0:1 1.0:.5 | r:.5 1.0:1 1.0:1 1.0:.5 | r:.5 1.0:1 1.0:1 1.0:.5 | r:.5 1.0:1 1.0:1 1.0:.5 | r:.5 1.0:1 1.0:1 1.0:.5 | r:1 6.0+5.2+4.2+3.1+2.0+1.0:2 |']
+    marks:
+    - [1, 'Bars 1–4: the Andalusian cadence Am – G – F – E, the melody in the thumb.']
+    - [3, 'Bar 3: over F the open E makes Fmaj7, the bittersweet ♭II.']
+    - [5, 'Bars 5–8: the Phrygian descent A G F E; the half step F → E is the Spanish sound.']
+    - [8, 'Bar 8: home on E major, I of E Phrygian and V of A minor.']
+- section: In another key
+  key: A Phrygian · D minor
+  bpm: 66
+  notes: ['Dm – C – B♭ – A: the same cadence, home on A', 'Every flamenco key works the same way: four chords falling by step to a major chord a half step below the third one.']
+  hold: 1
+  page:
+    harmony: ['Dm:iv', 'C:♭III', 'B♭:♭II', 'A:I']
+    root: A
+    voices: ['5.5+4.7+3.7+2.6+1.5:2 | 5.3+4.2+3.0+2.1+1.0:2 | 6.6+5.8+4.8+3.7+2.6+1.6:2 | 5.0+4.2+3.2+2.2+1.0:3']
+    marks: []
+- section: null
+  key: null
+  show: null
+  notes: ['Next in this strand: the Soleá compás, the 12-beat cycle flamenco is built on.']
+  card:
+    title: You've got it when
+    lines: ['you can play the study at tempo with the open E always ringing,', 'name the four chords of the cadence,', and find the same cadence in D minor.]
+  hold: 5
+page_neck: true

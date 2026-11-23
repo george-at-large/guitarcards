@@ -1,0 +1,68 @@
+# Video 4c: substitutions on a ii–V–I, plain then substituted.
+# Written by gen.py: change the loops there, not the steps here.
+id: 04c-subs-ii-v-i
+title: "Substitutions on a ii – V – I"
+rule: "Plain first, then the substitute: hear what changes."
+bpm: 96
+captions: false
+
+steps:
+  - card: {title: "Substitutions on a ii – V – I", lines: ["Am7 – D7 – Gmaj7 in drop 2, then each substitute", "swapped in: plain, then substituted,", "so you hear exactly what it adds."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The plain ii – V – I, voice-led", "2   The same with the substitute, from the same position", "3   Then mix: plain some times, substituted others"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Am7 – D7 – Gmaj7"
+    sub: "each pair: plain, then substituted"
+    notes: ["A substitute keeps the job (the function) and changes the colour or the bass line."]
+    say: "Substitutions on a two five one. Each one plain, then substituted."
+  - section: "Tritone sub · plain"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| ii:m7 | V:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: "Tritone sub · substituted"
+    notes: ["A♭7 for D7: the same tritone, and the bass falls by half steps A → A♭ → G."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| ii:m7 | bII:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: "Related ii · plain"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| ii:m7 | V:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: "Related ii · substituted"
+    notes: ["E♭m7 – A♭7: the ii – V of the tritone sub, a half step above home."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| ii:m7 bvi:m7 | bII:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: "Altered dominant · plain"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| ii:m7 | V:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: "Altered dominant · substituted"
+    notes: ["D7♭9: the ♭9 (E♭) falls to D, the 5th of G."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| ii:m7 | V:7b9 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: "Backdoor · plain"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| ii:m7 | V:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: "Backdoor · substituted"
+    notes: ["Cm7 – F7: home from a whole step below, borrowed from G minor."]
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| iv:m7 | bVII:7 | I:maj7 | I:maj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 1, sub: "{roman}"}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play each substitute from the same position as the plain chord,", "say what it changes (colour, bass line or both),", "and choose when to use it."]
+    hold: 6

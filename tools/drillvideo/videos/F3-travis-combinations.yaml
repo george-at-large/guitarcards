@@ -1,0 +1,92 @@
+# Video F3: Travis combinations, simple to novel.
+# Written by gen.py: change the loops there, not the steps here.
+id: F3-travis-combinations
+title: "Travis combinations"
+rule: "Pick a thumb, pick a cell: combine."
+bpm: 90
+captions: false
+
+steps:
+  - card: {title: "Travis combinations", lines: ["Four thumb patterns × finger cells,", "combined from simple to novel:", "a recipe for endless patterns."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Each combination for two bars", "2   Then invent: any thumb with any cell", "3   Over C – Am – F – G"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: C major
+    now: "Thumb pattern + finger cell"
+    sub: "combine any thumb with any cell"
+    notes: ["A pattern is a thumb part and a finger part: learn them apart, then combine freely."]
+    say: "Travis combinations. A thumb pattern plus a finger cell, from simple to new."
+  - section: "Simple"
+    now: "5 4 6 4 + pinch on 1"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "51 - 4 - 6 - 4 -", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "5 4 6 4 + m on every &"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 2 4 2 6 2 4 2", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "5 4 6 4 + i m alternating"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 4 2 6 3 4 2", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: "Busier"
+    now: "Pinch, then i m a rolling"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "51 3 4 2 6 1 4 3", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Double-thumb (8ths in the bass)"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 4 6 4 5 4 6 4", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Double-thumb + pinch on 1 and 3"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "51 4 6 4 51 4 6 4", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: "Syncopated"
+    now: "Pinches on the &s"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 41 6 42 5 41 6 42", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Bass and a melody line"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "51 - 42 1 63 - 42 1", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: "Novel"
+    now: "Thumb in 3s across the bar"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 2 4 6 3 5 4 2", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Reverse thumb + cascading fingers"
+    sub: "p5 p4 p6 = the thumb · i m a = strings 3 2 1"
+    show: {kind: grip, root: C, quality: maj, frets: [[6, 3], [5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "6 1 4 2 5 3 4 2", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can combine any thumb pattern with any finger cell,", "invent a new one and keep it going for a verse,", "and play it through C – Am – F – G."]
+    hold: 6

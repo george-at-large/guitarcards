@@ -1,0 +1,108 @@
+# Harmonic minor modes on one root (plan v3).
+# Written by gen.py: change the loops there, not the steps here.
+id: 13h-harmonic-minor-modes
+title: "Harmonic minor and its modes"
+rule: "The ♭6 and the natural 7: the minor key’s pull home."
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: "Harmonic minor and its modes", lines: ["Harmonic minor and Phrygian dominant, the two that matter,", "on G over a drone, colour notes ringed,", "then the rest of the family to recognise."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   A drone on G", "2   One scale in one region: land on its ringed notes", "3   Then across the whole neck", "4   Next scale; then the next root"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Root G
+    drone: G2
+    now: "Harmonic minor on G"
+    sub: "harmonic minor · Phrygian dominant · Dorian ♯4"
+    notes: ["Harmonic minor = natural minor with a raised 7th."]
+    say: "Harmonic minor and its modes on G, over a drone. Two you will use all the time, and the rest to recognise."
+
+  # ---------- harmonic minor ----------
+  - section: harmonic minor
+    now: G harmonic minor
+    sub: "Gm(maj7) · the ♭6 against the natural 7"
+    show: {kind: run, root: G, scale: harmonic-minor, region: {caged: E}, path: up, ring: ["b6", "7"]}
+    band: true
+    notes: ["The augmented 2nd between ♭6 and 7 is the sound: mind the stretch."]
+    say: "G harmonic minor."
+    play: run 0.5
+    hold: 0.5
+  - now: G harmonic minor · the whole neck
+    sub: "ringed: ♭6 7"
+    show: {kind: run, root: G, scale: harmonic-minor, region: {frets: [0, 17]}, ring: ["b6", "7"]}
+    band: null
+    hold: 3.5
+
+  # ---------- Phrygian dominant ----------
+  - section: Phrygian dominant
+    now: G Phrygian dominant
+    sub: "G7♭9♭13 · the 5th mode of C harmonic minor"
+    show: {kind: run, root: G, scale: phrygian-dominant, region: {caged: E}, path: up, ring: ["b2", "3"]}
+    band: true
+    notes: ["The V7 of a minor key: D Phrygian dominant over D7 resolves to Gm."]
+    say: "G Phrygian dominant."
+    play: run 0.5
+    hold: 0.5
+  - now: G Phrygian dominant · the whole neck
+    sub: "ringed: ♭2 3"
+    show: {kind: run, root: G, scale: phrygian-dominant, region: {frets: [0, 17]}, ring: ["b2", "3"]}
+    band: null
+    hold: 3.5
+
+  # ---------- Dorian ♯4 ----------
+  - section: Dorian ♯4
+    now: G Dorian ♯4
+    sub: "Gm7♯11 · the 4th mode of D harmonic minor"
+    show: {kind: run, root: G, scale: dorian-sharp4, region: {caged: E}, path: up, ring: ["#4"]}
+    band: true
+    notes: ["The Romanian / Ukrainian minor: a darker Dorian."]
+    say: "G Dorian ♯4."
+    play: run 0.5
+    hold: 0.5
+  - now: G Dorian ♯4 · the whole neck
+    sub: "ringed: ♯4"
+    show: {kind: run, root: G, scale: dorian-sharp4, region: {frets: [0, 17]}, ring: ["#4"]}
+    band: null
+    hold: 3.5
+
+  - section: Also in the family
+    now: Worth recognising
+    sub: less used · know where they sit
+    show: null
+    notes: null
+    say: And the rest of the family, to recognise.
+  - now: G Locrian ♮6
+    sub: "Gø with a natural 6 · the 2nd mode"
+    show: {kind: run, root: G, scale: locrian-nat6, region: {frets: [0, 17]}, ring: ["6"]}
+    hold: 3
+  - now: G Ionian ♯5
+    sub: "Gmaj7♯5 · the 3rd mode"
+    show: {kind: run, root: G, scale: ionian-sharp5, region: {frets: [0, 17]}, ring: ["#5"]}
+    hold: 3
+  - now: G Lydian ♯2
+    sub: "Gmaj7♯11 with a ♯9 · the 6th mode"
+    show: {kind: run, root: G, scale: lydian-sharp2, region: {frets: [0, 17]}, ring: ["#2", "#4"]}
+    hold: 3
+  - now: G altered diminished
+    sub: "G°7 colour · the 7th mode"
+    show: {kind: run, root: G, scale: altered-dim, region: {frets: [0, 17]}, ring: ["b9", "#9", "6"]}
+    hold: 3
+
+  - section: Every root
+    key: null
+    drone: null
+    now: Then every root
+    sub: the same scales on each of the twelve roots, over a drone
+    show: null
+    notes: ["Phrygian dominant is the one to own: play it over every V7 that resolves to minor.", "Each day: harmonic minor and Phrygian dominant on one root, one region, then the whole neck."]
+    say: Then every root.
+    hold: 7
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play harmonic minor and Phrygian dominant on any root,", "in any region and across the neck,", "and hear the ♭6 and the 7 against the drone."]
+    hold: 6

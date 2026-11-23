@@ -1,0 +1,98 @@
+# Video 4a: the morph map.
+# Written by gen.py: change the loops there, not the steps here.
+id: 04a-morph-map
+title: "The morph map"
+rule: "Every chord is one note away from another."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "The morph map", lines: ["Every one-note move between the chord types,", "and the diminished 7th as a hub:", "one °7, four dominant 7ths."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Hold one voicing; move one note; name the new chord", "2   Every branch below, on every inversion", "3   The °7 hub: lower any one note to get a dominant 7th", "4   Then the same in drop 3 and the next key"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "One note moves, the chord changes"
+    sub: "every inversion on the top four strings"
+    notes: ["The ringed note is the one that moved; the other three stay put.", "The main line, maj7 → 7 → m7 → m7♭5 → °7, is in videos 3a and 3c."]
+    say: "The morph map: every one-note move between the chord types, then the diminished seventh as a hub."
+  - section: maj7 → 6 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[maj7], ['6', '7', '6', lower the 7th to the 6th]]}
+  - section: maj7 → m(maj7) · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[maj7], [mMaj7, '3', b3, lower the 3rd]]}
+  - section: maj7 → maj7♯5 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[maj7], [maj7#5, '5', '#5', raise the 5th]]}
+  - section: 7 → 7sus4 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [['7'], [7sus4, '3', '4', raise the 3rd to the 4th]]}
+  - section: 7 → 7♯5 · 7 → 7♭5 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [['7'], [7#5, '5', '#5', raise the 5th]]}
+  - section: m7 → m6 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[m7], [m6, b7, '6', lower the ♭7 to the 6th]]}
+
+  - section: The °7 hub
+    now: One °7, four dominant 7ths
+    sub: 'lower any one note a half step, and it is the root of a dominant 7th'
+    show: null
+    notes: ['G°7 → F♯7, A7, C7 or E♭7: four dominants a minor 3rd apart, all from one shape.',
+            'Read it backwards too: a dominant 7th with its root raised a half step is a °7 (the 7♭9 sound).']
+    say: The diminished seventh is a hub. Lower any one note a half step, and it becomes the root of a dominant seventh.
+  - section: G°7 → F♯7 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[dim7], ['7', '1', '7', lower G to F♯, 'F#']]}
+  - section: G°7 → A7 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[dim7], ['7', b3, '2', lower B♭ to A, A]]}
+  - section: G°7 → C7 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[dim7], ['7', b5, '4', lower D♭ to C, C]]}
+  - section: G°7 → E♭7 · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, voicing: drop2, strings: [4, 3, 2, 1], count: 4, bars: 0.5, chain: [[dim7], ['7', bb7, b6, lower E to E♭, Eb]]}
+
+  - section: The map
+    now: null
+    sub: null
+    show: null
+    notes: null
+    table:
+      title: Every one-note move
+      head: [From, Move, To]
+      widths: [0.3, 0.4, 0.3]
+      rows: [[maj7, 7 → ♭7, '7'], ['7', 3 → ♭3, m7], [m7, 5 → ♭5, m7♭5], [m7♭5, ♭7 → ♭♭7, °7], [maj7, 7 → 6, '6'], [maj7, 3 → ♭3, m(maj7)],
+             [maj7, 5 → ♯5, maj7♯5], ['7', 3 → 4, 7sus4], ['7', 5 → ♯5 or ♭5, 7♯5 · 7♭5], [m7, ♭7 → 6, m6], [°7, any note ↓, a dominant 7th], [m(maj7), 7 → ♭7, m7]]
+    say: The whole map. Practise it in drop 3, and in every key.
+    hold: 9
+  - section: null
+    table: null
+    card:
+      title: You've got it when
+      lines: ['you can move any chord to its neighbours without lifting the other fingers,', 'name the new chord as it sounds,', 'and find all four dominants inside any °7.']
+    hold: 6

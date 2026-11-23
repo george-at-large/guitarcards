@@ -1,0 +1,70 @@
+# Video 12: melodic minor harmony.
+# Written by gen.py: change the loops there, not the steps here.
+id: 12-melodic-minor-harmony
+title: "Melodic minor harmony"
+rule: "One scale, seven chords, three famous sounds."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Melodic minor harmony", lines: ["The seven chords of G melodic minor in drop 2,", "the m(maj7) and maj7♯5 ladders,", "and one shape over three bass notes."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The seven chords up the top four strings, naming each", "2   Then on the middle four", "3   The m(maj7) and maj7♯5 ladders", "4   One Gm(maj7) shape over G, C and F♯ basses"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "G melodic minor, harmonised"
+    sub: "Gm(maj7) Am7 B♭maj7♯5 C7 D7 Em7♭5 F♯m7♭5"
+    notes: ["Two dominants a whole step apart (IV7 and V7) and two half-diminished chords: the jazz-minor sound."]
+    say: "The seven chords of G melodic minor, in drop 2. Then its two special chords, and one shape over three basses."
+  - section: "The seven chords · strings 4-3-2-1"
+    notes: null
+    say: "The seven chords, on the top four strings."
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| i:mMaj7 | ii:m7 | bIII:maj7#5 | IV:7 | V:7 | vi:m7b5 | vii:m7b5 | i:mMaj7 |", voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 0.5, sub: "{roman}"}
+  - section: "The seven chords · strings 5-4-3-2"
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: "| i:mMaj7 | ii:m7 | bIII:maj7#5 | IV:7 | V:7 | vi:m7b5 | vii:m7b5 | i:mMaj7 |", voicing: drop2, strings: [5, 4, 3, 2], startFret: 5, bars: 0.5, sub: "{roman}"}
+  - section: Gm(maj7) · strings 4-3-2-1
+    notes: ['Gm(maj7) = G B♭ D F♯: the tonic of melodic minor.']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: mMaj7, voicing: drop2, strings: [4, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gmaj7♯5 · strings 4-3-2-1
+    notes: ['maj7♯5: the chord on ♭III (B♭maj7♯5 in G melodic minor), Lydian augmented.']
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj7#5, voicing: drop2, strings: [4, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: One shape, three chords
+    now: "over G: Gm(maj7)"
+    sub: "the tonic"
+    show: {kind: line, root: G, pitches: ["G2", "G3", "D4", "F#4", "Bb4"], each: [6, 4, 3, 2, 1], labels: ["1", "1", "5", "7", "b3"]}
+    notes: ['The same four notes on top; the bass decides the chord.']
+    play: strum 2
+    hold: 1
+  - section: One shape, three chords
+    now: "over C: C9♯11"
+    sub: "the 4th mode, Lydian dominant"
+    show: {kind: line, root: C, pitches: ["C3", "G3", "D4", "F#4", "Bb4"], each: [5, 4, 3, 2, 1], labels: ["1", "5", "9", "#11", "b7"]}
+    notes: ['The same four notes on top; the bass decides the chord.']
+    play: strum 2
+    hold: 1
+  - section: One shape, three chords
+    now: "over F♯: F♯7alt"
+    sub: "the 7th mode, altered: ♭9, ♭13 and the 3rd"
+    show: {kind: line, root: F#, pitches: ["F#2", "G3", "D4", "F#4", "Bb4"], each: [6, 4, 3, 2, 1], labels: ["1", "b9", "b13", "1", "3"]}
+    notes: ['The same four notes on top; the bass decides the chord.']
+    play: strum 2
+    hold: 1
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play the seven melodic minor chords in drop 2 and name each,", "find m(maj7) and maj7♯5 anywhere,", "and hear one shape become three chords over three basses."]
+    hold: 6

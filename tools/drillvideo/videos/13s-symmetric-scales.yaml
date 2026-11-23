@@ -1,0 +1,165 @@
+# Diminished and symmetric scales (plan v3).
+# Written by gen.py: change the loops there, not the steps here.
+id: 13s-symmetric-scales
+title: "Diminished and symmetric scales"
+rule: "Learn one shape and the distance it repeats."
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: "Diminished and symmetric scales", lines: ["Half-whole, whole-half, whole tone and augmented:", "scales that repeat, so one shape covers several keys."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One scale in one region, over its chord", "2   Move the same shape up the distance it repeats (3 frets, or 2)", "3   Then the classic sequence: 3rds through the scale", "4   Next scale"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Root G
+    drone: G2
+    now: "Four symmetric scales on G"
+    sub: "half-whole · whole-half · whole tone · augmented"
+    notes: ["Symmetric: the scale repeats itself every few frets, so it has only 2 or 3 versions."]
+    say: "Four symmetric scales on G. Each one repeats every few frets, so one shape covers several keys."
+
+  # ---------- Half-whole diminished ----------
+  - section: Half-whole diminished
+    now: G half-whole diminished
+    sub: "G7♭9 · ♭9 ♯9 ♯11 13"
+    show: {kind: run, root: G, scale: diminished-hw, region: {frets: [2, 5]}, path: up, ring: ["b2", "#2", "#4", "6"]}
+    band: true
+    notes: ["Over dominant 7♭9: the same notes fit G7, B♭7, D♭7 and E7."]
+    say: "Half-whole diminished."
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 3 frets up"
+    sub: "it repeats every 3 frets"
+    show: {kind: run, root: G, scale: diminished-hw, region: {frets: [5, 8]}, path: up, ring: ["b2", "#2", "#4", "6"]}
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 6 frets up"
+    sub: "it repeats every 3 frets"
+    show: {kind: run, root: G, scale: diminished-hw, region: {frets: [8, 11]}, path: up, ring: ["b2", "#2", "#4", "6"]}
+    play: run 0.5
+    hold: 0.4
+  - now: In 3rds
+    sub: every note, then the one two steps above it
+    show: {kind: run, root: G, scale: diminished-hw, region: {frets: [2, 5]}, sequence: {kind: intervals, step: 3}, ring: ["b2", "#2", "#4", "6"]}
+    notes: null
+    play: run 0.5
+    hold: 0.4
+  - now: "G half-whole diminished · the whole neck"
+    sub: the repeat is visible across the neck
+    show: {kind: run, root: G, scale: diminished-hw, region: {frets: [0, 17]}, ring: ["b2", "#2", "#4", "6"]}
+    band: null
+    hold: 3.5
+
+  # ---------- Whole-half diminished ----------
+  - section: Whole-half diminished
+    now: G whole-half diminished
+    sub: "G°7 · the diminished chord plus the notes a whole step above"
+    show: {kind: run, root: G, scale: diminished-wh, region: {frets: [2, 5]}, path: up, ring: ["bb7", "7"]}
+    band: true
+    notes: ["Over diminished 7th chords. Which one starts with a half step decides the job: say which you’re playing."]
+    say: "Whole-half diminished."
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 3 frets up"
+    sub: "it repeats every 3 frets"
+    show: {kind: run, root: G, scale: diminished-wh, region: {frets: [5, 8]}, path: up, ring: ["bb7", "7"]}
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 6 frets up"
+    sub: "it repeats every 3 frets"
+    show: {kind: run, root: G, scale: diminished-wh, region: {frets: [8, 11]}, path: up, ring: ["bb7", "7"]}
+    play: run 0.5
+    hold: 0.4
+  - now: In 3rds
+    sub: every note, then the one two steps above it
+    show: {kind: run, root: G, scale: diminished-wh, region: {frets: [2, 5]}, sequence: {kind: intervals, step: 3}, ring: ["bb7", "7"]}
+    notes: null
+    play: run 0.5
+    hold: 0.4
+  - now: "G whole-half diminished · the whole neck"
+    sub: the repeat is visible across the neck
+    show: {kind: run, root: G, scale: diminished-wh, region: {frets: [0, 17]}, ring: ["bb7", "7"]}
+    band: null
+    hold: 3.5
+
+  # ---------- Whole tone ----------
+  - section: Whole tone
+    now: G whole tone
+    sub: "G7♯5 · six notes, all whole steps"
+    show: {kind: run, root: G, scale: whole-tone, region: {frets: [2, 5]}, path: up, ring: ["#4", "#5"]}
+    band: true
+    notes: ["Over 7♯5 and augmented sounds; only two whole-tone scales exist."]
+    say: "Whole tone."
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 2 frets up"
+    sub: "it repeats every 2 frets"
+    show: {kind: run, root: G, scale: whole-tone, region: {frets: [4, 7]}, path: up, ring: ["#4", "#5"]}
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 4 frets up"
+    sub: "it repeats every 2 frets"
+    show: {kind: run, root: G, scale: whole-tone, region: {frets: [6, 9]}, path: up, ring: ["#4", "#5"]}
+    play: run 0.5
+    hold: 0.4
+  - now: In 3rds
+    sub: every note, then the one two steps above it
+    show: {kind: run, root: G, scale: whole-tone, region: {frets: [2, 5]}, sequence: {kind: intervals, step: 3}, ring: ["#4", "#5"]}
+    notes: null
+    play: run 0.5
+    hold: 0.4
+  - now: "G whole tone · the whole neck"
+    sub: the repeat is visible across the neck
+    show: {kind: run, root: G, scale: whole-tone, region: {frets: [0, 17]}, ring: ["#4", "#5"]}
+    band: null
+    hold: 3.5
+
+  # ---------- Augmented ----------
+  - section: Augmented
+    now: G augmented
+    sub: "Gmaj7♯5 · two augmented triads, G and B"
+    show: {kind: run, root: G, scale: augmented, region: {frets: [2, 5]}, path: up, ring: ["b3", "#5"]}
+    band: true
+    notes: ["Minor 3rd, half step, alternating: the hexatonic sound of modern jazz."]
+    say: "Augmented."
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 4 frets up"
+    sub: "it repeats every 4 frets"
+    show: {kind: run, root: G, scale: augmented, region: {frets: [6, 9]}, path: up, ring: ["b3", "#5"]}
+    play: run 0.5
+    hold: 0.4
+  - now: "The same shape, 8 frets up"
+    sub: "it repeats every 4 frets"
+    show: {kind: run, root: G, scale: augmented, region: {frets: [10, 13]}, path: up, ring: ["b3", "#5"]}
+    play: run 0.5
+    hold: 0.4
+  - now: In 3rds
+    sub: every note, then the one two steps above it
+    show: {kind: run, root: G, scale: augmented, region: {frets: [2, 5]}, sequence: {kind: intervals, step: 3}, ring: ["b3", "#5"]}
+    notes: null
+    play: run 0.5
+    hold: 0.4
+  - now: "G augmented · the whole neck"
+    sub: the repeat is visible across the neck
+    show: {kind: run, root: G, scale: augmented, region: {frets: [0, 17]}, ring: ["b3", "#5"]}
+    band: null
+    hold: 3.5
+
+  - section: Other scales
+    drone: null
+    key: null
+    now: The other scales in the series
+    sub: blues and pentatonics (14a) · bebop scales (15) · harmonic major (13a)
+    show: null
+    notes: ['Symmetric scales sound like patterns: break them up by landing on chord tones.']
+    say: The other scales, blues, bebop and harmonic major, have their own videos.
+    hold: 6
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play each symmetric scale in one region over its chord,', 'move it by the distance it repeats,', 'and run it in 3rds without stopping.']
+    hold: 6

@@ -1,0 +1,80 @@
+# Video 17: rhythmic vocabulary on the groove grid.
+# Written by gen.py: change the loops there, not the steps here.
+id: 17-rhythmic-vocabulary
+title: "Rhythmic vocabulary"
+rule: "Count out loud; the hand never stops."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Rhythmic vocabulary", lines: ["Subdivisions from quarters to 16ths,", "groups of three across four, displacement,", "and 3 against 4, on the grid."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Each subdivision, counting out loud", "2   Accents every 3 16ths across the bar", "3   One figure, then the same figure an 8th later", "4   3 against 4: three accents over four beats"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "One chord, many rhythms"
+    sub: "G major · the grid shows every slot"
+    notes: ["The hand keeps moving down and up; only the strings it hits change."]
+    say: "Rhythmic vocabulary. Subdivisions, groups of three, displacement, and three against four."
+  - section: "Subdivisions"
+    now: "Quarters"
+    sub: "1 2 3 4"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'DDDD', grid: 1, repeat: 2}
+    hold: 0.3
+  - now: "Eighths"
+    sub: "1 & 2 & 3 & 4 &"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'DUDUDUDU', grid: 2, repeat: 2}
+    hold: 0.3
+  - now: "Triplets"
+    sub: "1 trip let 2 trip let …"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'DUD UDU DUD UDU', grid: 3, repeat: 2}
+    hold: 0.3
+  - now: "16ths"
+    sub: "1 e & a 2 e & a …"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'DUDU DUDU DUDU DUDU', grid: 4, repeat: 2}
+    hold: 0.3
+  - section: "Groups of 3"
+    now: "Accents every 3 16ths"
+    sub: "3 + 3 + 3 + 3 + 3 + 1 … across two bars"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'Dudu Dudu Dudu Dudu Dudu Dudu Dudu Dudu', grid: 4, accents: [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]}
+    hold: 0.3
+  - section: "Displacement"
+    now: "The figure"
+    sub: "on 1, the & of 2, and 4"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'D-x-xUx-D-x-x-x-', grid: 4, accents: [0, 6, 8], repeat: 2}
+    hold: 0.3
+  - now: "The same figure, an 8th later"
+    sub: "now on the & of 1, 3, and the & of 4"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'x-D-x-xUx-D-x-x-', grid: 4, accents: [2, 8, 10], repeat: 2}
+    hold: 0.3
+  - section: "3 against 4"
+    now: "Three accents over four beats"
+    sub: "accent every 4th triplet"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: 'Dud udu Dud udu Dud udu', grid: 3, accents: [0, 4, 8], repeat: 2}
+    hold: 0.3
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can switch between subdivisions without stopping,", "keep groups of 3 going across the bar line,", "and displace any figure by an 8th."]
+    hold: 6

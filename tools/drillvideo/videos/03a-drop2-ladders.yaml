@@ -1,0 +1,180 @@
+# Video 3a: drop 2 seventh chords, the inversion ladder (plan v2, docs/drill-videos-plan.md). Every inversion of the
+# five qualities on one string set, climbing the neck and naming each bass degree; then the other two sets and all
+# twelve keys. The fifteen-areas ii–V–I (after Marbin) builds on these ladders in the next video.
+id: 03a-drop2-ladders
+title: Drop 2 seventh chords
+rule: Call the bass degree before you play each voicing.
+bpm: 80
+
+steps:
+  - card: {title: Drop 2 seventh chords, lines: ['Call the bass degree before you play each voicing.']}
+    say: Drop 2 voicings are the four-note chords jazz guitarists use most. This drill teaches every inversion on one set of strings, until you can find any of them without thinking.
+  - card:
+      title: What you'll do
+      lines: ['1   Climb Gmaj7 through its inversions on strings 4 to 1', '2   The same for G7, Gm7, Gm7♭5 and G°7', '3   The other two string sets, then all twelve keys']
+    say: Three parts. Climb G major seven through its inversions on the top four strings. Do the same for the other four seventh chords. Then the other string sets, and all twelve keys.
+
+  # ---------- part 1: the Gmaj7 ladder ----------
+  - card: null
+    section: Learn it · part 1
+    key: Key of G
+    now: Gmaj7 on strings 4-3-2-1
+    sub: G B D F♯ · four inversions · each named by its bass note
+    say: G major seven has four notes. G, B, D and F sharp. On four strings there are four ways to stack them, and each one is named by the note in the bass.
+  - now: Gmaj7 · 7 in the bass
+    sub: F♯ on string 4, fret 4 · the lowest one
+    show: {kind: voicing, root: G, quality: maj7, strings: [4, 3, 2, 1], bass: '7', near: 4}
+    band: true
+    say: Start with the lowest one. F sharp in the bass, the seventh. Say "seven", then play it.
+    play: [strum, up]
+  - now: Gmaj7 · 1 in the bass
+    sub: G on string 4, fret 5 · root position
+    show: {kind: voicing, root: G, quality: maj7, strings: [4, 3, 2, 1], bass: '1', near: 6}
+    say: One fret up, the root is in the bass. Root position.
+    play: [strum, up]
+    over: true
+  - now: Gmaj7 · 3 in the bass
+    sub: B on string 4, fret 9
+    show: {kind: voicing, root: G, quality: maj7, strings: [4, 3, 2, 1], bass: '3', near: 9}
+    say: Next, the third in the bass. B.
+    play: [strum, up]
+    over: true
+  - now: Gmaj7 · 5 in the bass
+    sub: D on string 4, fret 12
+    show: {kind: voicing, root: G, quality: maj7, strings: [4, 3, 2, 1], bass: '5', near: 12}
+    say: Then the fifth. D.
+    play: [strum, up]
+    over: true
+  - now: Gmaj7 · 7 in the bass
+    sub: F♯ on string 4, fret 16 · the first shape, an octave up
+    show: {kind: voicing, root: G, quality: maj7, strings: [4, 3, 2, 1], bass: '7', near: 15}
+    say: And the seventh again, an octave up. The same shape you started with.
+    play: [strum, up]
+    over: true
+  - now: The bass walks up the chord
+    sub: 7 · 1 · 3 · 5 · 7
+    say: The order never changes. Climbing, the bass walks up the chord. Seven, one, three, five, seven. Coming down, it walks back.
+
+  - section: Practise it · part 1
+    now: The ladder, in time
+    sub: strum on 1 · arpeggio on 2 and 3 · say the next bass on 4
+    say: Now in time. Strum on one, arpeggiate on two and three, and on beat four, say the next bass degree. Up the neck and back down.
+    play: [strum 1, up 0.5]
+    expand: {kind: ladder, root: G, quality: maj7, strings: [4, 3, 2, 1], maxFret: 16, dir: updown}
+
+  # ---------- part 2: the other four qualities ----------
+  - section: Learn it · part 2
+    now: Four more qualities
+    sub: each one lowers a note of the one before
+    show: {kind: voicing, root: G, quality: maj7, strings: [4, 3, 2, 1], bass: '1', near: 6}
+    band: true
+    say: Now the other four seventh chords. Each one lowers a single note of the one before, so you already know their ladders.
+  - now: G7 · lower the 7th
+    sub: F♯ becomes F
+    show: {kind: voicing, root: G, quality: '7', strings: [4, 3, 2, 1], bass: '1', near: 6}
+    say: G seven. Lower the seventh one fret, F sharp to F.
+    play: [strum, up]
+    over: true
+  - now: Gm7 · lower the 3rd
+    sub: B becomes B♭
+    show: {kind: voicing, root: G, quality: m7, strings: [4, 3, 2, 1], bass: '1', near: 6}
+    say: G minor seven. Lower the third, B to B flat.
+    play: [strum, up]
+    over: true
+  - now: Gm7♭5 · lower the 5th
+    sub: D becomes D♭
+    show: {kind: voicing, root: G, quality: m7b5, strings: [4, 3, 2, 1], bass: '1', near: 6}
+    say: G minor seven flat five. Lower the fifth, D to D flat.
+    play: [strum, up]
+    over: true
+  - now: G°7 · lower the 7th again
+    sub: F becomes F♭ (it sounds as E) · all four inversions are one shape
+    show: {kind: voicing, root: G, quality: dim7, strings: [4, 3, 2, 1], bass: '1', near: 6}
+    say: G diminished seven. Lower the seventh once more. Its four inversions are all the same shape, three frets apart.
+    play: [strum, up]
+    over: true
+
+  - section: Practise it · part 2
+    now: G7 ladder
+    sub: two beats per voicing · call each bass
+    say: Run each ladder the same way. Here they are at two beats per voicing. G seven.
+    play: strum 2
+    expand: {kind: ladder, root: G, quality: '7', strings: [4, 3, 2, 1], maxFret: 16, dir: up, bars: 0.5}
+  - now: Gm7 ladder
+    say: G minor seven.
+    play: strum 2
+    expand: {kind: ladder, root: G, quality: m7, strings: [4, 3, 2, 1], maxFret: 16, dir: up, bars: 0.5}
+  - now: Gm7♭5 ladder
+    say: G minor seven flat five.
+    play: strum 2
+    expand: {kind: ladder, root: G, quality: m7b5, strings: [4, 3, 2, 1], maxFret: 16, dir: up, bars: 0.5}
+  - now: G°7 ladder
+    say: G diminished seven. One shape, moving three frets.
+    play: strum 2
+    expand: {kind: ladder, root: G, quality: dim7, strings: [4, 3, 2, 1], maxFret: 16, dir: up, bars: 0.5}
+
+  # ---------- part 3: the other string sets ----------
+  - section: Learn it · part 3
+    now: Strings 5-4-3-2
+    sub: the same five ladders, one string lower
+    show: null
+    say: Then the same five ladders on strings five to two. Here's G major seven.
+    play: strum 2
+    expand: {kind: ladder, root: G, quality: maj7, strings: [5, 4, 3, 2], maxFret: 16, dir: up, bars: 0.5}
+  - now: Strings 6-5-4-3
+    sub: no B string here, so the shapes look different · learn them by the bass
+    say: And on six to three. These don't cross the B string, so the shapes look different. Learn every voicing by its bass note, not by how it looks.
+    play: strum 2
+    expand: {kind: ladder, root: G, quality: maj7, strings: [6, 5, 4, 3], maxFret: 16, dir: up, bars: 0.5}
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    now: Round the cycle of fourths
+    sub: one quality on one string set per pass · up and back down
+    show: null
+    band: null
+    keys: {list: [G, C, F, B♭, E♭, A♭, D♭, G♭, B, E, A, D], at: 0}
+    say: Now all twelve keys, round the cycle of fourths. In each key, start with the lowest voicing on the string set, climb through every inversion to the top of your neck, and come back down, calling each bass degree.
+  - now: Where each key starts
+    sub: strings 4-3-2-1 · the lowest voicing is a different inversion in each key
+    table:
+      title: "Where each key's ladder starts: strings 4-3-2-1"
+      head: [Key, Bass, Lowest note]
+      widths: [0.26, 0.34, 0.4]
+      rows_from: {kind: ladderTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], quality: maj7, strings: [4, 3, 2, 1], cols: ['{chord}', '{bass} in the bass', '{bassNote}, fret {fret}']}
+    say: Here's where each key starts on the top four strings. The lowest voicing is a different inversion in each key, so read the bass degree before you start.
+  - table: null
+    now: C, the next key
+    key: Key of C
+    sub: the lowest voicing has the 3rd in the bass
+    keys: {at: 1}
+    band: true
+    say: Here's C. This time the lowest voicing has the third in the bass. The order still never changes.
+    play: strum 2
+    expand: {kind: ladder, root: C, quality: maj7, strings: [4, 3, 2, 1], maxFret: 16, dir: up, bars: 0.5}
+  - now: How much at a time
+    sub: one string set a day · all five qualities · two or three keys
+    show: null
+    band: null
+    keys: null
+    say: Each key has fifteen ladders. Five qualities on three string sets. Don't do them all at once. One string set a day, all five qualities, in two or three keys, plus one key you've done before.
+
+  # ---------- watch-outs and the target ----------
+  - section: Watch out
+    key: null
+    now: Three things to watch
+    sub: null
+    table:
+      title: Watch out
+      head: [Mistake, Instead]
+      widths: [0.38, 0.62]
+      rows: [[Learning shapes, 'learn the bass note: the B string changes the shapes'], [Only strumming, arpeggiate a new voicing until you hear its inversion], ['Four °7 shapes', learn one °7 shape and move it three frets]]
+    say: Three things to watch. Learn the bass note, not the shape, because the B string changes the shapes. Arpeggiate any new voicing until you can hear its inversion. And diminished seven is one shape. Learn it once, and move it three frets.
+  - table: null
+    section: null
+    card:
+      title: You've got it when
+      lines: ['you can call any bass degree and find that voicing', 'in any key, on any string set, within a few seconds', 'and each ladder runs at 80 BPM, two beats per voicing']
+    say: You've got it when you can call any bass degree, and find that voicing in any key, on any string set, within a few seconds. And each ladder runs at eighty beats a minute, two beats per voicing, calling every bass.
+    hold: 1.5

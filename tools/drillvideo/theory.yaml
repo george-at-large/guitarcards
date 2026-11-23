@@ -1,0 +1,316 @@
+# The music theory of each repertoire piece, shown on screen the whole time it plays (two labelled lines under the tab).
+# build.py reads it by video id. `credit:` moves a source note out of the legend into the small footer.
+
+C7-giuliani-arpeggios:
+  theory:
+    - [Harmony, "Two chords only, C and G7: I and V7, tonic and dominant, the axis of all tonal music."]
+    - [Listen for, "G7 to C: its B rises to C and its F falls to E, the tritone resolving inward."]
+
+b1-odeon:
+  theory:
+    - [Form, "Tango brasileiro, a choro-family dance: rondo form, the A section returning between new strains."]
+    - [Harmony, "Minor-key cadences coloured chromatically: falling basses, ♭VI, the augmented ♭III, ♯iv°7."]
+
+c11-albeniz-asturias:
+  theory:
+    - [Mode, "B Phrygian dominant (E harmonic minor from its 5th): B C D♯ E F♯ G A, the Spanish scale."]
+    - [Style, "Piano music imitating flamenco guitar: a repeated-note pedal and the ♭II – I (C – B) cadence."]
+
+c12-granados-andaluza:
+  theory:
+    - [Form, "A Spanish dance in 2/4, written for piano: ternary, A (E minor) – B (E major) – A; this is the A theme."]
+    - [Harmony, "E minor over an E pedal; the tune circles the 5th, B, with the chromatic neighbour A♯."]
+
+c13-romance:
+  theory:
+    - [Form, "Two halves: E minor, then the same idea in E major, the parallel key: minor to major is the arc."]
+    - [Texture, "Melody, arpeggio and bass in one hand: a triplet broken chord with the tune on top, in 3/4."]
+
+c14-carcassi-op60-no3:
+  theory:
+    - [Texture, "A broken-chord study: each chord lasts a bar while the triplets spell it out."]
+    - [Harmony, "I – V7 – I in A, then a turn to E: A♯°7 – B7 – E, that is vii°7/V – V7/V – V."]
+
+c15-coste-op38-no22:
+  theory:
+    - [Harmony, "Tonic and dominant only, A and E7: the pattern is the study, the harmony is its frame."]
+    - [Listen for, "E7's G♯ rises to A and its D falls to C♯: the V7 – I pull inside the 16ths."]
+
+c16-coste-agitato:
+  theory:
+    - [Harmony, "i – V7 in A minor, then A7 – Dm: a secondary dominant briefly makes iv a tonic of its own."]
+    - [Key, "A harmonic minor: G♯ raised as the leading tone in E7; F, the ♭VI, gives the darkness."]
+
+c2-bach-bourree:
+  theory:
+    - [Form, "Binary dance (AABB): the A section moves from E minor to G, the relative major; B comes home."]
+    - [Counterpoint, "Two parts, melody and a walking bass, often in contrary motion: each a line of its own."]
+
+c3-bach-prelude-bwv999:
+  theory:
+    - [Form, "A prelude on one figure: the chord changes once a bar, so the bass line tells the story."]
+    - [Harmony, "Pedal points, diminished 7ths and secondary dominants, travelling from i to its dominant."]
+
+c4-dowland-lachrimae:
+  theory:
+    - [Motif, "A descending 4th stepping down, the “tear”: Dowland's motto, quoted all through the period."]
+    - [Harmony, "Renaissance modal minor: VI and III beside i, and a major chord (Picardy 3rd) at cadences."]
+
+c5-sor-op35-no22:
+  theory:
+    - [Form, "Classical-era study in 6/8: balanced 4 + 4-bar phrases, each one closed by a cadence."]
+    - [Harmony, "A dominant pedal (F♯ in the bass) holds the tension; i⁶₄ – V – i is the Classical arrival."]
+
+c8-tarrega-lagrima:
+  theory:
+    - [Form, "Ternary: A in E major, B in E minor, A again: the same tonic, major then minor (parallel keys)."]
+    - [Harmony, "Plain I – IV – V7 grammar: the feeling comes from the change of mode, not from rare chords."]
+
+c9-tarrega-adelita:
+  theory:
+    - [Form, "Mazurka in ternary form: A in E minor, B in E major, then A: parallel keys, like Lágrima."]
+    - [Rhythm, "3/4 with the weight off beat 1: the Polish mazurka accent, in Romantic salon style."]
+
+cl3-bach-preludio-bwv1006a:
+  theory:
+    - [Texture, "Perpetual motion: one line of 16ths implying chords and voices; open strings ring between notes."]
+    - [Harmony, "A long tonic pedal on E: I, IV and V7 come and go above it before the bass finally moves."]
+
+cl5-coste-prelude-dm:
+  theory:
+    - [Harmony, "Fauxbourdon: chains of first-inversion chords falling by step, a technique 500 years old."]
+    - [Key, "D minor with both 6ths: B♭ (natural minor) and B♮ (melodic minor), as the line needs."]
+
+cm1-danny-boy:
+  credit: "The traditional air (Paul Hardy’s tunebook, CC BY-NC-SA); triads made into 7ths, 9ths and 13ths for the chord melody."
+  theory:
+    - [Form, "The Londonderry Air: four 4-bar phrases, A A B A; the B phrase climbs to the high climax."]
+    - [Harmony, "Diatonic I – IV – V made into maj7, 6/9, 13; E9 is V of V, B7♭9 is V of ii."]
+
+cm2-someone-to-watch:
+  credit: "Gershwin, 1926 (public domain): the melody and chords from the ABC at trillian.mit.edu, arranged for the course."
+  theory:
+    - [Form, "32-bar AABA song (1926): here an A and the bridge, which opens on IVmaj7 and returns by dominants."]
+    - [Harmony, "Passing diminished 7ths between diatonic chords: the bass moves by half steps, each °7 leading on."]
+
+cm3-embraceable-you:
+  credit: "Gershwin, 1930 (public domain): the melody and chords from the ABC at trillian.mit.edu, arranged for the course."
+  theory:
+    - [Form, "32-bar ABAC song (1930): two 16-bar halves that start alike and end differently."]
+    - [Harmony, "ii – V motion throughout, secondary dominants (E7, B7, A7) and ♭VI borrowed from the minor."]
+
+cp1-bach-invention-1:
+  theory:
+    - [Counterpoint, "A two-part invention: one 7-note subject, imitated, turned upside down and sequenced."]
+    - [Form, "The first section moves from C to G, the dominant; later ones pass through A minor and home."]
+
+cp10-bach-fuga-bwv1001:
+  theory:
+    - [Form, "A fugue: a subject alone, then answers entering one by one in new voices against it."]
+    - [Key, "Written in G minor for solo violin; in Tárrega's A minor the guitar can truly sustain the voices."]
+
+cp11-narvaez-emperador:
+  theory:
+    - [Texture, "An intabulation: Josquin's 4-voice chanson Mille regretz set for vihuela by Narváez (1538)."]
+    - [Mode, "Phrygian on E: the half step F – E at cadences and no leading tone, the sound before major and minor."]
+
+cp12-mudarra-fantasia:
+  theory:
+    - [Counterpoint, "An imitative fantasia: a motif enters in one voice and is copied in the others, like a motet."]
+    - [Style, "Vihuela music (1546): modal and polyphonic, with sequences carrying the motif up by step."]
+
+cp3-bach-invention-8:
+  theory:
+    - [Counterpoint, "A canon at the octave: the lower voice copies the upper note for note, a bar behind."]
+    - [Harmony, "F major to C, the dominant, by sequence and V of V; the subject is an arpeggio, then a scale."]
+
+cp8-scarlatti-k11:
+  theory:
+    - [Form, "Binary sonata, Scarlatti's form: the first half travels from i to the minor v, the second returns."]
+    - [Harmony, "Harmonic minor at work: D♯ as leading tone, G+ (III+) its augmented chord, V7 of v to change key."]
+
+cp9-narvaez-guardame-las-vacas:
+  theory:
+    - [Form, "Diferencias (variations) on a ground bass, the Romanesca: III – VII – i – V under every one."]
+    - [Style, "Narváez, 1538: among the first published variations, the bass fixed and the counterpoint new each time."]
+
+fb1-she-moved-through-the-fair:
+  theory:
+    - [Mode, "D Mixolydian: a major scale with a ♭7 (C♮), no leading tone, the melody over a drone."]
+    - [Rhythm, "A sean-nós style air: the free rhythm of the words, long notes ornamented with grace notes."]
+
+fb4-byrd-earl-of-salisbury:
+  theory:
+    - [Form, "A pavan, the slow processional dance of the Renaissance; Byrd, published in Parthenia (1612)."]
+    - [Harmony, "Modal A minor: the lament bass i – VII – VI – V, and a major chord closing a minor phrase."]
+
+fb6-scarborough-fair:
+  theory:
+    - [Mode, "D Dorian: natural minor with a raised 6th (B♮), so IV is major (G) and the cadence is ♭VII – i."]
+    - [Form, "An arched four-phrase ballad tune in 3/4: the middle phrases climb, the last falls home to D."]
+
+fb7-johnson-alman:
+  theory:
+    - [Form, "An alman (allemande): a duple-time dance in two repeated strains, from the Jacobean lute books."]
+    - [Harmony, "A minor swinging to C (III) and G (VII); the major V (E, with G♯) only at the cadences."]
+
+fb8-american-primitive:
+  theory:
+    - [Mode, "G Mixolydian in open G: the ♭7 (F♮) gives a blues-and-folk colour with no V – I pull."]
+    - [Texture, "A monotonic thumb under repeating figures: the harmony stays put, variation is rhythm and ornament."]
+
+j1-st-louis-blues:
+  theory:
+    - [Form, "Three strains: a 12-bar blues, a 16-bar minor strain over the habanera, a closing 12-bar blues."]
+    - [Harmony, "Dominant 7ths on I, IV and V (the blues sound), and a strain in the parallel minor, G to Gm."]
+
+j2-rhythm-changes:
+  theory:
+    - [Form, "32 bars AABA, from Gershwin's I Got Rhythm (1930): A = I – vi – ii – V turnarounds, B = a dominant cycle."]
+    - [Harmony, "Turnarounds, secondary dominants round the cycle of 4ths, the ♯iv° passing chord: bebop's playground."]
+
+j4-sweet-georgia-brown:
+  theory:
+    - [Harmony, "A secondary-dominant chain: VI7 – II7 – V7 – I, each chord the V7 of the next, four bars each."]
+    - [Form, "32 bars ABAC (1925): the tonic is held back for 12 bars, which is the tune's tension and charm."]
+
+l1-la-cumparsita:
+  theory:
+    - [Rhythm, "Tango: marcato in 4 and the 3-3-2 habanera pulse; staccato accompaniment, legato melody."]
+    - [Harmony, "A minor, i – V7 – iv; descending chromatic lines (the lament) give tango its sigh."]
+
+l2-cielito-lindo:
+  theory:
+    - [Form, "Verse and refrain (Quirino Mendoza, 1882): the verse rocks on I – V7, the refrain adds IV."]
+    - [Rhythm, "Ranchera waltz in 3/4: bass on 1, chord on 2 and 3, the melody in long sung notes."]
+
+l3-son-montuno:
+  theory:
+    - [Rhythm, "The 2-3 clave organises everything: guajeo and tumbao anticipate each chord on the off-beat."]
+    - [Harmony, "A vamp, I – IV – V7 – IV on a loop: the montuno of Cuban son, where solos and coros live."]
+
+o1-sea-glass:
+  theory:
+    - [Form, "A suite in seven sections, one style each: harmonics, Travis, bossa, flamenco, funk, jazz, coda."]
+    - [Harmony, "A new key for each section (D, A, B minor, B Dorian, D); 9ths, 11ths, 13ths and altered 7ths."]
+
+r1-joplin-entertainer:
+  theory:
+    - [Form, "Classic rag (1902) in march form: an intro, then 16-bar strains, A A B B A C C D D."]
+    - [Harmony, "I – I7 – IV – ♯iv°7 – I⁶₄ – V7 – I: chromatic passing chords push the bass up by half steps."]
+
+r2-west-coast-blues:
+  credit: "The treble lines are written for the course in Blake’s style; his own change every chorus."
+  theory:
+    - [Harmony, "The ragtime circle: III7 – VI7 – II7 – V7 – I, each chord the V7 of the next."]
+    - [Rhythm, "Piedmont blues: an alternating-thumb bass with the treble syncopated 3 + 3 + 2 over it."]
+
+r3-delta-turnarounds:
+  theory:
+    - [Form, "The turnaround is bars 11–12 of the 12-bar blues: it ends on V7 to send the form back to bar 1."]
+    - [Harmony, "An inner voice falling chromatically under a pedal; the blue 3rd (G♮ over E), then E7 – B7."]
+
+r3a-bach-prelude-opening:
+  theory:
+    - [Texture, "Compound melody: one line implying several voices, each bar a broken chord over a pedal."]
+    - [Harmony, "In D (G for cello): I – IV – V7 over a pedal, then secondary dominants lead to A, the V."]
+
+r5-si-bheag-si-mhor:
+  theory:
+    - [Form, "Turlough O'Carolan's harp air (c. 1694), said to be his first tune: two parts, each repeated."]
+    - [Harmony, "Diatonic D major, I – vi – IV – V; the melody outlines the chords, as harp tunes do, over DADGAD drones."]
+
+r6-soldiers-joy:
+  theory:
+    - [Form, "A fiddle tune in AABB form: two 8-bar parts, each played twice, in a driving 2/4."]
+    - [Harmony, "Only I and V, D and A: the melody is arpeggios and scale runs, the harmony implied in the line."]
+
+s1-malaguena:
+  theory:
+    - [Harmony, "The Andalusian cadence: iv – ♭III – ♭II – I in Phrygian (Am – G – F – E), falling by step."]
+    - [Mode, "E Phrygian with a major home chord: the F – E half step is the flamenco sound."]
+
+s2-solea-compas:
+  theory:
+    - [Rhythm, "12-beat compás, accents 3 6 8 10 12: 6/8 then 3/4 (a hemiola), the root of many flamenco forms."]
+    - [Mode, "E Phrygian (por arriba): the cadence F – E, ♭II – I; phrases resolve on beat 10."]
+
+s3-bulerias-compas:
+  theory:
+    - [Rhythm, "12-beat compás felt from 12: accents 12 3 6 8 10, fast; the remate cuts the phrase off on 10."]
+    - [Mode, "A Phrygian (por medio): the cadence B♭ – A, ♭II – I, home on A major."]
+
+tp1-railroad-bill:
+  theory:
+    - [Harmony, "I – III7 – IV – I – V7 – I: E7 (III7) is V of vi, but it moves on to IV, F, a deceptive turn."]
+    - [Style, "Piedmont fingerpicking: an alternating-thumb bass, the melody syncopated on the off-beats."]
+
+tp10-soukous-seben:
+  theory:
+    - [Harmony, "I – IV – V – IV on a loop: Congolese rumba harmony, bright major triads, no 7ths."]
+    - [Rhythm, "The seben is the fast dance section: guitars interlock in cycling 16th-note patterns."]
+
+tp11-desert-blues:
+  theory:
+    - [Mode, "A minor pentatonic over a tonic drone: no chord changes, the scale and the riff are the harmony."]
+    - [Style, "Malian and Tuareg blues (Ali Farka Touré, Tinariwen): modal, hypnotic, built on repetition."]
+
+tp12-st-louis-walking:
+  theory:
+    - [Harmony, "12-bar blues in G with dominant 7ths on I, IV and V; the walking bass joins them by step."]
+    - [Rhythm, "Quarter-note walk: chord tones on the strong beats, chromatic approach notes into each change."]
+
+tp2-wayfaring-stranger:
+  theory:
+    - [Mode, "A minor (Aeolian), the melody leaning on the pentatonic; mostly i, with iv for colour."]
+    - [Style, "A 19th-century American folk hymn: modal and slow, a near-drone harmony under a long line."]
+
+tp3-aloha-oe:
+  theory:
+    - [Form, "Verse and refrain, a song by Queen Liliʻuokalani: the refrain, “Aloha ʻoe”, is the famous part."]
+    - [Harmony, "I – IV – V in G, hymn-like; slack key colours it with open strings and harmonics."]
+
+tp4-dadgad-folk-baroque:
+  theory:
+    - [Harmony, "Aeolian descent, i – ♭VII – ♭VI – v – i: modal minor, no leading tone, over a D drone."]
+    - [Style, "Folk baroque (Jansch, Graham, Renbourn): baroque-like counterpoint on steel strings, open tunings."]
+
+tp5-pernambuco-carrilhoes:
+  theory:
+    - [Harmony, "Choro grammar: I – ii7 – V7 – I, with D♯°7 passing up to ii, voice-leading by half steps."]
+    - [Texture, "Bells: natural harmonics ring over a moving bass, the carrilhões (chimes) of the title."]
+
+tp6-barrios-maxixe:
+  theory:
+    - [Rhythm, "Maxixe, the Brazilian dance of the 1870s: syncopated 2/4, habanera-like, an ancestor of samba."]
+    - [Harmony, "I – V7 with a detour to ii by its own V7 (F♯7 – Bm) and a passing ♯iv°7: choro's turns."]
+
+tp7-tarrega-recuerdos:
+  theory:
+    - [Texture, "Tremolo: one melody note played three times (a m i) after each bass note, so it sounds sustained."]
+    - [Harmony, "A minor, i to III (C major); the second half moves to A major, the parallel key."]
+
+tp8-tarrega-velocidad:
+  theory:
+    - [Texture, "A single-line study: the harmony is implied by the arpeggio outlines in the running notes."]
+    - [Harmony, "E major I – IV – I – V7 – I, then diminished 7ths: symmetrical, chromatic, able to lead anywhere."]
+
+tp9-palm-wine:
+  theory:
+    - [Harmony, "I – IV – V7 – I: West African highlife and palm-wine music, built on simple diatonic cycles."]
+    - [Texture, "Parallel 3rds and 6ths on the off-beats over a walking thumb: two voices in call and response."]
+
+w1-raga-yaman:
+  theory:
+    - [Scale, "Kalyan thaat: every note natural but Ma, raised (tivra): the Lydian mode, heard against the drone."]
+    - [Raga, "No chords, melody over Sa; vadi Ga, samvadi Ni; an evening raga, its ascent skipping Sa and Pa."]
+
+w2-slack-key:
+  theory:
+    - [Harmony, "I – IV – V – I in open G: each chord a one-finger barre, so the tuning itself is the harmony."]
+    - [Style, "Kī hōʻalu (slack key): open tunings, an alternating thumb, hammer-ons and harmonic chimes."]
+
+w3-kora-pattern:
+  theory:
+    - [Rhythm, "Three against two: thumb in dotted quarters, fingers in quarters, one 6/8 bar holding both."]
+    - [Form, "A kumbengo: the kora's short ostinato cycle, I – IV – I – V, looped and varied for minutes."]

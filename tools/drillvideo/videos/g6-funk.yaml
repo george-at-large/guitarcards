@@ -1,0 +1,88 @@
+# Genre intro G6: funk (plan v3), after Marbin, "Funk Guitar Mechanics That Actually Work". Constant 16th motion from
+# the forearm, the scratch, sounded strums picked out of it, Marbin's down-down-up threes, a two-chord vamp.
+id: g6-funk
+title: Funk rhythm guitar
+rule: The hand never stops; the chord only sounds where you let it.
+bpm: 96
+captions: false
+
+steps:
+  - card: {title: Funk rhythm guitar, lines: ['Constant 16ths, the scratch, the accents,', 'and a 9-chord vamp: the core of funk guitar.']}
+    hold: 4
+
+  - card: {title: The drill, lines: ["1   Muted 16ths from the forearm for two minutes", "2   The backbeat, then the groove, slowly, then at tempo", "3   Marbin’s threes across the bar", "4   The G9 – C9 vamp; then other 9-chord vamps"]}
+    hold: 9.2
+  - card: null
+    section: Hear it
+    key: Key of G
+    now: G9 – C9
+    sub: the groove at tempo
+    say: Funk. Here it is first, then piece by piece.
+    play: {groove: 'Dudu dUdu Dudu dUdU', grid: 4, accents: [0, 8]}
+    click: false
+    items:
+      - {now: G9, show: {kind: grip, root: G, quality: '9', frets: [[4, 9], [3, 10], [2, 10], [1, 10]]}, bars: 2}
+      - {now: C9, show: {kind: grip, root: C, quality: '9', frets: [[4, 2], [3, 3], [2, 3], [1, 3]]}, bars: 2}
+
+  - section: The motion
+    now: Constant 16ths, all muted
+    sub: down on every beat and &, up on every e and a
+    show: {kind: grip, root: G, quality: '9', frets: [[4, 9], [3, 10], [2, 10], [1, 10]]}
+    notes: ['After Marbin: rotate the forearm like turning a doorknob, not the wrist.', 'Hold the pick lightly, so it gives on every stroke.']
+    say: The motion first. Sixteenths, all muted, from the forearm. The hand never stops.
+    bpm: 80
+    play: {groove: 'dudu dudu dudu dudu', grid: 4, repeat: 2}
+
+  - section: The backbeat
+    now: Accent 2 and 4
+    sub: sound the chord on beats 2 and 4, scratch the rest
+    notes: ['× = a muted scratch: the fretting hand relaxes off the strings.']
+    say: Let the chord sound on two and four.
+    play: {groove: 'dudu Dudu dudu Dudu', grid: 4, accents: [4, 12], repeat: 2}
+
+  - section: The groove
+    now: Sounded strums, picked out of the motion
+    sub: 1 · e of 2 · 3 · e of 4 · a of 4
+    notes: ['Ups land on the e and a: the motion decides the direction, never the rhythm.']
+    say: The groove. The same motion, with the chord sounding in new places.
+    play: {groove: 'Dudu dUdu Dudu dUdU', grid: 4, accents: [0, 8], repeat: 2}
+  - now: Up to tempo
+    bpm: 96
+    play: {groove: 'Dudu dUdu Dudu dUdU', grid: 4, accents: [0, 8], repeat: 2}
+
+  - section: Threes across the bar
+    bpm: 80
+    now: Down-down-up in groups of three
+    sub: the accent drifts against the beat and comes home after three bars
+    notes: ['After Marbin: groups of three 16ths against a four-beat bar.']
+    say: Marbin's threes. Down, down, up, against the beat.
+    play: {groove: 'DdU DdU DdU DdU DdU D', grid: 4, accents: [0, 3, 6, 9, 12, 15], repeat: 2}
+
+  - section: The vamp
+    bpm: 96
+    now: G9 – C9
+    sub: the groove · two bars each
+    notes: ['9 chords on the top four strings: bright, small and out of the bass player’s way.']
+    say: And the vamp, two bars each chord.
+    play: {groove: 'Dudu dUdu Dudu dUdU', grid: 4, accents: [0, 8]}
+    click: false
+    items:
+      - {now: G9, show: {kind: grip, root: G, quality: '9', frets: [[4, 9], [3, 10], [2, 10], [1, 10]]}, bars: 2}
+      - {now: C9, show: {kind: grip, root: C, quality: '9', frets: [[4, 2], [3, 3], [2, 3], [1, 3]]}, bars: 2}
+      - {now: G9, show: {kind: grip, root: G, quality: '9', frets: [[4, 9], [3, 10], [2, 10], [1, 10]]}, bars: 2}
+      - {now: C9, show: {kind: grip, root: C, quality: '9', frets: [[4, 2], [3, 3], [2, 3], [1, 3]]}, bars: 2}
+
+  - section: Master this
+    key: null
+    show: null
+    now: And you can play
+    sub: one- and two-chord funk vamps, and the rhythm parts of most soul and disco
+    notes: ['The one: land beat 1 hard, every bar.', 'Each day: two minutes of muted motion, then the groove at 80, then at tempo.']
+    say: Master this, and most funk rhythm parts are open to you.
+    hold: 6
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['the hand keeps 16ths without thinking,', 'and the chord sounds only where the groove says,', 'at tempo, relaxed.']
+    hold: 5

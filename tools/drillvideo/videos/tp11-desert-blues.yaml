@@ -1,0 +1,30 @@
+# Short series: Desert blues. Written for the course (see the notes on screen).
+id: tp11-desert-blues
+title: "Desert blues"
+rule: "One drone, a pentatonic riff that loops until it hypnotises."
+bpm: 100
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Desert blues", lines: ["Malian desert blues (Ali Farka Touré, Tinariwen):", "the thumb drums the open A; hammer-ons and pull-offs above it."]}
+    hold: 3
+
+  - card: null
+    section: "West African desert blues"
+    key: "A minor pentatonic"
+    notes: ["Written for the course in the style."]
+    page:
+      root: A
+      repeat: 3
+      harmony: ["Am:i", "Am:i", "Am:i", "Am:i"]
+      voices: ["r:.5 1.0:.5 2.1:.5 3.2:.5 3.0:.5 3.2h:.5 2.1:.5 3.2:.5 | r:.5 2.1:.5 2.3h:.5 2.1p:.5 3.2:.5 3.0:.5 4.2:.5 3.0:.5 | r:.5 1.0:.5 1.3h:.5 1.0p:.5 2.1:.5 2.3h:.5 2.1p:.5 3.2:.5 | 3.0:.5 3.2h:.5 3.0p:.5 4.2:.5 4.0:.5 4.2h:.5 r:1 |", "5.0:1 5.0:1 5.0:1 5.0:1 | 5.0:1 5.0:1 5.0:1 5.0:1 | 5.0:1 5.0:1 5.0:1 5.0:1 | 5.0:1 5.0:1 5.0:2 |"]
+      marks: [[1, "The thumb on the open A every beat: a drone like the ngoni’s."], [3, "Hammer and pull on the top strings: A minor pentatonic only."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the thumb never wavers under the slurs,", "and the riff loops without a seam."]
+    hold: 3

@@ -1,0 +1,153 @@
+# Video 3a, short version: every drop 2 inversion of all five seventh chords on G, on all three string sets, across the
+# whole neck, each voicing strummed once and each ladder ending on the whole neck at once; then every inversion morphed
+# in place from maj7 down to °7. The voice only names the drill and each chord; everything else is on-screen text.
+# The full version, with in-time practice, is 03a-drop2-ladders. Written by a script: change the loops, not the steps.
+id: 03as-drop2-ladder
+title: Drop 2 inversions
+rule: Call the bass degree before you play each voicing.
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: Drop 2 inversions, lines: ['Every inversion of all five seventh chords,', 'on every set of four strings, across the whole neck,', 'then each inversion morphed from maj7 down to °7.']}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One chord type, one string set: every inversion from the bottom of the neck to the top", "2   Say the bass degree before you play each voicing", "3   Then morph each inversion: maj7 → 7 → m7 → m7♭5 → °7", "4   Next string set; then the next key from the table"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: Five seventh chords on G
+    sub: maj7 · 7 · m7 · m7♭5 · °7  ·  strings 4-3-2-1, 5-4-3-2, 6-5-4-3
+    notes: ['Each voicing is named by its bass note: 1, 3, 5 or 7.', 'Each ladder ends with all its voicings on the neck at once.']
+    say: Every drop 2 inversion of the five seventh chords on G, on each set of four strings, from the bottom of the neck to the top. Say the bass degree before each one.
+
+  # ---------- Gmaj7 ----------
+  - section: Gmaj7 · strings 4-3-2-1
+    notes: ['Gmaj7 = G B D F♯']
+    say: G major seven.
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj7, strings: [4, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gmaj7 · strings 5-4-3-2
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj7, strings: [5, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gmaj7 · strings 6-5-4-3
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: maj7, strings: [6, 5, 4, 3], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - notes: ['6-5-4-3 has no B string, so its shapes look different: learn them by the bass.']
+    hold: 3
+
+  # ---------- G7 ----------
+  - section: G7 · strings 4-3-2-1
+    notes: ['G7 = G B D F: the 7th lowered']
+    say: G seven.
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: '7', strings: [4, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G7 · strings 5-4-3-2
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: '7', strings: [5, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G7 · strings 6-5-4-3
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: '7', strings: [6, 5, 4, 3], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+
+  # ---------- Gm7 ----------
+  - section: Gm7 · strings 4-3-2-1
+    notes: ['Gm7 = G B♭ D F: the 3rd lowered too']
+    say: G minor seven.
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m7, strings: [4, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm7 · strings 5-4-3-2
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m7, strings: [5, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm7 · strings 6-5-4-3
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m7, strings: [6, 5, 4, 3], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+
+  # ---------- Gm7♭5 ----------
+  - section: Gm7♭5 · strings 4-3-2-1
+    notes: ['Gm7♭5 = G B♭ D♭ F: the 5th lowered too']
+    say: G minor seven flat five.
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m7b5, strings: [4, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm7♭5 · strings 5-4-3-2
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m7b5, strings: [5, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: Gm7♭5 · strings 6-5-4-3
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: m7b5, strings: [6, 5, 4, 3], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+
+  # ---------- G°7 ----------
+  - section: G°7 · strings 4-3-2-1
+    notes: ['G°7 = G B♭ D♭ F♭: the 7th lowered again (F♭ sounds as E)']
+    say: G diminished seven.
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: dim7, strings: [4, 3, 2, 1], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G°7 · strings 5-4-3-2
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: dim7, strings: [5, 4, 3, 2], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+  - section: G°7 · strings 6-5-4-3
+    play: strum 2
+    click: false
+    expand: {kind: ladder, root: G, quality: dim7, strings: [6, 5, 4, 3], minFret: 0, maxFret: 17, dir: up, bars: 0.5, sub: '{bassNote} on string {bassString}, fret {bassFret}', map: true}
+
+  # ---------- morphing ----------
+  - section: Morphing
+    now: One voicing, five chords
+    sub: maj7 → 7 → m7 → m7♭5 → °7 · one note down one fret each time
+    show: null
+    notes: ['The ringed note is the one that moved. The other three stay put.', 'Every inversion, on every string set.']
+    say: Now morph. Hold one voicing and lower one note at a time. Major seven, seven, minor seven, minor seven flat five, diminished seven. Every inversion, on every string set.
+  - section: Morphing · strings 4-3-2-1
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, strings: [4, 3, 2, 1], bars: 0.5}
+  - section: Morphing · strings 5-4-3-2
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, strings: [5, 4, 3, 2], bars: 0.5}
+  - section: Morphing · strings 6-5-4-3
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: morph, root: G, strings: [6, 5, 4, 3], bars: 0.5}
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths · all five chords on all three string sets
+    show: null
+    notes: null
+    table:
+      title: "Where each key starts: the bass degree and fret of the lowest maj7"
+      head: [Key, 4-3-2-1, 5-4-3-2, 6-5-4-3]
+      widths: [0.25, 0.25, 0.25, 0.25]
+      rows_from: {kind: ladderTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], quality: maj7, lowFret: 0, sets: [[4, 3, 2, 1], [5, 4, 3, 2], [6, 5, 4, 3]], cols: ['{chord}', '{sets[0][bass]} · {sets[0][at]}', '{sets[1][bass]} · {sets[1][at]}', '{sets[2][bass]} · {sets[2][at]}']}
+    say: Then every key, round the cycle of fourths. The table shows where each key's major seven starts.
+    hold: 6
+  - notes: ['The other four chords: morph each maj7 voicing down, one note at a time.', 'Each day: one chord on all three string sets, in two or three keys, plus one old key.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can call any chord and bass degree and find that voicing', 'in any key, on any string set, within a few seconds,', 'and morph any voicing from maj7 to °7 without stopping.']
+    hold: 6

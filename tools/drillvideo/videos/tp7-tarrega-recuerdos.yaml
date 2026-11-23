@@ -1,0 +1,31 @@
+# Short series: Tárrega, Recuerdos de la Alhambra, bars 1–8. From the classtab.org tab (Alberto Carrillo Albaladejo),
+# its tremolo shorthand (t5) written out: each eighth is p then a m i on the melody note, in 32nds.
+id: tp7-tarrega-recuerdos
+title: "Tárrega: Recuerdos de la Alhambra"
+rule: "p a m i: one bass, then the melody three times."
+bpm: 66
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Tárrega: Recuerdos de la Alhambra", lines: ["The tremolo study: a melody that seems to sustain,", "made of one note picked three times, a m i, after each bass note."]}
+    hold: 3
+
+  - card: null
+    section: "Classical tremolo"
+    key: "A minor"
+    notes: ["Tab: Alberto Carrillo Albaladejo (classtab.org), the tremolo written out."]
+    page:
+      root: A
+      repeat: 2
+      harmony: ["Am:i", "Am:i", "Am:i", "Am:i", "C:III", "C:III", "C:III", "C:III"]
+      voices: ["r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.3:.125 2.3:.125 2.3:.125 r:.125 2.3:.125 2.3:.125 2.3:.125 | r:.125 2.1:.125 2.1:.125 2.1:.125 r:.125 2.1:.125 2.1:.125 2.1:.125 r:.125 2.1:.125 2.1:.125 2.1:.125 r:.125 2.1:.125 2.1:.125 2.1:.125 r:.125 2.3:.125 2.3:.125 2.3:.125 r:.125 2.3:.125 2.3:.125 2.3:.125 | r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 | r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.6:.125 2.6:.125 2.6:.125 r:.125 2.6:.125 2.6:.125 2.6:.125 | r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.6:.125 2.6:.125 2.6:.125 r:.125 2.6:.125 2.6:.125 2.6:.125 | r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.5:.125 2.5:.125 2.5:.125 r:.125 2.6:.125 2.6:.125 2.6:.125 r:.125 2.6:.125 2.6:.125 2.6:.125 | r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 | r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 r:.125 2.8:.125 2.8:.125 2.8:.125 |", "5.0:.5 4.2:.5 3.5:.5 4.2:.5 3.4:.5 4.2:.5 | 5.0:.5 4.2:.5 3.2:.5 4.2:.5 3.4:.5 4.2:.5 | 5.0:.5 4.2:.5 3.5:.5 4.2:.5 3.5:.5 4.2:.5 | 5.0:.5 4.2:.5 3.5:.5 4.2:.5 3.7:.5 3.0:.5 | 6.8:.5 3.0:.5 3.9:.5 3.0:.5 3.7:.5 3.0:.5 | 5.3:.5 3.0:.5 3.5:.5 3.0:.5 3.7:.5 3.0:.5 | 6.8:.5 3.0:.5 3.9:.5 3.0:.5 3.9:.5 3.0:.5 | 6.8:.5 3.0:.5 3.9:.5 3.0:.5 3.9:.5 3.0:.5 |"]
+      marks: [[1, "Each eighth: p on the bass, then a m i on the melody note: even, like one held note."], [5, "Bars 5–8: C, the relative major; the bass drops to the 6th string."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the three tremolo notes are even in time and volume,", "and the melody sounds like one sustained line."]
+    hold: 3

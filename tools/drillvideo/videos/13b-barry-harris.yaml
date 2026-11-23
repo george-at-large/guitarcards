@@ -1,0 +1,98 @@
+# Video 13b: Barry Harris 6th-diminished (plan v3), after Marbin, "The Painful Practice You're Not Doing". The scale,
+# its 4-note chunks, its harmonisation in drop 2 on each set, the diminished as 2 4 ♭6 7 of the key, and the
+# "where am I going?" move.
+id: 13b-barry-harris
+title: The 6th-diminished scale
+rule: Every other note is the chord; the notes between are its diminished.
+bpm: 90
+captions: false
+
+steps:
+  - card: {title: The 6th-diminished scale, lines: ['Barry Harris’s eight-note scale on G:', 'G6 plus the diminished chord a half step below,', 'as a scale, in chunks, and harmonised in drop 2.']}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The scale in one region, then in 4-note chunks", "2   The harmonised scale up one string set: G6, F♯°7, G6…", "3   Apply it: G6 → B7 → Em6, hearing B7 as D♯°7", "4   Next key"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: G6 + F♯°7
+    sub: G A B C D E♭ E F♯ · chord tone, diminished tone, alternating
+    show: {kind: run, root: G, tones: ['1', '2', '3', '4', '5', b6, '6', '7'], region: {frets: [0, 17]}}
+    notes: ['After Marbin: G6 = G B D E; F♯°7 = F♯ A C E♭. Together, eight notes.']
+    say: Barry Harris’s sixth diminished scale. G six plus the diminished chord a half step below it, so every other note is the chord.
+    hold: 3
+
+  - section: The scale · A-form region
+    now: Up and down
+    sub: frets 9–13
+    show: {kind: run, root: G, tones: ['1', '2', '3', '4', '5', b6, '6', '7'], region: {caged: A}, path: up-and-down}
+    band: true
+    notes: null
+    play: run 0.5
+    hold: 0.5
+  - now: In 4-note chunks
+    sub: a chord chunk, then a diminished chunk a step higher, and so on
+    show: {kind: run, root: G, tones: ['1', '2', '3', '4', '5', b6, '6', '7'], region: {caged: A}, sequence: {kind: pattern, degrees: [1, 3, 5, 7]}}
+    notes: ['Practise chunks, not two-octave runs: a chunk drops straight into a line.']
+    say: In chunks of four.
+    play: run 0.5
+    hold: 0.5
+
+  - section: The diminished, from the key
+    now: F♯°7 = 2 4 ♭6 7 of G
+    sub: A C E♭ F♯ · a rootless D7♭9 pulling home
+    show: {kind: run, root: G, tones: ['2', '4', b6, '7'], region: {frets: [0, 17]}}
+    band: null
+    notes: ['Name the diminished from the tonic, not from its own root: then every diminished chunk is a dominant.']
+    say: Think of the diminished as two, four, flat six and seven of the key. It’s a rootless D seven flat nine, pulling home.
+    hold: 2
+
+  - section: Harmonised · strings 4-3-2-1
+    now: G6 and F♯°7, every voice up a step
+    sub: the scale harmonised in drop 2
+    show: null
+    notes: ['Each voice moves to the next scale note: the chords alternate G6, F♯°7, G6…']
+    say: Harmonised in drop 2. G six and the diminished, alternating, every voice moving up a step.
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: '| I:6/1 vii:dim7/b3 | I:6/3 vii:dim7/b5 | I:6/5 vii:dim7/bb7 | I:6/6 vii:dim7/1 | I:6/1 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 0, bars: 0.5, sub: '{roman}'}
+  - section: Harmonised · strings 5-4-3-2
+    notes: null
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: '| I:6/1 vii:dim7/b3 | I:6/3 vii:dim7/b5 | I:6/5 vii:dim7/bb7 | I:6/6 vii:dim7/1 | I:6/1 |', voicing: drop2, strings: [5, 4, 3, 2], startFret: 0, bars: 0.5, sub: '{roman}'}
+  - section: Harmonised · strings 6-5-4-3
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: '| I:6/1 vii:dim7/b3 | I:6/3 vii:dim7/b5 | I:6/5 vii:dim7/bb7 | I:6/6 vii:dim7/1 | I:6/1 |', voicing: drop2, strings: [6, 5, 4, 3], startFret: 0, bars: 0.5, sub: '{roman}'}
+
+  - section: Where am I going?
+    now: G6 → B7 → Em6
+    sub: as written
+    notes: ['B7 is the diminished of E: D♯ F♯ A C, a rootless B7♭9.']
+    say: Use it. In G six, B seven, E minor six, hear the B seven as the diminished of where you’re going.
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: '| I:6 | III:7 | vi:m6 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5}
+  - now: G6 → D♯°7 → Em6
+    sub: as Barry Harris would think it
+    play: strum 2
+    click: false
+    expand: {kind: prog, key: G, chart: '| I:6 | #v:dim7 | vi:m6 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5}
+  - notes: ['One scale covers both bars: E minor 6th-diminished. Diminished notes over B7, tonic notes over Em6.']
+    hold: 4
+
+  - section: All 12 keys
+    key: null
+    now: Then every key
+    sub: the chord, plus the diminished a half step below its root
+    show: null
+    notes: ['C6 + B°7, F6 + E°7, B♭6 + A°7 … round the cycle of fourths.', 'Each day: one key, the scale in two regions and the harmonised scale on one set.']
+    say: Then every key. The sixth chord, plus the diminished a half step below its root.
+    hold: 7
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play the 6th-diminished scale of any key in 4-note chunks,', 'and harmonise it in drop 2 on any set,', 'naming each diminished as 2 4 ♭6 7 of the key.']
+    hold: 6

@@ -1,0 +1,38 @@
+# Repertoire J4: Sweet Georgia Brown (Bernie, Pinkard and Casey, 1925; public domain in the US since 2021): the changes
+# of the first 16 bars, a chain of dominants falling in 4ths, in F. Harmony only.
+id: j4-sweet-georgia-brown
+title: Sweet Georgia Brown
+rule: Four dominants, four bars each, each the V of the next.
+bpm: 160
+captions: false
+
+steps:
+  - card: {title: Sweet Georgia Brown, lines: ['The changes of the 1925 standard:', 'VI7 – II7 – V7 – I, four bars each, round the cycle of 4ths.']}
+    hold: 4
+  - card: {title: The drill, lines: ['1   The four dominants in drop 2, four bars each', '2   Then as guide tones: each 7th falls to the next 3rd', '3   Then at tempo, swung, on shells']}
+    hold: 7
+
+  - card: null
+    section: The changes
+    key: F major
+    now: D7 – G7 – C7 – F
+    sub: VI7 – II7 – V7 – I · each the V of the next
+    notes: ['A chain of secondary dominants: the tune is “waiting” to get home for 12 bars.']
+    play: strum 4
+    click: false
+    expand: {kind: prog, key: F, chart: '| VI:7 | VI:7 | VI:7 | VI:7 | II:7 | II:7 | II:7 | II:7 | V:7 | V:7 | V:7 | V:7 | I:6 | I:6 | I:6 | I:6 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 5, bars: 0.5, sub: '{roman}'}
+  - section: Guide tones
+    now: The 7th falls to the 3rd
+    sub: C → B, F → E, B♭ → A
+    notes: ['Two notes carry the whole chain: the 7th of each chord resolves down a half step to the 3rd of the next.']
+    play: strum 4
+    click: false
+    expand: {kind: loop, chart: '| VI:7 | II:7 | V:7 | I:6 |', keys: [F], voicing: close, strings: [3, 2], guide: true, startFret: 5, bars: 1, now: '{chord}', sub: '{roman}'}
+
+  - section: null
+    key: null
+    notes: ['The same chain is the bridge of rhythm changes (j2), and the heart of ragtime and early jazz.']
+    card:
+      title: You've got it when
+      lines: ['you can comp the 16 bars at 160 without a chart,', 'sing the guide-tone line,', 'and name each chord as the V of the next.']
+    hold: 5

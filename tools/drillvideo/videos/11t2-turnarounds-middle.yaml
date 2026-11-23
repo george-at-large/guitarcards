@@ -1,0 +1,192 @@
+# Progression strand: turnarounds in the five areas, after Marbin's fifteen areas (plan v3).
+# Written by gen.py: change the loops there, not the steps here.
+id: 11t2-turnarounds-middle
+title: "Turnarounds in five areas"
+rule: "Stay in the area: every chord is a fret or two away."
+bpm: 80
+captions: false
+
+steps:
+  - card: {title: "Turnarounds in five areas", lines: ["Five essential progressions, voice-led", "without leaving each of the five CAGED areas,", "on the middle four strings."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One progression in one area: every chord to the nearest voicing", "2   The same progression in the next area, until all five are done", "3   Next progression; then the next key"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Five progressions, five areas"
+    sub: "ii–V–I · I–vi–ii–V · iii–VI–ii–V · backdoor · minor ii–V–i"
+    notes: ["Each chord moves to the nearest voicing of the next.", "The band is the area: the hand never leaves it."]
+    say: "Five progressions in G, each played in the five CAGED areas without moving out of the area. Every chord moves to the nearest voicing of the next."
+
+  # ---------- ii–V–I ----------
+  - section: ii–V–I · E-form area
+    notes: ['Am7 – D7 – Gmaj7: the 7th of each chord falls to the 3rd of the next.']
+    say: "Two five one."
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 |', strings: [5, 4, 3, 2], form: E, bars: 0.5, now: '{chord}', sub: '{roman} · E-form area'}
+    hold: 0.4
+  - section: ii–V–I · D-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 |', strings: [5, 4, 3, 2], form: D, bars: 0.5, now: '{chord}', sub: '{roman} · D-form area'}
+    hold: 0.4
+  - section: ii–V–I · C-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 |', strings: [5, 4, 3, 2], form: C, bars: 0.5, now: '{chord}', sub: '{roman} · C-form area'}
+    hold: 0.4
+  - section: ii–V–I · A-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 |', strings: [5, 4, 3, 2], form: A, bars: 0.5, now: '{chord}', sub: '{roman} · A-form area'}
+    hold: 0.4
+  - section: ii–V–I · G-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 |', strings: [5, 4, 3, 2], form: G, bars: 0.5, now: '{chord}', sub: '{roman} · G-form area'}
+    hold: 0.4
+
+  # ---------- I–vi–ii–V ----------
+  - section: I–vi–ii–V · E-form area
+    notes: ['Gmaj7 – Em7 – Am7 – D7: the standard turnaround.']
+    say: "One six two five."
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| I:maj7 | vi:m7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: E, bars: 0.5, now: '{chord}', sub: '{roman} · E-form area'}
+    hold: 0.4
+  - section: I–vi–ii–V · D-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| I:maj7 | vi:m7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: D, bars: 0.5, now: '{chord}', sub: '{roman} · D-form area'}
+    hold: 0.4
+  - section: I–vi–ii–V · C-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| I:maj7 | vi:m7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: C, bars: 0.5, now: '{chord}', sub: '{roman} · C-form area'}
+    hold: 0.4
+  - section: I–vi–ii–V · A-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| I:maj7 | vi:m7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: A, bars: 0.5, now: '{chord}', sub: '{roman} · A-form area'}
+    hold: 0.4
+  - section: I–vi–ii–V · G-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| I:maj7 | vi:m7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: G, bars: 0.5, now: '{chord}', sub: '{roman} · G-form area'}
+    hold: 0.4
+
+  # ---------- iii–VI–ii–V ----------
+  - section: iii–VI–ii–V · E-form area
+    notes: ['Bm7 – E7 – Am7 – D7: E7 is the V of Am7.']
+    say: "Three six two five."
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iii:m7 | VI:7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: E, bars: 0.5, now: '{chord}', sub: '{roman} · E-form area'}
+    hold: 0.4
+  - section: iii–VI–ii–V · D-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iii:m7 | VI:7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: D, bars: 0.5, now: '{chord}', sub: '{roman} · D-form area'}
+    hold: 0.4
+  - section: iii–VI–ii–V · C-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iii:m7 | VI:7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: C, bars: 0.5, now: '{chord}', sub: '{roman} · C-form area'}
+    hold: 0.4
+  - section: iii–VI–ii–V · A-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iii:m7 | VI:7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: A, bars: 0.5, now: '{chord}', sub: '{roman} · A-form area'}
+    hold: 0.4
+  - section: iii–VI–ii–V · G-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iii:m7 | VI:7 | ii:m7 | V:7 |', strings: [5, 4, 3, 2], form: G, bars: 0.5, now: '{chord}', sub: '{roman} · G-form area'}
+    hold: 0.4
+
+  # ---------- Backdoor ----------
+  - section: Backdoor · E-form area
+    notes: ['Cm7 – F7 – Gmaj7: home from a whole step below, borrowed from G minor.']
+    say: "The backdoor."
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iv:m7 | bVII:7 | I:maj7 |', strings: [5, 4, 3, 2], form: E, bars: 0.5, now: '{chord}', sub: '{roman} · E-form area'}
+    hold: 0.4
+  - section: Backdoor · D-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iv:m7 | bVII:7 | I:maj7 |', strings: [5, 4, 3, 2], form: D, bars: 0.5, now: '{chord}', sub: '{roman} · D-form area'}
+    hold: 0.4
+  - section: Backdoor · C-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iv:m7 | bVII:7 | I:maj7 |', strings: [5, 4, 3, 2], form: C, bars: 0.5, now: '{chord}', sub: '{roman} · C-form area'}
+    hold: 0.4
+  - section: Backdoor · A-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iv:m7 | bVII:7 | I:maj7 |', strings: [5, 4, 3, 2], form: A, bars: 0.5, now: '{chord}', sub: '{roman} · A-form area'}
+    hold: 0.4
+  - section: Backdoor · G-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| iv:m7 | bVII:7 | I:maj7 |', strings: [5, 4, 3, 2], form: G, bars: 0.5, now: '{chord}', sub: '{roman} · G-form area'}
+    hold: 0.4
+
+  # ---------- Minor ii–V–i ----------
+  - section: Minor ii–V–i · E-form area
+    notes: ['Aø – D7 – Gm6: the minor-key cadence.']
+    say: "Minor two five one."
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7b5 | V:7 | i:m6 |', strings: [5, 4, 3, 2], form: E, bars: 0.5, now: '{chord}', sub: '{roman} · E-form area'}
+    hold: 0.4
+  - section: Minor ii–V–i · D-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7b5 | V:7 | i:m6 |', strings: [5, 4, 3, 2], form: D, bars: 0.5, now: '{chord}', sub: '{roman} · D-form area'}
+    hold: 0.4
+  - section: Minor ii–V–i · C-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7b5 | V:7 | i:m6 |', strings: [5, 4, 3, 2], form: C, bars: 0.5, now: '{chord}', sub: '{roman} · C-form area'}
+    hold: 0.4
+  - section: Minor ii–V–i · A-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7b5 | V:7 | i:m6 |', strings: [5, 4, 3, 2], form: A, bars: 0.5, now: '{chord}', sub: '{roman} · A-form area'}
+    hold: 0.4
+  - section: Minor ii–V–i · G-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7b5 | V:7 | i:m6 |', strings: [5, 4, 3, 2], form: G, bars: 0.5, now: '{chord}', sub: '{roman} · G-form area'}
+    hold: 0.4
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths
+    show: null
+    band: null
+    notes: null
+    table:
+      title: "Where each key's areas sit: the I chord's root (string: fret) in each form"
+      head: [Key, E form, D form, C form, A form, G form]
+      widths: [0.2, 0.16, 0.16, 0.16, 0.16, 0.16]
+      rows_from: {kind: areasTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], forms: [E, D, C, A, G], cols: ['{key}', '{at[0]}', '{at[1]}', '{at[2]}', '{at[3]}', '{at[4]}']}
+    say: Then every key, round the cycle of fourths, five areas each.
+    hold: 6
+  - notes: ['In each key: find the I chord’s root in each form, then voice-lead the progression inside that area.', 'Each day: one progression in all five areas, in one or two keys.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play all five progressions in any of the five areas', 'of any key, without leaving the area', 'and without stopping between chords.']
+    hold: 6

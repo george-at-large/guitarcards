@@ -1,0 +1,187 @@
+# Video 5a: seventh arpeggios in the five CAGED regions.
+# Written by gen.py: change the loops there, not the steps here.
+id: 05a-seventh-arpeggios
+title: "Seventh arpeggios"
+rule: "Every region, lowest note to highest: say the degree you land on."
+bpm: 120
+captions: false
+
+steps:
+  - card: {title: "Seventh arpeggios", lines: ["maj7, 7, m7, m7♭5 and °7 arpeggios on G,", "in each of the five CAGED regions,", "from the lowest note in the region to the highest and back."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   One arpeggio, one region: lowest note to highest and back", "2   The same arpeggio in the next region, all five", "3   Then start on the 3rd, 5th or 7th instead of the root", "4   Next arpeggio; then the next key from the table"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Five seventh arpeggios on G"
+    sub: "maj7 · 7 · m7 · m7♭5 · °7 · five regions each"
+    notes: ["Play every chord tone in the region, not root to root: the shape is the region, not the octave.", "Then start on any chord tone: the 3rd, the 5th, the 7th."]
+    say: "Seventh arpeggios on G, in each of the five regions, from the lowest note to the highest and back."
+  - section: "Gmaj7"
+    notes: ["Gmaj7 = G B D F♯"]
+    say: "G major seven."
+  - now: "G-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: maj7, region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+  - now: "E-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: maj7, region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+  - now: "D-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: maj7, region: {caged: D}, path: up}
+    band: true
+    play: run 0.5
+  - now: "C-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: maj7, region: {caged: C}, path: up}
+    band: true
+    play: run 0.5
+  - now: "A-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: maj7, region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+  - section: "G7"
+    notes: ["G7 = G B D F"]
+    say: "G seven."
+  - now: "G-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '7', region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+  - now: "E-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '7', region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+  - now: "D-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '7', region: {caged: D}, path: up}
+    band: true
+    play: run 0.5
+  - now: "C-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '7', region: {caged: C}, path: up}
+    band: true
+    play: run 0.5
+  - now: "A-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: '7', region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+  - section: "Gm7"
+    notes: ["Gm7 = G B♭ D F"]
+    say: "G minor seven."
+  - now: "G-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7, region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+  - now: "E-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7, region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+  - now: "D-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7, region: {caged: D}, path: up}
+    band: true
+    play: run 0.5
+  - now: "C-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7, region: {caged: C}, path: up}
+    band: true
+    play: run 0.5
+  - now: "A-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7, region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+  - section: "Gm7♭5"
+    notes: ["Gm7♭5 = G B♭ D♭ F"]
+    say: "G minor seven flat five."
+  - now: "G-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7b5, region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+  - now: "E-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7b5, region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+  - now: "D-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7b5, region: {caged: D}, path: up}
+    band: true
+    play: run 0.5
+  - now: "C-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7b5, region: {caged: C}, path: up}
+    band: true
+    play: run 0.5
+  - now: "A-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: m7b5, region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+  - section: "G°7"
+    notes: ["G°7 = G B♭ D♭ E: four notes a minor 3rd apart; it repeats every 3 frets"]
+    say: "G diminished seven."
+  - now: "G-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: dim7, region: {caged: G}, path: up}
+    band: true
+    play: run 0.5
+  - now: "E-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: dim7, region: {caged: E}, path: up}
+    band: true
+    play: run 0.5
+  - now: "D-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: dim7, region: {caged: D}, path: up}
+    band: true
+    play: run 0.5
+  - now: "C-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: dim7, region: {caged: C}, path: up}
+    band: true
+    play: run 0.5
+  - now: "A-form region"
+    sub: lowest note to highest (then play it back down)
+    show: {kind: run, root: G, quality: dim7, region: {caged: A}, path: up}
+    band: true
+    play: run 0.5
+
+  # ---------- all 12 keys ----------
+  - section: All 12 keys
+    key: null
+    mark: null
+    now: Then every key
+    sub: round the cycle of fourths
+    show: null
+    band: null
+    notes: null
+    table:
+      title: "Where each key's regions sit: the root's string and fret in each form"
+      head: [Key, E form, D form, C form, A form, G form]
+      widths: [0.16, 0.168, 0.168, 0.168, 0.168, 0.168]
+      rows_from: {kind: areasTable, keys: [G, C, F, Bb, Eb, Ab, Db, Gb, B, E, A, D], forms: [E, D, C, A, G], cols: ['{key}', '{at[0]}', '{at[1]}', '{at[2]}', '{at[3]}', '{at[4]}']}
+    say: Then every key. The table shows where each region sits.
+    hold: 6
+  - notes: ['Each day: one arpeggio through all five regions, in two keys.']
+    hold: 7
+
+  - section: null
+    table: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can play all five seventh arpeggios in any region,', 'starting on any chord tone,', 'and name the degree on every note.']
+    hold: 6

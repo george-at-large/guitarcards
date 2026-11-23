@@ -1,0 +1,86 @@
+# Video 10: walking bass, then bass and shells (plan v3). Four-bar lines in G built backwards from the next root: the
+# chord on beat 1, an approach note on the last beat. Each note's dot says what it is.
+id: 10-walking-bass
+title: Walking bass
+rule: Beat 1 is the chord; the last beat points at the next root.
+bpm: 90
+captions: false
+
+steps:
+  - card: {title: Walking bass, lines: ['Bass lines for ii–V–I and I–vi–ii–V in G:', 'two notes a bar, then four,', 'then with shells on top.']}
+    hold: 4
+  - card: {title: The drill, lines: ["1   Two-feel: the root on beat 1, an approach note on beat 3", "2   Four-feel: root, a chord tone or step, then the approach on beat 4", "3   Add shells on beats 1 and 3", "4   Next progression; next key"]}
+    hold: 9.2
+  - card: null
+    section: The idea
+    key: Key of G
+    now: Build it backwards
+    sub: the root on beat 1 · an approach note into the next root on the last beat
+    notes: ['ap = approach note: a half step below or above the next root.']
+    say: A walking line is built backwards. Land on the chord on beat one, and make the last beat lead into the next root.
+
+  # ---------- ii–V–I ----------
+  - section: ii–V–I · two-feel
+    now: Am7 – D7 – Gmaj7
+    sub: root, then an approach into the next root
+    say: Two five one, in two.
+    play: run 2
+    click: false
+    items:
+      - {now: Am7, sub: 'A (root) · C♯: a half step below D', show: {kind: line, root: A, pitches: [A2, C#3], each: [6, 5], labels: ['1', ap]}}
+      - {now: D7, sub: 'D (root) · F♯: a half step below G', show: {kind: line, root: D, pitches: [D3, F#2], each: [5, 6], labels: ['1', ap]}}
+      - {now: Gmaj7, sub: 'G (root) · D (the 5th)', show: {kind: line, root: G, pitches: [G2, D3], each: [6, 5], labels: ['1', '5']}}
+      - {now: Gmaj7, sub: 'G (root) · B♭: a half step above A', show: {kind: line, root: G, pitches: [G2, Bb2], each: [6, 6], labels: ['1', ap]}}
+  - section: ii–V–I · four-feel
+    now: Am7 – D7 – Gmaj7
+    sub: root · chord tone or scale step · approach
+    say: In four.
+    play: run 1
+    click: false
+    items:
+      - {now: Am7, sub: 'A B C, then C♯ into D', show: {kind: line, root: A, pitches: [A2, B2, C3, C#3], each: [6, 6, 5, 5], labels: ['1', '2', b3, ap]}}
+      - {now: D7, sub: 'D F♯ A, then A♭ into G', show: {kind: line, root: D, pitches: [D3, F#3, A3, Ab3], each: [5, 4, 4, 4], labels: ['1', '3', '5', ap]}}
+      - {now: Gmaj7, sub: 'G D B, then G (down the chord)', show: {kind: line, root: G, pitches: [G3, D3, B2, G2], each: [4, 5, 5, 6], labels: ['1', '5', '3', '1']}}
+      - {now: Gmaj7, sub: 'G A B, then B♭ into A', show: {kind: line, root: G, pitches: [G2, A2, B2, Bb2], each: [6, 6, 5, 5], labels: ['1', '2', '3', ap]}}
+
+  # ---------- I–vi–ii–V ----------
+  - section: I–vi–ii–V · four-feel
+    now: Gmaj7 – Em7 – Am7 – D7
+    sub: arpeggio up, then the approach
+    notes: ['Approach from below or above: any chromatic neighbour of the next root works.']
+    say: One six two five, in four.
+    play: run 1
+    click: false
+    items:
+      - {now: Gmaj7, sub: 'G B D, then D♯ into E', show: {kind: line, root: G, pitches: [G2, B2, D3, D#3], each: [6, 5, 5, 5], labels: ['1', '3', '5', ap]}}
+      - {now: Em7, sub: 'E D B, then A♯ into A', show: {kind: line, root: E, pitches: [E3, D3, B2, Bb2], each: [5, 5, 5, 5], labels: ['1', b7, '5', ap]}}
+      - {now: Am7, sub: 'A C E, then E♭ into D', show: {kind: line, root: A, pitches: [A2, C3, E3, Eb3], each: [6, 5, 5, 5], labels: ['1', b3, '5', ap]}}
+      - {now: D7, sub: 'D C A, then A♭ into G', show: {kind: line, root: D, pitches: [D3, C3, A2, Ab2], each: [5, 5, 6, 6], labels: ['1', b7, '5', ap]}}
+
+  # ---------- bass and shells ----------
+  - section: Bass and shells
+    notes: ['Thumb on the bass; fingers on the 3rd and 7th on strings 4-3, struck on 1 and 3.']
+    now: Am7 – D7 – Gmaj7
+    say: Then add the shells. Thumb on the bass, fingers on the third and seventh.
+    play: [{hits: [0, 2]}, run 1]
+    click: false
+    items:
+      - {now: Am7, sub: 'shell: C and G', show: [{kind: line, root: A, pitches: [A2, B2, C3, C#3], each: [6, 6, 5, 5], labels: ['1', '2', b3, ap]}, {kind: grip, root: A, quality: m7, frets: [[4, 5], [3, 5]]}]}
+      - {now: D7, sub: 'shell: F♯ and C', show: [{kind: line, root: D, pitches: [D3, C3, A2, Ab2], each: [5, 5, 6, 6], labels: ['1', b7, '5', ap]}, {kind: grip, root: D, quality: '7', frets: [[4, 4], [3, 5]]}]}
+      - {now: Gmaj7, sub: 'shell: F♯ and B', show: [{kind: line, root: G, pitches: [G2, B2, D3, D#3], each: [6, 5, 5, 5], labels: ['1', '3', '5', ap]}, {kind: grip, root: G, quality: maj7, frets: [[4, 4], [3, 4]]}]}
+      - {now: Em7, sub: 'shell: G and D', show: [{kind: line, root: E, pitches: [E3, D3, B2, Bb2], each: [5, 5, 5, 5], labels: ['1', b7, '5', ap]}, {kind: grip, root: E, quality: m7, frets: [[4, 5], [3, 7]]}]}
+
+  - section: All 12 keys
+    key: null
+    show: null
+    now: Then every key
+    sub: the same recipe · root, chord tones, approach
+    notes: ['Keep the line on strings 6 and 5 in one area: find each root there first (Video 1).', 'Each day: one progression, two-feel then four-feel, in two keys.']
+    say: Then every key, with the same recipe.
+    hold: 7
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['you can walk four-feel through a ii–V–I and a I–vi–ii–V', 'in any key, landing on every root on beat 1,', 'with shells on top.']
+    hold: 6

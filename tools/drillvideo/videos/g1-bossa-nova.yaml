@@ -1,0 +1,90 @@
+# Genre intro G1: bossa nova. One two-bar right-hand pattern throughout (thumb on root and 5th, fingers pushing off the
+# beat), four grips with the bass on strings 6 and 5, an Ipanema-type progression in G, and the anticipation: the
+# pattern's last & played as the next chord.
+id: g1-bossa-nova
+title: Bossa nova
+rule: The thumb keeps time; the fingers push against it.
+bpm: 110
+captions: false
+
+steps:
+  - card: {title: Bossa nova, lines: ['One right-hand pattern, four grips and one progression:', 'enough to play most bossa nova.']}
+    hold: 4
+  - card: {title: The drill, lines: ['1   The thumb alone: root on 1, 5th on 3, straight 8ths', '2   Add the fingers: the two-bar pattern, the same every time', '3   The progression, every chord on beat 1', '4   Then push some changes: the last & plays the next chord']}
+    hold: 9.2
+
+  # ---------- the thumb ----------
+  - card: null
+    section: The thumb
+    key: Key of G
+    now: Root on 1, 5th on 3
+    sub: thumb (p) on strings 6 and 5 · straight 8ths, not swung
+    show: {kind: grip, root: G, quality: maj7, frets: [[6, 3], [5, 5], [4, 4], [3, 4], [2, 3]]}
+    notes: ['Soft and steady: the thumb is a heartbeat. It never changes.']
+    say: The thumb. Root on beat one, fifth on beat three. Straight eighths, not swung.
+    bpm: 90
+    play: {groove: 'T - - - t - - - | T - - - t - - -', grid: 2}
+
+  # ---------- the pattern ----------
+  - section: The pattern
+    now: The two-bar pattern
+    sub: 'fingers (ima): bar 1 on 1, & of 2, & of 3 · bar 2 on 2 and & of 3'
+    notes: ['This pattern stays the same for the whole video and for every chord.']
+    say: Add the fingers. This two bar pattern never changes.
+    play: {groove: 'TF - - F t - F - | T - F - t F - -', grid: 2, repeat: 2}
+
+  # ---------- the grips ----------
+  - section: The grips
+    now: Four grips, bass on strings 6 and 5
+    sub: thumb on the root and 5th · fingers on strings 4-3-2
+    notes: ['Bossa harmony is 7ths, 9ths and 6ths: never plain triads.']
+    say: Four grips.
+    play: strum 2
+    click: false
+    items:
+      - {now: Gmaj7, show: {kind: grip, root: G, quality: maj7, frets: [[6, 3], [5, 5], [4, 4], [3, 4], [2, 3]]}, bars: 0.5}
+      - {now: A7, show: {kind: grip, root: A, quality: '7', frets: [[6, 5], [5, 7], [4, 5], [3, 6], [2, 5]]}, bars: 0.5}
+      - {now: Am7, show: {kind: grip, root: A, quality: m7, frets: [[6, 5], [5, 7], [4, 5], [3, 5], [2, 5]]}, bars: 0.5}
+      - {now: D9, show: {kind: grip, root: D, quality: '9', frets: [[5, 5], [6, 5], [4, 4], [3, 5], [2, 5]]}, bars: 0.5}
+
+  # ---------- the progression ----------
+  - section: The progression
+    bpm: 110
+    now: Gmaj7 – A7 – Am7 – D9
+    sub: the pattern once per chord · every chord lands on beat 1
+    notes: null
+    say: The progression. The pattern once for each chord.
+    play: {groove: 'TF - - F t - F - | T - F - t F - -', grid: 2}
+    click: false
+    items:
+      - {now: Gmaj7, show: {kind: grip, root: G, quality: maj7, frets: [[6, 3], [5, 5], [4, 4], [3, 4], [2, 3]]}, bars: 2}
+      - {now: A7, show: {kind: grip, root: A, quality: '7', frets: [[6, 5], [5, 7], [4, 5], [3, 6], [2, 5]]}, bars: 2}
+      - {now: Am7, show: {kind: grip, root: A, quality: m7, frets: [[6, 5], [5, 7], [4, 5], [3, 5], [2, 5]]}, bars: 2}
+      - {now: D9, show: {kind: grip, root: D, quality: '9', frets: [[5, 5], [6, 5], [4, 4], [3, 5], [2, 5]]}, bars: 2}
+
+  # ---------- the push ----------
+  - section: The push
+    now: Push a change
+    sub: the last & of the pattern plays the next chord · then beat 1 is thumb only
+    notes: ['ima→ = the fingers play the next chord an 8th early. The rest of the pattern is unchanged.', 'Players push some changes, not all: often where the melody pushes. Practise it both ways.']
+    say: The push. On the very last and of the pattern, the fingers play the next chord early. Then beat one is just the thumb. Players do this on some changes, not all.
+    play: {groove: 'TF - - F t - F - | T - F - t F - N', grid: 2}
+    click: false
+    items:
+      - {now: Gmaj7, sub: 'the last & already plays A7', show: {kind: grip, root: G, quality: maj7, frets: [[6, 3], [5, 5], [4, 4], [3, 4], [2, 3]]}, bars: 2}
+      - {now: A7, sub: 'beat 1: thumb only, the chord is already sounding', show: {kind: grip, root: A, quality: '7', frets: [[6, 5], [5, 7], [4, 5], [3, 6], [2, 5]]}, bars: 2, play: {groove: 'T - - F t - F - | T - F - t F - -', grid: 2}}
+
+  - section: Master this
+    key: null
+    show: null
+    now: And you can play
+    sub: Ipanema-type, Corcovado-type and Desafinado-type tunes
+    notes: ['Same pattern for any bossa chart: change the grips, keep the hand.', 'Each day: the progression on the beat, then with pushes, slowly, then at tempo. Then in C, F and D.']
+    say: Master this, and most bossa nova is open to you.
+    hold: 6
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['the thumb stays steady on its own under the two-bar pattern,', 'through the progression at tempo,', 'and you can push any change you choose.']
+    hold: 5

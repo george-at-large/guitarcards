@@ -1,0 +1,136 @@
+# Video C7: a selection of Giuliani's 120 right-hand studies, Op. 1.
+# Written by gen.py: change the loops there, not the steps here.
+id: C7-giuliani-arpeggios
+title: "Giuliani: 12 right-hand studies"
+rule: "Each finger owns its string: the hand stays still."
+bpm: 84
+captions: false
+
+steps:
+  - card: {title: "Giuliani: 12 right-hand studies", lines: ["Twelve of Giuliani’s 120 right-hand studies (Op. 1, 1812):", "arpeggio patterns on C and G7, from simple to virtuosic."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Each pattern on C, then G7, two bars", "2   Planted fingers: rest each finger on its string before it plays", "3   Then the next pattern; tempo up only when it is even"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: C major
+    now: "C – G7, one pattern at a time"
+    sub: "p = bass (strings 5 and 6) · i m a = strings 3 2 1"
+    notes: ["Giuliani wrote 120 patterns on two chords so the right hand could learn every combination."]
+    say: "Giuliani’s right-hand studies: one pattern on C, then on G seven."
+  - section: "Study 1"
+    now: "p i m a"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 2 1 5 3 2 1", grid: 2, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 3 2 1 6 3 2 1", grid: 2, repeat: 1}
+  - section: "Study 2"
+    now: "p a m i"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 1 2 3 5 1 2 3", grid: 2, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 1 2 3 6 1 2 3", grid: 2, repeat: 1}
+  - section: "Study 3"
+    now: "p i m i"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 2 3 5 3 2 3", grid: 2, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 3 2 3 6 3 2 3", grid: 2, repeat: 1}
+  - section: "Study 4"
+    now: "p i m a m i"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 2 1 2 3", grid: 3, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 3 2 1 2 3", grid: 3, repeat: 1}
+  - section: "Study 5"
+    now: "p m i a i m"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 2 3 1 3 2", grid: 3, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 2 3 1 3 2", grid: 3, repeat: 1}
+  - section: "Study 6"
+    now: "p + i m a (block)"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 321 4 321", grid: 1, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 321 4 321", grid: 1, repeat: 1}
+  - section: "Study 7"
+    now: "p, then i m a together"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 - 321 -", grid: 1, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 - 321 -", grid: 1, repeat: 1}
+  - section: "Study 8"
+    now: "p i a m"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 1 2 5 3 1 2", grid: 2, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 3 1 2 6 3 1 2", grid: 2, repeat: 1}
+  - section: "Study 9"
+    now: "p i m a m i, in triplets"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 2 1 2 3 5 3 2 1 2 3", grid: 3, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 3 2 1 2 3 6 3 2 1 2 3", grid: 3, repeat: 1}
+  - section: "Study 10"
+    now: "p a i m a i"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 1 3 2 1 3", grid: 3, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 1 3 2 1 3", grid: 3, repeat: 1}
+  - section: "Study 11"
+    now: "Repeated notes: p i i m m a a"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 3 2 2 1 1 2", grid: 2, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 3 3 2 2 1 1 2", grid: 2, repeat: 1}
+  - section: "Study 12"
+    now: "16ths: p i m a m i m a"
+    sub: on C
+    show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    notes: null
+    play: {groove: "5 3 2 1 2 3 2 1 5 3 2 1 2 3 2 1", grid: 4, repeat: 1}
+  - sub: on G7
+    show: {kind: grip, root: G, quality: '7', frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 1]]}
+    play: {groove: "6 3 2 1 2 3 2 1 6 3 2 1 2 3 2 1", grid: 4, repeat: 1}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play all twelve evenly on C and G7,", "keep the hand still and the fingers on their strings,", "and move from one pattern to the next without stopping."]
+    hold: 6

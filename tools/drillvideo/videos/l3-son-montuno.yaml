@@ -1,0 +1,35 @@
+# Repertoire L3: a son montuno guajeo written for the course.
+# Written for the course (not a transcription).
+id: l3-son-montuno
+title: 'Son montuno: the guajeo'
+rule: 'Everything anticipates: the chord arrives before the beat.'
+bpm: 100
+captions: false
+steps:
+- card:
+    title: 'Son montuno: the guajeo'
+    lines: ['The interlocking guitar part of Cuban son (the guajeo),', 'over the tumbao bass, on C – F – G7 – F.']
+  hold: 4
+- card:
+    title: The rhythm
+    lines: ['The guajeo: 8ths, the shape changing on the & of 2 and of 4', 'The tumbao bass: on the & of 2, and on 4', Clap the 2-3 clave over both]
+  hold: 6
+- card: null
+  section: Latin American
+  key: C major · 2-3 clave
+  page:
+    root: C
+    harmony: ['C:I - F:IV -', 'G7:V7 - F:IV -', 'C:I - F:IV -', 'G7:V7 - F:IV -']
+    voices: ['r:.5 2.5:.5 2.8:.5 2.5:.5 2.6:.5 1.5:.5 2.6:.5 1.5:.5 | 1.3:.5 2.6:.5 1.3:.5 2.6:.5 1.1:.5 2.6:.5 1.1:.5 1.3:.5 | r:.5 2.5:.5 2.8:.5 2.5:.5 2.6:.5 1.5:.5 2.6:.5 1.5:.5 | 1.3:.5 2.6:.5 1.3:.5 2.6:.5 1.1:.5 2.6:.5 1.1:.5 1.3:.5 |', 'r:1.5 4.3:1.5 6.3:1 | r:1.5 4.3:1.5 5.3:1 | r:1.5 4.3:1.5 6.3:1 | r:1.5 4.3:1.5 5.3:1 |']
+    marks:
+    - [1, 'Bar 1: the guajeo sits on the off-beats, and the next chord’s notes arrive on the & before it changes.']
+    - [2, 'Bar 2: G7 – F: the montuno vamp, round and round, I – IV – V7 – IV.']
+    - [3, 'The tumbao bass plays the & of 2 and beat 4: each note anticipates the next chord.']
+  notes: ['Clave 2-3: two hits in the first bar (beats 2 and 3), three in the second (1, the & of 2, and 4).']
+- section: null
+  key: null
+  card:
+    title: You've got it when
+    lines: ['you can play the guajeo against the tumbao,', 'feel the anticipations as the groove,', and clap the clave over a recording.]
+  hold: 5
+page_neck: true

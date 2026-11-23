@@ -1,0 +1,32 @@
+# Short series: Aloha ʻOe. Written for the course (see the notes on screen).
+id: tp3-aloha-oe
+title: "Aloha ʻOe"
+rule: "Slack key: the thumb on the open strings, the melody up the neck."
+tuning: ["D2", "G2", "D3", "G3", "B3", "D4"]
+bpm: 88
+captions: false
+page_neck: true
+
+steps:
+  - card: {title: "Aloha ʻOe", lines: ["Queen Liliʻuokalani’s 1877 song in slack key, open G (“taro patch”):", "an open-string thumb under the melody, a harmonic chime to end."]}
+    hold: 3
+
+  - card: null
+    section: "Hawaiian slack key"
+    key: "G major · open G"
+    notes: ["Tune D G D G B D. The 1877 melody (public domain), arranged for the course."]
+    page:
+      root: G
+      repeat: 2
+      harmony: ["", "G:I C:IV", "G:I", "D:V", "D:V", "G:I C:IV", "G:I", "C:IV D:V", "G:I"]
+      pickup: true
+      voices: ["1.0:.5 1.5:.5 | 1.9:1 1.9:.5 1.7:.5 1.5:.5 2.7:.5 1.5:.5 2.5:.5 | 1.0:2 r:1 1.9:1 | 1.7:1.5 1.6:.5 1.7:.5 1.7:.5 1.10:.5 1.9:.5 | 1.7:2 r:1 1.0:.5 1.5:.5 | 1.9:1.5 1.7:.5 1.5:.5 2.7:.5 1.5:.5 2.5:.5 | 1.0:2 r:1 1.0:.5 1.0:.5 | 2.5:1 1.7:.5 1.5:.5 2.7:.5 1.9:.5 1.7:.5 2.7:.5 | 1.5:2 3.12n+2.12n+1.12n:2 |", "r:1 | 5.0:1 4.0:1 5.5:1 4.5:1 | 5.0:1 4.0:1 6.0:1 4.0:1 | 5.7:1 4.7:1 6.0:1 4.7:1 | 5.7:1 4.7:1 6.0:1 4.7:1 | 5.0:1 4.0:1 5.5:1 4.5:1 | 5.0:1 4.0:1 6.0:1 4.0:1 | 5.5:1 4.5:1 5.7:1 4.7:1 | 5.0:1 4.0:1 6.0:2 |"]
+      marks: [[1, "The thumb alternates the open G and D; C and D are barres at frets 5 and 7."], [8, "End on 12th-fret harmonics: slack key’s chime."]]
+
+  - section: null
+    key: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["the thumb keeps time while the melody moves up and down the neck,", "and the harmonics ring clear."]
+    hold: 3

@@ -1,0 +1,46 @@
+# Repertoire J1: W. C. Handy, St. Louis Blues (1914, public domain): its two kinds of strain, a 12-bar blues in G and the
+# minor strain over a habanera (tango) rhythm. Harmony and rhythm only.
+id: j1-st-louis-blues
+title: 'Handy: St. Louis Blues'
+rule: 'A blues, then a tango in minor: the habanera in the middle.'
+bpm: 100
+captions: false
+
+steps:
+  - card: {title: 'Handy: St. Louis Blues', lines: ['The 1914 blues that put a tango inside it:', 'a 12-bar strain in G, then a minor strain over the habanera.']}
+    hold: 4
+  - card: {title: The drill, lines: ['1   The 12-bar strain in drop 2', '2   The habanera rhythm on Gm and D7', '3   The minor strain: Gm – D7 with the habanera']}
+    hold: 7
+
+  - card: null
+    section: The blues strain
+    key: G major
+    now: The 12 bars
+    sub: I – IV – I – V – I
+    notes: ['Handy’s blues: I7 four bars, IV7 two, I7 two, then V7 – IV7 – I7 – V7.']
+    play: strum 4
+    click: false
+    expand: {kind: prog, key: G, chart: '| I:7 | I:7 | I:7 | I:7 | IV:7 | IV:7 | I:7 | I:7 | V:7 | IV:7 | I:7 | V:7 |', voicing: drop2, strings: [4, 3, 2, 1], startFret: 3, bars: 1, sub: '{roman}'}
+
+  - section: The habanera
+    key: G minor
+    now: Gm – D7 over the habanera
+    sub: 'dotted 8th, 16th, two 8ths: long – short – long – long'
+    show: {kind: grip, root: G, quality: min, frets: [[6, 3], [5, 5], [4, 5], [3, 3], [2, 3], [1, 3]]}
+    notes: ['The habanera, Cuba’s rhythm (and tango’s ancestor): the 16th before beat 2 is its pull.']
+    play: {groove: 'D--UD-D-', grid: 2, accents: [0, 3, 4], repeat: 2}
+  - now: The minor strain
+    sub: i – V7 – i, two bars each
+    show: {kind: grip, root: D, quality: '7', frets: [[5, 5], [4, 4], [3, 5], [2, 3]]}
+    play: {groove: 'D--UD-D-', grid: 2, accents: [0, 3, 4], repeat: 2}
+  - show: {kind: grip, root: G, quality: min, frets: [[6, 3], [5, 5], [4, 5], [3, 3], [2, 3], [1, 3]]}
+    play: {groove: 'D--UD-D-', grid: 2, accents: [0, 3, 4], repeat: 2}
+
+  - section: null
+    key: null
+    show: null
+    notes: ['The melody is public domain: learn it by ear over these changes, strain by strain.']
+    card:
+      title: You've got it when
+      lines: ['you can play the 12-bar strain without a chart,', 'switch to the habanera in the minor strain,', 'and hear where the blues turns into a tango.']
+    hold: 5

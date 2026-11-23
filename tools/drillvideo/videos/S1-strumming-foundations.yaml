@@ -1,0 +1,111 @@
+# Video S1: strumming foundations and syncopation.
+# Written by gen.py: change the loops there, not the steps here.
+id: S1-strumming-foundations
+title: "Strumming: foundations and syncopation"
+rule: "The hand never stops: down on the beat, up on the &."
+bpm: 90
+captions: false
+
+steps:
+  - card: {title: "Strumming: foundations and syncopation", lines: ["Twelve strumming patterns, one after another,", "from quarters to the push and the reggae skank:", "each one taught in two bars."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Each pattern on G for two bars", "2   Then over G – C – D – Em, changing on beat 1", "3   Next pattern"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "Twelve patterns"
+    sub: "↓ down · ↑ up · × muted · – the hand moves, missing the strings"
+    notes: ["The arm swings down and up all the time; a missing strum is a miss in the air, not a pause."]
+    say: "Strumming foundations. Twelve patterns, each in two bars."
+  - section: "Even"
+    now: "Quarters"
+    sub: "every beat, down"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "D-D-D-D-", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Eighths"
+    sub: "down on the beat, up on the &"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "DUDUDUDU", grid: 2, repeat: 2}
+    hold: 0.2
+  - section: "Pop"
+    now: "The pop strum"
+    sub: "D D U U D U"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: "The most-used pattern in pop and folk: the miss on beat 3 is the hook."
+    play: {groove: "D-DU-UDU", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "The backbeat"
+    sub: "accents on 2 and 4"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "DUDUDUDU", grid: 2, repeat: 2, accents: [2, 6]}
+    hold: 0.2
+  - section: "Feels"
+    now: "6/8"
+    sub: "two groups of three"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "DUDDUD", grid: 3, repeat: 4, accents: [0, 3]}
+    hold: 0.2
+  - now: "Shuffle"
+    sub: "swung 8ths: long-short"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "DUDUDUDU", grid: 2, repeat: 2, swing: 0.67}
+    hold: 0.2
+  - now: "Charleston"
+    sub: "beat 1, and the & of 2"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "D--U----", grid: 2, repeat: 2, accents: [0, 3]}
+    hold: 0.2
+  - section: "Syncopation"
+    now: "The push"
+    sub: "the next chord arrives on the & of 4"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "D-DU-UDU", grid: 2, repeat: 2, accents: [7]}
+    hold: 0.2
+  - now: "Reggae skank"
+    sub: "only the &s, short"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "-u-u-u-u", grid: 2, repeat: 2, accents: [1, 3, 5, 7]}
+    hold: 0.2
+  - now: "Calypso"
+    sub: "D – D U – U D U, accent on the &s"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "D-DU-UDU", grid: 2, repeat: 2, accents: [3, 5]}
+    hold: 0.2
+  - section: "Bass and strum"
+    now: "Boom-chicka"
+    sub: "bass note, strum, other bass, strum"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "T-D-t-D-", grid: 2, repeat: 2}
+    hold: 0.2
+  - now: "Over G – C – D – Em"
+    sub: "the pop strum, a chord a bar"
+    show: {kind: grip, root: G, quality: maj, frets: [[6, 3], [5, 2], [4, 0], [3, 0], [2, 0], [1, 3]]}
+    notes: null
+    play: {groove: "D-DU-UDU", grid: 2, repeat: 1}
+    hold: 0.2
+  - show: {kind: grip, root: C, quality: maj, frets: [[5, 3], [4, 2], [3, 0], [2, 1], [1, 0]]}
+    play: {groove: 'D-DU-UDU', grid: 2}
+  - show: {kind: grip, root: D, quality: maj, frets: [[4, 0], [3, 2], [2, 3], [1, 2]]}
+    play: {groove: 'D-DU-UDU', grid: 2}
+  - show: {kind: grip, root: E, quality: min, frets: [[6, 0], [5, 2], [4, 2], [3, 0], [2, 0], [1, 0]]}
+    play: {groove: 'D-DU-UDU', grid: 2}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play all twelve patterns from memory,", "keep the hand moving through every miss,", "and change chords without breaking the strum."]
+    hold: 6

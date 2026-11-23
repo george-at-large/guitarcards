@@ -1,0 +1,31 @@
+# Repertoire W3: a kora-style pattern (kumbengo) written for the course.
+# Written for the course (not a transcription).
+id: w3-kora-pattern
+title: A kora pattern
+rule: 'Three against two: the hands in different meters.'
+bpm: 150
+captions: false
+steps:
+- card:
+    title: A kora pattern
+    lines: ['A West African kora-style ostinato (kumbengo), written for the course:', 'the thumb in two, the fingers in three.']
+  hold: 4
+- card: null
+  section: World
+  key: C major · 6/8 feel
+  page:
+    root: C
+    harmony: ['C:I', 'F:IV', 'C:I', 'G:V']
+    voices: ['2.1:2 1.0:2 1.3:2 | 2.1:2 1.1:2 1.5:2 | 2.1:2 1.0:2 1.3:2 | 2.0:2 2.3:2 1.3:2 |', '5.3:3 6.3:3 | 4.3:3 5.3:3 | 5.3:3 6.3:3 | 6.3:3 5.2:3 |']
+    marks:
+    - [1, 'Bar 1: the thumb plays every 3 eighths, the fingers every 2: three against two, the kora’s cross-rhythm.']
+    - [2, 'Bar 2: F, IV: the pattern shifts with the harmony but keeps its shape.']
+    - [4, 'Bar 4: G, V, back to the top: a cycle meant to repeat for minutes.']
+  notes: ['Feel the bar in two big beats (the thumb) and three (the fingers) at once.']
+- section: null
+  key: null
+  card:
+    title: You've got it when
+    lines: ['you can keep three against two going for a minute,', 'shift the pattern through C – F – C – G,', and improvise small changes in the top line.]
+  hold: 5
+page_neck: true

@@ -1,0 +1,37 @@
+# Genre intro: blues shuffle.
+# Written by gen.py: change the loops there, not the steps here.
+id: G8-blues-shuffle
+title: "Blues shuffle"
+rule: "Long-short, long-short: the shuffle is in the right hand."
+bpm: 96
+captions: false
+
+steps:
+  - card: {title: "Blues shuffle", lines: ["The shuffle feel, the 5-6 boogie pattern,", "and the 12-bar blues in A", "on the open strings."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   The boogie on A, shuffled, palm-muted", "2   Move it to D and E", "3   The 12-bar blues in A"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: A major
+    now: "The boogie in A"
+    sub: "5th to 6th on the string above the root, shuffled"
+    notes: ["Shuffle: each beat splits long-short, like a triplet with the middle note left out."]
+    say: "The blues shuffle. The boogie pattern, then the twelve bar blues."
+  - section: The boogie
+    now: On A
+    sub: 'A + E, then A + F♯: the 5th to the 6th'
+    tab: {root: A, roots: [A, A], swing: 0.67, harmony: ['A7:I7', 'A7:I7'], voices: ["5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 |"]}
+  - section: The 12-bar blues
+    now: The form
+    sub: 'I – IV – I – V – IV – I – V: 4 + 2 + 2 + 1 + 1 + 1 + 1 bars'
+    notes: ['The quick change (IV in bar 2) is common: try it once the form is solid.']
+    tab: {root: A, roots: ["A", "A", "A", "A", "D", "D", "A", "A", "E", "D", "A", "E"], swing: 0.67, harmony: ["A7:I7", "A7:I7", "A7:I7", "A7:I7", "D7:IV7", "D7:IV7", "A7:I7", "A7:I7", "E7:V7", "D7:IV7", "A7:I7", "E7:V7"], voices: ["5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 4.0+3.2:.5 4.0+3.2:.5 4.0+3.4:.5 4.0+3.2:.5 4.0+3.2:.5 4.0+3.2:.5 4.0+3.4:.5 4.0+3.2:.5 | 4.0+3.2:.5 4.0+3.2:.5 4.0+3.4:.5 4.0+3.2:.5 4.0+3.2:.5 4.0+3.2:.5 4.0+3.4:.5 4.0+3.2:.5 | 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 6.0+5.2:.5 6.0+5.2:.5 6.0+5.4:.5 6.0+5.2:.5 6.0+5.2:.5 6.0+5.2:.5 6.0+5.4:.5 6.0+5.2:.5 | 4.0+3.2:.5 4.0+3.2:.5 4.0+3.4:.5 4.0+3.2:.5 4.0+3.2:.5 4.0+3.2:.5 4.0+3.4:.5 4.0+3.2:.5 | 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.2:.5 5.0+4.4:.5 5.0+4.2:.5 | 6.0+5.2:.5 6.0+5.2:.5 6.0+5.4:.5 6.0+5.2:.5 6.0+5.2:.5 6.0+5.2:.5 6.0+5.4:.5 6.0+5.2:.5 |"]}
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can shuffle the boogie on A, D and E,", "play the 12-bar form without counting,", "and keep the long-short feel steady."]
+    hold: 6

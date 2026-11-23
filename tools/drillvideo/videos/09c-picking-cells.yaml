@@ -1,0 +1,87 @@
+# Video 9c: picking cells (plan v3), after Marbin, "Speed Practice For Jazz Guitar". Three stroke cells that let the
+# picking hand move with the line, each shown note by note with its strokes, slow then up to speed.
+id: 09c-picking-cells
+title: Picking cells
+rule: Let the hand move with the line, not against it.
+bpm: 70
+captions: false
+
+steps:
+  - card: {title: Picking cells, lines: ['Three stroke patterns for fast lines:', 'Joe Pass triplets, the 8-note cell and the 6-note cell,', 'every stroke marked.']}
+    hold: 4
+  - card: {title: The drill, lines: ["1   One cell slowly, with the strokes exactly as marked", "2   Add 4 BPM each clean pass; drop 10 when it breaks", "3   Move the cell through a scale or arpeggio", "4   Next cell"]}
+    hold: 9.2
+  - card: null
+    section: The drill
+    key: Key of G
+    now: ↓ down · ↑ up · – slur
+    sub: each cell slowly, then at speed
+    notes: ['After Marbin: speed comes from a few stroke cells, not brute alternate picking.']
+    say: Three picking cells for fast lines. Each one slowly, then at speed. Down, up, and slurs are marked under the neck.
+
+  # ---------- Joe Pass triplets ----------
+  - section: Joe Pass triplets
+    now: One note on the lower string, two on the higher
+    sub: down, down, up · the first down sweeps straight into the next string
+    show: {kind: line, root: G, pitches: [G3, B3, D4], each: [4, 3, 3]}
+    notes: ['A wide upstroke clears the strings, so the next group starts with a down again.']
+    say: Joe Pass triplets. Down, down, up.
+    play: {run: 0.333, strokes: 'D D U', repeat: 2}
+    hold: 0.4
+  - now: Up the triad
+    sub: down, down, up on each pair of strings
+    show: {kind: line, root: G, pitches: [G3, B3, D4, G4, B4, D5], each: [4, 3, 3, 2, 1, 1]}
+    play: {run: 0.333, strokes: 'D D U D D U', repeat: 2}
+    hold: 0.4
+  - now: At speed
+    sub: the same strokes, twice as fast
+    bpm: 140
+    play: {run: 0.333, strokes: 'D D U D D U', repeat: 4}
+    hold: 0.6
+
+  # ---------- the 8-note cell ----------
+  - section: The 8-note cell
+    bpm: 70
+    now: Three notes, two notes, a pull-off, back
+    sub: down–up–down · sweep down · big up · pull-off · down–up
+    show: {kind: line, root: G, pitches: [B3, C4, D4, E4, F#4, E4, D4, C4], each: [3, 3, 3, 2, 2, 2, 3, 3]}
+    notes: ['The pull-off gives the picking hand a moment to reset in the middle of the cell.']
+    say: The eight note cell.
+    play: {run: 0.25, strokes: 'D U D D U – D U', repeat: 2}
+    hold: 0.4
+  - now: At speed
+    sub: double time
+    bpm: 130
+    play: {run: 0.25, strokes: 'D U D D U – D U', repeat: 4}
+    hold: 0.6
+
+  # ---------- the 6-note cell ----------
+  - section: The 6-note cell
+    bpm: 70
+    now: Pick, pick, slur · pick, pick, slur
+    sub: four picks and two hammer-ons per sextuplet
+    show: {kind: line, root: G, pitches: [G4, A4, B4, C5, D5, E5], each: [2, 2, 2, 1, 1, 1]}
+    notes: ['It halves the picking at the speed where alternate picking tightens up.']
+    say: The six note cell. Pick, pick, slur.
+    play: {run: 0.333, strokes: 'D U – D U –', repeat: 2}
+    hold: 0.4
+  - now: At speed
+    sub: sextuplets
+    bpm: 120
+    play: {run: 0.1667, strokes: 'D U – D U –', repeat: 6}
+    hold: 0.6
+
+  - section: Muting
+    bpm: 70
+    show: null
+    now: Only one note rings
+    sub: picking-hand palm on the strings below · fretting fingers touch the strings above
+    notes: ['Speed sounds messy mostly because of noise, not wrong notes.', 'Push the tempo 4 BPM when it’s clean; drop 10 when it breaks.']
+    say: And mute. Only one note should ever ring.
+    hold: 6
+  - section: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ['each cell runs through a scale or arpeggio at speed,', 'with the strokes automatic', 'and only one note ringing.']
+    hold: 6

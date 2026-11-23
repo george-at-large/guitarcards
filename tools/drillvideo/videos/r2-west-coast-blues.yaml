@@ -1,0 +1,40 @@
+# Repertoire R2: Blind Blake, West Coast Blues (1926, public domain): the form and technique of the first section.
+# Blake's approach (per the John M. tab at guitartabs.cc after John Jackson, and Grossman's teaching): key of C, a steady
+# alternating thumb, the ragtime circle C – E7 – A7 – D7 – G7 – C on standard grips (pinky on 6.3 for C's alternate bass,
+# E7 with the 3.0→3.1 hammer, "long A" barred at 2 with the pinky on 1.5, D7 with the thumb on 6.2, G7 with the thumb
+# on 6.3). The treble lines are written for this course in his style, not transcribed: the on-screen note says so.
+id: r2-west-coast-blues
+title: 'Blind Blake: West Coast Blues'
+rule: The thumb never stops; the fingers syncopate over it.
+bpm: 92
+captions: false
+steps:
+- card:
+    title: 'Blind Blake: West Coast Blues'
+    lines: ['Blake’s 1926 ragtime showpiece in C: its form, its grips,', 'and its alternating thumb, with treble lines in his style.']
+  hold: 4.5
+- card: null
+  key: C major
+  section: Roots and ragtime
+  bpm: 100
+  show: null
+  notes: ['The treble lines are written for the course in Blake’s style; his own change every chorus.']
+  page:
+    harmony: ['C:I', 'C:I', 'E7:III7', 'E7:III7', 'A7:VI7', 'A7:VI7', 'D7:II7', 'D7:II7', 'G7:V7', 'G7:V7', 'C:I', 'C:I']
+    roots: [C, C, E7, E7, A7, A7, D7, D7, G7, G7, C, C]
+    voices: ['1.0:1.5 2.1:1.5 1.0:1 | 2.1:1.5 1.0:2 2.3:.5 | r:.5 3.0:.5 3.1h:.5 2.0:1.5 1.0:1 | 2.3:1.5 2.0:2 2.2:.5 | r:1.5 1.5:1.5 2.2:1 | 1.3:1.5 2.2:2 1.2:.5 | r:1.5 2.1:1.5 1.0:1 | 1.1:.5 1.2h:1 2.1:2 1.1:.5 | r:1.5 2.0:1.5 2.3:1 | 1.1:1.5 2.0:2 1.0:.5 | r:1.5 2.1:1.5 1.0:1 | 2.1:1 1.0:1 5.3+4.2+3.0+2.1+1.0:2 |', '5.3:1 4.2:1 6.3:1 4.2:1 | 5.3:1 4.2:1 6.3:1 4.2:1 | 6.0:1 4.2:1 5.2:1 4.2:1 | 6.0:1 4.2:1 5.2:1 4.2:1 | 5.0:1 4.2:1 6.0:1 4.2:1 | 5.0:1 4.2:1 6.0:1 4.2:1 | 4.0:1 3.2:1 6.2:1 3.2:1 | 4.0:1 3.2:1 6.2:1 3.2:1 | 6.3:1 4.0:1 6.3:1 4.3:1 | 6.3:1 4.0:1 6.3:1 4.3:1 | 5.3:1 4.2:1 6.3:1 4.2:1 | 5.3:1 4.2:1 r:2 |']
+    marks:
+    - [1, 'Bars 1–2: pinky on 6.3 for C’s alternate bass. The fingers land on 1, the & of 2 and 4: ragtime’s 3 + 3 + 2.']
+    - [2, 'Bar 2 ends on D, E7’s 7th, early: the anticipation on the & of 4 that drives every change.']
+    - [3, 'Bars 3–4: hammer the open G to G♯, E7’s 3rd.']
+    - [5, 'Bars 5–6: “long A”, barred at 2 with the pinky on fret 5; lift it to fret 3 for A7.']
+    - [8, 'Bar 8: D7 with the thumb on 6.2; the F → F♯ hammer is the blue note bending into the chord.']
+- section: null
+  key: null
+  show: null
+  notes: ['Next: the second section, through G, A♭ and back to C, and then Blake’s own variations by ear.']
+  card:
+    title: You've got it when
+    lines: ['you can play the 12 bars at tempo with the thumb never breaking,', 'the anticipations clean on the & of 4,', and name every chord as the V7 of the next.]
+  hold: 5
+page_neck: true

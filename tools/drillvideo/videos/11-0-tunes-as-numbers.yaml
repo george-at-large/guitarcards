@@ -1,0 +1,53 @@
+# Video 11.0: tunes as numbers, after Marbin's 2 5 1 4 7 3 6.
+# Written by gen.py: change the loops there, not the steps here.
+id: 11-0-tunes-as-numbers
+title: "Tunes as numbers"
+rule: "Say the number, then play the chord."
+bpm: 90
+captions: false
+
+steps:
+  - card: {title: "Tunes as numbers", lines: ["The diatonic cycle 2 5 1 4 7 3 6 (Marbin):", "the skeleton of hundreds of standards,", "voice-led in each of the five areas."]}
+    hold: 4.5
+  - card: {title: The drill, lines: ["1   Say each number as you play its chord", "2   The cycle in one area; then all five", "3   Then name a tune you know as numbers, and play it here"]}
+    hold: 7.4
+  - card: null
+    section: The drill
+    key: Key of G
+    now: "2 5 1 4 7 3 6"
+    sub: "Am7 D7 Gmaj7 Cmaj7 F♯m7♭5 Bm7 Em7: every root a 4th up"
+    notes: ["Autumn Leaves, Fly Me to the Moon, All the Things You Are, I Will Survive: this cycle, or most of it.", "Learn tunes as numbers and you can play them in any key."]
+    say: "Two five one four seven three six. The diatonic cycle of fourths, in each of the five areas."
+  - section: E-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 |', strings: [4, 3, 2, 1], form: E, bars: 0.5, now: '{chord}', sub: '{roman} · E-form area'}
+    hold: 0.3
+  - section: D-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 |', strings: [4, 3, 2, 1], form: D, bars: 0.5, now: '{chord}', sub: '{roman} · D-form area'}
+    hold: 0.3
+  - section: C-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 |', strings: [4, 3, 2, 1], form: C, bars: 0.5, now: '{chord}', sub: '{roman} · C-form area'}
+    hold: 0.3
+  - section: A-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 |', strings: [4, 3, 2, 1], form: A, bars: 0.5, now: '{chord}', sub: '{roman} · A-form area'}
+    hold: 0.3
+  - section: G-form area
+    play: strum 2
+    click: false
+    expand: {kind: areaProg, key: G, chart: '| ii:m7 | V:7 | I:maj7 | IV:maj7 | vii:m7b5 | iii:m7 | vi:m7 | ii:m7 |', strings: [4, 3, 2, 1], form: G, bars: 0.5, now: '{chord}', sub: '{roman} · G-form area'}
+    hold: 0.3
+  - section: null
+    show: null
+    band: null
+    notes: null
+    card:
+      title: You've got it when
+      lines: ["you can play 2 5 1 4 7 3 6 in all five areas, naming each number,", "and turn any tune you know into numbers,", "then play it in any key."]
+    hold: 6
