@@ -202,3 +202,9 @@ svg.neck { display: block; max-width: 100%; height: auto; }
 .gap.open { border-color: var(--amber) !important; color: var(--amber) !important; }
 #pmenu .choices button b { font-family: var(--f-num); margin-right: 4px; }
 #pmenu .choices button small, .choices button small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+
+/* a chord type written out under its symbol (°7 → diminished 7th), to learn the symbols */
+.tn { display: block; color: var(--violet); font: 500 10.5px/1.2 var(--f-ui); letter-spacing: 0; opacity: 0.9; }
+.ptitle .tn { display: inline; font-size: 13px; vertical-align: middle; }
+.pad button .tn { font-size: 9.5px; margin-top: 2px; }
+.dg .tn { text-align: center; }

@@ -7,7 +7,7 @@ import * as F from '../fretboard.js';
 import * as G from '../caged/grips.js';
 import { BORROWED } from '../caged/borrowdata.js';
 import { CHROMATIC } from '../caged/chromdata.js';
-import { sym, esc } from './core.js';
+import { sym, esc, typeName } from './core.js';
 
 const E = (id, tok, rn, name, src, job, prog, at, data, o = {}) => ({ id, tok, rn, name, src, job, prog, at, data, ...o });
 const M = { minor: true };
@@ -86,5 +86,5 @@ const center = (p) => p.notes.reduce((s, n) => s + n.fret, 0) / p.notes.length;
 export function barsHTML(chords, hl = new Set(), gap = -1, namesOnly = false) {
   return `<div class="prog-bars">${chords.map((c, i) => i === gap
     ? `<div class="bar-c hl"><b>?</b><small>&nbsp;</small></div>`
-    : `<div class="bar-c ${hl.has(i) ? 'hl' : ''}" data-bar="${i}"><b>${esc(nameOf(c))}</b>${namesOnly ? '' : `<small>${esc(rnOf(c))}</small>`}</div>`).join('')}</div>`;
+    : `<div class="bar-c ${hl.has(i) ? 'hl' : ''}" data-bar="${i}"><b>${esc(nameOf(c))}</b>${namesOnly ? '' : `<small>${esc(rnOf(c))}</small>`}${typeName(c.quality) ? `<small class="tn">${typeName(c.quality)}</small>` : ''}</div>`).join('')}</div>`;
 }

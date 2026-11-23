@@ -130,7 +130,7 @@ export default {
       if (box.innerHTML) { box.innerHTML = ''; return; }
       const g = grips(i), seen = new Set();
       const list = [];
-      q.rows[i].flat.forEach((c, k) => { const nm = T.pretty(T.chordSymbol(c.root, c.quality)); if (g[k] && !seen.has(nm)) { seen.add(nm); list.push({ notes: g[k].notes, cap: `${nm} · ${c.rn}`, set: g[k].notes.map((n) => n.string) }); } });
+      q.rows[i].flat.forEach((c, k) => { const nm = T.pretty(T.chordSymbol(c.root, c.quality)); if (g[k] && !seen.has(nm)) { seen.add(nm); list.push({ notes: g[k].notes, cap: `${nm} · ${c.rn}`, q: c.quality, set: g[k].notes.map((n) => n.string) }); } });
       box.innerHTML = diagrams(list);
     }));
     ctx.buttons([{ label: 'Next chord', kind: 'go', on: () => { stop(); ctx.next(); } }]);

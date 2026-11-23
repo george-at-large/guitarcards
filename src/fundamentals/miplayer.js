@@ -54,11 +54,11 @@ export default {
     const ref = q.minor ? 'A' : 'C';
     const inC = T.noteName(q.tonic) !== ref;
     const uniq = [];
-    q.flat.forEach((c, i) => { if (grips[i] && !uniq.some((u) => u.name === nameOf(c))) uniq.push({ name: nameOf(c), rn: rnOf(c), g: grips[i] }); });
+    q.flat.forEach((c, i) => { if (grips[i] && !uniq.some((u) => u.name === nameOf(c))) uniq.push({ name: nameOf(c), rn: rnOf(c), q: c.quality, g: grips[i] }); });
     el.innerHTML = `
       ${barsHTML(q.flat, q.hl)}
       <p class="note">${esc(q.prog.note || '')}</p>
-      ${diagrams(uniq.map((u) => ({ notes: u.g.notes, cap: `${u.name} · ${u.rn}`, set: u.g.notes.map((n) => n.string) })))}
+      ${diagrams(uniq.map((u) => ({ notes: u.g.notes, cap: `${u.name} · ${u.rn}`, q: u.q, set: u.g.notes.map((n) => n.string) })))}
       <div class="info">
         ${inC ? `<p class="note">The text’s examples are in ${q.minor ? 'A minor' : 'C major'}.</p>` : ''}
         <div class="k">What it is</div><p>${esc(q.d.where || '')}</p>

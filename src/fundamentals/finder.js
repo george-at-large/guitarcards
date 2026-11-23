@@ -2,7 +2,7 @@
 // (letter, then ♭ ♮ ♯) and choosing its quality. Quick-fire asks one degree at a time. Every degree is tracked, so
 // "slow on iii and vii°" shows up in Fuzzy.
 import * as T from '../theory.js';
-import { spellTonic, nn, sym, roman, pick, esc } from './core.js';
+import { spellTonic, nn, sym, roman, pick, esc, typeName } from './core.js';
 
 const SCALES = { major: 'major', aeolian: 'natural minor', 'harmonic-minor': 'harmonic minor', 'melodic-minor': 'melodic minor', 'harmonic-major': 'harmonic major' };
 const TRI_Q = [['maj', ''], ['min', 'm'], ['dim', '°'], ['aug', '+']];
@@ -55,7 +55,7 @@ export default {
         }).join('')}</div>
         <div class="pad c7">${LETTERS.map((L) => `<button data-l="${L}" class="${letter === L ? 'sel' : ''}">${L}</button>`).join('')}</div>
         <div class="pad c3">${[[-1, '♭'], [0, '♮'], [1, '♯']].map(([a, l]) => `<button data-a="${a}" class="${acc === a ? 'sel' : ''}">${l}</button>`).join('')}</div>
-        <div class="pad c${quals.length > 4 ? 4 : 4}">${quals.map(([qq, l]) => `<button data-q="${qq}" ${letter ? '' : 'disabled'}>${l || 'maj'}</button>`).join('')}</div>`;
+        <div class="pad c${quals.length > 4 ? 4 : 4}">${quals.map(([qq, l]) => `<button data-q="${qq}" ${letter ? '' : 'disabled'}>${l || 'maj'}${typeName(qq) ? `<small class="tn">${typeName(qq)}</small>` : ''}</button>`).join('')}</div>`;
       el.querySelectorAll('[data-l]').forEach((b) => (b.onclick = () => { letter = b.dataset.l; draw(); }));
       el.querySelectorAll('[data-a]').forEach((b) => (b.onclick = () => { acc = Number(b.dataset.a); draw(); }));
       el.querySelectorAll('[data-q]').forEach((b) => (b.onclick = () => answer(b.dataset.q)));
@@ -90,5 +90,5 @@ export default {
 function item(k, sc, n) { return { id: `cf|${k}|${sc}|${n}`, mode: 'finder', group: 'build', label: `Build ${SCALES[sc]} ${sizeName(Number(n))}`, params: { k, sc, n } }; }
 function degItem(sc, n, d) { return { id: `cf|q|${sc}|${n}|${d}`, mode: 'finder', group: 'quick', label: `${SCALES[sc]}: chord on degree ${d + 1} (${Number(n) === 3 ? 'triad' : '7th'})`, params: { k: 'q', sc, n, d } }; }
 function table(q) {
-  return `<div class="info"><div class="k">${esc(nn(q.tonic))} ${esc(SCALES[q.sc])}</div><div class="prog-bars">${q.chords.map((c) => `<div class="bar-c"><b>${esc(sym(c.root, c.q))}</b><small>${esc(c.rn)}</small></div>`).join('')}</div></div>`;
+  return `<div class="info"><div class="k">${esc(nn(q.tonic))} ${esc(SCALES[q.sc])}</div><div class="prog-bars">${q.chords.map((c) => `<div class="bar-c"><b>${esc(sym(c.root, c.q))}</b><small>${esc(c.rn)}</small>${typeName(c.q) ? `<small class="tn">${typeName(c.q)}</small>` : ''}</div>`).join('')}</div></div>`;
 }

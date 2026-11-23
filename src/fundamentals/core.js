@@ -125,4 +125,19 @@ export function roman(deg, semisFromTonic, quality) {
   const suf = { maj: '', min: '', dim: '°', aug: '+', maj7: 'maj7', '7': '7', m7: '7', m7b5: 'ø7', dim7: '°7', mMaj7: '(maj7)', 'maj7#5': '+maj7', '7#5': '+7', m6: '6', '6': '6' }[quality] ?? '';
   return acc + base + suf;
 }
+// chord types written out, for every chord whose symbol is more than letters (°, ø, +, ♭5, sus, alterations), so the
+// symbols are learned alongside the sound
+const TYPE = {
+  dim: 'diminished', aug: 'augmented', sus2: 'suspended 2nd', sus4: 'suspended 4th',
+  dim7: 'diminished 7th', m7b5: 'half-diminished', mMaj7: 'minor-major 7th', mMaj9: 'minor-major 9th', 'dim-maj7': 'diminished major 7th',
+  'maj7#5': 'augmented major 7th', '7#5': 'augmented 7th', 'm7#5': 'minor 7th, sharp 5', '7b5': 'dominant 7th, flat 5',
+  '7sus4': 'dominant 7th, suspended 4th', '9sus4': 'dominant 9th, suspended 4th', '13sus4': 'dominant 13th, suspended 4th', '7sus2': 'dominant 7th, suspended 2nd', '7sus4b5': 'suspended 4th, flat 5',
+  '7b9': 'dominant 7th, flat 9', '7#9': 'dominant 7th, sharp 9', '7#11': 'dominant 7th, sharp 11', '7b13': 'dominant 7th, flat 13',
+  '7b9b13': 'dominant 7th, flat 9 and flat 13', '7#9b13': 'dominant 7th, sharp 9 and flat 13', '7#9#5': 'dominant 7th, sharp 9 and sharp 5',
+  '13b9': 'dominant 13th, flat 9', '13#11': 'dominant 13th, sharp 11', '7alt': 'altered dominant',
+  'maj7#11': 'major 7th, sharp 11', 'maj9#11': 'major 9th, sharp 11', '6/9': 'major 6/9', 'm6/9': 'minor 6/9', madd9: 'minor, added 9th',
+};
+export const typeName = (q) => TYPE[q] || '';
+// a chord symbol with its type written out after it, as HTML
+export const named = (root, q) => `${esc(sym(root, q))}${TYPE[q] ? ` <span class="tn">${TYPE[q]}</span>` : ''}`;
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

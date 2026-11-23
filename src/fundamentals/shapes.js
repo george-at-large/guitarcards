@@ -3,7 +3,7 @@
 import * as T from '../theory.js';
 import * as F from '../fretboard.js';
 import { neckSVG, windowFor } from './neck.js';
-import { spellRoot, spellTonic, nn, sym, iv, roman, pick, ordinal, esc } from './core.js';
+import { spellRoot, spellTonic, nn, sym, iv, roman, pick, ordinal, esc, named, typeName } from './core.js';
 
 const SETS = {
   close: [[6, 5, 4], [5, 4, 3], [4, 3, 2], [3, 2, 1]],
@@ -78,7 +78,7 @@ export default {
       const root = spellRoot(pc, p.q);
       const list = F.chordVoicings({ root, quality: p.q, voicing: v, stringSet: ss, inversion: 'all' }).filter((x) => x.maxFret <= 17).sort((a, b) => a.minFret - b.minFret || a.inversion - b.inversion);
       return {
-        title: `All inversions of ${sym(root, p.q)}`, sub: `${VNAME[v]} · strings ${p.ss} · up the neck and back, naming each bass note`,
+        title: `All inversions of ${named(root, p.q)}`, sub: `${VNAME[v]} · strings ${p.ss} · up the neck and back, naming each bass note`,
         target: list.length * 5000, droneMidi: droneOf(pc),
         reveal: () => diagrams(list.map((x) => ({ notes: x.notes, cap: invCap(x), set: ss }))),
       };
@@ -93,7 +93,7 @@ export default {
         }
       }
       return {
-        title: `Every inversion of ${sym(root, p.q)} in the ${p.sh}-shape area`, sub: `${VNAME[p.v]} · every string set · frets ${w.lo}–${w.hi}`,
+        title: `Every inversion of ${named(root, p.q)} in the ${p.sh}-shape area`, sub: `${VNAME[p.v]} · every string set · frets ${w.lo}–${w.hi}`,
         target: Math.max(1, list.length) * 6000, droneMidi: droneOf(pc),
         reveal: () => `<p class="note">${list.length} voicings, by string set.</p>` + diagrams(list.map((x) => ({ notes: x.notes, cap: `${setName(x.set)} · ${invCap(x)}`, set: x.set }))),
       };
@@ -113,7 +113,7 @@ export default {
       return {
         title: `Morph: ${qs.map((q) => sym(root, q)).join(' → ')}`, sub: `${VNAME[p.v]} · strings ${p.ss} · ${invIdx ? ordinal(invIdx) + ' inversion' : 'root position'} (${bassName} in the bass) · one note moves at a time`,
         target: qs.length * 4000, droneMidi: droneOf(pc),
-        reveal: () => diagrams(shapes.map((x) => ({ notes: x.best.notes, cap: sym(root, x.q), set: ss }))),
+        reveal: () => diagrams(shapes.map((x) => ({ notes: x.best.notes, cap: sym(root, x.q), q: x.q, set: ss }))),
       };
     }
     if (p.k === 'shell') {
@@ -121,7 +121,7 @@ export default {
       const sets = p.rs === 6 || p.rs === '6' ? [[6, 4, 3], [6, 5, 4]] : [[5, 3, 2], [5, 4, 3]];
       const list = sets.map((s) => F.chordVoicings({ root, quality: p.q, voicing: 'shell', stringSet: s }).filter((x) => x.notes[0].iv === '1' || x.label.startsWith('1')).sort((a, b) => a.minFret - b.minFret)[0]).filter(Boolean);
       return {
-        title: `Shell voicings of ${sym(root, p.q)}`, sub: `Root on the ${ordinal(Number(p.rs))} string · both shapes (1-7-3 and 1-3-7)`,
+        title: `Shell voicings of ${named(root, p.q)}`, sub: `Root on the ${ordinal(Number(p.rs))} string · both shapes (1-7-3 and 1-3-7)`,
         target: 8000, droneMidi: droneOf(pc),
         reveal: () => diagrams(list.map((x) => ({ notes: x.notes, cap: x.label.replace(/b/g, '♭'), set: x.stringSet }))),
       };
@@ -133,7 +133,7 @@ export default {
       const notes = F.regionNotes(up ? { root, tones: up.tones, region: { caged: p.sh } } : { root, quality: p.q, region: { caged: p.sh } });
       const startIv = up ? up.tones[0] : chordTone(p.q, p.st);
       const ordered = fromStart(notes, startIv);
-      const title = up ? `${sym(root, up.q)} as a 3-to-9 arpeggio` : `${sym(root, p.q)} arpeggio`;
+      const title = up ? `${named(root, up.q)} as a 3-to-9 arpeggio` : `${named(root, p.q)} arpeggio`;
       const sub = up ? `${p.sh}-shape area (frets ${w.lo}–${w.hi}) · from its ${iv(up.tones[0])} up to its 9th, through the area and back` : `${p.sh}-shape area (frets ${w.lo}–${w.hi}) · start on the lowest ${START[p.st]}, up to the top and back`;
       return {
         title, sub, target: notes.length * 900, droneMidi: droneOf(pc),
@@ -144,7 +144,7 @@ export default {
       const root = spellRoot(pc, p.q);
       const notes = F.regionNotes({ root, quality: p.q, region: { frets: [0, 15] } });
       return {
-        title: `${sym(root, p.q)} arpeggio, whole neck`, sub: 'Through all five areas, low to high and back, saying the degrees',
+        title: `${named(root, p.q)} arpeggio, whole neck`, sub: 'Through all five areas, low to high and back, saying the degrees',
         target: 40000, droneMidi: droneOf(pc),
         reveal: () => `<div class="neckwrap">${neckSVG({ lo: 0, hi: 15, size: 'l', dots: notes.map((n) => ({ s: n.string, f: n.fret, iv: n.iv, label: iv(n.iv) })) })}</div>`,
       };
@@ -163,7 +163,7 @@ export default {
       const got = climbAny(degs, v, ss, size);
       if (!got) throw new Error('no climb fits');
       const invIdx = got.inv;
-      const chords = got.list.map((pl, i) => ({ notes: pl.notes, cap: `${degs[i].rn} ${sym(degs[i].root, degs[i].q)}`, set: ss }));
+      const chords = got.list.map((pl, i) => ({ notes: pl.notes, cap: `${degs[i].rn} ${sym(degs[i].root, degs[i].q)}`, q: degs[i].q, set: ss }));
       return {
         title: `${nn(tonic)} ${DSCALE[p.sc]}: diatonic ${size === 3 ? 'triads' : '7ths'}`,
         sub: `${VNAME[v]} · strings ${p.ss} · stay in ${invIdx ? ordinal(invIdx) + ' inversion' : 'root position'} and climb the key, I to I${got.wrap ? WRAP_NOTE : ''}`,
@@ -227,7 +227,7 @@ export function diagrams(list) {
     const bass = Math.max(...d.notes.map((n) => n.string));
     const svg = neckSVG({ lo: w.lo, hi: w.hi, size: 's', strings: d.set, dots: d.notes.map((n) => ({ s: n.string, f: n.fret, iv: n.iv, label: iv(n.iv), ring: n.string === bass })) });
     const midis = [...d.notes].sort((a, b) => a.midi - b.midi).map((n) => n.midi).join(',');
-    return `<button class="dg" data-strum="${midis}">${svg}<span>${esc(d.cap)}</span></button>`;
+    return `<button class="dg" data-strum="${midis}">${svg}<span>${esc(d.cap)}</span>${d.q && typeName(d.q) ? `<span class="tn">${typeName(d.q)}</span>` : ''}</button>`;
   }).join('')}</div>`;
 }
 function area(notes, w, startIv, ordered) {

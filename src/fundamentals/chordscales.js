@@ -82,7 +82,7 @@ export default {
       } else got = climbAny(chords, v, ss, ss.length);
       if (!got) throw new Error('no climb fits');
       const inv = got.inv;
-      const list = got.list.map((pl, i) => ({ notes: pl.notes, cap: `${chords[i].rn} ${sym(chords[i].root, chords[i].q)}`, set: ss }));
+      const list = got.list.map((pl, i) => ({ notes: pl.notes, cap: `${chords[i].rn} ${sym(chords[i].root, chords[i].q)}`, q: chords[i].q, set: ss }));
       const invName = p.s === 'bh' ? `the 6th chord’s inversions from ${['the root', 'the 3rd', 'the 5th', 'the 6th'][inv]} in the bass, each with its °7 between` : inv ? `${ordinal(inv)} inversion` : 'root position';
       return {
         kicker: 'Chord scale', title: `${esc(key)}: ${SIZE[p.z]}`, sub: `${VN[p.v]} · strings ${p.ss} · stay in ${invName} and climb, I to I${got.wrap ? WRAP_NOTE : ''}`,
@@ -98,7 +98,7 @@ export default {
       try { g = voiceInArea(c.root, c.q, pos, prev, 'caged', 'caged', p.z === 'tri'); } catch (e) { g = null; }
       if (!g) continue;
       prev = g;
-      list.push({ notes: g.notes, cap: `${c.rn} ${sym(c.root, c.q)}`, set: g.notes.map((n) => n.string) });
+      list.push({ notes: g.notes, cap: `${c.rn} ${sym(c.root, c.q)}`, q: c.q, set: g.notes.map((n) => n.string) });
     }
     return {
       kicker: 'Chord scale', title: `${esc(key)}: ${SIZE[p.z]}`, sub: `${p.sh}-shape area (frets ${pos.lo}–${pos.hi}) · stay in position, I to I and back, each chord close to the last`,

@@ -9,7 +9,7 @@ import * as H from '../caged/harmony.js';
 import { ALL, resolve } from '../caged/library.js';
 import { substitutions } from '../subs.js';
 import { voiceRun } from './micore.js';
-import { spellTonic, nn, pick, esc } from './core.js';
+import { spellTonic, nn, pick, esc, typeName } from './core.js';
 
 const CATS = ['Cadences', 'Pop and rock', 'Modal vamps', 'Blues', 'Turnarounds and jazz moves', 'Classical patterns', 'Jazz standards', 'Borrowed chords', 'Chromatic chords'];
 const SHAPES = ['C', 'A', 'G', 'E', 'D'];
@@ -75,7 +75,7 @@ export default {
           const hideR = !peek.has(i) && (st.hide === 'rn' || st.hide === 'all');
           const last = i === seq.length - 1;
           return `<div class="pmc ${changed ? 'sub' : ''} ${open && open.kind === 'chord' && open.i === i ? 'open' : ''}" data-ci="${i}" style="flex:${c.beats}">
-              <button class="pmname" data-peek="${i}"><b>${hideN ? '?' : esc(name(c))}</b><small>${hideR ? '·' : esc(rn(c))}${beatsTxt(c.beats) ? ` <i>${beatsTxt(c.beats)}</i>` : ''}</small></button>
+              <button class="pmname" data-peek="${i}"><b>${hideN ? '?' : esc(name(c))}</b><small>${hideR ? '·' : esc(rn(c))}${beatsTxt(c.beats) ? ` <i>${beatsTxt(c.beats)}</i>` : ''}</small>${!hideN && typeName(c.q) ? `<small class="tn">${typeName(c.q)}</small>` : ''}</button>
               <button class="spider" data-spider="${i}" aria-label="Substitutions for this chord">${SPIDER}</button>
             </div>${last ? '' : `<button class="gap ${open && open.kind === 'gap' && open.i === i ? 'open' : ''}" data-gap="${i}" aria-label="Add a chord here">+</button>`}`;
         }).join('')}</div>`).join('')}</div>
@@ -113,17 +113,17 @@ export default {
         const c = seq[open.i];
         const opts = chordOptions(open.i);
         const changed = c.root.letter !== c.orig.root.letter || c.root.acc !== c.orig.root.acc || c.q !== c.orig.q;
-        return `<div class="info"><div class="k">Instead of ${esc(name(c))} (${esc(rn(c))})</div>
+        return `<div class="info"><div class="k">Instead of ${esc(name(c))} (${esc(rn(c))}${typeName(c.q) ? `, ${typeName(c.q)}` : ''})</div>
           <div class="choices">${c.ins ? `<button data-rm="1"><b>Take it out</b><small>Its time goes back to the chord before.</small></button>` : ''}
           ${changed && !c.ins ? `<button data-orig="1"><b>Back to ${esc(name({ root: c.orig.root, q: c.orig.q }))}</b><small>The original chord.</small></button>` : ''}
-          ${opts.map((o, k) => `<button data-opt="${k}"><b>${esc(name(o.chords[0]))} · ${esc(rn(o.chords[0]))}</b> ${esc(o.label)}<small>${esc(o.why)}</small></button>`).join('')}</div></div>`;
+          ${opts.map((o, k) => `<button data-opt="${k}"><b>${esc(name(o.chords[0]))} · ${esc(rn(o.chords[0]))}</b> ${esc(o.label)}${typeName(o.chords[0].q) ? `<small class="tn">${typeName(o.chords[0].q)}</small>` : ''}<small>${esc(o.why)}</small></button>`).join('')}</div></div>`;
       }
       const prev = seq[open.i], t = seq[open.i + 1];
       const opts = gapOptions(open.i);
       return `<div class="info"><div class="k">Add before ${esc(name(t))} (${esc(rn(t))}), taking half of ${esc(name(prev))}’s ${prev.beats} beat${prev.beats === 1 ? '' : 's'}</div>
         <div class="choices">${opts.map((o, k) => {
           const room = prev.beats / 2 / (o.need || 1) >= 0.5;
-          return `<button data-gopt="${k}" ${room ? '' : 'disabled'}><b>${o.chords.map((c) => `${esc(name(c))} · ${esc(rn(c))}`).join(' → ')}</b> ${esc(o.label)}<small>${room ? esc(o.why) : 'No room: the chord before is too short.'}</small></button>`;
+          return `<button data-gopt="${k}" ${room ? '' : 'disabled'}><b>${o.chords.map((c) => `${esc(name(c))} · ${esc(rn(c))}`).join(' → ')}</b> ${esc(o.label)}${o.chords.some((c) => typeName(c.q)) ? `<small class="tn">${o.chords.map((c) => typeName(c.q)).filter(Boolean).join(' → ')}</small>` : ''}<small>${room ? esc(o.why) : 'No room: the chord before is too short.'}</small></button>`;
         }).join('')}</div></div>`;
     }
     const changedSeq = () => { grips = null; if (playing) { stop(); play(); } else draw(); };
