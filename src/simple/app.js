@@ -24,9 +24,31 @@ const EX_TRIAD = [
 const EX_SEV = [
   ['Drop 2, up one string set', [['drop2:4321', 'Drop 2 on 4‑3‑2‑1'], ['drop2:5432', 'Drop 2 on 5‑4‑3‑2'], ['drop2:6543', 'Drop 2 on 6‑5‑4‑3']]],
   ['Drop 3, up one string set', [['drop3:6432', 'Drop 3 on 6‑4‑3‑2'], ['drop3:5321', 'Drop 3 on 5‑3‑2‑1']]],
-  ['Across the neck', [['area:drop2', 'Drop 2, area by area'], ['area:drop3', 'Drop 3, area by area'], ['shell', 'Shells (root on the 6th and 5th)'], ['caged', 'The five CAGED forms'], ['arp', 'Arpeggio, area by area']]],
+  ['Drop 2 & 4, up one string set', [['drop24:6532', 'Drop 2 & 4 on 6‑5‑3‑2'], ['drop24:5421', 'Drop 2 & 4 on 5‑4‑2‑1']]],
+  ['Across the neck', [['area:drop2', 'Drop 2, area by area'], ['area:drop3', 'Drop 3, area by area'], ['area:drop24', 'Drop 2 & 4, area by area'], ['shell', 'Shells (root on the 6th and 5th)'], ['caged', 'The five CAGED forms'], ['arp', 'Arpeggio, area by area']]],
 ];
-const exercisesFor = (q) => (isTriad(q) ? EX_TRIAD : EX_SEV);
+// Drop 2 with extensions: the substitutions players actually make inside a four-note shape (9 for the root, 13 for
+// the 5th, 11 on a minor chord), each spelled out so the colour tone shows in violet
+const EXT = {
+  maj7: [['maj9', ['3', '5', '7', '9'], '9 for the root'], ['maj13', ['3', '7', '9', '13'], '9 for the root, 13 for the 5th']],
+  '7': [['9', ['3', '5', 'b7', '9'], '9 for the root'], ['13', ['1', '3', 'b7', '13'], '13 for the 5th'], ['13', ['3', 'b7', '9', '13'], '9 and 13, rootless']],
+  m7: [['m9', ['b3', '5', 'b7', '9'], '9 for the root'], ['m11', ['b3', 'b7', '9', '11'], '9 and 11, rootless']],
+  m7b5: [['m7b5', ['b3', 'b5', 'b7', '9'], '9 for the root (ø9)']],
+};
+// shells with one colour tone on top: the four-note comping grips (root on the 6th, then on the 5th)
+const SHELLX = {
+  maj7: [[[6, 4, 3, 2], ['1', '7', '3', '13'], 'maj13', '1-7-3-13'], [[5, 4, 3, 2], ['1', '3', '7', '9'], 'maj9', '1-3-7-9']],
+  '7': [[[6, 4, 3, 2], ['1', 'b7', '3', '13'], '13', '1-♭7-3-13'], [[5, 4, 3, 2], ['1', '3', 'b7', '9'], '9', '1-3-♭7-9']],
+  m7: [[[6, 4, 3, 2], ['1', 'b7', 'b3', '11'], 'm11', '1-♭7-♭3-11'], [[5, 4, 3, 2], ['1', 'b3', 'b7', '9'], 'm9', '1-♭3-♭7-9']],
+  m7b5: [[[6, 4, 3, 2], ['1', 'b7', 'b3', 'b5'], 'm7b5', '1-♭7-♭3-♭5'], [[5, 4, 3, 2], ['1', 'b3', 'b7', '9'], 'm7b5', '1-♭3-♭7-9 (ø9)']],
+};
+function exercisesFor(q) {
+  if (isTriad(q)) return EX_TRIAD;
+  const out = EX_SEV.map(([g, list]) => [g, [...list]]);
+  if (EXT[q]) out.splice(3, 0, ['Drop 2 with extensions', EXT[q].flatMap(([, , label], k) => ['4321', '5432'].map((ss) => [`ext:${k}:${ss}`, `${label[0].toUpperCase() + label.slice(1)} · ${ss.split('').join('‑')}`]))]);
+  if (SHELLX[q]) out[out.length - 1][1].splice(3, 0, ['shellx', 'Shells plus a colour tone']);
+  return out;
+}
 const KEYS = [['cycle', 'Cycle of 4ths'], ...['C', 'F', 'B♭', 'E♭', 'A♭', 'D♭', 'F♯', 'B', 'E', 'A', 'D', 'G'].map((k, i) => [String([0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7][i]), k])];
 const FOURTHS = [0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7];
 const KEYNAME = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
@@ -53,13 +75,13 @@ function build() {
   const out = [];
   const inv = (x) => { const hasRoot = x.notes.some((n) => n.iv === '1'); return hasRoot ? `${INV[x.inversion] || ''} · ${BASS[x.bassIv] || T.prettyIv(x.bassIv)} in the bass` : `${T.prettyIv(x.bassIv)} in the bass`; };
   const [kind, arg] = ex.split(':');
-  if (['close', 'spread', 'drop2', 'drop3'].includes(kind)) {
+  if (['close', 'spread', 'drop2', 'drop3', 'drop24'].includes(kind)) {
     const ss = SET(arg);
     const up = F.chordVoicings({ root: r, quality: q, voicing: kind, stringSet: ss, inversion: 'all' }).filter((x) => x.maxFret <= MAXF).sort((a, b) => a.minFret - b.minFret || a.inversion - b.inversion);
     const seq = up.concat(up.slice(0, -1).reverse());
     seq.forEach((x, i) => out.push({ notes: x.notes, text: `${inv(x)} · strings ${ss.join('‑')}${i >= up.length ? ' · back down' : ''}` }));
   } else if (kind === 'area') {
-    const sets = { close: ['321', '432', '543', '654'], spread: ['643', '532', '421'], drop2: ['4321', '5432', '6543'], drop3: ['6432', '5321'] }[arg].map(SET);
+    const sets = { close: ['321', '432', '543', '654'], spread: ['643', '532', '421'], drop2: ['4321', '5432', '6543'], drop3: ['6432', '5321'], drop24: ['6532', '5421'] }[arg].map(SET);
     for (const w of windows(r)) {
       const inArea = [];
       for (const ss of sets) for (const x of F.chordVoicings({ root: r, quality: q, voicing: arg, stringSet: ss, inversion: 'all' })) if (x.minFret >= Math.max(0, w.lo - 1) && x.maxFret <= w.hi + 1 && x.maxFret <= MAXF) inArea.push({ ...x, ss });
@@ -69,6 +91,21 @@ function build() {
     for (const [ss, name] of [[[6, 4, 3], 'root on the 6th · 1-7-3'], [[6, 5, 4], 'root on the 6th · 1-3-7'], [[5, 3, 2], 'root on the 5th · 1-7-3'], [[5, 4, 3], 'root on the 5th · 1-3-7']]) {
       const v = F.chordVoicings({ root: r, quality: q, voicing: 'shell', stringSet: ss }).filter((x) => x.notes[0].iv === '1' && x.maxFret <= MAXF).sort((a, b) => a.minFret - b.minFret);
       if (v[0]) out.push({ notes: v[0].notes, text: `Shell · ${name}` });
+    }
+  } else if (kind === 'ext') {
+    // drop 2 with a colour tone in place of a chord tone, up the set and back
+    const [, k, set] = ex.split(':');
+    const [qx, tones, label] = EXT[q][Number(k)];
+    const ss = SET(set);
+    const name = T.pretty(T.chordSymbol(r, qx)) + (tones.includes('1') ? '' : ' (no root)');
+    const up = F.chordVoicings({ root: r, quality: qx, tones, voicing: 'drop2', stringSet: ss, inversion: 'all' }).filter((x) => x.maxFret <= MAXF).sort((a, b) => a.minFret - b.minFret || a.inversion - b.inversion);
+    const seq = up.concat(up.slice(0, -1).reverse());
+    seq.forEach((x, i) => out.push({ notes: x.notes, text: `${name} · ${label} · ${inv(x)} · strings ${ss.join('‑')}${i >= up.length ? ' · back down' : ''}` }));
+  } else if (kind === 'shellx') {
+    // each grip low on the neck, then an octave up where it fits
+    for (const [ss, order, qx, shape] of SHELLX[q]) {
+      const v = F.chordVoicings({ root: r, quality: qx, voicing: 'custom', order, stringSet: ss }).filter((x) => x.maxFret <= MAXF).sort((a, b) => a.minFret - b.minFret);
+      v.slice(0, 2).forEach((x) => out.push({ notes: x.notes, text: `${T.pretty(T.chordSymbol(r, qx))} · ${shape} · root on the ${ss[0] === 6 ? '6th' : '5th'} · frets ${x.minFret}–${x.maxFret}` }));
     }
   } else if (kind === 'caged') {
     const all = [];
@@ -166,6 +203,7 @@ function neckV(step) {
 // upright on a phone held upright; across in landscape and on wide screens
 const upright = () => window.innerHeight > window.innerWidth && window.innerWidth < 700;
 function role(iv) {
+  if (['9', 'b9', '#9', '11', '#11', '13', 'b13'].includes(iv)) return 'x'; // a colour tone, always violet
   const s = F.simpleIv(iv);
   if (s === '1') return 'r';
   if (['3', 'b3'].includes(s)) return 't';
