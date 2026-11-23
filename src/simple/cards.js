@@ -2472,7 +2472,7 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'bass') + 1, 0, {
     { t: 'Minor triads over a bass', s: 'three to know', b: [
       '- <b>A minor triad on the 6th</b>: Am/C = C6',
       '- <b>on the 3rd</b>: Em/C = Cmaj7',
-      '- <b>on the 5th</b>: Gm/C = C9sus4 (and Gm7/C = C11)',
+      '- <b>on the 5th</b>: Gm/C = C9 with no 3rd, a suspended sound (Gm7/C adds the F: C9sus4, also called C11)',
       'So the chords you already know, played over a different bass, are the extended chords you’re trying to learn.',
     ], ex: [['Am/C, Em/C, Gm/C', 'A:min/b3 E:min/b6 G:min/4']] },
     { t: 'Slash chord or polychord?', s: 'over a bass note vs over a chord', b: [
@@ -2786,4 +2786,1496 @@ for (const [deck, title, add] of SPRUCE) {
 for (const [deck, title] of [['twofive', 'Guide tones'], ['voicelead', 'Guide tones and shells'], ['voicelead', 'The tritone in V7'], ['nopull', 'Follow the guide tones'], ['solo', 'Guide-tone lines'], ['twofive', 'Voice-lead it']]) {
   const c = DECKS.find((d) => d.id === deck)?.cards.find((x) => x.t === title);
   if (c) c.grip = 'shell'; else console.warn('no card', deck, title);
+}
+
+// ---------- fuller cards: on a phone most cards had room for much more, so each thin one gets what a teacher would add
+// (chord by chord, why it works, how to play it and solo over it, where you hear it). Appended like SPRUCE. ----------
+const SPRUCE2 = [
+['blues', 'Blues turnarounds', { b: [
+    'VI7 is V7 of ii, so I – VI7 – ii – V is a chain of chords falling in 5ths back to I.',
+    'In the tritone version each chord is a tritone from the one it replaces: E♭7 for A7, A♭7 for D7, D♭7 for G7. D♭7 then slides down a half step into C.',
+    '- <b>Guitar</b>: the classic Delta turnaround is a chromatic line falling on the top strings against the tonic, landing on V7',
+    '- <b>Solo</b>: aim for each chord’s 3rd on beat 1: E over C7, C♯ over A7, F over Dm7, B over G7',
+    'The mistake to avoid: ending bar 12 on I7 when the tune repeats. The V7 (or its substitute) sends you back to bar 1; save I7 for the last chorus.',
+  ], ex: [
+    ['I – IV7 – I – V7: the blues player’s version', 'C:7 F:7 C:7 G:7'],
+    ['I – VI7 – II7 – V7: all dominants', 'C:7 A:7 D:7 G:7 C:7'],
+  ] }],
+
+  ['progs', 'I – vi – IV – V', { b: [
+    'Chord by chord: I is home; vi shares two notes with it (C and E), so the colour darkens without moving far; IV is the predominant; V pulls back to I.',
+    'The bass C – A – F – G falls in 3rds, then steps up to V.',
+    '- <b>Play</b>: open C, Am, F, G. In doo-wop each chord often gets two beats, with a slow triplet feel',
+    '- <b>Solo</b>: the major pentatonic fits the whole loop; for a melody, land on each chord’s 3rd as it arrives (E, C, A, B)',
+    '- <b>Hear it</b>: “Earth Angel” and countless ’50s ballads',
+    'Variation: make vi an A7 (VI7) and it points harder at the next chord.',
+  ] }],
+
+  ['bass', 'Walking up to IV', { b: [
+    'Why it works: C/E puts E in the bass, a half step under F, so the step E – F leads into IV like a leading tone.',
+    'C/E is also less stable than root-position C, so the ear hears it as passing, not as a new arrival.',
+    '- <b>Play</b>: the open C chord with the open low E string added is C/E, and F at the 1st fret is one fret away',
+    '- Make it C7/E (add the B♭) and it points even harder at F: that’s V7 of IV with its 3rd in the bass',
+    'A staple of country, gospel and hymns. Keep the top voices still and let the bass move; if every voice jumps, the walk disappears.',
+  ], ex: [
+    ['With C7/E: a stronger pull', 'C:maj C:7/3 F:maj'],
+  ] }],
+
+  ['forms', 'Rhythm changes: the A section', { b: [
+    '- <b>Bars 1–4</b>: two I – vi – ii – V turnarounds, two beats per chord. VI7 (A7) often replaces vi to point at ii',
+    '- <b>Bars 5–6</b>: I7 is V7 of IV; then IV turns minor (iv), or goes to ♯iv°7 (F♯°7) instead',
+    '- <b>Bars 7–8</b>: back to I (or I/5 after ♯iv°7), then V – I; the first A turns round, the second ends on I for the bridge',
+    '<b>Comp</b>: at bebop tempos, three-note shells (root, 3rd, 7th) on strings 6, 4, 3 and 5, 4, 3 keep up.',
+    '<b>Solo</b>: treat bars 1–4 as one key and play through them, then mark bars 5–6 with B♭ over C7 and A♭ over Fm7.',
+    'Usually in B♭: “Oleo” and “Anthropology” are rhythm changes.',
+  ] }],
+
+  ['bass', 'The descending bass', { b: [
+    'Bass: C – B – A – G – F – E – D, then G. Each chord takes the bass as its root (Am, F, Dm) or as an inversion: G/B has G’s 3rd under it, C/G and C/E have C’s 5th and 3rd.',
+    'Why it works: the stepwise bass is a melody of its own, and the upper voices hold common tones, so it sounds like one long line.',
+    '- <b>Play</b>: keep the bass on the 6th and 5th strings and move as few top notes as you can between grips',
+    '- <b>Variation</b>: C – Cmaj7/B – Am holds the C chord over the B instead of using G/B',
+    '- <b>Shorter</b>: stop at IV (C – G/B – Am – G – F), then G – C to finish',
+  ], ex: [
+    ['The short version, down to IV', 'C:maj G:maj/3 A:min G:maj F:maj G:maj C:maj'],
+  ] }],
+
+  ['progs', 'i – ♭VI – ♭III – ♭VII', { b: [
+    'Chord by chord in A minor: Am (i) is home; F (♭VI) keeps A and C; C (♭III) is the relative major; G (♭VII) leads back up a whole step.',
+    'Why it sounds modal: ♭VII – i has no G♯ leading tone, so it pulls more softly than E7 – Am. That’s the rock sound rather than the classical one.',
+    '- <b>Play</b>: open Am, F (or Fmaj7 for an easier grip), C, G; or power chords A5 – F5 – C5 – G5',
+    '- <b>Solo</b>: A natural minor or A minor pentatonic covers all four. Target each chord’s 3rd: C over Am, A over F, E over C, B over G',
+    '- <b>Hear it</b>: “Zombie” by The Cranberries uses the same loop in E minor',
+  ] }],
+
+  ['progs', 'The Andalusian cadence', { b: [
+    'The bass A – G – F – E falls a 4th in steps, and the last step, F – E, is a half step.',
+    'E major borrows G♯ from harmonic minor; G♯ – A is what pulls back to i.',
+    'In flamenco the E chord is heard as home: the cadence lands on E, in E Phrygian.',
+    '- <b>Solo</b>: A natural minor over Am – G – F, then A harmonic minor over E (the same notes as E Phrygian dominant)',
+    '- <b>Hear it</b>: “Runaway” (Del Shannon) and “Walk, Don’t Run”',
+  ] }],
+
+  ['progs', 'Major ii–V–I, then minor', { b: [
+    'Chord by chord: Am7 – D7 – Gmaj7 is ii – V – I in G; Cmaj7 is IV of G (and ♭VI of E minor); F♯ø7 – B7 – Em is iiø – V7 – i in E minor.',
+    'Cmaj7 to F♯ø7 is the hinge: the one root move that’s a tritone, not a 5th, and it turns the music toward the minor key.',
+    '- <b>Guide tones</b>: C – C – B – B – A – A – G, the 3rd or 7th of each chord in turn, falling by step through all seven',
+    '- <b>Comp</b>: with shells the roots alternate 6th and 5th strings, so the whole sequence stays around frets 2–5',
+    '- <b>Solo</b>: G major (E natural minor, same notes) over the first five chords; E harmonic minor over B7 for the D♯',
+  ] }],
+
+  ['gospel', '3 – 6 – 2 – 5 – 1', { b: [
+    'Each dominant is V7 of the next root: E7 points to A, A7 to D, D7 to G, G7 to C.',
+    'Two inner lines fall by half steps: G♯ – G – F♯ – F – E and D – C♯ – C – B. Each chord’s 3rd becomes the next one’s 7th.',
+    '- <b>Comp</b>: alternate 5th- and 6th-string roots and you hardly move: E7 (5th string, 7th fret), A7 (6th, 5th), D7 (5th, 5th), G7 (6th, 3rd), C (5th, 3rd)',
+    '- <b>Colour</b>: ♭9 and ♯9 add grit on the dominants; 9ths and 13ths smooth them',
+    'In ragtime and early jazz the all-dominant version is called the ragtime progression.',
+  ] }],
+
+  ['progs', 'IV – V – iii – vi', { b: [
+    'Chord by chord in C: Fmaj7 (IV) and G7 (V) build tension; Em7 (iii) is a soft, deceptive landing that shares G, B and D with G7; Am (vi) is the minor resolution.',
+    'Em7 – Am is a falling 5th, the same motion as V – I, which is why vi feels like a landing.',
+    '- <b>With E7</b>: G♯ leads up to A, a stronger, more dramatic pull to vi',
+    '- <b>Solo</b>: C major or A minor pentatonic over all four; over E7 add G♯ (A harmonic minor)',
+    '- <b>Variation</b>: keep going, IV – V – iii – vi – ii – V – I, to finally land home',
+  ] }],
+
+  ['progs', 'The Canon', { b: [
+    'The bass works in pairs: C – G, A – E, F – C, each falling a 4th, and each pair starting a 3rd lower. F – G closes it.',
+    'Every chord is diatonic, so nothing jars; the pull comes from the repeating bass pattern.',
+    '- <b>With inversions</b>: C – G/B – Am – Em/G – F – C/E – F – G lets the bass fall by step',
+    '- <b>Over it</b>: a line falling down the scale fits, E – D – C – B – A – G – A – B, each note a 3rd or 5th of its chord',
+    'The original, in D, is a ground bass: the same eight notes repeat while the upper parts vary.',
+  ], ex: [
+    ['With a stepwise bass', 'C:maj G:maj/3 A:min E:min/b3 F:maj C:maj/3 F:maj G:maj'],
+  ] }],
+
+  ['bass', 'Pedal points', { b: [
+    'Why it works: the bass is a fixed reference, so chords above it are heard as tension over home, not as new keys. G/C is G B D over C: the 5th, 7th and 9th of C.',
+    'A dominant pedal builds expectation: everything over G sounds unresolved until the bass finally moves to C.',
+    '- <b>Play</b>: in A or E the open 5th or 6th string makes an easy pedal; in C, hold C on the 5th string, 3rd fret, and move triads on the top three strings',
+    '- <b>Hear it</b>: intros and endings, gospel vamps, and the long dominant pedal before a ballad’s last chorus',
+    'The effect depends on the bass staying put, so don’t let it walk.',
+  ] }],
+
+  ['progs', 'I – V – vi – IV', { b: [
+    'Chord by chord: I home; V moves away; vi is the relative minor; IV is the predominant, and IV – I closes the loop with a plagal move.',
+    'The bass C – G – A – F: down a 4th, up a step, down a 3rd.',
+    '- <b>Play</b>: open C, G, Am, F; or G – D – Em – C, the same progression in G and the easiest on guitar',
+    '- <b>Solo</b>: C major pentatonic (A minor pentatonic) fits every chord; end phrases on C over I and on A over vi',
+    '- <b>Hear it</b>: “Let It Be”, “With or Without You”, “No Woman, No Cry”',
+  ] }],
+
+  ['bass', 'Walking bass', { b: [
+    'In the example: C – E – G – C♯ walks up Cmaj7 and steps a half step into D; D – F – A – A♭ does the same on Dm7 into G; G – F – D – D♭ falls through G7 into C.',
+    'Why beat 4 matters: the approach note makes the next root sound inevitable, so the change is heard even with no chords on top.',
+    '- <b>Feel</b>: even quarter notes, slightly long, with beat 1 a touch stronger',
+    '- <b>Play</b>: stay in one position (C on the 5th string, 3rd fret) with one finger per fret so the line never jumps',
+    '- <b>Start</b> with a two-feel (half notes on root and 5th), then go to four once it’s steady',
+  ] }],
+
+  ['blues', 'The minor blues', { b: [
+    'A♭7 is the tritone sub of D7 (V7 of V), so it slides down a half step into G7.',
+    '- <b>Guide tones</b>: over A♭7 play G♭ (its 7th) and resolve it to F, the 7th of G7; C (3rd of A♭7) falls to B (3rd of G7)',
+    '- <b>Solo</b>: C minor pentatonic or the blues scale over all of it; C Dorian over Cm7, C natural minor over Fm7, C harmonic minor over G7',
+    '- <b>Comp</b>: Cm7 at the 3rd fret (5th-string root), Fm7 at the 1st fret (6th-string root); A♭7 and G7 sit at the 4th and 3rd frets on the 6th string, one fret apart',
+    '- <b>Hear it</b>: “The Thrill Is Gone” (B.B. King) and “Mr. P.C.” (John Coltrane)',
+  ] }],
+
+  ['bass', 'Upper-structure slash chords', { b: [
+    'Read the triad’s notes as intervals from the bass. D/C is D, F♯ and A over C: the 9, ♯11 and 13.',
+    'Why players use them: a triad is easy to grip and to hear, and the bass supplies the root, so a small shape gives a rich sound.',
+    '- <b>Play</b>: D/C is the open D chord with C (5th string, 3rd fret) underneath',
+    '- <b>Practise</b>: hold C in the bass and cycle C, D, E and B♭ triads above it to hear each colour against the same root',
+    'The bass must sit clearly below the triad. If C ends up in the middle, D/C just sounds like a messy D7.',
+  ] }],
+
+  ['blues', 'The quick change', { b: [
+    'Bar 2’s F7 lifts the first line; bars 3–4 settle back on I7 before IV7 arrives properly in bar 5.',
+    'F7’s 7th is E♭, the blue ♭3 of the key, so the quick change brings the blue note into the chords right at the start.',
+    '- <b>Voice leading</b>: from C7 to F7, E falls to E♭ and B♭ falls to A. The 3rd and 7th swap places by half steps',
+    '- Standard in Chicago and Texas shuffles, and in the jazz blues',
+    'The mistake to avoid: staying on IV7 for bars 2–4. It’s one bar, then back to I7.',
+  ] }],
+
+  ['gospel', 'Neo-soul colours', { b: [
+    'In C: Fmaj9 is F A C E G, Em7 is E G B D, Dm9 is D F A C E, Cmaj9 is C E G B D. Several notes carry over each time, so the change feels like a shift of light rather than a move.',
+    'Dm11 – G13 is ii – V in C that never resolves: both come from D Dorian, so it stays modal.',
+    '- <b>Comp</b>: leave the root to the bass and play 3rd, 7th and 9th on the middle strings; slide into chords from a half step below, and add small hammer-on fills',
+    '- <b>Feel</b>: sit slightly behind the beat and let chords ring for two or four beats',
+    '- <b>Hear it</b>: D’Angelo and Erykah Badu',
+  ] }],
+
+  ['blues', 'The 8-bar blues', { b: [
+    'It reaches IV in bar 3 instead of bar 5, so it moves faster than the 12-bar. The V7 in bar 2 is the surprise.',
+    '- <b>Comp</b>: the shuffle on the two bass strings, root–5th then root–6th, works for every chord',
+    '- <b>Solo</b>: the same scales as the 12-bar, but in shorter phrases: two-bar ideas fit the form',
+    '- <b>Hear it</b>: “Heartbreak Hotel” is an 8-bar blues too',
+    'Count it: players used to 12 bars sit on I too long. The change to V comes in bar 2.',
+  ] }],
+
+  ['progs', 'I – IV – V', { b: [
+    'Between them the three chords hold every note of the major scale: C E G, F A C, G B D. So any melody in the key can be harmonised with them.',
+    'Function: I is rest; IV moves away and softens; V has the leading tone B, which pulls up to C.',
+    '- <b>Play</b>: in G, D and A all three are open chords; in E use B7. For rock, use power chords on the 6th and 5th strings',
+    '- <b>Hear it</b>: “Twist and Shout”, “La Bamba” and “Wild Thing” loop I – IV – V – IV',
+    '- <b>Try</b> V – IV – I, the rock cadence, against IV – V – I: the same chords, a different pull',
+  ], ex: [
+    ['I – IV – V – IV: the rock loop', 'C:maj F:maj G:maj F:maj'],
+  ] }],
+
+  ['progs', 'The diatonic cycle', { b: [
+    'Every root falls a perfect 5th except F to B, which is a tritone. That’s where the key forces it, and Bø7 smooths it over.',
+    '- <b>Guide tones</b>: the 7th of each chord falls by step to the 3rd of the next: G – F, C – B, F – E, B – A, E – D, A – G♯, D – C',
+    '- <b>Comp</b>: alternate 6th- and 5th-string roots and the cycle walks down the neck: Am7 and Dm7 at the 5th fret, G7 and Cmaj7 at the 3rd, Fmaj7 at the 1st',
+    '- <b>Solo</b>: C major (A natural minor) over everything but E7; A harmonic minor there for the G♯',
+    '- <b>Hear it</b>: “I Will Survive” runs the cycle from Am',
+  ] }],
+
+  ['blues', 'The 12-bar blues', { b: [
+    'Each four-bar line has a job: bars 1–4 state it, bars 5–8 go to IV and back, bars 9–12 go to V and turn round. Sung blues fits it as AAB: a line, the line again, an answer.',
+    'Why it works: I7 is also V7 of IV, so the move to IV in bar 5 is pulled, and V7 – IV7 – I7 falls back home.',
+    '- <b>Comp</b>: the shuffle on the bass strings, easiest in A (open 5th string) or E (open 6th)',
+    '- <b>Mark the change</b>: play E (3rd of C7) in bar 4 and E♭ (7th of F7) in bar 5',
+    '- <b>Hear it</b>: “Johnny B. Goode”, “Hound Dog”, “Pride and Joy”',
+  ] }],
+
+  ['blues', 'The jazz blues', { b: [
+    'F♯°7 (F♯ A C E♭) is a rootless D7♭9, so it pulls to C/G in bar 7, and the bass climbs F – F♯ – G.',
+    'Bar 8 is often Em7 – A7, a ii – V into Dm7.',
+    '- <b>Guide tones</b> in bars 9–11: C – B – B♭, the 7th of Dm7, the 3rd of G7, the 7th of C7',
+    '- <b>Comp</b>: three-note shells in quarter notes, or 9th and 13th grips on the dominants',
+    '- <b>Solo</b>: Mixolydian on each dominant, Dorian on the ii chords, with the blues scale over it all',
+    '- <b>Hear it</b>: “Billie’s Bounce”, “Now’s the Time”, “Tenor Madness”',
+  ] }],
+
+  ['gospel', 'The gospel turnaround', { b: [
+    'Chord by chord: C7/E is V7 of IV; F♯°7 is a rootless D7♭9 (V7 of V); C/G is the cadential 6/4; A7 is V7 of ii; Dm7 – G7 is ii – V home.',
+    'After the first leap to E the bass climbs by half steps (E – F – F♯ – G), then a whole step to A.',
+    '- <b>Play</b>: put C on top and it holds through the first five chords while the bass moves underneath',
+    '- <b>Variations</b>: D7 – G7 (II7 – V7) for the ii – V, or E♭7 as a tritone sub for A7, sliding into Dm7',
+    'You hear it at the end of gospel 8-bar and 12-bar forms and in soul ballads.',
+  ] }],
+
+  ['slash', 'The 7th in the bass', { b: [
+    'Why it falls: a dominant’s 7th is a dissonance that resolves down by step. In the bass that resolution is exposed, so the ear waits for it.',
+    'In G7/F the F falls to E while B rises to C: two half steps that land on C/E.',
+    'Classical theory calls it V4/2, and it resolves to I6, the tonic in first inversion.',
+    '- <b>Play</b>: G7/F is F on the 6th string, 1st fret, under the open D, G and B strings; then the open C chord with the open low E',
+    '- <b>In a line</b>: C – C7/B♭ – F/A – Fm/A♭ – C/G, the bass falling C – B♭ – A – A♭ – G',
+  ], ex: [
+    ['The falling line', 'C:maj C:7/b7 F:maj/3 F:min/b3 C:maj/5 G:7 C:maj'],
+  ] }],
+
+  ['gospel', '7 – 3 – 6', { b: [
+    'All of Bø7’s notes (B D F A) are in C major, so the turn toward A minor costs nothing until E7 brings in G♯.',
+    '- <b>Guide tones</b>: A (7th of Bø7) falls to G♯ (3rd of E7), which rises to A; D (7th of E7) falls to C (3rd of Am)',
+    '- <b>Play</b>: E7♭9 is E G♯ B D F; without the root it’s G♯°7, an easy movable grip',
+    '- <b>Solo</b>: A harmonic minor over Bø7 – E7, then A natural minor over Am',
+    'Why gospel likes it: it delays I. You head for the relative minor first, then 2 – 5 – 1 brings you home.',
+  ] }],
+
+  ['gospel', 'The 1 to the 4', { b: [
+    'Voice leading: in C7, E (the 3rd) rises to F and B♭ (the 7th) falls to A, the 3rd of F.',
+    '- C7♯9 adds E♭ for grit; C7♭9 adds D♭, which falls to C, the 5th of F',
+    '- <b>Play</b>: C7♯9 is the “Hendrix chord” grip with its root on the 5th string, 3rd fret',
+    '- Add ♯iv°7 after IV and you have the start of the gospel turnaround',
+    'In a 12-bar blues, bar 4 makes the same move into IV7.',
+  ] }],
+
+  ['bass', 'Slash chords', { b: [
+    'The letter after the slash is only the lowest note; the chord above stays as written.',
+    'Inversions smooth the bass: C – G/B – Am lets it step down instead of jumping. Upper structures name a rich chord quickly: D/C gives C a Lydian colour with four notes.',
+    '- <b>Play</b>: the bass usually goes on the 6th or 5th string; mute anything lower so the named bass really is the lowest note',
+    'Not a polychord: C/E is one chord over one bass note; a polychord stacks two full chords, written one above the other with a line.',
+  ], ex: [
+    ['An inversion: C – G/B – Am', 'C:maj G:maj/3 A:min'],
+    ['An upper structure: D/C – C', 'D:maj/b7 C:maj7'],
+  ] }],
+
+  ['bass', 'The minor bass line', { b: [
+    'Spelled out: Am/G is Am7 with its 7th in the bass; Am/F♯ is F♯ A C E, an F♯ø7; Fmaj7 is F A C E. A, C and E stay through all four chords.',
+    '- <b>Play</b>: in the open position keep the Am grip and walk the bass down the 6th string, 3rd fret to 1st',
+    '- <b>Variation</b>: D/F♯ in place of Am/F♯, a major IV with a Dorian colour. “While My Guitar Gently Weeps” goes that way',
+    '- <b>Solo</b>: A natural minor, except over Am/F♯, where the F♯ makes it A Dorian',
+  ] }],
+
+  ['forms', 'How a jazz tune runs', { b: [
+    '- <b>Intro</b>: often the last 4 or 8 bars of the tune, or a I – vi – ii – V vamp, so everyone hears the key and tempo',
+    '- <b>Solo order</b>: usually horns first, then piano or guitar, then bass',
+    '- <b>Trading fours</b>: soloists and drummer take four bars each in turn, keeping the form',
+    '- <b>Endings</b>: repeat the last turnaround two or three times (a tag), or slow down into the last chord',
+    'Keep your place: count choruses, and mark the top of the form clearly. Tapping your head is the usual signal to go to the head.',
+  ], ex: [
+    ['An intro vamp', 'C:maj7 A:7 D:m7 G:7 C:maj7 A:7 D:m7 G:7'],
+    ['A chromatic ending: iii – ♭III7 – ii – ♭II7 – I', 'E:m7 Eb:7 D:m7 Db:7 C:maj7'],
+  ] }],
+
+  ['gospel', 'The minor plagal “amen”', { b: [
+    'Chord by chord in C: F holds F, A and C; Fm moves only A to A♭; C lands with A♭ falling to G and F falling to E.',
+    'iv is borrowed from C minor: a touch of darkness right before home.',
+    '- <b>Play</b>: in the E-shape barre at the 1st fret, lift the finger on the 3rd string and F becomes Fm',
+    '- <b>Solo</b>: play A♭ over iv and let it fall to G as C arrives; that sigh is the whole effect',
+    '- <b>Hear it</b>: “In My Life” and “Creep” both use IV – iv – I',
+  ] }],
+
+  ['forms', 'Verse and chorus', { b: [
+    '- <b>Contrast</b>: verses often sit on vi or a smaller loop; choruses land on I or lift to IV. Changing the chord a section starts on is the quickest way to make it feel new',
+    '- <b>Pre-chorus</b>: often starts on IV or ii and ends on V, so the chorus’s I is a release',
+    '- <b>Bridge</b>: new chords, often starting on IV or vi, to freshen the ear before the last chorus',
+    '- <b>On guitar</b>: mark sections with texture: arpeggios or palm-muting in the verse, open strumming in the chorus',
+  ], ex: [
+    ['Pre-chorus into chorus: ii – IV – V, then I', 'D:min F:maj G:sus4 G:maj C:maj'],
+  ] }],
+
+  ['forms', 'Learn the form, not just the chords', { b: [
+    'Chunk the tune into patterns: “bars 1–4 are I – vi – ii – V twice, bar 5 is a ii – V to IV”. A few patterns are easier to hold than thirty chord names.',
+    'In Roman numerals you can play it in any key, which is what singers will ask for.',
+    '- <b>Practise in layers</b>: roots only, then guide tones (3rds and 7ths), then full voicings',
+    '- <b>Test yourself</b>: play it with no chart, start from the bridge or bar 9, and say where you are as you go',
+    '- <b>Listen</b> to several recordings: the form stays fixed, but each band changes details',
+  ] }],
+
+  ['slash', 'The Lydian slash chords', { b: [
+    'The triad sits on the 9th of the bass: in D/C, D is the 9, F♯ the ♯11, A the 13. The ♯11 avoids the clash a natural 11 (F) would make with the 3rd, E.',
+    'B♭/A♭ works the same way: B♭, D and F are the 9, ♯11 and 13 of A♭.',
+    '- <b>Play</b>: D/C is the open D grip with C on the 5th string, 3rd fret. G/F is F on the 6th string, 1st fret, with the open D, G and B strings',
+    '- <b>Solo</b>: C Lydian over D/C (the notes of G major over C), and lean on the F♯',
+    'The Lydian colour is common in film scores; “The Simpsons” theme is in Lydian.',
+  ] }],
+
+  ['forms', 'Rhythm changes: the bridge', { b: [
+    'Each dominant is V7 of the next, and G7 is V7 of I for the last A. In the usual key, B♭, it’s D7 – G7 – C7 – F7.',
+    '- <b>Guide tones</b>: each 3rd falls a half step to the next chord’s 7th: G♯ – G, C♯ – C, F♯ – F, then B rises to C',
+    '- <b>Comp</b>: alternate 5th- and 6th-string roots and it stays in one area: E7 (5th string, 7th fret), A7 (6th, 5th), D7 (5th, 5th), G7 (6th, 3rd)',
+    '- <b>Solo</b>: Mixolydian on each, or arpeggios landing on each new 3rd; altered sounds on E7 and A7 add tension',
+  ] }],
+
+  ['gospel', 'The 4 with a ♯4°', { b: [
+    'From Fmaj7 (F A C E) to F♯°7 (F♯ A C E♭), two notes move by half step (F up to F♯, E down to E♭) and two stay. Then F♯ and A go to G, and E♭ rises to E.',
+    '- <b>Play</b>: keep the bass on the 6th string and it climbs frets 1, 2, 3: F, F♯°7, C/G',
+    '- <b>Solo</b>: any note of the diminished arpeggio works over F♯°7; resolve E♭ up to E as C/G arrives',
+    'It’s bar 6 of the jazz blues, and a common bar 6 in rhythm changes.',
+  ] }],
+
+  ['blues', 'Blue notes', { b: [
+    'In C they’re E♭ (♭3), G♭ (♭5) and B♭ (♭7). B♭ is already in C7; E♭ and G♭ are the ones that rub.',
+    'Over IV7 (F7), E♭ is the chord’s 7th, so the same note sounds at home there.',
+    '- <b>♭5</b> is a passing note: use it between F and G, don’t sit on it',
+    '- <b>Bend</b>: in the C box at the 8th fret, E♭ is on the 3rd string, 8th fret. Push it slightly sharp, short of E',
+    'B.B. King’s small bends and vibrato on these notes are the model.',
+  ] }],
+
+  ['slash', 'Minor triads over a bass', { b: [
+    'The rule: a minor triad a major 6th above the bass gives a 6 chord; a major 3rd above gives maj7; a 5th above gives a dominant sound with no 3rd.',
+    'Dm7/G is the same trick as Gm7/C: G9sus4, the soft V in C.',
+    '- <b>Play</b>: the minor triad on the top three strings, the bass on the 5th or 6th string: shapes you already know',
+    '- <b>Hear the difference</b>: Am/C is sweet and old-fashioned, Em/C soft and open, Gm/C suspended and unresolved',
+    'If the bass is weak or missing you just hear Am, Em or Gm, so make it clear.',
+  ] }],
+
+  ['slash', 'The sus slash chords', { b: [
+    'F/G spelled: F, A and C over G are the ♭7, 9 and 11. Add D (the 5th) and it’s a full G9sus4.',
+    'It resolves softly because there’s no leading tone: C (the 11) can fall to B for G7 first, or the chord can go straight to C.',
+    '- <b>Play</b>: G on the 6th string, 3rd fret, under the small F shape on the top four strings',
+    '- <b>Hear it</b>: the last chord before a pop or gospel chorus; Herbie Hancock’s “Maiden Voyage” is built on sus chords',
+  ], ex: [
+    ['F/G – G7 – C: the 11 falls to the 3rd first', 'F:maj/2 G:7 C:maj'],
+  ] }],
+
+  ['blues', 'The Bird blues', { b: [
+    'Each ii – V’s target becomes the next ii: Bø7 – E7 points to Am7, which becomes the ii of G; G turns minor and becomes the ii of F.',
+    'Bar 6’s Fm7 – B♭7 is also iv – ♭VII7 in C, the backdoor sound after F7.',
+    '- <b>Guide tones</b> in bars 6–10: the 7th of each ii falls to the 3rd of its V: E♭ – D, D – C♯, D♭ – C, then C – B',
+    '- <b>Solo</b>: chord tones through the ii – Vs, blues phrases where the harmony slows (bars 5 and 9–10)',
+    '“Blues for Alice” is usually played in F.',
+  ] }],
+
+  ['blues', 'What to play over it', { b: [
+    'In C: minor pentatonic is C E♭ F G B♭ (add G♭ for the blues scale); major pentatonic is C D E G A.',
+    '- <b>Follow the chords</b>: C major pentatonic over C7, F major pentatonic over F7, G major pentatonic over G7. Land on each new 3rd: E, A, B',
+    '- <b>On guitar</b>: C minor pentatonic at the 8th fret, C major pentatonic at the 5th (the A minor box); slide between them',
+    'The mistake to avoid: holding E over F7. It clashes with the chord’s E♭; switch to E♭ there.',
+  ] }],
+
+  ['slash', 'The cadential 6/4', { b: [
+    'Some analysts write it V6/4 – 5/3 to show it belongs to the V.',
+    'It falls on a strong beat, with V7 on a weaker one.',
+    '- <b>Play</b>: keep G on the 6th string, 3rd fret: the open C chord over it is C/G, then change the top to G7',
+    '- <b>Solo</b>: on C/G don’t play as if you’ve arrived. Treat it as V and resolve on the next I',
+    'In classical concertos the orchestra stops on this chord and the soloist plays the cadenza before V7 – I.',
+  ] }],
+
+  ['forms', 'AABA', { b: [
+    'Bars 1–8 A, 9–16 A, 17–24 B, 25–32 A: one chorus is 32 bars.',
+    '- In “I Got Rhythm” the bridge is III7 – VI7 – II7 – V7; in “Satin Doll” it goes to IV through its ii – V',
+    '- Count in eights: the band that loses the form usually goes wrong at bar 17 or bar 25',
+    '- The last A may add a tag or a different ending',
+    'Other forms to know: ABAC (“All of Me”), with no bridge, just a second half that starts like the first.',
+  ], ex: [
+    ['A bridge to IV: I7 – IV – II7 – V7', 'C:7 C:7 F:maj7 F:maj7 D:7 D:7 G:7 G:7'],
+  ] }],
+['modes', 'Phrygian', { b: [
+    'E Phrygian is the white notes from E: E F G A B C D. The F, a half step above the root, is the colour note.',
+    '- Its chords: Em – F – G – Am – B° – C – Dm. The moves that say Phrygian are i – ♭II (Em – F) and i – ♭vii (Em – Dm).',
+    '- Raise the 3rd and you get Phrygian dominant (E F G♯ A B C D), the 5th mode of A harmonic minor: the flamenco sound.',
+    '<b>Play</b>: on guitar it sits on the open strings. Vamp Em and F (or Fmaj7) and let the F rub against the open E.',
+    '<b>Solo</b>: E minor pentatonic plus F and C. Make the F → E half step the hook; the mistake is playing F♯ out of habit.',
+  ] }],
+
+  ['reharm', 'Passing diminished', { b: [
+    'The °7 is a rootless 7♭9 in disguise: C♯°7 (C♯ E G B♭) is A7♭9 without its A, and A7 is the V of Dm. So it’s a secondary dominant with a chromatic bass.',
+    'Why it works: the bass climbs by half step (C – C♯ – D) and the upper voices move by step or hold.',
+    '- Up the scale: C – C♯°7 – Dm7 – D♯°7 – Em7. D♯°7 is B7♭9 without its root, the V of Em.',
+    '- Down works too, as pure chromatic passing: Em7 – E♭°7 – Dm7.',
+    '<b>Play</b>: one °7 grip covers it; any note of it can be the root. <b>Solo</b>: play the °7 arpeggio, then land on the next chord’s 3rd.',
+  ], ex: [['Up the scale: C – C♯°7 – Dm7 – D♯°7 – Em7', 'C:maj7 C#:dim7 D:m7 D#:dim7 E:m7']] }],
+
+  ['reharm', 'Before and after', { b: [
+    '<b>Plain</b>: all diatonic. Every chord comes from C major, and the ear knows where it’s going.',
+    '<b>Secondary dominants</b>: A7 and D7 replace Am7 and Dm7. Each chord is now the V of the next, so the pull is stronger. C♯ and F♯ are the new notes.',
+    '<b>Tritone subs</b>: E♭7, A♭7 and D♭7 replace A7, D7 and G7. They keep the same 3rds and 7ths (A7 has C♯ and G; E♭7 has G and D♭), so only the bass changes.',
+    '<b>Mixed</b>: Em7 for Cmaj7 (a diatonic sub), A7♭9, Dm9, then D♭7♯11 sliding down to C. Mixing keeps the bass and the colours varied.',
+    'Whichever you choose, check it against the melody: a reharm that fights the tune is wrong however clever it sounds.',
+  ] }],
+
+  ['reharm', 'Add a V', { b: [
+    'Every diatonic chord except vii° can take its own V7: A7 → Dm, B7 → Em, C7 → F, D7 → G, E7 → Am.',
+    'Why it works: the dominant’s 3rd is a half step below the target’s root (C♯ → D in A7 → Dm), and its 7th falls by step to the target’s 3rd (G → F).',
+    '- Into a minor chord, add a ♭9 (A7♭9 → Dm): the B♭ belongs to D minor, so it sounds right.',
+    '<b>Play</b>: an E-shape 7th chord resolves to an A-shape chord at the same fret: A7 at the 5th fret to Dm7 at the 5th fret.',
+    '<b>Solo</b>: hit the new note and resolve it: over A7, C♯ up to D; over C7, B♭ down to A. Check the melody: a C held over A7 rubs against its C♯.',
+  ] }],
+
+  ['mediants', 'I → VI', { b: [
+    'A major is the V of D minor, so it often leads on to Dm as V/ii. Used as a mediant it needs no resolution: it just brightens and returns.',
+    'The two rising voices make it feel lifted rather than shadowed, the mirror of C → A♭, where voices fall.',
+    '<b>Play</b>: open C to open A, letting the open E strings ring as the common tone. Or barre C at the 8th fret and A at the 5th: the same E shape, three frets down.',
+    '<b>Solo</b>: switch from C major pentatonic to A major pentatonic (A B C♯ E F♯) and make C → C♯ the change you hear.',
+    '- Keep going down in minor 3rds and you get the cycle C – A – F♯ – E♭ – C.',
+  ] }],
+
+  ['mediants', 'I → ♭III', { b: [
+    'E♭ is the ♭III of C minor, so it doubles as a borrowed chord. Rock riffs live on I – ♭III – IV, usually as power chords.',
+    'The two falling voices give the shadow; the held G keeps it joined to C.',
+    '<b>Play</b>: C at the 8th fret (E shape) to E♭ at the 6th fret (A shape). The G on the 2nd string, 8th fret, stays put.',
+    '<b>Solo</b>: C major pentatonic over C, E♭ major pentatonic (E♭ F G B♭ C) over E♭. G and C are in both, so land on them across the change.',
+  ], ex: [['I – ♭III – IV – I', 'C:maj Eb:maj F:maj C:maj']] }],
+
+  ['twofive', 'Three ways home', { b: [
+    'All three land on C; the dominant comes from a different place each time.',
+    '<b>Front door</b>: G7’s B and F fall to C and E. The strongest pull.',
+    '<b>Back door</b>: B♭7 is ♭VII7, borrowed from C minor, with Fm7 (iv) as its ii. Its A♭ falls to G and its F to E: a softer arrival. Tadd Dameron’s “Lady Bird” uses it.',
+    '<b>Side door</b>: D♭7 is the tritone sub of G7, with the same 3rd and 7th (F and C♭), so the bass slides down a half step into C.',
+    '<b>Solo</b>: B♭ Mixolydian over B♭7; D♭ Lydian dominant over D♭7. Play all three into the same Cmaj7 and hear the arrival change.',
+  ] }],
+
+  ['mediants', 'I → III', { b: [
+    'E major is the V of A minor, so in C it can be heard as V/vi. Here it’s colour: go back to C, or on to F.',
+    'The G♯ is the one new note and the source of the lift. Make it audible.',
+    '<b>Play</b>: C at the 8th fret (E shape) to E at the 7th fret (A shape). The E on the 3rd string, 9th fret, holds.',
+    '<b>Solo</b>: E major pentatonic (E F♯ G♯ B C♯) over E, or A harmonic minor if it’s heading to Am. Target G♯.',
+    '- Radiohead’s “Creep” runs I – III – IV – iv (G – B – C – Cm).',
+  ], ex: [['I – III – IV – iv, the “Creep” move', 'C:maj E:maj F:maj F:min']] }],
+
+  ['twofive', 'Deceptive endings', { b: [
+    '<b>V → vi</b> works because Am shares C and E with C: G7’s B still rises to C and its F still falls to E. Only the bass surprises, stepping up to A instead of down to C.',
+    '<b>V → ♭VI</b> borrows from C minor: A♭maj7 keeps G (now the 7th), B rises to C, D and F close in on E♭, and the bass steps up a half step.',
+    '- Use it to extend a phrase: a deceptive cadence at bar 8 buys another four bars before the real V – I.',
+    '<b>Solo</b>: play the V as if it will resolve, then land on the 3rd of the surprise chord: C works for both Am7 and A♭maj7.',
+  ] }],
+
+  ['reharm', 'Borrow from minor', { b: [
+    'Each borrowed chord brings a darker note from C minor: Fm has A♭; A♭maj7 has A♭ and E♭; B♭7 has B♭ and A♭.',
+    'Why it works: A♭ falls a half step to G, a strong pull home. That’s why IV – iv – I (F – Fm – C) is all over ballads and 1960s pop.',
+    '- iv can be Fm6, Fm7 or Dø7. Dø7 (D F A♭ C) is Fm6 with D in the bass.',
+    '<b>Solo</b>: over Fm6 play F melodic minor or C minor’s notes; hold A♭ and resolve it to G as C returns.',
+    'The mistake to avoid: borrowing while the melody holds A or E, which clash with A♭ and E♭.',
+  ] }],
+
+  ['modes', 'Dorian', { b: [
+    'D Dorian is the white notes from D: D E F G A B C. The B, a major 6th above D, is the colour note; it’s the 3rd of the G chord.',
+    '- Its chords: Dm7 – Em7 – Fmaj7 – G7 – Am7 – Bø7 – Cmaj7. i – IV and i – ii carry the sound.',
+    '<b>Play</b>: comp Dm7 and a G triad over a D bass (G/D). It’s the B in the voicing that says Dorian.',
+    '<b>Solo</b>: D minor pentatonic plus E and B. Let B ring over Dm7; over G it’s the 3rd. The mistake is B♭ (Aeolian), which clashes with the G chord.',
+  ] }],
+
+  ['solo', 'The ♭9 sound on V7', { b: [
+    'B°7 is B D F A♭: G7♭9 without its root. °7 chords repeat every minor 3rd, so D°7, F°7 and A♭°7 are the same notes and the same shape three frets apart.',
+    'Resolution into C: B → C, A♭ → G, F → E, D → C. Its true home is C minor, where A♭ belongs; into Cmaj7, resolve the A♭ quickly.',
+    '- For the full sound, the half–whole diminished scale from G (G A♭ B♭ B C♯ D E F) adds ♯9, ♯11 and 13.',
+    '<b>Drill</b>: in a bar of G7, run B°7 up from B, then land on E or C on beat 1 of Cmaj7. Then start from D, F and A♭.',
+  ] }],
+
+  ['mediants', 'I → ♭VI', { b: [
+    'A♭ is ♭VI, borrowed from C minor, so it’s both a mediant and modal interchange. The falling E → E♭ gives the shadow; the rising G → A♭ gives the lift.',
+    '- I – ♭VI – ♭VII – I (C – A♭ – B♭ – C) is the heroic cadence of film and game scores.',
+    '<b>Play</b>: on the top three strings, C (G C E at frets 12–13–12) to A♭ (A♭ C E♭ at 13–13–11). One voice up, one held, one down.',
+    '<b>Solo</b>: A♭ major pentatonic (A♭ B♭ C E♭ F) or A♭ Lydian over A♭; land on C, the shared note.',
+  ], ex: [['I – ♭VI – ♭VII – I', 'C:maj Ab:maj Bb:maj C:maj']] }],
+
+  ['twofive', 'The engine', { b: [
+    'Chord by chord: Dm7 (ii) prepares; G7 (V) adds tension with its tritone, B and F; Cmaj7 (I) releases it as B rises to C and F falls to E.',
+    'In tunes it’s usually a bar each of ii and V, then I, or ii and V two beats each.',
+    '<b>Play</b>: in one position, Dm7 on the 5th string at the 5th fret, G7 on the 6th string at the 3rd, Cmaj7 on the 5th string at the 3rd. Then the mirror: Dm7 on the 6th string at the 10th.',
+    '<b>Solo</b>: C major covers all three, but aim for each chord’s 3rd on the change: F, B, E.',
+    '- Hear it everywhere in “Autumn Leaves”, “All the Things You Are” and “Tune Up”.',
+  ] }],
+
+  ['modes', 'Aeolian', { b: [
+    'A Aeolian is the white notes from A: A B C D E F G. The ♭6 (F) sets it apart from Dorian; the ♭7 (G) makes the v chord minor.',
+    '- Its chords: Am – B° – C – Dm – Em – F – G. The rock moves are i – ♭VI – ♭VII and i – ♭VII – ♭VI.',
+    '- Raise G to G♯ and you have harmonic minor’s E7. That one note turns it classical or jazz.',
+    '<b>Play</b>: open or barre Am, F and G, or power chords. <b>Solo</b>: A minor pentatonic, adding B and F; lean on F over the F chord.',
+  ] }],
+
+  ['modes', 'Mixolydian', { b: [
+    'G Mixolydian is the white notes from G: G A B C D E F. The F (♭7) is the colour note; it’s the root of the ♭VII chord.',
+    '- Its chords: G7 – Am – B° – C – Dm – Em – F. The v is minor, so nothing pulls hard back to G: it just vamps.',
+    '<b>Play</b>: open G, F and C. ♭VII – IV – I (F – C – G), the “double plagal” cadence, is a classic rock ending.',
+    '<b>Solo</b>: G major pentatonic plus F, or mix G major and G minor pentatonic, the blues-rock way. The mistake is F♯ over the F chord.',
+  ] }],
+
+  ['twofive', 'Minor ii–V–i', { b: [
+    'Why the chords change in minor: in C minor, D’s triad is D F A♭, diminished, so ii becomes Dø7. V takes B♮ from harmonic minor to be a dominant, and its ♭9 (A♭) comes from the key.',
+    'Guide tones: Dø7’s C falls to G7’s B; G7’s F falls a whole step to Cm’s E♭.',
+    '<b>Play</b>: Dø7 on the 5th string at the 5th fret, G7♭9 on the 6th string at the 3rd, Cm6 on the 5th string at the 3rd.',
+    '<b>Solo</b>: start with C harmonic minor over all three; A♭ and B make the sound. Practise it on “Blue Bossa”, which is in C minor.',
+  ] }],
+
+  ['solo', 'Approach notes and enclosures', { b: [
+    'Why it works: a note a half step away creates tension the target releases. Put the target on the beat and the approach just before it.',
+    '- Double chromatic: two half steps in a row, from below (D, D♯, E) or above (F♯, F, E)',
+    '<b>Drill</b>: over a Cmaj7 vamp, target only E every bar, approaching it a different way each time. Then G, then C. Then over Dm7 – G7 – Cmaj7, aiming at F, B and E.',
+    'The mistake to avoid: the approach note on the beat and the target off it. Then it sounds wrong instead of leading.',
+    'Bebop lines, Charlie Parker’s above all, are full of these.',
+  ] }],
+
+  ['twofive', 'ii–V chains', { b: [
+    'Each pair sets up a key that never arrives: Em7 – A7 points at D, but D turns into Dm7, the next ii.',
+    'In the half-step chain the guide tones still move by half step or hold: A7 (C♯, G) → E♭m7 (D♭, G♭).',
+    '<b>Play</b>: ii on the 6th string, V on the 5th at the same fret (Em7 and A7 at the 12th), then down two frets for the next pair (Dm7 and G7 at the 10th).',
+    '<b>Solo</b>: treat each pair as one key (Em7 – A7: D major; Dm7 – G7: C major) and land on the 3rd of each new ii.',
+  ] }],
+
+  ['solo', 'Chord tones on the beat', { b: [
+    'The ear judges a line by what lands on the beat. Chord tones there make even a simple line sound right.',
+    '- In eighth notes, chord tones on the beats, scale or chromatic notes on the off-beats',
+    '- Strongest of all: the 3rd or 7th on beat 1 of a new chord, the notes that change between chords',
+    '<b>Drill</b>: loop Dm7 – G7 – Cmaj7 slowly and play quarter notes from the arpeggios only, moving to the nearest chord tone at each change. Then add one passing note between each pair.',
+    'The mistake to avoid: running every chord from its root. Start from the nearest chord tone instead.',
+  ] }],
+
+  ['solo', 'The bebop scale', { b: [
+    'G bebop dominant is G A B C D E F F♯. Descend in eighths from G on the beat and the beats fall on G, F, D and B: G7’s four notes.',
+    'Why it’s needed: with seven notes, chord tones drift on and off the beat; the extra half step puts them back.',
+    '- Change direction or start on a non-chord tone and you’ll need to add or skip a note to stay in phase.',
+    '- The same notes work over Dm7, so one bebop line covers the whole ii–V.',
+    '- Major bebop adds ♯5 instead: C D E F G G♯ A B.',
+    'It’s the sound of Charlie Parker’s lines and of bebop ever since.',
+  ] }],
+
+  ['modes', 'Lydian', { b: [
+    'C Lydian is C D E F♯ G A B: the white notes from F, moved to C. F♯ is the colour note.',
+    '- Its chords: Cmaj7 – D7 – Em7 – F♯ø7 – Gmaj7 – Am7 – Bm7. I – II and I – vii (Cmaj7 – Bm7) carry it.',
+    '<b>Play</b>: Cmaj7♯11, or a D triad on the top strings over a C bass.',
+    '<b>Solo</b>: B minor pentatonic over C (7 9 3 ♯11 13), or arpeggiate D major. The mistake is a long F, the note Lydian exists to avoid.',
+  ] }],
+
+  ['solo', 'Triad pairs', { b: [
+    'Why it works: two triads a whole step apart share no notes, so together they make a six-note scale with no half-step rubs. C and D give C D E F♯ G A.',
+    '<b>Practise</b>: alternate three notes of each: C triad up, D triad up, then try inversions so the line moves by step between them.',
+    '- Play them in groups of three against 4/4: the accents shift across the bar line, the modern sound.',
+    '- Find pairs for any chord: take two neighbouring triads whose six notes all fit the chord’s scale.',
+  ] }],
+
+  ['solo', 'Guide-tone lines', { b: [
+    'Why it works: the 3rd and 7th fix the chord’s quality; root and 5th are shared by many chords. Two notes name the chord.',
+    '<b>On guitar</b>: play both lines at once on the 4th and 3rd strings: F–C, F–B, E–B (frets 3–5, 3–4, 2–4).',
+    '<b>Drill</b>: through a whole tune, play only a guide-tone line in long notes. Then add an approach note before each. Then fill the bar.',
+    '“Autumn Leaves” is a good first tune: it’s nearly all ii–V–Is.',
+  ] }],
+
+  ['twofive', 'A ii–V to anything', { b: [
+    'Why it works: a ii–V names a key in two chords, so the target sounds like a brief tonic, then the tune carries on.',
+    '- Some come almost free: before G, Am7 is already in the key, so only D7 adds a note (F♯).',
+    '<b>Play</b>: the grips are the home ii–V, moved. Learn one set and slide it to each target.',
+    '<b>Solo</b>: change scale with the ii–V, then back. Over Eø7 – A7♭9 into Dm, the new notes are B♭ and C♯ (D harmonic minor).',
+    'Most standards enter each key area this way: “All the Things You Are” is built on it.',
+  ] }],
+
+  ['solo', 'Arpeggios from the 3rd', { b: [
+    'Why it works: you keep the 3rd and 7th, drop the root and gain the 9th. It sounds like the chord, only richer.',
+    '- Fmaj7 over Dm7: ♭3 5 ♭7 9. Bø7 over G7: 3 5 ♭7 9. Em7 over Cmaj7: 3 5 7 9.',
+    '- Go further, from the 5th: Am7 over Dm7 (5 ♭7 9 11), Gmaj7 over Cmaj7 (5 7 9 ♯11, Lydian).',
+    '<b>Drill</b>: through a ii–V–I, play each 3rd-up arpeggio ascending, then descending, changing chord on the nearest note. The shapes are ones you already know.',
+  ] }],
+
+  ['twofive', 'Guide tones', { b: [
+    'Why it matters: the roots and 5ths barely say anything; the 3rds and 7ths are what the ear follows.',
+    '<b>On guitar</b>: shells on three strings: Dm7 x535xx, G7 3x34xx, Cmaj7 x324xx. Only the top two notes move, one fret at a time.',
+    '- In minor, G7’s F falls a whole step to Cm’s E♭: the 7th still resolves down.',
+    '<b>Solo</b>: put a guide tone on beat 1 of each chord and the line spells the changes on its own.',
+  ] }],
+
+  ['modes', 'Comping modally', { b: [
+    'A modal tune doesn’t move by function, so the comping has to keep the mode clear and still give motion.',
+    '- The “So What” voicing: three 4ths and a major 3rd, E A D G B over D (9, 5, 1, 11, 13)',
+    '- Avoid anything that sounds like V – I: in D Dorian, A7 (with C♯) pulls it into D minor and breaks the mode',
+    'Rhythm: short stabs with space, or long held chords, rather than a steady strum. Let bass and drums carry the pulse.',
+    'Hear it in the piano on “So What” and in McCoy Tyner’s playing on “Impressions”.',
+  ] }],
+
+  ['modes', 'Ionian and Locrian', { b: [
+    '<b>Ionian</b> lives in motion: you hear it as ii–V–I, not as a one-chord vamp. Over a long Cmaj7, players reach for Lydian (F♯) instead of F.',
+    '<b>Locrian</b> is B C D E F G A over Bø7. Its ♭2 (C) is awkward over the chord, so many prefer Locrian ♮2 (B C♯ D E F G A), the 6th mode of D melodic minor.',
+    '- Locrian’s home is the iiø7 of a minor ii–V: Bø7 – E7 – Am',
+  ], ex: [['Locrian at work: Bø7 – E7♭9 – Am7', 'B:m7b5 E:7b9 A:m7'], ['Cmaj7 to Cmaj7♯11: the same chord, Ionian then Lydian', 'C:maj7 C:maj7#11 C:maj7 C:maj7#11']] }],
+
+  ['twofive', 'Turnarounds', { b: [
+    'A turnaround fills the last two bars and leads back to I. The versions keep the same root path or a sub of it, and change the colour.',
+    '- VI7 for vi: A7 is the V of Dm, so each chord now points at the next. C♯ is the new note.',
+    '- iii for I: Em7 shares E, G and B with Cmaj7, so it stands in while giving the bass a new note.',
+    '- Dameron’s chords are tritone subs of A7, D7 and G7: the same guide tones, a chromatic bass.',
+    'I – vi – ii – V opens “I Got Rhythm” and all the rhythm-changes tunes built on it.',
+  ] }],
+
+  ['solo', 'Pentatonics over changes', { b: [
+    'Why it works: a pentatonic has no half steps, so it never clashes. Built on the right root, all five notes become the chord’s upper colours.',
+    '- Over <b>Dm7</b>, E minor pentatonic adds the 6th: 9 11 5 6 1, a Dorian sound',
+    '- Over <b>G7</b>, D minor pentatonic: 5 ♭7 1 9 11',
+    '<b>Drill</b>: a ii–V–I with one pentatonic per chord: A minor over Dm7, B♭ minor over G7alt, E minor over Cmaj7. On guitar, use the shapes you know; only the root moves.',
+  ] }],
+
+  ['twofive', 'Voice-lead it', { b: [
+    'Why: with common tones held and the rest moving by step, the chords sound connected, like a choir, instead of jumping as blocks.',
+    '- In one spot on the top four strings: Dm7 (C F A D, all at the 10th fret) → G7 (B F G D) → Cmaj7 (B E G C)',
+    '- The top voice is a melody: D, D, C. Sing it as you play.',
+    'Then start from each other inversion of Dm7 and find the nearest G7 and Cmaj7. The mistake is the same barre shape for every chord: the roots jump, the hand shouldn’t.',
+  ], ex: [['Drop 2 on the top four strings, at the 10th fret', '=C4 F4 A4 D5 | B3 F4 G4 D5 | B3 E4 G4 C5']] }],
+
+  ['mediants', 'Major-3rd cycles', { b: [
+    'The tonics B, G and E♭ are a major 3rd apart and split the octave into three equal parts, an augmented triad.',
+    'Each key gets its V7 just before it: D7 → G, B♭7 → E♭, F♯7 → B. Each arrival is a mediant away from the last tonic.',
+    '- Over a ii–V–I in C: Dm7 – E♭7 – A♭maj7 – B7 – Emaj7 – G7 – Cmaj7. Coltrane did this to “Tune Up” and called it “Countdown”.',
+    '<b>Practise</b>: arpeggiate 1 2 3 5 on each chord, slowly. Each key lasts only two beats.',
+  ], ex: [['Coltrane changes in C', 'D:m7 Eb:7 Ab:maj7 B:7 E:maj7 G:7 C:maj7'], ['The opening of “Giant Steps”', 'B:maj7 D:7 G:maj7 Bb:7 Eb:maj7']] }],
+
+  ['reharm', 'Side-slipping', { b: [
+    '- A♭7 → G7 is also the tritone sub of D7 (V of V), so it doubles as a secondary dominant.',
+    '- From below: C♯m7 → Dm7, Bmaj7 → Cmaj7, a lift rather than a sag',
+    '- Slip a whole ii–V: E♭m7 – A♭7 → Dm7 – G7',
+    '<b>Play</b>: the easiest reharm on guitar: keep the grip and move it one fret. Put the slipped chord on the last beat so it lands into the target.',
+    '<b>Solo</b>: slip the line with it: a phrase a half step up, then resolve into the real chord. Outside, then in.',
+  ] }],
+
+  ['mediants', 'What they are', { b: [
+    'The common tones: C and E share E; C and A share E; C and A♭ share C; C and E♭ share G.',
+    'The out-of-key notes are what you hear: G♯ in E; C♯ in A; A♭ and E♭ in A♭; E♭ and B♭ in E♭.',
+    '- From Am the same idea gives C♯m, Fm, F♯m and Cm',
+    'Schubert used them constantly; so does film music. To learn them, play C and each of the four slowly, and name the note that stays.',
+  ], ex: [['All four from C', 'C:maj E:maj C:maj A:maj C:maj Ab:maj C:maj Eb:maj C:maj']] }],
+
+  ['modes', 'Lydian dominant', { b: [
+    'C Lydian dominant is C D E F♯ G A B♭: the 4th mode of G melodic minor.',
+    '- Use it on dominants that don’t resolve down a 5th: tritone subs (D♭7 in Dm7 – D♭7 – C) and the backdoor B♭7 in C',
+    '<b>Solo</b>: play G melodic minor’s notes over C7, or the D triad from the card. The mistake is a long F (Mixolydian), which sits a half step above E.',
+  ] }],
+
+  ['mediants', 'Doubly chromatic', { b: [
+    'Doubly chromatic means both: roots a 3rd apart and the quality changed. From Cm the pairs are A and E major.',
+    'Why it’s strange: there’s no note to anchor the ear, so the shift is total, yet the smooth voices keep it from sounding random.',
+    '<b>Play</b>: as triads on the top three strings so the half steps are heard: C (G C E at frets 12–13–12) to A♭m (A♭ C♭ E♭ at 13–12–11).',
+    '<b>Solo</b>: don’t bridge the scales; move to the chord tone a half step from where you are.',
+  ] }],
+
+  ['reharm', 'Tritone sub', { b: [
+    'Why it works: G7 (G B D F) and D♭7 (D♭ F A♭ C♭) share their 3rd and 7th, B and F. The tritone that drives the resolution stays; only the root changes.',
+    '<b>On guitar</b>: G7 3x34xx and D♭7 x434xx have the same top two notes. Only the bass moves.',
+    '<b>Solo</b>: D♭ Lydian dominant over D♭7. It’s the same notes as G altered.',
+    '- Sub the ii as well: A♭m7 – D♭7 – C',
+  ] }],
+
+  ['solo', 'Motifs and space', { b: [
+    'Why it works: a listener follows a soloist by recognising ideas. Repetition and development make a solo sound like it means something.',
+    '- Ways to develop a motif: move it to the next chord’s tones, start it on a different beat, stretch its rhythm, change one interval, play it backwards',
+    '<b>Drill</b>: over a blues or a ii–V–I, keep one three- or four-note idea for a whole chorus, changing only the notes the chords force you to.',
+    'Sonny Rollins’s “Blue 7” is the famous case of building a solo from one motif. Miles Davis and B.B. King are the masters of space.',
+  ] }],
+
+  ['reharm', 'Diatonic substitution', { b: [
+    'The families: tonic (I, iii, vi), predominant (ii, IV), dominant (V, vii°). Swapping within a family keeps the function and changes the bass.',
+    '- Cmaj7 to Em7: keep E, G and B, move C up to D',
+    '- Cmaj7 to Am7: keep C, E and G, move B down to A',
+    'Use it to vary repeats: the second time through the same bars, swap I for vi or iii. The scale over it stays C major.',
+  ] }],
+
+  ['modulation', 'Parallel: major ↔ minor', { b: [
+    'Three notes change, all lowered, so the mood changes without the key centre moving.',
+    'The pivot is the shared V: G7 is V in both keys, so V – i lands straight in minor. A ♭9 on it (A♭) leans towards the minor.',
+    '<b>Solo</b>: same root, new scale. C major pentatonic to C minor pentatonic is the simplest switch; target E, then E♭, so the change is heard.',
+    'Schubert moves between major and minor on the same tonic all the time.',
+  ] }],
+
+  ['mediants', 'How they work', { b: [
+    'They sit outside the ii–V–I system: no leading tone, no tritone resolving. The effect is the held note while the other two voices move by half or whole step.',
+    '- To leave for good: treat the new chord as I and give it its own ii–V',
+    '- To come home: retrace the step, or make the mediant a dominant: E → E7 → Am, A → A7 → Dm',
+    '<b>Play</b>: on the top three strings, keep the common tone on the same fret. No voice moves more than two frets.',
+    'John Williams’s film scores use them constantly.',
+  ], ex: [['From C to each mediant and back, common tone held', '=G4 C5 E5 | G#4 B4 E5 | G4 C5 E5 | A4 C#5 E5 | G4 C5 E5 | Ab4 C5 Eb5 | G4 C5 E5 | G4 Bb4 Eb5 | G4 C5 E5', 'C · E · C · A · C · A♭ · C · E♭ · C']] }],
+
+  ['twofive', 'Drill it round the cycle', { b: [
+    'Why the trick works: Cm7 is Cmaj7 with E and B lowered a half step, so each new ii is two small changes away.',
+    '<b>On guitar</b>: alternate root strings: Dm7 (5th string) – G7 (6th) – Cmaj7 (5th), then Cm7 – F7 – B♭maj7 the same way, two frets lower. When you run out of neck, swap: ii on the 6th string, V on the 5th.',
+    '<b>Drill</b>: metronome at 60, a bar per chord, naming each chord before you play it. Then guide tones only, then a short line landing on each 3rd.',
+    '- “Tune Up” goes down in whole steps: D, C, B♭.',
+  ] }],
+
+  ['modulation', 'The truck-driver’s change', { b: [
+    'Why it works: everything goes up, voice included, so the last chorus feels more intense though nothing else changes.',
+    'The smooth way costs one chord: replace the last V of the old key (G in C) with the new key’s V7 (A7 into D).',
+    '<b>Practise</b>: loop I – IV – V – I, then make the change both ways. On guitar, barre shapes just move up one or two frets.',
+    'Hear it in “My Girl” and “Man in the Mirror”. Overused, it sounds cheap, which is where the nickname comes from.',
+  ] }],
+
+  ['modulation', 'Relative: major ↔ minor', { b: [
+    'The leading tone decides the key: G♯ points to A, B points to C. Whichever V7 is sounding sets the home.',
+    'Pivot chords: Dm7 and F are in both keys, so ii or IV can lead either way: Dm7 – E7 – Am or Dm7 – G7 – C.',
+    '<b>Solo</b>: in A minor, use A harmonic minor over E7 (G♯ is the note), then natural minor again.',
+    '“Autumn Leaves” moves back and forth between G major and E minor.',
+  ] }],
+
+  ['modulation', 'Closely related keys', { b: [
+    'Each move needs one new note and a cadence: F♯ in D7 → G, B♭ in C7 → F, D♯ in B7 → Em.',
+    'Pivot chords make it seamless: Am7 is vi in C and ii in G, so C – Am7 – D7 – G slides across.',
+    '<b>Solo</b>: change one note. In the G section F becomes F♯; in the F section B becomes B♭.',
+    'Classical sonata form puts its second theme here: in the dominant, or the relative major from a minor key.',
+  ] }],
+
+  ['reharm', 'Add a ii', { b: [
+    'Why it works: the ii’s 7th falls to the V’s 3rd (C → B in Dm7 – G7), so it adds motion without changing where you land.',
+    '<b>Play</b>: ii and V share a fret: ii on the 6th string, V on the 5th (Am7 and D7 at the 5th fret).',
+    '<b>Solo</b>: ii and V share a scale (Dm7 – G7: C major), so one line covers both. Aim at the 3rd of each.',
+    '- A minor-key ii before a major tonic is a colour too: Dø7 – G7 – C',
+  ] }],
+['nopull', '♭VII7', { b: [
+    'F7 is F A C E♭, borrowed from G minor. E♭ falls a half step to D, the 5th of G, and A rises a whole step to B, the 3rd.',
+    'Cm7 – F7 is the ii–V of B♭, so the backdoor is a ii–V that lands a minor 3rd below where it points.',
+    '<b>Play</b>: F9 with the root on the 5th string at fret 8, then Gmaj7 with the root at fret 10.',
+    '<b>Solo</b>: F Mixolydian (the notes of B♭ major). For a brighter sound, F Lydian dominant: its ♯11 is B, the 3rd of the G to come.',
+    '- “Misty” has it in E♭: A♭m7 – D♭7 – E♭maj7',
+  ] }],
+
+  ['other', 'Picardy third', { b: [
+    'In A minor only one note changes: C becomes C♯. E7’s G♯ still rises to A, but the 3rd of the last chord is a half step higher than the ear expects.',
+    'Standard in Baroque music: Bach ends many minor-key chorales on a major chord.',
+    '<b>Play</b>: open Am to open A is one finger on the 2nd string, fret 1 (C) to fret 2 (C♯).',
+    '<b>Solo</b>: A harmonic minor up to the last chord, then land on C♯ so the change is heard.',
+    '- Use it only at the very end. Mid-piece, A major in A minor sounds like V of iv, heading for Dm',
+  ] }],
+
+  ['nopull', '♭II7', { b: [
+    'A♭7 is A♭ C E♭ G♭. Its 3rd and 7th (C and G♭) are D7’s 7th and 3rd (C and F♯), swapped.',
+    'Into G: C falls to B, G♭ holds as F♯ (the maj7 of G), and the bass slides A♭ → G.',
+    'Its ♯11 is D, the root of D7 and the 5th of G, so it can hold over the change.',
+    '<b>Play</b>: A♭9 with the root on the 5th string at fret 11, then down one fret into G.',
+    '<b>Solo</b>: A♭ Lydian dominant, which is E♭ melodic minor (E♭ F G♭ A♭ B♭ C D): the same notes as D7alt.',
+    '- “The Girl from Ipanema” uses it: G♭7 → Fmaj7 in F',
+  ] }],
+
+  ['map', 'm7', { b: [
+    'The three differ only in the 2nd and 6th. Dorian has a major 6th; Aeolian a ♭6; Phrygian a ♭6 and a ♭2.',
+    'In C: D Dorian over Dm7, with B as its colour note; A Aeolian over Am7, passing through F; E Phrygian over Em7, where F (a half step above the root) is the note to avoid.',
+    'On a minor tonic or a modal vamp, Dorian is the usual choice: “So What” and “Oye Como Va” are Dorian.',
+    '<b>Safe for all three</b>: the minor pentatonic on the chord’s root (D F G A C over Dm7). Add the 2nd and 6th once you know which mode you’re in.',
+  ] }],
+
+  ['map', 'ø7, °7, m(maj7)', { b: [
+    'In C, the ø7 is Bø7 (B D F A): B Locrian is just C major from B.',
+    'Locrian ♮2 raises the 2nd (C to C♯ over Bø7), removing the ♭9 rub with the root. It’s melodic minor from a minor 3rd up: D melodic minor for Bø7.',
+    'Whole-half over B°7: B C♯ D E F G A♭ B♭. Each note not in the chord sits a whole step above a chord tone, so all four are usable tensions.',
+    'm(maj7) is the minor tonic of a minor ii–V–i: Dø7 – G7alt – Cm(maj7). C melodic minor (C D E♭ F G A B) gives it a 9 and 13 with no clash.',
+  ] }],
+
+  ['nopull', '♭VI7 → I', { b: [
+    'E♭7 is E♭ G B♭ D♭. Into G, every note is close: E♭ falls to D, D♭ rises to D, B♭ rises to B, and G holds.',
+    'Its root and 5th (E♭, B♭) come from G minor; its 7th (D♭) is the ♭5 blue note of G.',
+    '<b>Play</b>: E♭9 with the root on the 5th string at fret 6, then G at fret 10.',
+    '<b>Solo</b>: E♭ Lydian dominant, which is B♭ melodic minor (B♭ C D♭ E♭ F G A). Its ♯11, A, steps up to B or down to G.',
+    '- Don’t confuse it with ♭VI7 → V (E♭7 → D7): same chord, different target',
+  ], ex: [['E♭7 – A♭7 – G: two dark colours in a row', 'Eb:9 Ab:7#11 G:maj7']] }],
+
+  ['map', 'maj7', { b: [
+    'The two differ by one note: over Cmaj7, Ionian has F and Lydian has F♯.',
+    'On IV in C, F Lydian is just C major from F, so the ♯4 (B) comes free.',
+    'On the borrowed chords, the ♯4 is often a note of the home key: D over A♭maj7, E over B♭maj7, G over D♭maj7.',
+    '<b>Play</b>: Fmaj7♯11 in open position is x x 3 2 0 0 (F A B E).',
+    '<b>Solo</b>: on I, land on E, G, B or D and pass through F. A Lydian I (Cmaj7♯11) floats instead of settling.',
+  ] }],
+
+  ['voicelead', 'Cadences', { b: [
+    '<b>Perfect</b> authentic: both chords in root position with the tonic on top. Anything else is imperfect.',
+    'Plagal with the minor iv (Fm → C): A♭ falls a half step to G.',
+    'Deceptive (G7 → Am): B still rises to C, so only the bass is surprised, rising G → A.',
+    'Phrases often come in pairs: a half cadence as the question, an authentic cadence as the answer.',
+    '- In minor there’s also the Phrygian half cadence: Dm/F → E in A minor, the bass falling F → E',
+  ] }],
+
+  ['nopull', 'I7', { b: [
+    'G7 is G B D F. The F (♭7) comes from G Mixolydian: it makes G sound bluesy rather than like the V of C.',
+    'In a blues all three chords are dominants (G7, C7, D7), and none of them needs to resolve.',
+    '<b>Play</b>: G7 from the 6th string at fret 3; for funk, G9 rooted on the 5th string at fret 10 (x 10 9 10 10 x), short and percussive.',
+    '<b>Solo</b>: G Mixolydian, or G minor pentatonic with B added. Bend B♭ up towards B for the blue 3rd.',
+    '- Avoid the ♭9 on a static I7: it says “go to C”',
+  ] }],
+
+  ['nopull', 'IV7', { b: [
+    'C7 is C E G B♭. B♭ is the blue ♭3 of G; E is G’s 6th.',
+    'Back to G: E falls to D, B♭ rises to B, C falls to B, and G holds.',
+    '<b>Play</b>: C9 rooted on the 5th string (x 3 2 3 3 3), then G at the 3rd fret.',
+    '<b>Solo</b>: C Lydian dominant, which is G melodic minor (G A B♭ C D E F♯). Or the G blues scale: its B♭ is C7’s 7th.',
+    '- In a 12-bar blues it’s bars 5–6, and bar 2 in a quick change',
+  ] }],
+
+  ['voicelead', 'IV/V', { b: [
+    'F/G is F A C over G: the 7th, 9th and 11th (sus4) of G. No B, so no tritone.',
+    'It can go straight to C, or to G7 first, with C falling to B.',
+    '<b>Play</b>: 3 x 3 2 1 x, an F triad over a 6th-string G.',
+    '<b>Solo</b>: G Mixolydian, where C is no longer an avoid note. F major pentatonic (F G A C D) sits right on it.',
+    '- The same trick on any dominant: a major triad a whole step below the bass (B♭/C = C9sus4)',
+    '- Pop charts often call it G11',
+  ] }],
+
+  ['voicelead', 'Quartal voicings', { b: [
+    'In C, D G C F fits Dm11, G7sus4 and F6/9: one shape, three chords, depending on the bass.',
+    '<b>Play</b>: the low four strings are tuned in 4ths, so one barre across E A D G is a quartal chord. The B string breaks the pattern, so go up a fret there.',
+    'Move a quartal shape up and down the scale (planing): McCoy Tyner’s sound with Coltrane.',
+    '<b>Solo</b>: minor pentatonic fits them well: D F G A C contains D G C F.',
+    '- “So What” and “Impressions” are the classic examples',
+  ] }],
+
+  ['voicelead', 'Pedal point', { b: [
+    '<b>Dominant pedal</b> (G under C/G, F/G, G7): builds tension before the tonic. <b>Tonic pedal</b> (C under F/C, G/C): settles, often at the end.',
+    'Chords above may clash with the bass. That’s fine: the ear hears the pedal as its own layer.',
+    '<b>Play</b>: let an open string ring as the pedal, like the open D or A under chords moving on the higher strings.',
+    'An inverted pedal holds the note on top instead, like a high open E ringing over moving chords.',
+    '<b>Solo</b>: over a long pedal, play the scale of the pedal’s key rather than chasing each chord.',
+  ] }],
+
+  ['dim', 'The dominants of G, swapped', { b: [
+    'Each °7 sits on its dominant’s 3rd. F♯°7 (F♯ A C E♭) keeps D7’s 3rd, 5th and 7th and swaps the root D for the ♭9, E♭.',
+    'So the bass rises a half step into the target: F♯ → G, G♯ → A, C♯ → D, D♯ → E.',
+    '<b>Play</b>: one four-string grip moved to the right fret: x x 4 5 4 5 is F♯°7.',
+    '<b>Solo</b>: half-whole from the dominant’s root (D half-whole over F♯°7 → G), or just the °7 arpeggio.',
+    '- Gospel, stride and older standards are full of these',
+  ] }],
+
+  ['other', '7♯9', { b: [
+    'E7♯9 is E G♯ B D with F𝄪 on top, written G: that’s why it sounds like both 3rds.',
+    'Called the Hendrix chord after “Purple Haze”.',
+    '<b>Play</b>: x 7 6 7 8 x (E G♯ D G). Keep the 3rd below the ♯9; the other way round sounds like a wrong minor chord.',
+    '<b>Solo</b>: E minor pentatonic or the E blues scale. Its G is the ♯9, so the clash is the point.',
+    'Into Am7, the ♯9 (G) holds as the 7th of Am7, while G♯ rises to A.',
+  ] }],
+
+  ['nopull', 'II7 not going to V', { b: [
+    'A7 is A C♯ E G. Its C♯ is G’s ♯4: the Lydian note.',
+    'C♯ usually slips back to C (A7 → Am7, or into C) or rises to D.',
+    'A9 and A13 sound smooth here: the 9th (B) and 13th (F♯) are G’s 3rd and 7th.',
+    '<b>Play</b>: open A7 (x 0 2 0 2 0) after open G is the easiest pair.',
+    '<b>Solo</b>: A Mixolydian, which is G Lydian: G major with C♯.',
+    '- If it goes to D7, it’s V/V and pulls; that’s a different job',
+  ] }],
+
+  ['map', 'Dominant 7', { b: [
+    'G7 → C: G Mixolydian is C major from G. Land on B and F, and resolve them (B → C, F → E).',
+    'E7 → Am: E Phrygian dominant is A harmonic minor from E (E F G♯ A B C D).',
+    'For more tension, E altered is F melodic minor (F G A♭ B♭ C D E): ♭9, ♯9, ♭5 and ♯5 at once.',
+    'Half-whole (E F G G♯ A♯ B C♯ D) gives ♭9, ♯9, ♯11 and a natural 13: it fits 13♭9.',
+    'Lydian dominant over D7 is A melodic minor (A B C D E F♯ G♯): the ♯11 is G♯.',
+  ] }],
+
+  ['dim', 'Descending passing', { b: [
+    'B♭°7 is B♭ D♭ E G. From Bm7, B and D slip down a half step; into Am7, B♭ falls to A and D♭ to C, while E and G hold.',
+    '<b>Play</b>: with the root on the 5th string, Bm7 at fret 2 (x 2 4 2 3 2), B♭°7 at fret 1 (x 1 2 0 2 x), then open Am7 (x 0 2 0 1 0).',
+    '<b>Solo</b>: it lasts two beats at most. Play its arpeggio, or pass through it on chord tones.',
+    '- The rising version goes the other way: G – G♯°7 – Am7',
+  ] }],
+
+  ['voicelead', 'The tritone in V7', { b: [
+    'A tritone is half an octave, so it’s the same interval upside down: B up to F, or F up to B. That’s why D♭7 (F and C♭) can stand in for G7.',
+    'In C minor it works the same: B rises to C, and F falls to E♭.',
+    '<b>Play</b>: B on the 3rd string at fret 4 and F on the 2nd string at fret 6, then fret 5 on both (C and E). Each note moves one fret, in opposite directions.',
+    '<b>Solo</b>: play B and F on G7 and resolve them on the downbeat of C. That alone outlines the change.',
+  ] }],
+
+  ['voicelead', 'The top line', { b: [
+    'Start from the melody note and build the chord under it: that’s how chord-melody players think.',
+    'On guitar, keep the top note on the 1st or 2nd string and change the notes below. A move of one or two frets is enough.',
+    'When the bass falls a 5th (D → G), let the top hold or step the other way.',
+    'Avoid parallel 5ths and octaves between top and bass: they merge the two lines into one.',
+    '- Practise: C – Am – Dm – G – C with the top note held as long as it fits, then moving by step',
+  ] }],
+
+  ['nopull', '♭VI7 → V', { b: [
+    'E♭7 is E♭ G B♭ D♭. As a German sixth, E♭ and C♯ (D♭) are an augmented 6th apart and open out to the D octave.',
+    'Into D7, every voice falls a half step: E♭ → D, G → F♯, B♭ → A, D♭ → C.',
+    'It shares A7’s 3rd and 7th (C♯ and G), so it can replace A7 anywhere it goes to D.',
+    '<b>Play</b>: any 7th grip slid down a fret: E♭9 rooted on the 5th string at fret 6, then D9 at fret 5.',
+    '<b>Solo</b>: E♭ Lydian dominant (B♭ melodic minor). Its ♯11, A, holds as the 5th of D7.',
+  ] }],
+
+  ['dim', 'A pivot to far keys', { b: [
+    'F♯°7 is F♯ A C E♭. Each note can rise a half step as a leading tone: F♯ → G, A → B♭, C → D♭, E♭ (D♯) → E.',
+    'So the four targets are a minor 3rd apart, and each can be major or minor.',
+    'Spell it for where it goes: A°7 is A C E♭ G♭; D♯°7 is D♯ F♯ A C.',
+    'To make the new key stick, follow the arrival with a ii–V or a cadence in that key.',
+    '- A stock move in Romantic-era music for sudden key changes',
+  ] }],
+
+  ['voicelead', 'Common tones', { b: [
+    'C (C E G) → Am (A C E): C and E stay, G rises to A.',
+    'Am → F (F A C): A and C stay, E rises a half step to F. F → Dm (D F A): F and A stay, C rises to D.',
+    'Chords a 3rd apart share two notes; a 5th apart, one; a step apart, none. With none, move all the voices by step against the bass.',
+    '<b>Play</b>: on the top three strings, find the next triad in the nearest inversion instead of going back to an open shape.',
+  ] }],
+
+  ['borrowed', 'The backdoor ii–V', { b: [
+    'Fm7 is F A♭ C E♭; B♭7 is B♭ D F A♭. A♭, E♭ and B♭ all come from C minor.',
+    'Fm7 – B♭7 is the ii–V of E♭, so landing on C is the surprise.',
+    '<b>Play</b>: Fm7 at fret 1 (6th string), B♭7 at fret 1 (5th string), Cmaj7 at fret 3 (5th string): the hand barely moves.',
+    '<b>Solo</b>: F Dorian into B♭ Mixolydian (both are E♭ major), then C major.',
+    '- Also in “Misty”, in E♭: A♭m7 – D♭7 – E♭maj7',
+  ] }],
+
+  ['voicelead', 'Guide tones and shells', { b: [
+    'Through a ii–V–I, each 7th falls a half step to the next 3rd: Dm7’s C to G7’s B, G7’s F to Cmaj7’s E.',
+    '<b>Play</b>: two grips cover it. G7 as 3 x 3 4 x x (root, 7th, 3rd); Cmaj7 as x 3 2 4 x x (root, 3rd, 7th).',
+    'Add one note on top (a 9, 13 or 5) and a shell becomes a full jazz voicing.',
+    '<b>Solo</b>: a line of guide tones, one per chord, already outlines the changes.',
+    '- Don’t double the root on top: the bass has it',
+  ] }],
+
+  ['borrowed', 'Borrowing the other way', { b: [
+    'In A minor, D7 is D F♯ A C: F♯ comes from A Dorian. E7 is E G♯ B D: G♯ comes from harmonic minor. Without it, Em barely pulls.',
+    'Also the Neapolitan: B♭ from A Phrygian, usually in first inversion. B♭/D → E7 → Am.',
+    '<b>Solo</b>: change the scale with the chord: A Dorian on D7, A harmonic minor on E7.',
+    '- “Hit the Road Jack” is the Andalusian cadence on repeat',
+  ] }],
+
+  ['voicelead', 'Three jobs', { b: [
+    'In C: tonic C, Em, Am; predominant Dm, F; dominant G7, B°.',
+    'Dominants hold the tritone B–F. Predominants have F but not B. Tonic chords have no F.',
+    'Substitutes share two notes: vi for I, ii for IV, vii° for V7.',
+    'iii is the weak one: it shares two notes with I and two with V, so it leans either way.',
+    '- I – vi – IV – V is tonic, tonic, predominant, dominant',
+    '- V → IV is the rock reversal, a “retrogression”: it works, but it doesn’t pull',
+  ] }],
+
+  ['nopull', 'Follow the guide tones', { b: [
+    'F7 → G: A rises to B, E♭ falls to D.',
+    'A7 → Am7: C♯ slips to C, G holds.',
+    '<b>Play</b>: practise the 3rd and 7th alone, two notes on adjacent strings, moving a fret or holding at each change.',
+    '<b>Solo</b>: start each bar on a guide tone. The line will sound like the changes even with no band.',
+    '- The mistake: jumping to the root of every chord, which hides the voice leading',
+  ] }],
+
+  ['other', 'Line clichés', { b: [
+    'The chord stays put; only one voice moves, by half steps. Everything else is held.',
+    'In major it’s the 5th rising (G – G♯ – A – B♭ in C); in minor, the root falling (C – B – B♭ – A in Cm).',
+    '<b>Play</b>: with open Am, the moving note is on the 3rd string: fret 2, 1, 0 (A, G♯, G), then Am6 with F♯ on the 1st string at fret 2.',
+    '<b>Solo</b>: put the moving note in the melody too; doubled, the line comes forward.',
+    '- “Something” (the Beatles) opens on C – Cmaj7 – C7; “Stairway to Heaven” has the chromatic line falling under A minor',
+  ] }],
+
+  ['dim', 'One °7, four dominants', { b: [
+    'B°7 is B D F A♭. Under it: G gives G7♭9, B♭ gives B♭7♭9, D♭ gives D♭7♭9, E gives E7♭9.',
+    'The four roots, G B♭ D♭ E, are themselves a °7 chord (G°7).',
+    'So one grip leads to four targets a minor 3rd apart: C, E♭, G♭ and A.',
+    '<b>Play</b>: add the root on the 6th string: 3 x 3 4 3 4 is G7♭9.',
+    '<b>Solo</b>: half-whole from any of the four roots: it’s the same eight notes.',
+  ] }],
+
+  ['nopull', 'Practise it', { b: [
+    'The ♯11s: C7 has F♯, F7 has B, E♭7 has A, A♭7 has D.',
+    'All four are notes of G major, which is why 7♯11 sounds at home here.',
+    '<b>Grip</b>: 6th-string root, then ♭7, 3rd and ♯11 on the D, G and B strings: 8 x 8 9 7 x is C7♯11. Move it to each root.',
+    'Next, sing the 3rd and ♭7 of each chord and move them to the nearest note of G.',
+    '- Keep the drone going, so you hear each note against G, not just against the chord',
+  ] }],
+
+  ['other', 'Augmented sixths', { b: [
+    'The name is the interval from A♭ up to F♯: an augmented 6th. A♭ falls and F♯ rises, a half step each.',
+    'They go to V, or to I6/4 (C/G) and then V. The German usually takes the C/G route, which avoids parallel 5ths.',
+    'The French is a whole-tone sound: its notes are both A♭7♭5 and D7♭5.',
+    '<b>Play</b>: the Italian on guitar is A♭7 with no 5th: 4 x 4 5 x x (A♭, G♭, C).',
+    '- Common in Classical and Romantic cadences, from Mozart and Beethoven on',
+  ], ex: [['German sixth – C/G – G7 – C', 'Ab:7 C:maj/5 G:7 C:maj'], ['French sixth → G', 'Ab:7b5 G:maj']] }],
+
+  ['map', 'Harmonic minor’s 5th mode', { b: [
+    'On E: chord tones E G♯ B D, tensions F (♭9) and C (♭13). A is the sus4: pass through it.',
+    'Into Am: G♯ rises to A, F falls to E, D falls to C.',
+    'It also fits G♯°7 (G♯ B D F): the same chord without the E.',
+    '<b>Play</b>: the E7 arpeggio, with F and C as neighbours. In open position on the low strings it’s the flamenco sound.',
+    '- Flamenco, klezmer and neo-classical metal all lean on it',
+  ] }],
+
+  ['dim', 'The scales', { b: [
+    'It’s symmetrical: it repeats every minor 3rd, so there are only three different ones.',
+    'Over G♯°7, the four notes not in the chord (A♯, C♯, E, G) each sit a whole step above a chord tone.',
+    'Over E7♭9, the same notes give ♭9 (F), ♯9 (G), ♯11 (A♯) and a natural 13 (C♯).',
+    '<b>Play</b>: the pattern repeats every three frets, so one fingering moves up the neck unchanged.',
+    '- It doesn’t fit 7♭13 or 7alt: it has a natural 5th and 13th',
+  ], ex: [['Whole-half from G♯ over G♯°7', '=G#2 D3 F3 B3 | G#3 | A#3 | B3 | C#4 | D4 | E4 | F4 | G4 | G#4']] }],
+
+  ['dim', 'Finding it', { b: [
+    'Why both work: the °7 on the 3rd is the dominant’s 3rd, 5th, ♭7 and ♭9, and the ♭9 is a half step above the root.',
+    'In G, A7 → C♯°7 (= B♭°7), B7 → D♯°7 (= C°7).',
+    '<b>Play</b>: raise a dominant grip’s root one fret. G7 (3 x 3 4 3 x) becomes A♭°7 (4 x 3 4 3 x).',
+    '<b>Solo</b>: half-whole from the dominant’s root.',
+  ] }],
+
+  ['voicelead', 'Root motion', { b: [
+    'Down a 5th, one note holds: G7 → C keeps G, while B rises to C.',
+    'Up a 5th (I → V, IV → I) is softer. Rock chains it: C – G – D – A – E in “Hey Joe”.',
+    'Down a 3rd shares two notes, so it feels like a recolouring: C → Am.',
+    'Steps share no notes: move the upper voices against the bass to avoid parallel 5ths.',
+    '- I – vi – IV – V (doo-wop) is two 3rds and a step',
+  ] }],
+
+  ['dim', 'They collapse to three', { b: [
+    'Each family is one grip moved in minor 3rds: on the 4th string, F♯°7 at fret 4, A°7 at 7, C°7 at 10.',
+    'F♯°7 is a rootless D7♭9, F7♭9, A♭7♭9 or B7♭9. In G, three of those go home: V, the backdoor and the tritone sub.',
+    'G♯°7 covers E7, G7, B♭7 and D♭7; C♯°7 covers A7, C7, E♭7 and F♯7.',
+    '- Practise each family at four positions on the same strings',
+  ] }],
+
+  ['tritone', 'Why it works', { b: [
+    'In C: G7 is G B D F; D♭7 is D♭ F A♭ C♭. Root and 5th change; the guide tones don’t.',
+    'G7’s altered notes, ♭5 (D♭) and ♭9 (A♭), are the root and 5th of D♭7: the sub is the altered sound over a new bass.',
+    'The bass becomes chromatic: D – D♭ – C instead of D – G – C.',
+    '<b>Play</b>: hold F and B on the D and G strings (frets 3 and 4). Put G under them (6th string, fret 3) for G7, or D♭ (5th string, fret 4) for D♭7.',
+  ], ex: [['Same 3rd and 7th: G7, then D♭7, into C', 'G:7 Db:7 C:maj7'], ['ii – V – I, then ii – ♭II – I', 'D:m7 G:7 C:maj7 D:m7 Db:7 C:maj7']] }],
+
+  ['tritone', '♭VI7 → V', { b: [
+    'A♭7 is A♭ C E♭ G♭. Into G7, every voice falls a half step: A♭ → G, C → B, E♭ → D, G♭ → F.',
+    'G7 still has to resolve, so this is a chain of two dominants: A♭7 → G7 → C. The bass walks A♭ – G – C.',
+    '<b>Play</b>: any A♭7 grip slid down one fret: A♭9 rooted on the 5th string at fret 11, then G9 at fret 10.',
+    '<b>Solo</b>: A♭ Lydian dominant, which is E♭ melodic minor (E♭ F G♭ A♭ B♭ C D): the same notes as D7alt. Its ♯11, D, holds as the 5th of G7.',
+    '- A common jazz ending: C – A♭7 – G7 – C',
+  ] }],
+
+  ['tritone', '♭III7 → ii', { b: [
+    'E♭7 is E♭ G B♭ D♭. Into Dm7, every voice falls a half step: E♭ → D, G → F, B♭ → A, D♭ → C.',
+    'E♭9 sounds good too: its 9th, F, is the 3rd of Dm7.',
+    'You can sub just one dominant in a turnaround and keep the rest: the bass line changes without the harmony getting busy.',
+    '<b>Play</b>: E♭7 rooted on the 5th string at fret 6, then Dm7 at fret 5.',
+    '<b>Solo</b>: E♭ Lydian dominant, which is B♭ melodic minor (B♭ C D♭ E♭ F G A): the same notes as A7alt.',
+  ] }],
+
+  ['tritone', '♭II7 → I', { b: [
+    'D♭7 is D♭ F A♭ C♭. Into C: D♭ → C, F → E, C♭ (B) → C, A♭ → G.',
+    '<b>Play</b>: D♭9 (x 4 3 4 4 x) to C6/9 (x 3 2 2 3 3).',
+    '<b>Solo</b>: D♭ Lydian dominant, which is A♭ melodic minor: the same notes as G7alt.',
+    '- “The Girl from Ipanema” has it in F: G♭7 → Fmaj7',
+    '- The target can be a dominant: D♭7 → C7 works in a blues',
+    '- Most common at the end of a tune or a section, in place of the last G7',
+  ] }],
+
+  ['tritone', 'IV7 → iii', { b: [
+    'F7 is F A C E♭. Into Em7: F → E, C → B and E♭ → D fall a half step; A falls to G.',
+    'Rarer than the other subs. F7 is more often the backdoor or a blues IV, so the next chord tells you which.',
+    '<b>Solo</b>: F Lydian dominant, which is C melodic minor (C D E♭ F G A B). Its ♯11, B, is the 5th of Em7.',
+    'Chain the subs and the bass falls by half steps all the way to C.',
+  ], ex: [['Subs into iii, ii and I: F – E – E♭ – D – D♭ – C', 'F:7#11 E:m7 Eb:7#11 D:m7 Db:7#11 C:maj7']] }],
+
+  ['tritone', '♭V7 → IV', { b: [
+    'G♭7 is G♭ B♭ D♭ F♭. Into Fmaj7: G♭ → F, B♭ → A, D♭ → C, and F♭ holds as E.',
+    'In a jazz blues, bar 4 can use it: G♭7 → F7 instead of C7 → F7. It sounds most natural when IV is a goal, as in bar 5 of a blues.',
+    '<b>Play</b>: G♭9 rooted on the 5th string at fret 9, then F at fret 8.',
+    '<b>Solo</b>: G♭ Lydian dominant, which is D♭ melodic minor (D♭ E♭ F♭ G♭ A♭ B♭ C): the same notes as C7alt.',
+  ], ex: [['C blues, bar 4: G♭7 into F7', 'C:7 Gb:9 F:9']] }],
+
+  ['dim', 'Only three exist', { b: [
+    'Spelling still matters: B°7 is B D F A♭, but as D°7 it’s D F A♭ C♭. The name tells you which note leads where.',
+    'The three families: C°7, C♯°7 and D°7. Each covers four of the twelve notes.',
+    '<b>Grips</b>: x x 4 5 4 5 (F♯°7), x 3 4 2 4 x (C°7), 3 x 2 3 2 x (G°7).',
+    '- The augmented triad is the same idea in major 3rds: only four exist',
+  ] }],
+
+  ['dim', '♯iv°7 back to the tonic', { b: [
+    'C♯°7 is C♯ E G B♭. Into G/D: C♯ rises to D, E falls to D, G holds, B♭ rises to B.',
+    '<b>Play</b>: Cmaj7 (x 3 5 4 5 x), C♯°7 (x 4 5 3 5 x), G/D (x 5 5 4 3 x): the bass climbs one fret at a time on the 5th string.',
+    '<b>Solo</b>: A half-whole over C♯°7, landing on D or B over G/D.',
+    '- In a jazz blues it’s bar 6: C7 – C♯°7 – G/D',
+  ] }],
+
+  ['nopull', 'How they move', { b: [
+    'In G: ♭II7 is A♭7, ♭VI7 is E♭7, ♭VII7 is F7, IV7 is C7.',
+    'In each, a guide tone holds or moves by half step into the next chord.',
+    '<b>Hear them</b>: down a half step in “The Girl from Ipanema”; up a whole step in the backdoor of “Misty”; plagal in every blues; staying put in funk vamps.',
+    '<b>Solo</b>: Lydian dominant on the first three; Mixolydian or the blues scale on the plagal and vamp ones.',
+  ], ex: [['Four ways home to G', 'Ab:7#11 G:maj7 F:9 G:maj7 C:7 G:maj7 G:9 G:13']] }],
+
+  ['map', 'Avoid notes', { b: [
+    'In C: F over Cmaj7, F over Am7, C over G7.',
+    'Phrygian’s ♭2 over iii (F over Em7) is the strongest clash: a half step above the root.',
+    'The 11 is fine on minor chords (G over Dm7): it’s a whole step above the ♭3.',
+    '<b>Fix it</b>: raise the 4th to ♯11 over major, or play a 7sus4 when the 4th is in the melody.',
+    '- Practise: hold each scale note over a drone and hear which ones want to move',
+  ] }],
+
+  ['tritone', 'Play 7♯11 on them', { b: [
+    'D♭7♯11 is D♭ F A♭ C♭ G. A♭ melodic minor from D♭: D♭ E♭ F G A♭ B♭ C♭.',
+    'The 9th (E♭) and 13th (B♭) work too: D♭13♯11 is the full sound.',
+    '<b>Play</b>: 9 x 9 10 8 x is D♭7♯11.',
+    'The other subs work the same way: A♭7♯11 (♯11 D), E♭7♯11 (A), G♭7♯11 (C). Each time the ♯11 is the original dominant’s root.',
+  ] }],
+
+  ['tritone', 'Sub the ii as well', { b: [
+    'The guide tones still line up: G♭ falls to F then E, C♭ holds and rises to C.',
+    '<b>Solo</b>: A♭ Dorian (the notes of G♭ major) on A♭m7, then change G♭ to G for D♭7♯11.',
+    '<b>Play</b>: the same grips as the plain ii–V, six frets away.',
+    '- “Satin Doll” has it: Am7 – D7 – A♭m7 – D♭7 – Cmaj7',
+  ] }],
+
+  ['other', 'IV7 in minor', { b: [
+    'Am7 is A C E G; D7 is D F♯ A C. A and C hold, G falls to F♯, E falls to D.',
+    'It doesn’t go on to G: it usually swings straight back to Am.',
+    '<b>Play</b>: Am7 at fret 5 on the 6th string, D9 at fret 5 on the 5th string (x 5 4 5 5 x): the hand barely moves.',
+    '<b>Solo</b>: A Dorian (the notes of G major) over both. Target F♯ on the D7.',
+    '- Also “Evil Ways”: a Gm7 – C7 vamp in G Dorian',
+  ] }],
+
+  ['dim', '°7 vs ø7', { b: [
+    'In C, Bø7 (B D F A) comes from the scale; B°7 (B D F A♭) borrows A♭ from C minor.',
+    'Bø7 is a rootless G9; B°7 is a rootless G7♭9.',
+    'Bø7 has the same notes as Dm6 (D F A B): only the bass differs.',
+    '<b>Play</b>: Bø7 is x 2 3 2 3 x; B°7 is x 2 3 1 3 x. One finger apart.',
+  ], ex: [['Bø7 – E7 – Am, then B°7 – C', 'B:m7b5 E:7 A:m7 B:dim7 C:maj7']] }],
+
+  ['borrowed', 'II7 (9, 13)', { b: [
+    'D7 is D F♯ A C. Against C, only F♯ is new: the other three notes are in the key.',
+    'It usually goes to Dm7, to F, or straight back to C.',
+    '<b>Play</b>: open D7 (x x 0 2 1 2) after open C.',
+    'Its 9th and 13th (E and B) are in C major too. Avoid the ♭9 (E♭): it makes D7 sound like V/V again.',
+    '- Also “Take the A Train”, bars 3–4: D7♭5 after Cmaj7',
+  ] }],
+
+  ['other', 'Tonic colours', { b: [
+    '<b>Play</b>: C6/9 is x 3 2 2 3 3; Cmaj9 is x 3 2 4 3 x.',
+    'Match the colour to the melody’s last note: on A use 6 or 6/9; on B, maj7 or maj9; on D, 6/9 or maj9.',
+    'Pop often ends on add9 (C E G D) instead, and rock on a plain triad or a power chord.',
+  ] }],
+
+  ['nopull', 'Pull or colour?', { b: [
+    'In G, D7 is the only dominant that pulls home. Secondary dominants (A7 → D, E7 → Am, B7 → Em) pull to their own targets.',
+    'Why: the 3rd and ♭7 resolve by half step to a chord a 5th below. Take that target away and it’s just a rich sound.',
+    '- The mistake: treating every 7 chord as a V and adding altered notes',
+  ], ex: [['Pull, then colour: D7 → G, F7 → G', 'D:7 G:maj7 F:9 G:maj7']] }],
+
+  ['dim', 'Common-tone diminished', { b: [
+    'It’s the °7 built on the chord’s own root: G°7 (G B♭ D♭ E) is A♯°7 respelled, and D°7 is G♯°7.',
+    'In jazz it often decorates I6: G6 – G°7 – G6.',
+    '<b>Play</b>: G6 (3 x 2 4 3 x) to G°7 (3 x 2 3 2 x): two fingers drop a fret, B to B♭ and D to C♯.',
+    '<b>Solo</b>: G major, with B♭ and C♯ as chromatic neighbours, or just the °7 arpeggio.',
+  ] }],
+
+  ['melmin', 'Where they come from', { b: [
+    'In C: Cm(maj7), D7sus4♭9, E♭maj7♯5, F7♯11, G7♭13, Aø9, B7alt.',
+    'The three you’ll use most: 7♯11 for tritone subs and non-pulling dominants, 7alt for V7, ø9 for iiø in minor.',
+    '<b>Shortcut</b>: over X7alt, melodic minor a half step up; over X7♯11, a 5th up; over Xø7, a minor 3rd up.',
+    'F7♯11 and B7alt, a tritone apart, share one scale: the tritone sub in scale form.',
+  ], ex: [['F7♯11 – B7alt: one scale for both', 'F:7#11 B:7alt F:7#11 B:7alt']] }],
+
+  ['dim', 'When the swap doesn’t work', { b: [
+    'Fix for the natural 9: play D9 or D13 instead of the °7.',
+    'Into major, D7♭9 with its root keeps the bass falling a 5th, which sounds firmer than F♯°7.',
+    'Test: if the melody note is in the °7, or a whole step above one of its notes, the swap works.',
+    '- The °7 needs the bass to rise a half step to land well. If the bass must fall a 5th, keep the dominant',
+  ] }],
+['diatonic', 'I', { b: [
+    'In C: C E G, with B added for Cmaj7. Most songs start here and nearly all end here.',
+    '<b>On the guitar</b>: open C (x32010) or Cmaj7 (x32000); up the neck, the A-string barre at the 3rd fret.',
+    '- A plain triad with the root on top sounds most final; maj7 sounds softer and less finished',
+    '- Root in the bass for a full stop; C/E or C/G keeps the music moving',
+  ] }],
+  ['diatonic', 'ii', { b: [
+    'In C: Dm7, D F A C. Its root is a 5th above V, so ii – V – I is two steps round the cycle of 5ths.',
+    'Guide tones: Dm7’s 7th (C) falls a half step to B, G7’s 3rd, and its 3rd (F) holds as G7’s 7th.',
+    '<b>On the guitar</b>: Dm7 xx0211 open, or x57565 as a barre at the 5th fret.',
+    'Chains of ii – V – I run through standards like “Autumn Leaves” and “Satin Doll”. In pop it’s often a plain triad: C – Dm – G – C.',
+  ] }],
+  ['symbols', 'The triad', { b: [
+    'Each is two stacked 3rds: major is a major 3rd then a minor 3rd; minor is the reverse; diminished is two minor 3rds; augmented is two major 3rds.',
+    'In C: C E G, C E♭ G, C E♭ G♭, C E G♯.',
+    'A triad symbol never asks for a 7th. Jazz players may add a 6 or maj7 to a plain C as colour; in pop, play what’s written.',
+    '<b>On the guitar</b>: C x32010, Cm x35543, C° x3454x, C+ x3211x.',
+  ] }],
+  ['diatonic', 'vi', { b: [
+    'In C: Am, A C E, with G added for Am7. It shares C and E with the I chord, so it can replace I almost anywhere.',
+    'The deceptive cadence: G7 – Am instead of G7 – C. The leading tone still rises to C, but the bass steps up to A.',
+    '<b>On the guitar</b>: Am x02210, Am7 x02010.',
+    'Heard in the 1950s progression I – vi – IV – V (C – Am – F – G) and the pop loop I – V – vi – IV.',
+  ] }],
+  ['diatonic', 'viiø', { b: [
+    'In C: Bø7 is B D F A. Read it as Bm7♭5: minor 3rd, ♭5, ♭7.',
+    'Its B and F are the same tritone that sits inside G7, which is why it pulls to C: B rises to C, F falls to E.',
+    '<b>On the guitar</b>: x2323x (B F A D), the standard ø7 grip with the root on the A string.',
+    'As a plain triad (B°) it’s mostly a quick passing chord; as Bø7 it’s the usual bridge from C major into A minor.',
+  ] }],
+  ['chordmelody', 'The melody is always the top note', { b: [
+    '<b>How to do it</b>: find the melody note on the top two strings first, then hang the chord under it.',
+    'Most tunes are written too low for this. Move the melody up an octave so there’s room for the chord underneath.',
+    'Worked: melody E over C. Put E on the B string, 5th fret, then add C on the A string (3rd fret) and the open G between.',
+    '- The common mistake: grabbing a familiar open chord whose top note is a different pitch. The tune gets lost',
+    '- Pluck the top string a little harder than the rest so the melody sings',
+  ], ex: [['Melody C – D – E, each on top', '=C3 E3 G3 C4 | G2 F3 B3 D4 | C3 E3 G3 E4', 'C → G7 → C']] }],
+  ['diatonic', 'iii', { b: [
+    'In C: Em7, E G B D. Over a C bass it becomes Cmaj9.',
+    'It’s the weakest-sounding chord in a major key, so pop songs use it sparingly, usually on the way to vi or IV.',
+    '<b>On the guitar</b>: Em 022000, Em7 020000 or 022030.',
+    '- Common moves: I – iii – IV (C – Em – F), and IV – iii – ii – I stepping down',
+    '- A melody on B (the 7th degree) often takes iii instead of I',
+  ] }],
+  ['chordmelody', 'Listen and steal', { b: [
+    '<b>How to do it</b>: pick one short recording and learn eight bars by ear, slowly. Note where the bass moves and how few notes sit under the melody.',
+    '- Joe Pass: a whole band implied with very few notes',
+    '- Ted Greene: voice-leading and moving inner voices',
+    '- Lenny Breau: chords mixed with harmonics; Martin Taylor: walking bass under the tune',
+    'Those first tunes have slow melodies, long notes to fill and standard ii–V–I changes. Work voicings out yourself; the ones you find by ear are the ones you keep.',
+  ] }],
+  ['diatonic', 'IV', { b: [
+    'In C: F A C, with E added for Fmaj7. It shares only C with the I chord, which is why it sounds like a step away.',
+    '<b>On the guitar</b>: F barre 133211, or Fmaj7 xx3210, easier and often prettier in C.',
+    '- I – IV – I is the commonest back-and-forth in pop, folk and gospel; the 12-bar blues is built on I, IV and V',
+    '- IV – V – I is the full cadence; IV – I alone is gentler',
+    '- In a melody, IV harmonises F, A and C',
+  ] }],
+  ['chordmelody', 'One note, many chords', { b: [
+    '<b>How to do it</b>: list the jobs the melody note can do (root, 3rd, 5th, 7th, 9th, 13th) and find the chord for each.',
+    'Worked, with G on top: root (G), ♭3 (Em), 3rd (E♭), 5th (C), ♭7 (A7 or Am7), maj7 (A♭maj7), 9th (Fmaj9), 13th (B♭13).',
+    'Choose the one whose bass moves well from the chord before and into the next.',
+    '- The common mistake: a colourful chord that fights the key or the bass line. Save the bold ones for the second chorus',
+  ] }],
+  ['symbols', 'add, 6 and 6/9', { b: [
+    'Read “add” literally: only the named note joins the triad. C9 would bring B♭ as well; Cadd9 doesn’t.',
+    'Cadd2 is the same notes as Cadd9, written to show the D sitting close to C.',
+    'C6 and Am7 share all four notes (C E G A); the bass decides which you hear.',
+    '<b>On the guitar</b>: Cadd9 x32033, C6 x32210, C6/9 x32233. Minor 6 chords are a gypsy-jazz staple.',
+  ] }],
+  ['diatonic', 'Three families', { b: [
+    'In C: tonic C, Em, Am; predominant Dm, F; dominant G, B°.',
+    '- C and Am share C and E; Dm and F share F and A; G and B° share B and D',
+    '- iii is the loosest member: Em shares E and G with C, and G and B with G',
+    'The usual order is tonic → predominant → dominant → tonic. Going backwards (V – IV – I) is a rock sound.',
+    'When reharmonising, swap a chord for another in its family as long as the melody note fits.',
+  ] }],
+  ['diatonic', 'Minor keys mix all three', { b: [
+    'In C minor: Cm7, Dø7, E♭maj7, Fm7 or F7, G7, A♭maj7, B♭7, B°7.',
+    'Natural minor gives the colours; harmonic minor gives the leading tone B for V7 and vii°7; melodic minor gives the bright IV7 and the m6 or m(maj7) tonic.',
+    'The minor ii–V–i (iiø7 – V7 – i) is all over “Autumn Leaves”, in its relative minor.',
+    '<b>On the guitar</b>: Cm6 x3121x (C E♭ A C), Dø7 x5656x, G7 353433.',
+  ] }],
+  ['symbols', 'How a symbol is built', { b: [
+    'Quality: no letter is major, m minor, ° diminished, + augmented, ø half-diminished; sus replaces the 3rd.',
+    'Then the 7th: 7 alone is ♭7, maj7 is the major 7th. A 9, 11 or 13 includes the 7th below it.',
+    'Alterations change one note each; everything not mentioned stays as it is in the base chord.',
+    'Worked: Bø7/F is half-diminished B (B D F A) with F, its ♭5, in the bass.',
+    'If a symbol is unclear, find the 3rd and 7th first. They tell you almost everything.',
+  ] }],
+  ['chordmelody', 'What it is', { b: [
+    'There’s no singer or soloist: you carry the tune, so you can’t hide behind the chords.',
+    '- Melody on the top strings, one or two inner notes, bass on the low strings. You rarely need all six strings',
+    '- Fingerstyle is easiest, since you can pluck bass and melody together; hybrid picking works too',
+    'Start with a ballad. Fast tunes leave no time for chords under each note.',
+    'Good arrangements breathe: some melody notes alone, some with full chords.',
+  ] }],
+  ['symbols', 'sus', { b: [
+    'In C: Csus4 is C F G, Csus2 is C D G. With no 3rd they’re neither major nor minor.',
+    'Sus4 wants to resolve, F falling to E; sus2 is happy to stay as an open colour.',
+    'Csus2 and Gsus4 are the same notes (C D G); the bass decides which you hear.',
+    '<b>On the guitar</b>: Dsus4 xx0233, Dsus2 xx0230, Asus4 x02230, Asus2 x02200. Adding and lifting one finger on open D and A is a folk-rock staple.',
+  ] }],
+  ['types', 'add9', { b: [
+    'In C: C E G D. The 9 sits a whole step above the root; voiced close (C D E) it gives a warm crunch.',
+    'Lives on I and IV in major, and on V in pop. On a minor chord it becomes madd9 (C E♭ G D).',
+    '<b>On the guitar</b>: Cadd9 x32033. Between G (320033), Em7 (022033) and Cadd9, the top two fingers never move: a staple of acoustic pop.',
+    '- Keep the 3rd: without it the chord is sus2, which is vaguer',
+    '- Not C9, which adds B♭ and acts as a dominant',
+  ] }],
+  ['chordmelody', 'Intros and endings', { b: [
+    '<b>How to do it</b>: for an intro, play the last four bars of the tune in chord melody and stop on V, so the melody can start.',
+    'Worked in C: reach Cmaj7, then tag Em7 – A7 – Dm7 – G7 (iii – VI – ii – V) twice before landing on C6/9.',
+    'Slow the last line freely and let the final chord ring.',
+    '- The common mistake: an intro so long or busy that the tune sounds like an afterthought',
+  ] }],
+  ['types', '6', { b: [
+    'In C: C E G A. Use it instead of maj7 when the melody sits on the root, since B under C rubs.',
+    '<b>On the guitar</b>: C6 x32210, or x35555 as a barre at the 5th fret.',
+    'It doesn’t need to resolve: a stable colour, the home chord of swing, western swing and early rock’n’roll.',
+    'Cm6 (C E♭ G A) is a separate sound: the minor tonic of gypsy jazz and Dorian tunes.',
+  ] }],
+  ['types', 'Power chord', { b: [
+    'In C: C and G, often with C doubled an octave up. A root and a 5th, not a full chord.',
+    '<b>On the guitar</b>: x355xx with the root on the A string, or 8 10 10 on the bottom three strings with the root on the low E. The shape moves anywhere.',
+    '- Palm-mute the low strings for the chug of punk and metal',
+    '- ♭III and ♭VII (E♭5, B♭5) come from minor and blues, and power chords make them easy to borrow',
+    'Heard in “You Really Got Me”, “Smells Like Teen Spirit” and most punk rhythm guitar.',
+  ] }],
+  ['types', '6/9', { b: [
+    'In C: C E G A D. The 5th is the first note to drop.',
+    '<b>On the guitar</b>: x32233 (C E A D G). Above the root, E A D G stack in 4ths, which is why it sounds open and modern.',
+    'It holds all of C major pentatonic (C D E G A), so almost any melody note in the key sits on it happily.',
+    'Works on IV too (F6/9). The minor version, Cm6/9 (C E♭ G A D), is a rich Dorian tonic.',
+  ] }],
+  ['chordmelody', 'Approach chords', { b: [
+    '<b>How to do it</b>: find melody notes that fall just before a chord change, usually on beat 4 or the “and” of 4.',
+    'Worked: melody B then C over G7 → C. Play D♭7, the tritone sub, under the B (B is its 7th), then C.',
+    'Keep the approach chord short and lighter than its target, so it sounds like a lead-in.',
+    '- The common mistake: approaching every chord. Save it for phrase ends and half-step melody moves',
+  ] }],
+  ['types', '13♭9', { b: [
+    'In C: C E G B♭ D♭ A. The 5th goes first, and the root too if someone else has the bass.',
+    'Lives on V of a major key (G13♭9 → C) and on secondary dominants heading to a major chord.',
+    '<b>On the guitar</b>: in C, G13♭9 is 3x3454 (G F B E A♭).',
+    'Over it, play the half-whole diminished scale: G A♭ B♭ B C♯ D E F. A bebop and big-band sound.',
+  ] }],
+  ['chordmelody', 'Fill the long notes', { b: [
+    '<b>How to do it</b>: count the beats. One beat, leave it. Two or more, add one moving line, not three.',
+    'Worked: melody C held for a bar over Am. Move an inner voice A – G♯ – G – F♯ under it: Am – Am(maj7) – Am7 – Am6.',
+    'Keep the fill below the melody note and quieter than it.',
+    '- The common mistake: a busy fill that crowds the next melody note. Finish before the melody moves',
+  ] }],
+  ['symbols', 'Spell any chord', { b: [
+    'Count from the root’s major scale: 3, 5 and 7 are its notes; ♭ lowers one, ♯ raises one.',
+    'Worked: F♯m7. F♯ major is F♯ G♯ A♯ B C♯ D♯ E♯; take 1 3 5 7 (F♯ A♯ C♯ E♯), then flatten 3 and 7: F♯ A C♯ E.',
+    '- Gmaj7: G B D F♯. B♭7: B♭ D F A♭',
+    '- Keep the letters in order even when the name looks odd: E♭m has G♭, not F♯',
+  ] }],
+  ['types', 'Major', { b: [
+    'In C: C E G. A major 3rd (4 frets) then a minor 3rd (3 frets).',
+    '<b>On the guitar</b>: C x32010, G 320003, D xx0232, A x02220, E 022100. The E and A shapes barre anywhere.',
+    'In C, the three chords C, F and G between them harmonise every note of the scale. Most folk, country and early rock’n’roll uses little else.',
+    'The 3rd on top sounds sweetest; the root on top sounds most final.',
+  ] }],
+  ['chordmelody', 'Learn the melody first', { b: [
+    '<b>How to do it</b>: learn from a vocal recording rather than an instrumental, and copy the singer’s phrasing.',
+    'Then play it on the top two strings, an octave above where it’s written, so it sits over the chords.',
+    'Note the highest and lowest melody notes: they decide the key and the position.',
+    '- The common mistake: learning the chords first and fitting a vague melody on top',
+    '- Test: if you can’t sing it without the guitar, you don’t know it yet',
+  ] }],
+  ['chordmelody', 'The second time through', { b: [
+    '<b>How to do it</b>: change one thing per chorus, so the listener can still follow the tune.',
+    'Worked: chorus 1 in block chords mid-neck; chorus 2 with the melody an octave up and tritone subs on the V chords; last chorus plain again, with a tag ending.',
+    'Other options: change the feel (ballad to bossa or swing), or put the melody in the bass with chords above.',
+    '- The common mistake: changing everything at once. Keep the melody clear even when the harmony is new',
+  ] }],
+  ['types', 'Diminished triad', { b: [
+    'In C: C E♭ G♭, two minor 3rds. Its outer interval is a tritone (C to G♭).',
+    '<b>On the guitar</b>: B° x2343x (B F B D), or xxx431 on the top three strings (B D F).',
+    'B° in C resolves inward: B rises to C, F falls to E.',
+    'Add a ♭7 and it becomes Bø7; add a 𝄫7 for B°7. As a held chord it’s rare in pop: you mostly hear it in passing.',
+  ] }],
+  ['diatonic', 'V', { b: [
+    'In C: G7, G B D F. B rises to C and F falls to E: that’s the resolution.',
+    '<b>On the guitar</b>: open G7 320001, barre 353433.',
+    '- A plain G triad still works; the 7th adds pull',
+    '- In minor keys V is still major: G7 in C minor, borrowed from harmonic minor',
+    '- A phrase that stops on V (a half cadence) asks a question; the next phrase answers on I',
+  ] }],
+  ['symbols', 'Slash chords', { b: [
+    'The letter after the slash is only the lowest note. The chord above stays the same.',
+    '- Bass lines: C – C/B – Am – Am/G walks the bass down C B A G',
+    '- F/G is a soft, sus-sounding V (G F A C)',
+    '<b>On the guitar</b>: C/E 032010, C/G 332010, D/F♯ 2x0232 (thumb on the F♯).',
+    'If the bass note is in the chord, it’s an inversion; if not, read the whole thing as a new chord.',
+  ], ex: [['The falling bass: C – C/B – Am – Am/G – F', 'C:maj C:maj/7 A:min A:min/b7 F:maj']] }],
+  ['chordmelody', 'Three voices are enough', { b: [
+    '<b>How to do it</b>: play the root on the 6th or 5th string, then whichever of the 3rd or 7th sits closest below the melody.',
+    'Worked: G7 with D on top. Root G on the low E, F (the 7th) or B (the 3rd) under the D.',
+    'Moving the guide tone by a half step (C → B from Dm7 to G7) makes the harmony sound complete with very few notes.',
+    '- The common mistake: full grips everywhere, which bury the melody and slow the changes',
+  ] }],
+  ['chordmelody', 'Not every note gets a chord', { b: [
+    '<b>How to do it</b>: mark the notes on beats 1 and 3 and any longer than a beat. Those get chords; the rest are played alone.',
+    'Worked: four quarter notes over C. Chord on beat 1, single notes on 2 and 4, a lighter two-note chord on 3 if it needs it.',
+    'Let the bass and chord ring while the single notes move above them.',
+    '- The common mistake: a chord on every note, which makes the tune heavy and slow',
+  ] }],
+  ['symbols', 'Omissions', { b: [
+    'The 5th goes first because it adds little colour and is already strong in the root’s overtones.',
+    '- C13 on guitar: C, B♭, E, A (x3x355), no 5th, 9th or 11th',
+    '- C7♯9: C, E, B♭, D♯ (x3234x), no 5th',
+    '(no3) or omit3 tells you a sus or power-chord sound is wanted. In a band, guitarists often play just the 3rd and 7th.',
+  ] }],
+  ['symbols', 'The bare 7 is always ♭7', { b: [
+    'The ♭7 makes a tritone with the 3rd (E to B♭ in C7), which is what makes a dominant want to resolve.',
+    'Cø7 (Cm7♭5) has ♭7 too: C E♭ G♭ B♭. Only °7 lowers it further.',
+    '<b>On the guitar</b>: C7 x32310, Cmaj7 x32000 or x35453, Cm7 x35343.',
+    '- The common misreading: Cmaj7 for C7 or the reverse. They do opposite jobs: one rests, one pulls',
+  ] }],
+  ['chordmelody', 'A melody note outside the chord', { b: [
+    '<b>How to do it</b>: name the note’s interval above the chord root. 9, ♯11 and 13 are safe colours; ♭9, ♯9 and ♭13 belong on dominants.',
+    'Worked: melody F over C. F is the 4th, so play it as a passing note, or change the chord to one that has F: Dm7, F or G7.',
+    '- The common mistake: changing the melody note to fit the chord. Change the chord, never the tune',
+  ] }],
+  ['types', 'm(maj7)', { b: [
+    'In C: C E♭ G B. A minor triad with the leading tone; the major 7th rubs against the root.',
+    '<b>On the guitar</b>: x35443 (C G B E♭ G). In A minor with open strings: Am x02210, Am(maj7) x02110, Am7 x02010, Am6 x02212.',
+    'Heard in the line cliché of “My Funny Valentine”. The “James Bond chord”, Em(maj9), is its richer cousin.',
+  ] }],
+  ['types', 'Minor', { b: [
+    'In C: C E♭ G. A minor 3rd (3 frets) then a major 3rd (4 frets).',
+    '<b>On the guitar</b>: Am x02210, Em 022000, Dm xx0231. The Em and Am shapes barre anywhere: Cm x35543.',
+    'Only the 3rd differs from major, so Cm and C are one fret apart on one string (the B string in the x35543 shape).',
+    'A minor chord isn’t sad on its own: in a major key, ii and vi are just softer colours.',
+  ] }],
+  ['diatonic', 'Melodic minor’s 7ths', { b: [
+    'The scale: C D E♭ F G A B. C major with a ♭3, so it’s minor and bright at once.',
+    '- 4th mode: F Lydian dominant, over F7♯11',
+    '- 6th mode: A Locrian ♮2, over Aø7',
+    '- 7th mode: B altered, over B7alt',
+    'Classical writers raise the 6th and 7th only going up; jazz keeps them both ways. Cm(maj7) and Cm6 are the two tonic colours.',
+  ] }],
+  ['types', 'maj9, m9, m11', { b: [
+    'In C: Cmaj9 is C E G B D; Cm9 is C E♭ G B♭ D; Cm11 is C E♭ G B♭ D F.',
+    '<b>On the guitar</b>: Cmaj9 x3243x, Cm9 x3133x, Cm11 x3334x. Drop the 5th first.',
+    'The 11 sits well on a minor chord, a whole step above the ♭3; on a major chord it’s a half step above the 3rd and clashes.',
+    'Neo-soul and R&B lean on m9 and m11; the “So What” voicing is a stacked-4ths m11 sound.',
+  ] }],
+  ['chordmelody', 'Every chord, every top note', { b: [
+    '<b>How to do it</b>: take one chord, say G7, and find a voicing with each chord tone on the high E string. Then do Cmaj7, Dm7 and Am7.',
+    'Worked, drop 2 G7 on the top four strings: G on top is xx3433 (F B D G); B on top is xx5767 (G D F B).',
+    'Four voicings per chord on one string set is plenty to start.',
+    '- The common mistake: knowing only root-position grips, then bending the melody to fit them',
+  ] }],
+  ['types', 'maj7', { b: [
+    'In C: C E G B. The 7th sits a half step below the root: a soft rub that sounds dreamy, not tense.',
+    '<b>On the guitar</b>: Cmaj7 x32000, Fmaj7 xx3210, Cmaj7 barre x35453.',
+    'It doesn’t need to resolve, so it’s a resting chord. When the melody sits on the root, use a 6 instead.',
+    'A staple of bossa nova, soft rock and ballads.',
+  ] }],
+  ['types', 'maj7♯11', { b: [
+    'In C: C E G B F♯. The ♯11 is the raised 4th, the Lydian mode’s note.',
+    'It lives on IV because F Lydian (F G A B C D E) is just C major from F: the ♯11 of F, B, is already in the key.',
+    '<b>On the guitar</b>: in C, Fmaj7♯11 is 1x2200 (F E A B E), with the open B and E ringing.',
+    'Leave out the 5th; the maj7 and ♯11 carry the colour. The Simpsons theme is in Lydian.',
+  ] }],
+  ['chordmelody', 'Bass on the downbeat', { b: [
+    '<b>How to do it</b>: play just melody and bass first, one bass note per chord. Add a guide tone only after that sounds right.',
+    'Worked: Dm7 – G7 – C under the melody A – B – C. Bass D, G, C on each beat 1; the melody on top is already the tune with its harmony.',
+    'If the melody is too far above the bass, use an inversion: C/E puts the bass closer and still sounds clear.',
+    '- The common mistake: bass on every beat of a ballad, blurring the melody',
+  ] }],
+  ['symbols', 'Every way to write it', { b: [
+    'Sus and add are written the same almost everywhere; 7th chords are where books differ most.',
+    '- In handwriting, a capital M (major) and a small m (minor) can look alike. Check the 3rd against the melody',
+    '- CΔ usually means Cmaj7, though many players treat it as any major tonic and play a 6 or 6/9',
+    '- C+ means augmented, not “C plus something”',
+    'When in doubt, play the 3rd and 7th: they settle every one of these.',
+  ] }],
+  ['diatonic', 'The major key in 7ths', { b: [
+    'In C: Cmaj7 (C E G B), Dm7 (D F A C), Em7 (E G B D), Fmaj7 (F A C E), G7 (G B D F), Am7 (A C E G), Bø7 (B D F A).',
+    'Each chord takes every other note of the scale, starting on its own degree.',
+    '<b>On the guitar</b>: play them all with the root on the A string, moving up the neck by scale steps.',
+    'Because the pattern never changes, one ii – V – I shape works in every key.',
+  ] }],
+  ['diatonic', 'The minor key in 7ths', { b: [
+    'In C minor: Cm7 (C E♭ G B♭), Dø7 (D F A♭ C), E♭maj7 (E♭ G B♭ D), Fm7 (F A♭ C E♭), Gm7 (G B♭ D F), A♭maj7 (A♭ C E♭ G), B♭7 (B♭ D F A♭).',
+    'The same set as E♭ major, the relative major.',
+    'With harmonic minor’s B: G7 instead of Gm7, and B°7 (B D F A♭) on the 7th degree.',
+    'A common rock loop: i – ♭VII – ♭VI – ♭VII (Cm – B♭ – A♭ – B♭).',
+  ], ex: [['i – ♭VII – ♭VI – ♭VII', 'C:min Bb:maj Ab:maj Bb:maj C:min']] }],
+  ['symbols', 'Alterations', { b: [
+    'In C7: ♭9 is D♭, ♯9 is D♯, ♯11 is F♯, ♭13 is A♭.',
+    'They belong on dominants, mostly a V7 going home; ♭9 and ♭13 point especially well to a minor chord.',
+    'They resolve by half step or hold: in C7♭9 → F, D♭ falls to C; in C7♭13 → Fm, A♭ stays as Fm’s 3rd.',
+    '<b>On the guitar</b>: C7♭9 x3232x, C7♯9 x3234x.',
+  ] }],
+  ['types', '7sus4 and 9sus4', { b: [
+    'In C: C7sus4 is C F G B♭; C9sus4 is C F G B♭ D.',
+    '<b>On the guitar</b>: C9sus4 x3333x (C F B♭ D), one barre; G7sus4 353533.',
+    'The 4th falling to the 3rd (C → B in G7sus4 → G7) is the old suspension that gives the chord its name.',
+    'Herbie Hancock’s “Maiden Voyage” is built almost entirely on these chords.',
+  ] }],
+  ['symbols', 'Extensions bring the 7th', { b: [
+    'In C: C9 is C E G B♭ D; Cmaj9 C E G B D; Cm9 C E♭ G B♭ D; C13 C E G B♭ D A.',
+    'If there’s no 7th, the symbol says “add”: Cadd9 has no B♭.',
+    '<b>On the guitar</b>: C9 x32333, Cm9 x3133x, C13 x3x355.',
+    'A plain 7th is never wrong for an extended chord: C7 for C13 is just plainer.',
+  ] }],
+  ['symbols', 'Roman numerals', { b: [
+    'In C: I C, ii Dm, iii Em, IV F, V G, vi Am, vii° B°.',
+    'The numerals work in any key, so ii – V – I is Dm – G – C in C and Gm – C – F in F.',
+    'Add the chord type after the numeral: Imaj7, ii7, V7, viiø7.',
+    'Nashville numbers use plain digits (1 – 4 – 5) for the same idea.',
+  ], ex: [['ii – V – I in C, then in F', 'D:m7 G:7 C:maj7 G:m7 C:7 F:maj7']] }],
+  ['types', 'Augmented', { b: [
+    'In C: C E G♯, two major 3rds. C+, E+ and G♯+ share the same three notes.',
+    '<b>On the guitar</b>: x3211x (C E G♯ C). Slide it up four frets and the notes stay the same.',
+    'The ♯5 rises a half step: in G+ → C, D♯ goes to E.',
+    'Spell it with ♯5, not ♭6: C+ is C E G♯, not C E A♭.',
+    'In C – C+ – C6 – C7, one inner voice climbs G – G♯ – A – B♭ while the rest stays put.',
+  ] }],
+  ['chordmelody', 'Arrange in passes', { b: [
+    '<b>Key choice</b>: pick a key that puts the melody on the top two strings and the main bass notes on open E, A or D.',
+    'Worked: in pass 2, one bass note per chord; in pass 3, only the 3rd or 7th. Play it at that stage: often it’s already enough.',
+    'Write it down in tab or record each pass as you go.',
+    '- The common mistake: trying to do it all at once from the chart, which leads to unplayable grips',
+  ] }],
+  ['types', '7♯11', { b: [
+    'In C: C E G B♭ F♯. The ♯11 avoids the clash between the 3rd and a natural 11.',
+    '<b>On the guitar</b>: x3435x (C F♯ B♭ E).',
+    'In C, D♭7♯11 puts G, the root of V, on top as its ♯11.',
+    'Over it, play Lydian dominant (C D E F♯ G A B♭), the 4th mode of G melodic minor. “Take the ‘A’ Train” has its II7 (D7♭5) in this colour.',
+  ] }]
+];
+for (const [deck, title, add] of SPRUCE2) {
+  const c = DECKS.find((d) => d.id === deck)?.cards.find((x) => x.t === title);
+  if (!c) { console.warn('no card', deck, title); continue; }
+  if (add.b) c.b = [...(c.b || []), ...add.b];
+  if (add.ex) { const own = c.play ? [['The example', c.play]] : []; c.ex = [...(c.ex || []), ...own, ...add.ex]; delete c.play; }
 }
