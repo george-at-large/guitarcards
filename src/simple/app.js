@@ -19,13 +19,13 @@ const SET = (s) => s.split('').map(Number);
 const EX_TRIAD = [
   ['Close triads, up one string set', [['close:321', 'Close triads on 3‑2‑1'], ['close:432', 'Close triads on 4‑3‑2'], ['close:543', 'Close triads on 5‑4‑3'], ['close:654', 'Close triads on 6‑5‑4']]],
   ['Spread triads, up one string set', [['spread:643', 'Spread triads on 6‑4‑3'], ['spread:532', 'Spread triads on 5‑3‑2'], ['spread:421', 'Spread triads on 4‑2‑1']]],
-  ['Across the neck', [['area:close', 'Close triads, area by area'], ['area:spread', 'Spread triads, area by area'], ['caged', 'The five CAGED forms'], ['arp', 'Arpeggio, area by area']]],
+  ['Across the neck', [['all', 'All shapes, area by area'], ['area:close', 'Close triads, area by area'], ['area:spread', 'Spread triads, area by area'], ['caged', 'The five CAGED forms'], ['arp', 'Arpeggio, area by area']]],
 ];
 const EX_SEV = [
   ['Drop 2, up one string set', [['drop2:4321', 'Drop 2 on 4‑3‑2‑1'], ['drop2:5432', 'Drop 2 on 5‑4‑3‑2'], ['drop2:6543', 'Drop 2 on 6‑5‑4‑3']]],
   ['Drop 3, up one string set', [['drop3:6432', 'Drop 3 on 6‑4‑3‑2'], ['drop3:5321', 'Drop 3 on 5‑3‑2‑1']]],
   ['Drop 2 & 4, up one string set', [['drop24:6532', 'Drop 2 & 4 on 6‑5‑3‑2'], ['drop24:5421', 'Drop 2 & 4 on 5‑4‑2‑1']]],
-  ['Across the neck', [['area:drop2', 'Drop 2, area by area'], ['area:drop3', 'Drop 3, area by area'], ['area:drop24', 'Drop 2 & 4, area by area'], ['shell', 'Shells (root on the 6th and 5th)'], ['caged', 'The five CAGED forms'], ['arp', 'Arpeggio, area by area']]],
+  ['Across the neck', [['all', 'All shapes, area by area'], ['area:drop2', 'Drop 2, area by area'], ['area:drop3', 'Drop 3, area by area'], ['area:drop24', 'Drop 2 & 4, area by area'], ['shell', 'Shells (root on the 6th and 5th)'], ['caged', 'The five CAGED forms'], ['arp', 'Arpeggio, area by area']]],
 ];
 // Drop 2 with extensions: the substitutions players actually make inside a four-note shape (9 for the root, 13 for
 // the 5th, 11 on a minor chord), each spelled out so the colour tone shows in violet
@@ -106,6 +106,27 @@ function build() {
     for (const [ss, order, qx, shape] of SHELLX[q]) {
       const v = F.chordVoicings({ root: r, quality: qx, voicing: 'custom', order, stringSet: ss }).filter((x) => x.maxFret <= MAXF).sort((a, b) => a.minFret - b.minFret);
       v.slice(0, 2).forEach((x) => out.push({ notes: x.notes, text: `${T.pretty(T.chordSymbol(r, qx))} · ${shape} · root on the ${ss[0] === 6 ? '6th' : '5th'} · frets ${x.minFret}–${x.maxFret}` }));
+    }
+  } else if (kind === 'all') {
+    // every shape of the chord that lives in each area, area by area up the neck: the CAGED grip first, then the
+    // voicing families, each shape once
+    const fams = isTriad(q)
+      ? [['close', 'Close triad', ['321', '432', '543', '654']], ['spread', 'Spread triad', ['643', '532', '421']]]
+      : [['drop2', 'Drop 2', ['4321', '5432', '6543']], ['drop3', 'Drop 3', ['6432', '5321']], ['drop24', 'Drop 2 & 4', ['6532', '5421']], ['shell', 'Shell', ['643', '654', '532', '543']]];
+    for (const w of windows(r)) {
+      const inside = (x) => x.minFret >= Math.max(0, w.lo - 1) && x.maxFret <= w.hi + 1 && x.maxFret <= MAXF;
+      const seen = new Set();
+      const add = (notes, text) => { const k = notes.map((n) => n.string + ':' + n.fret).sort().join(','); if (seen.has(k)) return; seen.add(k); out.push({ notes, text: `${w.shape}-shape area · ${text}`, win: w }); };
+      const grip = G.placements(r, q, w.shape).find((p) => p.lo >= Math.max(0, w.lo - 1) && p.hi <= w.hi + 1);
+      if (grip) add(grip.notes, `${w.shape} form (CAGED grip)`);
+      for (const [v, name, sets] of fams) {
+        const list = [];
+        for (const ss of sets.map(SET)) for (const x of F.chordVoicings({ root: r, quality: q, voicing: v, stringSet: ss, inversion: 'all' })) if (inside(x) && (v !== 'shell' || x.notes[0].iv === '1')) list.push({ ...x, ss });
+        list.sort((a, b) => b.ss[0] - a.ss[0] || a.minFret - b.minFret).forEach((x) => add(x.notes, `${name} · ${v === 'shell' ? x.label.replace(/b/g, '♭') : inv(x)} · strings ${x.ss.join('‑')}`));
+      }
+      for (const [ss, order, qx, shape] of SHELLX[q] || []) {
+        for (const x of F.chordVoicings({ root: r, quality: qx, voicing: 'custom', order, stringSet: ss })) if (inside(x)) add(x.notes, `Shell plus a colour · ${T.pretty(T.chordSymbol(r, qx))} · ${shape}`);
+      }
     }
   } else if (kind === 'caged') {
     const all = [];
