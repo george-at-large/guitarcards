@@ -1,0 +1,530 @@
+// The must-remember cards in Simple: tap for the next one. Each deck goes in teaching order. Examples are in C
+// (the non-pulling dominants are in G, as in the original notes). A card's `play` is a short progression to hear, written
+// as root:quality tokens; Simple voice-leads it in close position over the bass.
+//   t: title  s: where it comes from / what it is  b: lines ('- ' starts a bullet)  eg: the example  play: chords
+
+export const DECKS = [
+  {
+    id: 'borrowed', name: 'Borrowed chords', cards: [
+      { t: 'Modal interchange', s: 'what borrowing is', b: [
+        'A borrowed chord comes from a <b>parallel mode</b>: same tonic, different mode. Home doesn’t move; the chord just brings a darker or brighter note.',
+        'Most borrowing is from the <b>parallel minor (Aeolian)</b>, which brings three notes: ♭3, ♭6 and ♭7.',
+      ], eg: 'C major borrows E♭, A♭ and B♭ from C minor' },
+      { t: 'iv7 (m9, m6)', s: 'from Aeolian', b: [
+        'The “sad IV”. The ♭6 (A♭) falls a half step to the 5th (G) when it goes home.',
+        '- IV → iv → I is the classic move',
+        '- Play F Dorian over it: Aeolian’s notes on its 4th degree (the 2nd mode of E♭ major)',
+      ], eg: 'In C: Fm7, Fm6, Fm9', play: 'C:maj7 F:maj7 F:m6 C:maj7' },
+      { t: '♭VImaj7♯11', s: 'from Aeolian', b: [
+        'The lush, cinematic one. Its ♯11 is the key’s own 2nd, so it sits easily.',
+        '- I – ♭VI – ♭VII – I: the heroic ending',
+        '- Play Lydian over it: Aeolian’s notes on ♭6 are A♭ Lydian',
+      ], eg: 'In C: A♭maj7♯11', play: 'C:maj7 Ab:maj7#11 Bb:7 C:maj7' },
+      { t: '♭VI7 (7♯11)', s: 'from Aeolian, made a dominant', b: [
+        'The ♭6 as a dominant 7: a dominant that doesn’t pull (see that deck).',
+        '- ♭VI7 → V: down a half step (the German 6th)',
+        '- ♭VI7 → I: a darker backdoor home',
+        '- Lydian dominant over it',
+      ], eg: 'In C: A♭7♯11', play: 'C:maj7 Ab:7#11 G:7 C:maj7' },
+      { t: '♭VII7 (9, 13, ♯11)', s: 'from Aeolian: the backdoor dominant', b: [
+        'Steps up a whole tone to I instead of falling a 5th. Its ♭7 (A♭) falls to G.',
+        '- Often after iv7: iv7 – ♭VII7 – I',
+        '- Mixolydian (rootsy) or Lydian dominant (floaty) over it',
+      ], eg: 'In C: B♭7 → C', play: 'F:m7 Bb:9 C:maj7' },
+      { t: '♭VIImaj7♯11', s: 'from Mixolydian', b: [
+        'The rock ♭VII, made lush. Mixolydian’s notes on ♭7 are a Lydian scale, hence the ♯11.',
+        '- ♭VII – IV – I: the classic rock cadence',
+      ], eg: 'In C: B♭maj7♯11', play: 'Bb:maj7#11 F:maj7 C:maj7' },
+      { t: '♭IIImaj7 (9, 13)', s: 'from Aeolian', b: [
+        'The relative major of the parallel minor. Bright but foreign: it swaps E for E♭.',
+        '- I – ♭III – ♭VI – V, or I – ♭III – IV',
+        '- Play E♭ major (Ionian) over it',
+      ], eg: 'In C: E♭maj7', play: 'C:maj7 Eb:maj7 Ab:maj7 G:7' },
+      { t: 'iiø7 (♭9, 11, ♭13)', s: 'from Aeolian', b: [
+        'The minor ii, used in a major key: it darkens the ii–V on the way to a major I.',
+        '- iiø7 – V7♭9 – Imaj7',
+        '- Locrian over it, or Locrian ♮2 for a sweeter 9',
+      ], eg: 'In C: Dm7♭5', play: 'D:m7b5 G:7b9 C:maj7' },
+      { t: 'i7 or i6', s: 'from Aeolian (m7) or Dorian (m6)', b: [
+        'The tonic turned minor. I → i is the most direct darkening there is.',
+        '- m6 has Dorian’s major 6th: the film-noir ending',
+      ], eg: 'In C: Cm7, Cm6', play: 'C:maj7 C:m6 C:maj7' },
+      { t: 'v7 (m9)', s: 'from Mixolydian', b: [
+        'The dominant without its leading tone: no pull at all.',
+        '- v7 – I7 is a ii–V into IV',
+        '- Dorian over it (Mixolydian’s notes on its 5th)',
+      ], eg: 'In C: Gm7', play: 'C:maj7 G:m7 C:7 F:maj7' },
+      { t: 'II7 (9, 13)', s: 'from Lydian', b: [
+        'Lydian’s ♯4 (F♯) becomes the 3rd of II. If it doesn’t go to V, it’s pure Lydian colour.',
+        '- I – II7 – IV – I',
+        '- Mixolydian over it (Lydian’s notes on its 2nd)',
+      ], eg: 'In C: D7', play: 'C:maj7 D:9 F:maj7 C:maj7' },
+      { t: '♭IImaj7♯11', s: 'from Phrygian: the Neapolitan', b: [
+        'Slides down a half step to I, like a tritone sub without the tritone.',
+        '- ♭IImaj7 → I in jazz; ♭II → V → i in classical (usually first inversion)',
+        '- Lydian over it (Phrygian’s notes on ♭2)',
+      ], eg: 'In C: D♭maj7♯11', play: 'D:m7 Db:maj7#11 C:maj7' },
+      { t: 'The backdoor ii–V', s: 'iv7 → ♭VII7 → I', b: [
+        'Both chords come from the parallel minor. It lands on I from below instead of from V.',
+        '- Lady Bird uses it',
+        '- Voice-lead: A♭ falls to G, E♭ to D or E',
+      ], eg: 'In C: Fm7 – B♭7 – Cmaj7', play: 'F:m7 Bb:7 C:maj7' },
+      { t: 'Borrowing the other way', s: 'minor keys borrow too', b: [
+        '- <b>IV7</b> from Dorian: the major 6th makes a bright IV',
+        '- <b>V7</b> from harmonic minor: the leading tone, for a real pull home',
+        '- <b>Picardy</b>: a minor piece ending on a major I',
+      ], eg: 'In A minor: D7, E7, and an A major ending', play: 'A:m7 D:7 E:7b9 A:maj' },
+    ],
+  },
+  {
+    id: 'melmin', name: 'Melodic minor chords', cards: [
+      { t: 'Where they come from', s: 'the modes of melodic minor', b: [
+        'Melodic minor is a major scale with a ♭3. Its modes give the chords that define modern jazz:',
+        '- 1 melodic minor: m(maj7)',
+        '- 2 Dorian ♭2: sus♭9',
+        '- 3 Lydian augmented: maj7♯5',
+        '- 4 Lydian dominant: 7♯11',
+        '- 5 Mixolydian ♭6: 7♭13',
+        '- 6 Locrian ♮2: ø9',
+        '- 7 altered: 7alt',
+      ], eg: 'C melodic minor: C D E♭ F G A B' },
+      { t: 'm(maj7)', s: '1st mode: melodic minor', b: [
+        'The minor tonic with a major 7th: dark and suspended.',
+        '- i(maj7) as a home chord, especially at the end',
+        '- The line cliché: i – i(maj7) – i7 – i6',
+        '- Scale: melodic minor on the same root',
+      ], eg: 'In C minor: Cm(maj7)', play: 'D:m7b5 G:7alt C:mMaj7' },
+      { t: '7♯11', s: '4th mode: Lydian dominant', b: [
+        'The dominant that floats. Use it on any dominant that doesn’t pull, and on tritone subs.',
+        '- Scale: melodic minor a 5th above the root',
+      ], eg: 'D7♯11 uses A melodic minor', play: 'C:maj7 D:7#11 C:maj7' },
+      { t: '7alt', s: '7th mode: altered', b: [
+        'Every tension altered: ♭9, ♯9, ♯11, ♭13. For any V7 that resolves, especially to minor.',
+        '- Scale: melodic minor a half step above the root',
+        '- G7alt is A♭ melodic minor, the same notes as D♭7♯11 (its tritone sub)',
+      ], eg: 'G7alt → Cm', play: 'D:m7b5 G:7alt C:m6' },
+      { t: 'ø9', s: '6th mode: Locrian ♮2', b: [
+        'A sweeter iiø: plain Locrian has a ♭9, this has a natural 9.',
+        '- The ii of a minor ii–V–i',
+        '- Scale: melodic minor a minor 3rd above the root',
+      ], eg: 'Dø9 uses F melodic minor', play: 'D:m7b5 G:7b9 C:m6' },
+      { t: 'maj7♯5', s: '3rd mode: Lydian augmented', b: [
+        'Bright, unstable, glassy. In a minor key it’s ♭III+, straight from melodic minor.',
+        '- Also a tense Imaj7 that wants to settle',
+        '- Scale: melodic minor a minor 3rd below the root',
+      ], eg: 'In C minor: E♭maj7♯5', play: 'C:mMaj7 Eb:maj7#5 F:m7 G:7alt C:m6' },
+      { t: '7♭13', s: '5th mode: Mixolydian ♭6', b: [
+        'A V7 going to minor, with a natural 9 and a ♭13. Darker than Mixolydian, softer than altered.',
+        '- Scale: melodic minor a 4th above the root',
+      ], eg: 'G7♭13 → Cm uses C melodic minor', play: 'D:m7b5 G:7b13 C:m6' },
+      { t: 'Find the scale fast', s: 'melodic minor, from the chord', b: [
+        '- m(maj7): on the root',
+        '- 7♯11: up a 5th',
+        '- 7alt: up a half step',
+        '- ø9: up a minor 3rd',
+        '- 7♭13: up a 4th',
+        '- maj7♯5: down a minor 3rd',
+      ], eg: 'One scale, seven chords: learn its shapes once' },
+    ],
+  },
+  {
+    id: 'nopull', name: 'Dominants that don’t pull', cards: [
+      { t: 'Pull or colour?', s: 'the rule', b: [
+        'A dominant <b>pulls</b> when its root falls a 5th to the next chord, like V → I. Every other dominant is mainly <b>colour</b>: bluesy, bright, floating.',
+        '- Use 9, ♯11 and 13 (Lydian dominant), or Mixolydian for a rootsier sound',
+        '- Avoid ♭9 and ♭13: they say “resolve now”',
+      ], eg: 'All the examples in this deck are in G' },
+      { t: 'I7', s: 'G7 in G', b: [
+        'A blues tonic, or a static vamp: a colour, not a function.',
+        '- In bar 4 of a blues it does pull, to IV7',
+      ], eg: 'G7 as home', play: 'G:7 C:9 G:7' },
+      { t: 'IV7', s: 'C7 in G', b: [
+        'Blues, or IV7 → I, a plagal move.',
+        '- Its ♯11 is F♯, the key’s leading tone, so it sounds right at home',
+      ], eg: 'G – C7 – G', play: 'G:maj7 C:7#11 G:maj7' },
+      { t: '♭VII7', s: 'F7 in G: the backdoor', b: [
+        'Steps up a whole tone to I, often after iv7.',
+      ], eg: 'Cm7 – F7 – G', play: 'C:m7 F:9 G:maj7' },
+      { t: '♭VI7 → V', s: 'E♭7 → D7 in G', b: [
+        'Down a half step. It’s the tritone sub of V/V, and in classical theory the <b>German augmented sixth</b>.',
+        '- Its D♭ is really C♯, which pushes up to D',
+      ], eg: 'E♭7 → D7 → G', play: 'G:maj7 Eb:7#11 D:7 G:maj7' },
+      { t: '♭VI7 → I', s: 'E♭7 → G', b: [
+        'A darker backdoor resolution.',
+        '- ♭VI7 – ♭VII7 – I, or ♭VI7 straight to I at the end',
+      ], eg: 'E♭7 – F7 – G', play: 'Eb:7#11 F:9 G:maj7' },
+      { t: '♭II7', s: 'A♭7 in G', b: [
+        'The tritone sub of V: it slides down a half step to I.',
+      ], eg: 'Am7 – A♭7 – G', play: 'A:m7 Ab:7#11 G:maj7' },
+      { t: 'II7 not going to V', s: 'A7 in G', b: [
+        'Lydian colour rather than V/V.',
+        '- I – II7 – ii7 – ♭II7 – I: “The Girl from Ipanema”',
+        '- II7♭5: bar 3 of “Take the A Train”',
+      ], eg: 'G – A7 – Am7 – A♭7 – G', play: 'G:maj7 A:7#11 A:m7 Ab:7#11 G:maj7' },
+      { t: 'How they move', s: 'four ways', b: [
+        '- <b>Down a half step</b>: ♭II7 → I, ♭VI7 → V. Approach any chord with a 7♯11 a half step above',
+        '- <b>Up a whole step</b>: ♭VII7 → I, ♭VI7 → ♭VII7',
+        '- <b>Plagal</b> (root down a 4th): IV7 → I',
+        '- <b>Staying put</b>: vamp on one dominant (funk, blues, modal tunes)',
+      ] },
+      { t: 'Follow the guide tones', s: 'even without pull', b: [
+        'The 3rd and ♭7 should move by half step or hold.',
+        '- E♭7 → D7: G → F♯, D♭ → C (both down a half step)',
+        '- A♭7 → G: C → B; G♭ is F♯, so it holds',
+        '- C7 → G: E → D, B♭ → B',
+      ] },
+      { t: 'Practise it', s: 'over a G drone', b: [
+        'G → C7 → G, then G → F7 → G, G → E♭7 → G, G → A♭7 → G.',
+        'Sing the ♯11 on each one until you can hear the colour.',
+      ], play: 'G:maj7 C:7#11 G:maj7 F:7#11 G:maj7' },
+    ],
+  },
+  {
+    id: 'secdom', name: 'Secondary dominants', cards: [
+      { t: 'V of something else', s: 'what they are', b: [
+        'Any diatonic chord (not vii°) can have its own V7. It borrows that chord’s leading tone, and these <b>do pull</b>: the root falls a 5th.',
+        '- V7/ii = VI7, V7/iii = VII7, V7/IV = I7, V7/V = II7, V7/vi = III7',
+      ], eg: 'In C: A7, B7, C7, D7, E7' },
+      { t: 'Which tensions?', s: 'it depends on the target', b: [
+        '- Going to a <b>minor</b> chord: 7♭9, ♭13 (Phrygian dominant, from the target’s harmonic minor)',
+        '- Going to a <b>major</b> chord: 9, 13 (Mixolydian)',
+        'The target’s key decides the scale.',
+      ] },
+      { t: 'V7/ii', s: 'VI7', b: [
+        'C♯, its 3rd, leads up to D.',
+        '- I – VI7 – ii – V: the most common turnaround in jazz',
+      ], eg: 'In C: A7♭9 → Dm7', play: 'C:maj7 A:7b9 D:m7 G:7 C:maj7' },
+      { t: 'V7/iii', s: 'VII7', b: [
+        'The most outside-sounding one: D♯ and F♯ are both foreign to C.',
+      ], eg: 'In C: B7♭9 → Em7', play: 'C:maj7 B:7b9 E:m7' },
+      { t: 'V7/IV', s: 'I7', b: [
+        'The tonic grows a ♭7, and B♭ leads down to A.',
+        '- Bar 4 of the blues',
+      ], eg: 'In C: C7 → Fmaj7', play: 'C:maj7 C:9 F:maj7' },
+      { t: 'V7/V', s: 'II7', b: [
+        'F♯ leads up to G.',
+        '- II7 – V7 – I',
+      ], eg: 'In C: D9 → G7 → C', play: 'C:maj7 D:9 G:13 C:maj7' },
+      { t: 'V7/vi', s: 'III7', b: [
+        'G♯ leads up to A.',
+        '- “All of Me” is the textbook: I – III7 – VI7 – ii',
+      ], eg: 'In C: E7♭9 → Am7', play: 'C:maj7 E:7b9 A:m7' },
+      { t: 'Add its ii', s: 'the related ii', b: [
+        'Put a ii in front of a secondary dominant and you get a ii–V into that chord.',
+        '- Before major: iim7 – V7 (Am7 – D7 → G)',
+        '- Before minor: iiø7 – V7♭9 (Bø7 – E7♭9 → Am)',
+      ], play: 'B:m7b5 E:7b9 A:m7 D:m7 G:7 C:maj7' },
+      { t: 'Extended dominants', s: 'dominants into dominants', b: [
+        'III7 – VI7 – II7 – V7 – I: each one resolves to another dominant, roots falling in 5ths.',
+        '- “Sweet Georgia Brown”, and the bridge of rhythm changes',
+      ], eg: 'In C: E7 – A7 – D7 – G7 – C', play: 'E:7 A:7 D:7 G:7 C:maj7' },
+      { t: 'The guide-tone chain', s: 'why extended dominants sound smooth', b: [
+        'The 3rd and 7th take turns falling a half step:',
+        '- E7 (G♯, D) → A7 (G, C♯)',
+        '- → D7 (F♯, C) → G7 (F, B)',
+        'Two notes, each moving a fret at a time. Play just those on two strings.',
+      ], play: 'E:7 A:7 D:7 G:7 C:maj7' },
+    ],
+  },
+  {
+    id: 'tritone', name: 'Tritone substitutions', cards: [
+      { t: 'Why it works', s: 'one tritone, two dominants', b: [
+        'Two dominants a tritone apart share the same 3rd and 7th, with the roles swapped.',
+        '- G7: B and F',
+        '- D♭7: F and C♭ (= B)',
+        'Swap one for the other and the bass slides down a half step instead of falling a 5th.',
+      ], play: 'D:m7 G:7 C:maj7 D:m7 Db:7#11 C:maj7' },
+      { t: 'Play 7♯11 on them', s: 'Lydian dominant', b: [
+        'A tritone sub’s ♯11 is the original V’s root, so 7♯11 is the natural colour.',
+        '- D♭7♯11 uses A♭ melodic minor, the same notes as G7alt',
+      ] },
+      { t: '♭II7 → I', s: 'subs for V7', eg: 'In C: D♭7 → C', play: 'D:m7 Db:7#11 C:maj7' },
+      { t: '♭III7 → ii', s: 'subs for V7/ii (VI7)', eg: 'In C: E♭7 → Dm7', play: 'C:maj7 Eb:7#11 D:m7' },
+      { t: '♭VI7 → V', s: 'subs for V7/V (II7)', eg: 'In C: A♭7 → G7', play: 'C:maj7 Ab:7#11 G:7 C:maj7' },
+      { t: '♭VII7 → vi', s: 'subs for V7/vi (III7)', b: [
+        'The same chord as the backdoor dominant, but a different job: the backdoor goes up to I, this one goes down to vi.',
+      ], eg: 'In C: B♭7 → Am7', play: 'C:maj7 Bb:7#11 A:m7' },
+      { t: 'IV7 → iii', s: 'subs for V7/iii (VII7)', eg: 'In C: F7 → Em7', play: 'C:maj7 F:7#11 E:m7' },
+      { t: '♭V7 → IV', s: 'subs for V7/IV (I7)', eg: 'In C: G♭7 → Fmaj7', play: 'C:maj7 Gb:7#11 F:maj7' },
+      { t: 'Sub the ii as well', s: 'the tritone ii–V', b: [
+        '- ii – ♭II7 – I: only the V is subbed',
+        '- ♭vi7 – ♭II7 – I: the whole ii–V moved a tritone',
+      ], eg: 'In C: Dm7 – D♭7 – C, or A♭m7 – D♭7 – C', play: 'Ab:m7 Db:7 C:maj7' },
+      { t: 'Chromatic chains', s: 'alternate subs in a dominant chain', b: [
+        'Sub every other dominant in III7 – VI7 – II7 – V7 and the bass walks down by half steps.',
+      ], eg: 'E7 – E♭7 – D7 – D♭7 – C', play: 'E:7 Eb:7#11 D:7 Db:7#11 C:maj7' },
+    ],
+  },
+  {
+    id: 'dim', name: 'Diminished chords', cards: [
+      { t: 'It repeats every 3 frets', s: 'symmetry', b: [
+        'A °7 is stacked minor 3rds, so moving it 3 frets gives the same notes in a new inversion.',
+        '- There are only three different °7 chords: C°7, C♯°7, D°7',
+        '- On guitar: one shape, slid up in 3-fret jumps',
+      ] },
+      { t: 'Four dominants in one', s: 'a °7 is a rootless 7♭9', b: [
+        'Put a root a major 3rd below any note of a °7 and you get a 7♭9.',
+        '- C♯°7 (C♯ E G B♭) = A7♭9, C7♭9, E♭7♭9 or F♯7♭9 without the root',
+        '- So C♯°7 can lead to Dm, F, A♭ or B',
+      ] },
+      { t: 'Rising diminished', s: '♯I°7 → ii, ♯II°7 → iii, ♯IV°7 → V, ♯V°7 → vi', b: [
+        'A °7 a half step under its target: each one is the rootless V7♭9 of the chord it leads to.',
+        '- C♯°7 = A7♭9 → Dm7',
+      ], eg: 'In C: C – C♯°7 – Dm7 – D♯°7 – Em7', play: 'C:maj7 C#:dim7 D:m7 D#:dim7 E:m7' },
+      { t: 'Descending diminished', s: '♭III°7 → ii', b: [
+        'A chromatic passing chord on the way down.',
+        '- iii – ♭iii°7 – ii – V',
+      ], eg: 'In C: Em7 – E♭°7 – Dm7 – G7', play: 'E:m7 Eb:dim7 D:m7 G:7 C:maj7' },
+      { t: 'Common-tone diminished', s: 'I°7 → I', b: [
+        'A neighbour chord that shares the root and has no pull. Over a C pedal, D♯ rises to E, F♯ rises to G, and A stays as the 6th.',
+        '- Also on V: G°7 → G7',
+      ], eg: 'In C: C – C°7 – C', play: 'C:6 C:dim7 C:6' },
+      { t: 'vii°7 → I', s: 'the leading-tone chord', b: [
+        'A rootless V7♭9. In major its ♭6 (A♭) is borrowed from harmonic minor.',
+        '- B → C, F → E, A♭ → G',
+      ], eg: 'In C: B°7 → C', play: 'B:dim7 C:maj7' },
+      { t: 'The scales', s: 'two sides of one scale', b: [
+        '- <b>Whole-half</b> over °7: C D E♭ F G♭ A♭ A B',
+        '- <b>Half-whole</b> over 7♭9: G A♭ B♭ B C♯ D E F',
+        'Same eight-note family, starting on a different step.',
+      ] },
+      { t: '°7 vs ø7', s: "don't mix them up", b: [
+        '- <b>°7</b> (diminished 7th): 1 ♭3 ♭5 𝄫7. Symmetrical, passing, a rootless 7♭9',
+        '- <b>ø7</b> (half-diminished, m7♭5): 1 ♭3 ♭5 ♭7. A real chord: iiø in minor, viiø in major',
+        '- Locrian (or Locrian ♮2) over ø7, whole-half over °7',
+      ], eg: 'C°7 has A; Cø7 has B♭' },
+    ],
+  },
+  {
+    id: 'twofive', name: 'ii–V–I', cards: [
+      { t: 'The engine', s: 'ii – V – I', b: [
+        'Predominant → dominant → tonic, roots falling in 5ths. Most jazz tunes are chains of these.',
+      ], eg: 'In C: Dm7 – G7 – Cmaj7', play: 'D:m7 G:7 C:maj7' },
+      { t: 'Guide tones', s: '3rds and 7ths', b: [
+        'The 7th of each chord falls a half step to the 3rd of the next. The 3rd holds and becomes the next 7th.',
+        '- Dm7 (F, C) → G7 (F, B) → Cmaj7 (E, B)',
+        '- C → B, then F → E',
+      ], play: 'D:m7 G:7 C:maj7' },
+      { t: 'Voice-lead it', s: 'move as little as possible', b: [
+        '- Dm7 → G7: two notes move (A → G, C → B); D and F stay',
+        '- G7 → Cmaj7: F → E and D → C (or keep D as the 9); G and B stay',
+        'Learn it in drop 2 on the top four strings, in every area of the neck.',
+      ], play: 'D:m9 G:13 C:maj9' },
+      { t: 'Minor ii–V–i', s: 'iiø7 – V7♭9 – i', b: [
+        '- Dø7: D Locrian ♮2 (F melodic minor)',
+        '- G7♭9 or G7alt: Phrygian dominant or altered',
+        '- Cm6 or Cm(maj7): C melodic minor',
+      ], eg: 'In C minor: Dm7♭5 – G7alt – Cm6', play: 'D:m7b5 G:7alt C:m6' },
+      { t: 'A ii–V to anything', s: 'tonicising', b: [
+        'Any diatonic chord can be approached by its own ii–V:',
+        '- To Dm: Eø7 – A7♭9',
+        '- To Em: F♯ø7 – B7♭9',
+        '- To F: Gm7 – C7',
+        '- To G: Am7 – D7',
+        '- To Am: Bø7 – E7♭9',
+      ] },
+      { t: 'Three ways home', s: 'front door, back door, side door', b: [
+        '- <b>ii–V</b>: Dm7 – G7 – C',
+        '- <b>Backdoor</b>: Fm7 – B♭7 – C',
+        '- <b>Tritone</b>: A♭m7 – D♭7 – C',
+      ], play: 'D:m7 G:7 C:maj7 F:m7 Bb:7 C:maj7' },
+      { t: 'Turnarounds', s: 'getting back to the top', b: [
+        '- I – vi – ii – V: Cmaj7 – Am7 – Dm7 – G7',
+        '- I – VI7 – ii – V: Cmaj7 – A7 – Dm7 – G7',
+        '- iii – VI7 – ii – V: Em7 – A7 – Dm7 – G7',
+        '- Tadd Dameron: Cmaj7 – E♭7 – A♭7 – D♭7 (all tritone subs)',
+      ], play: 'C:maj7 Eb:7#11 Ab:7#11 Db:7#11 C:maj7' },
+      { t: 'ii–V chains', s: 'back to back', b: [
+        '- Down by 5ths: Em7 A7 | Dm7 G7 | C',
+        '- Down by half steps: Em7 A7 | E♭m7 A♭7 | Dm7 G7 | C',
+        '- “Satin Doll” is built from them',
+      ], play: 'E:m7 A:7 Eb:m7 Ab:7 D:m7 G:7 C:maj7' },
+      { t: 'Deceptive endings', s: 'when V doesn’t go to I', b: [
+        '- V → vi: G7 → Am7',
+        '- V → ♭VI: G7 → A♭maj7',
+        'Set up the ear, then land somewhere else.',
+      ], play: 'D:m7 G:7 A:m7 D:m7 G:7 Ab:maj7' },
+      { t: 'Drill it round the cycle', s: 'all 12 keys', b: [
+        'Play Dm7 – G7 – Cmaj7, then turn the Cmaj7 into Cm7: it’s the ii of B♭. Cm7 – F7 – B♭maj7, then B♭m7, and so on through all 12 keys.',
+      ], play: 'D:m7 G:7 C:maj7 C:m7 F:7 Bb:maj7' },
+    ],
+  },
+  {
+    id: 'mediants', name: 'Chromatic mediants', cards: [
+      { t: 'What they are', s: 'thirds apart, same quality', b: [
+        'Two chords of the same quality with roots a major or minor 3rd apart, where one is outside the key. They share only one note.',
+        '- From C: E, A♭, A and E♭ major',
+        '- (Em and Am are the diatonic mediants: they share two notes)',
+      ] },
+      { t: 'I → III', s: 'up a major 3rd', b: [
+        'E is the common tone; G rises to G♯ and C falls to B. Bright and lifting.',
+      ], eg: 'C → E', play: 'C:maj E:maj C:maj' },
+      { t: 'I → ♭VI', s: 'down a major 3rd', b: [
+        'C is the common tone; E falls to E♭ and G rises to A♭. Dark and epic: the film-score move.',
+      ], eg: 'C → A♭', play: 'C:maj Ab:maj C:maj' },
+      { t: 'I → VI', s: 'down a minor 3rd', b: [
+        'E is the common tone; C rises to C♯ and G rises to A. Warm.',
+      ], eg: 'C → A', play: 'C:maj A:maj C:maj' },
+      { t: 'I → ♭III', s: 'up a minor 3rd', b: [
+        'G is the common tone; E falls to E♭ and C falls to B♭. Bold and sudden.',
+      ], eg: 'C → E♭', play: 'C:maj Eb:maj C:maj' },
+      { t: 'Doubly chromatic', s: 'no common tone', b: [
+        'Change the quality as well and nothing is shared: every voice moves by a half or whole step.',
+        '- C → A♭m: eerie, ominous',
+        '- C → E♭m',
+      ], play: 'C:maj Ab:min C:maj' },
+      { t: 'How they work', s: 'voice leading, not function', b: [
+        'Hold the common tone and move the other voices by step. They don’t pull anywhere; they shift the light.',
+        '- Modulate to a far key in one move',
+        '- Surprise before going home: I – ♭VI – I',
+        '- Over each chord, play its own key (E Lydian over E in C, say)',
+      ] },
+      { t: 'Major-3rd cycles', s: 'Coltrane changes', b: [
+        'Split the octave into three major 3rds and reach each key with its own V7.',
+        '- B – D7 – G – B♭7 – E♭: the start of “Giant Steps”',
+        '- The bridge of “Have You Met Miss Jones” moves through major 3rds too',
+      ], play: 'B:maj7 D:7 G:maj7 Bb:7 Eb:maj7' },
+    ],
+  },
+  {
+    id: 'voicelead', name: 'Harmony and voice leading', cards: [
+      { t: 'Three jobs', s: 'function', b: [
+        '- <b>Tonic</b> (I, iii, vi): home',
+        '- <b>Predominant</b> (ii, IV): leaving home',
+        '- <b>Dominant</b> (V, vii°): the pull back',
+        'Most progressions go tonic → predominant → dominant → tonic.',
+      ], play: 'C:maj7 F:maj7 G:7 C:maj7' },
+      { t: 'Root motion', s: 'how the bass moves', b: [
+        '- <b>Down a 5th</b>: the strongest (ii – V – I)',
+        '- <b>Down a 3rd</b>: soft, two notes shared (I – vi – IV – ii)',
+        '- <b>Up a step</b>: bold (IV – V, ♭VI – ♭VII – I)',
+        '- <b>Down a step</b>: rock and modal (I – ♭VII – ♭VI)',
+      ] },
+      { t: 'The tritone in V7', s: 'where the pull comes from', b: [
+        'G7’s 3rd and 7th, B and F, are a tritone apart. B rises to C and F falls to E. That one move is the whole engine of the dominant.',
+      ], play: 'G:7 C:maj' },
+      { t: 'Guide tones and shells', s: '3rds and 7ths', b: [
+        'The 3rd and 7th tell you what the chord is. Root and 5th can go, since the bass has the root.',
+        '- Root, 3rd and 7th is a shell voicing: the jazz comping skeleton',
+      ] },
+      { t: 'Common tones', s: 'move like a choir', b: [
+        'Keep the notes two chords share. Move the others by the smallest step.',
+        'Pros voice-lead from chord to chord instead of jumping from grip to grip.',
+      ] },
+      { t: 'The top line', s: 'the melody your chords make', b: [
+        'The highest note is what people hear as the tune. Choose voicings so the top voice moves by step, and use contrary motion against the bass.',
+      ] },
+      { t: 'Pedal point', s: 'one note held under moving chords', b: [
+        'Hold the bass (often 5 or 1) while the chords change above it: tension that resolves when the bass finally moves.',
+      ], eg: 'Over a G bass: C/G – F/G – G7 – C', play: 'C:maj/5 G:9sus4 G:7 C:maj7' },
+      { t: 'Upper-structure triads', s: 'a triad over a 3–7 shell', b: [
+        'Over G7 (B and F):',
+        '- A triad: 9, ♯11, 13 (Lydian dominant)',
+        '- E triad: 13, ♭9, 3 (13♭9)',
+        '- E♭ triad: ♭13, root, ♯9 (altered)',
+        '- D♭ triad: ♭5, ♭7, ♭9',
+      ], play: 'G:13 G:13b9 G:7alt C:maj7' },
+      { t: 'IV/V', s: 'the sus dominant', b: [
+        'F/G = G9sus4: a dominant with no tritone, so no pull. Soft and open.',
+        '- “Maiden Voyage” is built on sus chords',
+      ], play: 'G:9sus4 G:7 C:maj7' },
+      { t: 'Quartal voicings', s: 'stacked 4ths', b: [
+        'Open and modal, with no strong 3rd.',
+        '- The “So What” voicing: three 4ths and a major 3rd, e.g. D G C F A for Dm11',
+      ] },
+      { t: 'Cadences', s: 'how a phrase ends', b: [
+        '- <b>Authentic</b>: V → I',
+        '- <b>Plagal</b>: IV → I or iv → I (the “amen”)',
+        '- <b>Half</b>: stop on V',
+        '- <b>Deceptive</b>: V → vi',
+      ] },
+    ],
+  },
+  {
+    id: 'other', name: 'Other chords worth knowing', cards: [
+      { t: 'V7♯5 / V+', s: 'passing into I', b: [
+        'The ♯5 (D♯) rises to the 3rd of I (E).',
+        '- Whole-tone or altered scale over it',
+      ], eg: 'In C: G7♯5 → C', play: 'D:m7 G:7#5 C:maj7' },
+      { t: 'Line clichés', s: 'one voice moving inside a chord', b: [
+        '- Major: I – I+ – I6 – I7 (G – G♯ – A – B♭ in C), often into IV',
+        '- Minor: i – i(maj7) – i7 – i6 (C – B – B♭ – A in Cm)',
+        '- “My Funny Valentine” opens on the minor one',
+      ], play: 'C:m C:mMaj7 C:m7 C:m6' },
+      { t: 'V7sus4', s: 'IV/V', b: [
+        'A soft dominant with no pull. It often goes to V7 and then I, or straight to I.',
+      ], eg: 'In C: G7sus4 = F/G', play: 'G:7sus4 G:7 C:maj7' },
+      { t: 'Picardy third', s: 'a major I in a minor key', b: [
+        'End a minor-key piece on a major tonic: sudden light.',
+      ], eg: 'In A minor: … E7 → A major', play: 'A:min D:m7 E:7 A:maj' },
+      { t: 'IV7 in minor', s: 'from Dorian', b: [
+        'Dorian’s major 6th gives the minor key a major IV.',
+        '- i7 – IV7 vamp: “Oye Como Va”',
+      ], eg: 'In A minor: Am7 – D7', play: 'A:m7 D:9 A:m7 D:9' },
+      { t: 'V7♭9 in minor', s: 'from harmonic minor', b: [
+        'The raised 7th (G♯ in A minor) gives the minor key a real dominant.',
+        '- Phrygian dominant over it',
+      ], eg: 'In A minor: E7♭9 → Am', play: 'A:m7 B:m7b5 E:7b9 A:m7' },
+      { t: 'Augmented sixths', s: '♭VI → V, classical names', b: [
+        'In C, going to G. Each has A♭ and F♯, which open out to the G octave:',
+        '- Italian: A♭ C F♯',
+        '- French: A♭ C D F♯',
+        '- German: A♭ C E♭ F♯ (sounds like A♭7: the tritone sub of D7)',
+      ], play: 'Ab:7 G:maj C:maj' },
+      { t: 'The Neapolitan', s: '♭II, usually in first inversion', b: [
+        'A predominant from Phrygian: ♭II → V → i. Its ♭2 falls through the leading tone to the tonic.',
+      ], eg: 'In C minor: D♭/F – G7 – Cm', play: 'Db:maj/3 G:7 C:min' },
+      { t: 'Tonic colours', s: 'what jazz players end on', b: [
+        '- Major: maj7, 6, 6/9, maj9 (not the 11)',
+        '- Minor: m6, m(maj7), m9 (Dorian or melodic minor)',
+      ], play: 'D:m7 G:13 C:6/9' },
+      { t: '7♯9', s: 'the blues dominant', b: [
+        'Major and minor 3rd at once: the ♯9 is the blue note against the 3rd.',
+        '- Over a I7 in a blues, or a V7 going to minor',
+      ], eg: 'E7♯9', play: 'E:7#9 A:7 E:7#9' },
+    ],
+  },
+  {
+    id: 'map', name: 'Chord-scale map', cards: [
+      { t: 'maj7', s: 'Ionian or Lydian', b: [
+        '- Ionian on I',
+        '- Lydian on IV, ♭VI, ♭II and ♭VII',
+        '- Avoid the 4th on I: it clashes with the 3rd',
+      ] },
+      { t: 'm7', s: 'Dorian, Aeolian or Phrygian', b: [
+        '- Dorian on ii, on borrowed iv, on v',
+        '- Aeolian on vi',
+        '- Phrygian on iii',
+      ] },
+      { t: 'Dominant 7', s: 'it depends where it goes', b: [
+        '- Pulling to major: Mixolydian',
+        '- Pulling to minor: Phrygian dominant, altered or half-whole',
+        '- Not pulling: Lydian dominant',
+      ] },
+      { t: 'ø7, °7, m(maj7)', s: 'the rest', b: [
+        '- ø7: Locrian, or Locrian ♮2',
+        '- °7: whole-half',
+        '- m(maj7): melodic minor',
+      ] },
+      { t: 'The modes of major', s: 'where they come from', b: [
+        'Each mode is the major scale started on one of its degrees. From brightest to darkest, with the note that defines each:',
+        '- Lydian (4th): ♯4',
+        '- Ionian (1st)',
+        '- Mixolydian (5th): ♭7',
+        '- Dorian (2nd): ♮6 in a minor mode',
+        '- Aeolian (6th): ♭6',
+        '- Phrygian (3rd): ♭2',
+        '- Locrian (7th): ♭5',
+      ] },
+      { t: 'Harmonic minor’s 5th mode', s: 'Phrygian dominant', b: [
+        'The one harmonic-minor mode you need: 1 ♭2 3 4 5 ♭6 ♭7. It’s the V7♭9 of a minor key.',
+      ], eg: 'E Phrygian dominant over E7♭9 → Am' },
+      { t: 'Avoid notes', s: 'pass through, don’t land', b: [
+        'A note a half step above a chord tone clashes when held:',
+        '- The 4th over a major chord (above the 3rd)',
+        '- The ♭6 over an Aeolian m7 (above the 5th), which is why Dorian is the default minor',
+        '- The 4th over a dominant 7, unless it’s sus',
+      ] },
+    ],
+  },
+];

@@ -85,3 +85,41 @@ button.on { color: var(--amber); border-color: rgba(255, 181, 71, 0.6); backgrou
 #simple.v .row .bpm { white-space: nowrap; font-size: 13.5px; }
 #simple.v .row .sq { width: 34px; flex: none; padding: 8px 0; }
 #simple.v .row .bpm { flex: 1; min-width: 0; font-size: 13px; }
+
+/* the switch between the neck and the cards */
+.tab { font: 600 12px var(--f-ui); letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px; color: var(--violet); border-color: rgba(185, 162, 255, 0.4); background: rgba(185, 162, 255, 0.08); vertical-align: middle; margin-left: 8px; }
+#simple.v header h1 .tab { margin-left: 6px; }
+
+/* Cards: one big card, tap for the next, swipe to flick */
+#simple.cards { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; max-width: 640px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+#simple.cards header { flex: none; align-items: center; }
+#simple.cards header .tab { margin-left: 0; }
+.cbar { flex: none; display: flex; gap: 8px; margin-bottom: 12px; }
+.cbar select { flex: 1; min-width: 0; padding: 10px 30px 10px 12px; font-size: 14px; }
+.cbar button { flex: none; font-size: 14px; }
+.stage { flex: 1; min-height: 0; position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: pointer; }
+.card { position: absolute; inset: 0; overflow-y: auto; padding: 22px 20px 20px; border-radius: 24px; border: 1px solid var(--line2);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  display: flex; flex-direction: column; will-change: transform; }
+.card.from-r { animation: cin-r .22s ease-out; }
+.card.from-l { animation: cin-l .22s ease-out; }
+@keyframes cin-r { from { transform: translateX(28%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes cin-l { from { transform: translateX(-28%); opacity: 0; } to { transform: none; opacity: 1; } }
+.cdeck { font: 600 11.5px var(--f-ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.card h2 { margin: 14px 0 4px; font: 600 30px/1.12 var(--f-num); color: var(--text); }
+.csrc { color: var(--violet); font-size: 15px; margin-bottom: 4px; }
+.cbody { color: var(--soft); font-size: 16.5px; line-height: 1.5; margin-top: 10px; }
+.cbody p { margin: 0 0 10px; }
+.cbody b { color: var(--text); }
+.cbody ul { margin: 0 0 10px; padding-left: 20px; }
+.cbody li { margin: 0 0 6px; }
+.cbody li::marker { color: var(--amber); }
+.ceg { margin-top: auto; padding-top: 14px; font: 600 18px/1.35 var(--f-num); color: var(--amber); }
+.hear { margin-top: 14px; display: flex; gap: 10px; align-items: center; text-align: left; font-size: 14px; color: var(--soft); padding: 12px 14px; }
+.ceg + .hear { margin-top: 10px; }
+.cbody + .hear { margin-top: auto; }
+.hear span { color: var(--amber); font-size: 15px; }
+.cfoot { flex: none; display: flex; align-items: center; gap: 12px; margin-top: 12px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.cprog { flex: 1; height: 4px; border-radius: 4px; background: var(--surface2); overflow: hidden; }
+.cprog i { display: block; height: 100%; background: var(--amber); transition: width .2s; }
+.acc { font-family: var(--f-ui); font-weight: 500; font-size: 0.86em; margin: 0 0.02em; }
