@@ -103,6 +103,21 @@ the neck".
 
 (Scales played on the neck are mode 5, the Mode Tester.)
 
+## 1z. Inversions Game (added 2026-11-23)
+
+There's nothing to set: the big Play card on Home starts it. It tells you which inversions to play, in a teacher's
+order:
+1. Close triads on the top sets.
+2. Close triads on every set and in CAGED areas.
+3. Spread triads.
+4. Drop 2 7ths on the top sets.
+5. Drop 2 everywhere, and drop 3.
+6. Everything, with morph chains.
+
+Morphs come in gradually: none at level 1, about 1 in 5 from level 2, about 1 in 3 from level 5. Clean on 8 of the
+last 10 prompts at your level opens the next. About a third of prompts are review from earlier levels, weighted to
+fuzzy ones. Answers go to Shapes' fuzzy items.
+
 ## 2. Chord Finder (diatonic chords, against the clock)
 
 A key comes up, such as **"A♭ major"**. You build its seven chords as fast as you can. For each degree, tap a root

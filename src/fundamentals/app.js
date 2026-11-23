@@ -13,9 +13,11 @@ import miplayer from './miplayer.js';
 import chordscales from './chordscales.js';
 import context from './context.js';
 import progressions from './progressions.js';
+import game, { LEVELS, gameLevel } from './game.js';
 
 const MODES = [shapes, chordscales, finder, formulas, modetest, intervals, context, progressions, miquiz, miplayer];
-const BY = Object.fromEntries(MODES.map((m) => [m.id, m]));
+const ALLM = [game, ...MODES];
+const BY = Object.fromEntries(ALLM.map((m) => [m.id, m]));
 const $app = document.getElementById('fun');
 const S = C.state();
 const esc = C.esc;
@@ -45,6 +47,7 @@ function home() {
   $app.innerHTML = `
     <header class="top"><h1>Fundamentals</h1>
       <div class="sub">${pts ? `${pts.toLocaleString()} points today` : 'The things to know cold.'}</div></header>
+    <button class="mode play" id="game"><b>▶ ${esc(game.title)}</b><span>Level ${gameLevel() + 1} of ${LEVELS.length}: ${esc(LEVELS[gameLevel()].name)}. Nothing to set, just play.</span></button>
     <div class="modes">${MODES.map((m) => {
       const n = fz.filter((x) => x.mode === m.id).length;
       return `<button class="mode" data-mode="${m.id}"><b>${esc(m.title)}</b><span>${esc(m.blurb)}</span>${n ? `<i class="fz">${n} fuzzy</i>` : ''}</button>`;
@@ -54,6 +57,7 @@ function home() {
       <button class="big ghost" id="settings">Settings</button>
     </div>`;
   $app.querySelectorAll('[data-mode]').forEach((b) => (b.onclick = () => setup(BY[b.dataset.mode])));
+  $app.querySelector('#game').onclick = () => { A.unlockAudio(); start(game, cfgFor(game), false); };
   $app.querySelector('#fuzzy').onclick = fuzzy;
   $app.querySelector('#settings').onclick = settings;
 }
@@ -123,7 +127,8 @@ function chooseQuestion() {
     mode = BY[item.mode];
     if (mode.keyed) keyPc = C.pickKeyPc(s.lastKey);
   } else if (mode.next) {
-    ({ item, keyPc } = mode.next(ctxBase(), s.pool));
+    // a game's pool grows as levels open, so it's built fresh each time
+    ({ item, keyPc } = mode.next(ctxBase(), mode.dynamic ? mode.pool(s.cfg) : s.pool));
   } else {
     item = C.pickItem(s.pool, s.recent);
     if (mode.keyed) keyPc = C.pickKeyPc(s.lastKey);
@@ -235,7 +240,8 @@ function drill(q, cfg) {
       S.days[C.today()] = (S.days[C.today()] || 0) + gained; C.save();
       $('pts').textContent = s.points.toLocaleString();
       const st = $('streak'); st.textContent = `×${s.streak}`; st.classList.toggle('on', s.streak > 1);
-      $('result').innerHTML = res.clean ? `<span class="good">+${gained}</span>${s.streak > 2 ? ` · streak ${s.streak}` : ''}` : `<span class="miss">No points</span>${res.why ? ` · ${res.why}` : ' · marked fuzzy'}`;
+      const note = mode.onResult ? mode.onResult(q, res) : '';
+      $('result').innerHTML = (note ? `${note}<br>` : '') + (res.clean ? `<span class="good">+${gained}</span>${s.streak > 2 ? ` · streak ${s.streak}` : ''}` : `<span class="miss">No points</span>${res.why ? ` · ${res.why}` : ' · marked fuzzy'}`);
       if (res.auto && res.clean) { const id = setTimeout(next, res.delay || 700); cleanup = () => clearTimeout(id); ctx.buttons([{ label: 'Next', kind: 'go', on: next }]); return; }
       const btns = [];
       if (res.show && !revealed) btns.push({ label: 'Show answer', kind: 'ghost', on: () => { ctx.reveal(res.show()); ctx.buttons([{ label: 'Next', kind: 'go', on: next }]); } });

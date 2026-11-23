@@ -34,7 +34,7 @@ export const MORPHS = {
   m7b5: [['dim7', 'lower the ♭7 to 𝄫7'], ['m7', 'raise the ♭5 to 5']],
 };
 MORPHS.dim = MORPHS.dim.slice(0, 1);
-const MORPH_P = { never: 0, some: 0.35, often: 0.7 };
+const MORPH_P = { never: 0, rare: 0.2, some: 0.35, often: 0.7 };
 
 export default {
   id: 'shapes',
