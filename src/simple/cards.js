@@ -262,46 +262,195 @@ export const DECKS = [
       { t: 'V of something else', s: 'what they are', b: [
         'Any diatonic chord (not vii°) can have its own V7. It borrows that chord’s leading tone, and these <b>do pull</b>: the root falls a 5th.',
         '- V7/ii = VI7, V7/iii = VII7, V7/IV = I7, V7/V = II7, V7/vi = III7',
-      ], eg: 'In C: A7, B7, C7, D7, E7' },
+        '<b>Spot one</b>: a dominant 7th on any degree but the 5th. Its giveaway is a note from outside the key. Usually that’s the 3rd (C♯, D♯, F♯, G♯), the target’s leading tone, which rises to the target’s root. For I7 it’s the ♭7 (B♭), which falls to the target’s 3rd.',
+      ], eg: 'In C: A7, B7, C7, D7, E7', ex: [
+        ['A7 → Dm7, then E7 → Am7, then D7 → G7', 'C:maj7 A:7 D:m7 E:7 A:m7 D:7 G:7 C:maj7'],
+        ['C7 → F: the one whose new note falls', 'C:maj7 C:7 F:maj7'],
+      ] },
+      { t: 'Which chords get one', s: 'in major and in minor', b: [
+        '<b>Major</b> has five: of ii, iii, IV, V and vi. The I already has the real V7, and vii° can’t be a target: a diminished chord can’t feel like home.',
+        '<b>Minor</b> has five too. In A minor:',
+        '- V7/III = G7 (→ C), V7/iv = A7 (→ Dm), V7/V = B7 (→ E)',
+        '- V7/VI = C7 (→ F), V7/♭VII = D7 (→ G)',
+        'G7 → C is just ♭VII7 → III: the minor key’s trip to its relative major.',
+      ], ex: [
+        ['In A minor: i – V7/iv – iv', 'A:m7 A:7 D:m7 E:7b9 A:m7'],
+        ['In A minor: V7/III → III, the relative major', 'A:m7 D:m7 G:7 C:maj7'],
+        ['In A minor: V7/V → V7 → i', 'A:m7 B:7 E:7 A:m7'],
+      ] },
       { t: 'Which tensions?', s: 'it depends on the target', b: [
         '- Going to a <b>minor</b> chord: 7♭9, ♭13 (Phrygian dominant, from the target’s harmonic minor)',
         '- Going to a <b>major</b> chord: 9, 13 (Mixolydian)',
         'The target’s key decides the scale.',
+        '<b>The pro shortcut</b>: take the tensions from the key you’re in. In C:',
+        '- A7: 9 (B), ♭13 (F); ♭9 (B♭) for the darker pull into Dm',
+        '- B7: ♭9 (C), ♭13 (G)',
+        '- C7 and D7: 9 and 13 (D, A; E, B)',
+        '- E7: ♭9 (F), ♯9 (G), ♭13 (C): all three are C-major notes',
+      ], ex: [
+        ['Into minor targets: A7♭9 → Dm7, E7♭9 → Am7', 'C:maj7 A:7b9 D:m7 E:7b9 A:m7'],
+        ['Into major targets: C9 → F, D13 → G', 'C:maj7 C:9 F:maj7 D:13 G:13 C:maj7'],
+        ['E7 with the key’s own tensions (♯9 ♭13) → Am', 'C:maj7 E:7#9b13 A:m7'],
       ] },
-      { t: 'V7/ii', s: 'VI7', b: [
-        'C♯, its 3rd, leads up to D.',
-        '- I – VI7 – ii – V: the most common turnaround in jazz',
-      ], eg: 'In C: A7♭9 → Dm7', play: 'C:maj7 A:7b9 D:m7 G:7 C:maj7' },
-      { t: 'V7/iii', s: 'VII7', b: [
+      { t: 'V7/ii', s: 'VI7', chord: 'A:7b9', b: [
+        'C♯, its 3rd, leads up to D. Its ♭9 (B♭) falls to A, the 5th of Dm, and its 7th (G) falls to F, Dm’s 3rd.',
+        '- I – VI7 – ii – V: the most common turnaround in jazz, and bars 1–2 of rhythm changes',
+        '- Swap it for C♯°7 (A7♭9 without the A) or E♭7 (its tritone sub)',
+        '- It can be a whole bar or just beat 3 of the I bar',
+      ], eg: 'In C: A7♭9 → Dm7', ex: [
+        ['I – VI7 – ii – V', 'C:maj7 A:7b9 D:m7 G:7 C:maj7'],
+        ['iii – VI7 – ii – V', 'E:m7 A:7b9 D:m7 G:7 C:maj7'],
+        ['With its own ii: Eø7 – A7♭9 – Dm7', 'E:m7b5 A:7b9 D:m7'],
+        ['C♯°7 in place of A7: the bass climbs C – C♯ – D', 'C:maj7 C#:dim7 D:m7 G:7 C:maj7'],
+        ['E♭7, its tritone sub: the bass falls E – E♭ – D', 'E:m7 Eb:7#11 D:m7 G:7 C:maj7'],
+      ] },
+      { t: 'V7/iii', s: 'VII7', chord: 'B:7b9', b: [
         'The most outside-sounding one: D♯ and F♯ are both foreign to C.',
-      ], eg: 'In C: B7♭9 → Em7', play: 'C:maj7 B:7b9 E:m7' },
-      { t: 'V7/IV', s: 'I7', b: [
+        'Its root (B) is in the key, so the bass doesn’t leave home; only the harmony above does.',
+        '- Its ♭9 is C, the tonic: hold C on top as the chord changes under it',
+        '- Since iii is a weak target, it usually keeps going: VII7 – iii – VI7 – ii – V – I',
+        '- In a minor key it’s simply V7/V (B7 → E7 → Am)',
+      ], eg: 'In C: B7♭9 → Em7', ex: [
+        ['B7♭9 → Em7', 'C:maj7 B:7b9 E:m7'],
+        ['With its own ii: F♯ø7 – B7♭9 – Em7', 'F#:m7b5 B:7b9 E:m7'],
+        ['VII7 – iii – VI7 – ii – V – I: the long way home', 'B:7b9 E:m7 A:7 D:m7 G:7 C:maj7'],
+        ['IV – VII7 – iii – vi', 'F:maj7 B:7b9 E:m7 A:m7'],
+      ] },
+      { t: 'V7/IV', s: 'I7', chord: 'C:9', b: [
         'The tonic grows a ♭7, and B♭ leads down to A.',
         '- Bar 4 of the blues',
-      ], eg: 'In C: C7 → Fmaj7', play: 'C:maj7 C:9 F:maj7' },
-      { t: 'V7/V', s: 'II7', b: [
+        '<b>Special</b>: it’s the I chord with one note changed (B → B♭). That makes it the easiest way to leave home for IV.',
+        '- Its ii is the borrowed v (Gm7): Gm7 – C7 – F',
+        '- Gospel gives it a ♯9 or ♭9 for grit',
+        '- Watch the melody: a B in the tune clashes with C7’s B♭',
+      ], eg: 'In C: C7 → Fmaj7', ex: [
+        ['C – C9 – F', 'C:maj7 C:9 F:maj7'],
+        ['With its own ii (the borrowed v): Gm7 – C7 – F', 'G:m7 C:7 F:maj7'],
+        ['I – I7 – IV – iv – I', 'C:maj7 C:9 F:maj7 F:m6 C:maj7'],
+        ['With the 3rd in the bass: C – C7/E – F', 'C:maj C:7/3 F:maj'],
+        ['Gospel grit: C – C7♯9 – F9', 'C:6/9 C:7#9 F:9'],
+      ] },
+      { t: 'V7/V', s: 'II7', chord: 'D:9', b: [
         'F♯ leads up to G.',
         '- II7 – V7 – I',
-      ], eg: 'In C: D9 → G7 → C', play: 'C:maj7 D:9 G:13 C:maj7' },
-      { t: 'V7/vi', s: 'III7', b: [
+        'The most common one of all: the classical “V of V” before almost every big cadence.',
+        '<b>Special</b>: it can go to ii instead of V. The 3rd sinks F♯ → F and you get ii – V – I, a delayed resolution. In jazz tunes, II7 often holds for two bars before that happens.',
+        '- In first inversion (D7/F♯) the bass climbs F – F♯ – G: IV – II7/3 – V',
+      ], eg: 'In C: D9 → G7 → C', ex: [
+        ['II7 – V7 – I', 'C:maj7 D:9 G:13 C:maj7'],
+        ['With its own ii: Am7 – D7 – G7 – C', 'A:m7 D:9 G:7 C:maj7'],
+        ['Two bars of II7, then ii – V: F♯ sinks to F', 'C:maj7 C:maj7 D:9 D:9 D:m7 G:7 C:maj7'],
+        ['IV – II7/F♯ – V: the bass climbs a half step at a time', 'F:maj D:7/3 G:7 C:maj'],
+      ] },
+      { t: 'V7/vi', s: 'III7', chord: 'E:7b9', b: [
         'G♯ leads up to A.',
         '- “All of Me” is the textbook: I – III7 – VI7 – ii',
-      ], eg: 'In C: E7♭9 → Am7', play: 'C:maj7 E:7b9 A:m7' },
+        '<b>Pop’s favourite</b>: IV – III7 – vi (F – E7 – Am). The G♯ makes the vi feel like an arrival.',
+        '- All its altered tensions are in the key (♭9 F, ♯9 G, ♭13 C), so E7♭9, E7♯9 and E7alt all sound natural here',
+        '- Deceptive: E7 can go to F instead of Am, and the G♯ still rises, to A',
+      ], eg: 'In C: E7♭9 → Am7', ex: [
+        ['E7♭9 → Am7', 'C:maj7 E:7b9 A:m7'],
+        ['The “All of Me” shape: I – III7 – VI7 – ii', 'C:6 E:7 A:7 D:m7'],
+        ['With its own ii: Bø7 – E7♭9 – Am', 'B:m7b5 E:7b9 A:m7'],
+        ['IV – III7 – vi', 'F:maj7 E:7b9 A:m7 A:m7'],
+        ['Deceptive: E7 → F instead of Am', 'C:maj7 E:7b9 F:maj7'],
+      ] },
+      { t: 'The rules', s: 'how they behave', b: [
+        '- <b>The 3rd rises</b> a half step to the target’s root (C♯ → D)',
+        '- <b>The 7th falls</b> a step to the target’s 3rd (G → F)',
+        '- <b>Harmonic rhythm</b>: the dominant goes on a weak beat or the second half of the bar, and the target lands on the downbeat',
+        '- <b>Check the melody</b>: if the tune holds the note the dominant raises (C while you play A7), you get a ♯9. Make that A7♯9 on purpose, or stay diatonic (Am7)',
+        '- <b>Don’t stack too many</b>: one or two in a phrase sound like colour; one on every chord sounds like a new key',
+      ], ex: [
+        ['The two moving voices: A7 → Dm', '=A2 G3 C#4 | D3 F3 D4', 'A7 → Dm'],
+        ['The same two voices, E7 → Am', '=E2 D3 G#3 | A2 C3 A3', 'E7 → Am'],
+      ] },
       { t: 'Add its ii', s: 'the related ii', b: [
         'Put a ii in front of a secondary dominant and you get a ii–V into that chord.',
         '- Before major: iim7 – V7 (Am7 – D7 → G)',
         '- Before minor: iiø7 – V7♭9 (Bø7 – E7♭9 → Am)',
-      ], play: 'B:m7b5 E:7b9 A:m7 D:m7 G:7 C:maj7' },
+        'Each pair is a short trip to another key. Solo over Eø7 – A7♭9 as “a bar of D minor”, and over Am7 – D7 as “a bar of G”.',
+        '- Often the ii is already there: in C – Em7 – A7 – Dm7, the Em7 becomes Eø7 or stays',
+      ], ex: [
+        ['Into Am: Bø7 – E7♭9 – Am7, then home', 'B:m7b5 E:7b9 A:m7 D:m7 G:7 C:maj7'],
+        ['Into G: Am7 – D7 – G7 – C', 'C:maj7 A:m7 D:7 G:7 C:maj7'],
+        ['Into F: Gm7 – C7 – Fmaj7', 'C:maj7 G:m7 C:7 F:maj7'],
+        ['Into Em: F♯ø7 – B7♭9 – Em7', 'C:maj7 F#:m7b5 B:7b9 E:m7'],
+      ] },
+      { t: 'Deceptive resolutions', s: 'when they don’t land where expected', b: [
+        'A secondary dominant can surprise. The leading tone still resolves, just inside a different chord:',
+        '- <b>E7 → F</b> (V/vi → IV): G♯ rises to A, the 3rd of F',
+        '- <b>A7 → B♭</b> (V/ii → ♭VII): C♯ rises to D, the 3rd of B♭',
+        '- <b>D7 → Dm7</b> (V/V → ii): the 3rd sinks instead and the ii–V carries on',
+        '- <b>E7 → A7 → D7</b>: one dominant into another (next card)',
+      ], ex: [
+        ['E7 → Fmaj7', 'C:maj7 E:7b9 F:maj7 G:7 C:maj7'],
+        ['A7 → B♭maj7 → C', 'C:maj7 A:7b9 Bb:maj7 C:maj7'],
+        ['D7 → Dm7 – G7 – C', 'C:maj7 D:7 D:m7 G:7 C:maj7'],
+      ] },
       { t: 'Extended dominants', s: 'dominants into dominants', b: [
-        'III7 – VI7 – II7 – V7 – I: each one resolves to another dominant, roots falling in 5ths.',
+        'III7 – VI7 – II7 – V7 – I: each one resolves to another dominant, roots falling in 5ths, so nothing settles until I.',
         '- “Sweet Georgia Brown”, and the bridge of rhythm changes',
-      ], eg: 'In C: E7 – A7 – D7 – G7 – C', play: 'E:7 A:7 D:7 G:7 C:maj7' },
+        '- The ragtime progression: I – III7 – VI7 – II7 – V7 – I',
+        '- Start anywhere in the chain: VI7 – II7 – V7 – I is just the last three links',
+        '- Put the ii in front of any of them: E7 – Em7 A7 – Am7 D7 – Dm7 G7 – C',
+      ], eg: 'In C: E7 – A7 – D7 – G7 – C', ex: [
+        ['III7 – VI7 – II7 – V7 – I', 'E:7 A:7 D:7 G:7 C:maj7'],
+        ['The ragtime progression', 'C:maj E:7 A:7 D:7 G:7 C:maj'],
+        ['VI7 – II7 – V7 – I, one chord a bar, two bars each', 'A:7 A:7 D:7 D:7 G:7 G:7 C:maj7 C:maj7'],
+        ['With each ii added', 'B:m7 E:7 E:m7 A:7 A:m7 D:7 D:m7 G:7 C:maj7'],
+        ['With every other one tritone-subbed', 'E:7 Eb:7#11 D:7 Db:7#11 C:maj7'],
+      ] },
       { t: 'The guide-tone chain', s: 'why extended dominants sound smooth', b: [
-        'The 3rd and 7th take turns falling a half step:',
+        'Between two dominants a 5th apart, <b>both</b> guide tones fall a half step at once. The 3rd becomes the next chord’s 7th, and the 7th becomes the next 3rd:',
         '- E7 (G♯, D) → A7 (G, C♯)',
         '- → D7 (F♯, C) → G7 (F, B)',
-        'Two notes, each moving a fret at a time. Play just those on two strings.',
-      ], play: 'E:7 A:7 D:7 G:7 C:maj7' },
+        '- → Cmaj7 (E, B): into a major I the 7th falls and the 3rd holds',
+        '<b>On the guitar</b>: D on the G string (7th fret) and G♯ on the B string (9th fret). Then move both down one fret per chord: 6/8, 5/7, 4/6. It’s one tritone shape sliding down the neck.',
+        '- Add the root on the low strings and you have shell voicings, a complete comping part',
+        '- As a solo line, play one voice: G♯ – G – F♯ – F – E, one note per chord, on the downbeat',
+        'In a ii–V–I it’s different: one voice holds while the other falls (Dm7 F C → G7 F B → Cmaj7 E B).',
+      ], ex: [
+        ['Just the guide tones, one fret at a time', '=D4 G#4 | C#4 G4 | C4 F#4 | B3 F4 | B3 E4', 'E7 · A7 · D7 · G7 · Cmaj7'],
+        ['With the roots: shells', '=E2 D4 G#4 | A2 C#4 G4 | D3 C4 F#4 | G2 B3 F4 | C3 B3 E4', 'E7 · A7 · D7 · G7 · Cmaj7'],
+        ['ii – V – I: one holds, one falls', '=D3 C4 F4 | G2 B3 F4 | C3 B3 E4', 'Dm7 · G7 · Cmaj7'],
+        ['The whole chain, full chords', 'E:7 A:7 D:7 G:7 C:maj7'],
+      ] },
+      { t: 'Their °7s', s: 'the leading-tone version', b: [
+        'Every secondary dominant has a °7 that does the same job: its 3rd, 5th, 7th and ♭9, built a half step below the target.',
+        '- C♯°7 → Dm, D♯°7 → Em, E°7 → F, F♯°7 → G, G♯°7 → Am',
+        'Use the °7 when you want the bass to climb by half steps (C – C♯ – D), the dominant when you want it to fall in 5ths.',
+      ], ex: [
+        ['C – C♯°7 – Dm7 – D♯°7 – Em7', 'C:maj7 C#:dim7 D:m7 D#:dim7 E:m7'],
+        ['F – F♯°7 – C/G: the gospel climb', 'F:maj7 F#:dim7 C:maj/5 G:7 C:maj7'],
+        ['G7 – G♯°7 – Am7: the bass climbs G – G♯ – A', 'C:maj7 G:7 G#:dim7 A:m7'],
+      ] },
+      { t: 'Soloing over them', s: 'change one note', b: [
+        'Keep playing the key, and change the note the chord changes. In C:',
+        '- <b>A7</b>: C → C♯ (D harmonic minor from A)',
+        '- <b>B7</b>: D → D♯ and F → F♯ (E harmonic minor from B)',
+        '- <b>C7</b>: B → B♭ (F major)',
+        '- <b>D7</b>: F → F♯ (G major)',
+        '- <b>E7</b>: G → G♯ (A harmonic minor from E)',
+        'Land the changed note on the chord, then resolve it on the target: C♯ → D, G♯ → A, B♭ → A.',
+      ], ex: [
+        ['The changed note, resolving: C♯ over A7 → D over Dm', '=A2 G3 C#4 E4 | E5 | C#5 | D3 F3 A3 | D5', 'A7 → Dm'],
+        ['G♯ over E7 → A over Am', '=E2 D3 G#3 B3 | B4 | G#4 | A2 E3 C4 | A4', 'E7 → Am'],
+      ] },
+      { t: 'Killer examples', s: 'where you’ll hear them', b: [
+        '- <b>“All of Me”</b>: I – III7 – VI7 – ii, two bars each',
+        '- <b>Rhythm changes bridge</b>: III7 – VI7 – II7 – V7, two bars each',
+        '- <b>“Sweet Georgia Brown”</b>: VI7 – II7 – V7 – I, four bars each',
+        '- <b>“Take the A Train”</b>: I – II7 – ii – V, the II7 held for two bars',
+        '- <b>The blues</b>: I7 in bar 4 is V7/IV',
+        '- <b>Pop ballads</b>: IV – III7 – vi',
+      ], ex: [
+        ['“All of Me” shape', 'C:6 C:6 E:7 E:7 A:7 A:7 D:m7 D:m7'],
+        ['Rhythm changes bridge', 'E:7 E:7 A:7 A:7 D:7 D:7 G:7 G:7'],
+        ['“Sweet Georgia Brown” shape', 'A:7 D:7 G:7 C:maj7'],
+        ['“Take the A Train” shape', 'C:6 C:6 D:7#11 D:7#11 D:m7 G:7 C:6'],
+        ['IV – III7 – vi', 'F:maj7 E:7 A:m7'],
+      ] },
     ],
   },
   {
@@ -733,30 +882,6 @@ const MORE = [
     ['G – A7 – Am7 – A♭7 – G (“Ipanema”)', 'G:maj7 A:7#11 A:m7 Ab:7#11 G:maj7'],
     ['I – II7 – IV – I', 'G:maj A:7 C:maj G:maj'],
     ['G – A7♯11 vamp: the sound of Lydian', 'G:maj7 A:7#11 G:maj7 A:7#11'],
-  ]],
-  ['secdom', 'V7/ii', [
-    ['I – VI7 – ii – V', 'C:maj7 A:7b9 D:m7 G:7 C:maj7'],
-    ['iii – VI7 – ii – V', 'E:m7 A:7b9 D:m7 G:7 C:maj7'],
-    ['With its own ii: Eø7 – A7♭9 – Dm7', 'E:m7b5 A:7b9 D:m7'],
-  ]],
-  ['secdom', 'V7/iii', [
-    ['B7♭9 → Em7', 'C:maj7 B:7b9 E:m7'],
-    ['With its own ii: F♯ø7 – B7♭9 – Em7', 'F#:m7b5 B:7b9 E:m7'],
-    ['VII7 – iii – VI7 – ii – V – I: the long way home', 'B:7b9 E:m7 A:7 D:m7 G:7 C:maj7'],
-  ]],
-  ['secdom', 'V7/IV', [
-    ['C – C9 – F', 'C:maj7 C:9 F:maj7'],
-    ['With its own ii (the borrowed v): Gm7 – C7 – F', 'G:m7 C:7 F:maj7'],
-    ['I – I7 – IV – iv – I', 'C:maj7 C:9 F:maj7 F:m6 C:maj7'],
-  ]],
-  ['secdom', 'V7/V', [
-    ['II7 – V7 – I', 'C:maj7 D:9 G:13 C:maj7'],
-    ['With its own ii: Am7 – D7 – G7 – C', 'A:m7 D:9 G:7 C:maj7'],
-  ]],
-  ['secdom', 'V7/vi', [
-    ['E7♭9 → Am7', 'C:maj7 E:7b9 A:m7'],
-    ['The “All of Me” shape: I – III7 – VI7 – ii', 'C:6 E:7 A:7 D:m7'],
-    ['With its own ii: Bø7 – E7♭9 – Am', 'B:m7b5 E:7b9 A:m7'],
   ]],
   ['tritone', '♭II7 → I', [
     ['Dm7 – D♭7 – C', 'D:m7 Db:7#11 C:maj7'],
@@ -2048,7 +2173,7 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'chordmelody'), 0, {
       '<b>Solo</b>: C major, but over A7 play D harmonic minor (A Phrygian dominant): C becomes C♯, with B♭ as the ♭9.',
     ] },
     { t: 'Dominant chain', s: 'level 4 · the rhythm-changes bridge', comp: { chart: 'E:7 | A:7 | D:7 | G:7', bpm: 90 }, b: [
-      '<b>Comp</b>: the 3rd and 7th of each chord; they take turns falling a half step (G♯ D → G C♯ → F♯ C → F B).',
+      '<b>Comp</b>: the 3rd and 7th of each chord; both fall a half step at every change, swapping roles (G♯ D → G C♯ → F♯ C → F B).',
       '<b>Solo</b>: Mixolydian on each chord, and play its 3rd on beat 1: G♯, C♯, F♯, B.',
     ] },
     { t: 'The blues', s: 'level 4 · 12 bars in C', comp: { chart: 'C:7 | F:7 | C:7 | C:7 | F:7 | F:7 | C:7 | A:7 | D:m7 | G:7 | C:7 A:7 | D:m7 G:7', bpm: 100 }, b: [
@@ -2371,3 +2496,288 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'bass') + 1, 0, {
     ], ex: [['D/C, F/G, C/E as played', '=C3 A3 D4 F#4 | G2 F3 A3 C4 F4 | E2 C3 E3 G3 C4 E4', 'x3x232 – 3x3211 – 032010']] },
   ],
 });
+
+// ---------- modulation: the ways to change key, after the chromatic mediants ----------
+DECKS.splice(DECKS.findIndex((d) => d.id === 'voicelead'), 0, {
+  id: 'modulation', name: 'Changing key', cards: [
+    { t: 'Visit or move?', s: 'tonicisation vs modulation', b: [
+      'A secondary dominant <b>visits</b> a chord for a moment, and home doesn’t change. That’s tonicisation.',
+      'A modulation <b>moves</b> home: the new tonic is confirmed with a cadence (ii–V–I or V–I), and you stay long enough to feel it.',
+      '- One V–I is a visit; a ii–V–I and a few bars there is a move',
+      '- The melody helps: once it uses the new key’s notes (F♯ for G), the ear accepts the move',
+    ], ex: [
+      ['A visit: C – A7 – Dm7 – G7 – C', 'C:maj7 A:7 D:m7 G:7 C:maj7'],
+      ['A move to G, confirmed', 'C:maj7 F:maj7 A:m7 D:7 G:maj7 C:maj7 A:m7 D:7 G:maj7'],
+    ] },
+    { t: 'Closely related keys', s: 'one note away', b: [
+      'Keys a sharp or flat apart, and their relative minors, share six of their seven notes. From C:',
+      '- <b>Am</b>: no new notes',
+      '- <b>G</b> and <b>Em</b>: F♯',
+      '- <b>F</b> and <b>Dm</b>: B♭',
+      'Moves to them sound smooth, almost like nothing happened. Bridges and second themes often go to IV, V or vi.',
+    ], ex: [
+      ['C → G, through D7', 'C:maj7 A:m7 D:7 G:maj7'],
+      ['C → F, through C7', 'C:maj7 G:m7 C:7 F:maj7'],
+      ['C → Em, through B7', 'C:maj7 F#:m7b5 B:7b9 E:m7'],
+    ] },
+    { t: 'The pivot chord', s: 'one chord, two keys', b: [
+      'Find a chord that belongs to both keys. The ear hears it in the old key, and the next chord reveals it in the new one.',
+      '- <b>C → G</b>: Am is vi in C and ii in G',
+      '- <b>C → F</b>: Dm is ii in C and vi in F',
+      '- <b>C → Am</b>: Dm is ii in C and iv in Am',
+      'The recipe: old key, pivot, the new key’s V7, land and stay. Choose a pivot that’s a predominant (ii or IV) in the new key, so its V follows naturally.',
+    ], ex: [
+      ['C → G: C – F – Am (pivot) – D7 – G', 'C:maj7 F:maj7 A:m7 D:7 G:maj7'],
+      ['C → F: C – Dm (pivot) – Gm7 – C7 – F', 'C:maj7 D:m7 G:m7 C:7 F:maj7'],
+      ['C → Am: C – F – Dm (pivot) – E7 – Am', 'C:maj7 F:maj7 D:m7 E:7b9 A:m7'],
+    ] },
+    { t: 'Straight to the new ii–V', s: 'the jazz way', b: [
+      'No pivot needed: the new key’s ii–V is strong enough to sell it by itself. Standards do this all the time.',
+      '- The ii–V doesn’t have to relate to the old key at all',
+      '- The further the key, the more you rely on the ii–V and the melody to make it convincing',
+      '- To minor keys, use iiø7 – V7♭9',
+    ], ex: [
+      ['C → E♭: Fm7 – B♭7 – E♭', 'C:maj7 F:m7 Bb:7 Eb:maj7'],
+      ['C → A: Bm7 – E7 – A', 'C:maj7 B:m7 E:7 A:maj7'],
+      ['C → D♭: E♭m7 – A♭7 – D♭', 'C:maj7 Eb:m7 Ab:7 Db:maj7'],
+      ['C → F♯m: G♯ø7 – C♯7♭9 – F♯m', 'C:maj7 G#:m7b5 C#:7b9 F#:m7'],
+    ] },
+    { t: 'The truck-driver’s change', s: 'up a step for the last chorus', b: [
+      'Pop’s favourite lift: the whole song moves up a half or whole step for the final chorus.',
+      '- <b>The blunt way</b>: just jump. It works because the listener knows the tune',
+      '- <b>The smooth way</b>: end the old section on the new key’s V7 (A♭7 before D♭, A7 before D)',
+    ], ex: [
+      ['Straight up a whole step', 'C:maj F:maj G:maj C:maj D:maj G:maj A:maj D:maj'],
+      ['Up a half step, through A♭7', 'C:maj F:maj G:maj C:maj Ab:7 Db:maj Gb:maj Ab:maj Db:maj'],
+      ['Up a whole step, through A7', 'C:maj F:maj G:maj A:7 D:maj G:maj A:maj D:maj'],
+    ] },
+    { t: 'Common-tone modulation', s: 'hold one note, move the rest', b: [
+      'Keep one note sounding while the harmony shifts under it. The held note makes even a distant key feel connected.',
+      '- C → E♭ keeps G; C → A♭ keeps C',
+      '- C → E keeps E; C → A keeps E',
+      'These are the chromatic mediants. Hold the note on top, then confirm the new key with a cadence.',
+    ], ex: [
+      ['C → E♭, G held on top', '=C3 G3 E4 G4 | Eb3 Bb3 Eb4 G4', 'C → E♭'],
+      ['C → A♭, C held on top', '=C3 G3 E4 C5 | Ab2 Eb4 Ab4 C5', 'C → A♭'],
+      ['Then confirm A♭: C – A♭ – D♭ – E♭7 – A♭', 'C:maj Ab:maj Db:maj Eb:7 Ab:maj'],
+    ] },
+    { t: 'Parallel: major ↔ minor', s: 'same tonic, new mode', b: [
+      'Keep the tonic and switch the mode: C major → C minor. E, A and B become E♭, A♭ and B♭.',
+      '- A bar of it is modal interchange; staying there is a modulation',
+      '- Minor → major is the brighter turn, the Picardy third stretched into a whole section',
+    ], ex: [
+      ['C major, then C minor', 'C:maj7 F:maj7 G:7 C:maj7 C:m7 F:m7 G:7b9 C:m6'],
+      ['A minor, then A major', 'A:m7 D:m7 E:7 A:m7 A:maj7 D:maj7 E:7 A:maj7'],
+    ] },
+    { t: 'Relative: major ↔ minor', s: 'same notes, new home', b: [
+      'C major and A minor share every note, so the move is about which chord feels like home.',
+      '- <b>To the minor</b>: you need its V7 with the raised 7th (E7, with G♯). Without it, Am just sounds like vi',
+      '- <b>To the major</b>: G7 → C does it; the minor’s ♭III becomes I',
+    ], ex: [
+      ['C → Am: E7 makes it real', 'C:maj7 F:maj7 B:m7b5 E:7b9 A:m7'],
+      ['Am → C: G7 does it', 'A:m7 D:m7 G:7 C:maj7'],
+      ['Without E7, Am is just vi', 'C:maj7 F:maj7 G:7 A:m7'],
+    ] },
+    { t: 'The °7 pivot', s: 'one chord, four keys', b: [
+      'Any note of a °7 can be the leading tone, so one °7 leads to four keys a minor 3rd apart.',
+      '- B°7 (B D F A♭) → C (B leads), E♭ (D leads), G♭ (F leads), A (A♭ = G♯ leads)',
+      'Arrive in the old key, play the °7, and resolve it into whichever key you want. Then confirm with a cadence.',
+    ], ex: [
+      ['B°7 → C: home', 'C:maj7 B:dim7 C:maj7'],
+      ['B°7 → E♭, confirmed', 'C:maj7 B:dim7 Eb:maj7 F:m7 Bb:7 Eb:maj7'],
+      ['B°7 → A, confirmed', 'C:maj7 B:dim7 A:maj7 B:m7 E:7 A:maj7'],
+    ] },
+    { t: 'The German-sixth pivot', s: 'a dominant in disguise', b: [
+      'A♭7 is V7 of D♭. Respell its G♭ as F♯ and it’s a German sixth in C: A♭ falls to G, F♯ rises to G.',
+      '- <b>D♭ → C</b>: in D♭, A♭7 is V7; heard as a German sixth, it goes to C/G – G7 – C',
+      '- <b>C → D♭</b>: in C, ♭VI7 (A♭7) can turn out to be D♭’s V7',
+      'It’s a half-step modulation that sounds inevitable, because the chord is the same.',
+    ], ex: [
+      ['D♭ → C: A♭7 as a German sixth', 'Db:maj Gb:maj Ab:7 C:maj/5 G:7 C:maj'],
+      ['C → D♭: A♭7 as V7 of D♭', 'C:maj F:maj Ab:7 Db:maj'],
+    ] },
+    { t: 'Sequences', s: 'the same phrase in a new key', b: [
+      'Play a phrase, then play it again a step lower (or higher). The repetition is the preparation: the ear expects the pattern.',
+      '- <b>“Tune Up”</b>: ii–V–I in D, then C, then B♭',
+      '- <b>“How High the Moon”</b>: G, then F, then E♭, each reached with a ii–V',
+      '- The ii–V chain drill (round the cycle) is the same idea',
+    ], ex: [
+      ['“Tune Up” shape: D, C, B♭', 'E:m7 A:7 D:maj7 D:maj7 D:m7 G:7 C:maj7 C:maj7 C:m7 F:7 Bb:maj7 Bb:maj7'],
+      ['“How High the Moon” shape: G, F, E♭', 'G:maj7 G:m7 C:7 F:maj7 F:m7 Bb:7 Eb:maj7'],
+    ] },
+    { t: 'Where tunes go', s: 'common destinations', b: [
+      '- <b>To IV</b> for the bridge: I7 → IV, or a ii–V into IV (“Satin Doll”)',
+      '- <b>Up a half step</b>: the bridge of “Body and Soul” (D♭ → D)',
+      '- <b>By major 3rds</b>: the bridge of “Have You Met Miss Jones” (B♭ → G♭ → D), and “Giant Steps”',
+      '- <b>Down a whole step</b>: sequences (“Tune Up”)',
+      '- <b>To the relative or parallel minor</b>, for a darker middle section',
+    ], ex: [
+      ['To IV and on: Gm7 – C7 – F, Am7 – D7 – G', 'C:maj7 G:m7 C:7 F:maj7 A:m7 D:7 G:7'],
+      ['Up a half step: D♭ → D', 'Eb:m7 Ab:7 Db:maj7 E:m7 A:7 D:maj7'],
+      ['By major 3rds: B♭ → G♭ → D, then back', 'Bb:maj7 Ab:m7 Db:7 Gb:maj7 E:m7 A:7 D:maj7 G:m7 C:7'],
+    ] },
+    { t: 'Getting back', s: 'make it stick, then come home', b: [
+      'A new key only feels real after a cadence and a few bars. Getting home uses the same tools in reverse.',
+      '- The commonest way home: the old key’s ii–V, however far away you went',
+      '- Or reverse the pivot: a chord the two keys share, then home’s V7',
+      '- A °7 or a common tone works just as well on the way back',
+    ], ex: [
+      ['Out to E♭ and back', 'C:maj7 F:m7 Bb:7 Eb:maj7 Eb:maj7 D:m7 G:7 C:maj7'],
+      ['Out to G and back, Am7 pivoting both ways', 'C:maj7 A:m7 D:7 G:maj7 A:m7 D:m7 G:7 C:maj7'],
+    ] },
+  ],
+});
+
+// ---------- extra body lines and examples for the cards that were too thin ----------
+// [deck, title, { b: lines appended, ex: examples appended, cap: a caption for the card's own play when ex is added }]
+const SPRUCE = [
+  ['reharm', 'Backdoor', { b: [
+    'Swap ii – V for iv7 – ♭VII7. Both come from the parallel minor, and they land on I from a whole step below instead of a 5th above.',
+    '- Fm7 → B♭7: A♭ holds (it becomes B♭7’s 7th), E♭ falls to D',
+    '- B♭7 → C: A♭ falls to G, D rises to E',
+    '- Check the melody: a B or an A clashes with these chords',
+  ], ex: [['As a turnaround: C – Fm7 – B♭7 – C', 'C:maj7 F:m7 Bb:9 C:maj7'], ['Just the ♭VII7: Dm7 – B♭7 – C', 'D:m7 Bb:7 C:maj7']] }],
+  ['tritone', 'Sub the ii as well', { b: [
+    'A♭m7 – D♭7 is the ii–V of G♭; it just sidesteps to C instead.',
+    '- In a row, the subbed ii–Vs walk down by half steps: Em7 A7 | E♭m7 A♭7 | Dm7 D♭7 | C',
+  ], cap: 'A♭m7 – D♭7 – C', ex: [['A ii–V, then the same a half step down', 'A:m7 D:7 Ab:m7 Db:7 C:maj7'], ['Chromatic ii–Vs down to C', 'E:m7 A:7 Eb:m7 Ab:7 D:m7 Db:7 C:maj7']] }],
+  ['tritone', 'Chromatic chains', { b: [
+    '- Or sub the other half: B♭7 – A7 – A♭7 – G7 – C',
+    '- Or all of them: B♭7 – E♭7 – A♭7 – D♭7 – C (roots still falling in 5ths)',
+    'The guide tones are the same either way, so a guitarist can keep comping the original chain while the bass plays the subs.',
+  ], cap: 'E7 – E♭7 – D7 – D♭7 – C', ex: [['The other half: B♭7 – A7 – A♭7 – G7', 'Bb:7#11 A:7 Ab:7#11 G:7 C:maj7'], ['All four subbed', 'Bb:7 Eb:7 Ab:7 Db:7 C:maj7']] }],
+  ['reharm', 'Add a ii', { b: [
+    'The ii is a 5th above its V: Dm7 before G7, Am7 before D7, Bø7 before E7 (into a minor chord).',
+    '- Split a long V7 into two beats of ii and two of V, or a bar of each',
+    '- Secondary dominants take one too: C – A7 becomes C – Em7 A7',
+  ], ex: [['A chain of dominants, each given its ii', 'C:maj7 A:7 D:7 G:7 C:maj7 E:m7 A:7 A:m7 D:7 D:m7 G:7 C:maj7']] }],
+  ['other', 'Tonic colours', { b: [
+    'No natural 11 on a major I: F sits a ♭9 above the 3rd (E) and rubs. Use ♯11 for a Lydian tonic.',
+    'In minor, m7 works mid-tune, but m6 and m(maj7) sound more final.',
+  ], cap: 'Dm7 – G13 – C6/9', ex: [['Major endings: C6/9, Cmaj9, Cmaj7♯11', 'C:6/9 C:maj9 C:maj7#11'], ['Minor endings: Cm6, Cm(maj7), Cm9', 'C:m6 C:mMaj7 C:m9']] }],
+  ['solo', 'Sing it first', { b: [
+    '- Sing each chord’s root as it goes by, then its 3rd',
+    '- Then a guide-tone line: one note per chord, moving by step',
+    '- Then sing a short phrase and find it on the neck without hunting',
+  ] }],
+  ['gospel', 'The gospel turnaround', { b: [
+    'The bass walks C – E – F – F♯ – G, then falls in 5ths: A – D – G.',
+    '- I7/3 points to IV, ♯iv°7 climbs to I/5, VI7 pulls to ii',
+  ], ex: [['With gospel colours', 'C:6/9 C:7/3 F:maj9 F#:dim7 C:maj/5 A:7b9 D:m9 G:13']] }],
+  ['nopull', 'Practise it', { b: [
+    '- Then over a C drone, an F drone, and on round the keys',
+  ], cap: 'G → C7 → G → F7 → G', ex: [['G → E♭7 → G → A♭7 → G', 'G:maj7 Eb:7#11 G:maj7 Ab:7#11 G:maj7'], ['All four, back to back', 'G:maj7 C:7#11 G:maj7 F:7#11 G:maj7 Eb:7#11 G:maj7 Ab:7#11 G:maj7']] }],
+  ['gospel', 'The minor plagal “amen”', { b: [
+    'The A in F becomes A♭ in Fm, and A♭ falls to G as you land on C: the ♭6 sighing down to the 5th.',
+    '- Often over a C pedal: F/C – Fm/C – C',
+  ], ex: [['Over a C pedal', 'F:maj/5 F:min/5 C:maj']] }],
+  ['reharm', 'Start from the melody', { b: [
+    '- Melody on a chord tone: always safe',
+    '- On a 9, ♯11 or 13 (11 on a minor chord): colour',
+    '- A half step above a chord tone (F over E): a clash, unless it’s a dominant’s ♭9',
+    'Practise: take one melody note and find every chord that can hold it.',
+  ], ex: [['One melody note (E), six chords under it', '=C3 G3 B3 E4 | A2 G3 C4 E4 | F2 C3 A3 E4 | D3 F#3 C4 E4 | G2 F3 B3 E4 | Bb2 Ab3 D4 E4', 'Cmaj7 · Am7 · Fmaj7 · D9 · G13 · B♭7♯11']] }],
+  ['gospel', 'The 4 with a ♯4°', { b: [
+    'F♯°7 is a rootless D7♭9: V7/V in disguise. It resolves to C/G, which is really V with two suspended notes (the cadential 6/4), so G7 follows.',
+  ], ex: [['The full cadence: F – F♯°7 – C/G – G7 – C', 'F:maj7 F#:dim7 C:maj/5 G:7 C:maj'], ['From I7: C – C7 – F – F♯°7 – C/G', 'C:maj C:7 F:maj F#:dim7 C:maj/5']] }],
+  ['reharm', 'Diatonic substitution', { b: [
+    'Why it works: Cmaj7 (C E G B), Em7 (E G B D) and Am7 (A C E G) share most of their notes.',
+    '- Check the melody: a C in the tune rubs against Em7, but sits fine in Am7',
+  ], ex: [['I → vi on the second bar', 'C:maj7 A:m7 D:m7 G:7'], ['IV → ii', 'C:maj7 D:m7 G:7 C:maj7']] }],
+  ['gospel', 'The 1 to the 4', { b: [
+    'It’s V7/IV: B → B♭ turns home into a dominant for a beat.',
+    '- The bass often walks C – E – F: I – I7/3 – IV',
+  ], ex: [['With the 3rd in the bass: C – C7/E – F', 'C:maj C:7/3 F:maj'], ['There and back: C – C7 – F – Fm – C', 'C:maj C:7 F:maj F:min C:maj']] }],
+  ['melmin', 'Find the scale fast', { b: [
+    '- sus♭9: down a whole step',
+    'Learn melodic minor in a few shapes and you have seven chords. The most used trick: 7alt is melodic minor a half step up.',
+  ] }],
+  ['mediants', 'Doubly chromatic', { b: [
+    'C → A♭m: C falls to C♭ (B), E falls to E♭, G rises to A♭. Every voice moves by a half step.',
+  ], cap: 'C → A♭m → C', ex: [['C → E♭m → C', 'C:maj Eb:min C:maj'], ['Both, back to back', 'C:maj Ab:min C:maj Eb:min C:maj']] }],
+  ['forms', 'ABAC', { b: [
+    '- 8 bars each: A, B, A again (bar 17 is bar 1), then C heads for the final cadence',
+    '- Also “On Green Dolphin Street”, “There Will Never Be Another You”, “Out of Nowhere”',
+  ] }],
+  ['blues', 'The 8-bar blues', { b: [
+    'There’s a gospel version too: I – I7 – IV – ♯iv°7 – I/5 – VI7 – II7 V7 – I.',
+  ], ex: [['The gospel 8-bar', 'C:7 C:7 F:7 F#:dim7 C:maj/5 A:7 D:7 G:7 C:7']] }],
+  ['tritone', 'Play 7♯11 on them', { b: [
+    '- Never the natural 11 (G♭ over D♭7): it rubs against the 3rd',
+    '- The ♯11 (G) on top holds right into C',
+  ], ex: [['G held on top: D♭7♯11 → C', '=Db3 B3 F4 G4 | C3 B3 E4 G4', 'D♭7♯11 → Cmaj7'], ['ii – ♭II7♯11 – I', 'D:m7 Db:7#11 C:maj7']] }],
+  ['twofive', 'Drill it round the cycle', { b: [
+    '- Also down in whole steps: C, B♭, A♭… (two cycles of six)',
+    '- And in minor: Dø7 – G7♭9 – Cm6, then Cø7 – F7♭9 – B♭m6',
+  ], cap: 'Dm7 – G7 – Cmaj7, then Cm7 – F7 – B♭maj7', ex: [['Down in whole steps', 'D:m7 G:7 C:maj7 C:m7 F:7 Bb:maj7 Bb:m7 Eb:7 Ab:maj7'], ['Minor round the cycle', 'D:m7b5 G:7b9 C:m6 C:m7b5 F:7b9 Bb:m6']] }],
+  ['bass', 'Chromatic approach', { b: [
+    '- From below sounds like a leading tone; from above, like a tritone sub. Mix them',
+    '- Or approach by the next root’s 5th: G before C, A before D',
+  ], ex: [['A walking line, each root approached from a half step away', '=C3 | E3 | G3 | C#3 | D3 | F3 | A3 | Ab3 | G3 | F3 | D3 | Db3 | C3']] }],
+  ['gospel', '7 – 3 – 6', { b: [
+    'Bø7 – E7 – Am is a minor ii–V–i into the vi. Gospel keeps it going: 7 – 3 – 6 – 2 – 5 – 1.',
+  ], ex: [['7 – 3 – 6 – 2 – 5 – 1', 'B:m7b5 E:7b9 A:m9 D:m9 G:13 C:maj9']] }],
+  ['blues', 'The Bird blues', { b: [
+    '- Bar 1 is Imaj7, not I7, then ii–Vs fall from Bø7 – E7 to Gm7 – C7 (the V of IV)',
+    '- Bars 6–8 fall by half steps: Fm7 B♭7 | Em7 A7 | E♭m7 A♭7, into Dm7',
+  ], ex: [['Bars 9–12', 'D:m7 G:7 C:maj7 A:7 D:m7 G:7']] }],
+  ['modes', 'Lydian dominant', { b: [
+    'Put the ♯11 (F♯ over C7) on top: it’s the note that makes it Lydian dominant.',
+    '- A D triad over C (D/C) gives the 9, ♯11 and 13 in one grip',
+  ], ex: [['C9 – D/C: the triad on top', 'C:9 D:maj/b7 C:9 D:maj/b7']] }],
+  ['reharm', 'Tritone sub', { b: [
+    'Check the melody: a G over G7 becomes the ♯11 of D♭7 (fine); a D becomes D♭7’s ♭9 (harsh).',
+    '- Secondary dominants can be subbed too: A7 → E♭7',
+  ], ex: [['Subbing a secondary dominant too', 'C:maj7 Eb:7#11 D:m7 Db:7#11 C:maj7']] }],
+  ['dim', '♯iv°7 back to the tonic', { b: [
+    'C♯°7 is a rootless A7♭9, the V of V. Instead of going to D, it goes to G/D (the cadential 6/4), which is really D on the way to G.',
+  ], ex: [['Same move, carrying on: C – C♯°7 – G/D – E7 – Am7 – D7 – G', 'C:maj7 C#:dim7 G:maj/5 E:7b9 A:m7 D:7 G:maj7']] }],
+  ['solo', 'Motifs and space', { b: [
+    '- Keep the rhythm, change the notes',
+    '- Ask and answer: a phrase, then a reply to it',
+  ] }],
+  ['voicelead', 'Upper-structure triads', { b: [
+    'Play the shell (3rd and ♭7) low and the triad on top. The triad’s root names the colour: II (A) is Lydian dominant, VI (E) is 13♭9, ♭VI (E♭) and ♭V (D♭) are altered.',
+  ] }],
+  ['map', 'Harmonic minor’s 5th mode', { b: [
+    'Its ♭2 and 3 are an augmented 2nd apart (F to G♯ on E): that gap is the Spanish sound.',
+  ] }],
+  ['blues', 'The quick change', { b: [
+    '- Bar 4 often becomes I7♯9 to push into IV7 in bar 5',
+  ], ex: [['The whole 12 with the quick change', 'C:7 F:7 C:7 C:7 F:7 F:7 C:7 C:7 G:7 F:7 C:7 G:7']] }],
+  ['forms', 'Rhythm changes: the bridge', { b: [
+    '- Players often add the ii to each: Bm7 E7 | Em7 A7 | Am7 D7 | Dm7 G7',
+    '- Or tritone-sub every other one: E7 E♭7 D7 D♭7',
+  ], ex: [['With each ii added', 'B:m7 E:7 E:m7 A:7 A:m7 D:7 D:m7 G:7 C:maj7'], ['With tritone subs', 'E:7 Eb:7#11 D:7 Db:7#11 C:maj7']] }],
+  ['bass', 'The minor bass line', { b: [
+    'The bass falls A – G – F♯ – F: a line cliché moved to the bottom. It usually carries on to E7.',
+  ], ex: [['On to E7 and home', 'A:min A:min/b7 A:min/6 F:maj7 E:7 A:min']] }],
+  ['diatonic', 'Harmonic minor’s 7ths', { b: [
+    'In C: Cm(maj7) – Dø7 – E♭maj7♯5 – Fm7 – G7 – A♭maj7 – B°7. The gap from A♭ up to B (an augmented 2nd) gives the scale its sound.',
+  ] }],
+  ['diatonic', 'Melodic minor’s 7ths', { b: [
+    'In C: Cm(maj7) – Dm7 – E♭maj7♯5 – F7 – G7 – Aø7 – Bø7.',
+  ] }],
+  ['types', '7♯5', { b: [
+    '<b>Built</b>: an augmented triad plus a ♭7. Call it ♯5 when it rises to the next chord’s 3rd, ♭13 when the 5th is there too.',
+  ], ex: [['Into minor, the ♯5 (D♯ = E♭) holds as Cm’s 3rd', 'D:m7b5 G:7#5 C:m6']] }],
+  ['forms', 'AABA', { b: [
+    '- The second A ends with a cadence home; the bridge goes elsewhere, often to IV or a key a 3rd away',
+  ] }],
+  ['reharm', 'Side-slipping', { b: [
+    'It works because every voice, bass included, moves a half step. It’s especially common into V: A♭7 → G7.',
+  ] }],
+  ['forms', 'The bridge', { b: [
+    '- To IV (“Satin Doll”), up a half step (“Body and Soul”), by major 3rds (“Have You Met Miss Jones”), or through dominants (rhythm changes)',
+  ], ex: [['A bridge to IV, then V', 'G:m7 C:7 F:maj7 F:maj7 A:m7 D:7 G:7 G:7']] }],
+  ['nopull', 'Follow the guide tones', { ex: [['E♭7 → D7 → G: both guide tones fall', 'G:maj7 Eb:7#11 D:7 G:maj7'], ['A♭7 → G: C falls to B, G♭ (= F♯) holds', 'A:m7 Ab:7#11 G:maj7']] }],
+];
+for (const [deck, title, add] of SPRUCE) {
+  const c = DECKS.find((d) => d.id === deck)?.cards.find((x) => x.t === title);
+  if (!c) { console.warn('no card', deck, title); continue; }
+  if (add.b) c.b = [...(c.b || []), ...add.b];
+  if (add.ex) {
+    const own = c.play ? [[add.cap || 'The example', c.play]] : [];
+    c.ex = [...(c.ex || []), ...own, ...add.ex]; delete c.play;
+  }
+}
