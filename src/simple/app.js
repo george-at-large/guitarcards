@@ -9,6 +9,8 @@ import * as G from '../caged/grips.js';
 import { spellRoot, typeName, esc } from '../fundamentals/core.js';
 import { mountCards } from './cardsview.js';
 import { mountSing } from './sing.js';
+import { mountSingNeck } from './singneck.js';
+import * as N from './neck.js';
 
 // ---------- chords and exercises ----------
 const CHORDS = [
@@ -150,79 +152,20 @@ function windows(r) {
   return SHAPES.map((shape) => ({ shape, ...F.cagedWindow(r, shape) })).filter((w) => w.hi <= MAXF + 1).sort((a, b) => a.lo - b.lo);
 }
 
-// ---------- the neck ----------
-// real fret spacing (each fret 1/17.817 shorter), rosewood, pearl dots, a bone nut; low E at the bottom, like tab
-const NF = MAXF;
-const fx = (f) => 1 - Math.pow(2, -f / 12);
-function neckSVG(step) {
-  const W = 1000, H = 190, padL = 34, padR = 14, top = 22, bot = 26;
-  const scale = (W - padL - padR) / fx(NF + 0.6);
-  const X = (f) => padL + fx(f) * scale;
-  const mid = (f) => (f === 0 ? padL - 15 : (X(f - 1) + X(f)) / 2);
-  const sy = (s) => top + ((s - 1) * (H - top - bot)) / 5; // string 1 (high e) at the top
-  const r = root();
-  let svg = `<svg class="neck" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMid meet" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2417"/><stop offset=".5" stop-color="#4a2e1c"/><stop offset="1" stop-color="#2f1d12"/></linearGradient>
-      <linearGradient id="fret" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a9a9a"/><stop offset=".5" stop-color="#eeeeee"/><stop offset="1" stop-color="#8a8a8a"/></linearGradient>
-      <radialGradient id="pearl"><stop offset="0" stop-color="#fbf7ee"/><stop offset="1" stop-color="#cfc6b4"/></radialGradient>
-    </defs>
-    <rect x="${padL}" y="${top - 12}" width="${X(NF + 0.6) - padL}" height="${H - top - bot + 24}" rx="4" fill="url(#wood)"/>`;
-  // the area being worked on
-  if (step && step.win) svg += `<rect x="${X(Math.max(0, step.win.lo - 1))}" y="${top - 12}" width="${X(step.win.hi) - X(Math.max(0, step.win.lo - 1))}" height="${H - top - bot + 24}" fill="rgba(255,181,71,0.10)"/>`;
-  for (const f of [3, 5, 7, 9, 15]) if (f <= NF) svg += `<circle cx="${mid(f)}" cy="${(sy(3) + sy(4)) / 2}" r="6" fill="url(#pearl)" opacity=".85"/>`;
-  if (NF >= 12) svg += `<circle cx="${mid(12)}" cy="${(sy(2) + sy(3)) / 2}" r="6" fill="url(#pearl)" opacity=".85"/><circle cx="${mid(12)}" cy="${(sy(4) + sy(5)) / 2}" r="6" fill="url(#pearl)" opacity=".85"/>`;
-  svg += `<rect x="${padL - 6}" y="${top - 12}" width="7" height="${H - top - bot + 24}" fill="#efe6d2"/>`;
-  for (let f = 1; f <= NF; f++) svg += `<rect x="${X(f) - 1.6}" y="${top - 12}" width="3.2" height="${H - top - bot + 24}" fill="url(#fret)"/>`;
-  for (let f = 1; f <= NF; f++) if ([3, 5, 7, 9, 12, 15].includes(f)) svg += `<text class="fn" x="${mid(f)}" y="${H - 6}" text-anchor="middle">${f}</text>`;
-  for (let s = 1; s <= 6; s++) svg += `<line x1="${padL - 30}" y1="${sy(s)}" x2="${X(NF + 0.6)}" y2="${sy(s)}" stroke="${s <= 3 ? '#e9e6df' : '#d9b77a'}" stroke-width="${0.9 + (s - 1) * 0.45}" opacity=".9"/>`;
-  // the chord's other notes, faint, everywhere
-  const all = F.regionNotes({ root: r, quality: S.q, region: { frets: [0, NF] } });
-  const lit = new Set((step?.notes || []).map((n) => n.string + ':' + n.fret));
-  for (const n of all) if (!lit.has(n.string + ':' + n.fret)) svg += `<circle cx="${mid(n.fret)}" cy="${sy(n.string)}" r="5" class="ghost ${role(n.iv)}"/>`;
-  // the shape
+// ---------- the neck (drawn by neck.js) ----------
+const NF = N.NF, fx = N.fx;
+// the step's shape as labelled dots, the chord's other notes faint all over the neck
+function marks(step) {
+  const all = F.regionNotes({ root: root(), quality: S.q, region: { frets: [0, NF] } });
   const bass = step && !step.arp ? Math.max(...step.notes.map((n) => n.string)) : null;
-  for (const n of step?.notes || []) {
-    const lab = S.labels === 'deg' ? T.prettyIv(n.iv) : T.noteName(n.note, true);
-    svg += `<g class="dot ${role(n.iv)}"><circle cx="${mid(n.fret)}" cy="${sy(n.string)}" r="12.5"/>${n.string === bass ? `<circle class="ring" cx="${mid(n.fret)}" cy="${sy(n.string)}" r="16"/>` : ''}<text x="${mid(n.fret)}" y="${sy(n.string) + 4.3}" text-anchor="middle">${esc(lab)}</text></g>`;
-  }
-  return svg + '</svg>';
+  return {
+    win: step?.win,
+    ghosts: all.map((n) => ({ string: n.string, fret: n.fret, cls: role(n.iv) })),
+    dots: (step?.notes || []).map((n) => ({ string: n.string, fret: n.fret, cls: role(n.iv), ring: n.string === bass, label: S.labels === 'deg' ? T.prettyIv(n.iv) : T.noteName(n.note, true) })),
+  };
 }
-// the same neck upright, for a phone held upright: the nut at the top, low E on the left (as in a chord diagram),
-// all 15 frets in view, fret numbers down the right
-function neckV(step) {
-  const W = 220, H = 860, padL = 16, padR = 30, padT = 34, padB = 8;
-  const scale = (H - padT - padB) / fx(NF + 0.6);
-  const Y = (f) => padT + fx(f) * scale;
-  const mid = (f) => (f === 0 ? padT - 17 : (Y(f - 1) + Y(f)) / 2);
-  const sx = (s) => padL + 14 + ((6 - s) * (W - padL - padR - 28)) / 5;
-  const x0 = sx(6) - 15, x1 = sx(1) + 15;
-  const r = root();
-  let svg = `<svg class="neck v" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="woodv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f1d12"/><stop offset=".5" stop-color="#4a2e1c"/><stop offset="1" stop-color="#2f1d12"/></linearGradient>
-      <linearGradient id="fretv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a8a8a"/><stop offset=".5" stop-color="#eeeeee"/><stop offset="1" stop-color="#8a8a8a"/></linearGradient>
-      <radialGradient id="pearlv"><stop offset="0" stop-color="#fbf7ee"/><stop offset="1" stop-color="#cfc6b4"/></radialGradient>
-    </defs>
-    <rect x="${x0}" y="${padT}" width="${x1 - x0}" height="${Y(NF + 0.6) - padT}" rx="4" fill="url(#woodv)"/>`;
-  if (step && step.win) svg += `<rect x="${x0}" y="${Y(Math.max(0, step.win.lo - 1))}" width="${x1 - x0}" height="${Y(step.win.hi) - Y(Math.max(0, step.win.lo - 1))}" fill="rgba(255,181,71,0.12)"/>`;
-  const cx = (sx(3) + sx(4)) / 2;
-  for (const f of [3, 5, 7, 9, 15]) if (f <= NF) svg += `<circle cx="${cx}" cy="${mid(f)}" r="6" fill="url(#pearlv)" opacity=".85"/>`;
-  svg += `<circle cx="${(sx(2) + sx(3)) / 2}" cy="${mid(12)}" r="6" fill="url(#pearlv)" opacity=".85"/><circle cx="${(sx(4) + sx(5)) / 2}" cy="${mid(12)}" r="6" fill="url(#pearlv)" opacity=".85"/>`;
-  svg += `<rect x="${x0}" y="${padT - 5}" width="${x1 - x0}" height="7" fill="#efe6d2"/>`;
-  for (let f = 1; f <= NF; f++) svg += `<rect x="${x0}" y="${Y(f) - 1.6}" width="${x1 - x0}" height="3.2" fill="url(#fretv)"/>`;
-  for (let f = 1; f <= NF; f++) if ([3, 5, 7, 9, 12, 15].includes(f)) svg += `<text class="fn" x="${W - 3}" y="${mid(f) + 4}" text-anchor="end">${f}</text>`;
-  for (let s = 1; s <= 6; s++) svg += `<line x1="${sx(s)}" y1="${padT - 30}" x2="${sx(s)}" y2="${Y(NF + 0.6)}" stroke="${s <= 3 ? '#e9e6df' : '#d9b77a'}" stroke-width="${0.9 + (s - 1) * 0.45}" opacity=".9"/>`;
-  const all = F.regionNotes({ root: r, quality: S.q, region: { frets: [0, NF] } });
-  const lit = new Set((step?.notes || []).map((n) => n.string + ':' + n.fret));
-  for (const n of all) if (!lit.has(n.string + ':' + n.fret)) svg += `<circle cx="${sx(n.string)}" cy="${mid(n.fret)}" r="5" class="ghost ${role(n.iv)}"/>`;
-  const bass = step && !step.arp ? Math.max(...step.notes.map((n) => n.string)) : null;
-  for (const n of step?.notes || []) {
-    const lab = S.labels === 'deg' ? T.prettyIv(n.iv) : T.noteName(n.note, true);
-    svg += `<g class="dot ${role(n.iv)}"><circle cx="${sx(n.string)}" cy="${mid(n.fret)}" r="13"/>${n.string === bass ? `<circle class="ring" cx="${sx(n.string)}" cy="${mid(n.fret)}" r="16.5"/>` : ''}<text x="${sx(n.string)}" y="${mid(n.fret) + 4.3}" text-anchor="middle">${esc(lab)}</text></g>`;
-  }
-  return svg + '</svg>';
-}
+const neckSVG = (step) => N.neckAcross(marks(step));
+const neckV = (step) => N.neckUpright(marks(step));
 // upright on a phone held upright; across in landscape and on wide screens
 const upright = () => window.innerHeight > window.innerWidth && window.innerWidth < 700;
 function role(iv) {
@@ -257,15 +200,24 @@ function renderCards() {
   cardsUI = mountCards($app, S, save);
 }
 function renderSing() {
+  const onPage = (pg) => { if (singUI) singUI.leave(); singUI = null; S.sing = { ...(S.sing || {}), page: pg }; save(); render(); };
+  if (S.sing?.page === 'neck') {
+    $app.className = (upright() ? 'v' : 'h') + ' singneck';
+    $app.innerHTML = `<header><h1>Simple <span class="tabs">${tabs()}</span></h1><span class="key">Sing</span></header>
+      <div class="neckbox"></div><div class="panel"></div>`;
+    bindTabs();
+    singUI = mountSingNeck($app, S, save, { upright, onPage });
+    return;
+  }
   $app.className = 'sing';
   $app.innerHTML = `<header><h1>Simple</h1><span class="tabs">${tabs()}</span></header>
     <div class="sbody"></div><div class="menus sopts"></div>`;
   bindTabs();
-  singUI = mountSing($app, S, save);
+  singUI = mountSing($app, S, save, { onPage });
 }
 function render() {
   if (S.view === 'cards') return renderCards();
-  if (S.view === 'sing') { if (singUI && $app.className === 'sing') return; return renderSing(); }
+  if (S.view === 'sing') { if (singUI) return; return renderSing(); }
   const step = steps[at];
   const r = root();
   const symb = T.pretty(T.chordSymbol(r, S.q));
@@ -415,7 +367,9 @@ steps = build();
 render();
 let lastV = upright();
 document.addEventListener('keydown', (e) => { if (S.view === 'cards' && cardsUI && !e.target.closest('select')) cardsUI.key(e.key); });
-window.addEventListener('resize', () => { if ((S.view || 'neck') === 'neck' && upright() !== lastV) { lastV = upright(); render(); } });
+window.addEventListener('resize', () => {
+  if (S.view === 'sing' && S.sing?.page === 'neck' && upright() !== lastV) { lastV = upright(); if (singUI) { singUI.leave(); singUI = null; } render(); return; }
+  if ((S.view || 'neck') === 'neck' && upright() !== lastV) { lastV = upright(); render(); } });
 // sound can only start from a tap (iOS): Click and Drone left on pick up again on the first tap
 document.addEventListener('pointerdown', () => {
   if (S.view === 'sing' && singUI) singUI.wake();

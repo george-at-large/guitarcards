@@ -1,0 +1,131 @@
+// Sing on the neck: a first note appears on the neck and sounds; the next notes appear, labelled by interval (from the
+// first note) or by name, and stay silent. Sing them, play them, then Check plays the lot so you can hear if you were
+// right. Anywhere on the neck or inside one CAGED area; any interval (chromatic) or only a scale's notes.
+import * as T from '../theory.js';
+import * as F from '../fretboard.js';
+import * as A from '../audio.js';
+import { esc } from '../fundamentals/core.js';
+import { TIERS, TIER_NAMES, scaleName, formula } from '../fundamentals/scaledata.js';
+import * as N from './neck.js';
+
+const CHROM = ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'];
+const NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const SHAPES = ['C', 'A', 'G', 'E', 'D'];
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const semis = (iv) => T.intervalSemis(iv) % 12;
+
+// the scale's notes as intervals from the root (chromatic: all twelve)
+function ivSet(scale) {
+  if (scale === 'chromatic') return CHROM;
+  const s = T.getScale(scale);
+  return s.labels || s.ivs;
+}
+// the root name that spells the scale most cleanly
+function spellRoot(pc, scale) {
+  const opts = [NAMES[pc], T.noteName(T.enharmonic(T.parseNote(NAMES[pc])))].filter((x, i, a) => a.indexOf(x) === i);
+  let best = opts[0], cost = Infinity;
+  for (const nm of opts) {
+    const r = T.parseNote(nm);
+    const c = ivSet(scale).reduce((s, iv) => { const n = T.transpose(r, iv); return s + Math.abs(n.acc) * (Math.abs(n.acc) > 1 ? 4 : 1); }, 0) + (nm.length > 1 ? 0.5 : 0);
+    if (c < cost) { cost = c; best = nm; }
+  }
+  return T.parseNote(best);
+}
+
+export function makeLine(st) {
+  const ivs = ivSet(st.scale);
+  const bySemi = new Map(ivs.map((iv) => [semis(iv), iv]));
+  for (let tries = 0; tries < 50; tries++) {
+    const pc = Math.floor(Math.random() * 12);
+    const root = spellRoot(pc, st.scale);
+    // the area: the whole neck, or one CAGED area of this root
+    let win = null, shape = null;
+    if (st.area === 'caged') {
+      const ok = SHAPES.map((sh) => ({ sh, w: F.cagedWindow(root, sh) })).filter(({ w }) => w.hi <= N.NF);
+      if (!ok.length) continue;
+      ({ sh: shape, w: win } = pick(ok));
+      win = { lo: Math.max(0, win.lo), hi: win.hi };
+    }
+    const lo = win ? win.lo : 0, hi = win ? win.hi : N.NF;
+    const spots = [];
+    for (let s = 1; s <= 6; s++) for (let f = lo; f <= hi; f++) spots.push({ string: s, fret: f, midi: F.midiAt(s, f) });
+    const roots = spots.filter((p) => p.midi % 12 === pc && (st.area === 'caged' || p.string >= 2));
+    if (!roots.length) continue;
+    const first = pick(roots);
+    const line = [{ ...first, iv: '1', semi: 0 }];
+    let ok = true;
+    while (line.length < st.len) {
+      const prev = line[line.length - 1];
+      // a sung leap of up to an octave, within an octave of the first note, never the same pitch twice running
+      const pitches = [...new Set(spots.map((p) => p.midi))].filter((m) => bySemi.has(((m - first.midi) % 12 + 12) % 12) && m !== prev.midi && Math.abs(m - prev.midi) <= 12 && Math.abs(m - first.midi) <= 12);
+      if (!pitches.length) { ok = false; break; }
+      const fresh = pitches.filter((x) => !line.some((n) => n.midi === x));
+      const m = pick(fresh.length && Math.random() < 0.85 ? fresh : pitches);
+      // where a player would take it: the spot nearest the last fret
+      const at = spots.filter((p) => p.midi === m).sort((a, b) => Math.abs(a.fret - prev.fret) - Math.abs(b.fret - prev.fret) || Math.random() - 0.5)[0];
+      const semi = m - first.midi;
+      line.push({ ...at, iv: bySemi.get(((semi % 12) + 12) % 12), semi });
+    }
+    if (!ok) continue;
+    // a scale keeps its own spelling; any interval gets the plainest name (G♭ not F𝄪, E not F♭)
+    const plain = (n) => (Math.abs(n.acc) > 1 || ['Cb', 'Fb', 'E#', 'B#'].includes(T.noteName(n)) ? T.enharmonic(n) : n);
+    for (const n of line) n.note = st.scale === 'chromatic' ? plain(T.transpose(root, n.iv)) : T.transpose(root, n.iv);
+    return { root, pc, win, shape, line };
+  }
+  return null;
+}
+
+// the label for a note: its interval from the first note (8 for the octave above, ↓ for below the first note) or its name
+function ivLabel(n) { return n.semi === 12 ? '8' : n.semi === -12 ? '8↓' : T.prettyIv(n.iv) + (n.semi < 0 ? '↓' : ''); }
+const noteLabel = (n) => T.noteName(n.note, true);
+
+export function mountSingNeck(root, S, save, { upright, onPage }) {
+  S.singNeck = Object.assign({ area: 'neck', labels: 'iv', len: 2, scale: 'chromatic', drone: false }, S.singNeck || {});
+  const st = S.singNeck;
+  let q = makeLine(st), checked = false, droning = false;
+  const box = root.querySelector('.neckbox'), panel = root.querySelector('.panel');
+  const lab = (n, other = false) => ((st.labels === 'iv') !== other ? ivLabel(n) : noteLabel(n));
+  const drone = () => { if (st.drone) { A.unlockAudio(); A.startDrone(40 + ((q.pc - 4 + 12) % 12), false); droning = true; } else { A.stopDrone(); droning = false; } };
+  const playFirst = () => { A.unlockAudio(); A.pluck(q.line[0].midi, A.audioCtx().currentTime + 0.05, { vel: 0.85, dur: 1.4 }); };
+  const playAll = () => {
+    A.unlockAudio();
+    const t = A.audioCtx().currentTime + 0.05;
+    q.line.forEach((n, i) => A.pluck(n.midi, t + i * 0.6, { vel: 0.85, dur: 0.7 }));
+    if (q.line.length === 2) A.strum(q.line.map((n) => n.midi), t + 1.5, { spread: 0.02, vel: 0.7 }); // and together
+  };
+  const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
+  const render = () => {
+    const dots = q.line.map((n, i) => ({ string: n.string, fret: n.fret, cls: i === 0 ? 'r' : checked ? 's' : 'x', ring: i === 0, label: lab(n), tag: q.line.length > 2 ? i + 1 : null }));
+    box.innerHTML = (upright() ? N.neckUpright : N.neckAcross)({ win: q.win, dots });
+    panel.innerHTML = `
+      <div class="seg sub"><button data-page="deg">Degrees</button><button data-page="neck" class="on">On the neck</button></div>
+      <div class="cap"><b>${q.shape ? `${esc(q.shape)} shape, frets ${q.win.lo}–${q.win.hi}` : 'Anywhere on the neck'}</b><span>${st.scale === 'chromatic' ? 'any interval' : esc(scaleName(st.scale))}</span></div>
+      <div class="nline">${q.line.map((n, i) => `<div class="${i === 0 ? 'first' : ''}"><b>${esc(lab(n))}</b>${checked ? `<span>${esc(lab(n, true))}</span>` : ''}</div>`).join('')}</div>
+      <div class="row big"><button id="nCheck" class="${checked ? 'on' : ''}">${checked ? '▶ Again' : '▶ Check'}</button></div>
+      <div class="row"><button id="nNext" class="wide">Next ▶</button></div>
+      <div class="row toggles"><button id="nFirst">▶ First</button><button id="nDrone" class="${st.drone ? 'on' : ''}">Drone</button></div>
+      <div class="menus">
+        <label><span>Area</span><select id="nArea">${[['neck', 'Whole neck'], ['caged', 'One CAGED shape']].map(([v, l]) => opt(v, l, st.area)).join('')}</select></label>
+        <label><span>Show</span><select id="nLab">${[['iv', 'Intervals'], ['note', 'Note names']].map(([v, l]) => opt(v, l, st.labels)).join('')}</select></label>
+        <label><span>Notes</span><select id="nLen">${[[2, '2: one interval'], [3, '3 notes'], [4, '4 notes'], [5, '5 notes'], [6, '6 notes']].map(([v, l]) => opt(v, l, st.len)).join('')}</select></label>
+        <label><span>Scale</span><select id="nScale">${opt('chromatic', 'Chromatic (any)', st.scale)}${['core', 'jazz'].map((t) => `<optgroup label="${TIER_NAMES[t]}">${TIERS[t].map((id) => opt(id, scaleName(id), st.scale)).join('')}</optgroup>`).join('')}</select></label>
+      </div>
+      <div class="nform">${st.scale === 'chromatic' ? 'All 12 intervals' : esc(formula(st.scale))}</div>
+      <p class="nhelp">The first note sounds. Sing the rest from it, then play them; Check plays them all.${st.labels === 'iv' ? ' Intervals are from the first note; ↓ means below it.' : ''}</p>`;
+    const $ = (id) => panel.querySelector('#' + id);
+    panel.querySelectorAll('[data-page]').forEach((b) => (b.onclick = () => onPage(b.dataset.page)));
+    $('nCheck').onclick = () => { checked = true; render(); playAll(); };
+    $('nNext').onclick = () => next();
+    $('nFirst').onclick = () => playFirst();
+    $('nDrone').onclick = () => { st.drone = !st.drone; save(); drone(); render(); };
+    const set = (id, k, num) => { $(id).onchange = (e) => { st[k] = num ? Number(e.target.value) : e.target.value; save(); next(); }; };
+    set('nArea', 'area'); set('nLab', 'labels'); set('nLen', 'len', true); set('nScale', 'scale');
+  };
+  const next = () => { q = makeLine(st); checked = false; render(); if (st.drone) drone(); playFirst(); };
+  render();
+  return {
+    render,
+    wake: () => { if (st.drone && !droning) drone(); },
+    leave: () => { A.stopDrone(); droning = false; },
+  };
+}

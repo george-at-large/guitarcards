@@ -63,7 +63,7 @@ export function makeSing(st) {
 }
 
 // ---------- the screen ----------
-export function mountSing(root, S, save) {
+export function mountSing(root, S, save, { onPage } = {}) {
   S.sing = Object.assign({ set: 'core', key: 'any', reg: 'any', len: 5, range: '13', drone: false }, S.sing || {});
   const st = S.sing;
   let q = makeSing(st), showStruct = false, showAns = false, droning = false;
@@ -81,6 +81,7 @@ export function mountSing(root, S, save) {
     const mode = `${nm(q.root)} ${scaleName(q.id)}`;
     const over = q.dir === 'over';
     root.querySelector('.sbody').innerHTML = `
+      <div class="seg sub"><button data-page="deg" class="on">Degrees</button><button data-page="neck">On the neck</button></div>
       <div class="sroot">
         <div class="snote">${acc(nm(q.root))}<span class="sreg ${over ? 'lo' : 'hi'}">${over ? 'low' : 'high'}</span></div>
         <div class="sdir">${over ? 'The root is low: sing and play <b>above</b> it' : 'The root is high: sing and play <b>below</b> it'}</div>
@@ -105,6 +106,7 @@ export function mountSing(root, S, save) {
       <label><span>Notes</span><select id="sLen">${[3, 4, 5, 6, 8].map((n) => opt(n, `${n} notes`, st.len)).join('')}</select></label>
       <label><span>Range</span><select id="sRange">${[['8', 'Up to the octave'], ['13', 'Up to the 13th']].map(([v, l]) => opt(v, l, st.range)).join('')}</select></label>`;
     const $ = (id) => root.querySelector('#' + id);
+    root.querySelectorAll('[data-page]').forEach((b) => (b.onclick = () => onPage?.(b.dataset.page)));
     $('sStruct').onclick = () => { showStruct = !showStruct; render(); };
     $('sAns').onclick = () => { showAns = !showAns; render(); };
     $('sHear').onclick = () => hear(true);

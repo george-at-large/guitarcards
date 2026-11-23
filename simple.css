@@ -210,3 +210,27 @@ h1 .tabs { margin-left: 8px; }
 .crow span { font: 600 12px var(--f-ui); color: var(--violet); }
 .crow b { font: 700 13.5px/1.1 var(--f-ui); color: var(--text); white-space: nowrap; }
 .crow b .acc, .crow span .acc { font-size: 0.9em; margin: 0; }
+
+/* Sing: the switch between its two pages */
+.seg.sub { margin: 0 0 12px; }
+.seg.sub button { padding: 9px 6px; font-size: 14px; }
+#simple.v .seg.sub { margin: 0; }
+/* Sing on the neck: the order tags, the line of labels, the scale's structure */
+.neck .tag circle { fill: #15121b; stroke: rgba(255, 255, 255, 0.5); stroke-width: 1; }
+.neck .tag text { fill: #f3f1ec; font: 700 10px var(--f-ui); }
+.neck .dot.x circle { fill: var(--violet); }
+.nline { display: flex; flex-wrap: wrap; gap: 6px; }
+.nline div { flex: 1 0 42px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--line); }
+.nline div.first { border-color: rgba(255, 181, 71, 0.6); }
+.nline b { font: 700 20px/1.1 var(--f-ui); }
+.nline div.first b { color: var(--amber); }
+.nline span { font-size: 12px; color: var(--cyan); }
+.row.big #nCheck { background: var(--amber); color: #1a1206; border-color: var(--amber); font-size: 18px; font-weight: 600; }
+.row.big #nCheck.on { background: transparent; color: var(--amber); }
+.nform { font: 600 13px var(--f-ui); color: var(--violet); letter-spacing: 0.02em; }
+.nhelp { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+#simple.singneck .menus { grid-template-columns: 1fr; }
+@media (min-width: 700px) { #simple.h.singneck .menus { grid-template-columns: repeat(4, 1fr); } }
+#simple.h.singneck .panel { display: flex; flex-direction: column; gap: 10px; }
+#simple.v .panel > * { flex: none; }
+#simple.singneck .neck rect[fill^="rgba(255,181,71"] { fill: rgba(255, 181, 71, 0.2); }
