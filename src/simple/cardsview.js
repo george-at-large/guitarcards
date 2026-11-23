@@ -82,11 +82,18 @@ const acc = (s) => String(s).replace(/[♭♯𝄫]/g, (m) => `<span class="acc">
 const DEG = { false: ['1', '2', '3', '4', '5', '6', '7'], true: ['1', '2', '♭3', '4', '5', '♭6', '♭7'] };
 const ROLE = ['r', '', 't', '', 'f', '', 's'];
 const keyRow = (k) => `<div class="krow">${k.notes.map((n, i) => `<div class="kc ${ROLE[i]}"><span>${DEG[k.minor][i]}</span><b>${acc(T.pretty(n))}</b></div>`).join('')}</div>`;
+// a chord's notes in C under their intervals, coloured by job; a row of chords under their numerals
+function chordRow(tok) {
+  const ch = T.parseChordToken(tok), ivs = T.getChord(ch.quality).ivs, notes = T.chordNotes(ch.root, ch.quality);
+  const role = (iv) => (iv === '1' ? 'r' : ['3', 'b3'].includes(iv) ? 't' : ['5', 'b5', '#5'].includes(iv) ? 'f' : ['7', 'b7', 'bb7', '6'].includes(iv) ? 's' : 'x'); // 2, 4, 9, 11, 13: colour
+  return `<div class="krow" style="grid-template-columns: repeat(${ivs.length}, minmax(0, 1fr))">${ivs.map((iv, i) => `<div class="kc ${role(iv)}"><span>${acc(T.prettyIv(iv))}</span><b>${acc(T.noteName(notes[i], true))}</b></div>`).join('')}</div>`;
+}
+const chordsRow = (row) => `<div class="crow">${row.map(([n, sym]) => `<div><span>${acc(n)}</span><b>${acc(sym)}</b></div>`).join('')}</div>`;
 function cardHTML(c) {
   if (!c) return `<div class="cdeck">&nbsp;</div><h2>That’s the deck</h2><div class="cbody"><p>Tap to go through it again.</p></div>`;
   return `<div class="cdeck">${esc(c.deck)} · ${c.n} / ${c.of}</div>
     <h2>${acc(c.t)}</h2>${c.s ? `<div class="csrc">${c.s}</div>` : ''}
-    ${c.key ? keyRow(c.key) : ''}
+    ${c.key ? keyRow(c.key) : ''}${c.chord ? chordRow(c.chord) : ''}${c.row ? chordsRow(c.row) : ''}
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
     ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}

@@ -1544,3 +1544,292 @@ for (const [deck, title, ex] of MORE2) {
   if (!c) { console.warn('no card', deck, title); continue; }
   c.ex = [...(c.ex || []), ...ex.filter(([, p]) => !(c.ex || []).some(([, q]) => q === p))]; delete c.play;
 }
+
+// ---------- the foundations, first in the contents: reading symbols, the diatonic chords, and every chord type ----------
+// `chord` puts the chord's notes and intervals on the card (in C, from the engine); `row` puts a row of chords.
+const ROW = (ids) => ids.map(([n, tok]) => { const c = T.parseChordToken(tok); return [n, T.pretty(T.chordSymbol(c.root, c.quality))]; });
+DECKS.unshift(
+  {
+    id: 'symbols', name: 'Reading chord symbols', cards: [
+      { t: 'How a symbol is built', s: 'read it left to right', b: [
+        'Root → quality → 7th → extensions → alterations → /bass.',
+        '- <b>C</b>m7♭5: root C, minor, ♭7, ♭5',
+        '- <b>G</b>7♯9: root G, dominant 7, raised 9th',
+        '- <b>F</b>maj7♯11/A: F major 7 with a ♯11, A in the bass',
+      ] },
+      { t: 'The triad', s: 'major, minor, diminished, augmented', b: [
+        '- No mark: <b>major</b> (C)',
+        '- m, min, mi or –: <b>minor</b> (Cm, C–)',
+        '- ° or dim: <b>diminished</b> (C°): ♭3 and ♭5',
+        '- + or aug: <b>augmented</b> (C+): 3 and ♯5',
+      ], ex: [['Major, minor, diminished, augmented', 'C:maj C:min C:dim C:aug']] },
+      { t: 'The bare 7 is always ♭7', s: 'three kinds of 7th', b: [
+        '- <b>7</b> alone means ♭7: C7 is a dominant 7th (C E G B♭)',
+        '- <b>maj7</b>, M7 or Δ means the major 7th: Cmaj7 (C E G B)',
+        '- On a minor chord too: Cm7 has ♭7, Cm(maj7) has the major 7th',
+        '- <b>°7</b> has a 𝄫7 (the same note as 6): C°7 is C E♭ G♭ B𝄫 (A)',
+      ], ex: [['C7, Cmaj7, Cm7, Cm(maj7), C°7', 'C:7 C:maj7 C:m7 C:mMaj7 C:dim7']] },
+      { t: 'Every way to write it', s: 'the same chord, different books', b: [
+        '- <b>Major 7</b>: Cmaj7, CM7, CΔ, CΔ7, Cma7',
+        '- <b>Minor 7</b>: Cm7, Cmin7, Cmi7, C–7',
+        '- <b>Half-diminished</b>: Cø7, Cø, Cm7♭5, C–7♭5',
+        '- <b>Diminished 7</b>: C°7, Cdim7 (often just C°)',
+        '- <b>Minor-major 7</b>: Cm(maj7), CmΔ7, C–Δ7',
+        '- <b>Augmented 7</b>: C7♯5, C+7, Caug7',
+        '- <b>Minor 6</b>: Cm6, C–6',
+      ] },
+      { t: 'Extensions bring the 7th', s: '9, 11 and 13', b: [
+        'A 9, 11 or 13 means the 7th is in the chord too; the rest of the symbol says which 7th.',
+        '- <b>C9</b>: dominant (C7 + 9)',
+        '- <b>Cmaj9</b>: maj7 + 9',
+        '- <b>Cm9</b>: m7 + 9',
+        '- <b>C13</b>: C7 + 9 + 13, with the 11 left out (it clashes with the 3rd)',
+        '- <b>C11</b>: usually played as a sus chord, B♭/C',
+      ], ex: [['C9, Cmaj9, Cm9, C13', 'C:9 C:maj9 C:m9 C:13']] },
+      { t: 'add, 6 and 6/9', s: 'colours with no 7th', b: [
+        '- <b>Cadd9</b>: the triad plus 9, no 7th (C E G D)',
+        '- <b>C6</b>: the triad plus 6 (C E G A)',
+        '- <b>C6/9</b>: plus 6 and 9, no 7th (C E G A D)',
+        '- <b>Cm6</b>: the minor triad plus the major 6th (C E♭ G A)',
+      ], ex: [['Cadd9, C6, C6/9, Cm6', 'C:add9 C:6 C:6/9 C:m6']] },
+      { t: 'sus', s: 'the 3rd replaced', b: [
+        '- <b>Csus4</b> (or Csus): the 4th instead of the 3rd',
+        '- <b>Csus2</b>: the 2nd instead of the 3rd',
+        '- <b>C7sus4, C9sus4, C13sus</b>: dominants without a 3rd (C9sus4 = B♭/C)',
+        'Cadd9 keeps the 3rd; Csus2 doesn’t.',
+      ], ex: [['Csus4 → C, Csus2 → C', 'C:sus4 C:maj C:sus2 C:maj']] },
+      { t: 'Alterations', s: '♭9, ♯9, ♯11, ♭13', b: [
+        'Written after the chord, with or without brackets: C7♭9 = C7(♭9).',
+        '- ♯11 is the same note as ♭5; ♭13 is the same as ♯5',
+        '- <b>alt</b>: any of ♭9, ♯9, ♯11, ♭13, usually with no 5th',
+        '- Older charts write – for ♭ and + for ♯: C7–9 is C7♭9, and C7+ often means C7♯5',
+      ], ex: [['C7♭9, C7♯9, C7♯11, C7♭13, C7alt', 'C:7b9 C:7#9 C:7#11 C:7b13 C:7alt']] },
+      { t: 'Slash chords', s: 'the bass note', b: [
+        '- <b>C/E</b>: C with E in the bass (an inversion)',
+        '- <b>D/C</b>: a D triad over a C bass. The bass isn’t in the chord, so it makes a new one (C Lydian)',
+        '- A chord written over another with a line (D over C7) is a polychord: both at once',
+      ], ex: [['C/E, C/G, D/C', 'C:maj/3 C:maj/5 D:maj/b7']] },
+      { t: 'Omissions', s: 'what you can leave out', b: [
+        '- <b>C5</b>: a power chord, root and 5th, no 3rd',
+        '- <b>C(no3)</b>, <b>omit5</b>: say what’s missing',
+        'In practice: the 5th goes first (unless it’s altered), the root goes if someone else plays bass. The 3rd and 7th stay, since they define the chord.',
+      ] },
+      { t: 'Roman numerals', s: 'chords by their place in the key', b: [
+        '- Upper case is major (V), lower case is minor (ii)',
+        '- ° is diminished (vii°), ø is half-diminished (viiø7), + is augmented',
+        '- ♭ or ♯ moves the root against the major scale: ♭VII in C is B♭',
+        '- V/V means “the V of V”: D7 in C',
+        '- I/3 is I with its 3rd in the bass',
+      ] },
+      { t: 'Spell any chord', s: 'every other letter, then the accidentals', b: [
+        'Stack letters in 3rds from the root (C E G B D F A), then fix each one to the formula.',
+        '- Cm7♭5: C E G B → C E♭ G♭ B♭',
+        '- A♭13: A♭ C E♭ G♭, plus B♭ (9) and F (13)',
+        '- E7♯9: E G♯ B D, plus F𝄪 (= G), the “Hendrix chord”',
+      ] },
+    ],
+  },
+  {
+    id: 'diatonic', name: 'Diatonic harmony', cards: [
+      { t: 'The major key in 7ths', s: 'stack 3rds on every note', b: [
+        'Imaj7, ii7, iii7, IVmaj7, V7, vi7, viiø7. Two maj7s, three m7s, one dominant and one ø7: every major key, the same pattern.',
+        '- As triads: I, ii, iii, IV, V, vi, vii°',
+      ], row: ROW([['I', 'C:maj7'], ['ii', 'D:m7'], ['iii', 'E:m7'], ['IV', 'F:maj7'], ['V', 'G:7'], ['vi', 'A:m7'], ['viiø', 'B:m7b5']]),
+        ex: [['Up the key', 'C:maj7 D:m7 E:m7 F:maj7 G:7 A:m7 B:m7b5 C:maj7']] },
+      { t: 'Three families', s: 'what each chord does', b: [
+        '- <b>Tonic</b>: I, iii, vi (home)',
+        '- <b>Predominant</b>: ii, IV (moving away)',
+        '- <b>Dominant</b>: V, vii (pulling back)',
+        'Chords in the same family share notes, so they can stand in for each other.',
+      ], ex: [['One family member for another: I – IV – V – I, then vi – ii – vii – iii', 'C:maj7 F:maj7 G:7 C:maj7 A:m7 D:m7 B:m7b5 E:m7']] },
+      { t: 'I', s: 'tonic: home', b: [
+        'Stable and final.',
+        '- <b>Colours</b>: maj7, 6, 6/9, maj9',
+        '- <b>Swaps</b>: iii or vi (the deceptive move), i (borrowed), I7 (to head for IV)',
+      ], ex: [
+        ['V → I, then V → vi: the deceptive swap', 'D:m7 G:7 C:maj7 D:m7 G:7 A:m7'],
+        ['I as 6/9, the jazz ending', 'D:m9 G:13 C:6/9'],
+      ] },
+      { t: 'ii', s: 'predominant', b: [
+        'The usual way into V: ii – V – I.',
+        '- <b>Swaps</b>: IV (the same job), iiø7 (borrowed, darker), II7 (V of V, brighter)',
+        '- Or ii – ♭II7 – I',
+      ], ex: [
+        ['ii, then IV, then iiø, then II7, each into V', 'D:m7 G:7 C:maj7 F:maj7 G:7 C:maj7 D:m7b5 G:7 C:maj7 D:7 G:7 C:maj7'],
+      ] },
+      { t: 'iii', s: 'a weak tonic', b: [
+        'Shares three notes with Imaj7, so it often stands in for I or starts a cycle: iii – vi – ii – V.',
+        '- <b>Swaps</b>: I; III7 (V of vi) to push on; ♭IIImaj7 (borrowed)',
+      ], ex: [
+        ['iii – vi – ii – V – I', 'E:m7 A:m7 D:m7 G:7 C:maj7'],
+        ['iii becomes III7 to push into vi', 'C:maj7 E:7 A:m7'],
+      ] },
+      { t: 'IV', s: 'predominant', b: [
+        'The bright move away from home; IV → I is the plagal (“amen”) cadence.',
+        '- <b>Swaps</b>: ii; iv (borrowed); IVmaj7♯11 for Lydian colour; IV7 in a blues; ♭VII as rock’s IV',
+      ], ex: [
+        ['IV, then iv, on the way home', 'C:maj7 F:maj7 C:maj7 F:m6 C:maj7'],
+        ['IVmaj7♯11', 'C:maj7 F:maj7#11 C:maj7'],
+      ] },
+      { t: 'V', s: 'dominant: the pull', b: [
+        'The only diatonic dominant 7. Its 3rd (the leading tone) and 7th make the tritone that resolves to I.',
+        '- <b>Swaps</b>: vii° (rootless V), ♭II7 (tritone sub), V7sus4 (soft), ♭VII7 (backdoor), V7alt (tense), or ii–V instead of V',
+      ], ex: [
+        ['V7, ♭II7, ♭VII7, V7sus4: four ways into C', 'G:7 C:maj7 Db:7#11 C:maj7 Bb:9 C:maj7 G:9sus4 C:maj7'],
+      ] },
+      { t: 'vi', s: 'the relative minor', b: [
+        'A tonic substitute with a sadder colour, and the target of the deceptive cadence.',
+        '- <b>Swaps</b>: I; ♭VI (borrowed); VI7 (V of ii) to push on',
+      ], ex: [
+        ['I – vi – ii – V, then I – VI7 – ii – V', 'C:maj7 A:m7 D:m7 G:7 C:maj7 A:7 D:m7 G:7'],
+      ] },
+      { t: 'viiø', s: 'a dominant without its root', b: [
+        'Bø7 is G9 without the G, so it works as V. More often it’s the ii of a ii–V into vi.',
+        '- <b>Swaps</b>: V7, V9; vii°7 (from harmonic minor) for more pull',
+      ], ex: [
+        ['As the ii of vi: Bø7 – E7 – Am7', 'B:m7b5 E:7b9 A:m7'],
+        ['As a soft V: Fmaj7 – Bø7 – Cmaj7', 'F:maj7 B:m7b5 C:maj7'],
+      ] },
+      { t: 'The minor key in 7ths', s: 'natural minor', b: [
+        'im7, iiø7, ♭IIImaj7, ivm7, vm7, ♭VImaj7, ♭VII7: the major key’s chords from its 6th degree.',
+        '- In practice the v becomes V7 (from harmonic minor) to get a real pull home',
+      ], row: ROW([['i', 'C:m7'], ['iiø', 'D:m7b5'], ['♭III', 'Eb:maj7'], ['iv', 'F:m7'], ['v', 'G:m7'], ['♭VI', 'Ab:maj7'], ['♭VII', 'Bb:7']]),
+        ex: [['Up the key', 'C:m7 D:m7b5 Eb:maj7 F:m7 G:m7 Ab:maj7 Bb:7 C:m7']] },
+      { t: 'Harmonic minor’s 7ths', s: 'the raised 7th', b: [
+        'Raising the 7th gives a real V7 and a vii°7, plus two unusual chords: i(maj7) and ♭IIImaj7♯5.',
+      ], row: ROW([['i', 'C:mMaj7'], ['iiø', 'D:m7b5'], ['♭III+', 'Eb:maj7#5'], ['iv', 'F:m7'], ['V', 'G:7'], ['♭VI', 'Ab:maj7'], ['vii°', 'B:dim7']]),
+        ex: [['iiø – V7 – i, then vii°7 – i', 'D:m7b5 G:7b9 C:mMaj7 B:dim7 C:mMaj7']] },
+      { t: 'Melodic minor’s 7ths', s: 'raised 6th and 7th', b: [
+        'A major IV7 (Lydian dominant), a V7, and two ø7s. The vii chord is where the altered scale comes from.',
+      ], row: ROW([['i', 'C:mMaj7'], ['ii', 'D:m7'], ['♭III+', 'Eb:maj7#5'], ['IV', 'F:7'], ['V', 'G:7'], ['viø', 'A:m7b5'], ['viiø', 'B:m7b5']]),
+        ex: [['i – IV7 – i: the bright minor', 'C:mMaj7 F:9 C:m6 F:9']] },
+      { t: 'Minor keys mix all three', s: 'what players actually use', b: [
+        '- <b>i</b>: m7, m6 or m(maj7)',
+        '- <b>iiø7</b> and <b>V7</b> (harmonic minor) for the cadence',
+        '- <b>iv7</b>, or <b>IV7</b> (Dorian or melodic minor)',
+        '- <b>♭III</b>, <b>♭VI</b>, <b>♭VII</b> from natural minor',
+        '- <b>vii°7</b> as another dominant',
+      ], ex: [['i – ♭VI – iiø – V7 – i', 'C:m7 Ab:maj7 D:m7b5 G:7b9 C:m6']] },
+    ],
+  },
+  {
+    id: 'types', name: 'Chord types and their jobs', cards: [
+      { t: 'Major', s: 'C', chord: 'C:maj', b: [
+        '<b>Lives on</b>: I, IV, V in major; ♭III, ♭VI, ♭VII in minor.',
+        '<b>Job</b>: home, or a bright pillar.',
+        '<b>Swap for</b>: maj7, 6 or add9 on I and IV; V7 on V.',
+      ], ex: [['I – IV – V – I', 'C:maj F:maj G:maj C:maj']] },
+      { t: 'Minor', s: 'Cm', chord: 'C:min', b: [
+        '<b>Lives on</b>: ii, iii, vi in major; i, iv, v in minor.',
+        '<b>Job</b>: predominant (ii), tonic substitute (iii, vi), or the minor home.',
+        '<b>Swap for</b>: m7, m9, m6 or madd9.',
+      ], ex: [['vi – IV – I – V', 'A:min F:maj C:maj G:maj']] },
+      { t: 'Diminished triad', s: 'C°', chord: 'C:dim', b: [
+        '<b>Lives on</b>: vii° in major, ii° in minor.',
+        '<b>Job</b>: a dominant without its root (B° is G7 without G), or a passing chord.',
+        '<b>Swap for</b>: V7; °7 or ø7.',
+      ], ex: [['IV – vii° – I', 'F:maj B:dim C:maj'], ['ii° – V – i in minor', 'D:dim G:7 C:min']] },
+      { t: 'Augmented', s: 'C+', chord: 'C:aug', b: [
+        '<b>Lives on</b>: ♭III+ in harmonic and melodic minor. Symmetrical: it repeats every 4 frets.',
+        '<b>Job</b>: passing tension; its ♯5 rises.',
+        '<b>Swap for</b>: V+ or V7♯5 instead of V; I+ in a line cliché.',
+      ], ex: [['V+ → I', 'G:aug C:maj'], ['I – I+ – I6 – I7 → IV', 'C:maj C:aug C:6 C:7 F:maj']] },
+      { t: 'sus4 and sus2', s: 'Csus4, Csus2', chord: 'C:sus4', b: [
+        '<b>Job</b>: hold back the 3rd. sus4 wants to fall to the 3rd; sus2 is an open colour that doesn’t need to resolve.',
+        '<b>Swap for</b>: any major triad (and sus2 for minor too, since it has no 3rd); V7sus4 for V.',
+      ], ex: [['Csus4 → C, then Gsus4 → G', 'C:sus4 C:maj G:sus4 G:maj C:maj'], ['Open sus2 colours', 'C:sus2 F:sus2 G:sus2 C:sus2']] },
+      { t: 'Power chord', s: 'C5', chord: 'C:5', b: [
+        '<b>Job</b>: rock and metal riffs. With no 3rd it’s neither major nor minor, so distortion stays clean and it fits either kind of key.',
+      ], ex: [['I – ♭III – IV', 'C:5 Eb:5 F:5 C:5']] },
+      { t: 'maj7', s: 'Cmaj7', chord: 'C:maj7', b: [
+        '<b>Lives on</b>: I and IV in major; ♭III and ♭VI in minor.',
+        '<b>Job</b>: a soft tonic (I) or predominant (IV).',
+        '<b>Swap for</b>: on I: 6, 6/9, maj9, iii7, vi7. On IV: ii7, iv7, maj7♯11.',
+      ], ex: [['Imaj7 – IVmaj7', 'C:maj7 F:maj7 C:maj7 F:maj7'], ['IVmaj7 → IVmaj7♯11', 'F:maj7 F:maj7#11 C:maj7']] },
+      { t: '6', s: 'C6', chord: 'C:6', b: [
+        '<b>Lives on</b>: I and IV.',
+        '<b>Job</b>: the swing-era tonic. Same notes as vi7 with I in the bass (C6 = Am7/C).',
+        '<b>Swap for</b>: maj7 or 6/9 on I.',
+      ], ex: [['ii – V – I6', 'D:m7 G:7 C:6']] },
+      { t: '6/9', s: 'C6/9', chord: 'C:6/9', b: [
+        '<b>Job</b>: the richest major tonic without a 7th: no clashes, rings forever. A favourite final chord.',
+        '<b>Swap for</b>: maj7 or 6 on I or IV.',
+      ], ex: [['Ending on 6/9', 'D:m9 G:13 C:6/9']] },
+      { t: 'add9', s: 'Cadd9', chord: 'C:add9', b: [
+        '<b>Job</b>: pop and rock colour on any major chord, with no jazz 7th.',
+        '<b>Swap for</b>: a plain triad; sus2 if you want it more open.',
+      ], ex: [['I – V – vi – IV with add9s', 'C:add9 G:maj A:min F:add9']] },
+      { t: 'Dominant 7', s: 'C7', chord: 'C:7', b: [
+        '<b>Lives on</b>: V in major (the only one), V in harmonic minor, IV and V in melodic minor. Every other dominant is borrowed or secondary.',
+        '<b>Job</b>: pull to the chord a 5th down; or blues colour (I7, IV7); or a floating colour.',
+        '<b>Swap for</b>: ♭II7, vii°7, V7sus4, ♭VII7 (backdoor), V7alt, or ii–V in place of V.',
+      ], ex: [['V7 → I, then the tritone sub', 'D:m7 G:7 C:maj7 D:m7 Db:7 C:maj7'], ['Blues: I7 – IV7', 'C:7 F:7 C:7']] },
+      { t: 'm7', s: 'Cm7', chord: 'C:m7', b: [
+        '<b>Lives on</b>: ii, iii, vi in major; i, iv, v in natural minor; ii in melodic minor.',
+        '<b>Job</b>: ii is predominant; iii and vi are tonic substitutes; i is the minor home.',
+        '<b>Swap for</b>: on ii: IV, iiø7, II7. On vi: I, ♭VI, VI7. On iii: I, III7.',
+      ], ex: [['iii – vi – ii – V', 'E:m7 A:m7 D:m7 G:7 C:maj7']] },
+      { t: 'm6', s: 'Cm6', chord: 'C:m6', b: [
+        '<b>Lives on</b>: i in Dorian and melodic minor; borrowed iv6 in major.',
+        '<b>Job</b>: the jazz minor tonic. Same notes as a ø7 a minor 3rd down (Cm6 = Aø7).',
+        '<b>Swap for</b>: m(maj7), m7 or m9 on i; iiø7 for iv6.',
+      ], ex: [['iiø – V – i6', 'D:m7b5 G:7b9 C:m6'], ['IV – iv6 – I in major', 'F:maj7 F:m6 C:maj7']] },
+      { t: 'm(maj7)', s: 'Cm(maj7)', chord: 'C:mMaj7', b: [
+        '<b>Lives on</b>: i in harmonic and melodic minor.',
+        '<b>Job</b>: a minor tonic with a sting, and the second chord of the minor line cliché.',
+        '<b>Swap for</b>: m6, m7, m9 on i.',
+      ], ex: [['The minor line cliché', 'C:min C:mMaj7 C:m7 C:m6']] },
+      { t: 'ø7 (m7♭5)', s: 'Cø7', chord: 'C:m7b5', b: [
+        '<b>Lives on</b>: vii in major; ii in natural and harmonic minor; vi and vii in melodic minor.',
+        '<b>Job</b>: the ii of a minor ii–V; in major, a V9 without its root.',
+        '<b>Swap for</b>: iv6 (the same notes: Dø7 = Fm6); m7 for a brighter ii.',
+      ], ex: [['iiø – V7♭9 – i', 'D:m7b5 G:7b9 C:m6'], ['viiø – III7 – vi in major', 'B:m7b5 E:7b9 A:m7']] },
+      { t: '°7', s: 'C°7', chord: 'C:dim7', b: [
+        '<b>Lives on</b>: vii°7 in harmonic minor. Elsewhere it’s passing or borrowed.',
+        '<b>Job</b>: a rootless 7♭9 (four of them, a minor 3rd apart); passing between chords a step apart; common-tone neighbour.',
+        '<b>Swap for</b>: any of its four 7♭9s (C♯°7 for A7♭9).',
+      ], ex: [['C♯°7 or A7♭9 into Dm7', 'C:maj7 C#:dim7 D:m7 C:maj7 A:7b9 D:m7']] },
+      { t: 'maj7♯5', s: 'Cmaj7♯5', chord: 'C:maj7#5', b: [
+        '<b>Lives on</b>: ♭III in harmonic and melodic minor.',
+        '<b>Job</b>: a tense, glassy major chord; the ♯5 wants to fall to the 5th or rise to the 6th.',
+        '<b>Swap for</b>: maj7 when you want tension; E/C is the same sound.',
+      ], ex: [['Imaj7♯5 → I6', 'C:maj7 C:maj7#5 C:6']] },
+      { t: '9 and 13', s: 'C9, C13', chord: 'C:13', b: [
+        '<b>Job</b>: dominants with colour: V going to major, blues I7 and IV7, funk vamps. 13 usually includes the 9 and leaves out the 11.',
+        '<b>Scale</b>: Mixolydian.',
+        '<b>Swap for</b>: plain 7; 7sus4; 13♭9 or 7alt when the target is minor.',
+      ], ex: [['ii9 – V13 – Imaj9', 'D:m9 G:13 C:maj9'], ['A funk vamp', 'C:9 C:13 C:9 C:13']] },
+      { t: 'maj9, m9, m11', s: 'Cmaj9, Cm9, Cm11', chord: 'C:m11', b: [
+        '<b>Job</b>: richer tonics and predominants. maj9 on I and IV; m9 on ii, vi and a minor i; m11 on ii and on Dorian i.',
+        '- No natural 11 on a major chord: use ♯11 instead',
+      ], ex: [['iim11 – V13 – Imaj9', 'D:m11 G:13 C:maj9'], ['A Dorian vamp on m11', 'C:m11 F:13 C:m11 F:13']] },
+      { t: '7sus4 and 9sus4', s: 'C7sus4, C9sus4', chord: 'C:9sus4', b: [
+        '<b>Job</b>: a V with no 3rd, so no tritone and no pull. Same notes as ii over V’s root: Gm7/C = C9sus4.',
+        '<b>Swap for</b>: a whole ii–V (Dm7 – G7 becomes G9sus4); or V7 before it resolves.',
+      ], ex: [['V9sus4 → V7 → I', 'G:9sus4 G:7 C:maj7'], ['A ii–V squeezed into one sus chord', 'G:9sus4 C:maj7']] },
+      { t: 'maj7♯11', s: 'Cmaj7♯11', chord: 'C:maj7#11', b: [
+        '<b>Lives on</b>: IV in major (Lydian); borrowed ♭VI, ♭II and ♭VII.',
+        '<b>Job</b>: a bright major chord without the clashing 4th.',
+        '<b>Swap for</b>: maj7 on IV, or on I for a Lydian tonic.',
+      ], ex: [['IVmaj7♯11 – I', 'F:maj7#11 C:maj7'], ['♭VImaj7♯11 – I', 'Ab:maj7#11 C:maj7']] },
+      { t: '7♯11', s: 'C7♯11', chord: 'C:7#11', b: [
+        '<b>Lives on</b>: IV in melodic minor (Lydian dominant).',
+        '<b>Job</b>: dominants that don’t resolve down a 5th: tritone subs, II7, ♭VI7, ♭VII7, IV7.',
+        '<b>Swap for</b>: 9 or 13 on any non-pulling dominant.',
+      ], ex: [['♭II7♯11 → I', 'D:m7 Db:7#11 C:maj7'], ['II7♯11 – I', 'C:maj7 D:7#11 C:maj7']] },
+      { t: '7♭9, 7♯9, 7♭13, 7alt', s: 'dominants with altered tensions', chord: 'C:7alt', b: [
+        '<b>Lives on</b>: V in harmonic minor (7♭9 ♭13); the altered scale is melodic minor’s 7th mode.',
+        '<b>Job</b>: V7 going to a minor chord, or any V7 that should sound tense.',
+        '<b>Swap for</b>: plain V7; a °7 for 7♭9; the tritone sub (its 7♯11 has the same notes as V7alt).',
+      ], ex: [['V7♭9 → i, then V7alt → i', 'D:m7b5 G:7b9 C:m6 D:m7b5 G:7alt C:m6'], ['V7♯9 in a minor blues', 'C:m7 G:7#9 C:m7']] },
+      { t: '13♭9', s: 'C13♭9', chord: 'C:13b9', b: [
+        '<b>Job</b>: a dominant with both a sweet 13 and a dark ♭9. The half-whole diminished scale.',
+        '<b>Swap for</b>: 7♭9; or 13 when you want it sweeter.',
+      ], ex: [['V13♭9 → I', 'D:m7 G:13b9 C:maj7']] },
+      { t: '7♯5', s: 'C7♯5 (C+7)', chord: 'C:7#5', b: [
+        '<b>Job</b>: V7 with a rising ♯5 that becomes the 3rd of I. The whole-tone scale.',
+        '<b>Swap for</b>: V7 or V+.',
+      ], ex: [['V7♯5 → I', 'D:m7 G:7#5 C:maj7']] },
+    ],
+  },
+);
