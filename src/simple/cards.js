@@ -1,79 +1,132 @@
 // The must-remember cards in Simple: tap for the next one. Each deck goes in teaching order. Examples are in C
 // (the non-pulling dominants are in G, as in the original notes). A card's `play` is a short progression to hear, written
-// as root:quality tokens; Simple voice-leads it in close position over the bass.
+// as root:quality tokens; Simple voice-leads it in close position over the bass. `ex` gives several examples in
+// context, each [caption, chords], each playable.
 //   t: title  s: where it comes from / what it is  b: lines ('- ' starts a bullet)  eg: the example  play: chords
+//   ex: [[caption, chords], …]
 
 export const DECKS = [
   {
     id: 'borrowed', name: 'Borrowed chords', cards: [
       { t: 'Modal interchange', s: 'what borrowing is', b: [
         'A borrowed chord comes from a <b>parallel mode</b>: same tonic, different mode. Home doesn’t move; the chord just brings a darker or brighter note.',
-        'Most borrowing is from the <b>parallel minor (Aeolian)</b>, which brings three notes: ♭3, ♭6 and ♭7.',
-      ], eg: 'C major borrows E♭, A♭ and B♭ from C minor' },
+        'Most borrowing is from the <b>parallel minor (Aeolian)</b>, which brings three notes: ♭3, ♭6 and ♭7. Each borrowed chord is really one of those notes, and the move is to hear which one.',
+      ], eg: 'C major borrows E♭, A♭ and B♭ from C minor', ex: [
+        ['The three notes, one at a time: E♭ in Cm, A♭ in Fm, B♭ in B♭7', 'C:maj7 C:m7 C:maj7 F:m6 C:maj7 Bb:9 C:maj7'],
+        ['A plain I – IV – V – I, then the same with iv: one note (A → A♭) changes the mood', 'C:maj7 F:maj7 G:7 C:maj7 F:m6 G:7 C:maj7'],
+      ] },
       { t: 'iv7 (m9, m6)', s: 'from Aeolian', b: [
-        'The “sad IV”. The ♭6 (A♭) falls a half step to the 5th (G) when it goes home.',
-        '- IV → iv → I is the classic move',
+        'The “sad IV”. Its ♭3 is the key’s ♭6 (A♭), which falls a half step to the 5th (G) as it goes home.',
         '- Play F Dorian over it: Aeolian’s notes on its 4th degree (the 2nd mode of E♭ major)',
-      ], eg: 'In C: Fm7, Fm6, Fm9', play: 'C:maj7 F:maj7 F:m6 C:maj7' },
+        '- Fm6 has the same notes as Dø7, so iv6 and iiø7 are one sound',
+      ], eg: 'In C: Fm7, Fm6, Fm9', ex: [
+        ['IV → iv → I: the inner voice falls A → A♭ → G', 'C:maj7 F:maj7 F:m6 C:maj7'],
+        ['I – III – IV – iv: “Creep”', 'C:maj E:maj F:maj F:min'],
+        ['I – I7 – IV – iv – I: a move all over the standards', 'C:maj7 C:9 F:maj7 F:m6 C:maj7'],
+        ['Over a tonic pedal: Fm/C – C, the minor plagal “amen”', 'C:maj F:min/5 C:maj'],
+      ] },
       { t: '♭VImaj7♯11', s: 'from Aeolian', b: [
-        'The lush, cinematic one. Its ♯11 is the key’s own 2nd, so it sits easily.',
-        '- I – ♭VI – ♭VII – I: the heroic ending',
+        'The lush, cinematic one: a major chord a major 3rd below home, sharing only C with it.',
+        '- Its ♯11 is the key’s own 2nd (D), so it sits easily',
         '- Play Lydian over it: Aeolian’s notes on ♭6 are A♭ Lydian',
-      ], eg: 'In C: A♭maj7♯11', play: 'C:maj7 Ab:maj7#11 Bb:7 C:maj7' },
+      ], eg: 'In C: A♭maj7♯11', ex: [
+        ['I – ♭VI – ♭VII – I: the heroic ending, rising by whole steps into home', 'C:maj7 Ab:maj7#11 Bb:9 C:maj7'],
+        ['♭VI – V – I: A♭ falls to G, E♭ to D. The minor-key approach used in major', 'C:maj7 Ab:maj7 G:7 C:maj7'],
+        ['The deceptive cadence: you expect C after G7 and get A♭', 'D:m7 G:7 Ab:maj7#11'],
+        ['I – ♭VI as a two-chord vamp: the film-score shimmer', 'C:maj7 Ab:maj7#11 C:maj7 Ab:maj7#11'],
+      ] },
       { t: '♭VI7 (7♯11)', s: 'from Aeolian, made a dominant', b: [
-        'The ♭6 as a dominant 7: a dominant that doesn’t pull (see that deck).',
-        '- ♭VI7 → V: down a half step (the German 6th)',
-        '- ♭VI7 → I: a darker backdoor home',
-        '- Lydian dominant over it',
-      ], eg: 'In C: A♭7♯11', play: 'C:maj7 Ab:7#11 G:7 C:maj7' },
+        'The ♭6 with a ♭7 added: a dominant that doesn’t pull (see that deck). Its G♭ is really F♯, the leading tone to G.',
+        '- Lydian dominant over it (E♭ melodic minor)',
+      ], eg: 'In C: A♭7♯11', ex: [
+        ['♭VI7 → V → I: the German 6th, and the tritone sub of D7', 'C:maj7 Ab:7#11 G:7 C:maj7'],
+        ['I – vi – ♭VI7 – V: a turnaround where the bass walks down C, A, A♭, G', 'C:maj7 A:m7 Ab:7#11 G:7 C:maj7'],
+        ['♭VI7 – ♭VII7 – I: the darker backdoor, rising by whole steps', 'Ab:7#11 Bb:9 C:maj7'],
+      ] },
       { t: '♭VII7 (9, 13, ♯11)', s: 'from Aeolian: the backdoor dominant', b: [
-        'Steps up a whole tone to I instead of falling a 5th. Its ♭7 (A♭) falls to G.',
-        '- Often after iv7: iv7 – ♭VII7 – I',
+        'Steps up a whole tone to I instead of falling a 5th. Its ♭7 (A♭) falls to G and its 3rd (D) moves to C or E.',
         '- Mixolydian (rootsy) or Lydian dominant (floaty) over it',
-      ], eg: 'In C: B♭7 → C', play: 'F:m7 Bb:9 C:maj7' },
+      ], eg: 'In C: B♭7 → C', ex: [
+        ['iv7 – ♭VII7 – I: the backdoor ii–V, as in “Lady Bird”', 'F:m7 Bb:9 C:maj7'],
+        ['IV – iv7 – ♭VII7 – I: one inner voice sinks A → A♭ → G', 'F:maj7 F:m7 Bb:9 C:maj7'],
+        ['I – ♭VII7 – I: a soft dominant for a vamp or a final cadence', 'C:maj7 Bb:13 C:maj7'],
+      ] },
       { t: '♭VIImaj7♯11', s: 'from Mixolydian', b: [
         'The rock ♭VII, made lush. Mixolydian’s notes on ♭7 are a Lydian scale, hence the ♯11.',
-        '- ♭VII – IV – I: the classic rock cadence',
-      ], eg: 'In C: B♭maj7♯11', play: 'Bb:maj7#11 F:maj7 C:maj7' },
+        '- No leading tone anywhere, so the cadence lands softly',
+      ], eg: 'In C: B♭maj7♯11', ex: [
+        ['♭VII – IV – I: the classic rock cadence', 'Bb:maj F:maj C:maj'],
+        ['I – ♭VII – IV – I: the coda of “Hey Jude”', 'C:maj Bb:maj F:maj C:maj'],
+        ['I – ♭VII vamp: Mixolydian, as in “Norwegian Wood”', 'C:maj Bb:maj C:maj Bb:maj'],
+        ['♭VIImaj7 → Imaj7: planing up a whole step, jazz style', 'Bb:maj7#11 C:maj7'],
+      ] },
       { t: '♭IIImaj7 (9, 13)', s: 'from Aeolian', b: [
         'The relative major of the parallel minor. Bright but foreign: it swaps E for E♭.',
-        '- I – ♭III – ♭VI – V, or I – ♭III – IV',
         '- Play E♭ major (Ionian) over it',
-      ], eg: 'In C: E♭maj7', play: 'C:maj7 Eb:maj7 Ab:maj7 G:7' },
+      ], eg: 'In C: E♭maj7', ex: [
+        ['I – ♭III – IV: the rock riff move (“Smoke on the Water”)', 'C:maj Eb:maj F:maj'],
+        ['I – ♭III – ♭VI – V: all three borrowed notes, then home', 'C:maj7 Eb:maj7 Ab:maj7 G:7 C:maj7'],
+        ['Reached by its own ii–V, a quick trip to E♭ and back', 'C:maj7 F:m7 Bb:7 Eb:maj7 D:m7 G:7 C:maj7'],
+      ] },
       { t: 'iiø7 (♭9, 11, ♭13)', s: 'from Aeolian', b: [
-        'The minor ii, used in a major key: it darkens the ii–V on the way to a major I.',
-        '- iiø7 – V7♭9 – Imaj7',
+        'The minor ii, used in a major key. Its ♭5 is the key’s ♭6 (A♭), which falls to G in the V chord.',
         '- Locrian over it, or Locrian ♮2 for a sweeter 9',
-      ], eg: 'In C: Dm7♭5', play: 'D:m7b5 G:7b9 C:maj7' },
+        '- Same notes as Fm6: borrowed iv6 with D in the bass',
+      ], eg: 'In C: Dm7♭5', ex: [
+        ['iiø7 – V7♭9 – Imaj7: a minor ii–V landing on major', 'D:m7b5 G:7b9 C:maj7'],
+        ['ii – iiø – V – I: the 5th of the ii sinks A → A♭ → G', 'D:m7 D:m7b5 G:7b9 C:maj7'],
+        ['The same sound as iv6: Fm6 – G7 – C', 'F:m6 G:7 C:maj7'],
+      ] },
       { t: 'i7 or i6', s: 'from Aeolian (m7) or Dorian (m6)', b: [
-        'The tonic turned minor. I → i is the most direct darkening there is.',
+        'The tonic turned minor: E → E♭. The most direct darkening there is.',
         '- m6 has Dorian’s major 6th: the film-noir ending',
-      ], eg: 'In C: Cm7, Cm6', play: 'C:maj7 C:m6 C:maj7' },
+        '- i7 is also the ii of ♭VII, so it can open a door to a new key',
+      ], eg: 'In C: Cm7, Cm6', ex: [
+        ['I – i6 – I: a shadow passing over home', 'C:maj7 C:m6 C:maj7'],
+        ['i7 as a pivot: Cm7 – F7 is a ii–V to B♭', 'C:maj7 C:m7 F:7 Bb:maj7'],
+        ['Same root, new mood: I – IV, then i – iv', 'C:maj7 F:maj7 C:m7 F:m7'],
+      ] },
       { t: 'v7 (m9)', s: 'from Mixolydian', b: [
-        'The dominant without its leading tone: no pull at all.',
-        '- v7 – I7 is a ii–V into IV',
+        'The dominant without its leading tone (B♭ instead of B): no pull at all.',
         '- Dorian over it (Mixolydian’s notes on its 5th)',
-      ], eg: 'In C: Gm7', play: 'C:maj7 G:m7 C:7 F:maj7' },
+      ], eg: 'In C: Gm7', ex: [
+        ['v7 – I7 – IV: a ii–V into IV', 'C:maj7 G:m7 C:7 F:maj7'],
+        ['I – v – IV – I: the folk/modal soft dominant', 'C:maj G:m7 F:maj C:maj'],
+        ['v in place of V: a cadence with no leading tone lands softly', 'F:maj7 G:m9 C:maj7'],
+      ] },
       { t: 'II7 (9, 13)', s: 'from Lydian', b: [
-        'Lydian’s ♯4 (F♯) becomes the 3rd of II. If it doesn’t go to V, it’s pure Lydian colour.',
-        '- I – II7 – IV – I',
+        'Lydian’s ♯4 (F♯) becomes the 3rd of II. Going to V, it’s a secondary dominant; going anywhere else, it’s pure Lydian colour.',
         '- Mixolydian over it (Lydian’s notes on its 2nd)',
-      ], eg: 'In C: D7', play: 'C:maj7 D:9 F:maj7 C:maj7' },
+      ], eg: 'In C: D7', ex: [
+        ['I – II7 – IV – I: “Eight Days a Week”', 'C:maj D:7 F:maj C:maj'],
+        ['C – D/C: the Lydian vamp itself (F♯ is the ♯4 of C)', 'C:maj7 D:maj/b7 C:maj7 D:maj/b7'],
+        ['II7 – ii7 – V7 – I: the 3rd sinks F♯ → F', 'C:maj7 D:9 D:m7 G:7 C:maj7'],
+      ] },
       { t: '♭IImaj7♯11', s: 'from Phrygian: the Neapolitan', b: [
-        'Slides down a half step to I, like a tritone sub without the tritone.',
-        '- ♭IImaj7 → I in jazz; ♭II → V → i in classical (usually first inversion)',
+        'A half step above home. It slides down to I like a tritone sub without the tritone.',
         '- Lydian over it (Phrygian’s notes on ♭2)',
-      ], eg: 'In C: D♭maj7♯11', play: 'D:m7 Db:maj7#11 C:maj7' },
+      ], eg: 'In C: D♭maj7♯11', ex: [
+        ['ii – ♭IImaj7 – I: the side-slip home', 'D:m7 Db:maj7#11 C:maj7'],
+        ['♭II6 – V – i: the classical Neapolitan, in C minor', 'Db:maj/3 G:7 C:min'],
+        ['i – ♭II – i: the Phrygian (flamenco) vamp', 'C:min Db:maj C:min Db:maj'],
+      ] },
       { t: 'The backdoor ii–V', s: 'iv7 → ♭VII7 → I', b: [
-        'Both chords come from the parallel minor. It lands on I from below instead of from V.',
-        '- Lady Bird uses it',
+        'Both chords come from the parallel minor. It lands on I from below (a whole step) instead of from V (a 5th).',
         '- Voice-lead: A♭ falls to G, E♭ to D or E',
-      ], eg: 'In C: Fm7 – B♭7 – Cmaj7', play: 'F:m7 Bb:7 C:maj7' },
+      ], eg: 'In C: Fm7 – B♭7 – Cmaj7', ex: [
+        ['The backdoor alone: “Lady Bird” bars 3–5', 'F:m7 Bb:7 C:maj7'],
+        ['Front door, then back door', 'D:m7 G:7 C:maj7 F:m7 Bb:7 C:maj7'],
+        ['As a turnaround: I – iv7 – ♭VII7 – I', 'C:maj7 F:m7 Bb:9 C:maj7'],
+      ] },
       { t: 'Borrowing the other way', s: 'minor keys borrow too', b: [
         '- <b>IV7</b> from Dorian: the major 6th makes a bright IV',
         '- <b>V7</b> from harmonic minor: the leading tone, for a real pull home',
         '- <b>Picardy</b>: a minor piece ending on a major I',
-      ], eg: 'In A minor: D7, E7, and an A major ending', play: 'A:m7 D:7 E:7b9 A:maj' },
+      ], eg: 'In A minor: D7, E7, and an A major ending', ex: [
+        ['i7 – IV7 vamp (Dorian): “Oye Como Va”', 'A:m7 D:9 A:m7 D:9'],
+        ['i – ♭VII – ♭VI – V7: the Andalusian cadence, with a harmonic-minor V', 'A:min G:maj F:maj E:7'],
+        ['i – iv – V7 – I: a Picardy ending', 'A:min D:min E:7b9 A:maj'],
+      ] },
     ],
   },
   {

@@ -160,3 +160,13 @@ h1 .tabs { margin-left: 8px; }
 .sopts select { padding: 10px 26px 10px 10px; font-size: 14px; }
 .cfoot .cback { flex: none; padding: 10px 16px; font-size: 14px; color: var(--soft); }
 .cfoot .cback:disabled { opacity: 0.35; }
+/* several examples in context, each playable */
+.cex { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.ceg + .cex, .cbody + .cex { margin-top: 14px; }
+.cexh { font: 600 11.5px var(--f-ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.cex .hear { margin: 0; align-items: flex-start; padding: 10px 12px; }
+.cex .hear span { padding-top: 2px; }
+.cex .hear div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cex .hear small { font-size: 13.5px; line-height: 1.35; color: var(--soft); }
+.cex .hear small .acc { font-size: 1em; margin: 0; }
+.cex .hear b { font-weight: 600; font-size: 13.5px; color: var(--amber); }

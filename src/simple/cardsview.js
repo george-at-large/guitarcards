@@ -75,7 +75,8 @@ function cardHTML(c) {
     <h2>${acc(c.t)}</h2>${c.s ? `<div class="csrc">${c.s}</div>` : ''}
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
-    ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}`;
+    ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}
+    ${c.ex ? `<div class="cex"><div class="cexh">In context</div>${c.ex.map(([cap, play]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small><b>${esc(chordsLine(play))}</b></div></button>`).join('')}</div>` : ''}`;
 }
 
 // ---------- the screen ----------
