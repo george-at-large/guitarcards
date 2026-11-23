@@ -114,10 +114,10 @@ button.on { color: var(--amber); border-color: rgba(255, 181, 71, 0.6); backgrou
 .cbody ul { margin: 0 0 10px; padding-left: 20px; }
 .cbody li { margin: 0 0 6px; }
 .cbody li::marker { color: var(--amber); }
-.ceg { margin-top: auto; padding-top: 14px; font: 600 18px/1.35 var(--f-num); color: var(--amber); }
+.ceg { margin-top: 4px; padding-top: 10px; font: 600 18px/1.35 var(--f-num); color: var(--amber); }
 .hear { margin-top: 14px; display: flex; gap: 10px; align-items: center; text-align: left; font-size: 14px; color: var(--soft); padding: 12px 14px; }
 .ceg + .hear { margin-top: 10px; }
-.cbody + .hear { margin-top: auto; }
+.cbody + .hear { margin-top: 14px; }
 .hear span { color: var(--amber); font-size: 15px; }
 .cfoot { flex: none; display: flex; align-items: center; gap: 12px; margin-top: 12px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
 .cprog { flex: 1; height: 4px; border-radius: 4px; background: var(--surface2); overflow: hidden; }
@@ -308,3 +308,4 @@ h1 .tabs { margin-left: 8px; }
 .tabs { flex-wrap: wrap; }
 #simple.v header h1 .tabs { gap: 5px; }
 #simple.v header h1 .tab { margin-left: 0; padding: 5px 8px; font-size: 11px; }
+.hver { margin-top: 10px; text-align: center; font-size: 11.5px; color: var(--muted); }

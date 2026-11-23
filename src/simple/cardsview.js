@@ -5,9 +5,10 @@ import * as T from '../theory.js';
 import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { DECKS } from './cards.js';
-import { exampleSteps } from './fingering.js';
+import { exampleSteps, styleOf } from './fingering.js';
 import { neckSlice } from './neck.js';
 import { OPEN } from '../fretboard.js';
+import { BUILD } from './build.js';
 
 const ALL = DECKS.flatMap((d) => d.cards.map((c, i) => ({ ...c, deck: d.name, n: i + 1, of: d.cards.length })));
 const listFor = (id) => (id === 'all' ? ALL : ALL.filter((c) => c.deck === DECKS.find((d) => d.id === id)?.name));
@@ -145,7 +146,8 @@ function openEx(btn) {
   if (ex && ex.btn === btn) { if (ex.timer) stopEx(); else playEx(); return; }
   stopEx(true);
   let steps = null;
-  try { steps = exampleSteps(play); } catch (e) { steps = null; }
+  const prefer = btn.closest('[data-grip]')?.dataset.grip || null;
+  try { steps = exampleSteps(play, prefer); } catch (e) { steps = null; }
   if (!steps || !steps.some((st) => st.notes || st.line.length)) { hear(play); return; }
   const exact = play.startsWith('=');
   let names = steps.map((st) => st.label);
@@ -159,7 +161,7 @@ function openEx(btn) {
   panel.className = 'exneck';
   panel.innerHTML = `<div class="nkwrap"></div>
     <div class="exchips">${steps.map((st, i) => `<button data-exi="${i}">${acc(esc(names[i] || String(i + 1)))}</button>`).join('')}</div>
-    <div class="exctl"><button data-ex="play">▶ Play</button><button data-ex="loop">Loop</button><span>Numbers are fingers · ringed = bass${exact ? ' · amber = top note' : ''}</span></div>`;
+    <div class="exctl"><button data-ex="play">▶ Play</button><button data-ex="loop">Loop</button><span>${esc(styleOf(play, prefer))} · numbers are fingers · ringed = bass${exact ? ' · amber = top note' : ''}</span></div>`;
   btn.after(panel);
   ex = { btn, panel, steps, exact, win: exWindow(steps), timers: [], timer: null, loop: false };
   drawEx(0);
@@ -305,7 +307,7 @@ export function cardHTML(c, cs) {
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
     ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}
-    ${c.ex ? `<div class="cex"><div class="cexh">In context</div>${c.ex.map(([cap, play, label]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small>${label || !play.startsWith('=') ? `<b>${esc(label || chordsLine(play))}</b>` : ''}</div></button>`).join('')}</div>` : ''}`;
+    ${c.ex ? `<div class="cex"${c.grip ? ` data-grip="${c.grip}"` : ''}><div class="cexh">In context</div>${c.ex.map(([cap, play, label]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small>${label || !play.startsWith('=') ? `<b>${esc(label || chordsLine(play))}</b>` : ''}</div></button>`).join('')}</div>` : ''}`;
 }
 
 // ---------- the screen ----------
@@ -372,6 +374,7 @@ export function mountCards(root, S, save) {
         <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-start="${d.id}">Start</button></div>
         ${openDeck === d.id ? `<div class="hcards">${d.cards.map((x, i) => `<button data-jump="${d.id}:${i}"><span>${i + 1}</span>${acc(x.t)}</button>`).join('')}</div>` : ''}
       </section>`).join('')}
+      <div class="hver">Version ${esc(BUILD)}</div>
     </div>`;
     foot.innerHTML = '';
     save();

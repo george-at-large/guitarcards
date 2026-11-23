@@ -12,6 +12,7 @@ import { mountSing } from './sing.js';
 import { mountSingNeck } from './singneck.js';
 import { mountScales } from './scales.js';
 import * as N from './neck.js';
+import { BUILD } from './build.js';
 
 // ---------- chords and exercises ----------
 const CHORDS = [
@@ -399,3 +400,18 @@ document.addEventListener('visibilitychange', () => {
   if ((S.view || 'neck') === 'neck') render();
 });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+// stay current: if the site has a newer build than this one, drop the offline copy and reload (once per build)
+async function checkUpdate() {
+  try {
+    const r = await fetch(`simple-version.json?t=${Date.now()}`, { cache: 'no-store' });
+    const { v } = await r.json();
+    if (!v || v === BUILD || sessionStorage.getItem('simple.reloaded') === v) return;
+    sessionStorage.setItem('simple.reloaded', v);
+    if (window.caches) for (const k of await caches.keys()) await caches.delete(k);
+    const regs = (await navigator.serviceWorker?.getRegistrations?.()) || [];
+    for (const reg of regs) await reg.update().catch(() => {});
+    location.reload();
+  } catch (e) { /* offline: carry on with this build */ }
+}
+checkUpdate();
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });

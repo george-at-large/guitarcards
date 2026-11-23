@@ -105,11 +105,37 @@ function candidates(tok) {
 }
 
 // the cheapest run of grips through a progression
-export function progGrips(tokens) {
+// shells: root, 3rd and 7th only, root on the 6th or 5th string (1-3-7 on neighbouring strings, 1-7-3 skipping one)
+const SHELL_SETS = [[6, 5, 4, ['3', '7']], [6, 4, 3, ['7', '3']], [5, 4, 3, ['3', '7']], [5, 3, 2, ['7', '3']]];
+function shellCands(tok) {
+  const c = T.parseChordToken(tok);
+  if (c.bass) return [];
+  const ivs = T.getChord(c.quality).ivs;
+  const third = ['3', 'b3', '4', '2'].find((x) => ivs.includes(x)), sev = ['7', 'b7', 'bb7', '6'].find((x) => ivs.includes(x));
+  if (!third || !sev) return [];
+  const rpc = T.notePc(c.root), want = { [third]: (rpc + T.intervalSemis(third)) % 12, [sev]: (rpc + T.intervalSemis(sev)) % 12 };
+  const out = [];
+  for (const [rs, s2, s3, [i2, i3]] of SHELL_SETS) {
+    const iv2 = i2 === '3' ? third : sev, iv3 = i3 === '3' ? third : sev;
+    for (let r = (rpc - OPEN[rs] + 120) % 12; r <= 12; r += 12) {
+      const near = (s, pc) => { let best = null; for (let f = Math.max(0, r - 3); f <= r + 3; f++) if ((OPEN[s] + f) % 12 === pc && (best == null || Math.abs(f - r) < Math.abs(best - r))) best = f; return best; };
+      const f2 = near(s2, want[iv2]), f3 = near(s3, want[iv3]);
+      if (f2 == null || f3 == null) continue;
+      const notes = [{ string: rs, fret: r, midi: OPEN[rs] + r, iv: '1' }, { string: s2, fret: f2, midi: OPEN[s2] + f2, iv: iv2 }, { string: s3, fret: f3, midi: OPEN[s3] + f3, iv: iv3 }];
+      const fg = fingerGrip(notes);
+      if (fg) out.push({ notes: fg.sort((a, b) => b.string - a.string), cost: playCost(fg, c.quality) + (r === 0 ? 0.5 : 0) });
+    }
+  }
+  return out;
+}
+
+// prefer: 'shell' to show root–3rd–7th shells (cards about guide tones); otherwise the style suits the example
+export function progGrips(tokens, prefer = null) {
   // a pop example (mostly plain triads) gets open and barre chords; a jazz one gets movable 4–5 note grips
   const qs = tokens.map((t) => T.parseChordToken(t).quality);
   const jazz = qs.filter((q) => !TRIAD.has(q)).length * 2 >= qs.length;
   const C = tokens.map((t) => {
+    if (prefer === 'shell') { const sh = shellCands(t); if (sh.length) return sh; }
     const all = candidates(t);
     if (!jazz) return all;
     const movable = all.filter((g) => g.notes.length >= 4 && g.notes.every((n) => n.fret > 0));
@@ -182,10 +208,17 @@ function placeNote(midi, near) {
 const midiOf = (s) => { const m = /^([A-G](?:#|b)?)(-?\d)$/.exec(s); return T.notePc(T.parseNote(m[1])) + (Number(m[2]) + 1) * 12; };
 
 // what to show and play, event by event: { notes (the grip), line (melody notes after it), label }
-export function exampleSteps(play) {
+// in words, the kind of voicing shown
+export function styleOf(play, prefer = null) {
+  if (play.startsWith('=')) return 'The exact voicing the card asks for';
+  if (prefer === 'shell') return 'Shells: root, 3rd and 7th';
+  const qs = play.split(/\s+/).map((t) => T.parseChordToken(t).quality);
+  return qs.filter((q) => !TRIAD.has(q)).length * 2 >= qs.length ? 'Movable 4–5 note grips, kept in one area' : 'Open and barre chords';
+}
+export function exampleSteps(play, prefer = null) {
   if (!play.startsWith('=')) {
     const toks = play.split(/\s+/);
-    const run = progGrips(toks);
+    const run = progGrips(toks, prefer);
     return toks.map((tok, i) => {
       const c = T.parseChordToken(tok);
       return { label: T.pretty(T.chordSymbol(c.root, c.quality)) + (c.bass ? '/' + T.noteName(c.bass, true) : ''), notes: run ? run[i].notes : null, line: [] };

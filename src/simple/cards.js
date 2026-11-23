@@ -2781,3 +2781,9 @@ for (const [deck, title, add] of SPRUCE) {
     c.ex = [...(c.ex || []), ...own, ...add.ex]; delete c.play;
   }
 }
+
+// cards about guide tones show their examples as shells (root, 3rd, 7th) on the neck
+for (const [deck, title] of [['twofive', 'Guide tones'], ['voicelead', 'Guide tones and shells'], ['voicelead', 'The tritone in V7'], ['nopull', 'Follow the guide tones'], ['solo', 'Guide-tone lines'], ['twofive', 'Voice-lead it']]) {
+  const c = DECKS.find((d) => d.id === deck)?.cards.find((x) => x.t === title);
+  if (c) c.grip = 'shell'; else console.warn('no card', deck, title);
+}
