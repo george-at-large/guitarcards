@@ -22,6 +22,19 @@ const SEV_MORPH = ['maj7', '7', 'm7', 'm7b5', 'dim7'];
 const UPPER = { maj7: { tones: ['3', '5', '7', '9'], q: 'maj9', from: 'm7' }, '7': { tones: ['3', '5', 'b7', '9'], q: '9', from: 'm7b5' }, m7: { tones: ['b3', '5', 'b7', '9'], q: 'm9', from: 'maj7' } };
 const DSCALE = { major: 'major', aeolian: 'natural minor', 'harmonic-minor': 'harmonic minor', 'melodic-minor': 'melodic minor' };
 const START = { '1': 'root', '3': '3rd', '5': '5th', '7': '7th' };
+// Inversions are drilled on the core chords only; the rest are reached by moving one note, on every inversion. (An
+// augmented triad or a °7 is symmetrical: its "inversions" are one shape moved up the neck, so they come as morphs.)
+export const MORPHS = {
+  maj: [['aug', 'raise the 5th'], ['sus4', 'raise the 3rd to the 4th'], ['sus2', 'lower the 3rd to the 2nd'], ['min', 'lower the 3rd']],
+  min: [['dim', 'lower the 5th'], ['maj', 'raise the ♭3 to 3'], ['sus4', 'raise the ♭3 to the 4th']],
+  dim: [['min', 'raise the ♭5'], ['aug', 'nothing stays: every note moves (a puzzle)']],
+  maj7: [['7', 'lower the 7th'], ['maj7#5', 'raise the 5th'], ['6', 'lower the 7th a whole step to the 6th'], ['mMaj7', 'lower the 3rd']],
+  '7': [['7sus4', 'raise the 3rd to the 4th'], ['7#5', 'raise the 5th'], ['7b5', 'lower the 5th'], ['m7', 'lower the 3rd']],
+  m7: [['m7b5', 'lower the 5th'], ['mMaj7', 'raise the ♭7 to 7'], ['m6', 'lower the ♭7 to the 6th'], ['7', 'raise the ♭3 to 3']],
+  m7b5: [['dim7', 'lower the ♭7 to 𝄫7'], ['m7', 'raise the ♭5 to 5']],
+};
+MORPHS.dim = MORPHS.dim.slice(0, 1);
+const MORPH_P = { never: 0, some: 0.35, often: 0.7 };
 
 export default {
   id: 'shapes',
@@ -31,10 +44,11 @@ export default {
   keyed: true,
   options: [
     { id: 'fam', label: 'What to drill', type: 'multi', def: ['triads', 'sevenths'], choices: [['triads', 'Triads'], ['sevenths', '7th chords'], ['shells', 'Shells'], ['ext', 'Extensions'], ['arps', 'Arpeggios'], ['diatonic', 'Diatonic sequences']] },
-    { id: 'task', label: 'Inversions', type: 'multi', def: ['neck', 'area'], when: (c) => c.fam.some((f) => ['triads', 'sevenths'].includes(f)), choices: [['neck', 'Up the neck (one string set)'], ['area', 'In a CAGED area (every set)'], ['morph', 'Morph one shape']] },
-    { id: 'triQ', label: 'Triads', type: 'multi', def: ['maj', 'min', 'dim', 'aug'], when: (c) => c.fam.includes('triads'), choices: [['maj', 'major'], ['min', 'minor'], ['dim', 'dim'], ['aug', 'aug'], ['sus2', 'sus2'], ['sus4', 'sus4']] },
+    { id: 'task', label: 'Inversions', type: 'multi', def: ['neck', 'area'], when: (c) => c.fam.some((f) => ['triads', 'sevenths'].includes(f)), choices: [['neck', 'Up the neck (one string set)'], ['area', 'In a CAGED area (every set)'], ['morph', 'Morph chain on one shape']] },
+    { id: 'morphs', label: 'Add a morph on every inversion (aug, sus, 6, m(maj7), 7♭5, °7…)', type: 'one', def: 'some', when: (c) => c.fam.some((f) => ['triads', 'sevenths'].includes(f)), choices: [['never', 'Never'], ['some', 'Sometimes'], ['often', 'Often']] },
+    { id: 'triQ', label: 'Triads', type: 'multi', def: ['maj', 'min'], when: (c) => c.fam.includes('triads'), choices: [['maj', 'major'], ['min', 'minor'], ['dim', 'diminished']] },
     { id: 'triV', label: 'Triad voicings', type: 'multi', def: ['close', 'spread'], when: (c) => c.fam.includes('triads'), choices: [['close', 'Close'], ['spread', 'Spread']] },
-    { id: 'sevQ', label: '7th chords', type: 'multi', def: ['maj7', '7', 'm7', 'm7b5', 'dim7'], when: (c) => c.fam.some((f) => ['sevenths', 'shells'].includes(f)), choices: ['maj7', '7', 'm7', 'm7b5', 'dim7', 'mMaj7', '6', 'm6', '7sus4', 'maj7#5', '7#5', '7b5'].map((q) => [q, T.pretty(T.getChord(q).sym)]) },
+    { id: 'sevQ', label: '7th chords', type: 'multi', def: ['maj7', '7', 'm7', 'm7b5'], when: (c) => c.fam.some((f) => ['sevenths', 'shells'].includes(f)), choices: ['maj7', '7', 'm7', 'm7b5'].map((q) => [q, T.pretty(T.getChord(q).sym)]) },
     { id: 'sevV', label: '7th voicings', type: 'multi', def: ['drop2', 'drop3'], when: (c) => c.fam.includes('sevenths'), choices: [['drop2', 'Drop 2'], ['drop3', 'Drop 3'], ['drop24', 'Drop 2 & 4']] },
     { id: 'extQ', label: 'Extensions', type: 'multi', def: ['maj9', '9', 'm9', '13', '7b9', '7#9'], when: (c) => c.fam.includes('ext'), choices: ['maj9', '9', 'm9', '13', '7b9', '7#9', '7alt', 'm11', 'maj7#11'].map((q) => [q, T.pretty(T.getChord(q).sym)]) },
     { id: 'arpQ', label: 'Arpeggios', type: 'multi', def: ['maj', 'min', 'maj7', '7', 'm7', 'm7b5', 'dim7'], when: (c) => c.fam.includes('arps'), choices: ['maj', 'min', 'dim', 'aug', 'maj7', '7', 'm7', 'm7b5', 'dim7', 'mMaj7', '6', 'm6', 'maj9', '9', 'm9'].map((q) => [q, QN[q] || T.pretty(T.getChord(q).sym)]) },
@@ -70,17 +84,19 @@ export default {
     return out;
   },
 
-  make(item, pc) {
+  make(item, pc, ctx = {}) {
     const p = item.params;
     const ss = p.ss ? p.ss.split('-').map(Number) : null;
+    // sometimes a morph on every inversion: one note moves to make the chord's neighbour, then back
+    const morph = (p.k === 'neck' || p.k === 'area') && MORPHS[p.q] && Math.random() < (MORPH_P[ctx.cfg?.morphs] ?? 0.35) ? pick(MORPHS[p.q]) : null;
     if (p.k === 'neck' || p.k === 'ext') {
       const v = p.v || 'drop2';
       const root = spellRoot(pc, p.q);
       const list = F.chordVoicings({ root, quality: p.q, voicing: v, stringSet: ss, inversion: 'all' }).filter((x) => x.maxFret <= 17).sort((a, b) => a.minFret - b.minFret || a.inversion - b.inversion);
       return {
-        title: `All inversions of ${named(root, p.q)}`, sub: `${VNAME[v]} · strings ${p.ss} · up the neck and back, naming each bass note`,
-        target: list.length * 5000, droneMidi: droneOf(pc),
-        reveal: () => diagrams(list.map((x) => ({ notes: x.notes, cap: invCap(x), set: ss }))),
+        title: `All inversions of ${named(root, p.q)}`, sub: `${VNAME[v]} · strings ${p.ss} · up the neck and back, naming each bass note${morphLine(root, p.q, morph)}`,
+        target: list.length * (morph ? 8000 : 5000), droneMidi: droneOf(pc),
+        reveal: () => morphNote(p.q, morph) + diagrams(withMorph(list.map((x) => ({ x, notes: x.notes, cap: invCap(x), set: ss, q: morph ? p.q : null })), root, v, morph, p.q)),
       };
     }
     if (p.k === 'area') {
@@ -93,9 +109,9 @@ export default {
         }
       }
       return {
-        title: `Every inversion of ${named(root, p.q)} in the ${p.sh}-shape area`, sub: `${VNAME[p.v]} · every string set · frets ${w.lo}–${w.hi}`,
-        target: Math.max(1, list.length) * 6000, droneMidi: droneOf(pc),
-        reveal: () => `<p class="note">${list.length} voicings, by string set.</p>` + diagrams(list.map((x) => ({ notes: x.notes, cap: `${setName(x.set)} · ${invCap(x)}`, set: x.set }))),
+        title: `Every inversion of ${named(root, p.q)} in the ${p.sh}-shape area`, sub: `${VNAME[p.v]} · every string set · frets ${w.lo}–${w.hi}${morphLine(root, p.q, morph)}`,
+        target: Math.max(1, list.length) * (morph ? 9000 : 6000), droneMidi: droneOf(pc),
+        reveal: () => `<p class="note">${list.length} voicings, by string set.</p>` + morphNote(p.q, morph) + diagrams(withMorph(list.map((x) => ({ x, notes: x.notes, cap: `${setName(x.set)} · ${invCap(x)}`, set: x.set, q: morph ? p.q : null })), root, p.v, morph, p.q)),
       };
     }
     if (p.k === 'morph') {
@@ -175,9 +191,44 @@ export default {
   },
 
   mount(q, el, ctx) { ctx.selfRate(q); },
+  // inversions are only drilled on the core chords now; older saved items for G+ or °7 inversions are retired
+  valid: (p) => !((p.k === 'neck' || p.k === 'area') && !MORPHS[p.q]),
 };
 
 const avg = (p) => p.notes.reduce((s, n) => s + n.fret, 0) / p.notes.length;
+function morphLine(root, q, m) {
+  if (!m) return '';
+  return `<br><b>On every inversion:</b> ${esc(sym(root, q))} → ${esc(sym(root, m[0]))}${typeName(m[0]) ? ` (${typeName(m[0])})` : ''} and back: ${esc(m[1])}.`;
+}
+// each shape followed by its morph, built from the shape itself: the one note that changes moves on its own string,
+// so it's always a one-note move (the moved note is ringed)
+export function morphMove(q, to) {
+  const from = T.getChord(q).ivs, dest = T.getChord(to).ivs;
+  const out = from.find((x) => !dest.includes(x)), inn = dest.find((x) => !from.includes(x));
+  return { from: out, to: inn, semis: ((T.intervalSemis(inn) - T.intervalSemis(out) + 18) % 12) - 6 };
+}
+function withMorph(list, root, voicing, m, q) {
+  if (!m) return list;
+  const mv = morphMove(q, m[0]);
+  const out = [];
+  for (const d of list) {
+    out.push(d);
+    const notes = d.notes.map((n) => (n.iv === mv.from ? { ...n, fret: n.fret + mv.semis, midi: n.midi + mv.semis, iv: mv.to, moved: true } : n));
+    if (notes.some((n) => n.fret < 0 || n.fret > 17)) continue;
+    const ring = notes.find((n) => n.moved)?.string;
+    // the pair shares one window, so the move reads as one fret on the same grid
+    const win = windowFor([...d.notes, ...notes], 4);
+    out[out.length - 1] = { ...d, win };
+    out.push({ notes, cap: `→ ${sym(root, m[0])}`, set: d.set, q: m[0], ring, win });
+  }
+  return out;
+}
+function morphNote(q, m) {
+  if (!m) return '';
+  const mv = morphMove(q, m[0]);
+  const step = Math.abs(mv.semis) === 1 ? 'a half step (one fret)' : Math.abs(mv.semis) === 2 ? 'a whole step (two frets)' : `${Math.abs(mv.semis)} frets`;
+  return `<p class="note">In every shape only the <b>${iv(mv.from)}</b> moves, ${mv.semis > 0 ? 'up' : 'down'} ${step}, to become the <b>${iv(mv.to)}</b> (ringed). Find it first, move it, move it back, then the next inversion.</p>`;
+}
 // a run of chords climbing one string set, every one higher than the last, in one inversion (chords may carry their
 // own). Tries each starting position of the first chord; null when the run can't climb without running out of neck.
 export function climb(chords, voicing, ss, inv) {
@@ -223,9 +274,9 @@ function fromStart(notes, startIv) {
 }
 export function diagrams(list) {
   return `<div class="diagrams">${list.map((d) => {
-    const w = windowFor(d.notes, 4);
+    const w = d.win || windowFor(d.notes, 4);
     const bass = Math.max(...d.notes.map((n) => n.string));
-    const svg = neckSVG({ lo: w.lo, hi: w.hi, size: 's', strings: d.set, dots: d.notes.map((n) => ({ s: n.string, f: n.fret, iv: n.iv, label: iv(n.iv), ring: n.string === bass })) });
+    const svg = neckSVG({ lo: w.lo, hi: w.hi, size: 's', strings: d.set, dots: d.notes.map((n) => ({ s: n.string, f: n.fret, iv: n.iv, label: iv(n.iv), ring: n.string === (d.ring ?? bass) })) });
     const midis = [...d.notes].sort((a, b) => a.midi - b.midi).map((n) => n.midi).join(',');
     return `<button class="dg" data-strum="${midis}">${svg}<span>${esc(d.cap)}</span>${d.q && typeName(d.q) ? `<span class="tn">${typeName(d.q)}</span>` : ''}</button>`;
   }).join('')}</div>`;

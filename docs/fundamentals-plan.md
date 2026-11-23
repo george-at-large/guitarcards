@@ -51,27 +51,31 @@ There's an **optional metronome** (BPM −/+ and tap) with a target such as "one
 raises the BPM by 4 after a clean answer at tempo. There's also an **optional drone** on the key, useful for
 arpeggios.
 
-### 1a. Triads
-- **Qualities:** maj, min, dim, aug. sus2 and sus4 are off by default.
-- **Close voicings:** strings 6-5-4, 5-4-3, 4-3-2, 3-2-1.
-- **Spread voicings:** strings 6-4-3, 5-3-2, 4-2-1.
-- **Tasks:**
-  - **Horizontal.** One string set, every inversion up the neck: root, 1st, 2nd, root.
-  - **Vertical.** Every inversion inside one CAGED area, across all sets.
-  - **Morph.** One inversion going maj → min → dim → aug, then the next inversion.
+### 1a. Inversions: the core chords only (changed 2026-11-23)
+Inversions are drilled where they're taught: on major and minor triads (diminished optional), and on maj7, 7, m7 and
+m7♭5. Augmented triads and °7s are symmetrical, so their "inversions" are one shape moved up the neck. They, and the
+other colours, are reached by **morphing**.
+- **Triads:** close on 6-5-4, 5-4-3, 4-3-2, 3-2-1, and spread on 6-4-3, 5-3-2, 4-2-1. Up one set, or every inversion
+  in one CAGED area.
+- **7th chords:** drop 2 on 6-5-4-3, 5-4-3-2, 4-3-2-1, drop 3 on 6-4-3-2, 5-3-2-1 (drop 2 & 4 optional), up one set
+  or in one area. Shells use the same four chords.
 
-### 1b. Seventh chords
-- **Core qualities:** maj7, 7, m7, m7♭5, °7.
-- **More qualities:** m(maj7), 6, m6, 7sus4, maj7♯5, 7♯5, 7♭5.
-- **Voicings:**
-  - Drop 2: strings 6-5-4-3, 5-4-3-2, 4-3-2-1.
-  - Drop 3: strings 6-4-3-2, 5-3-2-1.
-  - Drop 2 & 4 (later level): strings 6-5-3-2, 5-4-2-1.
-  - Shells (1-3-7 and 1-7-3 with the root on the 6th and 5th strings): maj7, 7, m7, m7♭5, °7, 6, m6.
-- **Tasks:**
-  - All four inversions on one set, up the neck.
-  - Every inversion on every set, across the whole neck.
-  - Morph one inversion: maj7 → 7 → m7 → m7♭5 → °7.
+### 1b. Morphs on every inversion (sometimes)
+Sometimes (an option: never, sometimes about 1 in 3, or often about 2 in 3), the prompt adds: "On every inversion:
+Gmaj7 → Gmaj7♯5 and back: raise the 5th." Each one moves a single note:
+- maj → aug, sus4, sus2, min
+- min → dim, maj, sus4
+- dim → min
+- maj7 → 7, maj7♯5, 6, m(maj7)
+- 7 → 7sus4, 7♯5, 7♭5, m7
+- m7 → m7♭5, m(maj7), m6, 7
+- m7♭5 → °7, m7
+
+The reveal pairs each shape with its morph on the same grid, rings the note that moved, and says which degree moves
+and by how much. The morphed shape is built from the shape itself, so it's always a one-note move. A check confirmed
+this on every inversion, set and key; at the neck's edge a morph that would fall below the nut is left out. Fuzzy items
+from retired drills (inversions of G+ or °7) are retired. The morph chain (maj7 → 7 → m7 → m7♭5 → °7 on one shape)
+stays as its own task.
 
 ### 1c. Extensions on four-note shapes (later level)
 - **What changes:** a 9 in place of the root, a 13 in place of the 5th, and alterations (♭9, ♯9, ♯11, ♭13) as

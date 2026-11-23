@@ -26,6 +26,13 @@ function cfgFor(mode) {
   const def = Object.fromEntries(mode.options.map((o) => [o.id, Array.isArray(o.def) ? [...o.def] : o.def]));
   const c = Object.assign(def, { len: '10', tools: { metro: false, bpm: 70, up: false, drone: false, fifth: true } }, S.setups[mode.id] || {});
   c.tools = Object.assign({ metro: false, bpm: 70, up: false, drone: false, fifth: true }, c.tools);
+  // a saved setup may hold choices a mode no longer offers: drop them (and fall back to the default if none are left)
+  for (const o of mode.options) {
+    if (o.type === 'toggle') continue;
+    const valid = new Set((o.groups ? o.groups.flatMap((g) => g[1]) : o.choices).map((x) => String(x[0])));
+    if (o.type === 'multi') { const v = (c[o.id] || []).filter((x) => valid.has(String(x))); c[o.id] = v.length ? v : [...o.def]; }
+    else if (!valid.has(String(c[o.id]))) c[o.id] = o.def;
+  }
   return c;
 }
 const saveCfg = (mode, c) => { S.setups[mode.id] = c; C.save(); };
@@ -108,7 +115,7 @@ function chooseQuestion() {
   const s = SES;
   let item, mode = s.mode, keyPc = null;
   if (s.fuzzyOnly) {
-    const fz = C.fuzzyItems(s.allModes ? null : s.mode.id).filter((x) => BY[x.mode]);
+    const fz = C.fuzzyItems(s.allModes ? null : s.mode.id).filter((x) => BY[x.mode] && BY[x.mode].valid?.(x.params) !== false);
     if (!fz.length) return null;
     const fresh = fz.length > 2 ? fz.filter((x) => !s.recent.includes(x.id)) : fz;
     item = C.weighted(fresh, (x) => 1 + (1 - x.ema) * 2);
@@ -358,5 +365,8 @@ $app.addEventListener('click', (e) => {
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) { A.stopMetronome(); } });
 
+// items from drills the app no longer sets (inversions of G+ or °7, say) leave Fuzzy for good
+for (const r of Object.values(S.items)) if (!r.retired && BY[r.mode]?.valid?.(r.params || {}) === false) r.retired = true;
+C.save();
 home();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

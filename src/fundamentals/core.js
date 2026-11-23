@@ -66,8 +66,9 @@ export function record(item, { clean, fuzz = clean ? 0 : 1, keyPc = null }) {
 }
 export const itemRec = (id) => S.items[id];
 export const isFuzzy = (id) => !!S.items[id]?.fuzzy;
+// retired items (a drill the app no longer sets) are dropped by the caller through the mode's valid()
 export function fuzzyItems(mode = null) {
-  return Object.entries(S.items).filter(([, r]) => r.fuzzy && (!mode || r.mode === mode))
+  return Object.entries(S.items).filter(([, r]) => r.fuzzy && !r.retired && (!mode || r.mode === mode))
     .map(([id, r]) => ({ id, ...r })).sort((a, b) => a.ema - b.ema);
 }
 export const weakKeys = () => KEY_ORDER.filter((pc) => S.keys[pc] && S.keys[pc].n >= 3 && S.keys[pc].ema < 0.7);
