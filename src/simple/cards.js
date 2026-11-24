@@ -5157,3 +5157,375 @@ for (const [deck, title, ex] of [
   if (!c) { console.warn('no card', deck, title); continue; }
   c.ex = [...(c.ex || []), ...ex];
 }
+
+// ---------- rhythm and strumming: a pattern, its count, the hand, and the groove playing so you can join in ----------
+// groove: see groove.js. Guitar strokes on even steps are downs and on odd steps ups: the hand never stops moving.
+{
+  const R = (t, s, groove, b) => ({ t, s, groove, b });
+  const ROCK = { k: 'x...x...', s: '..x...x.', h: 'xxxxxxxx' };
+  DECKS.splice(DECKS.findIndex((d) => d.id === 'fluency'), 0, {
+    id: 'rhythm', name: 'Rhythm and strumming', cards: [
+      { t: 'How to read these cards', s: 'and how to practise rhythm', b: [
+        'Each card shows its pattern as a grid. <b>↓</b> is a downstroke, <b>↑</b> an upstroke, a dim arrow is a light stroke, <b>✕</b> a muted chuck (strum with the fretting hand relaxed on the strings), <b>B</b> and <b>5</b> are single bass notes. The count runs underneath: 1 & 2 &, or 1 e & a for 16ths.',
+        '- <b>Keep the strumming hand moving</b> like a pendulum: down on the beats, up on the “&”s, whether it hits the strings or not. That’s what keeps you in time',
+        '- <b>Count out loud</b> the first few times, then say only the beat numbers',
+        '- <b>Play it with the groove</b> (▶ Play), then with the click only, then on your own and record yourself',
+        '- <b>Slow and relaxed</b> beats fast and stiff. Speed up 5 bpm only when it feels easy',
+        'Turn the Guitar part off to play the pattern yourself over the drums and click.',
+      ] },
+      R('Quarter-note downstrokes', 'level 1 · 4/4', { meter: '4/4', sub: 2, bpm: 80, chart: 'G:maj | C:maj | D:maj | G:maj', gtr: 'D.D.D.D.' }, [
+        '<b>Count</b>: 1 & 2 & 3 & 4 &. Strum down on the numbers only.',
+        '<b>Hand</b>: on the “&”s the hand comes back up but misses the strings. Start that habit now.',
+        '<b>Best practice</b>: change chord on the last “&” of the bar, so the new chord lands on 1. Late changes are the most common rhythm fault.',
+        '<b>Harder</b>: accent beats 2 and 4 slightly. That’s where the snare sits in nearly all popular music.',
+      ]),
+      R('Eighth notes: down and up', 'level 1 · 4/4', { meter: '4/4', sub: 2, bpm: 80, chart: 'G:maj | C:maj | D:maj | G:maj', gtr: 'DUDUDUDU' }, [
+        '<b>Count</b>: 1 & 2 & 3 & 4 &, down on the numbers, up on the “&”s.',
+        '<b>Hand</b>: upstrokes are lighter and catch only the top three or four strings. Let them.',
+        '<b>Best practice</b>: loose wrist, the movement from the forearm rotating, not the elbow swinging. Hold the pick lightly.',
+        '<b>Harder</b>: the same at 140. Then accent only the downbeats, then only the “&”s (the reggae and ska feel).',
+      ]),
+      R('The pop strum', 'level 2 · D – DU – UDU', { meter: '4/4', sub: 2, bpm: 90, chart: 'C:maj | A:min | F:maj | G:maj', gtr: 'D.DU.UDU' }, [
+        '<b>Count</b>: 1 – 2 & – & 4 &. Down, down-up, up, down-up: beat 3 is a missed downstroke.',
+        '<b>Hand</b>: the hand keeps moving through beat 3 without hitting. If it stops, the “&” of 3 will be late.',
+        '<b>Best practice</b>: say “down, down-up, up-down-up” for a minute, then let it go and just feel it. This one pattern covers a huge amount of pop, folk and rock.',
+        '<b>Harder</b>: change chord every two beats with the pattern unbroken.',
+      ]),
+      R('The backbeat accent', 'level 2 · rock', { meter: '4/4', sub: 2, bpm: 100, chart: 'G:maj | D:maj | E:min | C:maj', gtr: 'duDuduDu', drums: ROCK }, [
+        '<b>Count</b>: eighths throughout, light everywhere except beats 2 and 4, which are strong (with the snare).',
+        '<b>Hand</b>: the accent is a slightly bigger, faster stroke, not a harder grip.',
+        '<b>Best practice</b>: lock to the snare. If your accents and the snare are one sound, you’re in the pocket.',
+        '<b>Harder</b>: turn the drums off and keep the accents where the snare was.',
+      ]),
+      R('Muted chucks', 'level 2 · the snare on the guitar', { meter: '4/4', sub: 2, bpm: 95, chart: 'A:min | G:maj | F:maj | G:maj', gtr: 'DUxUDUxU' }, [
+        '<b>Count</b>: 1 & 2 & 3 & 4 &, with a muted chuck on 2 and 4.',
+        '<b>Hand</b>: for the chuck, relax the fretting hand so it touches the strings without pressing, and strum normally. It should sound like a snare.',
+        '<b>Best practice</b>: release the chord a fraction before the chuck and press it again straight after. The chord–chuck–chord change is the skill.',
+        '<b>Harder</b>: chuck on every “&” instead; then only on the “&” of 4, leading into the next bar.',
+      ]),
+      R('Funk sixteenths', 'level 4 · 16ths, scratched', { meter: '4/4', sub: 4, bpm: 90, chart: 'E:9 | % | % | %', gtr: 'D.xU.Ux.D.xU.Ux.', drums: { k: 'x.....x...x.....', s: '....x.......x...', h: 'x.x.x.x.x.x.x.x.' } }, [
+        '<b>Count</b>: 1 e & a 2 e & a… The hand moves in 16ths: down on 1, e is up, & is down, a is up.',
+        '<b>Hand</b>: E9 (x7677x) held lightly. Let go a little for the ✕ chucks; press for the chords. The strumming hand never stops.',
+        '<b>Best practice</b>: small, fast strokes near the bridge pickup sound. Funk is about short notes and silence, so stop each chord sharply.',
+        '<b>Harder</b>: move the accented chords to different 16ths each bar while the hand keeps going. Listen to Nile Rodgers and Jimmy Nolen.',
+      ]),
+      R('Reggae skank', 'level 3 · the one drop', { meter: '4/4', sub: 2, bpm: 75, chart: 'A:min | D:min | A:min | E:min', gtr: '..K...K.', drums: { k: '....x...', r: '....x...', h: 'x.x.x.x.' }, bass: 'r...r.5.' }, [
+        '<b>Count</b>: 1 & 2 & 3 & 4 &. The guitar plays only on 2 and 4, a short choked chord: the skank.',
+        '<b>The one drop</b>: the kick and rim land together on 3, and nothing on 1. It feels upside down at first.',
+        '<b>Best practice</b>: choke the chord immediately by releasing the fretting hand. Short is everything. Use small three-string chords high on the neck.',
+        '<b>Harder</b>: add a muted 16th-note “bubble” on the “&”s, or double the skank (2 and the “&” of 2).',
+      ]),
+      R('Ska upstrokes', 'level 3 · every off-beat', { meter: '4/4', sub: 2, bpm: 150, chart: 'C:maj | A:min | F:maj | G:maj', gtr: '.K.K.K.K', drums: ROCK }, [
+        '<b>Count</b>: 1 & 2 & 3 & 4 &, the chord on every “&” only.',
+        '<b>Hand</b>: many players use a short downstroke on the “&”s with the hand coming back up on the beats. Either way, choke each chord.',
+        '<b>Best practice</b>: feel the beats in your foot and the chops as the answer to them. If the foot stops, the off-beats drift.',
+        '<b>Harder</b>: at 180 and above, the speed of punk-ska.',
+      ]),
+      R('Country boom-chick', 'level 2 · bass and strum', { meter: '4/4', sub: 2, bpm: 100, chart: 'G:maj | C:maj | D:maj | G:maj', gtr: 'b.D.5.D.' }, [
+        '<b>Count</b>: the root on 1, a strum on 2, the 5th on 3, a strum on 4. Boom – chick – boom – chick.',
+        '<b>Hand</b>: pick the bass note alone, then brush the top strings. Keep the chord shape held throughout.',
+        '<b>Best practice</b>: the bass notes are the bass player’s part, so make them strong and even; the strums lighter.',
+        '<b>Harder</b>: walk the bass into the next chord on beat 4 (G A B into C). That’s the bluegrass and Johnny Cash sound.',
+      ]),
+      R('Alternating bass with strums', 'level 3 · Carter style', { meter: '4/4', sub: 2, bpm: 90, chart: 'C:maj | F:maj | G:maj | C:maj', gtr: 'b.DU5.DU' }, [
+        '<b>Count</b>: bass on 1, down-up on 2 &, bass on 3, down-up on 4 &.',
+        '<b>Hand</b>: the upstroke after each strum keeps the pendulum going, so the next bass note arrives on time.',
+        '<b>Best practice</b>: alternate the bass between the root and the 5th: on C, the A string, 3rd fret (C), then the low E string, 3rd fret (G).',
+        '<b>Harder</b>: play the melody on the bass strings between the strums, as Maybelle Carter did.',
+      ]),
+      R('The waltz', 'level 2 · 3/4', { meter: '3/4', sub: 2, bpm: 100, chart: 'G:maj | D:maj | D:maj | G:maj', gtr: 'b.D.D.' }, [
+        '<b>Count</b>: 1 & 2 & 3 &: bass on 1, strums on 2 and 3. Oom – pah – pah.',
+        '<b>Best practice</b>: three beats, not four with one missing. Count every bar from 1 until it feels natural.',
+        '<b>Harder</b>: add up-strums on the “&”s of 2 and 3; then play it as a jazz waltz, swung, with the accent on 1 only.',
+      ]),
+      R('6/8: the ballad', 'level 3 · two beats of three', { meter: '6/8', bpm: 60, chart: 'C:maj | A:min | F:maj | G:maj', gtr: 'D.UD.U' }, [
+        '<b>Count</b>: 1 2 3 4 5 6, felt in two: <b>1</b> 2 3 <b>4</b> 5 6. The grid shows it as 1 & a 2 & a.',
+        '<b>Hand</b>: down on 1 and 4, up on 3 and 6. A rocking feel.',
+        '<b>Best practice</b>: feel two big beats, not six small ones. 6/8 is 2 beats of three, so it swings in a way 3/4 doesn’t.',
+        '<b>Harder</b>: arpeggiate it instead, one string per eighth note, the way slow soul and doo-wop ballads do.',
+      ]),
+      R('12/8 shuffle boogie', 'level 3 · the blues in A', { meter: '12/8', bpm: 80, chart: 'A:7 | D:7 | A:7 | A:7 | D:7 | D:7 | A:7 | A:7 | E:7 | D:7 | A:7 | E:7', gtr: 'P.PQ.QP.PQ.Q', drums: { k: 'x.....x.....', s: '...x.....x..', h: 'x.xx.xx.xx.x' } }, [
+        '<b>Count</b>: four beats, each split in three: 1 & a 2 & a… The shuffle plays on 1 and a of each beat: long – short.',
+        '<b>Hand</b>: the boogie, two strings: root and 5th (5 on the grid), then root and 6th (6), stretching the third finger. On A: open A with the D string at fret 2, then fret 4.',
+        '<b>Best practice</b>: palm-mute lightly. Keep the long–short swing exact; it’s the whole style.',
+        '<b>Harder</b>: add the ♭7 (D string, fret 5) on the 3rd beat: 5 – 6 – ♭7 – 6.',
+      ]),
+      R('Swing: four to the bar', 'level 4 · jazz rhythm guitar', { meter: '4/4', sub: 2, bpm: 120, swing: 0.33, chart: 'C:6 A:7 | D:m7 G:7 | C:6 A:7 | D:m7 G:7', gtr: 'd.d.d.d.', drums: { h: 'x.xxx.xx' }, bass: 'r.3.5.a.' }, [
+        '<b>Count</b>: four even downstrokes a bar. Swung 8ths are long–short, like triplets with the middle one missing.',
+        '<b>Hand</b>: three-note chords (shells) on the middle strings, each stroke short. Lift the fretting hand off after each one.',
+        '<b>Best practice</b>: beats 2 and 4 a little stronger. This is Freddie Green’s job in the Basie band: you’re a drum with pitches.',
+        '<b>Harder</b>: 200 bpm, and keep it relaxed.',
+      ]),
+      R('Bossa nova', 'level 4 · thumb and fingers', { meter: '4/4', sub: 2, bpm: 120, chart: 'C:maj7 | % | D:m7 | G:7', gtr: 'd..d..d.', bass: 'r...5...', drums: { m: 'xxxxxxxx', r: 'x..x..x.' } }, [
+        '<b>Count</b>: 1 & 2 & 3 & 4 &. The thumb plays the bass on 1 and 3 (root, then 5th); the fingers play the chord on 1, the “&” of 2 and 4: three, three, two.',
+        '<b>Hand</b>: fingerstyle. Thumb steady like a heartbeat; fingers pluck the top three strings together, lightly.',
+        '<b>Best practice</b>: thumb first, alone, until it doesn’t waver. Then add the fingers one hit at a time.',
+        '<b>Harder</b>: the two-bar bossa pattern, with different hits in the second bar, as João Gilberto played it.',
+      ]),
+      R('The gallop', 'level 4 · eighth and two sixteenths', { meter: '4/4', sub: 4, bpm: 110, chart: 'E:5 | % | C:5 | D:5', gtr: 'D.DUD.DUD.DUD.DU', drums: { k: 'x...x...x...x...', s: '....x.......x...', h: 'x.x.x.x.x.x.x.x.' } }, [
+        '<b>Count</b>: 1 & a, 2 & a…: an 8th then two 16ths on every beat. Da – da-da.',
+        '<b>Hand</b>: down, then down-up. Palm-muted power chords.',
+        '<b>Best practice</b>: the two 16ths must be even. Practise at 80 before 110; the gallop smears easily.',
+        '<b>Harder</b>: reverse it (two 16ths then an 8th: da-da – da). The sound of classic metal.',
+      ]),
+      R('Punk eighths', 'level 3 · all downstrokes', { meter: '4/4', sub: 2, bpm: 160, chart: 'E:5 | C:5 | G:5 | D:5', gtr: 'DDDDDDDD', drums: ROCK }, [
+        '<b>Count</b>: eighths, every one a downstroke.',
+        '<b>Hand</b>: the one pattern where the hand doesn’t alternate. Small, fast strokes from the wrist; palm-mute the low strings.',
+        '<b>Best practice</b>: stamina. Play two minutes without stopping at 140 before going faster. Tension is the enemy; drop your shoulder.',
+        '<b>Harder</b>: 200 bpm, the Ramones speed.',
+      ]),
+      R('The clave beat', 'level 4 · 3-2, one bar', { meter: '4/4', sub: 4, bpm: 100, chart: 'E:maj | % | A:maj | E:maj', gtr: 'D..U..D...D.D...', drums: { k: 'x...x...x...x...', m: 'x.x.x.x.x.x.x.x.' } }, [
+        '<b>Count</b>: 1 e & a… Three hits (1, the “a” of 1, the “&” of 2), then two (the “&” of 3, and 4): the 3–2 clave squeezed into one bar.',
+        '<b>Hand</b>: 16ths throughout, the hand alternating; strike only where the grid shows.',
+        '<b>Best practice</b>: clap it first while counting, then play it. The clave is the backbone of Afro-Cuban music and the Bo Diddley beat.',
+        '<b>Harder</b>: play it 2–3 (the two hits first).',
+      ]),
+      R('5/4: three plus two', 'level 5 · odd meter', { meter: '5/4', sub: 2, groups: [3, 2], bpm: 160, chart: 'Eb:m7 | Bb:m7', gtr: 'D.DUD.D.D.', drums: { k: 'x.....x...', s: '...x....x.', h: 'x.x.x.x.x.' } }, [
+        '<b>Count</b>: 1 2 3 4 5, grouped <b>1</b> 2 3 <b>4</b> 5: a bar of 3 and a bar of 2 glued together.',
+        '<b>Best practice</b>: say “1-2-3-1-2” out loud with the click. Don’t count to five as one long line; feel the two groups.',
+        '<b>Hear it</b>: “Take Five”, which vamps on these two chords.',
+        '<b>Harder</b>: group it 2 + 3 instead, and feel the difference.',
+      ]),
+      R('7/8: two, two, three', 'level 6 · odd meter', { meter: '7/8', groups: [2, 2, 3], bpm: 200, chart: 'D:min | C:maj', gtr: 'D.D.D..', drums: { k: 'x...x..', s: '..x...x', h: 'xxxxxxx' } }, [
+        '<b>Count</b>: seven eighths, grouped 1-2, 1-2, 1-2-3. The click accents each group’s first note.',
+        '<b>Best practice</b>: say the groups as words: “quick, quick, slow”. The last group is the long one.',
+        '<b>Hear it</b>: Balkan folk dances, and progressive rock (Pink Floyd’s “Money” is in 7/4).',
+        '<b>Harder</b>: 3 + 2 + 2, and 2 + 3 + 2. Same meter, three different grooves.',
+      ]),
+    ],
+  });
+}
+
+// ---------- soloing over grooves: drums, bass and a guitar part loop; you solo over them, level by level ----------
+{
+  const S = (t, s, groove, b) => ({ t, s, groove: { click: false, ...groove }, b });
+  const ROCK = { k: 'x...x...', s: '..x...x.', h: 'xxxxxxxx' };
+  DECKS.splice(DECKS.findIndex((d) => d.id === 'fluency'), 0, {
+    id: 'grooves', name: 'Soloing over grooves', cards: [
+      { t: 'How to use these', s: 'the practice method', b: [
+        'Each card loops a groove: drums, bass and a guitar part. Turn the Guitar off if you want to be the only guitar, and use the tempo buttons freely.',
+        '- <b>Listen first</b>: one full loop without playing. Find beat 1, hum the bass line',
+        '- <b>Three notes</b>: one chorus using only three notes. Rhythm and space do the work',
+        '- <b>Then the scale</b>, then the chord tones on the strong beats',
+        '- <b>Call and response</b>: play two bars, rest two bars. Rests are part of the solo',
+        '- <b>Record yourself</b> and listen back once a week',
+        'Levels rise from one scale over one chord to changes, swing and odd meters.',
+      ] },
+      S('Rock in A minor', 'level 1 · one scale', { meter: '4/4', sub: 2, bpm: 90, chart: 'A:m7 | % | G:maj | D:maj', gtr: 'd...d.u.', drums: ROCK, bass: 'r...r.5.' }, [
+        '<b>Play</b>: A minor pentatonic, box 1 at the 5th fret. It fits all three chords.',
+        '<b>Step 1</b>: only A, C and E. Start phrases on beat 1, end them on A.',
+        '<b>Step 2</b>: the whole box; bend the D (3rd string, 7th fret) up a whole step to E.',
+        '<b>Step 3</b>: target the chord tones as the chords change: B over G (the 3rd), F♯ over D (its 3rd, from A Dorian).',
+        '<b>Harder</b>: the same idea an octave up, in box 4 at the 12th fret.',
+      ]),
+      S('The blues shuffle in A', 'level 1 · 12/8', { meter: '12/8', bpm: 80, chart: 'A:7 | D:7 | A:7 | A:7 | D:7 | D:7 | A:7 | A:7 | E:7 | D:7 | A:7 | E:7', gtr: 'P.PQ.QP.PQ.Q', drums: { k: 'x.....x.....', s: '...x.....x..', h: 'x.xx.xx.xx.x' } }, [
+        '<b>Play</b>: the A blues scale (A C D E♭ E G).',
+        '<b>Step 1</b>: phrase in the shuffle: long–short. Straight 8ths over a shuffle is the commonest blues mistake.',
+        '<b>Step 2</b>: call and response with the form: a phrase in bar 1, the same in bar 5 (it sounds different over D7), an answer in bar 9.',
+        '<b>Step 3</b>: chord tones: C♯ over A7, F♯ over D7, G♯ over E7. Mix major and minor: C → C♯ over A7 is the blues.',
+        '<b>Harder</b>: one note only for a whole chorus, all variety from rhythm, bends and vibrato.',
+      ]),
+      S('Pop ballad in G', 'level 2 · major pentatonic', { meter: '4/4', sub: 2, bpm: 76, chart: 'G:maj | D:maj | E:min | C:maj', gtr: 'D.DU.UDU', drums: { k: 'x.....x.', s: '..x...x.', h: 'x.x.x.x.' }, bass: 'r...5...' }, [
+        '<b>Play</b>: G major pentatonic (G A B D E). It fits every chord.',
+        '<b>Step 1</b>: sing a melody first, then play it. Long notes, like a vocal.',
+        '<b>Step 2</b>: land on each chord’s 3rd as it arrives: B, F♯, G, E. Add F♯ and C from the full G major scale when they help.',
+        '<b>Step 3</b>: build: low and simple for 8 bars, higher and busier for the next 8.',
+        '<b>Harder</b>: slide into notes and use double-stops in 3rds (G and B together).',
+      ]),
+      S('Funk vamp on E9', 'level 2 · sixteenths', { meter: '4/4', sub: 4, bpm: 96, chart: 'E:9 | % | % | %', gtr: 'D.xU.Ux.D.xU.Ux.', drums: { k: 'x.....x...x.....', s: '....x.......x...', h: 'x.x.x.x.x.x.x.x.' }, bass: 'r.....r...5.r...' }, [
+        '<b>Play</b>: E minor pentatonic plus G♯ (the 3rd) and C♯ (the 13): E Dorian and Mixolydian mixed.',
+        '<b>Step 1</b>: short, percussive notes. Muted 16ths between notes keep the groove going.',
+        '<b>Step 2</b>: start phrases off the beat, on the “e” or “a”.',
+        '<b>Step 3</b>: double-stops on the top two strings, slid into from a fret below.',
+        '<b>Harder</b>: one two-bar riff, repeated, changing only one note each time.',
+      ]),
+      S('Reggae in A minor', 'level 2 · space', { meter: '4/4', sub: 2, bpm: 75, chart: 'A:min | D:min | A:min | E:min', gtr: '..K...K.', drums: { k: '....x...', r: '....x...', h: 'x.x.x.x.' }, bass: 'r...r.5.' }, [
+        '<b>Play</b>: A minor pentatonic, or A natural minor.',
+        '<b>Step 1</b>: play less. Two- or three-note phrases with lots of air.',
+        '<b>Step 2</b>: lay back: place notes slightly behind the beat.',
+        '<b>Step 3</b>: answer the bass line: play when it rests.',
+        '<b>Harder</b>: melody in octaves (thumb or first finger and fourth finger, the middle strings muted).',
+      ]),
+      S('6/8 minor groove', 'level 3 · threes and twos', { meter: '6/8', bpm: 66, chart: 'A:min | F:maj | G:maj | A:min', gtr: 'D.UD.U', drums: { k: 'x.....', s: '...x..', h: 'xxxxxx' }, bass: 'r..5..' }, [
+        '<b>Play</b>: A natural minor.',
+        '<b>Step 1</b>: phrases in groups of three eighths, matching the meter.',
+        '<b>Step 2</b>: hemiola: play groups of two across the bar (three quarter notes in a bar of 6/8). It pulls against the beat and resolves on 1.',
+        '<b>Step 3</b>: chord tones: E over Am, A over F, B over G.',
+        '<b>Harder</b>: switch freely between threes and twos, and land every phrase on beat 1.',
+      ]),
+      S('Jazz waltz in D minor', 'level 4 · 3/4, changes', { meter: '3/4', sub: 2, bpm: 140, swing: 0.3, chart: 'D:m7 | G:7 | C:maj7 | A:7b9', gtr: 'd.d.d.', drums: { h: 'x.xxx.', k: 'x.....' }, bass: 'r.3.5.' }, [
+        '<b>Play</b>: D Dorian, G Mixolydian, C major, then D harmonic minor over A7♭9.',
+        '<b>Step 1</b>: the 3rd of each chord on beat 1: F, B, E, C♯.',
+        '<b>Step 2</b>: four-bar phrases. A waltz breathes in fours.',
+        '<b>Step 3</b>: swung 8ths, with arpeggios from the 3rd.',
+        '<b>Harder</b>: play groups of four 8ths against the 3/4 (they shift across the bar lines) and resolve after 12 beats.',
+      ]),
+      S('Bossa ii–V–I', 'level 4 · changes, light touch', { meter: '4/4', sub: 2, bpm: 125, chart: 'D:m7 | G:7 | C:maj7 | A:7b9', gtr: 'd..d..d.', bass: 'r...5...', drums: { m: 'xxxxxxxx', r: 'x..x..x.' } }, [
+        '<b>Play</b>: C major over the first three; D harmonic minor (A Phrygian dominant) over A7♭9.',
+        '<b>Step 1</b>: soft, legato, mostly stepwise. Bossa melodies sing rather than shout.',
+        '<b>Step 2</b>: guide tones: F – F – E – C♯ – C as the backbone of your line.',
+        '<b>Step 3</b>: anticipate: land the new chord’s note on the “&” of 4 before the bar.',
+        '<b>Harder</b>: A7alt (B♭ melodic minor) in bar 4.',
+      ]),
+      S('Swing: C minor blues', 'level 5 · walking bass, ride', { meter: '4/4', sub: 3, bpm: 140, chart: 'C:m7 | F:m7 | C:m7 | C:m7 | F:m7 | F:m7 | C:m7 | C:m7 | Ab:7 | G:7alt | C:m7 | G:7alt', drums: { h: 'x..x.xx..x.x', k: 'x.....x.....' }, bass: 'r..3..5..a..', gtr: '...d.....d..' }, [
+        '<b>Play</b>: C minor pentatonic and C Dorian; F Dorian on Fm7; A♭ Lydian dominant and G altered in bars 9–10.',
+        '<b>Step 1</b>: swing 8ths: long–short, with the ride cymbal.',
+        '<b>Step 2</b>: hit the change in bar 5: A♭ (the ♭3 of Fm) where you’d played E♭.',
+        '<b>Step 3</b>: bars 9–10: resolve A♭ → G and B → C into bar 11.',
+        '<b>Harder</b>: double-time lines (16th notes) for two bars, then back to swing 8ths.',
+      ]),
+      S('Funk ii–V: Dm7 – G7', 'level 5 · Dorian and changes', { meter: '4/4', sub: 4, bpm: 100, chart: 'D:m7 | G:7 | D:m7 | G:7', gtr: 'D.xU.Ux.D.xU.Ux.', drums: { k: 'x.....x...x.....', s: '....x.......x...', h: 'x.x.x.x.x.x.x.x.' }, bass: 'r.....r...5.r...' }, [
+        '<b>Play</b>: D Dorian over both, then outline the change: F → F (stays) and C → B.',
+        '<b>Step 1</b>: a two-bar riff that works over both chords.',
+        '<b>Step 2</b>: B on beat 1 of every G7 bar. That one note makes the change audible.',
+        '<b>Step 3</b>: F and G triads alternated (a triad pair, both in D Dorian).',
+        '<b>Harder</b>: D minor pentatonic up a half step (E♭) for a beat, then back: outside and in.',
+      ]),
+      S('5/4 in E♭ minor', 'level 6 · odd meter', { meter: '5/4', sub: 2, groups: [3, 2], bpm: 160, chart: 'Eb:m7 | Bb:m7', gtr: 'D.DUD.D.D.', drums: { k: 'x.....x...', s: '...x....x.', h: 'x.x.x.x.x.' }, bass: 'r...5.r.5.' }, [
+        '<b>Play</b>: E♭ minor pentatonic or E♭ Dorian over both chords.',
+        '<b>Step 1</b>: feel 3 + 2. Start phrases on 1 and on 4.',
+        '<b>Step 2</b>: five-beat phrases that end on beat 1 of the next bar.',
+        '<b>Step 3</b>: phrases that run over the bar line and resolve on beat 4.',
+        '<b>Harder</b>: groups of three 8ths across the bar: it takes three bars to come round.',
+      ]),
+      S('7/8 in D minor', 'level 6 · odd meter', { meter: '7/8', groups: [2, 2, 3], bpm: 200, chart: 'D:min | C:maj', gtr: 'D.D.D..', drums: { k: 'x...x..', s: '..x...x', h: 'xxxxxxx' }, bass: 'r.r.5..' }, [
+        '<b>Play</b>: D natural minor (D Aeolian) or D Dorian.',
+        '<b>Step 1</b>: count 1-2, 1-2, 1-2-3 out loud while playing one note per group.',
+        '<b>Step 2</b>: seven-note phrases in 8ths: one note per 8th, so every phrase fits the bar exactly.',
+        '<b>Step 3</b>: leave the long group (the three) for the held or bent note.',
+        '<b>Harder</b>: phrases of five and nine 8ths, so the line lands on beat 1 only every few bars.',
+      ]),
+      S('Phrygian in 12/8', 'level 7 · E – F, Spanish', { meter: '12/8', bpm: 70, chart: 'E:maj | F:maj | E:maj | F:maj', gtr: 'D..D..D.UD..', drums: { r: 'x.x.xx.x.x.x', k: 'x.....x.....' }, bass: 'r.....r..5..' }, [
+        '<b>Play</b>: E Phrygian dominant (E F G♯ A B C D) over E, E Phrygian (with G) over F.',
+        '<b>Step 1</b>: lean on the half step F → E. It’s the whole flavour.',
+        '<b>Step 2</b>: triplet runs down the scale into E on beat 1.',
+        '<b>Step 3</b>: the rim plays the 12/8 bell pattern: phrase with it, not against it.',
+        '<b>Harder</b>: alternate G♯ (over E) and G (over F) exactly on the chord changes.',
+      ]),
+    ],
+  });
+}
+
+// ---------- contrary motion and other killer drills, each on the neck ----------
+{
+  const fl = DECKS.find((d) => d.id === 'fluency');
+  const at = fl.cards.findIndex((c) => c.t === 'Triads through the key');
+  fl.cards.splice(at + 1, 0,
+    { t: 'Contrary motion: scale steps apart', s: 'two voices, opposite directions', drill: { bpm: 60, sub: 1, goal: 'quarters at 120', from: 'quarters at 50', drone: 'C' },
+      neck: { kind: 'contrary', id: 'major', key: 'C', start: 64, steps: 8 }, b: [
+        'Start both voices on the same E (B string 5th fret and the open top string). Each step, the lower voice goes down C major and the upper goes up: E/E, D/F, C/G, B/A… until they’re two octaves apart, then back in.',
+        '- Fingerstyle: thumb or middle finger on the lower voice, ring finger on the upper. Or pick the lower note and pluck the upper with a finger (hybrid picking)',
+        '- Name the interval between them at each step: unison, 3rd, 5th, 7th…',
+        'Why it matters: contrary motion is the strongest way two lines can move. Every good bass line against a melody does it.',
+      ] },
+    { t: 'The wedge', s: 'chromatic contrary motion', drill: { bpm: 60, sub: 1, goal: 'quarters at 120', from: 'quarters at 50', drone: 'C' },
+      neck: { kind: 'contrary', start: 60, steps: 13 }, b: [
+        'From one C, both voices move a half step at a time, one down and one up, until they’re two octaves apart: C/C, B/C♯, B♭/D, A/D♯…',
+        '- Listen to the intervals open out: unison, major 2nd, major 3rd, tritone, minor 6th… every other step is a whole number of tones',
+        '- Then go back in, the voices converging on the C',
+        'A Romantic-era and film-score device: two lines spreading from one note build tension without any harmony at all.',
+      ] },
+    { t: 'Bass down, melody up', s: 'outer voices in contrary motion', drill: { bpm: 60, sub: 1, goal: 'quarters at 100', from: 'quarters at 50', drone: 'C' },
+      neck: { kind: 'contrary', id: 'major', key: 'C', start: 48, gap: 16, steps: 6 }, b: [
+        'The bass walks down C – B – A – G – F – E on the low strings while the melody climbs E – F – G – A – B – C on the top strings.',
+        '- These outer voices imply C – G/B – Am – Em/G? no matter: just the two lines, and hear the harmony they suggest',
+        '- Thumb on the bass, ring finger on the melody. Keep both voices equally loud, then make the melody louder',
+        'Then add one inner note between them on each step and you have a chord-melody arrangement with real voice leading.',
+      ] },
+    { t: 'The spider', s: 'finger independence', drill: { bpm: 60, sub: 2, goal: '8ths at 140', from: '8ths at 60', drone: 'E' },
+      neck: { kind: 'spider', from: 5 }, b: [
+        'Fingers 1-2-3-4 at frets 5-6-7-8, alternating two strings: 1 on the 6th, 2 on the 5th, 3 on the 6th, 4 on the 5th. Then the 4th and 3rd strings, then the 2nd and 1st, then back down.',
+        '- Keep every finger down until it has to move; only one finger lifts at a time',
+        '- Strict alternate picking. It trains the hand to move fingers independently, which chromatic runs don’t',
+        '- Variations: 1-3-2-4, or 1-4 on one string and 2-3 on the next',
+      ] },
+    { t: 'Octaves', s: 'Wes Montgomery’s way up the neck', drill: { bpm: 60, sub: 1, goal: 'quarters at 140', from: 'quarters at 60', drone: 'G' },
+      neck: { kind: 'list', events: [[[6, 3, '1'], [4, 5, '1']], [[6, 5, '2'], [4, 7, '2']], [[6, 7, '3'], [4, 9, '3']], [[6, 8, '4'], [4, 10, '4']], [[6, 10, '5'], [4, 12, '5']], [[6, 12, '6'], [4, 14, '6']], [[6, 14, '7'], [4, 16, '7']], [[6, 15, '1'], [4, 17, '1']]] }, b: [
+        'G major in octaves on the 6th and 4th strings: first finger on the low note, third or fourth on the high one, two frets up and two strings over.',
+        '- Mute the 5th string between them with the underside of the first finger, then strum all three with the thumb or the pick. Only the two octave notes should sound',
+        '- On the 5th and 3rd strings it’s the same shape; on the 4th and 2nd, the upper note moves one fret further up (the B string again)',
+        'Then play melodies in octaves. It’s the fattest single-note sound on the guitar.',
+      ] },
+    { t: 'Rhythmic displacement', s: 'one lick, four starting points', drill: { bpm: 70, sub: 2, goal: '8ths at 160', from: '8ths at 70', drone: 'G' },
+      neck: { kind: 'list', events: [[6, 3, '1'], [6, 5, '2'], [5, 2, '3'], [5, 5, '5'], [], [], [], [], [], [6, 3, '1'], [6, 5, '2'], [5, 2, '3'], [5, 5, '5'], [], [], [], [], [], [6, 3, '1'], [6, 5, '2'], [5, 2, '3'], [5, 5, '5'], [], [], [], [], [], [6, 3, '1'], [6, 5, '2'], [5, 2, '3'], [5, 5, '5'], []] }, b: [
+        'A four-note lick, G A B D, played in 8ths starting on beat 1, then a bar later starting on the “&” of 1, then on 2, then on the “&” of 2.',
+        '- The notes never change, but each start makes a different accent pattern. It’s one of the fastest ways to get more out of the licks you already know',
+        '- Count out loud and feel where the first note lands each time',
+        'Then do it with any lick of your own, and with groups of three notes (they displace themselves every beat).',
+      ] },
+  );
+  fl.cards.find((c) => c.t === 'Bass down, melody up').b[1] = '- Just the two lines first, and hear the harmony they suggest: C, then G/B, Am, G… under a rising tune';
+}
+
+// ---------- intervals: the building blocks, on the neck and in the ear ----------
+DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
+  id: 'intervals', name: 'Intervals', cards: [
+    { t: 'What an interval is', s: 'the distance between two notes', b: [
+      'An interval is counted in half steps, and on the guitar a half step is one fret. C to E is four frets: a major 3rd.',
+      'Its name has two parts: a number (count the letters: C D E is a 3rd) and a quality (major, minor, perfect, augmented, diminished).',
+      '- 2nds, 3rds, 6ths and 7ths are <b>major</b> or <b>minor</b>',
+      '- Unisons, 4ths, 5ths and octaves are <b>perfect</b>',
+      'Melodic: one note after the other. Harmonic: both together. Train both.',
+    ], ex: [['C to E: a major 3rd, melodic then harmonic', '=C3 | E3 | C3 E3', 'C · E · C+E'], ['C to E♭: a minor 3rd, one fret smaller', '=C3 | Eb3 | C3 Eb3', 'C · E♭ · C+E♭']] },
+    { t: 'The twelve', s: 'within an octave', b: [
+      '- 1 fret: minor 2nd. 2: major 2nd. 3: minor 3rd. 4: major 3rd',
+      '- 5: perfect 4th. 6: the tritone (augmented 4th or diminished 5th)',
+      '- 7: perfect 5th. 8: minor 6th. 9: major 6th',
+      '- 10: minor 7th. 11: major 7th. 12: the octave',
+      'Same sound, two names: the tritone is ♯4 or ♭5; a minor 6th is spelled differently from an augmented 5th (C–A♭ vs C–G♯) depending on the key.',
+    ], ex: [['All twelve from C, each one fret wider', '=C3 Db3 | C3 D3 | C3 Eb3 | C3 E3 | C3 F3 | C3 Gb3 | C3 G3 | C3 Ab3 | C3 A3 | C3 Bb3 | C3 B3 | C3 C4', 'm2 · M2 · m3 · M3 · P4 · TT · P5 · m6 · M6 · m7 · M7 · 8ve']] },
+    { t: 'Intervals across the strings', s: 'the shapes', b: [
+      'On the 6th to 3rd strings (tuned in 4ths):',
+      '- Next string, same fret: a perfect 4th. Two frets up: a perfect 5th (the power chord)',
+      '- Next string, one fret down: a major 3rd. Two frets down: a minor 3rd',
+      '- Two strings over, two frets up: the octave',
+      '<b>Crossing to the B string</b>, every shape moves one fret up, because G to B is a major 3rd, not a 4th. That’s the one rule that makes guitar shapes change.',
+    ], ex: [['A 4th, a 5th and an octave from A', '=A2 D3 | A2 E3 | A2 A3', 'P4 · P5 · 8ve'], ['A major 3rd and a minor 3rd from C', '=C3 E3 | C3 Eb3', 'M3 · m3']] },
+    { t: 'Inversions add up to 9', s: 'turn an interval upside down', b: [
+      'Move the lower note up an octave and the interval inverts. The numbers add up to 9 and the quality flips:',
+      '- 3rd ↔ 6th, 2nd ↔ 7th, 4th ↔ 5th',
+      '- Major ↔ minor; perfect stays perfect; the tritone stays a tritone',
+      'So C up to E is a major 3rd, and E up to C is a minor 6th. Learn six intervals and you have twelve.',
+    ], ex: [['C–E (major 3rd), then E–C (minor 6th)', '=C3 E3 | E3 C4', 'M3 · m6'], ['C–G (5th), then G–C (4th)', '=C3 G3 | G3 C4', 'P5 · P4']] },
+    { t: 'Compound intervals', s: '9, 11 and 13', b: [
+      'Beyond the octave, add 7: a 9th is a 2nd plus an octave, an 11th a 4th plus an octave, a 13th a 6th plus an octave.',
+      'In chord symbols they mean the same notes as 2, 4 and 6, but placed above the 7th: C9 has D, C13 has A.',
+      '- A 10th (a 3rd plus an octave) is the most beautiful interval on the guitar: bass and melody in 10ths is a whole style',
+    ], ex: [['C to D: a 2nd, then a 9th', '=C3 D3 | C3 D4', 'M2 · M9'], ['Moving 10ths: C–E, D–F, E–G', '=C3 E4 | D3 F4 | E3 G4', '10ths in C']] },
+    { t: 'Consonant and dissonant', s: 'stable and restless', b: [
+      '- <b>Perfect consonances</b>: unison, octave, 5th. Open and stable',
+      '- <b>Imperfect consonances</b>: 3rds and 6ths. Sweet; the sound of harmony',
+      '- <b>Dissonances</b>: 2nds, 7ths and the tritone. They want to move',
+      'The 4th is both: stable over another note, unstable over the bass.',
+      'Good lines move from dissonance to consonance. That’s what resolution is.',
+    ], ex: [['A 7th resolving to a 6th, and a tritone to a 3rd', '=G3 F4 | G3 E4 | B3 F4 | C4 E4', 'm7 → M6 · TT → M3']] },
+    { t: 'The tritone', s: 'half an octave', b: [
+      'Six half steps: exactly half an octave, so it inverts to itself. B–F and F–B are both tritones.',
+      'It’s the engine of the dominant 7th: in G7, B and F. B rises to C, F falls to E, and the restlessness is resolved.',
+      '- Because it’s symmetrical, the same tritone belongs to two dominants a tritone apart: G7 and D♭7. That’s the tritone sub',
+    ], ex: [['B–F resolving to C–E', '=B3 F4 | C4 E4', 'TT → M3'], ['The same tritone in G7 and D♭7, both into C', 'G:7 C:maj7 Db:7 C:maj7']] },
+    { t: 'Hearing them', s: 'a tune for each', b: [
+      'Tie each interval to the start of a tune you know:',
+      '- m2: “Jaws”. M2: “Happy Birthday”. m3: “Greensleeves”',
+      '- M3: “When the Saints Go Marching In”. P4: “Here Comes the Bride”',
+      '- Tritone: “Maria” (West Side Story). P5: “Twinkle, Twinkle”',
+      '- M6: “My Bonnie Lies over the Ocean”. m7: “Somewhere” (West Side Story). M7: the chorus of “Take On Me”. Octave: “Over the Rainbow”',
+      'Then use the Sing page’s interval drills to hear them without the tunes.',
+    ] },
+    { t: 'Chords are stacked intervals', s: 'major 3rds and minor 3rds', b: [
+      '- Major triad: major 3rd, then minor 3rd (C E G). Minor: minor, then major (C E♭ G)',
+      '- Diminished: two minor 3rds. Augmented: two major 3rds',
+      '- 7th chords add another 3rd: Cmaj7 is M3 m3 M3; C7 is M3 m3 m3; Cm7 is m3 M3 m3; Cø7 is m3 m3 M3; C°7 is m3 m3 m3',
+      'Know the stack and you can build any chord from any note without a chart.',
+    ], ex: [['Cmaj7, C7, Cm7, Cø7, C°7', 'C:maj7 C:7 C:m7 C:m7b5 C:dim7']] },
+    { t: 'Practise them on the neck', s: 'a daily five minutes', b: [
+      '- Pick one interval. Play it from every note on the 6th string, up the neck, saying the note names',
+      '- Then the same on the 5th string, and across the G–B pair, where the shape shifts',
+      '- Then sing it before you play it',
+      '- Then improvise using only that interval: a solo in 4ths, a solo in 6ths. You’ll hear what each interval is for',
+    ], ex: [['A melody in 6ths, up the C scale', '=E3 C4 | F3 D4 | G3 E4 | A3 F4 | B3 G4 | C4 A4', '6ths in C']] },
+  ],
+});
+
+// the play-along exercise decks sit together at the end: comping, rhythm, grooves, drills
+{ const i = DECKS.findIndex((d) => d.id === 'comping'); const [cp] = DECKS.splice(i, 1); DECKS.splice(DECKS.findIndex((d) => d.id === 'rhythm'), 0, cp); }

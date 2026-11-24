@@ -137,5 +137,46 @@ export function drillPattern(spec) {
     }
     return { dots, events: ev, perKey: true };
   }
+  if (spec.kind === 'contrary') { // two voices moving apart from one note: by scale step, or chromatically (the wedge)
+    const ivs = spec.id ? T.getScale(spec.id).ivs.map(semi) : null;
+    const inScale = (m) => !ivs || ivs.includes(((m - pc) % 12 + 12) % 12);
+    const pairs = [];
+    let lo = spec.start, hi = spec.start + (spec.gap || 0);
+    pairs.push([lo, hi]);
+    for (let i = 1; i < (spec.steps || 8); i++) {
+      do { lo--; } while (!inScale(lo));
+      do { hi++; } while (!inScale(hi));
+      pairs.push([lo, hi]);
+    }
+    const placed = [];
+    let centre = null;
+    for (const [a, b] of pairs) {
+      let best = null, bc = Infinity;
+      for (let s1 = 6; s1 >= 2; s1--) for (let s2 = s1 - 1; s2 >= 1; s2--) {
+        const f1 = a - OPEN[s1], f2 = b - OPEN[s2];
+        if (f1 < 0 || f2 < 0 || f1 > 15 || f2 > 15) continue;
+        const fr = [f1, f2].filter((f) => f > 0), span = fr.length === 2 ? Math.abs(f1 - f2) : 0;
+        if (span > 7 || (span > 5 && !(s1 === 6 && s2 <= 2))) continue; // wide only for thumb-and-finger (low E and the top strings)
+        const c = span + (centre == null ? (f1 + f2) * 0.05 : Math.abs((f1 + f2) / 2 - centre) * 0.5);
+        if (c < bc) { bc = c; best = [note(s1, f1, ''), note(s2, f2, '')]; }
+      }
+      if (!best) continue;
+      centre = (best[0].fret + best[1].fret) / 2;
+      const iv = (m) => { const r = ((m - pc) % 12 + 12) % 12; return T.getScale('major').ivs[T.getScale('major').ivs.map(semi).indexOf(r)] || ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'][r]; };
+      placed.push(best.map((n) => ({ ...n, iv: iv(n.midi) })));
+    }
+    const ev = [...placed, ...[...placed].reverse().slice(1)];
+    return { dots: placed.flat(), events: ev };
+  }
+  if (spec.kind === 'spider') { // fingers 1-2-3-4 at frets f..f+3, alternating two strings, across the neck and back
+    const f = spec.from ?? 1, ev = [];
+    for (const [a, b] of [[6, 5], [4, 3], [2, 1]]) [a, b, a, b].forEach((st, j) => ev.push([note(st, f + j, String(j + 1))]));
+    for (const [a, b] of [[1, 2], [3, 4], [5, 6]]) [a, b, a, b].forEach((st, j) => ev.push([note(st, f + 3 - j, String(4 - j))]));
+    return { dots: ev.flat(), events: ev, labels: 'finger' };
+  }
+  if (spec.kind === 'list') { // written out: [[string, fret, degree], …] per event, [] for a rest
+    const ev = spec.events.map((e) => (e.length && Array.isArray(e[0]) ? e : e.length ? [e] : []).map(([st, f, iv]) => note(st, f, iv)));
+    return { dots: ev.flat(), events: ev };
+  }
   return { dots: [], events: [] };
 }

@@ -7,12 +7,17 @@ import { esc } from '../fundamentals/core.js';
 import { DECKS } from './cards.js';
 import { exampleSteps, styleOf } from './fingering.js';
 import { drillPattern, SEQS } from './drillneck.js';
+import { grooveHTML, startGroove, stopGroove, grooveOn } from './groove.js';
 import { neckSlice } from './neck.js';
 import { OPEN } from '../fretboard.js';
 import { BUILD } from './build.js';
 
 const ALL = DECKS.flatMap((d) => d.cards.map((c, i) => ({ ...c, deck: d.name, n: i + 1, of: d.cards.length })));
-const listFor = (id) => (id === 'all' ? ALL : ALL.filter((c) => c.deck === DECKS.find((d) => d.id === id)?.name));
+// the exercise decks (things to play along with) can be left out of “All decks”, the Test and the Contents
+const EXERCISE = new Set(['comping', 'rhythm', 'grooves', 'fluency']);
+const isEx = (c) => EXERCISE.has(DECKS.find((d) => d.name === c.deck)?.id);
+let showEx = true;
+const listFor = (id) => (id === 'all' ? (showEx ? ALL : ALL.filter((c) => !isEx(c))) : ALL.filter((c) => c.deck === DECKS.find((d) => d.id === id)?.name));
 const shuffled = (n) => { const a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 // ---------- hearing a card: close voicings, each the smallest move from the last, over the bass ----------
@@ -223,7 +228,7 @@ function playDn(ds) {
       if (m.slot >= 0) {
         const i = m.slot % m.pat.events.length, ev = m.pat.events[i], at = m.next, len = 60 / ds.bpm / sub;
         if (ev.length > 1) A.strum(ev.map((n) => n.midi), at, { spread: 0.02, vel: 0.75 });
-        else A.pluck(ev[0].midi, at, { vel: 0.72, dur: Math.min(0.5, len * 1.3) });
+        else if (ev.length) A.pluck(ev[0].midi, at, { vel: 0.72, dur: Math.min(0.5, len * 1.3) });
         m.timers.push(setTimeout(() => { if (dn === m) drawDn(i); }, Math.max(0, (at - c.currentTime) * 1000)));
         if (m.timers.length > 48) m.timers.splice(0, 24);
       }
@@ -238,7 +243,7 @@ function openDn(btn, card, ds) {
   stopDn(true);
   const pat = drillPattern(card.neck);
   if (!pat.events.length) return;
-  const all = pat.events.flat().concat(pat.dots), fr = all.map((n) => n.fret);
+  const all = pat.events.flat().concat(pat.dots), fr = all.map((n) => n.fret).concat(all.length ? [] : [1]);
   const lo = Math.min(...fr), hi = Math.max(...fr);
   const win = { from: lo <= 2 ? 1 : lo - 1, to: Math.max(hi + 1, (lo <= 2 ? 1 : lo - 1) + 4) };
   const panel = document.createElement('div');
@@ -256,6 +261,7 @@ function openDn(btn, card, ds) {
 let comp = null;
 const symOf = (c) => T.pretty(T.chordSymbol(c.root, c.quality)) + (c.bass ? '/' + T.noteName(c.bass, true) : '');
 export function stopComp() {
+  stopGroove();
   stopDrill();
   stopEx();
   stopDn();
@@ -366,7 +372,7 @@ export function cardHTML(c, cs) {
   return `<div class="cdeck">${esc(c.deck)} · ${c.n} / ${c.of}</div>
     <h2>${acc(c.t)}</h2>${c.s ? `<div class="csrc">${c.s}</div>` : ''}
     ${c.key ? keyRow(c.key) : ''}${c.chord ? chordRow(c.chord) : ''}${c.row ? chordsRow(c.row) : ''}
-    ${c.comp ? compHTML(c, cs) : ''}${c.drill ? drillHTML(c, cs.drill) : ''}
+    ${c.comp ? compHTML(c, cs) : ''}${c.drill ? drillHTML(c, cs.drill) : ''}${c.groove ? grooveHTML(c, cs.gv) : ''}
     <div class="cbody">${bodyHTML(c.b)}</div>
     ${c.neck ? `<button class="hear dnb" data-dnk="1"><span>▦</span> Show it on the neck</button>` : ''}
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
@@ -376,8 +382,9 @@ export function cardHTML(c, cs) {
 
 // ---------- the screen ----------
 export function mountCards(root, S, save) {
-  S.cards = Object.assign({ deck: 'all', pos: {}, shuffle: false, order: {} }, S.cards || {});
+  S.cards = Object.assign({ deck: 'all', pos: {}, shuffle: false, order: {}, exercises: true }, S.cards || {});
   const st = S.cards;
+  showEx = st.exercises !== false;
   if (st.deck !== 'all' && !DECKS.some((d) => d.id === st.deck)) st.deck = 'all';
   const list = () => listFor(st.deck);
   const order = () => {
@@ -399,7 +406,7 @@ export function mountCards(root, S, save) {
   // the contents: carry on where you were, start any deck, or jump to any card
   const cs = { bpm: 80, click: st.click !== false, card: null, drill: { bpm: 60, sub: 1 } }; // the players' tempo, click and subdivision
   // the test: a random card, title only; Reveal shows the rest, Next brings another (no repeats until all are seen)
-  const NOT_TESTED = new Set(['comping', 'fluency']);
+  const NOT_TESTED = EXERCISE;
   let tq = [], tcard = null, shown = false, tcount = 0;
   const TPOOL = ALL.filter((c) => !NOT_TESTED.has(DECKS.find((d) => d.name === c.deck)?.id)); // every deck but the exercises
   let tdeck = null; // null: every deck; or one deck’s id, from its Test button in Contents
@@ -411,6 +418,7 @@ export function mountCards(root, S, save) {
   const testShow = (from = 0) => {
     stopComp(); stopEx(true); stopDn(true);
     mode = 'test';
+    if (tcard?.groove) cs.gv = { bpm: tcard.groove.bpm, click: tcard.groove.click ?? !tcard.groove.drums, drums: true, gtr: true, bass: true };
     root.querySelector('#home span').textContent = `Test · ${tdeck ? deckName(tdeck) : `${TPOOL.length} cards`}`;
     root.querySelector('#test').classList.add('on');
     stage.innerHTML = `<article class="card test${shown ? ' shown' : ''}${from ? ' from-r' : ''}">${cardHTML(tcard, cs)}${shown ? '' : '<div class="tq">What’s on this card? Say it, or play it, then reveal.</div>'}</article>`;
@@ -434,8 +442,9 @@ export function mountCards(root, S, save) {
     const c = current(), n = list().length;
     stage.innerHTML = `<div class="home">
       <button class="hcont" data-cont><small>Carry on · ${esc(deckName(st.deck))} · ${Math.min(pos() + 1, n)} / ${n}</small><b>${c ? acc(c.t) : 'Back to the start'}</b><span>▶</span></button>
-      <button class="hall" data-all>All decks in a row <span>${ALL.length} cards</span></button>
-      ${DECKS.map((d) => `<section class="hsec${openDeck === d.id ? ' open' : ''}">
+      <button class="hall" data-all>All decks in a row <span>${listFor('all').length} cards</span></button>
+      <button class="hall hex" data-exs>Exercise decks (comping, rhythm, grooves, drills) <span>${showEx ? 'shown' : 'hidden'}</span></button>
+      ${DECKS.filter((d) => showEx || !EXERCISE.has(d.id)).map((d) => `<section class="hsec${openDeck === d.id ? ' open' : ''}">
         <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-tdeck="${d.id}">Test</button><button class="hstart" data-start="${d.id}">Start</button></div>
         ${openDeck === d.id ? `<div class="hcards">${d.cards.map((x, i) => `<button data-jump="${d.id}:${i}"><span>${i + 1}</span>${acc(x.t)}</button>`).join('')}</div>` : ''}
       </section>`).join('')}
@@ -453,6 +462,7 @@ export function mountCards(root, S, save) {
     const cur = current();
     if (cur?.comp && cs.card !== cur) { cs.card = cur; cs.bpm = cur.comp.bpm; } // each comping card starts at its own tempo
     if (cur?.drill && cs.card !== cur) { cs.card = cur; cs.drill = { bpm: cur.drill.bpm, sub: cur.drill.sub || 1 }; }
+    if (cur?.groove && cs.card !== cur) { cs.card = cur; cs.gv = { bpm: cur.groove.bpm, click: cur.groove.click ?? !cur.groove.drums, drums: true, gtr: true, bass: true }; }
     stage.innerHTML = `<article class="card${from ? (from > 0 ? ' from-r' : ' from-l') : ''}">${cardHTML(cur, cs)}</article>`;
     card = stage.firstElementChild;
     foot.innerHTML = `<button class="cback" ${p === 0 ? 'disabled' : ''}>◀ Back</button><div class="cprog"><i style="width:${(100 * Math.min(p + 1, n)) / n}%"></i></div><span>${Math.min(p + 1, n)} / ${n}</span>`;
@@ -538,6 +548,15 @@ export function mountCards(root, S, save) {
       if (what === 'drone') { A.unlockAudio(); if (droneOn) { A.stopDrone(); droneOn = false; } else { A.startDrone(DRONE_MIDI(card.drill.drone), true); droneOn = true; } dr.classList.toggle('on', droneOn); }
       return;
     }
+    const gb = e.target.closest('[data-gv]');
+    if (gb) {
+      e.stopPropagation();
+      const el = gb.closest('.comp'), what = gb.dataset.gv, g = cs.gv, cardObj = mode === 'test' ? tcard : current();
+      if (what === 'play') { if (grooveOn()) stopGroove(); else startGroove(cardObj, el, g); }
+      if (what === 'up' || what === 'down') { g.bpm = Math.max(40, Math.min(260, g.bpm + (what === 'up' ? 5 : -5))); el.querySelector('.cbpm').textContent = `${g.bpm} bpm`; }
+      if (['click', 'drums', 'gtr', 'bass'].includes(what)) { g[what] = !g[what]; gb.classList.toggle('on', g[what]); }
+      return;
+    }
     const cp = e.target.closest('[data-cp]');
     if (cp) {
       e.stopPropagation();
@@ -551,6 +570,7 @@ export function mountCards(root, S, save) {
     const b = e.target.closest('button'); if (!b) return;
     if (b.dataset.cont != null) show(1);
     else if (b.dataset.all != null) { st.deck = 'all'; show(1); }
+    else if (b.dataset.exs != null) { showEx = !showEx; st.exercises = showEx; st.order = {}; if (!showEx && EXERCISE.has(st.deck)) st.deck = 'all'; st.pos.all = Math.min(st.pos.all || 0, listFor('all').length - 1); home(); }
     else if (b.dataset.open) { const sc = stage.querySelector('.home').scrollTop; openDeck = openDeck === b.dataset.open ? null : b.dataset.open; home(); stage.querySelector('.home').scrollTop = sc; }
     else if (b.dataset.start) jump(b.dataset.start, null);
     else if (b.dataset.tdeck) startTest(b.dataset.tdeck);

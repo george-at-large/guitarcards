@@ -553,3 +553,39 @@ if (typeof document !== 'undefined') {
   window.addEventListener('pageshow', wake);
   window.addEventListener('focus', wake);
 }
+
+// ---------- a small drum kit, synthesised: kick, snare, closed and open hi-hat, side-stick, shaker ----------
+let noiseBuf = null;
+function noise(c) {
+  if (!noiseBuf) { const n = c.sampleRate; noiseBuf = c.createBuffer(1, n, c.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; }
+  const s = c.createBufferSource(); s.buffer = noiseBuf; return s;
+}
+export function drum(kind, t, vel = 0.8) {
+  const c = audioCtx();
+  const env = (g, peak, decay) => { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t + decay); };
+  if (kind === 'k') { // kick: a falling sine and a soft click
+    const o = c.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.12);
+    const g = c.createGain(); env(g, 1.1 * vel, 0.32);
+    o.connect(g).connect(master); o.start(t); o.stop(t + 0.35);
+    return;
+  }
+  if (kind === 's') { // snare: a tone and a burst of filtered noise
+    const n = noise(c); const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1400;
+    const g = c.createGain(); env(g, 0.55 * vel, 0.18); n.connect(hp).connect(g).connect(master); n.start(t); n.stop(t + 0.2);
+    const o = c.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(160, t + 0.08);
+    const og = c.createGain(); env(og, 0.45 * vel, 0.1); o.connect(og).connect(master); o.start(t); o.stop(t + 0.12);
+    return;
+  }
+  if (kind === 'h' || kind === 'o' || kind === 'm') { // hi-hat closed / open, shaker (m)
+    const n = noise(c); const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = kind === 'm' ? 5000 : 7000;
+    const g = c.createGain(); env(g, (kind === 'm' ? 0.18 : 0.28) * vel, kind === 'o' ? 0.35 : kind === 'm' ? 0.07 : 0.05);
+    n.connect(hp).connect(g).connect(master); n.start(t); n.stop(t + 0.4);
+    return;
+  }
+  if (kind === 'r') { // side-stick / rim: a short woody knock
+    const o = c.createOscillator(); o.type = 'square'; o.frequency.value = 1750;
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1900; bp.Q.value = 4;
+    const g = c.createGain(); env(g, 0.35 * vel, 0.04); o.connect(bp).connect(g).connect(master); o.start(t); o.stop(t + 0.06);
+  }
+}
