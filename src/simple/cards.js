@@ -6367,6 +6367,80 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
 });
 }
 
+// ---------- Marbin: Chopin's Nocturne the Barry Harris and Barney Kessel way ----------
+{
+  const D = (bpm, sub, from, goal, drone) => ({ bpm, sub, from, goal, drone });
+  const SRC = 'From Marbin’s Chopin Nocturne video (with Barry Harris and Barney Kessel exercises).';
+  const CHART = '=E2 B2 E3 G#3 B3 E4 | E2 A2 E3 A3 C4 F#4 | E2 B2 E3 G#3 B3 E4 | D#3 G#3 B3 E4 | C#3 G#3 B3 F4 | F2 B2 G#3 C#4 | G#2 D3 F3 B3 | F#2 C#3 F#3 A3 C#4 F#4 | B2 F#3 A3 D#4 F#4 | C3 F#3 G#3 D#4 | C#3 G#3 C#4 E4 G#4 | A#2 E3 G3 C#4 | B2 F#3 A3 D#4 F#4 | B2 F#3 A3 D#4 F#4 | E2 B2 E3 G#3 B3 E4';
+  const mb = DECKS.find((d) => d.id === 'marbin');
+  mb.cards.push(
+    { t: 'Chopin’s Nocturne: the chart', s: 'Op. 9 No. 2, in E', b: [
+      'Chopin’s best-known nocturne (written in E♭), in E as Francisco Tárrega arranged it for guitar. Marbin’s plan: take the chords, simplify them, and connect them our own way with Barry Harris and Barney Kessel exercises. Keep Chopin’s melody out of it.',
+      '- E · Am6/E · E · E/D♯',
+      '- C♯7 · C♯7/E♯ · E♯°7/G♯ · F♯m',
+      '- B7 · G♯7/B♯ · C♯m · A♯°7',
+      '- B7 · B7 · E · E',
+      'Borrowing from Chopin has a history: Jobim built “How Insensitive” on Chopin’s E minor Prelude (Op. 28 No. 4), and joked about it. ' + SRC,
+    ], ex: [['The whole chart, one chord a beat', CHART, 'Chopin’s changes in E'], ['The same, as symbols', 'E:maj A:m6/5 E:maj E:maj/7 C#:7 C#:7/3 E#:dim7/b3 F#:min B:7 G#:7/3 C#:min A#:dim7 B:7 E:maj']] },
+    { t: 'Strip it to I – VI7 – ii – V', s: 'the skeleton under the chart', b: [
+      'Don’t learn sixteen chords. Most of them are decoration. The chords that do the work are these:',
+      '- <b>E</b> (I) for a bar, then <b>C♯7</b> (V7/ii) pointing at <b>F♯m</b> (ii), then <b>B7</b> (V7) and home to <b>E</b>',
+      '- That’s I – VI7 – ii – V – I, the 1-6-2-5: the same turnaround as the A section of rhythm changes and a hundred standards',
+      '- Hear the long lines: C♯7 is a V that takes a whole bar to land on F♯m; B7 takes a bar and a half to land on E',
+      'Every other chord either passes between two of these or puts a bass note under them. Map the skeleton first; then add the decoration back one chord at a time. ' + SRC,
+    ], ex: [['The skeleton', 'E:maj C#:7 F#:min B:7 E:maj'], ['The skeleton, jazzed: I6 – VI7♭9 – ii7 – V7', 'E:6 C#:7b9 F#:m7 B:7 E:6'], ['The same 1-6-2-5 in a standard key, B♭', 'Bb:6 G:7 C:m7 F:7 Bb:6']] },
+    { t: 'The minor iv: Am6 over E', s: 'the chord that makes the melody', b: [
+      'The second chord, Am6 over an E bass, is the <b>minor subdominant</b>: iv borrowed from E minor. Marbin’s view is that it’s the chord that makes the melody.',
+      '- Am6 is A C E F♯. Against E, the <b>C</b> is the ♭6, the dark note that falls back to B',
+      '- The E bass holds still, so it’s a plagal move over a pedal: I – iv – I, tonic, shadow, tonic',
+      '- The same four notes are F♯ø7 (F♯ A C E). So Am6 also works as a minor ii heading to B7: F♯ø7 – B7 – E',
+      'Use it anywhere you sit on I for a bar: I – iv6 – I is the most romantic move in the book. ' + SRC,
+    ], ex: [['E – Am6/E – E', '=E2 B2 E3 G#3 B3 E4 | E2 A2 E3 A3 C4 F#4 | E2 B2 E3 G#3 B3 E4', 'I – iv – I over a pedal'], ['IV to iv to I: A, Am6, E', 'A:maj A:m6 E:maj'], ['The same notes as a minor ii–V: F♯ø7 – B7 – E', 'F#:m7b5 B:7 E:maj']] },
+    { t: 'The bass line holds it together', s: 'why the slash chords are there', b: [
+      'Read the bass on its own: E E E D♯ · C♯ E♯ G♯ F♯ · B B♯ C♯ A♯ · B B E. Each slash chord is there to keep that line moving by step.',
+      '- <b>E/D♯</b>: the bass steps down from E into C♯7',
+      '- <b>C♯7/E♯</b> then <b>E♯°7/G♯</b>: E♯°7 is a rootless C♯7♭9, so the C♯7 is still sounding while its bass climbs E♯, G♯ and falls to F♯',
+      '- <b>G♯7/B♯</b>: V7 of vi in first inversion. B to B♯ to C♯ is a chromatic climb into C♯m',
+      '- <b>A♯°7</b>: a rootless F♯7♭9 (V of V), the half step under B. It walks the bass up into B7',
+      'Sing the bass while you play the chart. Then play only the bass and the top note: that’s the arrangement. ' + SRC,
+    ], ex: [['The bass line alone', '=E3 | E3 | E3 | D#3 | C#3 | F3 | G#3 | F#3 | B2 | C3 | C#3 | A#2 | B2 | B2 | E3', 'E · D♯ · C♯ E♯ G♯ F♯ · B B♯ C♯ A♯ · B · E'], ['E♯°7/G♯ is C♯7♭9 without its root', 'C#:7b9 E#:dim7/b3 F#:min'], ['A♯°7 is F♯7♭9 without its root, into B7', 'F#:7b9 A#:dim7 B:7']] },
+    { t: 'E 6th-diminished in 3rds', s: 'Barry Harris, as double stops', drill: D(60, 1, 'quarters at 60', '8ths at 120', 'E'),
+      neck: { kind: 'list', events: [[[2, 5, '1'], [1, 4, '3']], [[2, 7, '2'], [1, 5, '4']], [[2, 9, '3'], [1, 7, '5']], [[2, 10, '4'], [1, 8, 'b6']], [[2, 12, '5'], [1, 9, '6']], [[2, 13, 'b6'], [1, 11, '7']], [[2, 14, '6'], [1, 12, '1']], [[2, 16, '7'], [1, 14, '2']], [[2, 17, '1'], [1, 16, '3']], [[2, 16, '7'], [1, 14, '2']], [[2, 14, '6'], [1, 12, '1']], [[2, 13, 'b6'], [1, 11, '7']], [[2, 12, '5'], [1, 9, '6']], [[2, 10, '4'], [1, 8, 'b6']], [[2, 9, '3'], [1, 7, '5']], [[2, 7, '2'], [1, 5, '4']], [[2, 5, '1'], [1, 4, '3']]] }, b: [
+        'The E major 6th-diminished scale is E6 (E G♯ B C♯) plus D♯°7 (D♯ F♯ A C): E F♯ G♯ A B C C♯ D♯. Play it in 3rds on the B and E strings, skipping one scale note each time.',
+        '- With eight notes, the pairs alternate: E–G♯ (E6), F♯–A (°), G♯–B (E6), A–C (°), B–C♯, C–D♯, C♯–E, D♯–F♯. Chord, diminished, chord, diminished: home, tension, home',
+        '- One pair is a 2nd, not a 3rd (B–C♯). That’s the scale, not a mistake',
+        '- Put the E6 pairs on the beats and the ° pairs on the off-beats, and the line swings by itself',
+        '<b>Harder</b>: the same on the G and B strings, then down from the top, then over B7 (the ° pairs are a rootless B7♭9). ' + SRC,
+        'Sources: Barry Harris’s scale exercises in 3rds (Frédéric Galliano’s notes on his method); Alan Kingstone, <i>The Barry Harris Harmonic Method for Guitar</i>.',
+      ] },
+    { t: 'E 6th-diminished in contrary motion', s: 'from one E out to two octaves', drill: D(50, 1, 'quarters at 50', 'quarters at 100', 'E'),
+      neck: { kind: 'list', events: [[[3, 9, '1'], [2, 5, '1']], [[3, 8, '7'], [2, 7, '2']], [[3, 6, '6'], [2, 9, '3']], [[3, 5, 'b6'], [1, 5, '4']], [[3, 4, '5'], [1, 7, '5']], [[4, 7, '4'], [1, 8, 'b6']], [[4, 6, '3'], [1, 9, '6']], [[5, 9, '2'], [1, 11, '7']], [[6, 12, '1'], [1, 12, '1']], [[5, 9, '2'], [1, 11, '7']], [[4, 6, '3'], [1, 9, '6']], [[4, 7, '4'], [1, 8, 'b6']], [[3, 4, '5'], [1, 7, '5']], [[3, 5, 'b6'], [1, 5, '4']], [[3, 6, '6'], [2, 9, '3']], [[3, 8, '7'], [2, 7, '2']], [[3, 9, '1'], [2, 5, '1']]] }, b: [
+        'Start both voices on the same E. The upper voice climbs the 6th-diminished scale, the lower one falls, until they’re two octaves apart; then back in.',
+        '- The pairs alternate exactly as in 3rds: E/E (E6), D♯/F♯ (°), C♯/G♯ (E6), C/A (°), B/B, A/C, G♯/C♯, F♯/D♯, E/E',
+        '- Thumb on the lower voice, a finger on the upper. Fingerstyle or hybrid picking',
+        '- Moving out from a unison sounds open; moving in from two octaves sounds like V going to I. Try starting from B, the 5th, too',
+        'The two-piano idea from the counterpoint cards, now in Chopin’s key. ' + SRC,
+      ] },
+    { t: 'Kessel’s thirds over F♯m7', s: 'melodic 3rds for minor 7 chords', drill: D(60, 1, 'quarters at 60', '8ths at 140', 'F#'),
+      neck: { kind: 'dyads', id: 'dorian', key: 'F#', iv: 3, strings: [2, 1], count: 7 }, b: [
+        'Barney Kessel harmonised his lines in major and minor 3rds, usually on the top two strings with just the first and second fingers. Over a minor 7th, run its scale (F♯ Dorian, the notes of E major) in 3rds: F♯/A, G♯/B, A/C♯, B/D♯, C♯/E, D♯/F♯, E/G♯.',
+        '- Play each pair together, then split it (low note, high note) so the 3rds become a melodic line',
+        '- His signature m7 move climbs up and down through the chord’s 9 and 11 (here G♯ and B), then shifts the shape up a half step for a beat and back: tension, then home',
+        '- Fingers 1 and 2 only on the B and E strings, sliding between shapes. It keeps the line smooth at speed',
+        '<b>Harder</b>: over C♯m (bar 11) the same idea in C♯ Aeolian, the same notes as E major again. ' + SRC,
+        'Sources: Premier Guitar’s Barney Kessel lesson (Jeff Jacobson, 2023: the m7 move and his 3rds); Marbin’s video for the exercise itself.',
+      ] },
+    { t: 'Turn it into music, in 4/4', s: 'the exercises over Chopin’s changes', comp: { chart: 'E:maj A:m6/5 | E:maj E:maj/7 | C#:7 C#:7/3 | E#:dim7/b3 F#:min | B:7 G#:7/3 | C#:min A#:dim7 | B:7 | E:maj', bpm: 80 }, b: [
+      'Play the chart in 4/4, two beats a chord, and use only the three exercises:',
+      '- <b>E, Am6/E, E/D♯</b>: the E 6th-diminished 3rds; E6 pairs on the beat',
+      '- <b>C♯7 to F♯m</b>: Marbin’s rule, the ° of where you’re going. F♯m6 + E♯°7 (the chart’s own E♯°7)',
+      '- <b>F♯m</b> and <b>C♯m</b>: Kessel’s melodic 3rds',
+      '- <b>A♯°7</b>: its own ° arpeggio, landing on B7’s 3rd. <b>B7 to E</b>: contrary motion moving in, from B to the E chord',
+      'Start in quarter notes, then 8ths. Leave space; repeat the best two-bar idea in the next pass. That’s the jump from exercise to music. ' + SRC,
+    ] },
+  );
+}
+
 // ---------- double stops and technique: two more exercise decks, after the fluency drills ----------
 {
   const D = (bpm, sub, from, goal, drone) => ({ bpm, sub, from, goal, drone });
