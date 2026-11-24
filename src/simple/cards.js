@@ -11,6 +11,7 @@ import { DECKS as LUM_A } from './lum/a.js';
 import { DECKS as LUM_B } from './lum/b.js';
 import { DECKS as LUM_C, NOCTURNE_FIXES } from './lum/c.js';
 import { DECKS as LUM_D } from './lum/d.js';
+import { DECKS as LUM_E } from './lum/e.js';
 import { DECKS as IREAL } from './ireal.js';
 
 export const DECKS = [
@@ -6930,8 +6931,8 @@ DECKS.push(...IREAL);
 {
   const noc = DECKS.splice(DECKS.findIndex((d) => d.id === 'lum-nocturne'), 1)[0];
   for (const f of NOCTURNE_FIXES) { const i = noc.cards.findIndex((c) => c.t === f.replaces); if (i < 0) throw new Error(`no card ${f.replaces}`); noc.cards[i] = f.card; }
-  const by = Object.fromEntries([...LUM_A, ...LUM_B, ...LUM_C, ...LUM_D, noc].map((d) => [d.id, d]));
-  const order = ['lum-voicings', 'lum-harmony', 'lum-nocturne', 'lum-contrary', 'lum-runs', 'lum-altered', 'lum-kessel', 'lum-bach', 'lum-rhythm', 'lum-tunes'];
+  const by = Object.fromEntries([...LUM_A, ...LUM_B, ...LUM_C, ...LUM_D, ...LUM_E, noc].map((d) => [d.id, d]));
+  const order = ['lum-voicings', 'lum-harmony', 'lum-jobim', 'lum-nocturne', 'lum-contrary', 'lum-runs', 'lum-altered', 'lum-kessel', 'lum-bach', 'lum-rhythm', 'lum-tunes'];
   if (order.length !== Object.keys(by).length) throw new Error('Luminary decks: ' + Object.keys(by).join(' '));
   DECKS.push(...order.map((id) => by[id]));
 }

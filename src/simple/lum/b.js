@@ -340,8 +340,8 @@ export const DECKS = [
       '- <b>Retrato em Branco e Preto</b>: Am7 | Am7 | A♭°7 | A♭°7 | Gm6 | G♭7♭5 | F6 | F6 | Dm7 | A♭°7 | C | C | Bø7 | Bø7 | E | E7♭13',
       '- <b>How Insensitive</b>: Am7 | Am7 | G♯°7 | G♯°7 | Gm6 | Gm6 | D7/F♯ | D7/F♯ | F6 | F6 | B♭maj7 | B♭maj7 | Bø7 | E7♭13 | Am7 | Am7',
       '- <b>Corcovado</b>: Am6 | Am6 | A♭°7 | A♭°7 | Gm7 | C7 | Fmaj7 | Fmaj7 | Fm7 | B♭7 | Em7 | A7♭13 | D7 | D7 | Dm7 | Dø7',
-      '- <b>Wave</b> (in C): C6 | A♭°7 | Gm7 | C7 | Fmaj7 | Fm7 | E7 | A7 | D7 | A♭7 G7 | Dm7 | G/D',
-      'In the handout’s original keys, Retrato and How Insensitive start on Bm7, Corcovado on Am6 as here, and Wave on D6. From the Guitar Luminary handout “Jobim Handout”.',
+      '- <b>Wave</b> (in C): C6 | A♭°7 | Gm7 | C7 | Fmaj7 | Fm7 | E7 | A7 | D7 | A♭7 G7 | Cm7 | F/C (the handout’s A-minor page leaves these last two in D: Dm7 | G/D)',
+      'In the handout’s original keys, Retrato and How Insensitive start on Bm7, Corcovado on Am6 as here, and Wave on D6. From the Guitar Luminary handout “Jobim Handout”. The deck “four Jobim A sections” takes each tune in turn.',
     ], ex: [
       ['The shared opening, Corcovado', 'A:m6 Ab:dim7 G:m7 C:7 F:maj7'],
       ['How Insensitive', 'A:m7 G#:dim7 G:m6 D:7/3 F:6'],
