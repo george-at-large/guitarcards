@@ -5,6 +5,7 @@
 import * as T from '../theory.js';
 import * as F from '../fretboard.js';
 import { positions } from './scales.js';
+import { exampleSteps } from './fingering.js';
 
 const OPEN = F.OPEN;
 const KEYS = { C: 0, 'C#': 1, Db: 1, D: 2, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, Ab: 8, A: 9, Bb: 10, B: 11 };
@@ -26,6 +27,12 @@ export const SEQS = {
   sevenths: { cell: [0, 2, 4, 6], name: '7th arpeggios' },
   sevalt: { cell: [0, 2, 4, 6], alt: true, name: '7ths, alternating up and down' },
   digital: { cell: [0, 1, 2, 4], name: '1-2-3-5' },
+  broken6: { cell: [0, 5], alt: true, name: 'broken 6ths: 1-6, 7-2, 3-8' },
+  fifths: { cell: [0, 4], name: '5ths' },
+  sev: { cell: [0, 6], name: '7ths: 1-7, 2-8' },
+  octs: { cell: [0, 7], name: 'octaves' },
+  thirds4: { cell: [0, 2, 1, 3], name: '3rds in fours: 1-3-2-4' },
+  tri4: { cell: [0, 2, 4, 2], name: '1-3-5-3' },
 };
 function sequence(asc, seq, back = true) {
   const s = SEQS[seq] || SEQS.up, span = Math.max(...s.cell), out = [];
@@ -173,6 +180,32 @@ export function drillPattern(spec) {
     for (const [a, b] of [[6, 5], [4, 3], [2, 1]]) [a, b, a, b].forEach((st, j) => ev.push([note(st, f + j, String(j + 1))]));
     for (const [a, b] of [[1, 2], [3, 4], [5, 6]]) [a, b, a, b].forEach((st, j) => ev.push([note(st, f + 3 - j, String(4 - j))]));
     return { dots: ev.flat(), events: ev, labels: 'finger' };
+  }
+  if (spec.kind === 'dyads') { // the scale harmonised in one interval (3rds, 4ths, 6ths, 10ths) on one string pair, up the neck
+    const sc = T.getScale(spec.id || 'major'), ss = sc.ivs.map(semi);
+    const ivOf = (m) => { const r = ((m - pc) % 12 + 12) % 12; return sc.ivs[ss.indexOf(r)] ?? ''; };
+    const [lo, hi] = spec.strings, gap = spec.iv - 1;
+    const all = []; for (let m = OPEN[lo]; m <= OPEN[hi] + 24; m++) if (ss.includes(((m - pc) % 12 + 12) % 12)) all.push(m);
+    const pairs = [];
+    for (let i = 0; i + gap < all.length; i++) {
+      const fl = all[i] - OPEN[lo], fu = all[i + gap] - OPEN[hi];
+      if (fl < 0 || fu < 0 || fl > (spec.top ?? 17) || fu > (spec.top ?? 17) || Math.abs(fl - fu) > 4) continue;
+      pairs.push([note(lo, fl, ivOf(all[i])), note(hi, fu, ivOf(all[i + gap]))]);
+    }
+    let i0 = pairs.findIndex((p) => p[0].fret >= (spec.from ?? 0) && (spec.anyStart || p[0].iv === '1'));
+    if (i0 < 0) i0 = 0;
+    const up = pairs.slice(i0, i0 + (spec.count ?? 8));
+    return { dots: up.flat(), events: spec.back === false ? up : [...up, ...[...up].reverse().slice(1)] };
+  }
+  if (spec.kind === 'play') { // written as pitches ('=C3 E3 | G3 B3 | D4'), placed the sensible way by the fingering engine
+    const ivs = ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'];
+    const lab = (n) => (spec.labels === 'none' ? '' : ivs[((n.midi ?? OPEN[n.string] + n.fret) - pc + 1200) % 12]);
+    const ev = [];
+    for (const st of exampleSteps(spec.play)) {
+      if (st.notes) ev.push(st.notes.map((n) => note(n.string, n.fret, lab(n))));
+      for (const n of st.line || []) if (n) ev.push([note(n.string, n.fret, lab(n))]);
+    }
+    return { dots: ev.flat(), events: spec.back ? [...ev, ...[...ev].reverse().slice(1)] : ev };
   }
   if (spec.kind === 'list') { // written out: [[string, fret, degree], …] per event, [] for a rest
     const ev = spec.events.map((e) => (e.length && Array.isArray(e[0]) ? e : e.length ? [e] : []).map(([st, f, iv]) => note(st, f, iv)));

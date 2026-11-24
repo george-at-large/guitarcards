@@ -233,7 +233,7 @@ function placeChord(midis, near, strict = true) {
       const span = fr.length ? Math.max(...fr) - Math.min(...fr) : 0;
       if (span > (strict ? 4 : 6) || (strict && !fingerGrip(notes))) return;
       const gaps = acc[0] - acc[k - 1] + 1 - k;
-      const c = span * 0.8 + gaps * 1.4 + notes.filter((n) => n.fret === 0).length * 0.3 + centre(notes) * 0.05 + (near != null && fr.length ? Math.abs(centre(notes) - near) * 0.3 : 0);
+      const c = span * 0.8 + gaps * 1.4 + notes.filter((n) => n.fret === 0).length * (fr.length && Math.min(...fr) > 4 ? 3 : 0.3) + centre(notes) * 0.05 + (near != null && fr.length ? Math.abs(centre(notes) - near) * 0.3 : 0);
       if (c < bc) { bc = c; best = notes; }
       return;
     }

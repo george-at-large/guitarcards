@@ -14,8 +14,9 @@ import { BUILD } from './build.js';
 
 const ALL = DECKS.flatMap((d) => d.cards.map((c, i) => ({ ...c, deck: d.name, n: i + 1, of: d.cards.length })));
 // the exercise decks (things to play along with) can be left out of “All decks”, the Test and the Contents
-const EXERCISE = new Set(['comping', 'rhythm', 'grooves', 'fluency']);
-const isEx = (c) => EXERCISE.has(DECKS.find((d) => d.name === c.deck)?.id);
+const EXERCISE = new Set(['comping', 'rhythm', 'grooves', 'fluency', 'doublestops', 'technique']);
+// an exercise: a card in a play-along deck, or any card with a drill or a groove to play
+const isEx = (c) => EXERCISE.has(DECKS.find((d) => d.name === c.deck)?.id) || !!c.drill || !!c.groove;
 let showEx = true;
 const listFor = (id) => (id === 'all' ? (showEx ? ALL : ALL.filter((c) => !isEx(c))) : ALL.filter((c) => c.deck === DECKS.find((d) => d.id === id)?.name));
 const shuffled = (n) => { const a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -443,7 +444,7 @@ export function mountCards(root, S, save) {
     stage.innerHTML = `<div class="home">
       <button class="hcont" data-cont><small>Carry on · ${esc(deckName(st.deck))} · ${Math.min(pos() + 1, n)} / ${n}</small><b>${c ? acc(c.t) : 'Back to the start'}</b><span>▶</span></button>
       <button class="hall" data-all>All decks in a row <span>${listFor('all').length} cards</span></button>
-      <button class="hall hex" data-exs>Exercise decks (comping, rhythm, grooves, drills) <span>${showEx ? 'shown' : 'hidden'}</span></button>
+      <button class="hall hex" data-exs>Exercises (play-along decks and drill cards) <span>${showEx ? 'shown' : 'hidden'}</span></button>
       ${DECKS.filter((d) => showEx || !EXERCISE.has(d.id)).map((d) => `<section class="hsec${openDeck === d.id ? ' open' : ''}">
         <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-tdeck="${d.id}">Test</button><button class="hstart" data-start="${d.id}">Start</button></div>
         ${openDeck === d.id ? `<div class="hcards">${d.cards.map((x, i) => `<button data-jump="${d.id}:${i}"><span>${i + 1}</span>${acc(x.t)}</button>`).join('')}</div>` : ''}

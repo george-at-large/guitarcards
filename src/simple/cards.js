@@ -1424,7 +1424,7 @@ DECKS.push(
         '- Over <b>G7alt</b>: B♭ minor pentatonic (♯9 ♭5 ♭13 ♭7 ♭9)',
       ], ex: [
         ['E minor pentatonic over Cmaj7', '=C3 G3 B3 | E4 | G4 | A4 | B4 | D5 | E5'],
-        ['B♭ minor pentatonic over G7alt', '=G2 F3 B3 | Bb4 | Db5 | Eb5 | F5 | Ab5 | Bb5'],
+        ['B♭ minor pentatonic over G7alt', '=G2 F3 B3 | Bb3 | Db4 | Eb4 | F4 | Ab4 | Bb4'],
       ] },
       { t: 'The ♭9 sound on V7', s: 'a °7 from the 3rd', b: [
         'Over G7, a B°7 arpeggio gives 3, 5, ♭7, ♭9: the leading tone and the ♭9 both pull into C.',
@@ -5526,6 +5526,1094 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
     ], ex: [['A melody in 6ths, up the C scale', '=E3 C4 | F3 D4 | G3 E4 | A3 F4 | B3 G4 | C4 A4', '6ths in C']] },
   ],
 });
+
+// ---------- Ted Greene and Mick Goodrick, and Marbin's routines: after Chord melody ----------
+{
+  const D = (bpm, sub, from, goal, drone) => ({ bpm, sub, from, goal, drone });
+  const at = DECKS.findIndex((d) => d.id === 'chordmelody') + 1;
+  DECKS.splice(at, 0, { id: 'greene', name: 'Ted Greene and Mick Goodrick', cards: [
+
+  // ---------- Ted Greene ----------
+  { t: 'How Ted Greene practised', s: 'read this first', b: [
+    'Ted Greene (1946–2005) wrote <i>Chord Chemistry</i>, <i>Modern Chord Progressions</i> and two volumes of <i>Single-Note Soloing</i>, and taught thousands of private lessons. His habits are worth copying before his chords:',
+    '- <b>Clean before fast.</b> His own list for making notes sound good runs: accuracy first, then harmony, then speed, phrasing and tone',
+    '- <b>Sing it, then find it.</b> Sing a line first and then look for it on the neck',
+    '- <b>Write it down.</b> He wrote his discoveries out as dated chord grids; thousands of pages survive. Keep a notebook of your own',
+    '- <b>Make music from every exercise.</b> A scale in 10ths turns into a bass line with a tune on top; a chord scale turns into an intro',
+    '- Say the chord name <b>and</b> the Roman numeral as you play. It is slower at first and pays off later',
+  ], ex: [['A plain scale in 10ths, already music', '=G2 B3 | A2 C4 | B2 D4 | C3 E4 | B2 D4 | A2 C4 | G2 D3 G3 B3', '10ths in G, up and back'], ['One voice moves, the rest stay: C, Cmaj7, C6', '=C3 G3 C4 E4 | C3 G3 B3 E4 | C3 G3 A3 E4', 'C · Cmaj7 · C6']] },
+
+  { t: 'Bass and melody in 10ths', s: 'the scale on strings 6 and 3', drill: D(60, 1, 'quarters at 60', '8ths at 100', 'G'),
+    neck: { kind: 'dyads', id: 'major', key: 'G', iv: 10, strings: [6, 3] }, b: [
+      'G major in 10ths: bass on the low E, melody on the G string, from G/B (3rd and 4th frets) up to G/B at the 15th and 16th. A 10th is a 3rd plus an octave: Ted Greene’s favourite interval, the sound of a pianist’s left hand and right hand.',
+      '- On strings 6 and 3: <b>same fret = minor 10th</b>, <b>melody one fret higher = major 10th</b>',
+      '- Thumb on the bass, middle finger on the G string (or pick and middle finger); the finger on the 6th string lies lightly across 5 and 4 to mute them',
+      '- Say the bass note aloud: G, A, B, C… The bass is a line, not just a root',
+      '<b>Harder</b>: the same on strings 5 and 2 in C (there, the major 10th is two frets higher, the minor 10th one), then descending, then skipping: up a 10th, down a 10th, up two.',
+    ] },
+
+  { t: '10ths with a moving inner voice', s: 'the outer voices hold, the middle walks', drill: D(56, 1, 'quarters at 56', 'quarters at 90', 'C'),
+    neck: { kind: 'list', events: [
+      [[5, 3, '1'], [3, 0, '5'], [2, 5, '3']], [[5, 3, '1'], [3, 1, 'b6'], [2, 5, '3']], [[5, 3, '1'], [3, 2, '6'], [2, 5, '3']], [[5, 3, '1'], [3, 3, 'b7'], [2, 5, '3']],
+      [[6, 1, '4'], [5, 3, '1'], [3, 2, '6']], [[6, 1, '4'], [5, 4, 'b2'], [3, 2, '6']], [[6, 1, '4'], [4, 0, '2'], [3, 2, '6']], [[6, 1, '4'], [4, 1, 'b3'], [3, 2, '6']],
+      [[6, 3, '5'], [4, 0, '2'], [3, 4, '7']], [[6, 3, '5'], [4, 3, '4'], [3, 4, '7']], [[5, 3, '1'], [3, 0, '5'], [2, 5, '3']],
+    ] }, b: [
+      'Hold a 10th and walk a voice between the two: C/E with G, G♯, A, B♭ in the middle gives C, C+, C6, C7. Then F/A with C, C♯, D, E♭ (F, F+, F6, F7), then G/B with D and F (G, G7), home to C.',
+      '- Over C the middle voice walks up the open G string a fret at a time; over F it goes from the A string to the D string',
+      '- Let the 10th ring through the whole walk; only the middle note is re-struck',
+      '- Listen for the colour change each fret makes. That is the point: one finger, four chords',
+      '<b>Harder</b>: walk the middle voice down instead (C, B, B♭, A: C, Cmaj7, C7, C6), and do the same over every 10th of the scale.',
+    ] },
+
+  { t: 'A harmonised scale in drop 2', s: 'Greene’s chord scale, top four strings', drill: D(56, 1, 'quarters at 56', 'quarters at 100', 'G'),
+    neck: { kind: 'play', key: 'G', back: true, play: '=D3 G3 B3 F#4 | E3 A3 C4 G4 | F#3 B3 D4 A4 | G3 C4 E4 B4 | A3 D4 F#4 C5 | B3 E4 G4 D5 | C4 F#4 A4 E5 | D4 G4 B4 F#5' }, b: [
+      'Greene’s “chord scale”: take one voicing and move every note up to the next note of the scale. Here Gmaj7 (D G B F♯, open strings 4-3-2 and the 2nd fret) climbs through Am7, Bm7, Cmaj7, D7, Em7, F♯ø7 to Gmaj7 at the 12th fret.',
+      '- The maj7s share one shape and the m7s another; D7 and F♯ø7 each have their own',
+      '- Name each chord and its numeral as you land on it (Gmaj7, I; Am7, ii…)',
+      '- Play it as music: arpeggiate each chord low to high, or play the top note as a melody with the rest underneath',
+      '<b>Harder</b>: start from each of the other three inversions of Gmaj7 on the same strings, then on strings 5-4-3-2.',
+    ] },
+
+  { t: 'String transference', s: 'one voicing, three string sets', drill: D(50, 1, 'quarters at 50', 'quarters at 90', 'C'),
+    neck: { kind: 'list', events: [
+      [[6, 8, '1'], [5, 10, '5'], [4, 9, '7'], [3, 9, '3']],
+      [[5, 3, '1'], [4, 5, '5'], [3, 4, '7'], [2, 5, '3']],
+      [[4, 10, '1'], [3, 12, '5'], [2, 12, '7'], [1, 12, '3']],
+    ] }, b: [
+      'Greene’s rule for moving a voicing to the next string set up: shift every note across one string and keep the shape, but a note that lands on the B string goes up a fret. That gives the chord a 4th higher. Then slide down 5 frets for the same pitches, or up 7 for an octave higher.',
+      '- Cmaj7 (C G B E) at the 8th fret on strings 6-5-4-3',
+      '- The same four pitches at the 3rd fret on strings 5-4-3-2',
+      '- An octave up at the 10th fret on strings 4-3-2-1',
+      'It lets a chord scale run longer than one string set allows: climb on one set, transfer, keep climbing.',
+      '<b>Harder</b>: transfer m7, 7 and ø7 voicings the same way, and come back down the sets.',
+    ] },
+
+  { t: 'The V-System, plainly', s: 'voicings sorted by spacing', b: [
+    'Greene’s V-System sorts every four-note chord with no doubled notes into 14 <b>voicing groups</b> by how the voices are spaced, not by which strings they’re on or what the chord is called.',
+    '- <b>V-1</b>: close position. Nothing fits between the voices; the whole chord spans less than an octave',
+    '- <b>V-2</b>: drop the alto (second from the top) of a V-1 an octave: the familiar drop 2, the “Wes” chords',
+    '- <b>V-3</b>: drop the alto again. The lower three are packed, the top note stands apart',
+    '- <b>V-4</b>: the upper three packed, the bass apart: most of the stock rhythm grips (drop 3). Drop the top note of a top-four V-2 two octaves and you get one',
+    'Change a chord’s quality without changing its spacing (maj7 to 7 to m7) and it stays in the same group. So learn one group in every quality and inversion, then the next.',
+  ], ex: [['Cmaj7: V-1, then the alto dropped to make V-2', '=C4 E4 G4 B4 | G3 C4 E4 B4', 'V-1 · V-2'], ['V-3 (top note apart) and V-4 (bass apart)', '=E3 G3 C4 B4 | C3 B3 E4 G4', 'V-3 · V-4'], ['A top-four V-2 with its top note dropped two octaves: V-4', '=G3 C4 E4 B4 | B2 G3 C4 E4', 'V-2 · V-4']] },
+
+  { t: 'Every chord is a family', s: 'major, minor, dominant', b: [
+    'Greene grouped chords into three families, each with a parent: the <b>major</b> triad, the <b>minor</b> triad and the <b>dominant 7th</b>. In principle any member can stand in for its parent.',
+    '- <b>Major</b>: 6, maj7, add9, maj9, 6/9, maj13. They fit I and IV (and ♭III, ♭VI, ♭VII), not a major chord working as a dominant. Go carefully with ♯5 and ♯11',
+    '- <b>Minor</b>: m7, m9, m11, m(add9) replace almost any minor chord; m6 and m6/9 suit a minor tonic or iv',
+    '- <b>Dominant</b>: 7, 9, 13 and 7/6; the sus types work wherever those do; the altered ones mainly on a V7 that resolves',
+    'He also kept track of <b>homonyms</b>, one shape with several names: Am6 has the same notes as F♯ø7.',
+  ], ex: [['One I chord, five family members', 'C:maj C:6 C:maj7 C:maj9 C:6/9'], ['ii–V–I, then again with other members', 'D:m7 G:7 C:maj7 D:m9 G:13 C:6/9'], ['A homonym: A C E F♯ as Am6, then over F♯ as F♯ø7', '=A2 F#3 C4 E4 | F#2 E3 A3 C4', 'Am6 · F♯ø7']] },
+
+  { t: 'Substitution by common tones', s: 'three notes shared', b: [
+    'A chord that shares most of its notes with another can usually replace it. Greene had you look at the notes, not just the names.',
+    '- Cmaj7 (C E G B), Am7 (A C E G) and Em7 (E G B D) share three notes: vi7 and iii7 can stand in for Imaj7',
+    '- G7 (G B D F) and Bø7 (B D F A) share three notes; D♭7 shares the B (C♭) and F, the tritone that does the work',
+    '- The same family members of the same root count too: Dm9 for Dm7, G13 for G7',
+    'Play each pair with the shared notes held on the same frets so you can hear only the changed note.',
+  ], ex: [['Cmaj7, Am7, Em7: one note moves each time', '=G3 C4 E4 B4 | G3 C4 E4 A4 | G3 D4 E4 B4', 'Cmaj7 · Am7 · Em7'], ['G7, Bø7, D♭7: the tritone B–F never moves', '=F3 B3 D4 G4 | F3 B3 D4 A4 | F3 B3 Db4 Ab4', 'G7 · Bø7 · D♭7'], ['I–vi–ii–V, then iii for I', 'C:maj7 A:m7 D:m7 G:7 E:m7 A:m7 D:m7 G:7']] },
+
+  { t: 'Moving voices inside a chord', s: 'line clichés in the voicing', drill: D(56, 1, 'quarters at 56', 'quarters at 90', 'D'),
+    neck: { kind: 'list', events: [
+      [[4, 0, '1'], [3, 2, '5'], [2, 3, '1'], [1, 1, 'b3']], [[4, 0, '1'], [3, 2, '5'], [2, 2, '7'], [1, 1, 'b3']],
+      [[4, 0, '1'], [3, 2, '5'], [2, 1, 'b7'], [1, 1, 'b3']], [[4, 0, '1'], [3, 2, '5'], [2, 0, '6'], [1, 1, 'b3']],
+      [[4, 0, '1'], [3, 2, '5'], [2, 1, 'b7'], [1, 1, 'b3']], [[4, 0, '1'], [3, 2, '5'], [2, 2, '7'], [1, 1, 'b3']],
+      [[4, 0, '1'], [3, 2, '5'], [2, 3, '1'], [1, 1, 'b3']],
+    ] }, b: [
+      'Hold three notes of a chord and walk the fourth down by half steps. Open D minor, the B string walking D, C♯, C, B: Dm, Dm(maj7), Dm7, Dm6. Then back up.',
+      '- Only one finger moves; the rest of the grip stays put and keeps ringing',
+      '- Arpeggiate slowly so the moving voice sings through the held notes',
+      '- In a major chord, walk the 5th up: G, G♯, A, B♭ inside C gives C, C+, C6, C7',
+      '<b>Harder</b>: put the moving voice on top, then in the bass, then in an inner voice of a voicing higher up the neck (Dm at the 10th fret, strings 4-3-2-1).',
+    ], ex: [['The 5th walking up inside C', '=C3 E3 G3 C4 | C3 E3 G#3 C4 | C3 E3 A3 C4 | C3 E3 Bb3 C4', 'C · C+ · C6 · C7'], ['The top voice moving over G7', '=G2 F3 B3 E4 | G2 F3 B3 Eb4 | G2 F3 B3 D4', 'G13 · G7♭13 · G7']] },
+
+  { t: 'Baroque: a chain of suspensions', s: 'two voices, 7 to 6', drill: D(50, 1, 'quarters at 50', 'quarters at 80', 'C'),
+    neck: { kind: 'play', key: 'C', play: '=C3 A4 | B2 A4 | B2 G4 | A2 G4 | A2 F4 | G2 F4 | G2 E4 | F2 E4 | F2 D4 | G2 B3 | C3 C4' }, b: [
+      'Greene improvised in Baroque style: real counterpoint, not chords. Start with two voices. The bass walks down the C major scale; the top voice holds its note as the bass moves (a 7th, compound), then steps down to a 6th. Hold, resolve, hold, resolve; then a cadence home.',
+      '- Thumb plays the bass, a finger the top voice. Strike both on every beat, but feel the top note as tied',
+      '- Lean on the dissonant 7th and play the resolution softer',
+      '- Play each voice alone first and sing the other',
+      '<b>Harder</b>: add a third voice between them, then improvise your own top line over a bass walking down the scale.',
+    ] },
+
+  { t: 'Patterns over a pedal', s: 'Greene’s texture studies', drill: D(60, 3, 'triplets at 60', 'triplets at 100', 'D'),
+    neck: { kind: 'list', events: [
+      [[4, 0, '1'], [2, 7, '3']], [2, 5, '2'], [3, 7, '1'],
+      [[4, 0, '1'], [2, 8, '4']], [2, 7, '3'], [2, 5, '2'],
+      [[4, 0, '1'], [1, 5, '5']], [2, 8, '4'], [2, 7, '3'],
+      [[4, 0, '1'], [1, 7, '6']], [1, 5, '5'], [2, 8, '4'],
+      [[4, 0, '1'], [1, 8, 'b7']], [1, 7, '6'], [1, 5, '5'],
+      [[4, 0, '1'], [1, 10, '1']], [],
+    ] }, b: [
+      'Greene’s notes list a whole set of textures to practise: any melodic pattern over a held or repeated bass note, on every degree. Here the open D string is the pedal, struck with the first note of each group, and a three-note pattern climbs D Mixolydian above it.',
+      '- Let the pedal ring under the whole group; don’t damp it',
+      '- The C natural against the D pedal is the Mixolydian colour: lean on it',
+      '- Thumb on the open D; the pattern stays between the 5th and 8th frets on strings 3, 2 and 1, reaching to the 10th for the last D',
+      '<b>Harder</b>: move the pedal to the top (a high open E above a moving line), then put the pattern in the bass under a held top note, then use two pedals at once.',
+    ] },
+
+  // ---------- Mick Goodrick ----------
+  { t: 'Along the string, then across', s: 'Goodrick’s starting point', drill: D(60, 2, '8ths at 60', '8ths at 100', 'C'),
+    neck: { kind: 'list', events: [[3, 5, '1'], [3, 7, '2'], [3, 9, '3'], [3, 12, '5'], [3, 14, '6'], [], [3, 5, '1'], [3, 7, '2'], [2, 5, '3'], [2, 8, '5'], [1, 5, '6'], []] }, b: [
+      'Mick Goodrick (1945–2022) taught at Berklee for decades and wrote <i>The Advancing Guitarist</i>. He noticed that guitarists learn the neck across, in positions, and almost never along it. His book starts the other way round: up and down one string, then two strings, then intervals, and only then positions.',
+      '- Here the same five notes (C D E G A) along the G string, then across in 5th position',
+      '- Along the string, each interval is a fixed distance (2 frets a whole step, 5 a 4th, 7 a 5th); across, the shapes change at the B string',
+      '- Say the degrees as you play both versions; they’re the same tune',
+      '<b>Harder</b>: improvise a phrase along one string, then find it across in two different positions.',
+    ] },
+
+  { t: 'Modes on one string', s: 'the unitar', drill: D(60, 2, '8ths at 70', '8ths at 140', 'G'),
+    neck: { kind: 'scale', id: 'mixolydian', key: 'G', fam: 'one', pos: 4 }, b: [
+      'Goodrick calls single-string playing the science of the “unitar”. On one string a scale is just a row of whole and half steps, so you see its shape, not a box. Here G Mixolydian on the B string, nut to 17th fret, over a G drone.',
+      '- Play up and down, saying the degrees; then improvise using that string only',
+      '- Then keep the notes (all C major) and change the drone: D for Dorian, E for Phrygian, F for Lydian, A for Aeolian. Same frets, different music',
+      '- Slides and one-finger shifts are the technique here; use all four fingers in turn',
+      '<b>Harder</b>: rotate to every string, then improvise on one string over a simple vamp for a whole chorus.',
+    ] },
+
+  { t: 'Two strings: mini-positions', s: 'three and three up a pair', drill: D(60, 2, '8ths at 70', '8ths at 140', 'C'),
+    neck: { kind: 'scale', id: 'ionian', key: 'C', fam: 'two', pos: 3 }, b: [
+      'Goodrick’s next step after one string is two adjacent strings: about an octave and a half of range and two lines to play against each other. Here C major on the G and B strings, three notes on the G, the next three on the B, then up the neck to the next group.',
+      '- Each group is a small movable position; the shift between groups is the skill',
+      '- Alternate pick, and shift with the first finger',
+      '- Improvise on just this pair over a C drone: small phrases, lots of slides',
+      '<b>Harder</b>: the same on every adjacent pair, then over a drone on A (Aeolian) and D (Dorian).',
+    ] },
+
+  { t: 'One interval at a time', s: 'diatonic 5ths on A and D', drill: D(60, 1, 'quarters at 60', '8ths at 100', 'C'),
+    neck: { kind: 'dyads', id: 'major', key: 'C', iv: 5, strings: [5, 4] }, b: [
+      'Goodrick studies intervals one at a time, melodically and harmonically, along a string pair. Here C major in 5ths on the A and D strings, from C/G (3rd and 5th frets) up to the octave at the 15th.',
+      '- A and D are a 4th apart, so a <b>perfect 5th has the D-string note two frets higher</b>. The one diminished 5th (B/F) is one fret higher',
+      '- Play each pair together, then low–high, then high–low',
+      '- Improvise using only 5ths, then only 4ths, then only 3rds. Each interval has its own character; learn it by ear, not by shape',
+      '<b>Harder</b>: 2nds, then 7ths, then 6ths on non-adjacent pairs (strings 4 and 2).',
+    ] },
+
+  { t: 'Goodrick’s voice-leading cycles', s: 'root motion, minimal movement', b: [
+    'In his <i>Almanac of Guitar Voice-Leading</i>, Goodrick names progressions by how far the root climbs through the key. Each pair is the same motion in reverse:',
+    '- <b>Cycle 2</b>, up a step: C Dm Em F G Am B°. <b>Cycle 7</b> goes down a step',
+    '- <b>Cycle 3</b>, up a 3rd: C Em G B° Dm F Am. <b>Cycle 6</b> goes down a 3rd',
+    '- <b>Cycle 4</b>, up a 4th: C F B° Em Am Dm G. <b>Cycle 5</b> goes up a 5th',
+    'Each voice moves to the nearest note of the next chord. In four-note drop 2 voicings: in Cycle 2 the root holds (becoming the 7th) and the other three step down; in Cycle 3 one voice steps up and three hold; in Cycle 4 two hold and two step down.',
+  ], ex: [['Cycle 2: the root holds, three step down', '=G3 C4 E4 B4 | F3 C4 D4 A4 | E3 B3 D4 G4', 'Cmaj7 · Dm7 · Em7'], ['Cycle 6: one voice steps down each time', '=G3 C4 E4 B4 | G3 C4 E4 A4 | F3 C4 E4 A4 | F3 C4 D4 A4', 'Cmaj7 · Am7 · Fmaj7 · Dm7'], ['Cycle 5: two hold, two step up', '=G3 C4 E4 B4 | G3 D4 F4 B4 | A3 D4 F4 C5 | A3 E4 G4 C5', 'Cmaj7 · G7 · Dm7 · Am7']] },
+
+  { t: 'Cycle 4 in drop 2', s: 'C major, top four strings', drill: D(50, 1, 'quarters at 50', 'quarters at 100', 'C'),
+    neck: { kind: 'play', key: 'C', play: '=B3 E4 G4 C5 | A3 E4 F4 C5 | A3 D4 F4 B4 | G3 D4 E4 B4 | G3 C4 E4 A4 | F3 C4 D4 A4 | F3 B3 D4 G4 | E3 B3 C4 G4' }, b: [
+      'Cmaj7 around the 8th fret through Fmaj7, Bø7, Em7, Am7, Dm7, G7 to Cmaj7 near the nut. Every chord: two notes stay, two step down to the nearest scale note.',
+      '- Keep the held notes held: don’t lift the fingers that stay',
+      '- Name each chord and which voices moved; after a while you see the next chord before you play it',
+      '- It drifts down the neck as it goes. Start from each of the other three inversions of Cmaj7 to cover the rest of it',
+      '<b>Harder</b>: the same on strings 5-4-3-2; then Cycle 5 (the reverse: two hold, two step up); then in F, B♭ and E♭.',
+    ] },
+
+  { t: 'Cycle 3 in drop 2', s: 'one voice at a time', drill: D(50, 1, 'quarters at 50', 'quarters at 100', 'C'),
+    neck: { kind: 'play', key: 'C', play: '=G3 C4 E4 B4 | G3 D4 E4 B4 | G3 D4 F4 B4 | A3 D4 F4 B4 | A3 D4 F4 C5 | A3 E4 F4 C5 | A3 E4 G4 C5 | B3 E4 G4 C5' }, b: [
+      'Cmaj7, Em7, G7, Bø7, Dm7, Fmaj7, Am7, Cmaj7: roots up a 3rd each time. Only one note changes per chord: the root steps up a scale step to become the 7th of the next.',
+      '- C to D makes Em7; E to F makes G7; G to A makes Bø7; B to C makes Dm7, and so on',
+      '- It is the smoothest of the cycles: diatonic substitutes sliding into each other',
+      '- Let the held notes ring; you’ll hear a single moving line inside a changing harmony',
+      '<b>Harder</b>: Cycle 6 back down (one voice steps down each time), then the same in A harmonic minor.',
+    ] },
+
+  { t: 'Triads in Cycle 4', s: 'strings 3-2-1', drill: D(56, 1, 'quarters at 56', '8ths at 100', 'C'),
+    neck: { kind: 'play', key: 'C', play: '=C4 E4 G4 | C4 F4 A4 | D4 F4 B4 | E4 G4 B4 | E4 A4 C5 | F4 A4 D5 | G4 B4 D5 | G4 C5 E5' }, b: [
+      'Close triads on the top three strings, roots up a 4th: C, F, B°, Em, Am, Dm, G, C. The root of each chord stays and becomes the 5th of the next; the other two notes step up.',
+      '- Each chord appears in a new inversion, so you climb from the 3rd fret to the 12th without learning anything new',
+      '- Hold the common note with the same finger where you can',
+      '- Arpeggiate each triad; then play the top note as a melody',
+      '<b>Harder</b>: the same on strings 4-3-2 and 5-4-3; then Cycle 2 (no notes in common, so every voice moves down to the nearest note of the next chord: C E G to A D F).',
+    ] },
+
+  { t: 'Practising the Goodrick way', s: 'material, not a method', b: [
+    'Goodrick called <i>The Advancing Guitarist</i> material rather than a method: you build the method. His <i>Almanac</i> pages come with no set order. The lineage advice:',
+    '- <b>Restrict yourself</b> to discover things: one string, one interval, one cycle, one string set. The limit is what makes you find something',
+    '- <b>Go slowly enough to hear every voice</b>: a cycle played at 50 and heard is worth ten played at 120',
+    '- <b>Find it yourself.</b> Work out the next voicing before you look it up; the discovery is the learning',
+    '- <b>Record yourself</b> and listen back critically: what you played, not what you meant',
+    '- Turn each study into a short improvised piece before moving on',
+  ], ex: [['Cycle 4 as a progression: the diatonic circle', 'C:maj7 F:maj7 B:m7b5 E:m7 A:m7 D:m7 G:7 C:maj7'], ['Cycle 2 up the key', 'C:maj7 D:m7 E:m7 F:maj7 G:7']] },
+] }, {
+  id: 'marbin', name: 'Marbin routines', cards: [
+
+    // ---------- how to use these ----------
+    { t: 'How to use these', s: 'boring routines that work', b: [
+      'Dani Rabin (Marbin) teaches by routine: small, repetitive, frankly boring drills that pay off because you do them every day. These cards follow his videos one routine at a time.',
+      '- <b>Learning is prep cooking; practising is turning on the heat.</b> Map things out of time first (roots, grips, intervals). Once the click is on it’s too late to learn, only to find',
+      '- Suffering through the tedious work beats the misery of not being able to play when it counts',
+      '- Never practise faster than you can think. If muscle memory is doing the playing, you’re only reshuffling what’s already there',
+      '- Say the intervals out loud, sing the bass line and the melody, and measure everything from the key or the chord you’re heading to',
+      '- No open strings until you’ve committed to a key: they don’t move. Learn tunes four bars at a time',
+    ] },
+
+    // ---------- 1. CAGED voice leading: 15 areas ----------
+    { t: 'CAGED is a root and a finger', s: 'five ways to hold one root', b: [
+      'Forget the five chord pictures. Each CAGED form tells you which string the root is on and which finger holds it; the chord then lies on one side of that finger.',
+      '- <b>E form</b>: root on the 6th string, index finger, chord up the neck from it. <b>G form</b>: same string, ring or pinky, chord below it',
+      '- <b>A form</b>: root on the 5th string, index or middle, chord up the neck. <b>C form</b>: same root, ring or pinky, chord below it',
+      '- <b>D form</b>: root on the 4th string, index (sometimes middle). Hold that root with ring or pinky instead and you’re at the top of an E form',
+      'Every form holds major, minor, diminished and augmented: keep the root and the finger, and move the 3rd and 5th.',
+      'From “This BORING Practice Routine Will Teach You Harmony in WEEKS”.',
+    ], ex: [
+      ['C in the A form: major, minor, diminished, augmented', '=C3 G3 C4 E4 | C3 G3 C4 Eb4 | C3 Gb3 C4 Eb4 | C3 G#3 C4 E4', 'C · Cm · C° · C+'],
+      ['One D root (5th string, fret 5): C form, then A form', '=D3 F#3 A3 D4 F#4 | D3 A3 D4 F#4 A4', 'C form · A form'],
+      ['One A root (6th string, fret 5): E form, then G form', '=A2 E3 A3 C#4 E4 A4 | A2 C#3 E3 A3 C#4 A4', 'E form · G form'],
+    ] },
+    { t: 'Michelle-type map: five areas', s: 'I – iv – ♭VII – vi° – V in C', b: [
+      'Take a Beatles-style descent in C: C – Fm – B♭ – A° – G – A° – G (I – iv – ♭VII – vi° – V). Don’t chase the grips you know. Stay in one area and let the forms change:',
+      '- Area 1: C A form · Fm D form · B♭ G form · A° G form · G E form',
+      '- Area 2: C G form · Fm C form · B♭ E form · A° E form · G D form',
+      '- Area 3: C E form · Fm A form · B♭ D form · A° D form · G C form',
+      '- Area 4: C D form · Fm G form · B♭ C form · A° C form · G A form',
+      '- Area 5: C C form · Fm E form · B♭ A form · A° A form · G G form (play it at the 12th–15th frets: no open strings)',
+      'Roots first, in time, naming each form; then fill in the chords. The forms come round in CAGED order, so each area tells you the next. From “This BORING Practice Routine Will Teach You Harmony in WEEKS”.',
+    ], ex: [
+      ['The progression', 'C:maj F:min Bb:maj A:dim G:maj A:dim G:maj'],
+      ['Roots only, area 1', '=C3 | F3 | Bb2 | A2 | G2', 'C · F · B♭ · A · G'],
+      ['Area 3: C in the E form, then the roots', '=C3 G3 C4 E4 G4 C5 | F3 | Bb3 | A3 | G3', 'C (E form) · F · B♭ · A · G'],
+    ] },
+    { t: 'Split it: low, middle, top four', s: 'grips that voice-lead themselves', drill: { bpm: 50, sub: 1, goal: 'a grip per beat at 100, all three groups', from: 'a grip per beat at 50', drone: 'C' },
+      neck: { kind: 'play', key: 'C', play: '=C3 G3 C4 E4 | C3 F3 C4 F4 | D3 F3 Bb3 D4 | C3 Eb3 A3 C4 | D3 G3 B3 D4 | C3 Eb3 A3 C4 | D3 G3 B3 D4' }, b: [
+      'Six-string grips jump around when you mix forms. Split every chord of the area into its <b>low four</b> (strings 6–3), <b>middle four</b> (5–2) and <b>top four</b> (4–1), and play the whole progression on one group. Same strings, same area: the parts voice-lead themselves.',
+      '- Fret only the notes you play; don’t hold the big grip out of habit',
+      '- Area 1, middle four (the drill): C (C G C E) · Fm (C F C F) · B♭ (D F B♭ D) · A° (C E♭ A C) · G (D G B D)',
+      '- The G-form A° is the widest grip. If it won’t fit, split it into two three-note groups and alternate them',
+      '- Then the low four (the A-form C gives only roots and 5ths: that’s fine) and the top four. Five areas × three groups = 15 homes for any progression',
+      '<b>Harder</b>: loop one area, groove to it and hum a melody over it. That’s practising; the mapping was the prep. From “This BORING Practice Routine Will Teach You Harmony in WEEKS”.',
+    ], ex: [
+      ['Area 1, low four', '=G2 C3 G3 C4 | Ab2 C3 F3 C4 | Bb2 D3 F3 Bb3 | A2 C3 Eb3 A3 | G2 D3 G3 B3', 'C · Fm · B♭ · A° · G'],
+      ['Area 1, top four', '=G3 C4 E4 G4 | F3 C4 F4 Ab4 | F3 Bb3 D4 Bb4 | Eb3 A3 C4 A4 | G3 B3 D4 G4', 'C · Fm · B♭ · A° · G'],
+    ] },
+
+    // ---------- 2. Never forget a tune ----------
+    { t: 'A tune is its root motion', s: 'Autumn Leaves = 2 5 1 4 7 3 6', drill: { bpm: 60, sub: 1, goal: 'roots in time at 120, all five areas', from: 'a root per beat at 60', drone: 'C' },
+      neck: { kind: 'list', events: [[5, 5, '2'], [6, 3, '5'], [5, 3, '1'], [4, 3, '4'], [5, 2, '7'], [4, 2, '3'], [6, 5, '6'], []] }, b: [
+      'The wrong way to learn a tune: read the symbols and reach for the handful of grips you own, one by one. The right way: learn its root motion as numbers in the key.',
+      '- Autumn Leaves, A section: <b>2 5 1 4 7 3 6</b> (ii7 V7 Imaj7 IVmaj7 viiø7 III7 vi). True in any key',
+      '- Call the E7 in C “3 dominant”, not “5 of 6”: one step to find it, not two',
+      '- Write it out 20 times. Recite it like an old phone number: 2514736',
+      '- Then find it in time. In C, in the A-form area, without moving: D (C form) · G (E form) · C (A form) · F (D form) · B (A form) · E (D form) · A (G form)',
+      'Then the other four areas, then other keys: on guitar every key looks the same once the forms are tied to the numbers. From “Boring, But You’ll Never Forget a Tune Again”.',
+    ], ex: [
+      ['2 5 1 4 7 3 6 in C', 'D:m7 G:7 C:maj7 F:maj7 B:m7b5 E:7 A:m7'],
+      ['The same numbers in B♭, the usual chart', 'C:m7 F:7 Bb:maj7 Eb:maj7 A:m7b5 D:7 G:m7'],
+      ['…and in F', 'G:m7 C:7 F:maj7 Bb:maj7 E:m7b5 A:7 D:m7'],
+    ] },
+    { t: 'Blue Bossa: measure from the key', s: 'two keys a whole step apart', b: [
+      'When a tune modulates, don’t measure from the last chord to the next (“C minor, then a minor chord a minor 3rd up”). Measure from <b>key to key</b>: the keys are the source of the analysis.',
+      '- Blue Bossa is in E♭: vi – ii – viiø – III7 – vi (Cm7 Fm7 Dø7 G7 Cm7)',
+      '- Then ii–V–I in the key a whole step down (D♭: E♭m7 A♭7 D♭maj7)',
+      '- Then the minor ii–V back to vi (Dø7 G7 Cm7)',
+      'So the map is: “6 2 7 3 6 at home; 2 5 1 a whole step down; minor 2 5 home.” In D: Bm7 Em7 C♯ø7 F♯7 Bm7, then Dm7 G7 Cmaj7, then C♯ø7 F♯7 Bm7.',
+      'Practise: have someone name a key and play it straight off, finding each chord in time rather than from memory. From “Boring, But You’ll Never Forget a Tune Again”.',
+    ], ex: [
+      ['In E♭', 'C:m7 F:m7 D:m7b5 G:7 C:m7 Eb:m7 Ab:7 Db:maj7 D:m7b5 G:7 C:m7'],
+      ['In D', 'B:m7 E:m7 C#:m7b5 F#:7 B:m7 D:m7 G:7 C:maj7 C#:m7b5 F#:7 B:m7'],
+    ] },
+    { t: 'All the Things You Are, as keys', s: 'every jump measured from home', b: [
+      'Home is A♭. Measure each new key from A♭, never from where you’ve just been, or you end up stacking interval on interval.',
+      '- <b>6 2 5 1 4</b> in A♭ (Fm7 B♭m7 E♭7 A♭maj7 D♭maj7), then <b>5 1</b> a major 3rd up (C: G7 Cmaj7)',
+      '- The same <b>6 2 5 1 4</b> a 5th up (E♭: Cm7 Fm7 B♭7 E♭maj7 A♭maj7), then <b>2 5 1</b> a major 7th up, a half step below home (G: Am7 D7 Gmaj7)',
+      '- Bridge: that 2 5 1 in G, then <b>2 5 1</b> a minor 6th up (E: F♯m7 B7 Emaj7), then 5 of 6 at home (C7)',
+      '- Last A: <b>6 2 5 1 4, 4 minor, 1, ♭3°, 2 5 1</b> (Fm7 B♭m7 E♭7 A♭maj7 D♭maj7 D♭m7 Cm7 B°7 B♭m7 E♭7 A♭maj7)',
+      'In B♭ the same sentence gives B♭, D, F, A and G♭. Say it, then play it. From “Boring, But You’ll Never Forget a Tune Again”.',
+    ], ex: [
+      ['First two A sections, in A♭', 'F:m7 Bb:m7 Eb:7 Ab:maj7 Db:maj7 G:7 C:maj7 C:m7 F:m7 Bb:7 Eb:maj7 Ab:maj7 A:m7 D:7 G:maj7'],
+      ['Bridge and last A', 'A:m7 D:7 G:maj7 F#:m7 B:7 E:maj7 C:7 F:m7 Bb:m7 Eb:7 Ab:maj7 Db:maj7 Db:m7 C:m7 B:dim7 Bb:m7 Eb:7 Ab:maj7'],
+      ['The first eight bars in B♭', 'G:m7 C:m7 F:7 Bb:maj7 Eb:maj7 A:7 D:maj7'],
+    ] },
+
+    // ---------- 3. The painful practice (Barry Harris) ----------
+    { t: 'A chord plus a ° a half step down', s: 'Barry Harris scales, simply', b: [
+      'Every Barry Harris scale is one four-note chord plus the diminished 7th a half step below its root. With C as home:',
+      '- C6 + B° = the major 6th-diminished scale (C D E F G A♭ A B)',
+      '- Cm6 + B° = minor 6th-diminished (C D E♭ F G A♭ A B)',
+      '- C7 + B° = dominant-diminished (C D E F G A♭ B♭ B)',
+      '- C° + B° = whole-half diminished. (There’s also C7♭5 + B°; skip it.)',
+      'The secret: never think of the ° notes from B. They are the <b>2, 4, ♭6 and 7 of C</b>, tension that resolves to the home chord. Over G they make a rootless G7♭9, so the scale swings 1–5–1–5 on its own. From “The Painful Practice You’re Not Doing”.',
+    ], ex: [
+      ['C6 – B°7 – C6', 'C:6 B:dim7 C:6'],
+      ['Cm6 – B°7 – Cm6', 'C:m6 B:dim7 C:m6'],
+      ['C7 – B°7 – C7', 'C:7 B:dim7 C:7'],
+    ] },
+    { t: 'Four notes at a time: C6 and B°', s: 'arpeggio chunks in the A form', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: '8ths at 60', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [5, 3, '1'], [4, 2, '3'], [4, 5, '5'], [3, 2, '6'],
+        [3, 4, '7'], [4, 6, '♭6'], [4, 3, '4'], [5, 5, '2'],
+        [4, 2, '3'], [4, 5, '5'], [3, 2, '6'], [3, 5, '1'],
+        [2, 3, '2'], [3, 4, '7'], [4, 6, '♭6'], [4, 3, '4'],
+        [4, 5, '5'], [3, 2, '6'], [3, 5, '1'], [2, 5, '3'],
+        [2, 6, '4'], [2, 3, '2'], [3, 4, '7'], [4, 6, '♭6'],
+        [3, 2, '6'], [3, 5, '1'], [2, 5, '3'], [1, 3, '5'],
+        [1, 4, '♭6'], [2, 6, '4'], [2, 3, '2'], [3, 4, '7'],
+        [3, 5, '1'], [], [], [],
+      ] }, b: [
+      'Stop running two-octave arpeggios: horn players use four or five notes of a chord at a time. Inside the A form of C (frets 2–6), play four notes of C6, then four of the °, and keep alternating.',
+      '- Here each C6 inversion goes up and each ° chunk comes down: C E G A · B A♭ F D · E G A C · D B A♭ F · G A C E · F D B A♭ · A C E G · A♭ F D B · C',
+      '- Say the intervals aloud, all from C: “1 3 5 6, 7 ♭6 4 2…”. Never rename the ° notes from B',
+      '- Hear it go home, tension, home: consonant, dissonant, consonant',
+      '<b>Harder</b>: three-note chunks (1 5 3 · 4 2 7 · 1 6 5 · ♭6 4 2 · 3), then the same work in the other four CAGED forms of C. From “The Painful Practice You’re Not Doing”.',
+    ] },
+    { t: 'Same tension, new home: m6 and 7', s: 'and the G-B-E string map', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: '8ths at 60', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [3, 5, '1'], [2, 4, '♭3'], [1, 3, '5'], [1, 5, '6'],
+        [1, 4, '♭6'], [1, 1, '4'], [2, 3, '2'], [3, 4, '7'],
+        [3, 8, '♭3'], [2, 8, '5'], [1, 5, '6'], [1, 8, '1'],
+        [1, 7, '7'], [1, 4, '♭6'], [2, 6, '4'], [3, 7, '2'],
+        [3, 12, '5'], [2, 10, '6'], [1, 8, '1'], [1, 11, '♭3'],
+        [1, 10, '2'], [1, 7, '7'], [2, 9, '♭6'], [3, 10, '4'],
+        [3, 14, '6'], [2, 13, '1'], [1, 11, '♭3'], [1, 15, '5'],
+        [2, 13, '1'], [], [], [],
+      ] }, b: [
+      'Change the home chord and keep the tension. The ° notes stay on the 2, 4, ♭6 and 7 of C; only the arpeggio you resolve to changes.',
+      '- Cm6 (C E♭ G A) + B°: the minor 6th-diminished scale, the one bebop players use all the time',
+      '- C7 (C E G B♭) + B°: the dominant-diminished scale',
+      '- A second map: the G, B and E strings only, each four-note shape laid out one note, one note, two notes. All the ° shapes share one fingering, three frets apart',
+      'The drill: Cm6 up, ° down, on that string map, climbing the neck. Then the same with C6 and C7, then on the I chord of whatever tune you’re learning. From “The Painful Practice You’re Not Doing”.',
+    ] },
+    { t: 'The ° of where you’re going', s: 'Georgia-type I – III7 – vi', drill: { bpm: 60, sub: 2, goal: '8ths at 180', from: '8ths at 60', drone: 'A' },
+      neck: { kind: 'list', events: [
+        [3, 5, '♭3'], [2, 5, '5'], [2, 8, '♭7'], [1, 5, '1'],
+        [1, 4, '7'], [2, 3, '4'], [3, 4, '2'], [2, 6, '♭6'],
+        [2, 5, '5'], [3, 5, '♭3'], [4, 7, '1'], [],
+      ] }, b: [
+      'Take C – E7 – Am (I – III7 – vi, the opening of a classic Southern ballad). Don’t think of E7 from E; think from where it’s going. E7’s notes are A’s 2, 4, ♭6 and 7: a G♯° that resolves to Am7 (the same notes as C6).',
+      '- From C, go to G♯ (the 7 of A); later resolve F (A’s ♭6) down to E (its 5th). The drill does both; its labels count from A',
+      '- On a iv minor (Fm) think B° (= F°): the ° that leads home to C',
+      '- On I – VI7 – ii – V: over the VI7 play the ° of D minor (E G B♭ C♯); over the V, the ° of C (B D F A♭)',
+      'The rule: a tension ° is the 2, 4, ♭6 and 7 of where you’re going, not the ♭9, 3, 5 and ♭7 of where you are. From “The Painful Practice You’re Not Doing”.',
+    ], ex: [
+      ['C6 – G♯°7 (a rootless E7♭9) – Am7', 'C:6 G#:dim7 A:m7'],
+      ['iv minor heard as the ° of home', 'F:m6 B:dim7 C:6'],
+      ['I – VI – ii – V, each target’s ° instead', 'C:6 C#:dim7 D:m7 B:dim7 C:6'],
+    ] },
+
+    // ---------- 4. The pentatonic ladder ----------
+    { t: 'The 3-2 ladder', s: 'C major pentatonic, three octaves', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: '8ths at 60', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [6, 8, '1'], [6, 10, '2'], [6, 12, '3'], [5, 10, '5'], [5, 12, '6'],
+        [4, 10, '1'], [4, 12, '2'], [4, 14, '3'], [3, 12, '5'], [3, 14, '6'],
+        [2, 13, '1'], [2, 15, '2'], [2, 17, '3'], [1, 15, '5'], [1, 17, '6'], [1, 20, '1'],
+        [1, 17, '6'], [1, 15, '5'], [2, 17, '3'], [2, 15, '2'], [2, 13, '1'],
+        [3, 14, '6'], [3, 12, '5'], [4, 14, '3'], [4, 12, '2'], [4, 10, '1'],
+        [5, 12, '6'], [5, 10, '5'], [6, 12, '3'], [6, 10, '2'], [6, 8, '1'], [],
+      ] }, b: [
+      'The major pentatonic is only whole steps and minor 3rds: C D E G A goes whole, whole, minor 3rd, whole, minor 3rd. The R&B and blues-rock way to see it: <b>whole steps along a string, minor 3rds to cross</b>.',
+      '- The 3-2 shape starts on the root: C D E on the 6th string (frets 8-10-12), G A on the 5th (10-12), C D E on the 4th, and so on: the same three-then-two in every octave, nudged a fret at the B string',
+      '- No pinky: index on the first note, then slide the ring finger through the whole steps',
+      '- Up and back slowly, saying the degrees',
+      '<b>Harder</b>: run it down from the top landing a chord tone on each beat; then move the ladder to other keys (it moves; the fingering doesn’t). From “The Pentatonic Ladder – How It Works”.',
+    ] },
+    { t: 'The 2-3 ladder through CAGED', s: 'from the 5th, past every form', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: '8ths at 60', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [6, 3, '5'], [6, 5, '6'], [5, 3, '1'], [5, 5, '2'], [5, 7, '3'],
+        [4, 5, '5'], [4, 7, '6'], [3, 5, '1'], [3, 7, '2'], [3, 9, '3'],
+        [2, 8, '5'], [2, 10, '6'], [1, 8, '1'], [1, 10, '2'], [1, 12, '3'], [1, 15, '5'],
+        [1, 12, '3'], [1, 10, '2'], [1, 8, '1'], [2, 10, '6'], [2, 8, '5'],
+        [3, 9, '3'], [3, 7, '2'], [3, 5, '1'], [4, 7, '6'], [4, 5, '5'],
+        [5, 7, '3'], [5, 5, '2'], [5, 3, '1'], [6, 5, '6'], [6, 3, '5'], [],
+      ] }, b: [
+      'The 2-3 shape starts on the 5th: G A on the 6th string (frets 3-5), C D E on the 5th (3-5-7), and up. Climb it and you pass through the forms of C in order:',
+      '- At the bottom, the <b>A form</b> of C: low notes, almost a bass line',
+      '- In the middle, the <b>G form</b>; higher, the <b>E form</b>; at the top, the <b>D form</b>',
+      '- Any three-note group can also start a new 3-2 group: from the bottom of the E form the shape runs on through the D, C and A forms',
+      'Name the form you’re in at every string change. A line that crosses them (E form – G form – A form) never leaves the scale.',
+      '<b>Harder</b>: improvise in one form at a time, then let a phrase carry you into the next. From “The Pentatonic Ladder – How It Works”.',
+    ] },
+    { t: 'Relative minor and the blue note', s: 'same ladder, new targets', b: [
+      'The C major ladder is also the A minor pentatonic ladder, so see both chords in each area. The A form of C is the <b>G-minor form</b> of Am (an open-G shape, made minor); then come Am’s E-minor, D-minor, C-minor and A-minor forms.',
+      '- Same notes, new home: aim for A, C and E instead of C, E and G',
+      '- Add the <b>blue note</b>, E♭: in C major pentatonic it’s the ♭3 slid into E; in A minor pentatonic it’s the ♭5 between D and E',
+      '- Over moving chords keep the ladder and change the targets. C – Am (major to relative minor): new landing notes, often a new area',
+      '- A – G – F (vi – V – IV, the classic rock descent): Am in its E-minor form at the 5th fret, G in its D form, F in its C form, all in one area',
+      'From “The Pentatonic Ladder – How It Works”.',
+    ], ex: [
+      ['The blue note in C: E♭ slid into E', '=C3 G3 C4 E4 | D4 | Eb4 | E4 | G4 | E4 | C4', 'C · D E♭ E G E C'],
+      ['Am (E-minor form), G (D form), F (C form)', '=A2 E3 A3 C4 E4 A4 | G3 D4 G4 B4 | F3 A3 C4 F4 A4', 'Am · G · F'],
+      ['The blue note in A minor: D E♭ E', '=A2 E3 A3 C4 E4 A4 | D4 | Eb4 | E4 | G4 | A4', 'Am · D E♭ E G A'],
+    ] },
+
+    // ---------- 5. Triad pairs ----------
+    { t: 'Substitution or suspension', s: 'triads over one bass note', b: [
+      'Take a mode and put each of its triads over the root. Some sound like the chord (substitutions); some lean and want to resolve (suspensions).',
+      '- Triads on <b>1, 3 and 5</b> of the mode are substitutions; on <b>2, 4 and 7</b>, suspensions',
+      '- The 6 decides for itself: a whole step above the 5th, the triad on 6 is a substitution; a half step above (an avoid note, as in Phrygian and Aeolian), it’s a suspension',
+      '- C Ionian: C sub · Dm sus · Em sub · F sus · G sub · Am sub · B° sus',
+      'A triad pair is a suspension plus a substitution: tension and release on one chord. Use <b>adjacent</b> triads (C and Dm, not C and Em): no shared notes, and together they make a six-note scale that drops one note (C and Dm drop B).',
+      'From “Triad Pairs: Stop Comping Like a Child”.',
+    ], ex: [
+      ['Dm over C, then C: the Michael Jackson groove sound', '=C3 D4 F4 A4 | C3 E4 G4 C5', 'Dm/C · C'],
+      ['F then G over C: the Van Halen “Jump” sound', '=C3 F4 A4 C5 | C3 G4 B4 D5 | C3 E4 G4 C5', 'F/C · G/C · C'],
+    ] },
+    { t: 'Pairs in other modes', s: 'sus + sub, one mode at a time', drill: { bpm: 60, sub: 3, goal: 'triplets at 140', from: 'triplets at 60', drone: 'D' },
+      neck: { kind: 'list', events: [
+        [3, 2, '5'], [2, 3, '1'], [1, 1, '♭3'], [3, 4, '6'], [2, 5, '2'], [1, 3, '4'],
+        [3, 7, '1'], [2, 6, '♭3'], [1, 5, '5'], [3, 9, '2'], [2, 8, '4'], [1, 7, '6'],
+        [3, 10, '♭3'], [2, 10, '5'], [1, 10, '1'], [3, 12, '4'], [2, 12, '6'], [1, 12, '2'],
+        [3, 14, '5'], [2, 15, '1'], [1, 13, '♭3'], [3, 16, '6'], [2, 17, '2'], [1, 15, '4'],
+      ] }, b: [
+      'Recalibrate for each mode: build its triads from the root and label each one.',
+      '- <b>G Mixolydian</b>: G sub · Am sus · B° sub · C sus · Dm sub · Em sub · F sus. C to B° over G is a stock blues riff',
+      '- <b>D Dorian</b>: Dm sub · Em sus · F sub · G sus · Am sub · B° sub · C sus. G to F over D is the “So What” sound; Dm to Em is the Doors-style i – ii',
+      '- <b>G melodic minor</b>: Gm sub · Am sus · B♭+ sub · C sus · D sub · E° sub · F♯° sus. E° and F♯° over G give the Gershwin “Summertime” colour',
+      'The drill: Dm and Em over a D drone on the top three strings, alternating up through the inversions. Then every pair above the same way. From “Triad Pairs: Stop Comping Like a Child”.',
+    ] },
+    { t: 'The altered pair: E♭ and D♭ on G', s: 'IV and V of A♭ melodic minor', drill: { bpm: 60, sub: 3, goal: 'triplets at 140', from: 'triplets at 60', drone: 'G' },
+      neck: { kind: 'list', events: [
+        [3, 3, '♯9'], [2, 4, '♭13'], [1, 3, '1'], [3, 1, '♭9'], [2, 2, '♭5'], [1, 1, '♭7'], [3, 5, '1'], [2, 5, '3'], [1, 3, '5'],
+        [3, 8, '♭13'], [2, 8, '1'], [1, 6, '♯9'], [3, 6, '♭5'], [2, 6, '♭7'], [1, 4, '♭9'], [3, 9, '3'], [2, 8, '5'], [1, 8, '1'],
+        [3, 12, '1'], [2, 11, '♯9'], [1, 11, '♭13'], [3, 10, '♭7'], [2, 9, '♭9'], [1, 9, '♭5'], [3, 12, '5'], [2, 13, '1'], [1, 12, '3'],
+      ] }, b: [
+      'Find a pair in one scale, then move it onto another bass note. D♭ and E♭ are IV and V of A♭ major, and also of A♭ melodic minor, which over a G bass is G altered.',
+      '- Over G: E♭ = ♭13, root, ♯9; D♭ = ♭5, ♭7, ♭9',
+      '- Play E♭ first, then D♭, then resolve to C: most tension just before home. Compare the diatonic pair, F and G over G: the same move, suspended instead of altered',
+      '- See it as a form on a form: inside a G-form G sits a C-form D♭; the E♭ is a D-form grip whose lowest note is the G',
+      'The drill: E♭, D♭, C up the top three strings in three areas (tensions named from G, then the C triad from C). In a ii–V–I: Dm7 | E♭/G D♭/G | C. From “Master Altered Triad Pairs in One BORING Lesson”.',
+    ], ex: [
+      ['E♭/G – D♭/G – C', '=G2 G3 Bb3 Eb4 | G2 F3 Ab3 Db4 | C3 G3 C4 E4', 'E♭/G · D♭/G · C'],
+      ['The diatonic pair: F/G – G – C', '=G2 F3 A3 C4 | G2 G3 B3 D4 | C3 G3 C4 E4', 'F/G · G · C'],
+    ] },
+    { t: 'Harmonic-minor pair over V7', s: 'ii° + ♭III+ in a minor ii–V–i', drill: { bpm: 50, sub: 1, goal: 'a grip per beat at 100, then solo with each pair', from: 'a grip per beat at 50', drone: 'A' },
+      neck: { kind: 'list', events: [
+        [[5, 2, '1'], [4, 3, '♭5'], [3, 2, '♭7'], [2, 1, '♭9']],
+        [[5, 2, '1'], [4, 5, '♭13'], [3, 4, '1'], [2, 3, '♭3']],
+        [[6, 0, '1'], [4, 3, '♭9'], [3, 4, '5'], [2, 3, '♭7']],
+        [[6, 0, '1'], [4, 2, '1'], [3, 1, '3'], [2, 1, '♭13']],
+        [[6, 5, '1'], [4, 5, '♭7'], [3, 5, '♭3'], [2, 5, '5']],
+        [[6, 5, '1'], [4, 4, '6'], [3, 2, '1'], [2, 3, '4']],
+      ] }, b: [
+      'A harmonic minor’s triads: Am, B°, C+, Dm, E, F, G♯°. Put <b>B° and C+</b> over an E bass and you get E Phrygian dominant without A, its one avoid-sounding note. A strong pull into A minor.',
+      'A minor ii–V–i, one pair per chord, the bass held while the triads change on top:',
+      '- Bø7: F and G (IV and V of C major) over B',
+      '- E7: B° and C+ over E',
+      '- Am, as A Dorian: C and D (IV and V of G major) over A',
+      'The drill shows one grip of each (labels from each bass note). Then improvise with each pair over its bass. From “Master Altered Triad Pairs in One BORING Lesson”.',
+    ], ex: [
+      ['The chords it decorates', 'B:m7b5 E:7 A:m7'],
+    ] },
+
+    // ---------- 6. Speed practice ----------
+    { t: 'Joe Pass triplets: down-down-up', s: 'triads, one note then two', drill: { bpm: 60, sub: 3, goal: 'triplets at 160', from: 'triplets at 60', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [3, 5, '1'], [2, 5, '3'], [2, 8, '5'], [3, 7, '2'], [2, 6, '4'], [2, 10, '6'], [3, 9, '3'], [2, 8, '5'], [2, 12, '7'],
+        [3, 10, '4'], [2, 10, '6'], [2, 13, '1'], [3, 12, '5'], [2, 12, '7'], [2, 15, '2'],
+        [3, 10, '4'], [2, 10, '6'], [2, 13, '1'], [3, 9, '3'], [2, 8, '5'], [2, 12, '7'], [3, 7, '2'], [2, 6, '4'], [2, 10, '6'],
+        [3, 5, '1'], [2, 5, '3'], [2, 8, '5'],
+      ] }, b: [
+      'Joe Pass’s fast triplet runs are triads laid out one note on the G string, two on the B, picked <b>down, down, up</b>. The beat falls on the low string.',
+      '- The gypsy-jazz trick: make the upstroke big and circular, wide enough to clear the G string, so the pick is already set for the next downstroke instead of dragging back',
+      '- The drill: C, Dm, Em, F, G up from the 5th fret of the G string, then back down',
+      '- Then other inversions (5-1-3, 3-5-1; the wider ones need more repetitions) and other string pairs: E-A, A-D, D-G, B-E',
+      '<b>Harder</b>: mix triplets into 8th-note lines, crossing strings within one position; or split a pentatonic the same way. From “Speed Practice For Jazz Guitar”.',
+    ] },
+    { t: 'The 8-note cell: sweep and pull', s: 'Joe Pass’s double-time trick', drill: { bpm: 50, sub: 4, goal: '16ths at 120', from: '16ths at 50', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [4, 2, '3'], [4, 3, '4'], [4, 5, '5'], [3, 2, '6'], [3, 4, '7'], [3, 2, '6'], [4, 5, '5'], [4, 3, '4'],
+        [4, 5, '5'], [4, 7, '6'], [4, 9, '7'], [3, 5, '1'], [3, 7, '2'], [3, 5, '1'], [4, 9, '7'], [4, 7, '6'],
+        [4, 9, '7'], [4, 10, '1'], [4, 12, '2'], [3, 9, '3'], [3, 10, '4'], [3, 9, '3'], [4, 12, '2'], [4, 10, '1'],
+        [4, 12, '2'], [4, 14, '3'], [4, 15, '4'], [3, 12, '5'], [3, 14, '6'], [3, 12, '5'], [4, 15, '4'], [4, 14, '3'],
+      ] }, b: [
+      'Over E7, Joe runs A harmonic minor from G♯ (E7’s 3rd) up to D (its ♭7) and back: three notes on the D string, two on the G. Eight notes, far fewer than eight picking motions.',
+      '- Down, up, down on the D string; <b>sweep</b> that down onto the G string; a <b>big upstroke</b>; pull off; then down, up on the D string. G♯ A B · C D C · B A',
+      '- The big upstroke is a wider motion, not a louder one: don’t snap the string',
+      '- Don’t move it up in steps (the last note would repeat as the next first note). Move it in 3rds: the drill climbs C major on the D and G strings from E, G, B and D',
+      '<b>Harder</b>: the descending version, the A and D strings, then drop it into a tune as double time over a swing groove. From “Speed Practice For Jazz Guitar”.',
+    ], ex: [
+      ['The original cell over E7', '=E3 G#3 D4 | G#3 | A3 | B3 | C4 | D4 | C4 | B3 | A3', 'E7 · G♯ A B C D C B A'],
+    ] },
+    { t: 'Six-note cells and the mute', s: 'four picks, two pull-offs', drill: { bpm: 50, sub: 3, goal: 'triplets at 120 (sextuplets at 60)', from: 'triplets at 50', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [3, 7, '2'], [2, 5, '3'], [2, 6, '4'], [2, 8, '5'], [2, 6, '4'], [2, 5, '3'],
+        [3, 10, '4'], [2, 8, '5'], [2, 10, '6'], [2, 12, '7'], [2, 10, '6'], [2, 8, '5'],
+        [3, 14, '6'], [2, 12, '7'], [2, 13, '1'], [2, 15, '2'], [2, 13, '1'], [2, 12, '7'],
+      ] }, b: [
+      'Six notes, four picks: down on one string, down on the next (a small sweep), up, down, then two pull-offs. Use the pull-offs’ time to bring the pick back to the starting string.',
+      '- The drill is one way to lay it out in C: D on the G string, then E F G on the B string, pulling G off to F and E. Then up a 3rd',
+      '- Chromatic shapes suit it too, and move anywhere',
+      '- <b>The picking hand</b>: a forward slant (the downstroke rests on the next string, the upstroke lifts away). Mute the bass strings with the blade of the palm, and rest the spare fingers on the treble strings you aren’t using: a tunnel for the two you play',
+      'Always practise it in the rhythm you’ll use: double-time 8ths over a medium-swing tune, chord by chord. From “Speed Practice For Jazz Guitar”.',
+    ] },
+
+    // ---------- 7. Omitting the ii ----------
+    { t: 'Drywall or supporting wall?', s: 'when you can forget the ii', b: [
+      'Joe Pass told a masterclass: in a ii–V, forget the ii and just think V. Often true, not always. The test: sing the melody and play the changes with the ii, then without it. If nothing collapses, it was drywall.',
+      '- A ii over the V’s root is a <b>suspension</b> of the V: Gø7 over C gives C7 with a ♭9, a 4 and a ♭7. Play through it, or drop it and play C7',
+      '- A tune built from ii–Vs into each key (Gø7 C7 Fm, Dø7 G7 C, What Is This Thing Called Love-style) survives as C7 Fm G7 C',
+      '- But in a cycle of 4ths (6 2 5 1 4 7 3 6, Fly Me to the Moon-style) the ii is part of the pattern; take it out and the tune falls down',
+      'Use your ears, not a rule. From “Joe Pass LIED??”.',
+    ], ex: [
+      ['Gø7 over C (C7 suspended), then C7', '=C3 F3 Bb3 Db4 | C3 E3 Bb3 C4', 'Gø7/C · C7'],
+      ['ii’s removed: still works', 'C:7 F:m6 G:7 C:maj7'],
+      ['A cycle where the ii has to stay', 'A:m7 D:m7 G:7 C:maj7 F:maj7 B:m7b5 E:7 A:m7'],
+    ] },
+    { t: 'Reduce a Bird blues', s: 'keep the chords that function', drill: { bpm: 60, sub: 1, goal: 'swing it at 160, four beats a chord', from: 'a shell per click at 60', drone: 'F' },
+      neck: { kind: 'list', events: [
+        [[6, 1, '1'], [4, 2, '7'], [3, 2, '3']],
+        [[6, 5, '1'], [4, 5, '♭7'], [3, 6, '3']],
+        [[5, 5, '1'], [4, 3, '♭3'], [3, 5, '♭7']],
+        [[6, 1, '1'], [4, 1, '♭7'], [3, 2, '3']],
+        [[6, 6, '1'], [4, 6, '♭7'], [3, 7, '3']],
+        [[6, 6, '1'], [4, 6, '♭7'], [3, 6, '♭3']],
+        [[6, 5, '1'], [4, 5, '♭7'], [3, 5, '♭3']],
+        [[6, 4, '1'], [4, 4, '♭7'], [3, 4, '♭3']],
+        [[5, 3, '1'], [4, 2, '3'], [3, 3, '♭7']],
+        [[5, 3, '1'], [4, 2, '3'], [3, 3, '♭7']],
+        [[6, 1, '1'], [4, 2, '7'], [3, 2, '3']],
+        [[5, 3, '1'], [4, 2, '3'], [3, 3, '♭7']],
+      ] }, b: [
+      'A Bird blues in F is crammed with ii–Vs: Fmaj7 | Eø A7 | Dm7 G7 | Cm7 F7 | B♭7 | B♭m7 E♭7 | Am7 D7 | A♭m7 D♭7 | Gm7 | C7 | F D7 | Gm7 C7. Reduce it to a map you can hear:',
+      '- Drop Eø, keep A7: it pulls to Dm',
+      '- Keep <b>Dm7</b> and drop G7: Dm is vi, the arrival point (the same cadence as a Georgia-type I – III7 – vi); G7 is only V of V',
+      '- Drop Cm7, keep F7 (V of IV, pulling to B♭7)',
+      '- Bars 6–8: B♭m – Am – A♭m, a minor chain falling by half steps (iv, iii, ♭iii). Then C7 for two bars, F, C7',
+      'The drill plays that skeleton as shells (labels from each chord). Then put the ii–Vs back: they’re suspensions and extensions of this map. From “Joe Pass LIED??”.',
+    ] },
+
+    // ---------- 8. Counterpoint ----------
+    { t: 'Two pianos in contrary motion', s: 'the 6th-diminished scale from C', drill: { bpm: 50, sub: 1, goal: 'a pair per beat at 120', from: 'a pair per beat at 50', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [[3, 5, '1'], [2, 1, '1']], [[3, 4, '7'], [2, 3, '2']], [[3, 2, '6'], [2, 5, '3']], [[4, 6, '♯5'], [2, 6, '4']], [[4, 5, '5'], [1, 3, '5']],
+        [[4, 3, '4'], [1, 4, '♯5']], [[4, 2, '3'], [1, 5, '6']], [[5, 5, '2'], [1, 7, '7']], [[6, 8, '1'], [1, 8, '1']],
+        [[5, 5, '2'], [1, 7, '7']], [[4, 2, '3'], [1, 5, '6']], [[4, 3, '4'], [1, 4, '♯5']], [[4, 5, '5'], [1, 3, '5']],
+        [[4, 6, '♯5'], [2, 6, '4']], [[3, 2, '6'], [2, 5, '3']], [[3, 4, '7'], [2, 3, '2']], [[3, 5, '1'], [2, 1, '1']],
+      ] }, b: [
+      'Use the C major bebop scale (C6 + B°: C D E F G G♯ A B) and treat the guitar as two pianos, the low strings and the high strings. One voice climbs the scale while the other falls.',
+      '- Split from a unison chord tone: the pairs alternate between C6 notes and ° notes (D F G♯ B)',
+      '- The ° pairs are the same shapes from every starting chord tone: six of the eight moves repeat. Only what happens off the 3rd and the 6th is new each time',
+      '- Think of them as double stops, not two separate lines',
+      '- Splitting out of a unison sounds open and sophisticated; closing into one sounds like the air going out. Resolve into a chord instead',
+      'The two-octave shape moving in, and the octave on the 5th moving out, sound best: like V – I. From “How to Play Counterpoint on Guitar in 10 minutes”.',
+    ] },
+    { t: 'Contrary motion from A, G and E', s: 'each start is a cadence', drill: { bpm: 50, sub: 1, goal: 'a pair per beat at 120', from: 'a pair per beat at 50', drone: 'A' },
+      neck: { kind: 'list', events: [
+        [[4, 7, '6'], [3, 2, '6']], [[4, 6, '♯5'], [3, 4, '7']], [[4, 5, '5'], [3, 5, '1']], [[4, 3, '4'], [2, 3, '2']], [[4, 2, '3'], [2, 5, '3']],
+        [[5, 5, '2'], [2, 6, '4']], [[5, 3, '1'], [1, 3, '5']], [[5, 2, '7'], [1, 4, '♯5']], [[6, 5, '6'], [1, 5, '6']],
+        [[5, 2, '7'], [1, 4, '♯5']], [[5, 3, '1'], [1, 3, '5']], [[5, 5, '2'], [2, 6, '4']], [[4, 2, '3'], [2, 5, '3']],
+        [[4, 3, '4'], [2, 3, '2']], [[4, 5, '5'], [3, 5, '1']], [[4, 6, '♯5'], [3, 4, '7']], [[4, 7, '6'], [3, 2, '6']],
+      ] }, b: [
+      'Start the same contrary motion from the other chord tones of C6 and listen to what each implies:',
+      '- From <b>A</b>: Am moving to E7 and back (G♯ and B are E7’s notes). Use it in a minor ii–V–i, moving in or out',
+      '- From <b>G</b>: a V – I sound; the two-octave shape moving inward works in a ii–V–I',
+      '- From <b>E</b>: E7 going to Am, the minor-swing sound, and his favourite',
+      'The drill runs it from A out to two octaves and back (labels from C). Then start from the ° notes too, and try the other Barry Harris scales (minor 6th, dominant 7th) the same way. From “How to Play Counterpoint on Guitar in 10 minutes”.',
+    ], ex: [
+      ['From G: two octaves moving inward (V to I)', '=G2 G4 | G#2 F4 | A2 E4 | B2 D4 | C3 C4', 'G/G · G♯/F · A/E · B/D · C/C'],
+      ['From E: out of the unison (E7 to Am)', '=E4 E4 | D4 F4 | C4 G4 | B3 G#4 | A3 A4', 'E/E · D/F · C/G · B/G♯ · A/A'],
+    ] },
+
+    // ---------- 9. Phrasing at three tempos ----------
+    { t: 'Medium swing: slow it down', s: 'a blues at 60, then 80', drill: { bpm: 60, sub: 2, goal: '8ths at 120, with ideas', from: '8ths at 60', drone: 'F' },
+      neck: { kind: 'list', events: [
+        [2, 1, '5'], [2, 3, '6'], [1, 1, '1'], [2, 3, '6'], [2, 1, '5'], [], [], [],
+        [2, 3, '6'], [1, 1, '1'], [1, 3, '2'], [1, 1, '1'], [2, 3, '6'], [], [], [],
+        [2, 1, '5'], [2, 3, '6'], [1, 1, '1'], [2, 3, '6'], [3, 2, '3'], [], [], [],
+        [2, 4, '♭7'], [2, 3, '6'], [2, 1, '5'], [3, 2, '3'], [2, 1, '5'], [], [], [],
+      ] }, b: [
+      'Most people’s jazz falls apart at the 8th-note level because they practise too fast. Never play faster than you can think, note by note.',
+      '- A plain F blues at 60 bpm. Sing a line first, then improvise slowly enough that every note is a decision you could explain',
+      '- Build motifs: take one rhythm (borrow a phrase from a record) and run it through the changes, adjusting the notes to each chord. The drill is one: the same rhythm over F7, B♭7, F7, F7',
+      '- Record yourself and ask: did that sound like jazz? Then 80 bpm. Then a standard at the same tempo (the Georgia-type changes below)',
+      '- If a one-chord vamp leaves you noodling scales, the cure is listening: absorb more music, and build an imagined Wes, Bird or Scofield you can impersonate',
+      'From “Give Me 15 MINUTES & I’ll Completely RESET Your Phrasing”.',
+    ], ex: [
+      ['F blues, one chorus', 'F:7 Bb:7 F:7 F:7 Bb:7 Bb:7 F:7 D:7 G:m7 C:7 F:7 C:7'],
+      ['Georgia-type A section in E♭', 'Eb:maj7 G:7 C:m7 Ab:m6 Eb:maj7 C:7 F:m7 Bb:7'],
+    ] },
+    { t: 'Up-tempo half time, ballads double', s: 'feel a pulse you can breathe in', drill: { bpm: 70, sub: 2, goal: 'cut-time feel at 140, then 240', from: '8ths at 70', drone: 'F' },
+      neck: { kind: 'list', events: [
+        [4, 8, '4'], [3, 7, '6'], [2, 6, '1'], [1, 5, '3'], [2, 8, '2'], [2, 6, '1'], [2, 5, '7'], [3, 7, '6'],
+        [3, 5, '5'], [2, 5, '7'], [2, 8, '2'], [1, 6, '4'], [1, 5, '3'], [2, 8, '2'], [2, 6, '1'], [2, 5, '7'],
+        [2, 6, '1'], [], [], [], [], [], [], [],
+      ] }, b: [
+      '<b>Up-tempo</b>: at 320 don’t try to feel four. Feel half time, two big beats a bar, with the click on 2 and 4. Then slow it right down to 140 and keep that feel: the 8ths become 16ths, like a Brazilian groove.',
+      '- Learn to make music at 140 in that feel and be happy to spend a year there. Then nudge it up without changing the feel',
+      '- Know the form cold first: the ii–V chains of a Honeysuckle Rose-type tune. The drill is a ii–V–I line in F to feel it on',
+      '<b>Ballads</b>: at 35 bpm nobody can feel the pulse. Double it: feel 70 bpm with straight 8ths, “1 & 2 & 3 & 4 &”. That wakes up your time',
+      'At any tempo, find the speed where you can breathe, control the line and build motifs. From “Give Me 15 MINUTES & I’ll Completely RESET Your Phrasing”.',
+    ], ex: [
+      ['A Honeysuckle Rose-type opening', 'G:m7 C:7 G:m7 C:7 F:maj7'],
+    ] },
+
+    // ---------- 10. Funk mechanics ----------
+    { t: 'The shaker: rotate, don’t flap', s: 'forearm rotation, wide strokes', drill: { bpm: 70, sub: 4, goal: '16ths at 110, relaxed', from: '16ths at 70', drone: 'E' },
+      neck: { kind: 'list', events: [
+        [], [], [], [], [[5, 7, '1'], [4, 6, '3'], [3, 7, '♭7'], [2, 7, '9'], [1, 7, '5']], [], [], [],
+        [], [], [], [], [[5, 7, '1'], [4, 6, '3'], [3, 7, '♭7'], [2, 7, '9'], [1, 7, '5']], [], [], [],
+      ] }, b: [
+      'Strumming comes from rotating the forearm, not swinging the wrist side to side. If heat and tension build in your forearm within 20 seconds, the motion is wrong.',
+      '- Hold the pick just firmly enough not to drop it; a locked wrist can’t move freely',
+      '- Straight fingers make the widest stroke, a closed fist the tightest. For the shaker sound keep them straight and hit all six strings on every stroke, down and up',
+      '- A medium pick, held well back from the tip. Strum around the 19th–21st fret for bite, or over the neck pickup for a compressed sound',
+      '- Build it up: downstrokes on the beats; then downs on every 8th; then fill in the upstrokes. The fret hand mutes, pressing the chord only for the accents (the drill shows them on 2 and 4; everything else is muted scratch)',
+      'From “Funk Guitar Mechanics That Actually Work”.',
+    ] },
+    { t: 'Three drums: down-down-up', s: 'groups of three, bursts, rakes', drill: { bpm: 60, sub: 4, goal: '16ths at 100', from: '16ths at 60', drone: 'E' },
+      neck: { kind: 'list', events: [
+        [[5, 7, '1'], [4, 6, '3']], [[2, 7, '9'], [1, 7, '5']], [[2, 7, '9'], [1, 7, '5']],
+        [[5, 7, '1'], [4, 6, '3']], [[2, 7, '9'], [1, 7, '5']], [[2, 7, '9'], [1, 7, '5']],
+        [[5, 7, '1'], [4, 6, '3']], [[2, 7, '9'], [1, 7, '5']],
+        [[5, 7, '1'], [4, 6, '3']], [[2, 7, '9'], [1, 7, '5']], [[2, 7, '9'], [1, 7, '5']],
+        [[5, 7, '1'], [4, 6, '3']], [[2, 7, '9'], [1, 7, '5']], [[2, 7, '9'], [1, 7, '5']],
+        [[5, 7, '1'], [4, 6, '3']], [[2, 7, '9'], [1, 7, '5']],
+      ] }, b: [
+      'Close the hand for a tight stroke and the guitar becomes three drums: low strings, middle strings, top strings. Fret-hand muting does the rest.',
+      '- Groups of three 16ths: down, down, up = low, high, high. Play two in a row (3 + 3, then 2) so the pattern can’t turn you around',
+      '- Six-stroke bursts: down-up three times on a chord or a ghost note',
+      '- 32nd-note bursts: a tight pattern; straighten the index finger’s first knuckle to stiffen the forearm, then turn it like a key in the ignition (a gypsy-jazz tremolo trick)',
+      '- Rakes: connect the two downs of a three-group into one sweep and rest after the up. Then backwards: up, up, up, up, down',
+      'From “Funk Guitar Mechanics That Actually Work”.',
+    ] },
+
+    // ---------- 11. Outlining a form ----------
+    { t: 'Happy Birthday étude', s: 'outline the form in 8ths', drill: { bpm: 60, sub: 2, goal: '8ths at 180', from: '8ths at 60', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [4, 5, '5'], [3, 5, '1'], [2, 5, '3'], [1, 3, '5'], [2, 5, '3'], [3, 5, '1'],
+        [3, 4, '3'], [2, 3, '5'], [1, 3, '1'], [2, 3, '5'], [3, 4, '3'], [4, 5, '1'],
+        [3, 4, '3'], [4, 5, '1'], [5, 5, '5'], [4, 5, '1'], [3, 4, '3'], [2, 3, '5'],
+        [2, 5, '3'], [3, 5, '1'], [4, 5, '5'], [3, 5, '1'], [2, 5, '3'], [1, 3, '5'],
+        [1, 3, '5'], [2, 5, '3'], [3, 5, '1'], [4, 5, '5'], [4, 2, '3'], [4, 5, '5'],
+        [3, 2, '3'], [2, 1, '5'], [1, 1, '1'], [2, 1, '5'], [3, 2, '3'], [4, 3, '1'],
+        [4, 5, '1'], [3, 4, '3'], [2, 3, '5'], [1, 1, '♭7'], [2, 3, '5'], [3, 4, '3'],
+        [3, 5, '1'], [], [], [], [], [],
+      ] }, b: [
+      'A form is like a chair: your lines are only good if the listener can still see it. Start with the simplest one there is, Happy Birthday in C, 3/4, one chord a bar: <b>1 5 5 1 · 1 4 5 1</b> (bar 7 simplified to V).',
+      '- Memorise it in four-bar chunks and sing the bass line: the roots already make a counter-melody',
+      '- Map the triads in one area: C in the A form, F in the D form, G in the E form (frets 1–5)',
+      '- Move through the arpeggios by proximity: at each change go to the nearest chord tone, never back to the bottom of the shape. Sing it; leaps at the changes kill the line',
+      '- Then 8ths through the form: an étude. The drill is one (labels from each bar’s chord); then write your own',
+      'Then simple songs with a little more harmony (Hank Williams-style AABA tunes in 3/4), then All of Me-type changes. From “How to Outline Chord Changes”.',
+    ], ex: [
+      ['The melody (traditional)', '=C3 E3 G3 | G3 | G3 | A3 | G3 | C4 | B3 | G3 | G3 | A3 | G3 | D4 | C4 | G3 | G3 | G4 | E4 | C4 | B3 | A3 | F4 | F4 | E4 | C4 | D4 | C4', 'Happy Birthday in C'],
+      ['The bass line: 1 5 5 1 1 4 5 1', '=C3 | G2 | G2 | C3 | C3 | F2 | G2 | C3', 'C G G C C F G C'],
+      ['The triads in one area', '=C3 G3 C4 E4 G4 | F3 A3 C4 F4 | G2 D3 G3 B3 D4 G4', 'C (A form) · F (D form) · G (E form)'],
+    ] },
+    { t: 'Approaches, neighbours, enclosures', s: 'decorate the outline', drill: { bpm: 60, sub: 2, goal: '8ths at 180', from: '8ths at 60', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [3, 5, '1'], [2, 5, '3'], [1, 3, '5'], [2, 5, '3'], [3, 5, '1'], [3, 3, 'ap'],
+        [3, 4, '3'], [2, 3, '5'], [1, 3, '1'], [2, 3, '5'], [3, 4, '3'], [4, 4, 'ap'],
+        [4, 5, '1'], [3, 4, '3'], [2, 3, '5'], [3, 4, '3'], [2, 6, 'nb'], [2, 4, 'ap'],
+        [2, 5, '3'], [3, 5, '1'], [4, 5, '5'], [3, 5, '1'], [], [],
+      ] }, b: [
+      'Once the arpeggio outline flows, add three tools without losing the form:',
+      '- <b>Approach note</b> (ap): a half step below a chord tone',
+      '- <b>Neighbour tone</b> (nb): the scale note above a chord tone',
+      '- <b>Enclosure</b>: the neighbour above, the approach below, then the target',
+      'The drill: the first four bars of the form (C G G C) in 8ths, with an approach into G’s 3rd, one into its root, and an enclosure into C’s 3rd. Chord tones land on the downbeats.',
+      'Then the whole form, then All of Me-type changes (C | E7 | A7 | Dm, two bars each), whose melody does the same thing: it arpeggiates each chord and suspends into the Dm. From “How to Outline Chord Changes”.',
+    ] },
+    { t: 'Colouring in: the blues way', s: 'one scale over a moving bass', b: [
+      'A melody can hint at the changes, outline them, or hide them. Blues playing colours in: one scale that fits every chord, played loosely while the bass carries the form.',
+      '- Over the Happy Birthday bass (1 5 5 1 1 4 5 1), noodle in C major blues (C D E♭ E G A). The line outlines nothing; the bass does the work',
+      '- Then C minor pentatonic over the same bass: “Sad Birthday”',
+      '- Play the bass yourself: thumb on the root each bar, the scale on top',
+      'Then go back to outlining and compare. Can you tell a tune’s story through its changes, the way All of Me’s melody does (C, E7 and A7 arpeggiated, then a suspension on Dm)?',
+      'From “How to Outline Chord Changes”.',
+    ], ex: [
+      ['C major blues over C, then G, in the bass', '=C3 Eb4 | C3 E4 | G2 G4 | G2 A4 | G2 G4 | C3 E4 | C3 C4', 'C · C · G · G · G · C · C'],
+      ['C minor pentatonic over the same bass', '=C3 Eb4 | C3 F4 | G2 G4 | G2 Bb4 | G2 G4 | C3 Eb4 | C3 C4', 'Sad Birthday'],
+      ['All of Me-type changes, two bars each', 'C:6 E:7 A:7 D:m7'],
+    ] },
+
+    // ---------- 12. Diminished families ----------
+    { t: 'Family 1: the ° makes a dominant', s: '° on the ♭2, 3, 5 or ♭7', drill: { bpm: 50, sub: 1, goal: 'a chord per beat at 100, swung', from: 'a chord per beat at 50', drone: 'C' },
+      neck: { kind: 'play', key: 'C', play: '=G3 C4 E4 A4 | F3 B3 D4 Ab4 | E3 Bb3 Db4 G4 | F3 C4 D4 A4' }, b: [
+      'Three diminished families, each named by where the ° sits against a chord. <b>Family 1</b>: a ° on the <b>♭2, 3, 5 or ♭7</b> turns the chord into a dominant (a 7♭9 without its root). Never on the root: a half step above it.',
+      '- C to F: put D♭°, E°, G° or B♭° (all the same chord) where the C7 would be',
+      '- Hang them on the CAGED forms so you keep thinking in intervals, instead of sliding one shape up in minor 3rds on autopilot',
+      '- All of Me-type start (C | E7 | A7 | Dm): for E7 take the ° nearest your last chord, e.g. on its 5th (B°); for A7, on its ♭2 (B♭°)',
+      'The drill: C6 – B°7 – B♭°7 – Dm7 on the top four strings, every voice moving a step or less. Then start from other grips of C. From “Diminished Can Fit Into Your Jazz Baby Brain”.',
+    ], ex: [
+      ['The same with roots: C6 – E7♭9 – A7♭9 – Dm7', 'C:6 E:7b9 A:7b9 D:m7'],
+      ['One ° on a C7’s ♭2, leading to F', 'C:maj Db:dim7 F:maj'],
+    ] },
+    { t: 'Family 2: the V of where you are', s: '° on 2, 4, ♭6, 7 (Barry Harris)', drill: { bpm: 50, sub: 1, goal: 'a chord per beat at 120', from: 'a chord per beat at 50', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [[4, 2, '3'], [3, 2, '6'], [2, 1, '1'], [1, 3, '5']],
+        [[4, 3, '4'], [3, 4, '7'], [2, 3, '2'], [1, 4, '♭6']],
+        [[4, 5, '5'], [3, 5, '1'], [2, 5, '3'], [1, 5, '6']],
+        [[4, 6, '♭6'], [3, 7, '2'], [2, 6, '4'], [1, 7, '7']],
+        [[4, 7, '6'], [3, 9, '3'], [2, 8, '5'], [1, 8, '1']],
+        [[4, 9, '7'], [3, 10, '4'], [2, 9, '♭6'], [1, 10, '2']],
+        [[4, 10, '1'], [3, 12, '5'], [2, 10, '6'], [1, 12, '3']],
+        [[4, 12, '2'], [3, 13, '♭6'], [2, 12, '7'], [1, 13, '4']],
+        [[4, 14, '3'], [3, 14, '6'], [2, 13, '1'], [1, 15, '5']],
+      ] }, b: [
+      '<b>Family 2</b>: a ° on the <b>2, 4, ♭6 or 7</b> of a chord. Over C it sounds odd until you hear it as family 1 of a pretend G7: C’s 2 is G’s 5, C’s 7 is G’s 3, C’s 4 is G’s ♭7, C’s ♭6 is G’s ♭9.',
+      '- So it turns the harmony back to the chord you’re on (C – ° – C) instead of leading somewhere new',
+      '- That’s the Barry Harris idea in one line: keep the root, and play the ° as the V of where you are',
+      '- Use it in time: on two bars of C, go C – ° – C in the next inversion. All of Me-type: E7 – F♯° – E7, A7 – B° – A7, Dm – E° – Dm6',
+      'The drill: C6 in drop 2 up the top four strings with the ° between each inversion; every voice steps. From “Diminished Can Fit Into Your Jazz Baby Brain”.',
+    ], ex: [
+      ['C6 – D°7 – C6 over E', 'C:6 D:dim7 C:6/3'],
+      ['E7 – F♯°7 – E7', 'E:7 F#:dim7 E:7'],
+    ] },
+    { t: 'Family 3: the root °', s: 'same room, the couch moved', drill: { bpm: 50, sub: 1, goal: 'a chord per beat at 120', from: 'a chord per beat at 50', drone: 'C' },
+      neck: { kind: 'play', key: 'C', play: '=G3 C4 E4 A4 | Gb3 C4 Eb4 A4 | F3 C4 D4 A4 | F3 B3 D4 G4 | E3 A3 C4 G4' }, b: [
+      '<b>Family 3</b>: a ° on the <b>root</b> (1 ♭3 ♭5 6), the real diminished chords on charts. It’s a suspension: you arrive home and the furniture is slightly wrong, then it settles.',
+      '- Blues bars 5–7: F7 – F♯°7 – C7 is IV – I° – I (F♯°7 is an inversion of C°7)',
+      '- I – ♭III° – ii – V, a Django favourite: C – E♭°7 – Dm7 – G7, and E♭°7 is C°7 again. Soloists often play a pretend IV over it: I° is family 1 of IV (a rootless F7♭9)',
+      '- From I to I° the 5th and 3rd each drop a half step, then lead into ii. All the Things You Are’s last A does it: IV – iv – I/3 – ♭III° – ii – V – I',
+      'The drill: C6 – C°7 – Dm7 – G7 – C6 on the top four strings; watch the two moving voices. From “Diminished Can Fit Into Your Jazz Baby Brain”.',
+    ], ex: [
+      ['Blues bars 5–7 in C', 'F:7 F#:dim7 C:7'],
+      ['I – ♭III°7 – ii – V', 'C:maj7 Eb:dim7 D:m7 G:7'],
+      ['IV – iv – I/3 – ♭III° – ii – V – I', 'F:maj7 F:m6 C:maj7/3 Eb:dim7 D:m7 G:7 C:maj7'],
+    ] },
+
+    // ---------- 13. Reharmonising with I, IV and V ----------
+    { t: 'Every note lives in I, IV or V', s: 'tonal analysis, three functions', b: [
+      'Analyse melody and bass in the key (tonal analysis), not against each passing chord (modal analysis). Twinkle Twinkle in C: melody 1 1 5 5 6 6 5 · 4 4 3 3 2 2 1 over a bass of 1 1 1 1 4 4 1 · 4 4 1 1 5 5 1.',
+      '- I makes a note sound at home; IV moves it next door (subdominant); V puts it on the street leading home (dominant)',
+      '- Their triads cover all seven notes: 1 in I and IV · 2 in V · 3 in I · 4 in IV · 5 in I and V · 6 in IV · 7 in V',
+      '- So any melody note can take a primary chord. Choose by taste, like seasoning: correct isn’t enough, it has to sound good',
+      'Oscar Peterson and gospel players do this constantly: 1 4 1 4 1 5 1 under a melody that keeps moving. From “Harmonize Any Melody Like a Genius”.',
+    ], ex: [
+      ['The C scale, each note on its own primary chord', '=C3 G3 C4 | G2 B3 D4 | C3 G3 E4 | F3 A3 F4 | C3 E4 G4 | F3 C4 A4 | G3 D4 B4 | C4 G4 C5', '1 2 3 4 5 6 7 1'],
+      ['The gospel move: I IV I IV I V I', 'C:maj F:maj C:maj F:maj C:maj G:maj C:maj'],
+    ] },
+    { t: 'Silent Night on I, IV and V', s: 'a chord on every note', drill: { bpm: 50, sub: 1, goal: 'in time at 80, three beats a bar', from: 'a chord per beat at 50', drone: 'C' },
+      neck: { kind: 'list', events: [
+        [[5, 3, '1'], [4, 2, '3'], [3, 0, '5']],
+        [[6, 1, '4'], [5, 3, '1'], [3, 2, '6']],
+        [[5, 3, '1'], [4, 2, '3'], [3, 0, '5']],
+        [[6, 3, '5'], [5, 3, '1'], [4, 2, '3']],
+        [[5, 3, '1'], [4, 2, '3'], [3, 0, '5']],
+        [[6, 1, '4'], [5, 3, '1'], [3, 2, '6']],
+        [[5, 3, '1'], [4, 2, '3'], [3, 0, '5']],
+        [[6, 3, '5'], [5, 3, '1'], [4, 2, '3']],
+        [[6, 3, '5'], [4, 3, '4'], [3, 4, '7'], [2, 3, '2']],
+        [[6, 3, '5'], [4, 3, '4'], [3, 4, '7'], [2, 3, '2']],
+        [[6, 3, '5'], [5, 5, '2'], [3, 4, '7']],
+        [[6, 1, '4'], [3, 2, '6'], [2, 1, '1']],
+        [[5, 3, '1'], [4, 2, '3'], [2, 1, '1']],
+        [[5, 3, '1'], [4, 2, '3'], [3, 0, '5']],
+      ] }, b: [
+      'Silent Night in C, analysed in the key: 5 6 5 3 · 5 6 5 3 · 2 2 7 · 1 1 5. A plain chart holds C under the whole opening. Instead give each note its own primary chord:',
+      '- 5 on I, 6 on IV, 5 and 3 on I',
+      '- 2 and 7 on V (G7)',
+      '- 1 on IV, then on I: the same note in two colours',
+      'Not the hippest result, but it’s real chord melody from three chords. Melody on top, slowly; then other carols the same way.',
+      '<b>Harder</b>: harmonic major, where IV is minor (F A♭ C). A 1 or a 4 in the melody can take Fm, or Fm over A♭: try it on the first C of “all is bright”. From “Harmonize Any Melody Like a Genius”.',
+    ] },
+    { t: 'Three minors: God Rest Ye', s: 'natural, harmonic, melodic', drill: { bpm: 60, sub: 1, goal: 'in time at 100', from: 'a chord per beat at 60', drone: 'A' },
+      neck: { kind: 'list', events: [
+        [[5, 0, '1'], [4, 2, '5'], [3, 2, '1']],
+        [[6, 5, '1'], [5, 3, '♭3'], [3, 2, '1']],
+        [[6, 5, '1'], [3, 5, '♭3'], [2, 5, '5']],
+        [[4, 5, '♭7'], [3, 4, '2'], [2, 5, '5']],
+        [[4, 3, '♭6'], [3, 2, '1'], [2, 3, '4']],
+        [[4, 2, '5'], [3, 2, '1'], [2, 1, '♭3']],
+        [[5, 7, '5'], [4, 5, '♭7'], [3, 4, '2']],
+        [[5, 3, '♭3'], [4, 2, '5'], [3, 2, '1']],
+        [[6, 0, '5'], [5, 2, '2'], [4, 5, '♭7']],
+        [[5, 0, '1'], [4, 2, '5'], [3, 2, '1']],
+        [[6, 0, '5'], [4, 5, '♭7'], [3, 4, '2']],
+        [[4, 2, '5'], [3, 2, '1'], [2, 1, '♭3']],
+        [[4, 3, '♭6'], [3, 2, '1'], [2, 3, '4']],
+        [[6, 0, '5'], [4, 5, '♭7'], [3, 4, '2'], [2, 5, '5']],
+      ] }, b: [
+      'Minor keys have three sets of primary chords, because the 6th and 7th move:',
+      '- Natural minor: i – iv – v (Am Dm Em). Harmonic minor: i – iv – V (Am Dm E). Melodic minor: i – IV – V (Am D E)',
+      '- In natural minor: 1 on i or iv · 2 on v · ♭3 on i · 4 on iv · 5 on v or i · ♭6 on iv · ♭7 on v',
+      'God Rest Ye Merry Gentlemen (A minor here) has a ♭7 in the melody, G: <b>only the minor v holds it</b>. Every other note works in all three systems.',
+      'The drill is the natural-minor version, melody on top (labels from A). Then use E major wherever the melody isn’t G (harmonic), and D major under the D (melodic). From “Harmonize Any Melody Like a Genius”.',
+    ], ex: [
+      ['Natural minor: i iv v', 'A:min D:min E:min A:min'],
+      ['Harmonic minor: i iv V', 'A:min D:min E:maj A:min'],
+      ['Melodic minor: i IV V', 'A:min D:maj E:maj A:min'],
+    ] },
+
+    // ---------- 14. The diminished suspension on a blues ----------
+    { t: 'The ° suspension on a blues', s: 'I7 – I°7 – I7 and its neighbour', drill: { bpm: 60, sub: 1, goal: 'a chord per beat at 160, swung', from: 'a chord per beat at 60', drone: 'G' },
+      neck: { kind: 'list', events: [
+        [[4, 3, '♭7'], [3, 4, '3'], [2, 3, '5'], [1, 3, '1']],
+        [[4, 2, '6'], [3, 3, '♭3'], [2, 2, '♭5'], [1, 3, '1']],
+        [[4, 1, '♭6'], [3, 2, '2'], [2, 1, '4'], [1, 2, '7']],
+        [[4, 2, '6'], [3, 3, '♭3'], [2, 2, '♭5'], [1, 3, '1']],
+        [[4, 3, '♭7'], [3, 4, '3'], [2, 3, '5'], [1, 3, '1']],
+        [[4, 5, '1'], [3, 7, '5'], [2, 6, '♭7'], [1, 7, '3']],
+        [[4, 5, '1'], [3, 6, '♭5'], [2, 5, '6'], [1, 6, '♭3']],
+        [[4, 4, '7'], [3, 5, '4'], [2, 4, '♭6'], [1, 5, '2']],
+        [[4, 5, '1'], [3, 6, '♭5'], [2, 5, '6'], [1, 6, '♭3']],
+        [[4, 5, '1'], [3, 7, '5'], [2, 6, '♭7'], [1, 7, '3']],
+        [[4, 9, '3'], [3, 10, '♭7'], [2, 8, '1'], [1, 10, '5']],
+        [[4, 8, '♭3'], [3, 9, '6'], [2, 8, '1'], [1, 9, '♭5']],
+        [[4, 7, '2'], [3, 8, '♭6'], [2, 7, '7'], [1, 8, '4']],
+        [[4, 8, '♭3'], [3, 9, '6'], [2, 8, '1'], [1, 9, '♭5']],
+        [[4, 9, '3'], [3, 10, '♭7'], [2, 8, '1'], [1, 10, '5']],
+        [[4, 12, '5'], [3, 12, '1'], [2, 12, '3'], [1, 13, '♭7']],
+        [[4, 11, '♭5'], [3, 12, '1'], [2, 11, '♭3'], [1, 12, '6']],
+        [[4, 10, '4'], [3, 11, '7'], [2, 10, '2'], [1, 11, '♭6']],
+        [[4, 11, '♭5'], [3, 12, '1'], [2, 11, '♭3'], [1, 12, '6']],
+        [[4, 12, '5'], [3, 12, '1'], [2, 12, '3'], [1, 13, '♭7']],
+      ] }, b: [
+      'On a blues the I7 sits for bars. Suspend it: keep the root and drop the 3rd, 5th and ♭7 a half step (G7 → G°7), then bring them back. It hovers; it doesn’t go anywhere new.',
+      '- G°7 and the ° a half step below it (F♯°7) both live in G whole-half diminished. Slide between them, all four voices one fret, to make a melody on top',
+      '- Four top lines: G–F♯–G (root–7), B♭–A–B♭ (♭3–2, the major-pentatonic blue note), D♭–C–D♭ (♭5–4, the minor-pentatonic blue note), E–E♭–E (6–♭6)',
+      '- Drop 2 on the top four strings; then the middle and low string groups',
+      'The drill: G7 – G°7 – F♯°7 – G°7 – G7 under each top line, up the neck (labels from G). Swing it: the 1930s chord-solo sound. From “#1 Chord Soloing Hack Nobody Taught You for Blues”.',
+    ] },
+    { t: 'IV bars, turnarounds, °(maj7)', s: 'the suspension round the form', b: [
+      'G whole-half diminished is the same scale as C half-whole, so G°7 over a C bass is a rootless C7♭9. Over the IV chord the same suspension gives a plagal pull back to G.',
+      '- Put I°7 after the I chord, over the IV bars (2, 5–6, 10), and in the turnaround into I',
+      '- ° grips repeat every three frets: the same chord with a new top note',
+      '<b>Bar 4, pulling to IV</b>: use G half-whole (G A♭ B♭ B C♯ D E F). Rather than its four dominants, keep a <b>G7 chord tone in the bass</b> and put the major triad a half step below it on top: B + B♭ triad, D + D♭ triad, F + E triad. Each is a diminished-major-7 chord, dense but entirely inside the scale.',
+      'From “#1 Chord Soloing Hack Nobody Taught You for Blues”.',
+    ], ex: [
+      ['G7 – G°7 – C7 – G°7 – G7', 'G:7 G:dim7 C:7 G:dim7 G:7'],
+      ['°(maj7) off the 3rd: B + B♭ triad, to C7', 'G:7 B:dim-maj7 C:7'],
+      ['…off the 5th and the ♭7', 'G:7 D:dim-maj7 F:dim-maj7 C:7'],
+    ] },
+  ],
+});
+}
+
+// ---------- double stops and technique: two more exercise decks, after the fluency drills ----------
+{
+  const D = (bpm, sub, from, goal, drone) => ({ bpm, sub, from, goal, drone });
+  const at = DECKS.findIndex((d) => d.id === 'fluency') + 1;
+  DECKS.splice(at, 0, { id: 'doublestops', name: 'Double stops', cards: [
+  { t: 'What a double stop is', s: 'two notes at once', b: [
+    'Two notes played together: the space between a single line and a chord. Each interval has its own sound:',
+    '- <b>3rds and 6ths</b>: sweet, the sound of harmony. Soul, country, Motown, Hawaiian, mariachi',
+    '- <b>4ths</b>: open and bluesy. Chuck Berry, Hendrix, R&B fills',
+    '- <b>Octaves</b>: one note, fatter (see Octaves in the fluency drills)',
+    '- <b>10ths</b>: bass and melody a 3rd apart over an octave: the piano sound (see the Ted Greene cards)',
+    'Adjacent strings: pick both at once or roll them. Strings apart: pick the low one and pluck the high one with the middle finger, and lay a fretting finger lightly across the string between them.',
+  ], ex: [['3rds up C major', '=E4 G4 | F4 A4 | G4 B4 | A4 C5', '3rds'], ['6ths up C major', '=G3 E4 | A3 F4 | B3 G4 | C4 A4', '6ths'], ['4ths in A minor pentatonic', '=E4 A4 | G4 C5 | A4 D5 | C5 E5', '4ths']] },
+
+  { t: '3rds on the G and B strings', s: 'harmonised C major', drill: D(60, 1, 'quarters at 60', '8ths at 120', 'C'),
+    neck: { kind: 'dyads', id: 'major', key: 'C', iv: 3, strings: [3, 2] }, b: [
+      'C major in 3rds on the G and B strings, from C/E at the 5th fret up to the octave at the 17th.',
+      '- The G–B pair is a major 3rd apart, so a <b>major 3rd is the same fret</b> on both strings and a <b>minor 3rd has the B-string note one fret lower</b>',
+      '- The pattern of the key: major, minor, minor, major, major, minor, minor (C/E, D/F, E/G, F/A, G/B, A/C, B/D)',
+      '- Fingers 2 and 3 for the same-fret shapes is awkward: use a 1-finger roll, or fingers 2 and 3 side by side',
+      '<b>Harder</b>: slide into each one from a fret below; then do it in F, B♭ and G.',
+    ] },
+  { t: '3rds on the B and E strings', s: 'harmonised D major', drill: D(60, 1, 'quarters at 60', '8ths at 120', 'D'),
+    neck: { kind: 'dyads', id: 'major', key: 'D', iv: 3, strings: [2, 1] }, b: [
+      'D major in 3rds on the top two strings, from D/F♯ (3rd fret B, 2nd fret E) up the neck.',
+      '- B–E is a 4th, so a <b>major 3rd has the top note one fret lower</b> and a <b>minor 3rd two frets lower</b>',
+      '- This is the country and Southern-rock pair: think of the harmony guitars in the Allman Brothers',
+      '- Play them as a melody: hum a tune you know and harmonise it a 3rd below',
+      '<b>Harder</b>: 3rds descending, then skipping (1st and 3rd 3rds, 2nd and 4th…).',
+    ] },
+  { t: '3rds on the D and G strings', s: 'harmonised F major', drill: D(60, 1, 'quarters at 60', '8ths at 120', 'F'),
+    neck: { kind: 'dyads', id: 'major', key: 'F', iv: 3, strings: [4, 3] }, b: [
+      'F major in 3rds on the D and G strings: lower and darker, the rhythm-and-blues register.',
+      '- D–G is a 4th, like B–E: major 3rd = top note one fret lower, minor 3rd = two frets lower',
+      '- Same shapes on the A–D and low E–A pairs. Only the G–B pair is different',
+      '<b>Harder</b>: alternate 3rds on the D–G and G–B pairs as you climb, so the same 3rds move between registers.',
+    ] },
+
+  { t: '6ths on the G and top E', s: 'the soul sound', drill: D(60, 1, 'quarters at 60', '8ths at 110', 'C'),
+    neck: { kind: 'dyads', id: 'major', key: 'C', iv: 6, strings: [3, 1] }, b: [
+      'C major in 6ths with one string between: C/A at the 5th fret up to the octave.',
+      '- G to E is a major 6th, so a <b>major 6th is the same fret</b> and a <b>minor 6th has the top note one fret lower</b>',
+      '- Pick the G string and pluck the top E with the middle finger; the fretting finger on the G string leans lightly on the B to mute it',
+      '- This is the Steve Cropper and Curtis Mayfield sound: slide between 6ths a fret apart over a chord',
+      '<b>Harder</b>: over a C – F vamp, play only the 6ths that contain a chord tone of the chord underneath.',
+    ] },
+  { t: '6ths on the D and B strings', s: 'harmonised G major', drill: D(60, 1, 'quarters at 60', '8ths at 110', 'G'),
+    neck: { kind: 'dyads', id: 'major', key: 'G', iv: 6, strings: [4, 2] }, b: [
+      'G major in 6ths on the D and B strings, from G/E (5th fret on both) up.',
+      '- D to B is a major 6th: <b>same fret = major 6th</b>, top note one fret lower = minor 6th',
+      '- The same shapes as on the G and top E, one string set lower',
+      '- Hybrid pick: pick on the D, middle finger on the B',
+      '<b>Harder</b>: G major in 6ths on one pair, then the same notes on the other pair: two places for every 6th.',
+    ] },
+  { t: '6ths on the A and G strings', s: 'harmonised D major', drill: D(60, 1, 'quarters at 60', '8ths at 100', 'D'),
+    neck: { kind: 'dyads', id: 'major', key: 'D', iv: 6, strings: [5, 3] }, b: [
+      'D major in 6ths, A and G strings, from D/B at the 5th and 4th frets.',
+      '- A to G is a minor 7th, so here a <b>major 6th has the top note one fret lower</b> and a <b>minor 6th two frets lower</b>',
+      '- These are the 6ths inside every C-shape and A-shape chord: lead lines that sit inside your comping',
+    ] },
+  { t: '6ths over changes', s: 'soul fills', b: [
+    'Over each chord, play the 6th with the chord’s 3rd on the bottom and its root on top (or 5th under 3rd), and walk to it from the 6th a step away.',
+    '- Over C: E/C. Over F: A/F. Over G: B/G. Each is a 3rd plus root, the most “in” double stop there is',
+    '- Approach it from the diatonic 6th above (F/D → E/C) or slide from a fret below',
+    '- Leave space: a fill is one beat or two, in the gap the singer leaves',
+  ], ex: [['C – F – C: walking 6ths into each chord', '=F4 D5 | E4 C5 | G4 E5 | A4 F5 | F4 D5 | E4 C5', '6ths over C and F'], ['G – C – D – G in 6ths (G and top E)', '=B3 G4 | E4 C5 | F#4 D5 | B3 G4', 'into each chord tone'], ['The slide in: a fret below, then home', '=D#4 B4 | E4 C5 | G#4 E5 | A4 F5', 'slides']] },
+
+  { t: '4ths: blues and R&B', s: 'pentatonic double stops', drill: D(60, 2, '8ths at 70', '8ths at 140', 'A'),
+    neck: { kind: 'list', events: [[[2, 5, '5'], [1, 5, '1']], [[2, 5, '5'], [1, 5, '1']], [[2, 8, 'b7'], [1, 8, 'b3']], [[2, 8, 'b7'], [1, 8, 'b3']], [[3, 7, '4'], [2, 8, 'b7']], [[3, 5, 'b3'], [2, 5, '5']], [[3, 6, '3'], [2, 5, '5']], [[4, 7, '1'], [3, 5, 'b3']]] }, b: [
+      'In A minor pentatonic, box 1, adjacent strings at the same fret are 4ths (except across G–B):',
+      '- E/A and G/C on the top two strings at frets 5 and 8',
+      '- D/G on the G and B strings (7th and 8th frets), C/E at the 5th',
+      '- The classic: hammer the G string from 5 to 6 (C to C♯, the ♭3 into the 3) while holding E on the B string',
+      'Roll the 4th with one finger flattened across both strings. Chuck Berry plays these as triplets; Hendrix hammers them inside chord shapes.',
+      '<b>Harder</b>: slide the E/A shape up to G/C and back in time, then add a bend on the G string under a held B-string note.',
+    ] },
+  { t: '4ths up the top strings', s: 'harmonised E major', drill: D(60, 1, 'quarters at 60', '8ths at 120', 'E'),
+    neck: { kind: 'dyads', id: 'major', key: 'E', iv: 4, strings: [2, 1] }, b: [
+      'E major in 4ths on the B and E strings: one-finger barres, except one.',
+      '- Perfect 4ths are the same fret on this pair. The one tritone in the key (A/D♯, the 4 under the 7) has the top note one fret higher',
+      '- Open, modern, and slightly ambiguous: 4ths don’t say major or minor',
+      '<b>Harder</b>: the same on D–G, then use them over a modal vamp (E Mixolydian over E7sus).',
+    ] },
+
+  { t: 'Oblique bends', s: 'one note held, one bent', drill: D(50, 1, 'quarters at 50', 'quarters at 80', 'A'),
+    neck: { kind: 'list', events: [[[2, 5, '5'], [3, 7, '4']], [[2, 5, '5'], [3, 9, '5']], [[1, 5, '1'], [2, 8, 'b7']], [[1, 5, '1'], [2, 10, '1']]] }, b: [
+      'Hold one note and bend the string next to it up to it, or to a 3rd under it.',
+      '- <b>The unison bend</b>: E on the B string (5th fret), bend the G string 7th fret (D) a whole step up to E. The beat between them as it arrives is the sound',
+      '- <b>Bend under a held root</b>: A on the top E (5th fret), bend G on the B string (8th fret) up to A',
+      '- The neck shows the fret you bend from, then the pitch to bend to: play that fret first to hear your target',
+      '- Fingers: ring finger bends, backed up by the middle; pinky or index holds the other note without moving',
+      'Country players do the reverse too (pedal-steel bends): bend first, hold the bend, then pick the other note.',
+    ] },
+  { t: 'Guide tones as double stops', s: '3rd and 7th over a blues', b: [
+    'The two notes that define a dominant 7th are its 3rd and ♭7, a tritone apart. Play just those, and slide them a fret to the next chord.',
+    '- A7: C♯ and G. D7: C and F♯. One fret down in both voices: the IV7 is right next door',
+    '- E7: G♯ and D, back up near A7',
+    'It’s the leanest comping there is, and the same two notes make great double-stop fills in a solo.',
+  ], ex: [['A7 – D7 – A7 – E7 as 3rd/♭7 pairs', '=G3 C#4 | F#3 C4 | G3 C#4 | G#3 D4 | G3 C#4', 'tritones a fret apart'], ['The same on the top strings', '=G4 C#5 | F#4 C5 | G4 C#5', 'higher']] },
+  { t: 'Practise double stops', s: 'how to get them in your playing', b: [
+    '- Learn one pair at a time: 3rds on G–B, then 6ths on G–E. Say the shapes: same fret = major, one lower = minor',
+    '- Play a melody you know in 3rds, then in 6ths. Your ear tells you when a shape is wrong',
+    '- Over a vamp (the Grooves deck), play only double stops for a whole chorus',
+    '- Mix: a single-note line that ends on a double stop sounds finished',
+    '- Keep them in tune: double stops show up every bit of finger pressure that bends a note sharp',
+  ], ex: [['A tune in 3rds: the start of “Ode to Joy”', '=G4 B4 | G4 B4 | A4 C5 | B4 D5 | B4 D5 | A4 C5 | G4 B4 | F#4 A4', 'in 3rds, key of G']] },
+] }, { id: 'technique', name: 'Technique', cards: [
+  { t: 'Bending in tune', s: 'hear the target first', drill: D(50, 1, 'quarters at 50', 'quarters at 80', 'A'),
+    neck: { kind: 'list', events: [[3, 9, '5'], [3, 7, '4'], [], [2, 10, '1'], [2, 8, 'b7'], [], [1, 9, '3'], [1, 8, 'b3'], []] }, b: [
+      'Play the target fret, then bend up to that pitch from two frets (or one) below. The neck shows the target, then the fret you bend from.',
+      '- <b>Whole step</b>: G string 7 up to the pitch of fret 9 (D to E) in A minor pentatonic. The bend every blues player uses most',
+      '- <b>Half step</b>: the top string, 8 to the pitch of 9 (C toward C♯, the ♭3 curled toward the 3: the blues bend)',
+      '- Bend with the ring finger, the middle and index behind it on the same string pushing too. The power comes from turning the wrist, like a doorknob, not from the finger',
+      '- Hook the thumb over the neck for leverage',
+      '<b>Harder</b>: 1½-step bends (play three frets up first to hear the target), pre-bends (bend silently, pick, release), and bending in time to land on the beat.',
+    ] },
+  { t: 'Vibrato', s: 'in time, from the wrist', drill: D(60, 1, 'quarters at 60', 'triplets at 80', 'A'),
+    neck: { kind: 'list', events: [[2, 10, '1'], [], [], [], [1, 8, 'b3'], [], [], [], [3, 7, '4'], [], [], [], [2, 8, 'b7'], [], [], []] }, b: [
+      'Vibrato is a small bend and release, repeated. Each note on the neck rings for a bar: give it vibrato in time with the click.',
+      '- Start slow: two pulses a beat (8ths), then triplets, then 16ths. Even width, even speed',
+      '- Rock and blues: wide, from the wrist, the string pushed up across the fretboard (B.B. King hangs his thumb off the neck and pivots on the index)',
+      '- Classical and jazz: narrow, a rocking along the string with the fingertip',
+      '- Delay it: hold the note straight, then add vibrato after a beat. That’s how singers do it',
+      'Record yourself. Out-of-time vibrato is the single biggest giveaway of an inexperienced player.',
+    ] },
+  { t: 'Hammer-ons and pull-offs', s: 'legato', drill: D(60, 3, 'triplets at 60', 'triplets at 120', 'G'),
+    neck: { kind: 'scale', id: 'ionian', key: 'G', fam: 'nps3', near: 3 }, b: [
+      'G major, three notes on every string: pick only the first note on each string, hammer the next two. On the way down, pick the first and pull off the other two.',
+      '- Hammer from height with the fingertip, right behind the fret: the hammered note should be as loud as the picked one',
+      '- A pull-off is a small pluck sideways (down toward the floor), not a lift',
+      '- Mute the strings you’re not on: the picking hand’s palm on the low strings, the fretting hand’s spare fingers on the high ones',
+      'Trill drill: 5-7 on one string for a whole bar, then 5-8, 7-8, 5-9. Endurance comes from relaxation, not force.',
+      '<b>Harder</b>: no picking at all (hammer-on from nowhere to start each string).',
+    ] },
+  { t: 'Slides and shifts', s: 'moving up and down the neck', drill: D(60, 2, '8ths at 60', '8ths at 130', 'A'),
+    neck: { kind: 'scale', id: 'dorian', key: 'A', fam: 'one', pos: 3 }, b: [
+      'A Dorian up the 3rd string: slide between notes on the same finger whenever the next note is a step away.',
+      '- Shift with one finger leading (the index on the way up, the pinky or ring on the way down), the thumb moving with the hand',
+      '- Keep pressure through the slide so the note doesn’t die; lighten it to shift silently',
+      '- Slide into target notes from a fret below: the blues and slide-guitar sound',
+      'Shifting cleanly is what joins the positions: the Scales page’s “All” view shows the paths.',
+    ] },
+  { t: 'String skipping', s: 'wide intervals, clean', drill: D(60, 2, '8ths at 60', '8ths at 140', 'A'),
+    neck: { kind: 'list', events: [[6, 5, '1'], [6, 8, 'b3'], [4, 5, 'b7'], [4, 7, '1'], [5, 5, '4'], [5, 7, '5'], [3, 5, 'b3'], [3, 7, '4'], [4, 5, 'b7'], [4, 7, '1'], [2, 5, '5'], [2, 8, 'b7'], [3, 5, 'b3'], [3, 7, '4'], [1, 5, '1'], [1, 8, 'b3']] }, b: [
+      'A minor pentatonic, box 1, two notes on a string then skip a string: 6 and 4, 5 and 3, 4 and 2, 3 and 1.',
+      '- The skip gives 5ths and 6ths instead of the box’s 2nds and 3rds: the line suddenly sounds open and modern',
+      '- Picking: down-up on each string; the skip is the hard part, so let the pick travel over the string it misses without touching it',
+      '- Mute the skipped string with the side of the fretting finger',
+      '<b>Harder</b>: arpeggios with skips (root and 5th on one string, 3rd and 7th two strings up), and the same in triplets.',
+    ] },
+  { t: 'Alternate picking across strings', s: 'inside and outside', drill: D(60, 2, '8ths at 60', '16ths at 110', 'A'),
+    neck: { kind: 'list', events: [[2, 5, '5'], [2, 8, 'b7'], [1, 5, '1'], [1, 8, 'b3'], [2, 5, '5'], [2, 8, 'b7'], [1, 5, '1'], [1, 8, 'b3'], [1, 5, '1'], [2, 8, 'b7'], [1, 5, '1'], [2, 8, 'b7'], [1, 5, '1'], [2, 8, 'b7'], [1, 5, '1'], [2, 8, 'b7']] }, b: [
+      'Strict alternate picking (down, up, down, up) on two strings.',
+      '- Two notes per string: each string change comes after an upstroke. Notice whether your pick moves between the strings (<b>inside</b>) or around them (<b>outside</b>): one will feel easier',
+      '- Then the one-note-per-string bar: the crossing every note, the hardest motion there is',
+      '- The fix is the pick’s path: a slight slant so the pick escapes the string after the stroke that changes string (downward slant: escapes on upstrokes)',
+      '- Small motions from the wrist, the pick barely past the string',
+      'Then switch which note you start on so the other stroke direction makes each crossing.',
+    ] },
+  { t: 'Sweep and economy picking', s: 'one motion across strings', drill: D(60, 3, 'triplets at 60', 'triplets at 120', 'C'),
+    neck: { kind: 'list', events: [[3, 5, '1'], [2, 5, '3'], [1, 3, '5'], [1, 8, '1'], [1, 3, '5'], [2, 5, '3'], [3, 5, '1'], [2, 5, '3'], [1, 3, '5'], [1, 8, '1'], [1, 3, '5'], [2, 5, '3']] }, b: [
+      'A C major triad on the top three strings: one downward push across G, B and E, then the top note, then one upward push back.',
+      '- It’s a single slow stroke that happens to hit three strings, not three fast strokes',
+      '- Each note must stop as the next sounds: roll the fretting finger and lift it as you go, or it’s a strummed chord',
+      '- Economy picking is the same idea inside scales: when you change string, keep going in the same direction (down to the next string after a down, up after an up)',
+      '<b>Harder</b>: minor and diminished triads, then five-string sweeps.',
+    ] },
+  { t: 'Hybrid picking', s: 'pick plus fingers', drill: D(60, 2, '8ths at 60', '8ths at 140', 'G'),
+    neck: { kind: 'list', events: [[6, 3, '1'], [[3, 4, '3'], [2, 3, '5']], [4, 5, '1'], [[3, 4, '3'], [2, 3, '5']], [5, 5, '5'], [[3, 4, '3'], [2, 3, '5']], [4, 5, '1'], [[3, 4, '3'], [2, 3, '5']]] }, b: [
+      'The pick takes the bass, the middle and ring fingers pluck the higher strings. Here: G bass alternating with B and D together.',
+      '- Pick with the thumb and index as usual; the middle finger plucks the B string, the ring the top E',
+      '- Snap the fingers up and away for the “chicken picking” pop',
+      '- Opens up everything that skips strings: 6ths, 10ths, country licks, banjo rolls, Travis picking with a pick',
+      '<b>Harder</b>: a roll, pick–middle–ring on three strings, in triplets, round a chord.',
+    ] },
+  { t: 'Muting', s: 'only the notes you mean', drill: D(80, 2, '8ths at 80', '16ths at 100', 'E'),
+    neck: { kind: 'list', events: [[[6, 0, '1'], [5, 2, '5']], [[6, 0, '1'], [5, 2, '5']], [[6, 0, '1'], [5, 2, '5']], [[6, 0, '1'], [5, 2, '5']], [[6, 3, 'b3'], [5, 5, 'b7']], [[6, 0, '1'], [5, 2, '5']], [[6, 5, '4'], [5, 7, '1']], [[6, 3, 'b3'], [5, 5, 'b7']]] }, b: [
+      'Clean playing is mostly silence: every string you aren’t playing is touched by something.',
+      '- <b>Palm mute</b>: the side of the picking hand on the strings right at the bridge. Closer to the bridge = more note; further = more thud',
+      '- <b>Fretting-hand muting</b>: the underside of the fretting finger touches the strings above, the fingertip the string below',
+      '- <b>Picking-hand muting</b>: the palm floats over the low strings while you play the high ones',
+      'Drill: palm-muted E5 8ths, then lift the mute for the accents. Then play a scale fast with distortion: any noise is a muting gap.',
+    ] },
+  { t: 'Relaxation', s: 'speed comes from less effort', b: [
+    '- Squeeze the string only as hard as you need: press until it rings, then back off until it buzzes, and play just above that',
+    '- Fingers stay close: lift them a few millimetres, no more',
+    '- Every few minutes check the shoulders, the jaw and the thumb. Tension creeps in',
+    '- Practise fast passages softly. Loud practice teaches force',
+    '- Breathe through phrases. Holding the breath tightens everything',
+    'If it hurts, stop. Ten focused minutes beats an hour of strain.',
+  ] },
+  { t: 'A daily technique routine', s: '20 minutes', b: [
+    '- <b>2 min</b>: the chromatic warm-up and the spider (Fluency drills), slowly',
+    '- <b>4 min</b>: one scale in three notes per string, legato then picked, at a tempo you can play perfectly',
+    '- <b>4 min</b>: one picking drill (string crossing or sweeps) with the click, up 5 bpm after three clean passes',
+    '- <b>4 min</b>: bends and vibrato against the drone, checking pitch',
+    '- <b>4 min</b>: double stops (3rds or 6ths) over a vamp',
+    '- <b>2 min</b>: play something musical with whatever you just practised',
+    'Rotate the drills each week. Keep a note of tempos so you can see the progress.',
+  ] },
+] });
+}
+
+// ---------- more interval sequences through the key ----------
+{
+  const fl = DECKS.find((d) => d.id === 'fluency');
+  const ic = (t, s, seq, body, bpm, sub, goal, extra = {}) => ({ t, s, drill: { bpm, sub, goal, from: `${sub === 3 ? 'triplets' : sub === 4 ? '16ths' : '8ths'} at ${bpm}`, drone: extra.key || 'C' }, neck: { kind: 'scale', id: 'ionian', key: extra.key || 'C', fam: extra.fam || 'caged', near: extra.near ?? 2, seq, fromRoot: true }, b: body });
+  const at = fl.cards.findIndex((c) => c.t === '6ths');
+  fl.cards.splice(at + 1, 0,
+    ic('Broken 6ths', '1-6, 7-2, 3-8, 9-4', 'broken6', [
+      'C major in one position: up a 6th from C, then down a 6th from the B above: C A, B D, E C, D F… the direction flips every pair.',
+      '- Wide leaps both ways make it the best string-crossing workout in the key',
+      '- Hybrid pick it: pick on the lower string, middle finger on the upper',
+      '<b>Harder</b>: the same in broken 3rds and broken 4ths, back to back, without stopping.',
+    ], 60, 2, '8ths at 140'),
+    ic('5ths', '1-5, 2-6, 3-7', 'fifths', [
+      'Each note and the note a 5th above: C G, D A, E B, F C, G D, A E, B F (the one diminished 5th).',
+      '- Many pairs are the same fret on neighbouring strings: a rolled finger, like a power chord played one note at a time',
+      '- Open and modern: the sound of 5th-based melodies in fusion and in Celtic music',
+    ], 60, 2, '8ths at 150'),
+    ic('7ths', '1-7, 2-8, 3-9', 'sev', [
+      'Each note and the note a 7th above: C B, D C, E D, F E… major and minor 7ths alternating as the key dictates.',
+      '- The widest diatonic interval within an octave: it trains the hand to find notes two strings away',
+      '- Hear the difference: C–B (major 7th) is bright and tense, D–C (minor 7th) is bluesy',
+    ], 60, 2, '8ths at 130'),
+    ic('Octave leaps', '1-8, 2-9, 3-10', 'octs', [
+      'Each note, then its octave: C C, D D, E E… across the position.',
+      '- The octave shapes: two strings over and two frets up (three frets up when crossing the B string)',
+      '- Then play a tune jumping octaves on every other note. It’s Wes Montgomery’s and Nile Rodgers’ ear trainer for the neck',
+    ], 60, 2, '8ths at 140'),
+    ic('3rds in fours', '1-3-2-4, 2-4-3-5', 'thirds4', [
+      'Up a 3rd, back a step, up a 3rd: C E D F, D F E G, E G F A… then the same coming down.',
+      '- A four-note cell, so in 16ths it fills each beat; every beat starts one scale step higher',
+      '- One of the most melodic sequences: Bach uses it, and so does every bebop player',
+    ], 60, 4, '16ths at 110'),
+    ic('1-3-5-3', 'triads that turn back', 'tri4', [
+      'Each diatonic triad up and back to its 3rd: C E G E, D F A F, E G B G… in 16ths.',
+      '- The turn-back makes each triad a little melody, not an arpeggio flourish',
+      '- Name each chord as you play it',
+    ], 60, 4, '16ths at 110'),
+    ic('3rds up the neck', 'three notes a string, in 3rds', 'thirds', [
+      'G major, three notes a string, in 3rds: G B, A C, B D, C E… a diagonal climb through two octaves and more.',
+      '- The 3rds here fall across strings in a pattern that repeats: learn the fingering, then the sound takes over',
+      '- This is the sequence most fluent players run without thinking: practise it until you don’t',
+    ], 60, 2, '8ths at 180', { key: 'G', fam: 'nps3', near: 3 }),
+  );
+}
 
 // the play-along exercise decks sit together at the end: comping, rhythm, grooves, drills
 { const i = DECKS.findIndex((d) => d.id === 'comping'); const [cp] = DECKS.splice(i, 1); DECKS.splice(DECKS.findIndex((d) => d.id === 'rhythm'), 0, cp); }
