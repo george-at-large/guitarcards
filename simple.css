@@ -332,3 +332,4 @@ h1 .tabs { margin-left: 8px; }
 .xpos button.on { color: var(--amber); border-color: var(--amber); }
 #simple.v .xpos { margin: 0; gap: 4px; }
 #simple.v .xpos button { min-width: 0; padding: 7px 0; font-size: 13px; }
+.home .hgroup { margin: 18px 4px 6px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); font-weight: 600; }

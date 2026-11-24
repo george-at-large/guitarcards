@@ -7,6 +7,10 @@
 //   (e.g. '=C3 B3 E4 G4 | …'), for when the top note matters; then the label names them.
 
 import * as T from '../theory.js';
+import { DECKS as LUM_A } from './lum/a.js';
+import { DECKS as LUM_B } from './lum/b.js';
+import { DECKS as LUM_C, NOCTURNE_FIXES } from './lum/c.js';
+import { DECKS as LUM_D } from './lum/d.js';
 
 export const DECKS = [
   {
@@ -6367,15 +6371,16 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
 });
 }
 
-// ---------- Marbin: Chopin's Nocturne the Barry Harris and Barney Kessel way ----------
+// ---------- Guitar Luminary: Chopin's Nocturne the Barry Harris and Barney Kessel way (moved to the Luminary section at the end) ----------
 {
   const D = (bpm, sub, from, goal, drone) => ({ bpm, sub, from, goal, drone });
-  const SRC = 'From Marbin’s Chopin Nocturne video (with Barry Harris and Barney Kessel exercises).';
+  const SRC = 'From the Guitar Luminary handout “Chopin’s Nocturne - Barry Harris + Barney Kessel” and its video.';
   const CHART = '=E2 B2 E3 G#3 B3 E4 | E2 A2 E3 A3 C4 F#4 | E2 B2 E3 G#3 B3 E4 | D#3 G#3 B3 E4 | C#3 G#3 B3 F4 | F2 B2 G#3 C#4 | G#2 D3 F3 B3 | F#2 C#3 F#3 A3 C#4 F#4 | B2 F#3 A3 D#4 F#4 | C3 F#3 G#3 D#4 | C#3 G#3 C#4 E4 G#4 | A#2 E3 G3 C#4 | B2 F#3 A3 D#4 F#4 | B2 F#3 A3 D#4 F#4 | E2 B2 E3 G#3 B3 E4';
-  const mb = DECKS.find((d) => d.id === 'marbin');
+  const mb = { id: 'lum-nocturne', name: 'Luminary: Chopin’s Nocturne', cards: [] };
+  DECKS.push(mb);
   mb.cards.push(
     { t: 'Chopin’s Nocturne: the chart', s: 'Op. 9 No. 2, in E', b: [
-      'Chopin’s best-known nocturne (written in E♭), in E as Francisco Tárrega arranged it for guitar. Marbin’s plan: take the chords, simplify them, and connect them our own way with Barry Harris and Barney Kessel exercises. Keep Chopin’s melody out of it.',
+      'Chopin’s best-known nocturne (written in E♭), in E as Francisco Tárrega arranged it for guitar. The lesson’s plan: take the chords, simplify them, and connect them our own way with Barry Harris and Barney Kessel exercises. Keep Chopin’s melody out of it.',
       '- E · Am6/E · E · E/D♯',
       '- C♯7 · C♯7/E♯ · E♯°7/G♯ · F♯m',
       '- B7 · G♯7/B♯ · C♯m · A♯°7',
@@ -6390,7 +6395,7 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
       'Every other chord either passes between two of these or puts a bass note under them. Map the skeleton first; then add the decoration back one chord at a time. ' + SRC,
     ], ex: [['The skeleton', 'E:maj C#:7 F#:min B:7 E:maj'], ['The skeleton, jazzed: I6 – VI7♭9 – ii7 – V7', 'E:6 C#:7b9 F#:m7 B:7 E:6'], ['The same 1-6-2-5 in a standard key, B♭', 'Bb:6 G:7 C:m7 F:7 Bb:6']] },
     { t: 'The minor iv: Am6 over E', s: 'the chord that makes the melody', b: [
-      'The second chord, Am6 over an E bass, is the <b>minor subdominant</b>: iv borrowed from E minor. Marbin’s view is that it’s the chord that makes the melody.',
+      'The second chord, Am6 over an E bass, is the <b>minor subdominant</b>: iv borrowed from E minor. The lesson’s view is that it’s the chord that makes the melody.',
       '- Am6 is A C E F♯. Against E, the <b>C</b> is the ♭6, the dark note that falls back to B',
       '- The E bass holds still, so it’s a plagal move over a pedal: I – iv – I, tonic, shadow, tonic',
       '- The same four notes are F♯ø7 (F♯ A C E). So Am6 also works as a minor ii heading to B7: F♯ø7 – B7 – E',
@@ -6433,7 +6438,7 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
     { t: 'Turn it into music, in 4/4', s: 'the exercises over Chopin’s changes', comp: { chart: 'E:maj A:m6/5 | E:maj E:maj/7 | C#:7 C#:7/3 | E#:dim7/b3 F#:min | B:7 G#:7/3 | C#:min A#:dim7 | B:7 | E:maj', bpm: 80 }, b: [
       'Play the chart in 4/4, two beats a chord, and use only the three exercises:',
       '- <b>E, Am6/E, E/D♯</b>: the E 6th-diminished 3rds; E6 pairs on the beat',
-      '- <b>C♯7 to F♯m</b>: Marbin’s rule, the ° of where you’re going. F♯m6 + E♯°7 (the chart’s own E♯°7)',
+      '- <b>C♯7 to F♯m</b>: the rule from the diminished cards, the ° of where you’re going. F♯m6 + E♯°7 (the chart’s own E♯°7)',
       '- <b>F♯m</b> and <b>C♯m</b>: Kessel’s melodic 3rds',
       '- <b>A♯°7</b>: its own ° arpeggio, landing on B7’s 3rd. <b>B7 to E</b>: contrary motion moving in, from B to the E chord',
       'Start in quarter notes, then 8ths. Leave space; repeat the best two-bar idea in the next pass. That’s the jump from exercise to music. ' + SRC,
@@ -6795,5 +6800,135 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
   DECKS.splice(DECKS.findIndex((d) => d.id === 'technique') + 1, 0, deck);
 }
 
+// ---------- progressions from the classics: after Common progressions ----------
+{
+  const D = (bpm, sub, from, goal, drone) => ({ bpm, sub, from, goal, drone });
+  DECKS.splice(DECKS.findIndex((d) => d.id === 'progs') + 1, 0, { id: 'classical', name: 'Progressions from the classics', cards: [
+  { t: 'Borrowing from the classics', s: 'read this first', b: [
+    'Jobim built “How Insensitive” on Chopin’s E minor Prelude. Gounod laid “Ave Maria” over Bach’s C major Prelude. Barry Manilow’s “Could It Be Magic” is Chopin’s C minor Prelude. The great progressions are old, and they are free to take.',
+    '- Each card gives the chords, the bass line and why it works, with a play-along chart',
+    '- Learn the bass line first: in almost every one of these the bass moves by step, and that is the magic',
+    '- Then play each in three keys, comp it with the chart, and improvise over it using chord tones',
+    'The point isn’t to quote the piece. It’s to own the move, so it turns up in your own tunes and arrangements.',
+  ] },
+
+  { t: 'Chopin’s E minor Prelude', s: 'Op. 28 No. 4 · one voice at a time', drill: D(50, 1, 'quarters at 50', 'quarters at 80', 'E'),
+    neck: { kind: 'play', key: 'E', play: '=E2 G3 B3 D4 | E2 G3 A#3 D4 | E2 G3 A#3 C4 | E2 G3 A3 C4 | E2 F#3 A3 C4 | D#3 F#3 A3 C4 | D#3 F#3 A3 B3 | E3 G3 B3 E4' }, b: [
+      'The left hand repeats a chord in 8ths while its voices slip down a half step, one at a time. Each slip makes a new chord, and the harmony drifts for bars through half-diminished, dominant and diminished colours before it lands on B7 and E minor.',
+      '- The drill is that technique, written out (not Chopin’s notes): Em7, Em7♭5, C7/E, Am7/E, F♯ø7/E, D♯°7, B7/D♯, Em',
+      '- Only one note changes each time. Find it before you play the chord',
+      '- Over the top, Chopin’s melody barely moves: B and C for bars. The harmony does the weeping',
+      '<b>Harder</b>: make your own chain from Am7, moving one voice down a half step per bar, and end on E7 – Am.',
+    ], ex: [['The drift, chord by chord', '=E2 G3 B3 D4 | E2 G3 A#3 D4 | E2 G3 A#3 C4 | E2 G3 A3 C4 | E2 F#3 A3 C4 | D#3 F#3 A3 C4 | D#3 F#3 A3 B3 | E3 G3 B3 E4', 'one voice down each time']] },
+  { t: 'Jobim’s version: How Insensitive', s: 'Chopin’s idea with a bossa pulse', comp: { chart: 'A:m7 | G#:dim7 | G:m6 | D:7/3 | F:6 | Bb:maj7 | B:m7b5 E:7b13 | A:m7', bpm: 100 }, b: [
+      'Jobim took Chopin’s chromatic drift and made it a falling bass line: A, G♯, G, F♯, F, each with a new chord.',
+      '- <b>Am7 – G♯°7 – Gm6 – D7/F♯ – F6</b>: the bass falls a half step a bar while the other notes hold on as long as they can',
+      '- <b>B♭maj7</b> is ♭II, the Neapolitan (the same chord as in the Moonlight Sonata), a half step above the tonic',
+      '- <b>Bø7 – E7♭13 – Am7</b>: the minor ii–V home',
+      'Comp it with a bossa rhythm, then play only the bass line and the top note of each chord: that’s the tune’s whole sound. (The Real Book has it in D minor: Dm, C♯°7, Cm6, G7/B, B♭maj7…)',
+    ], ex: [['The falling bass', 'A:m7 G#:dim7 G:m6 D:7/3 F:6'], ['♭II, then the minor ii–V home', 'Bb:maj7 B:m7b5 E:7b13 A:m7'], ['In D minor', 'D:m6 C#:dim7 C:m6 G:7/3 Bb:maj7 E:m7b5 A:7 D:m7']] },
+
+  { t: 'Chopin’s C minor Prelude', s: 'Op. 28 No. 20 · the “Chord Prelude”', comp: { chart: 'C:min F:min G:7 C:min | Ab:maj Db:maj Eb:7 Ab:maj | C:min F:min G:7 C:min | Ab:maj Db:maj Eb:7 Ab:maj', bpm: 60 }, b: [
+      'A funeral march in thick chords, one a beat. The first two bars are the cleanest cadences in music:',
+      '- Bar 1: <b>Cm – Fm – G7 – Cm</b>, i – iv – V7 – i in C minor',
+      '- Bar 2: <b>A♭ – D♭ – E♭7 – A♭</b>, I – IV – V7 – I in A♭, the key of ♭VI. Same shape, a major 3rd lower, suddenly warm',
+      '- Then the bass starts falling by step, one chord a beat. Barry Manilow’s “Could It Be Magic” grew from this piece',
+      'Play the chart as slow full chords, one strum a beat, and let each ring. Then voice-lead it: keep the top note as still as you can.',
+    ], ex: [['Bar 1: i – iv – V7 – i', 'C:min F:min G:7 C:min'], ['Bar 2: the same cadence in A♭', 'Ab:maj Db:maj Eb:7 Ab:maj']] },
+
+  { t: 'Bach’s C major Prelude', s: 'WTC I, BWV 846 · Gounod’s “Ave Maria”', comp: { chart: 'C:maj | D:m7/b7 | G:7/3 | C:maj | A:min/b3 | D:7/b7 | G:maj/3 | C:maj7/7 | A:m7 | D:7 | G:maj', bpm: 70 }, b: [
+      'One broken chord a bar, no melody at all, and it’s one of the most loved pieces ever written. The secret is the bass and the voice leading.',
+      '- <b>C | Dm7/C | G7/B | C</b>: the bass holds C, slips to B, comes back. Every chord shares notes with the next',
+      '- <b>Am/C | D7/C | G/B | Cmaj7/B | Am7 | D7 | G</b>: the bass walks down C, B, A while the chords modulate to G (D7 is V of G)',
+      '- Inversions everywhere: slash chords are how a bass line walks by step',
+      'Play it as a harp: one chord a bar, picked low to high. Gounod (1853) wrote “Ave Maria” as a melody over exactly this.',
+    ], ex: [['Bars 1–4, as Bach spreads them', '=C3 E3 G3 C4 E4 | C3 D3 A3 D4 F4 | B2 D3 G3 D4 F4 | C3 E3 G3 C4 E4', 'C · Dm7/C · G7/B · C'], ['Bars 5–11, walking to G', 'A:min/b3 D:7/b7 G:maj/3 C:maj7/7 A:m7 D:7 G:maj']] },
+
+  { t: 'Pachelbel’s Canon', s: 'the bass that never stops', comp: { chart: 'D:maj A:maj | B:min F#:min | G:maj D:maj | G:maj A:maj', bpm: 70 }, b: [
+      'Eight chords over a two-bar bass, repeated 28 times while the violins play a canon on top.',
+      '- <b>D – A – Bm – F♯m – G – D – G – A</b>: I – V – vi – iii – IV – I – IV – V',
+      '- The bass: down a 4th, up a step, over and over (D A B F♯ G D G A)',
+      '- Put the chords in inversion and the bass walks straight down the scale: D, C♯, B, A, G, F♯, G, A. That version is the root of countless pop songs',
+      '<b>Harder</b>: jazz it: Dmaj7 – A7/C♯ – Bm7 – F♯m7/A – Gmaj7 – Dmaj7/F♯ – Em7 – A7.',
+    ], ex: [['The chords', 'D:maj A:maj B:min F#:min G:maj D:maj G:maj A:maj'], ['In inversion: the bass walks down', 'D:maj A:maj/3 B:min F#:min/b3 G:maj D:maj/3 G:maj A:maj'], ['Jazzed', 'D:maj7 A:7/3 B:m7 F#:m7/b3 G:maj7 D:maj7/3 E:m7 A:7']] },
+
+  { t: 'Bach’s Goldberg bass', s: 'the Aria’s ground', comp: { chart: 'G:maj | D:maj/3 | E:min | B:min/b3 | G:maj/3 | C:maj | D:7 | G:maj', bpm: 70 }, b: [
+      'The thirty Goldberg Variations all sit on one bass line. Its first eight notes are a cousin of Pachelbel’s:',
+      '- <b>G F♯ E D · B C D G</b>: down the scale four steps, then a cadence',
+      '- One plain way to harmonise it: G – D/F♯ – Em – Bm/D – G/B – C – D7 – G (Bach varies it every time)',
+      '- The falling line from the tonic to the 5th is the most used bass in Western music: it’s under Pachelbel, under “A Whiter Shade of Pale”, under countless ballads',
+      'Play the bass alone in half notes, then add the chords on top. Then try your own melody over it.',
+    ], ex: [['The bass line', '=G3 | F#3 | E3 | D3 | B2 | C3 | D3 | G2', 'G F♯ E D · B C D G'], ['Harmonised', 'G:maj D:maj/3 E:min B:min/b3 G:maj/3 C:maj D:7 G:maj']] },
+
+  { t: 'The lament bass', s: 'Purcell’s “Dido’s Lament”', drill: D(50, 1, 'quarters at 50', 'quarters at 80', 'G'),
+    neck: { kind: 'play', key: 'G', play: '=G2 D3 G3 Bb3 | F#2 D3 A3 C4 | F2 D3 F3 Bb3 | E2 C3 G3 C4 | Eb3 G3 C4 | D3 F#3 A3 D4' },
+    comp: { chart: 'G:min | D:maj/3 | F:maj | C:maj/3 | C:min/b3 | D:maj | G:min | D:7', bpm: 60 }, b: [
+      'A bass falling by half steps from the tonic to the 5th: G, F♯, F, E, E♭, D. Baroque composers used it for grief; Purcell’s “Dido’s Lament” repeats it eleven times.',
+      '- <b>Gm – D/F♯ – F – C/E – Cm/E♭ – D</b>: each chord is chosen to fit the next bass note',
+      '- The diatonic version, A G F E with <b>Am – G – F – E</b>, is the Andalusian cadence: flamenco and “Hit the Road Jack”',
+      '- The drill plays it as full voicings: watch the bass walk down the low E string',
+      '<b>Harder</b>: the same in A minor (A G♯ G F♯ F E), and end on A major: the Picardy third.',
+    ], ex: [['The chromatic lament', 'G:min D:maj/3 F:maj C:maj/3 C:min/b3 D:maj'], ['The diatonic one: the Andalusian cadence', 'A:min G:maj F:maj E:maj'], ['With a Picardy ending', 'A:min E:maj/3 G:maj D:maj/3 F:maj E:7 A:maj']] },
+
+  { t: 'La Folia', s: 'three hundred years of variations', comp: { chart: 'D:min | A:maj | D:min | C:maj | F:maj | C:maj | D:min | A:maj | D:min | A:maj | D:min | C:maj | F:maj | C:maj | D:min A:maj | D:min', bpm: 90 }, b: [
+      'A Portuguese dance tune that composers kept returning to: Corelli, Vivaldi, Bach, Liszt, Rachmaninoff (his “Variations on a Theme of Corelli” is the Folia).',
+      '- <b>Dm A Dm C · F C Dm A</b>, then again ending <b>Dm–A Dm</b>: i V i VII · III VII i V',
+      '- It swings between D minor and its relative F major, with C (♭VII) as the hinge',
+      '- In 3/4 with the stress on beat 2: the sarabande rhythm',
+      'Comp it, then improvise on D minor pentatonic: the C and F chords are in it. Then try D Dorian’s B natural over the end of each phrase.',
+    ], ex: [['The first half', 'D:min A:maj D:min C:maj F:maj C:maj D:min A:maj'], ['The ending', 'F:maj C:maj D:min A:maj D:min']] },
+
+  { t: 'Handel’s Passacaglia', s: 'the circle of 5ths in minor', comp: { chart: 'G:min | C:min | F:maj | Bb:maj | Eb:maj | A:m7b5 | D:maj | G:min', bpm: 80 }, b: [
+      'Handel’s G minor Passacaglia (from the Suite HWV 432) is a theme and variations on one of the strongest progressions there is: every root falls a 5th.',
+      '- <b>Gm – Cm – F – B♭ – E♭ – Am7♭5 – D – Gm</b>: i – iv – VII – III – VI – iiø – V – i',
+      '- It visits every note of the key once. The ♭5 chord (A–E♭) is the one diminished 5th you need to stay in key',
+      '- It’s the progression of “Autumn Leaves” and “Fly Me to the Moon”, a few centuries early: add 7ths and it’s jazz',
+      'Play it with 7th chords, then improvise in G harmonic minor only on the last two chords.',
+    ], ex: [['Triads', 'G:min C:min F:maj Bb:maj Eb:maj A:dim D:maj G:min'], ['With 7ths: the jazz version', 'G:m7 C:m7 F:7 Bb:maj7 Eb:maj7 A:m7b5 D:7b9 G:m7']] },
+
+  { t: 'The Moonlight Sonata', s: 'Beethoven · the Neapolitan', comp: { chart: 'C#:min | C#:min/b7 | A:maj D:maj/3 | G#:7 | C#:min', bpm: 50 }, b: [
+      'The first movement opens with a short progression that holds a famous chord:',
+      '- <b>C♯m – C♯m/B – A – D/F♯ – G♯7 – C♯m</b>: i, the bass falling a step, VI, then <b>D/F♯</b>, then V7 and home',
+      '- D major in C♯ minor is ♭II, the <b>Neapolitan</b>, almost always played with its 3rd in the bass (the “Neapolitan 6th”). It’s the darkest way to approach V',
+      '- In A minor (easier to finger): Am – Am/G – F – B♭/D – E7 – Am',
+      'Use ♭II in your own minor tunes: anywhere you’d play iv before V, try ♭II6 instead.',
+    ], ex: [['The opening', 'C#:min C#:min/b7 A:maj D:maj/3 G#:7 C#:min'], ['In A minor', 'A:min A:min/b7 F:maj Bb:maj/3 E:7 A:min'], ['iv – V, then ♭II6 – V: hear the difference', 'A:min D:min E:7 A:min Bb:maj/3 E:7 A:min']] },
+
+  { t: 'Satie’s Gymnopédie', s: 'two maj7 chords, rocking', comp: { chart: 'G:maj7 | D:maj7 | G:maj7 | D:maj7', bpm: 70 }, b: [
+      'Erik Satie, 1888: the first Gymnopédie rocks between two major 7th chords for its whole introduction, years before jazz made maj7s normal.',
+      '- <b>Gmaj7 – Dmaj7</b>, a bar each, slow 3/4: bass on beat 1, the chord on beat 2',
+      '- Gmaj7 is IV in D, so it’s just IV – I. The maj7s take away the pull and leave a floating, still sound',
+      '- The melody over it (in D) leans on the 7ths and 9ths of the chords',
+      'Improvise over the vamp in D major, and lean on F♯ over Gmaj7 and C♯ over Dmaj7, their 7ths.',
+    ], ex: [['The vamp, as voiced on guitar', '=G2 B3 D4 F#4 | D3 C#4 F#4 A4 | G2 B3 D4 F#4 | D3 C#4 F#4 A4', 'Gmaj7 · Dmaj7']] },
+
+  { t: 'The classical cadence', s: 'ii6 – I⁶₄ – V7 – I', comp: { chart: 'C:maj | F:maj | D:min/b3 C:maj/5 | G:7 | C:maj', bpm: 70 }, b: [
+      'The sound of the end of every Mozart concerto movement. The magic chord is the <b>cadential 6/4</b>: C over G.',
+      '- <b>C – F – Dm/F – C/G – G7 – C</b>',
+      '- C/G isn’t really a C chord: it’s G with two suspensions (C and E falling to B and D). The orchestra holds it while the soloist plays the cadenza',
+      '- ii6 (Dm with F in the bass) is the classical pre-dominant: the bass climbs F, G, then falls to C',
+      'Jazz musicians do the same with a ii–V; this is the version with a bass line. Use it to end a chord-melody arrangement.',
+    ], ex: [['The cadence', 'C:maj F:maj D:min/b3 C:maj/5 G:7 C:maj'], ['In A minor', 'A:min D:min/b3 A:min/5 E:7 A:min']] },
+
+  { t: 'Debussy’s parallel chords', s: 'planing', comp: { chart: 'C:9 | D:9 | E:9 | D:9', bpm: 70 }, b: [
+      'Debussy broke the rule that chords must resolve: he slid one chord shape up and down, every voice moving the same way. It’s called <b>planing</b>.',
+      '- <b>Exact planing</b>: one shape (a 9th chord, or open 5ths) moved chromatically or by whole steps',
+      '- <b>Diatonic planing</b>: one shape moved through the key, so its quality changes',
+      '- On guitar it’s easy: hold a grip and slide it. Jazz guitarists from Wes Montgomery to Bill Frisell use it constantly',
+      'Take any melody note, put the same shape under every note: a chord melody with no chord theory at all.',
+    ], ex: [['Exact: C9 – D9 – E9 – D9', 'C:9 D:9 E:9 D:9'], ['Diatonic: sus chords up C major', 'C:sus2 D:sus2 E:sus4 F:sus2 G:sus2']] },
+] });
+}
+
 // the play-along exercise decks sit together at the end: comping, rhythm, grooves, drills
 { const i = DECKS.findIndex((d) => d.id === 'comping'); const [cp] = DECKS.splice(i, 1); DECKS.splice(DECKS.findIndex((d) => d.id === 'rhythm'), 0, cp); }
+
+// Guitar Luminary handouts: their own section at the very end of Contents (cardsview puts a heading before the first)
+{
+  const noc = DECKS.splice(DECKS.findIndex((d) => d.id === 'lum-nocturne'), 1)[0];
+  for (const f of NOCTURNE_FIXES) { const i = noc.cards.findIndex((c) => c.t === f.replaces); if (i < 0) throw new Error(`no card ${f.replaces}`); noc.cards[i] = f.card; }
+  const by = Object.fromEntries([...LUM_A, ...LUM_B, ...LUM_C, ...LUM_D, noc].map((d) => [d.id, d]));
+  const order = ['lum-voicings', 'lum-harmony', 'lum-nocturne', 'lum-contrary', 'lum-runs', 'lum-altered', 'lum-kessel', 'lum-bach', 'lum-rhythm', 'lum-tunes'];
+  if (order.length !== Object.keys(by).length) throw new Error('Luminary decks: ' + Object.keys(by).join(' '));
+  DECKS.push(...order.map((id) => by[id]));
+}

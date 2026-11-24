@@ -445,7 +445,7 @@ export function mountCards(root, S, save) {
       <button class="hcont" data-cont><small>Carry on · ${esc(deckName(st.deck))} · ${Math.min(pos() + 1, n)} / ${n}</small><b>${c ? acc(c.t) : 'Back to the start'}</b><span>▶</span></button>
       <button class="hall" data-all>All decks in a row <span>${listFor('all').length} cards</span></button>
       <button class="hall hex" data-exs>Exercises (play-along decks and drill cards) <span>${showEx ? 'shown' : 'hidden'}</span></button>
-      ${DECKS.filter((d) => showEx || !EXERCISE.has(d.id)).map((d) => `<section class="hsec${openDeck === d.id ? ' open' : ''}">
+      ${DECKS.filter((d) => showEx || !EXERCISE.has(d.id)).map((d, i, arr) => `${d.id.startsWith('lum-') && !arr[i - 1]?.id.startsWith('lum-') ? '<h3 class="hgroup">Guitar Luminary handouts</h3>' : ''}<section class="hsec${openDeck === d.id ? ' open' : ''}">
         <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-tdeck="${d.id}">Test</button><button class="hstart" data-start="${d.id}">Start</button></div>
         ${openDeck === d.id ? `<div class="hcards">${d.cards.map((x, i) => `<button data-jump="${d.id}:${i}"><span>${i + 1}</span>${acc(x.t)}</button>`).join('')}</div>` : ''}
       </section>`).join('')}
