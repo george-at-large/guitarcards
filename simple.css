@@ -327,3 +327,8 @@ h1 .tabs { margin-left: 8px; }
 .gvparts button { flex: 1; font-size: 13px; padding: 8px 4px; }
 .gvparts button.on { color: var(--amber); border-color: var(--amber); }
 .hall.hex { font-size: 13px; color: var(--soft); padding-top: 9px; padding-bottom: 9px; }
+.xpos { gap: 6px; }
+.xpos button { flex: 1; min-width: 34px; padding: 8px 0; font-size: 14px; color: var(--soft); font-variant-numeric: tabular-nums; }
+.xpos button.on { color: var(--amber); border-color: var(--amber); }
+#simple.v .xpos { margin: 0; gap: 4px; }
+#simple.v .xpos button { min-width: 0; padding: 7px 0; font-size: 13px; }

@@ -56,7 +56,7 @@ const HOW = {
   caged: ['One CAGED shape', 'Root to root first, then the lowest note to the highest and back. Say the degrees out loud. Alternate picking, 8ths; aim for 100.'],
   pair: ['Two shapes joined', 'Climb in the lower shape, cross into the upper one on the way up, and come back down the same way. This is how you stop living in one box. 8ths; aim for 90.'],
   box: ['Boxes, 2 per string', 'One hand position, two notes on every string. Learn all five, then link each to the next one up. 8ths, then 16ths; aim for 16ths at 90.'],
-  nps3: ['3 per string', 'Three notes on every string: down-up-down picking, or pick one and hammer two. The hand shifts as it climbs, so the scale runs on a diagonal. 16ths; aim for 110.'],
+  nps3: ['3 per string', 'Three notes on every string: down-up-down picking, or pick one and hammer two. The hand shifts as it climbs, so each pattern runs on a diagonal about six frets wide. There are seven, one starting from each note of the scale on the low E, and between them they cover the whole neck (the faint dots are the rest of it). Learn them one at a time with the numbers, then play All: up one, down the next, to the top and back. 16ths; aim for 110.'],
   nps4: ['4 per string', 'Four notes on every string: slide the index finger up to shift on each string. The fusion way up the neck, two and a half octaves in one sweep. Triplets or 16ths; aim for 80.'],
   two: ['Two-string ladder', 'A group on the lower string and the next notes on the upper, then start again a few notes further up the lower string, all the way up the neck (the guide plays it in groups). It joins every position sideways, which boxes never do. 8ths; aim for 100.'],
   one: ['One string', 'The whole scale on one string, nut to the top: you hear the steps as distances. Say each degree as you play it. 8ths; aim for 80.'],
@@ -152,11 +152,25 @@ export function positions(id, pc, fam) {
       return { title: `The ${STR[s]} string`, sub: 'nut to fret 17', notes: out, path: out };
     });
   }
+  // the positions joined: up the first, down the next, up the one after, all the way up the neck (and the guide
+  // comes back down the same way). The whole neck lit, so you see how the positions overlap and hand on.
+  const joins = ['caged', 'box', 'nps3', 'nps4'].includes(fam) && list.length > 1;
+  if (joins) {
+    const path = [];
+    list.forEach((p, i) => { const up = p.path; const seg = i % 2 ? [...up].reverse() : up; for (const n of seg) { const l = path[path.length - 1]; if (!l || l.string !== n.string || l.fret !== n.fret) path.push(n); } });
+    const seen = new Set(), notes = list.flatMap((p) => p.notes).filter((n) => { const key = n.string + ':' + n.fret; return seen.has(key) ? false : seen.add(key); });
+    list.push({ title: `All ${list.length}, up the neck`, sub: 'every position in turn: up one, down the next', notes, path, all: true });
+  }
+  const span = Math.max(...list.flatMap((p) => p.notes.map((n) => n.fret)));
   for (const p of list) {
     const fr = p.notes.map((n) => n.fret);
-    p.nf = Math.max(15, Math.min(19, Math.max(...fr) + 1));
+    // positions of one layout share one neck length, so stepping through them doesn't resize it
+    p.nf = Math.max(15, Math.min(19, (joins ? span : Math.max(...fr)) + 1));
     if (!p.win) p.win = { lo: Math.min(...fr), hi: Math.max(...fr) };
   }
+  // the rest of the neck, faint, behind each position
+  const every = joins ? list[list.length - 1].notes : null;
+  for (const p of list) if (every && !p.all) p.ghosts = every.map((n) => ({ string: n.string, fret: n.fret, cls: role(n.iv) }));
   return { root: rootN, list };
 }
 
@@ -177,7 +191,7 @@ export function mountScales(root, S, save, { upright }) {
   const drawNeck = () => {
     const p = cur(), on = lit >= 0 ? guidePath()[lit] : null;
     const dots = p.notes.map((n) => ({ string: n.string, fret: n.fret, cls: role(n.iv), label: st.labels === 'deg' ? T.prettyIv(n.iv) : noteName(n), ring: on ? on.string === n.string && on.fret === n.fret : n.iv === '1' }));
-    box.innerHTML = (upright() ? N.neckUpright : N.neckAcross)({ win: st.fam === 'caged' || st.fam === 'pair' ? p.win : null, dots, nf: p.nf });
+    box.innerHTML = (upright() ? N.neckUpright : N.neckAcross)({ win: (st.fam === 'caged' || st.fam === 'pair') && !p.all ? p.win : null, ghosts: p.ghosts || [], dots, nf: p.nf });
     if (on) box.querySelectorAll('.dot').forEach((g) => { if (g.querySelector('.ring')) g.classList.add('lit'); });
   };
   // the guide: up the path and back down, one note per subdivision
@@ -226,6 +240,7 @@ export function mountScales(root, S, save, { upright }) {
         <label class="small"><span>Key</span><select id="xKey">${KEYS.map((k, i) => opt(i, T.noteName(spell(i, st.id), true), st.key)).join('')}</select></label>
       </div>
       <div class="row big"><button id="xPrev">◀</button><button id="xNext">▶</button></div>
+      <div class="row xpos">${data.list.map((q, i) => `<button data-pos="${i}" class="${i === st.pos ? 'on' : ''}">${q.all ? 'All' : i + 1}</button>`).join('')}</div>
       <div class="row big"><button id="xGo" class="${playing ? 'on' : ''}">${playing ? '■ Stop' : '▶ Start'}</button></div>
       <div class="row"><button class="sq" id="xDown">−</button><span class="bpm">${st.bpm} bpm</span><button class="sq" id="xUp">+</button></div>
       <div class="row toggles">
@@ -243,6 +258,7 @@ export function mountScales(root, S, save, { upright }) {
     const move = (d) => { st.pos = (st.pos + d + data.list.length) % data.list.length; save(); lit = -1; render(); };
     $('xPrev').onclick = () => move(-1);
     $('xNext').onclick = () => move(1);
+    panel.querySelectorAll('[data-pos]').forEach((b) => { b.onclick = () => move(Number(b.dataset.pos) - st.pos); });
     $('xGo').onclick = () => { if (playing) stop(); else start(); render(); };
     $('xDown').onclick = () => { st.bpm = Math.max(30, st.bpm - 5); save(); panel.querySelector('.bpm').textContent = `${st.bpm} bpm`; };
     $('xUp').onclick = () => { st.bpm = Math.min(240, st.bpm + 5); save(); panel.querySelector('.bpm').textContent = `${st.bpm} bpm`; };
