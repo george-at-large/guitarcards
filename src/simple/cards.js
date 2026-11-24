@@ -6689,5 +6689,111 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
   );
 }
 
+// ---------- Giuliani: 12 of the 120 right-hand studies (the same selection as the Guitarnautics video) ----------
+{
+  // each finger owns a string: p the bass (5th string on C, 6th on G7, the 4th as the alternate bass), i m a = strings 3 2 1
+  const C = { 5: 3, 4: 2, 3: 0, 2: 1, 1: 0 }, G7 = { 6: 3, 5: 2, 4: 0, 3: 0, 2: 0, 1: 1 };
+  const FING = { 6: 'p', 5: 'p', 4: 'p', 3: 'i', 2: 'm', 1: 'a' };
+  // a pattern as strings (C bass first): '5 3 2 1', '321' = together, '-' = rest; one bar of 4/4 at `sub` notes a beat
+  const bar = (pat, grip, bass, sub) => {
+    const cell = pat.split(' ').map((t) => (t === '-' ? [] : [...t].map((ch) => { const s = ch === '5' ? bass : Number(ch); return [s, grip[s], FING[s]]; })));
+    const out = []; while (out.length < 4 * sub) out.push(...cell);
+    return out.slice(0, 4 * sub);
+  };
+  const neck = (pat, sub) => ({ kind: 'list', events: [...bar(pat, C, 5, sub), ...bar(pat, G7, 6, sub), ...bar(pat, G7, 6, sub), ...bar(pat, C, 5, sub)] });
+  const drill = (bpm, sub, goal) => ({ bpm, sub, from: `${{ 1: 'quarters', 2: '8ths', 3: 'triplets', 4: '16ths' }[sub]} at ${bpm}`, goal, drone: 'C' });
+  const S = (n, fing, pat, sub, bpm, goal, body) => ({ t: `Giuliani ${n}: ${fing}`, s: `pattern ${n} of 12`, drill: drill(bpm, sub, goal), neck: neck(pat, sub), b: body });
+  const deck = { id: 'giuliani', name: 'Giuliani’s right-hand studies', cards: [
+    { t: 'Giuliani’s 120 studies', s: 'read this first', b: [
+      'In his Op. 1 (1812) Mauro Giuliani wrote 120 right-hand studies: every useful arpeggio pattern, all on two chords, C and G7, so the left hand has nothing to think about. These cards are a selection of 12, simplest first (the same twelve as the Guitarnautics video).',
+      '- The form of each: one bar of C, two of G7, one of C. The neck shows the pattern with the finger on every dot',
+      '- <b>p</b> (thumb) plays the bass: the 5th string on C, the 6th on G7. <b>i m a</b> own strings 3, 2 and 1',
+      '- C: x32010. G7: 320001. Hold them; only the right hand works',
+      'The rule: each finger owns its string, so the hand stays still.',
+    ], ex: [['C – G7 – G7 – C', 'C:maj G:7 G:7 C:maj']] },
+    { t: 'How to practise them', s: 'clean, then fast', b: [
+      '- <b>Plant</b>: before a finger plays, rest it on its string. Slow practice plants the whole chord at once (p i m a all touching), then plays them in order',
+      '- <b>Free strokes</b> for the fingers (follow through into the palm, not onto the next string); the thumb pushes down and out, past the finger strings',
+      '- Even volume and even time: record it, the uneven finger is always a or m',
+      '- Let every note ring for the whole bar: arpeggios are chords, spread out',
+      '- One or two patterns a day with the click, up 4 bpm when it’s even. A month to go through the twelve; the full 120 is a year’s work',
+      '- Then apply each to other chords: Am – E7, a ii–V–I, a tune you know',
+    ] },
+    S(1, 'p i m a', '5 3 2 1', 2, 60, '8ths at 160', [
+      'The basic arpeggio: thumb, then i, m, a up the top three strings, twice a bar in 8ths.',
+      '- Every other pattern grows from this one',
+      '- Let the thumb’s note ring under the other three',
+      '<b>Harder</b>: put an accent on a (the top note) so the melody sings over the arpeggio.',
+    ]),
+    S(2, 'p a m i', '5 1 2 3', 2, 60, '8ths at 160', [
+      'The same notes coming down: thumb, then a, m, i.',
+      '- Harder than it looks: a leads, and a is the weakest finger',
+      '- Keep the hand still: a reaches nothing, it’s already on its string',
+      '<b>Harder</b>: alternate bars of pattern 1 and pattern 2.',
+    ]),
+    S(3, 'p i m i', '5 3 2 3', 2, 60, '8ths at 170', [
+      'Thumb, then i m i: only two fingers above the bass, the a finger rests.',
+      '- The i–m alternation is the root of all scale playing (and of tremolo later)',
+      '- Keep a relaxed but off the strings',
+      '<b>Harder</b>: p m i m (m leads).',
+    ]),
+    S(4, 'p i m a m i', '5 3 2 1 2 3', 3, 60, 'triplets at 120', [
+      'Up and back: thumb, i, m, a, m, i, as two triplets. Six notes a group, twice a bar.',
+      '- The turn at a is where it goes wrong: keep m ready on its string as a plays',
+      '- Feel the bass on beats 1 and 3 only',
+      '<b>Harder</b>: put the thumb on every beat (p i m p m i).',
+    ]),
+    S(5, 'p m i a i m', '5 2 3 1 3 2', 3, 60, 'triplets at 110', [
+      'Fingers out of order: m before i, then a, then back i, m. Triplets.',
+      '- It breaks the habit of always playing i m a in a row: each finger has to move on its own',
+      '- Go slowly enough to say the fingers aloud',
+      '<b>Harder</b>: p a i m i a.',
+    ]),
+    S(6, 'p + i m a together', '5 321 4 321', 1, 60, 'quarters at 140', [
+      'Block chords: the thumb alone, then i m a together as one chord, with the bass alternating between the root and the 4th string.',
+      '- Pluck the three as one: no rolling. The fingers squeeze toward the palm together',
+      '- On G7 the bass alternates G (6th string) and D (4th)',
+      '<b>Harder</b>: the thumb and the block together on beat 1, then block, block, block.',
+    ]),
+    S(7, 'p, then i m a together', '5 - 321 -', 1, 60, 'quarters at 140', [
+      'Oom-pah: the bass on beat 1, the chord on beat 3, with rests between. Let them ring through the rests.',
+      '- The waltz and march accompaniment of the whole 19th century',
+      '- Make the chord softer than the bass',
+      '<b>Harder</b>: move the bass to every beat and the chord to the off-beats.',
+    ]),
+    S(8, 'p i a m', '5 3 1 2', 2, 60, '8ths at 160', [
+      'Thumb, i, then a, then m: a jumps over m.',
+      '- The skip trains finger independence between m and a, which share tendons',
+      '- Keep the arpeggio even: the skipped string lands late if you lift m too early',
+      '<b>Harder</b>: p m a i.',
+    ]),
+    S(9, 'p i m a m i, at speed', '5 3 2 1 2 3', 3, 70, 'triplets at 140', [
+      'Pattern 4 for a whole bar, now as a speed study: four triplet groups, the thumb every other beat.',
+      '- At speed the fingers barely move: tiny free strokes from the knuckle',
+      '- Relax the thumb between bass notes',
+      '<b>Harder</b>: play it in 16ths (four notes a beat), so the six-note pattern crosses the beat.',
+    ]),
+    S(10, 'p a i m a i', '5 1 3 2 1 3', 3, 60, 'triplets at 110', [
+      'Wide crossings: a, then back to i, then m, a, i. Triplets.',
+      '- Each move skips a string, so the fingers must be ready before they’re needed',
+      '- Plant the next finger as the last one plays',
+      '<b>Harder</b>: the same with the bass on the 4th string between each group (on C: 5, then 4).',
+    ]),
+    S(11, 'repeated notes', '5 3 3 2 2 1 1 2', 2, 60, '8ths at 150', [
+      'Thumb, then each finger twice: i i, m m, a a, then m.',
+      '- Repeating a note with the same finger is slow; the point is to make it clean and even',
+      '- Release the string fully before you play it again',
+      '<b>Harder</b>: alternate fingers on the repeats (i m, m a, a m): the start of tremolo technique.',
+    ]),
+    S(12, 'p i m a m i m a, in 16ths', '5 3 2 1 2 3 2 1', 4, 50, '16ths at 120', [
+      'The virtuoso one: eight 16ths a group, two groups a bar, up and back and up again.',
+      '- The thumb only on beats 1 and 3: the fingers carry the rest',
+      '- Practise it in bursts: one group, a rest, one group',
+      '<b>Harder</b>: the full 120 in the original edition, one a day.',
+    ]),
+  ] };
+  DECKS.splice(DECKS.findIndex((d) => d.id === 'technique') + 1, 0, deck);
+}
+
 // the play-along exercise decks sit together at the end: comping, rhythm, grooves, drills
 { const i = DECKS.findIndex((d) => d.id === 'comping'); const [cp] = DECKS.splice(i, 1); DECKS.splice(DECKS.findIndex((d) => d.id === 'rhythm'), 0, cp); }

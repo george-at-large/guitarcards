@@ -14,7 +14,7 @@ import { BUILD } from './build.js';
 
 const ALL = DECKS.flatMap((d) => d.cards.map((c, i) => ({ ...c, deck: d.name, n: i + 1, of: d.cards.length })));
 // the exercise decks (things to play along with) can be left out of “All decks”, the Test and the Contents
-const EXERCISE = new Set(['comping', 'rhythm', 'grooves', 'fluency', 'doublestops', 'technique']);
+const EXERCISE = new Set(['comping', 'rhythm', 'grooves', 'fluency', 'doublestops', 'technique', 'giuliani']);
 // an exercise: a card in a play-along deck, or any card with a drill or a groove to play
 const isEx = (c) => EXERCISE.has(DECKS.find((d) => d.name === c.deck)?.id) || !!c.drill || !!c.groove;
 let showEx = true;
