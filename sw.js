@@ -16,3 +16,16 @@ self.addEventListener('fetch', (e) => {
     }).catch(() => caches.match(req, { ignoreSearch: true }))
   );
 });
+// Check-in pings shown by the app: tapping one focuses an open Check-in window (and asks it to start that ping's
+// check-in) or opens a new one at the ping's link.
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = e.notification.data?.url;
+  if (!url) return;
+  const prompt = new URL(url).searchParams.get('prompt');
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+    const win = list.find((c) => new URL(c.url).pathname.endsWith('/checkin.html'));
+    if (win) { win.postMessage({ prompt }); return win.focus(); }
+    return self.clients.openWindow(url);
+  }));
+});
