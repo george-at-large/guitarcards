@@ -6,6 +6,7 @@ import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { DECKS } from './cards.js';
 import { exampleSteps, styleOf } from './fingering.js';
+import { drillPattern, SEQS } from './drillneck.js';
 import { neckSlice } from './neck.js';
 import { OPEN } from '../fretboard.js';
 import { BUILD } from './build.js';
@@ -189,6 +190,67 @@ function exControl(el) {
   }
 }
 
+
+// ---------- a drill on the neck: the pattern’s notes, and a player that walks through it at the drill’s tempo and
+// subdivision (live: the card’s − and + change it while it plays), with the click on the beats ----------
+let dn = null;
+function stopDn(close = false) {
+  if (!dn) return;
+  clearInterval(dn.timer); dn.timers.forEach(clearTimeout); dn.timer = null; dn.timers = [];
+  const b = dn.panel?.querySelector('[data-dn="play"]'); if (b) { b.textContent = '▶ Play it'; b.classList.remove('on'); }
+  if (close) { dn.panel?.remove(); dn = null; }
+}
+function drawDn(i = -1) {
+  const ev = i >= 0 ? dn.pat.events[i] : null;
+  const base = ev?.dots || dn.pat.dots;
+  const lit = new Set((ev || []).map((n) => n.string + ':' + n.fret));
+  const lab = (n) => (dn.pat.labels === 'finger' ? n.iv : n.iv ? T.prettyIv(n.iv) : '');
+  const dots = base.map((n) => ({ string: n.string, fret: n.fret, cls: lit.has(n.string + ':' + n.fret) ? 'r' : ROLE_IV(n.iv), label: lab(n), ring: lit.has(n.string + ':' + n.fret) }));
+  for (const n of ev || []) if (!base.some((d) => d.string === n.string && d.fret === n.fret)) dots.push({ string: n.string, fret: n.fret, cls: 'r', label: '', ring: true }); // a chromatic approach note
+  dn.panel.querySelector('.nkwrap').innerHTML = neckSlice({ ...dn.win, dots });
+  if (ev?.key) dn.panel.querySelector('.dnkey').textContent = `Key of ${T.pretty(ev.key)}`;
+}
+function playDn(ds) {
+  stopDn();
+  if (drill) { clearInterval(drill.timer); const b = drill.el?.querySelector('[data-dr="go"]'); if (b) { b.textContent = '▶ Click'; b.classList.remove('on'); } drill = null; }
+  A.unlockAudio();
+  const c = A.audioCtx(), m = dn;
+  m.next = c.currentTime + 0.1; m.slot = -4 * ds.sub; // a bar of count-in
+  const tick = () => {
+    while (m.timer && m.next < c.currentTime + 0.12) {
+      const sub = ds.sub, k = ((m.slot % sub) + sub) % sub, beat = Math.floor(m.slot / sub);
+      if (k === 0) A.click(m.next, ((beat % 4) + 4) % 4 === 0 ? 2 : 1);
+      if (m.slot >= 0) {
+        const i = m.slot % m.pat.events.length, ev = m.pat.events[i], at = m.next, len = 60 / ds.bpm / sub;
+        if (ev.length > 1) A.strum(ev.map((n) => n.midi), at, { spread: 0.02, vel: 0.75 });
+        else A.pluck(ev[0].midi, at, { vel: 0.72, dur: Math.min(0.5, len * 1.3) });
+        m.timers.push(setTimeout(() => { if (dn === m) drawDn(i); }, Math.max(0, (at - c.currentTime) * 1000)));
+        if (m.timers.length > 48) m.timers.splice(0, 24);
+      }
+      m.next += 60 / ds.bpm / sub; m.slot++;
+    }
+  };
+  m.timer = setInterval(tick, 25); tick();
+  const b = m.panel.querySelector('[data-dn="play"]'); b.textContent = '■ Stop'; b.classList.add('on');
+}
+function openDn(btn, card, ds) {
+  if (dn && dn.btn === btn) { if (dn.timer) stopDn(); else playDn(ds); return; }
+  stopDn(true);
+  const pat = drillPattern(card.neck);
+  if (!pat.events.length) return;
+  const all = pat.events.flat().concat(pat.dots), fr = all.map((n) => n.fret);
+  const lo = Math.min(...fr), hi = Math.max(...fr);
+  const win = { from: lo <= 2 ? 1 : lo - 1, to: Math.max(hi + 1, (lo <= 2 ? 1 : lo - 1) + 4) };
+  const panel = document.createElement('div');
+  panel.className = 'exneck dnk';
+  const seq = card.neck.seq && SEQS[card.neck.seq] ? ` · ${SEQS[card.neck.seq].name}` : '';
+  panel.innerHTML = `<div class="nkwrap"></div>
+    <div class="exctl"><button data-dn="play">▶ Play it</button><span class="dnkey"></span></div>
+    <div class="exctl"><span>${esc(`${pat.events.length} notes${seq}`)} · plays at the drill’s tempo and subdivision, with a bar of count-in. The amber ringed note is the one sounding.</span></div>`;
+  btn.after(panel);
+  dn = { btn, panel, pat, win, timers: [], timer: null };
+  drawDn();
+}
 // ---------- comping cards: a progression that loops on soft keys, with a click you can turn off and a tempo you can
 // change while it plays. One bar of count-in, then round and round; the bar being played lights up. ----------
 let comp = null;
@@ -196,6 +258,7 @@ const symOf = (c) => T.pretty(T.chordSymbol(c.root, c.quality)) + (c.bass ? '/' 
 export function stopComp() {
   stopDrill();
   stopEx();
+  stopDn();
   if (!comp) return;
   clearInterval(comp.timer); comp.timers.forEach(clearTimeout);
   comp.el?.querySelectorAll('.cbarx.on').forEach((b) => b.classList.remove('on'));
@@ -305,6 +368,7 @@ export function cardHTML(c, cs) {
     ${c.key ? keyRow(c.key) : ''}${c.chord ? chordRow(c.chord) : ''}${c.row ? chordsRow(c.row) : ''}
     ${c.comp ? compHTML(c, cs) : ''}${c.drill ? drillHTML(c, cs.drill) : ''}
     <div class="cbody">${bodyHTML(c.b)}</div>
+    ${c.neck ? `<button class="hear dnb" data-dnk="1"><span>▦</span> Show it on the neck</button>` : ''}
     ${c.eg ? `<div class="ceg">${acc(c.eg)}</div>` : ''}
     ${c.play ? `<button class="hear" data-play="${esc(c.play)}"><span>▶</span> ${esc(chordsLine(c.play))}</button>` : ''}
     ${c.ex ? `<div class="cex"${c.grip ? ` data-grip="${c.grip}"` : ''}><div class="cexh">In context</div>${c.ex.map(([cap, play, label]) => `<button class="hear ex" data-play="${esc(play)}"><span>▶</span><div><small>${acc(cap)}</small>${label || !play.startsWith('=') ? `<b>${esc(label || chordsLine(play))}</b>` : ''}</div></button>`).join('')}</div>` : ''}`;
@@ -338,15 +402,16 @@ export function mountCards(root, S, save) {
   const NOT_TESTED = new Set(['comping', 'fluency']);
   let tq = [], tcard = null, shown = false, tcount = 0;
   const TPOOL = ALL.filter((c) => !NOT_TESTED.has(DECKS.find((d) => d.name === c.deck)?.id)); // every deck but the exercises
-  const tpool = () => TPOOL;
+  let tdeck = null; // null: every deck; or one deck’s id, from its Test button in Contents
+  const tpool = () => (tdeck ? ALL.filter((c) => c.deck === DECKS.find((d) => d.id === tdeck).name) : TPOOL);
   const testDraw = () => {
     if (!tq.length) tq = shuffled(tpool().length);
     tcard = tpool()[tq.pop()]; shown = false; tcount++;
   };
   const testShow = (from = 0) => {
-    stopComp(); stopEx(true);
+    stopComp(); stopEx(true); stopDn(true);
     mode = 'test';
-    root.querySelector('#home span').textContent = `Test · ${TPOOL.length} cards`;
+    root.querySelector('#home span').textContent = `Test · ${tdeck ? deckName(tdeck) : `${TPOOL.length} cards`}`;
     root.querySelector('#test').classList.add('on');
     stage.innerHTML = `<article class="card test${shown ? ' shown' : ''}${from ? ' from-r' : ''}">${cardHTML(tcard, cs)}${shown ? '' : '<div class="tq">What’s on this card? Say it, or play it, then reveal.</div>'}</article>`;
     card = stage.firstElementChild;
@@ -362,7 +427,7 @@ export function mountCards(root, S, save) {
     setTimeout(() => { testDraw(); testShow(1); busy = false; }, 170);
   };
   const home = () => {
-    stopComp(); stopEx(true);
+    stopComp(); stopEx(true); stopDn(true);
     root.querySelector('#test')?.classList.remove('on');
     mode = 'home'; card = null;
     root.querySelector('#home span').textContent = 'Contents';
@@ -371,7 +436,7 @@ export function mountCards(root, S, save) {
       <button class="hcont" data-cont><small>Carry on · ${esc(deckName(st.deck))} · ${Math.min(pos() + 1, n)} / ${n}</small><b>${c ? acc(c.t) : 'Back to the start'}</b><span>▶</span></button>
       <button class="hall" data-all>All decks in a row <span>${ALL.length} cards</span></button>
       ${DECKS.map((d) => `<section class="hsec${openDeck === d.id ? ' open' : ''}">
-        <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-start="${d.id}">Start</button></div>
+        <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-tdeck="${d.id}">Test</button><button class="hstart" data-start="${d.id}">Start</button></div>
         ${openDeck === d.id ? `<div class="hcards">${d.cards.map((x, i) => `<button data-jump="${d.id}:${i}"><span>${i + 1}</span>${acc(x.t)}</button>`).join('')}</div>` : ''}
       </section>`).join('')}
       <div class="hver">Version ${esc(BUILD)}</div>
@@ -384,7 +449,7 @@ export function mountCards(root, S, save) {
     root.querySelector('#test').classList.remove('on');
     root.querySelector('#home span').textContent = deckName(st.deck);
     const n = list().length, p = pos();
-    stopComp(); stopEx(true);
+    stopComp(); stopEx(true); stopDn(true);
     const cur = current();
     if (cur?.comp && cs.card !== cur) { cs.card = cur; cs.bpm = cur.comp.bpm; } // each comping card starts at its own tempo
     if (cur?.drill && cs.card !== cur) { cs.card = cur; cs.drill = { bpm: cur.drill.bpm, sub: cur.drill.sub || 1 }; }
@@ -413,7 +478,8 @@ export function mountCards(root, S, save) {
   };
 
   root.querySelector('#home').onclick = () => (mode === 'home' ? show() : home());
-  root.querySelector('#test').onclick = () => { if (mode === 'test') { show(); return; } tq = []; tcount = 0; testDraw(); testShow(1); };
+  const startTest = (deck = null) => { tdeck = deck; tq = []; tcount = 0; testDraw(); testShow(1); };
+  root.querySelector('#test').onclick = () => { if (mode === 'test') { show(); return; } startTest(); };
   root.querySelector('#shuf').onclick = (e) => {
     st.shuffle = !st.shuffle;
     if (st.shuffle) st.order[st.deck] = shuffled(list().length);
@@ -457,6 +523,8 @@ export function mountCards(root, S, save) {
   stage.onpointerup = end;
   stage.onpointercancel = (e) => { if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; } x0 = null; drag = false; };
   stage.onclick = (e) => {
+    const dk = e.target.closest('[data-dnk], .dnk [data-dn]');
+    if (dk) { e.stopPropagation(); const cardObj = mode === 'test' ? tcard : current(); openDn(dk.dataset.dnk ? dk : dn.btn, cardObj, cs.drill); return; }
     const xc = e.target.closest('.exneck [data-ex], .exneck [data-exi]'); if (xc) { e.stopPropagation(); exControl(xc); return; }
     if (e.target.closest('.exneck')) { e.stopPropagation(); return; }
     const h = e.target.closest('.hear'); if (h) { e.stopPropagation(); openEx(h); return; }
@@ -485,6 +553,7 @@ export function mountCards(root, S, save) {
     else if (b.dataset.all != null) { st.deck = 'all'; show(1); }
     else if (b.dataset.open) { const sc = stage.querySelector('.home').scrollTop; openDeck = openDeck === b.dataset.open ? null : b.dataset.open; home(); stage.querySelector('.home').scrollTop = sc; }
     else if (b.dataset.start) jump(b.dataset.start, null);
+    else if (b.dataset.tdeck) startTest(b.dataset.tdeck);
     else if (b.dataset.jump) { const [d, i] = b.dataset.jump.split(':'); jump(d, Number(i)); }
   };
   home();

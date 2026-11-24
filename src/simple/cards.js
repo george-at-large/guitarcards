@@ -2145,84 +2145,214 @@ DECKS.unshift(
 DECKS.splice(DECKS.findIndex((d) => d.id === 'chordmelody'), 0, {
   id: 'comping', name: 'Comping and soloing', cards: [
     { t: 'One chord: Dorian', s: 'level 1 · a Dm7 vamp', comp: { chart: 'D:m7 | % | % | %', bpm: 80 }, b: [
-      '<b>Comp</b>: a Dm7 shell (D, C, F: root, ♭7, ♭3) on beat 1 of each bar. Then move it to beats 2 and 4.',
-      '<b>Solo</b>: D Dorian (the notes of C major from D). Land on F (♭3) or C (♭7) at the start of each bar.',
+      '<b>Comp</b>: a Dm7 shell, x5x56x (D, C, F: root, ♭7, ♭3), on beat 1 of each bar; let it ring. Then short stabs on 2 and 4, like a hi-hat. Then colour it: Dm9, x5355x, puts E on top.',
+      '<b>Solo, step 1</b>: the arpeggio only, D F A C, in quarter notes: one octave, then two. Every note is a chord tone, so nothing can sound wrong.',
+      '<b>Step 2</b>: D Dorian (C major from D) in 8ths, with a chord tone on every beat 1. Hold the B (the natural 6) and hear what makes it Dorian rather than plain minor.',
+      '<b>Step 3</b>: two bars of playing, two of rest. Then repeat your phrase a scale step higher. Space is part of the line.',
+      '<b>Harder</b>: superimpose E minor pentatonic (E G A B D: 9, 11, 5, 6, 1 over D). It sounds modern because it avoids the root and the ♭3.',
     ] },
     { t: 'i – IV: the Dorian vamp', s: 'level 1 · one note moves', comp: { chart: 'D:m7 | G:7 | D:m7 | G:7', bpm: 80 }, b: [
-      '<b>Comp</b>: just two notes. F and C on Dm7, then F and B on G7: only C → B moves. Hold each for the whole bar.',
-      '<b>Solo</b>: D Dorian over both. On G7, aim for B: it’s the note that makes it Dorian.',
+      '<b>Comp</b>: two notes. F and C on Dm7 (D string 3rd fret, G string 5th), then F and B on G7 (D string 3rd, G string 4th): one finger moves one fret. That half step C → B is the whole progression.',
+      '<b>Then</b> full grips: Dm7 x5x565 and G7 3x343x. Play it as funk: short, muted 16th-note chops, the chord landing on the “and” of 2.',
+      '<b>Solo, step 1</b>: B on beat 1 of every G7 bar, F or C on every Dm7 bar. Fill in between with D Dorian.',
+      '<b>Step 2</b>: start from D minor pentatonic (the blues side), then add B and E to make it Dorian. Hear the difference the B makes over G7.',
+      '<b>Harder</b>: a triad pair. An F triad (F A C) over Dm7 and a G triad (G B D) over G7, alternating three notes of each. It’s the same vamp as “Oye Como Va” (Am7 – D7).',
     ] },
     { t: 'ii – V – I', s: 'level 2 · guide tones', comp: { chart: 'D:m7 | G:7 | C:maj7 | %', bpm: 80 }, b: [
-      '<b>Comp</b>: 3rds and 7ths only, on beats 1 and 3: F–C → F–B → E–B. Each change moves one note a half step.',
-      '<b>Solo</b>: arpeggios. D F A C, then G B D F, then C E G B, with a chord tone on beat 1 of every bar.',
+      '<b>Comp</b>: shells, Dm7 x535xx → G7 3x34xx → Cmaj7 x324xx. Watch the top two notes: F–C, F–B, E–B. Each change moves one note a half step.',
+      '<b>Rhythm</b>: half notes first. Then Freddie Green style: all four beats, short and quiet, the chord just touched.',
+      '<b>Solo, step 1</b>: each arpeggio from its root, up and down: D F A C, G B D F, C E G B.',
+      '<b>Step 2</b>: each arpeggio from its 3rd: F A C E over Dm7, B D F A over G7, E G B D over Cmaj7. These are the 3–5–7–9 arpeggios, and they sound richer.',
+      '<b>Step 3</b>: never jump to a root. When the chord changes, move to the nearest chord tone of the new chord and carry on.',
+      '<b>Harder</b>: make bar 2 G7♭9 by playing B°7 (B D F A♭) over it, and resolve A♭ to G on Cmaj7.',
     ] },
     { t: 'ii – V – I with colour', s: 'level 2 · Charleston rhythm', comp: { chart: 'D:m9 | G:13 | C:maj9 | %', bpm: 90 }, b: [
-      '<b>Comp</b>: rootless voicings (F A C E → F A B E → E G B D). Play them on beat 1 and the “and” of 2: the Charleston.',
-      '<b>Solo</b>: C major over all three, but start each bar on the chord’s 3rd: F, B, E.',
+      '<b>Comp</b>: Dm9 x5355x → G13 3x345x → Cmaj9 x3243x. The top note E holds through Dm9 and G13, then falls to D: a melody on top of the changes.',
+      '<b>Rhythm</b>: the Charleston, chord on beat 1 and the “and” of 2. Then anticipate: play each new chord on the “and” of 4, before the bar.',
+      '<b>Solo, step 1</b>: C major over all three, starting each bar on the chord’s 3rd: F, B, E.',
+      '<b>Step 2</b>: aim at the colour notes instead: E (the 9) on Dm9, E (the 13) on G13, D (the 9) on Cmaj9.',
+      '<b>Harder</b>: one minor pentatonic per chord. A minor over Dm9 (5 ♭7 1 9 11), D minor over G13 (5 ♭7 1 9 11), E minor over Cmaj9 (3 5 6 7 9). The same shape moves with the chord.',
     ] },
     { t: 'Minor ii – V – i', s: 'level 3 · the ♭9', comp: { chart: 'B:m7b5 | E:7b9 | A:m6 | %', bpm: 80 }, b: [
-      '<b>Comp</b>: shells, and put the ♭9 (F) on top of E7.',
-      '<b>Solo</b>: A harmonic minor over Bø7 and E7 (on E7 that’s E Phrygian dominant), then A melodic minor (A B C D E F♯ G♯) on Am6. Hear the F → F♯ change.',
+      '<b>Comp</b>: Bø7 x2323x → E7♭9 xx2131 → Am6 x02212. The ♭9 (F) is on top of E7 and falls to E, the 5th of Am.',
+      '<b>Solo, step 1</b>: the three arpeggios: B D F A, E G♯ B D (or G♯ B D F, its °7), A C E F♯.',
+      '<b>Step 2</b>: A harmonic minor over Bø7 and E7 (on E7 it’s E Phrygian dominant), then A melodic minor (A B C D E F♯ G♯) on Am6. Hear F turn into F♯.',
+      '<b>Step 3</b>: practise the resolution on its own: F → E, G♯ → A, D → C. Every minor ii–V–i turns on those three moves.',
+      '<b>Harder</b>: B Locrian ♮2 (D melodic minor) on Bø7, E altered (F melodic minor) on E7. Three different melodic minor scales in four bars.',
     ] },
     { t: 'I – vi – ii – V', s: 'level 3 · two chords a bar', comp: { chart: 'C:maj7 A:m7 | D:m7 G:7 | C:maj7 A:m7 | D:m7 G:7', bpm: 90 }, b: [
-      '<b>Comp</b>: one guide-tone pair per chord, half notes, always the smallest move.',
-      '<b>Solo</b>: C major pentatonic over everything first. Then play the 3rd of each chord as it arrives: E, C, F, B.',
+      '<b>Comp</b>: one area of the neck: Cmaj7 x3545x, Am7 5x555x, Dm7 x5x565, G7 3x343x. Two beats each; then anticipate the second chord of each bar on the “and” of 2.',
+      '<b>Solo, step 1</b>: C major pentatonic over everything. It never clashes, so concentrate on rhythm.',
+      '<b>Step 2</b>: the 3rd of each chord as it arrives: E, C, F, B.',
+      '<b>Step 3</b>: 7th to 3rd. Hold each chord’s 7th and let it fall into the next chord’s 3rd: B → C, G → F, C → B, F → E. That’s a melody written by the changes.',
+      '<b>Harder</b>: the same at 200 bpm. It’s the turnaround of every rhythm-changes tune.',
     ] },
     { t: 'I – VI7 – ii – V', s: 'level 3 · a secondary dominant', comp: { chart: 'C:maj7 A:7b9 | D:m7 G:7 | C:maj7 A:7b9 | D:m7 G:7', bpm: 90 }, b: [
-      '<b>Comp</b>: on A7, make C♯ the top note; it rises to D on Dm7.',
-      '<b>Solo</b>: C major, but over A7 play D harmonic minor (A Phrygian dominant): C becomes C♯, with B♭ as the ♭9.',
+      '<b>Comp</b>: on A7, voice C♯ (its 3rd) on top and let it rise to D on Dm7; its G (the 7th) falls to F. Two voices, two half steps.',
+      '<b>Solo, step 1</b>: C major, changing just one note over A7: C becomes C♯.',
+      '<b>Step 2</b>: over A7 play D harmonic minor (A Phrygian dominant): C♯ and the ♭9, B♭. Resolve B♭ → A and C♯ → D as Dm7 arrives.',
+      '<b>Step 3</b>: an E°7 or C♯°7 arpeggio over A7 gives you the ♭9 sound with no thinking: same notes, rootless.',
+      '<b>Harder</b>: A altered (B♭ melodic minor) over A7, then G altered (A♭ melodic minor) over G7: two altered dominants a bar apart.',
     ] },
     { t: 'Dominant chain', s: 'level 4 · the rhythm-changes bridge', comp: { chart: 'E:7 | A:7 | D:7 | G:7', bpm: 90 }, b: [
-      '<b>Comp</b>: the 3rd and 7th of each chord; both fall a half step at every change, swapping roles (G♯ D → G C♯ → F♯ C → F B).',
-      '<b>Solo</b>: Mixolydian on each chord, and play its 3rd on beat 1: G♯, C♯, F♯, B.',
+      '<b>Comp</b>: the 3rd and 7th of each chord; both fall a half step at every change, swapping roles (G♯ D → G C♯ → F♯ C → F B). As shells: E7 x767xx, A7 545xxx, D7 x545xx, G7 3x34xx.',
+      '<b>Solo, step 1</b>: Mixolydian on each chord, with its 3rd on beat 1: G♯, C♯, F♯, B.',
+      '<b>Step 2</b>: the guide-tone line as half notes, G♯ – G – F♯ – F. Then decorate it with approach notes, keeping the guide tone on the beat.',
+      '<b>Step 3</b>: add the ♭9 on beat 4 of each bar, the note that points to the next chord: F over E7, B♭ over A7, E♭ over D7, A♭ over G7.',
+      '<b>Harder</b>: altered on E7 and A7, Mixolydian on D7 and G7. Tension, then release, inside four bars.',
     ] },
     { t: 'The blues', s: 'level 4 · 12 bars in C', comp: { chart: 'C:7 | F:7 | C:7 | C:7 | F:7 | F:7 | C:7 | A:7 | D:m7 | G:7 | C:7 A:7 | D:m7 G:7', bpm: 100 }, b: [
-      '<b>Comp</b>: 3–7 shells (E–B♭ on C7, A–E♭ on F7) on beats 2 and 4, like a hi-hat.',
-      '<b>Solo</b>: the C blues scale for one chorus. Next chorus, hit E on every C7 and A on every F7.',
+      '<b>Comp</b>: 3–7 shells on beats 2 and 4, like a hi-hat: C7 x3x35x (C B♭ E), F7 1x12xx (F E♭ A). From C7 to F7, E falls to E♭ and B♭ falls to A.',
+      '<b>Solo, step 1</b>: one chorus on the C blues scale. Then one chorus on just three notes. Make the rhythm do the work.',
+      '<b>Step 2</b>: mix the colours. C major pentatonic over C7 (its E), C minor pentatonic over F7 (E♭ is F7’s 7th). That switch is the sound of the blues.',
+      '<b>Step 3</b>: chord tones. Hit E on every C7, A on every F7, C♯ on A7 (bar 8), F on Dm7, B on G7.',
+      '<b>Harder</b>: one riff, re-pitched to fit each chord: E becomes E♭ on F7. B.B. King and Charlie Parker both do this.',
     ] },
     { t: 'The minor blues', s: 'level 5 · ♭VI7 to V7', comp: { chart: 'C:m9 | % | % | % | F:m9 | % | C:m9 | % | Ab:7#11 | G:7alt | C:m9 | G:7alt', bpm: 90 }, b: [
-      '<b>Comp</b>: m9 voicings; in bars 9–10, slide A♭7 down a half step to G7.',
-      '<b>Solo</b>: C minor pentatonic over the i and iv. Then A♭ Lydian dominant (E♭ melodic minor) on A♭7, and G altered (A♭ melodic minor) on G7alt.',
+      '<b>Comp</b>: Cm9 x3133x; Fm9 is the same shape at the 8th fret. In bars 9–10, A♭7♯11 slides down a half step into G7alt: every voice moves a fret.',
+      '<b>Solo, step 1</b>: C minor pentatonic everywhere. Then C Dorian on Cm9 and F Dorian (E♭ major) on Fm9.',
+      '<b>Step 2</b>: bars 9–10. A♭ Lydian dominant (E♭ melodic minor) on A♭7, then G altered (A♭ melodic minor) on G7alt. The scales are a half step apart, like the chords.',
+      '<b>Step 3</b>: resolve into bar 11: A♭ (♭9 of G) → G, B → C, E♭ stays as the ♭3 of Cm.',
+      '<b>Harder</b>: the same four-note motif through the form, moved to fit each chord. Think “Mr. P.C.”.',
     ] },
     { t: 'Three ways home', s: 'level 5 · front, back and side door', comp: { chart: 'D:m7 G:7 | C:maj7 | F:m7 Bb:7 | C:maj7 | D:m7 Db:7#11 | C:maj7', bpm: 90 }, b: [
-      '<b>Comp</b>: keep a common tone on top through each cadence.',
-      '<b>Solo</b>: C major for the ii–V; F Dorian into B♭ Mixolydian for the backdoor; D♭ Lydian dominant (A♭ melodic minor) for the tritone sub.',
+      '<b>Comp</b>: keep a common tone on top through each cadence. E on top of Cmaj7 can be approached from F (G7’s 7th), from F again (B♭7’s 5th) and from F (D♭7’s 3rd): the same top note, three different basses.',
+      '<b>Solo, step 1</b>: C major for the ii–V; F Dorian into B♭ Mixolydian for the backdoor (all E♭ major); D♭ Lydian dominant (A♭ melodic minor) for the tritone sub.',
+      '<b>Step 2</b>: hear the arrivals. Play the same phrase into each Cmaj7: B → C after G7, A♭ → G after B♭7, and C♭ (= B) → C after D♭7.',
+      '<b>Harder</b>: play G altered over the side door. It’s the same notes as D♭ Lydian dominant: one scale, two names.',
     ] },
     { t: 'Borrowed chords', s: 'level 5 · modal interchange', comp: { chart: 'C:maj7 | F:maj7 | F:m6 | C:maj7 | C:maj7 | Ab:maj7 | Bb:7 | C:maj7', bpm: 80 }, b: [
-      '<b>Comp</b>: let the inner voice sing A → A♭ → G through F – Fm6 – C.',
-      '<b>Solo</b>: C Ionian, F Lydian, F melodic minor on Fm6, then A♭ Lydian and B♭ Mixolydian. Lean on the borrowed notes (A♭, E♭, B♭) when they arrive.',
+      '<b>Comp</b>: let one inner voice sing A → A♭ → G through F – Fm6 – C. In bars 6–7, A♭maj7 to B♭7 is the backdoor into C.',
+      '<b>Solo, step 1</b>: C Ionian, F Lydian, F melodic minor on Fm6, C Ionian.',
+      '<b>Step 2</b>: A♭ Lydian (with D) on A♭maj7, B♭ Mixolydian on B♭7. The borrowed notes are A♭, E♭ and B♭: put them on the beat when they arrive.',
+      '<b>Step 3</b>: a single line through the whole form: A (bar 2), A♭ (bar 3), G (bar 4), then E♭ (bar 6), D (bar 7), E (bar 8).',
+      '<b>Harder</b>: keep the same rhythm pattern for all eight bars and change only the notes the chords force you to change.',
     ] },
     { t: 'Secondary dominants', s: 'level 6 · the “All of Me” shape', comp: { chart: 'C:6 | % | E:7 | % | A:7 | % | D:m7 | G:7', bpm: 110 }, b: [
-      '<b>Comp</b>: follow the 3rds as the chords move: E (C6) → G♯ (E7) → C♯ (A7) → F (Dm7) → B (G7).',
-      '<b>Solo</b>: C major, then A harmonic minor over E7, D harmonic minor over A7, D Dorian, G Mixolydian.',
+      '<b>Comp</b>: follow the 3rds as the chords move: E (C6) → G♯ (E7) → C♯ (A7) → F (Dm7) → B (G7). Each new chord changes one note of the key.',
+      '<b>Solo, step 1</b>: C major, then A harmonic minor over E7, D harmonic minor over A7, D Dorian, G Mixolydian.',
+      '<b>Step 2</b>: “change one note” instead. G becomes G♯ on E7; C becomes C♯ on A7. Land the new note on beat 1 and resolve it up a half step.',
+      '<b>Step 3</b>: arpeggios from the 3rd: G♯ B D F over E7 (a °7, so the ♭9 comes free), C♯ E G B♭ over A7.',
+      '<b>Harder</b>: E7 and A7 altered. With two bars each, there’s time to build tension and resolve it.',
     ] },
     { t: 'Rhythm changes', s: 'level 6 · the A section in B♭', comp: { chart: 'Bb:6 G:7 | C:m7 F:7 | Bb:6 G:7 | C:m7 F:7 | Bb:6 Bb:7 | Eb:6 Eb:m6 | Bb:6 F:7 | Bb:6', bpm: 120 }, b: [
-      '<b>Comp</b>: two shells a bar, short and on the beat. Fast, so keep the moves tiny.',
-      '<b>Solo</b>: the B♭ blues scale works over the first four bars. Then outline bars 5–6: B♭7 into E♭, and E♭ melodic minor on E♭m6.',
+      '<b>Comp</b>: two shells a bar, short and on the beat. At this tempo the moves must be tiny: alternate 6th- and 5th-string roots so each chord is a fret or two from the last.',
+      '<b>Solo, step 1</b>: the B♭ blues scale over bars 1–4. It works over the whole turnaround because the chords move so fast.',
+      '<b>Step 2</b>: outline bars 5–6. A♭ on B♭7 (its 7th, pointing to E♭), then G♭ on E♭m6 (its ♭3). Those two notes are bars 5–6.',
+      '<b>Step 3</b>: bebop: the B♭ bebop scale descending from a chord tone on the beat, so chord tones keep landing on the beat.',
+      '<b>Harder</b>: 200 bpm and above, which is where these tunes live (“Oleo”, “Anthropology”).',
     ] },
     { t: 'Autumn Leaves, A section', s: 'level 6 · relative major and minor', comp: { chart: 'A:m7 | D:7 | G:maj7 | C:maj7 | F#:m7b5 | B:7b9 | E:m7 | %', bpm: 100 }, b: [
-      '<b>Comp</b>: drop 2, voice-led in one area of the neck.',
-      '<b>Solo</b>: G major (E natural minor) for bars 1–4. Then E harmonic minor for F♯ø7 – B7 (the D♯), and E Dorian on Em.',
+      '<b>Comp</b>: drop 2, voice-led in one area of the neck. The guide tones fall step by step: C – C – B – B – A – A – G.',
+      '<b>Solo, step 1</b>: G major (E natural minor) for bars 1–4. Then E harmonic minor for F♯ø7 – B7 (the D♯), and E Dorian on Em7.',
+      '<b>Step 2</b>: sing and play that guide-tone line as whole notes, then fill in with scale notes, keeping the guide tone on beat 1.',
+      '<b>Step 3</b>: the same phrase twice: once over Am7 – D7 – G, then a tone lower over F♯ø7 – B7 – Em. The tune is built this way.',
+      '<b>Harder</b>: B altered (C melodic minor) on B7, and E melodic minor on Em7 for a darker landing.',
+    ] },
+    { t: 'Funk on one chord', s: 'level 6 · sixteenths', comp: { chart: 'E:9 | % | % | % | A:9 | % | E:9 | %', bpm: 96 }, b: [
+      '<b>Comp</b>: E9 x7677x; A9 is the same grip at the 12th fret. Keep the strumming hand moving in 16ths all the time and let the chord sound only on a few of them. Mute the rest with the fretting hand.',
+      '<b>Rhythm</b>: start with the chord on the “and” of 1 and on beat 3. Then add 16th-note ghosts in between. Never stop the hand.',
+      '<b>Solo, step 1</b>: E minor pentatonic, short and percussive. Double stops (two notes at once) sound right here.',
+      '<b>Step 2</b>: hit G♯ (the 3rd) on E9 and C♯ on A9. The major 3rd against the minor pentatonic is the funk sound.',
+      '<b>Harder</b>: E Dorian with the 9 and 13 (F♯ and C♯), and 16th-note lines that start off the beat.',
     ] },
     { t: 'The diatonic cycle', s: 'level 7 · “Fly Me to the Moon”', comp: { chart: 'A:m7 | D:m7 | G:7 | C:maj7 | F:maj7 | B:m7b5 | E:7b9 | A:m7', bpm: 110 }, b: [
-      '<b>Comp</b>: the guide-tone line through all eight: C/G → F/C → F/B → E/B → E/A → D/A → D/G♯ → C/G.',
-      '<b>Solo</b>: C major everywhere except E7: there, A harmonic minor, with the G♯ leading back to A.',
+      '<b>Comp</b>: the guide-tone line through all eight: C/G → F/C → F/B → E/B → E/A → D/A → D/G♯ → C/G. Alternate 6th- and 5th-string roots and the cycle walks down the neck.',
+      '<b>Solo, step 1</b>: C major everywhere except E7: there, A harmonic minor, with G♯ leading back to A.',
+      '<b>Step 2</b>: one arpeggio per bar, each from the nearest chord tone. The line should fall gently through the cycle.',
+      '<b>Step 3</b>: a sequence: the same four-note shape down a 5th each bar, adjusted to each chord.',
+      '<b>Harder</b>: E altered on bar 7, or a G♯°7 arpeggio, and resolve into Am7.',
+    ] },
+    { t: 'The jazz blues in F', s: 'level 7 · bebop changes', comp: { chart: 'F:7 | Bb:7 | F:7 | C:m7 F:7 | Bb:7 | B:dim7 | F:7 | D:7alt | G:m7 | C:7 | F:7 D:7 | G:m7 C:7', bpm: 120 }, b: [
+      '<b>Comp</b>: shells, F7 1x12xx, B♭7 x1x13x, B°7 x2313x. Freddie Green style: all four beats, short. Bar 6’s B°7 is the ♯iv°7 climbing back to F.',
+      '<b>Solo, step 1</b>: F blues scale for a chorus, then chord tones only: A on F7, D on B♭7, F♯ on D7, B♭ on Gm7, E on C7.',
+      '<b>Step 2</b>: bebop dominant on F7 and B♭7 (add the major 7 as a passing note), so 8th-note runs put chord tones on the beat.',
+      '<b>Step 3</b>: enclosures. Approach each new 3rd from a half step above and below: B♭ and G♯ around A on F7.',
+      '<b>Harder</b>: D7alt in bar 8 (E♭ melodic minor) into Gm7, and the same altered sound on C7 in bar 10. This is “Billie’s Bounce” and “Now’s the Time” territory.',
+    ] },
+    { t: 'The rhythm-changes bridge', s: 'level 7 · dominants, two bars each', comp: { chart: 'D:7 | % | G:7 | % | C:7 | % | F:7 | %', bpm: 150 }, b: [
+      '<b>Comp</b>: shells D7 x545xx, G7 3x34xx, C7 x3x35x, F7 1x12xx. Or approach each chord from a half step above on beat 4 (E♭7 into D7): the bridge sounds hipper and the hand barely moves.',
+      '<b>Solo, step 1</b>: Mixolydian on each chord, 3rd on beat 1: F♯, B, E, A.',
+      '<b>Step 2</b>: in the second bar of each chord, go altered (D altered is E♭ melodic minor), then resolve into the next chord’s 3rd. Two bars give you time for in, then out, then in.',
+      '<b>Step 3</b>: the guide-tone line, F♯ – F – E – E♭ (one voice), as the backbone of your phrases.',
+      '<b>Harder</b>: add the ii before each dominant (Am7 – D7, Dm7 – G7, Gm7 – C7, Cm7 – F7) and play it at 200.',
+    ] },
+    { t: 'Bossa', s: 'level 7 · the “Ipanema” shape in F', comp: { chart: 'F:maj7 | % | G:7#11 | % | G:m7 | Gb:7#11 | F:maj7 | Gb:7#11', bpm: 120 }, b: [
+      '<b>Comp</b>: Fmaj7 1x221x, G7♯11 3x342x, Gm7 3x333x, G♭7♯11 2x231x. The thumb plays the root on 1 and 3; the fingers play the chord on the syncopations.',
+      '<b>Rhythm</b>: the bossa pattern over two bars: chord on 1, the “and” of 2, then 4 of bar one; the “and” of 1 and 3 of bar two. Keep the bass steady underneath.',
+      '<b>Solo, step 1</b>: F major on Fmaj7; G Lydian dominant (D melodic minor) on G7♯11: B and C♯ are the new notes.',
+      '<b>Step 2</b>: G♭7♯11 (D♭ melodic minor) slides into Fmaj7: its C stays, its B♭ falls to A.',
+      '<b>Harder</b>: play the line softly and behind the beat, as Getz and Jobim did. Let the guitar carry the pulse.',
     ] },
     { t: 'The Bird blues', s: 'level 8 · falling ii–Vs', comp: { chart: 'C:maj7 | B:m7b5 E:7 | A:m7 D:7 | G:m7 C:7 | F:7 | F:m7 Bb:7 | E:m7 A:7 | Eb:m7 Ab:7 | D:m7 | G:7 | C:maj7 A:7 | D:m7 G:7', bpm: 100 }, b: [
-      '<b>Comp</b>: shells, two a bar; each ii–V is a half step or a whole step lower than the last.',
-      '<b>Solo</b>: treat every ii–V as its own key. Guide tones first: the 3rd of each chord on its first beat.',
+      '<b>Comp</b>: shells, two a bar; each ii–V is a half step or a whole step lower than the last, so the hand slides down the neck with the same pair of shapes.',
+      '<b>Solo, step 1</b>: the 3rd of each chord on its first beat. Just that, as half notes, for a whole chorus.',
+      '<b>Step 2</b>: treat every ii–V as its own key: B Locrian into E Phrygian dominant, then A Dorian into D Mixolydian, and so on.',
+      '<b>Step 3</b>: one bebop phrase shape for every ii–V, transposed down the form.',
+      '<b>Harder</b>: tritone-sub the V in your line (play over E7 as if it were B♭7). The bass stays, your line slides.',
     ] },
-    { t: 'Major-3rd cycle', s: 'level 9 · Coltrane changes', comp: { chart: 'B:maj7 D:7 | G:maj7 Bb:7 | Eb:maj7 | % | A:m7 D:7 | G:maj7 Bb:7 | Eb:maj7 | %', bpm: 70 }, b: [
-      '<b>Comp</b>: find the three tonics (B, G, E♭) first, then add each V7.',
-      '<b>Solo</b>: 1 – 2 – 3 – 5 in each key (B C♯ D♯ F♯, G A B D, E♭ F G B♭), switching exactly on the chord. Slow is fine.',
+    { t: 'The chain of minor ii–Vs', s: 'level 8 · every target turns', comp: { chart: 'E:m7b5 | A:7b9 | D:m7b5 | G:7b9 | C:m7b5 | F:7b9 | Bb:m6 | %', bpm: 100 }, b: [
+      '<b>Comp</b>: ø7 and 7♭9 shells, a whole step lower each time. Eø7 – A7 promises D minor; Dø7 – G7 promises C minor; only B♭m6 arrives.',
+      '<b>Solo, step 1</b>: harmonic minor of each target over each pair: D harmonic minor, C harmonic minor, B♭ harmonic minor.',
+      '<b>Step 2</b>: the ♭9 of each dominant on beat 4, falling into the next chord: B♭ → A♭ (the ♭5 of Dø7), A♭ → G♭ (the ♭5 of Cø7), G♭ → F (the 5th of B♭m6).',
+      '<b>Step 3</b>: one phrase shape for a ii–V, moved down a tone twice. Sequences make long forms easy to hear.',
+      '<b>Harder</b>: Locrian ♮2 on the ø7s and altered on the dominants: six different melodic minor scales in six bars.',
+    ] },
+    { t: '“Stella”, bars 1–8', s: 'level 9 · ii–Vs that don’t resolve', comp: { chart: 'E:m7b5 | A:7b9 | C:m7 | F:7 | F:m7 | Bb:7 | Eb:maj7 | Ab:7#11', bpm: 110 }, b: [
+      '<b>Comp</b>: Eø7 – A7 points at D minor but goes to Cm7; Cm7 – F7 points at B♭ but goes to Fm7; only Fm7 – B♭7 – E♭maj7 resolves. Voice-lead every chord to the nearest grip.',
+      '<b>Solo, step 1</b>: the 3rd of each chord on beat 1: G, C♯, E♭, A, A♭, D, G, C.',
+      '<b>Step 2</b>: E Locrian ♮2 (G melodic minor), A altered, C Dorian, F Mixolydian, F Dorian, B♭ Mixolydian, E♭ major, A♭ Lydian dominant.',
+      '<b>Step 3</b>: find the note each chord hands to the next: B♭ (Eø7 → A7♭9 → Cm7), E♭ (Cm7 → F7 → Fm7), A♭ (Fm7 → B♭7). Phrases built on them glue the line together.',
+      '<b>Harder</b>: the whole tune is like this. Learn these eight bars in all twelve keys and the rest gets easier.',
+    ] },
+    { t: 'Altered ii–Vs', s: 'level 9 · melodic minor a half step up', comp: { chart: 'D:m7 | G:7alt | C:maj7 | % | C:m7 | F:7alt | Bb:maj7 | %', bpm: 110 }, b: [
+      '<b>Comp</b>: G7alt 3x3444 (G F B E♭ A♭) and F7alt 1x1222 (F E♭ A D♭ G♭): root, ♭7, 3rd, then two altered notes on top. Resolve the top voices down by half steps.',
+      '<b>Solo, step 1</b>: on G7alt, A♭ melodic minor; on F7alt, G♭ melodic minor. Start on the ♭9 or ♯9 and resolve to the 5th or 3rd of the next chord.',
+      '<b>Step 2</b>: triads from the altered scale. Over G7alt, an E♭ triad (E♭ G B♭: ♭13, 1, ♯9) and a D♭ triad (D♭ F A♭: ♭5, ♭7, ♭9); they share no notes, so alternate them in groups of three.',
+      '<b>Step 3</b>: practise the landing. Every altered note is a half step from a chord tone of I: A♭ → G, D♭ → C, E♭ → E or D.',
+      '<b>Harder</b>: keep going down in tones (A♭, G♭, E…) through all six keys of that cycle.',
+    ] },
+    { t: 'Major-3rd cycle', s: 'level 9 · Coltrane’s three tonics', comp: { chart: 'B:maj7 D:7 | G:maj7 Bb:7 | Eb:maj7 | % | A:m7 D:7 | G:maj7 Bb:7 | Eb:maj7 | %', bpm: 70 }, b: [
+      '<b>Comp</b>: find the three tonics first (B, G, E♭, a major 3rd apart), then add each V7 just before its tonic.',
+      '<b>Solo, step 1</b>: 1 – 2 – 3 – 5 in each key (B C♯ D♯ F♯, G A B D, E♭ F G B♭), switching exactly on the chord.',
+      '<b>Step 2</b>: guide tones only. The 3rds alone, D♯ – F♯ – B – D – G, show how close the keys really are.',
+      '<b>Step 3</b>: find common tones: D (5th of G, 3rd of B♭7) carries across; so does B♭ into E♭.',
+      '<b>Harder</b>: 8th notes at 120, then the full “Giant Steps” form.',
     ] },
     { t: 'Modal', s: 'level 9 · “So What” form, half size', comp: { chart: 'D:m11 | % | % | % | Eb:m11 | % | % | %', bpm: 120 }, b: [
-      '<b>Comp</b>: So What voicings (stacks of 4ths) moving up and down D Dorian, then the same a half step up.',
-      '<b>Solo</b>: D Dorian, then E♭ Dorian. Make the jump on bar 5 obvious: play E♭ Dorian’s B♭ and E♭ right away.',
+      '<b>Comp</b>: So What voicings (three 4ths and a major 3rd) moving up and down D Dorian, then the same a half step up. Short stabs with lots of space.',
+      '<b>Solo, step 1</b>: D Dorian, then E♭ Dorian. Make the jump on bar 5 obvious: play E♭ Dorian’s B♭ and E♭ right away.',
+      '<b>Step 2</b>: quartal lines: stacks of 4ths (D G C, E A D) from the mode, moved up and down it.',
+      '<b>Step 3</b>: pentatonics inside the mode: D minor, E minor and A minor pentatonic all live in D Dorian. Switch between them.',
+      '<b>Harder</b>: play E♭ Dorian over the D bars for a beat or two and come back. That’s the next card, done deliberately.',
     ] },
     { t: 'Ballad: rich colours', s: 'level 10 · tensions on top', comp: { chart: 'C:maj9 | A:7b9 | D:m9 | G:13b9 | E:m7 | A:7alt | D:m9 | Db:7#11', bpm: 60 }, b: [
-      '<b>Comp</b>: rootless voicings with the colour tone on top: the 9 on Cmaj9, the ♭9 on A7, the 9 on Dm9, the 13 on G13♭9, the ♯11 on D♭7.',
-      '<b>Solo</b>: aim for the same tensions. Half-whole on G13♭9, altered on A7alt, Lydian dominant on D♭7♯11. Leave lots of space.',
+      '<b>Comp</b>: rootless voicings with the colour tone on top: the 9 on Cmaj9, the ♭9 on A7, the 9 on Dm9, the 13 on G13♭9, the ♯11 on D♭7. Make the top notes a melody.',
+      '<b>Solo, step 1</b>: aim for the same tensions the comping puts on top. Half-whole on G13♭9, altered on A7alt, Lydian dominant on D♭7♯11.',
+      '<b>Step 2</b>: double-time. The ballad is slow, so 16th-note runs fit, but always land on a long note at the end of a phrase.',
+      '<b>Step 3</b>: leave space. A ballad solo is mostly long notes and silence.',
+      '<b>Harder</b>: play it solo, comping yourself: bass note on beat 1, the chord, then a melody note on top.',
+    ] },
+    { t: 'Upper-structure comping', s: 'level 10 · triads over shells', comp: { chart: 'D:m9 | G:13 | D:m9 | G:7alt | C:maj9 | A:7alt | D:m9 G:13 | C:maj9', bpm: 90 }, b: [
+      '<b>Comp</b>: a 3–7 shell low, a triad on top. Over G7: an E triad gives 13♭9 (3x3454), an E♭ triad gives ♯9♭13 (3x3446), an A triad gives 9♯11 13.',
+      '<b>Rhythm</b>: sparse. One chord every bar or two, anticipated on the “and” of 4.',
+      '<b>Solo, step 1</b>: play the comping triads as arpeggios. Over G7alt, E♭ and D♭ triads; over A7alt, F and E♭ triads (♭13 1 ♯9 and ♭5 ♭7 ♭9).',
+      '<b>Step 2</b>: triad pairs: two triads from the same scale, alternated in groups of three.',
+      '<b>Harder</b>: the same idea across all twelve keys. The triads move with the root, so it’s one idea learned twelve times.',
+    ] },
+    { t: 'Outside and back in', s: 'level 11 · side-slipping on purpose', comp: { chart: 'D:m7 | % | % | % | % | % | % | %', bpm: 120 }, b: [
+      '<b>Comp</b>: Dm11 voicings; now and then slip the voicing up a half step (E♭m11) for a beat and back. The band has to hear you return.',
+      '<b>Solo, step 1</b>: play a phrase in D Dorian, then the same phrase a half step up (E♭ Dorian), then the same phrase back in D. In, out, in.',
+      '<b>Step 2</b>: go out only on weak beats or for half a bar, and always land in on a strong beat with a chord tone (F or A).',
+      '<b>Step 3</b>: pentatonic side-slips: D minor pentatonic, then E♭ minor pentatonic, then back. The shape stays the same, so the hand knows where it is.',
+      '<b>Harder</b>: move out by other intervals (a tritone: A♭ Dorian) and by sequence: a motif moved up in half steps until it comes back in.',
+    ] },
+    { t: 'Coltrane changes', s: 'level 12 · ii–V–I through three keys', comp: { chart: 'D:m7 Eb:7 | Ab:maj7 B:7 | E:maj7 G:7 | C:maj7 | D:m7 Eb:7 | Ab:maj7 B:7 | E:maj7 G:7 | C:maj7', bpm: 70 }, b: [
+      '<b>Comp</b>: shells, and memorise the roots first: D E♭ A♭ B E G C. After the first half step (D – E♭), the roots alternate up a 4th and up a minor 3rd.',
+      '<b>Solo, step 1</b>: 1 – 2 – 3 – 5 cells on every chord: E♭ F G B♭ on E♭7, A♭ B♭ C E♭ on A♭maj7, and so on.',
+      '<b>Step 2</b>: guide tones through the whole thing: C (Dm7) → D♭ (E♭7) → C (A♭maj7) → D♯ (B7) → G♯ (Emaj7) → F (G7) → E (Cmaj7).',
+      '<b>Step 3</b>: one octave of each key’s major scale, joined at the nearest note. Slowly; speed comes from knowing where every key starts.',
+      '<b>Harder</b>: this is what Coltrane laid over “Tune Up” to make “Countdown”. Take it to 120, then into the full form.',
     ] },
   ],
 });
@@ -2299,7 +2429,7 @@ DECKS.push(
         '- It’s four rootless 7♭9 chords at once: E♭7♭9, G♭7♭9, A7♭9 and C7♭9 (a root a major 3rd below any note)',
       ] },
       { t: 'Augmented arpeggio', s: 'major 3rds, every 4 frets', drill: { bpm: 60, sub: 3, goal: 'triplets at 140', from: 'triplets at 70', drone: 'C' }, b: [
-        'C+ (C E G♯) up three octaves. Symmetrical again: the shape repeats every 4 frets.',
+        'C+ (C E G♯) up two octaves, then three once it’s clean. Symmetrical again: the shape repeats every 4 frets.',
         '- Then two augmented triads a whole step apart (C+ and D+): the whole-tone scale',
       ] },
       { t: 'Arpeggio from any chord tone', s: 'start and end anywhere', drill: { bpm: 60, sub: 2, goal: '8ths at 160', from: '8ths at 80', drone: 'C' }, b: [
@@ -4278,4 +4408,752 @@ for (const [deck, title, add] of SPRUCE2) {
   if (!c) { console.warn('no card', deck, title); continue; }
   if (add.b) c.b = [...(c.b || []), ...add.b];
   if (add.ex) { const own = c.play ? [['The example', c.play]] : []; c.ex = [...(c.ex || []), ...own, ...add.ex]; delete c.play; }
+}
+
+// ---------- the key cards play their key: the three progressions you'd use to learn a key ----------
+for (const id of ['majkeys', 'minkeys']) {
+  for (const c of DECKS.find((d) => d.id === id).cards) {
+    if (!c.key) continue;
+    const n = c.key.notes, k = `${P(n[0])}${c.key.minor ? ' minor' : ''}`;
+    c.ex = c.key.minor
+      ? [[`i – iv – V7 – i in ${k}`, `${n[0]}:min ${n[3]}:min ${n[4]}:7 ${n[0]}:min`],
+        [`The minor ii–V–i: iiø7 – V7♭9 – i6`, `${n[1]}:m7b5 ${n[4]}:7b9 ${n[0]}:m6`],
+        [`i – ♭VI – ♭III – ♭VII: the minor anthem`, `${n[0]}:min ${n[5]}:maj ${n[2]}:maj ${n[6]}:maj ${n[0]}:min`]]
+      : [[`I – IV – V – I in ${k}`, `${n[0]}:maj ${n[3]}:maj ${n[4]}:maj ${n[0]}:maj`],
+        [`I – vi – IV – V`, `${n[0]}:maj ${n[5]}:min ${n[3]}:maj ${n[4]}:maj ${n[0]}:maj`],
+        [`ii – V – I with 7ths`, `${n[1]}:m7 ${n[4]}:7 ${n[0]}:maj7`]];
+  }
+}
+
+// ---------- learning the keys: how to remember them, and how to play in one without knowing the names ----------
+DECKS.splice(DECKS.findIndex((d) => d.id === 'majkeys'), 0, {
+  id: 'learnkeys', name: 'Learning the keys', cards: [
+    { t: 'You don’t learn 12 lists', s: 'two orders and two rules', b: [
+      'Nobody memorises twelve sets of seven notes. Players remember two short orders and two rules, and work the rest out in a second or two:',
+      '- the order of sharps, and the order of flats',
+      '- how many each key has',
+      '- which letters they land on',
+      'With those, “what’s in E♭?” becomes a three-step answer instead of a memory test. The next cards give each piece; the Test button turns them into a two-minute daily drill on your phone.',
+    ] },
+    { t: 'The order of sharps', s: 'F C G D A E B', b: [
+      'Sharps are always added in this order: <b>F C G D A E B</b>. Say it like a word, or use “Father Charles Goes Down And Ends Battle”.',
+      'Each one is a 5th above the last: F → C → G → D… the circle of 5ths.',
+      '- A key with 1 sharp has F♯; 2 sharps, F♯ C♯; 3 sharps, F♯ C♯ G♯; and so on',
+      '- The sharps never come in any other combination: a key can’t have C♯ without F♯',
+    ] },
+    { t: 'The order of flats', s: 'B E A D G C F', b: [
+      'Flats are the sharps backwards: <b>B E A D G C F</b>. “BEAD” then G C F: “Battle Ends And Down Goes Charles’ Father”.',
+      'Each one is a 4th above the last: B → E → A → D…',
+      '- 1 flat: B♭. 2 flats: B♭ E♭. 3 flats: B♭ E♭ A♭',
+      '- Learn one order and you have both',
+    ] },
+    { t: 'How many sharps or flats', s: 'count round the circle', b: [
+      'Sharp keys, going up in 5ths from C: <b>C 0, G 1, D 2, A 3, E 4, B 5, F♯ 6, C♯ 7</b>.',
+      'Flat keys, going up in 4ths from C: <b>F 1, B♭ 2, E♭ 3, A♭ 4, D♭ 5, G♭ 6, C♭ 7</b>.',
+      '- On guitar, the sharp list is the open strings’ keys in order: G, D, A, E, B',
+      '- Each step round the circle changes just one note, which is why neighbouring keys sound related',
+    ], ex: [['Round the circle in 5ths: C – G – D – A – E', 'C:maj G:maj D:maj A:maj E:maj']] },
+    { t: 'The add-to-7 trick', s: 'one list gives you the other', b: [
+      'A sharp key and the flat key on the same letter always add up to 7:',
+      '- G has 1 sharp, so G♭ has 6 flats. D has 2, so D♭ has 5',
+      '- A has 3, so A♭ has 4. E has 4, so E♭ has 3. B has 5, so B♭ has 2',
+      '- C has 0, so C♭ has 7. And F♯ (6 sharps) pairs with F (1 flat)',
+      'So learn the sharp counts (G 1, D 2, A 3, E 4, B 5) and the flats come free.',
+    ] },
+    { t: 'Name the key from the signature', s: 'two quick rules', b: [
+      '<b>Sharps</b>: the last sharp is the 7th of the key. Go up a half step and you have the key. Last sharp G♯ → A major.',
+      '<b>Flats</b>: the second-to-last flat is the key. Flats B♭ E♭ A♭ → E♭ major. (One flat is F major: learn that one.)',
+      '<b>Minor</b>: the relative minor is a minor 3rd below the major key: 3 frets down. Two sharps = D major or B minor.',
+      'The music decides which: a tune in B minor will lean on B and use A♯ (V7 is F♯7).',
+    ] },
+    { t: 'Spell any key in three steps', s: 'letters, then sharps or flats', b: [
+      '1. Write the seven letters from the key name: A B C D E F G.',
+      '2. Count the sharps or flats: A has 3.',
+      '3. Apply them in order: F♯ C♯ G♯. So A major is <b>A B C♯ D E F♯ G♯</b>.',
+      'Every letter is used once, so it’s never “A♭ and G♯” in the same key. B♭ major: B♭ C D E♭ F G A (2 flats: B♭ E♭).',
+      '- Daily drill: pick one key, spell it out loud, then play its scale saying the names',
+    ], ex: [['A major, then B♭ major', 'A:maj D:maj E:7 A:maj Bb:maj Eb:maj F:7 Bb:maj']] },
+    { t: 'Play in any key without the names', s: 'the shape does it', b: [
+      'On guitar you can play in a key before you can spell it, because every major scale is the same shape moved.',
+      '- Find the root on the 6th string. G is fret 3, A fret 5, C fret 8',
+      '- Play the major scale pattern from there (the Scales page shows it on the neck). The shape doesn’t change; only the starting fret does',
+      'Learn the shape with its degree numbers (1 2 3 4 5 6 7) rather than letters. Numbers work in every key; letters work in one.',
+      'Then learn the letters one key at a time, starting with the keys you actually play in.',
+    ] },
+    { t: 'The chord box', s: 'all six chords on two strings', b: [
+      'Put the I chord’s root on the 6th string, fret n. Then, without naming a note:',
+      '- <b>ii</b> is the 6th string, fret n+2 (minor); <b>iii</b> is fret n+4 (minor)',
+      '- <b>IV</b> is the 5th string, fret n (major); <b>V</b> is fret n+2 (major); <b>vi</b> is fret n+4 (minor)',
+      'In G (n = 3): G, Am at 5, Bm at 7, C at the 5th string 3rd fret, D at 5, Em at 7. The same box works in every key; slide it to the new root.',
+      '- The relative minor is the 6th string, 3 frets below the root (Em under G, F♯m under A)',
+    ], ex: [['In G: I – vi – ii – V – I, all from the box', 'G:maj E:min A:min D:maj G:maj'], ['The same box moved to A', 'A:maj F#:min B:min E:maj A:maj']] },
+    { t: 'Learn the keys you play first', s: 'a two-minute daily routine', b: [
+      '<b>Week 1</b>: the guitar keys, E A D G C, and their relative minors.',
+      '<b>Week 2</b>: F, B♭ and E♭, the horn keys of jazz standards.',
+      '<b>Then</b> the rest, one a day.',
+      'Each day, on your phone: tap Test on the Major keys deck. For each key, say the signature, spell the notes, then reveal and check. Then play its I – IV – V – I with the chord box over a drone.',
+      'Spaced and spoken works better than staring at a chart: two minutes daily beats twenty once a week.',
+    ] },
+  ],
+});
+
+// ---------- fluency drills: the pattern on the neck, and more sequences like 1-3-2-4-3-5 ----------
+{
+  const fl = DECKS.find((d) => d.id === 'fluency');
+  const seqCard = (t, s, seq, body, bpm, sub, goal) => ({ t, s, drill: { bpm, sub, goal, from: `${sub === 3 ? 'triplets' : sub === 4 ? '16ths' : '8ths'} at ${bpm}`, drone: 'G' }, neck: { kind: 'scale', id: 'ionian', key: 'G', fam: 'nps3', near: 3, seq }, b: body });
+  const extra = [
+    seqCard('Groups of 3', '1-2-3, 2-3-4, 3-4-5', 'g3', [
+      'G major, three notes a string from G at the 3rd fret: play three notes up from each note in turn, then the same coming down (G A B, A B C, B C D…).',
+      '- In 8th notes the groups of three cross the beat: the accent moves. Then play them in triplets, where they line up',
+      '- Alternate picking throughout; the pattern turns the pick direction over every group',
+    ], 70, 3, 'triplets at 140'),
+    seqCard('Groups of 4', '1-2-3-4, 2-3-4-5', 'g4', [
+      'Four up from each note in turn: G A B C, A B C D, B C D E… then four down from the top.',
+      '- In 16ths each group fills a beat, so every beat starts on a new scale note: say it as you play',
+      '- The most common sequence in rock and fusion runs',
+    ], 60, 4, '16ths at 120'),
+    seqCard('Broken 3rds', '1-3, 4-2, 3-5, 6-4', 'broken3', [
+      'Like 3rds, but every other pair turns round: up a 3rd, then down a 3rd from the next note (G B, C A, B D, E C…).',
+      '- It forces the hand to change direction every two notes, so picking has to be exact',
+      '- A violinist’s and cellist’s staple, and it sounds more melodic than straight 3rds',
+    ], 70, 2, '8ths at 180'),
+    seqCard('4ths', '1-4, 2-5, 3-6', 'fourths', [
+      'Each note and the note a 4th above it: G C, A D, B E, C F♯, D G… then back down.',
+      '- Many of these pairs fall on neighbouring strings at the same fret: roll one finger across instead of lifting it',
+      '- The sound of modern, quartal lines',
+    ], 70, 2, '8ths at 160'),
+    seqCard('6ths', '1-6, 2-7, 3-8', 'sixths', [
+      'Each note and the note a 6th above: G E, A F♯, B G, C A… A wide, singing interval.',
+      '- Play the pairs on strings two apart (6th and 4th, 5th and 3rd), skipping the string between',
+      '- 6ths in pairs are a soul and country lick: Steve Cropper’s sound',
+    ], 60, 2, '8ths at 140'),
+    seqCard('The sawtooth', '1-3-4-2, 3-5-6-4', 'saw', [
+      'Up a 3rd, up a step, back down a 3rd, then start from the next 3rd: G B C A, B D E C… A zig-zag that climbs.',
+      '- It mixes 3rds and steps, so it sounds like a melody rather than an exercise',
+      '- Then reverse it coming down',
+    ], 60, 4, '16ths at 110'),
+    seqCard('1-3-2', 'up a 3rd, back a step', 'up3down', [
+      'A three-note cell: G B A, A C B, B D C… up the scale and back.',
+      '- In triplets it sits on the beat; in 8ths it crosses the bar, which is the point',
+      '- A bebop favourite for getting into a target from above',
+    ], 70, 3, 'triplets at 150'),
+    seqCard('Triads through the key', '1-3-5, 2-4-6, 3-5-7', 'triads', [
+      'The diatonic triads, one after another: G B D, A C E, B D F♯, C E G… Each is a chord of G major.',
+      '- Name each triad as you play it: G, Am, Bm, C, D, Em, F♯°',
+      '- Then 7ths (1-3-5-7, 2-4-6-8), which are the arpeggios you’ll use over the chords',
+    ], 60, 3, 'triplets at 140'),
+  ];
+  // keep the existing order, put the new sequences after “Scale in 3rds”
+  const at = fl.cards.findIndex((c) => c.t === 'Scale in 3rds');
+  fl.cards.splice(at + 1, 0, ...extra);
+  const NECK = {
+    'Chromatic warm-up': { kind: 'chromatic', from: 1 },
+    'Major scale in position': { kind: 'scale', id: 'ionian', key: 'G', fam: 'caged', near: 2, fromRoot: true },
+    'Three notes per string, diagonal': { kind: 'scale', id: 'ionian', key: 'G', fam: 'nps3', near: 3 },
+    'The pentatonic ladder': { kind: 'ladder', id: 'min-pent', key: 'A', from: 4 },
+    'Pentatonic in fours': { kind: 'scale', id: 'min-pent', key: 'A', fam: 'box', near: 5, seq: 'g4' },
+    'Scale in 3rds': { kind: 'scale', id: 'ionian', key: 'C', fam: 'caged', near: 2, seq: 'thirds', fromRoot: true },
+    'Single-string scale': { kind: 'scale', id: 'dorian', key: 'A', fam: 'one', pos: 3 },
+    'maj7 arpeggio, three octaves': { kind: 'arp', ivs: ['1', '3', '5', '7'], key: 'G' },
+    'm7 arpeggio, three octaves': { kind: 'arp', ivs: ['1', 'b3', '5', 'b7'], key: 'F' },
+    'Dominant 7 arpeggio, three octaves': { kind: 'arp', ivs: ['1', '3', '5', 'b7'], key: 'G' },
+    'ø7 arpeggio: the ♭5': { kind: 'arp', ivs: ['1', 'b3', 'b5', 'b7'], key: 'A', count: 9 },
+    '°7 arpeggio': { kind: 'arp', ivs: ['1', 'b3', 'b5', 'bb7'], key: 'G' },
+    'Augmented arpeggio': { kind: 'arp', ivs: ['1', '3', '#5'], key: 'C', count: 7 },
+    'Arpeggio from any chord tone': { kind: 'arpstarts', id: 'ionian', key: 'C', near: 2, ct: ['1', '3', '5', '7'] },
+    'Diatonic 7ths, alternating': { kind: 'scale', id: 'ionian', key: 'C', fam: 'pair', near: 2, seq: 'sevalt', back: false, fromRoot: true },
+    'Triads up one string set': { kind: 'triads', key: 'C', set: [3, 2, 1] },
+    'Digital patterns through the key': { kind: 'scale', id: 'ionian', key: 'C', fam: 'caged', near: 2, seq: 'digital', fromRoot: true },
+    'Enclosures': { kind: 'enclose', id: 'ionian', key: 'C', near: 2, ct: ['1', '3', '5', '7'] },
+    'Bebop scale down': { kind: 'scale', id: 'bebop-dom', key: 'G', fam: 'pair', near: 2, from: 'top', ct: ['1', '3', '5', 'b7'] },
+    'One position, 12 keys': { kind: 'keys', lo: 4, hi: 8, keys: ['C', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'F#', 'B', 'E', 'A', 'D', 'G'] },
+  };
+  for (const c of fl.cards) if (NECK[c.t]) c.neck = NECK[c.t];
+  const missing = fl.cards.filter((c) => c.drill && !c.neck).map((c) => c.t);
+  if (missing.length) console.warn('drill without a neck', missing);
+}
+
+// ---------- more examples: every card gets at least three, each checked to play on the neck ----------
+const MOREEX = [
+['symbols', 'How a symbol is built', { ex: [
+    ['Cm7♭5 – F7♯9 – B♭m7: a minor ii–V–i, read one symbol at a time', 'C:m7b5 F:7#9 Bb:m7'],
+    ['The worked example in a line: Bø7/F – E7 – Am, the bass falling F to E', 'B:m7b5/b5 E:7 A:min'],
+    ['Dm7 – G7♯9 – Cmaj7: one alteration, everything else as written', 'D:m7 G:7#9 C:maj7'],
+  ] }],
+  ['symbols', 'The triad', { ex: [
+    ['C – C+ – F: the augmented 5th rises G → G♯ → A', 'C:maj C:aug F:maj'],
+    ['C – C♯° – Dm – G – C: the diminished triad passing between two chords', 'C:maj C#:dim D:min G:maj C:maj'],
+    ['In A minor: Am – Dm – E – Am, both kinds of triad in one key', 'A:min D:min E:maj A:min'],
+  ] }],
+  ['symbols', 'The bare 7 is always ♭7', { ex: [
+    ['Cmaj7 rests, C7 pulls: Cmaj7 – C7 – Fmaj7', 'C:maj7 C:7 F:maj7'],
+    ['In G: Am7 – D7 – Gmaj7, all three kinds of 7th in one ii–V–I', 'A:m7 D:7 G:maj7'],
+    ['A blues: every chord a bare 7, C7 – F7 – C7 – G7 – C7', 'C:7 F:7 C:7 G:7 C:7'],
+  ] }],
+  ['symbols', 'Every way to write it', { ex: [
+    ['CΔ – A–7 – D–7 – G7 in one book, Cmaj7 – Am7 – Dm7 – G7 in another', 'C:maj7 A:m7 D:m7 G:7'],
+    ['Dø7 (Dm7♭5, D–7♭5) – G7 – Cm6 (C–6): one minor ii–V–i, however it’s spelt', 'D:m7b5 G:7 C:m6'],
+    ['C – C+7 (C7♯5, Caug7) – Fmaj7: the raised 5th rising to A', 'C:maj C:7#5 F:maj7'],
+  ] }],
+  ['symbols', 'Extensions bring the 7th', { ex: [
+    ['Plain 7ths, then the same ii–V–I extended: same jobs, richer sound', 'D:m7 G:7 C:maj7 D:m9 G:13 C:maj9'],
+    ['A blues in 9ths: A9 – D9 – A9 – E9 – A9', 'A:9 D:9 A:9 E:9 A:9'],
+  ] }],
+  ['symbols', 'add, 6 and 6/9', { ex: [
+    ['Acoustic pop: G – Cadd9 – Em7 – D', 'G:maj C:add9 E:m7 D:maj'],
+    ['A swing ending: C6 – A7 – Dm7 – G7 – C6/9', 'C:6 A:7 D:m7 G:7 C:6/9'],
+    ['Gypsy jazz in A minor: Am6 – Dm6 – E7 – Am6', 'A:m6 D:m6 E:7 A:m6'],
+  ] }],
+  ['symbols', 'sus', { ex: [
+    ['The folk-rock lift: D – Dsus4 – D – Dsus2 – D', 'D:maj D:sus4 D:maj D:sus2 D:maj'],
+    ['In A: Esus4 – E before home, the 4th (A) falling to G♯', 'A:maj D:maj E:sus4 E:maj A:maj'],
+    ['V7sus4 → V7 → I: G7sus4 – G7 – C, the 4th (C) falling to B before home', 'D:m7 G:7sus4 G:7 C:maj7'],
+  ] }],
+  ['symbols', 'Alterations', { ex: [
+    ['In F: Gm7 – C7♭9 – Fmaj7, D♭ falling to C', 'G:m7 C:7b9 F:maj7'],
+    ['In F minor: Gø7 – C7♭13 – Fm7, A♭ staying as Fm’s 3rd', 'G:m7b5 C:7b13 F:m7'],
+    ['In G: Am7 – D7alt – Gmaj7, the altered V going home', 'A:m7 D:7alt G:maj7'],
+  ] }],
+  ['symbols', 'Omissions', { ex: [
+    ['Power chords: C5 – A♭5 – B♭5 – C5, no 3rds at all', 'C:5 Ab:5 Bb:5 C:5'],
+    ['Blues grips with no 5th: C13 – F13 – C7♯9', '=C3 Bb3 E4 A4 | F2 Eb3 A3 D4 | C3 E3 Bb3 D#4', 'C13 · F13 · C7♯9'],
+    ['No roots at all: 3rds, 7ths and colours, for when the bass has it', '=F3 C4 E4 A4 | F3 B3 E4 A4 | E3 B3 D4 G4', 'Dm9 · G13 · Cmaj9'],
+  ] }],
+  ['symbols', 'Roman numerals', { ex: [
+    ['I – vi – IV – V in G: G – Em – C – D', 'G:maj E:min C:maj D:maj'],
+    ['In C: I – V/V – V – I, then I – ♭VII – IV – I', 'C:maj D:7 G:7 C:maj Bb:maj F:maj C:maj'],
+    ['I – I/3 – IV – V: C – C/E – F – G, the bass climbing', 'C:maj C:maj/3 F:maj G:maj'],
+  ] }],
+  ['symbols', 'Spell any chord', { ex: [
+    ['The worked F♯m7 (F♯ A C♯ E) as vi in A: A – F♯m7 – Bm7 – E7', 'A:maj F#:m7 B:m7 E:7 A:maj'],
+    ['E7♯9 (E G♯ B D F𝄪), the “Hendrix chord”, in a rock riff: E7♯9 – G – A', 'E:7#9 G:maj A:maj E:7#9'],
+    ['A♭13 (A♭ C E♭ G♭ B♭ F) as a tritone sub in G: Am7 – A♭13 – Gmaj7', 'A:m7 Ab:13 G:maj7'],
+  ] }],
+  ['diatonic', 'The major key in 7ths', { ex: [
+    ['In G, down the key a step at a time', 'G:maj7 F#:m7b5 E:m7 D:7 C:maj7 B:m7 A:m7 G:maj7'],
+    ['In F: round the key in 5ths, every chord diatonic', 'F:maj7 Bb:maj7 E:m7b5 A:m7 D:m7 G:m7 C:7 F:maj7'],
+    ['In D: I – vi – ii – V in 7ths', 'D:maj7 B:m7 E:m7 A:7 D:maj7'],
+  ] }],
+  ['diatonic', 'Three families', { ex: [
+    ['In G: I – IV – V – I, then vi for I and ii for IV', 'G:maj C:maj D:maj G:maj E:min A:min D:maj G:maj'],
+    ['In C: I – IV – vii° – I, B° doing V’s job', 'C:maj F:maj B:dim C:maj'],
+    ['Backwards, for rock: V – IV – I in A', 'A:maj E:maj D:maj A:maj'],
+  ] }],
+  ['diatonic', 'ii', { ex: [
+    ['In pop, a plain triad: C – Dm – G – C', 'C:maj D:min G:maj C:maj'],
+    ['In F: ii – ♭II7 – I, Gm7 – G♭7 – Fmaj7', 'G:m7 Gb:7#11 F:maj7'],
+    ['A ii–V–I in C, then one a whole step down in B♭', 'D:m7 G:7 C:maj7 C:m7 F:7 Bb:maj7'],
+  ] }],
+  ['diatonic', 'V', { ex: [
+    ['A question ending on V, then the answer on I', 'C:maj F:maj C:maj G:maj C:maj F:maj G:7 C:maj'],
+    ['In A minor, V is still major: Am – Dm – E7 – Am', 'A:min D:min E:7 A:min'],
+    ['V7alt, the tense one: Dm7 – G7alt – Cmaj7', 'D:m7 G:7alt C:maj7'],
+  ] }],
+  ['diatonic', 'vi', { ex: [
+    ['In C: the deceptive cadence, G7 – Am, then the real one', 'C:maj F:maj G:7 A:min F:maj G:7 C:maj'],
+    ['The 1950s progression: C – Am – F – G', 'C:maj A:min F:maj G:maj'],
+    ['The pop loop in D: D – A – Bm – G', 'D:maj A:maj B:min G:maj'],
+  ] }],
+  ['diatonic', 'Harmonic minor’s 7ths', { ex: [
+    ['In C minor: the augmented ♭III, Cm – E♭maj7♯5 – Fm7 – G7 – Cm', 'C:min Eb:maj7#5 F:m7 G:7 C:min'],
+    ['In A minor: Fmaj7 – E7 – Am(maj7), F falling to E and G♯ rising to A', 'F:maj7 E:7 A:mMaj7'],
+    ['In E minor: F♯ø7 – B7 – Em, then D♯°7 – Em', 'F#:m7b5 B:7 E:min D#:dim7 E:min'],
+  ] }],
+  ['diatonic', 'Melodic minor’s 7ths', { ex: [
+    ['In D minor: the two tonic colours, Dm(maj7) and Dm6, around A7', 'D:mMaj7 A:7 D:m6 A:7 D:mMaj7'],
+    ['F♯ø7 – B7alt – Em7: the altered dominant is C melodic minor from its 7th note', 'F#:m7b5 B:7alt E:m7'],
+  ] }],
+  ['diatonic', 'Minor keys mix all three', { ex: [
+    ['In A minor: natural-minor colours, then the harmonic-minor cadence', 'A:min F:maj G:maj E:7 A:min'],
+    ['In G minor: the “Autumn Leaves” shape, relative major then the minor ii–V–i', 'C:m7 F:7 Bb:maj7 Eb:maj7 A:m7b5 D:7 G:m6'],
+    ['In D minor: the bright IV7 of Dorian, Dm7 – G7 – Dm7 – G7', 'D:m7 G:7 D:m7 G:7'],
+  ] }],
+  ['types', 'Major', { ex: [
+    ['I – IV – V – I in G, all open chords', 'G:maj C:maj D:maj G:maj'],
+    ['In E minor: Em – C – D – Em, major chords on ♭VI and ♭VII', 'E:min C:maj D:maj E:min'],
+    ['A three-chord twelve-bar in A', 'A:maj A:maj A:maj A:maj D:maj D:maj A:maj A:maj E:maj D:maj A:maj E:maj'],
+  ] }],
+  ['types', 'Minor', { ex: [
+    ['In G: ii and vi as softer colours, G – Em – Am – D', 'G:maj E:min A:min D:maj'],
+    ['The minor home: i – iv – v – i in A minor', 'A:min D:min E:min A:min'],
+  ] }],
+  ['types', 'Power chord', { ex: [
+    ['E5 – G5 – A5 – E5: the ♭III borrowed', 'E:5 G:5 A:5 E:5'],
+    ['Down by steps from A: A5 – G5 – F5 – G5 – A5', 'A:5 G:5 F:5 G:5 A:5'],
+    ['I – ♭VII – IV in D: D5 – C5 – G5 – D5', 'D:5 C:5 G:5 D:5'],
+  ] }],
+  ['types', '6', { ex: [
+    ['The swing tonic: C6 – Am7 – Dm7 – G7 – C6, C6 and Am7 nearly the same chord', 'C:6 A:m7 D:m7 G:7 C:6'],
+    ['Early rock’n’roll: A – A6 – A7 – A6, the 5th climbing to 6 and ♭7', 'A:maj A:6 A:7 A:6'],
+    ['In G: G6 – E7 – Am7 – D7 – G6', 'G:6 E:7 A:m7 D:7 G:6'],
+  ] }],
+  ['types', '6/9', { ex: [
+    ['In G: I6/9 and IV6/9, then V9 home', 'G:6/9 C:6/9 G:6/9 D:9 G:6/9'],
+    ['The minor version as a Dorian tonic: Dm6/9 – G13', 'D:m6/9 G:13 D:m6/9 G:13'],
+    ['The same cadence twice, the second time ending on 6/9', 'F:maj G:maj C:maj F:maj G:maj C:6/9'],
+  ] }],
+  ['types', 'add9', { ex: [
+    ['The acoustic-pop staple: G – Cadd9 – Em7 – Dsus4', 'G:maj C:add9 E:m7 D:sus4'],
+    ['In A minor: Amadd9 – Fadd9 – C – G', 'A:madd9 F:add9 C:maj G:maj'],
+  ] }],
+  ['types', 'm7', { ex: [
+    ['vi as a tonic substitute in G: Gmaj7 – Em7 – Am7 – D7', 'G:maj7 E:m7 A:m7 D:7 G:maj7'],
+    ['The minor home: i – iv – v in A minor, all m7', 'A:m7 D:m7 E:m7 A:m7'],
+    ['In C: Em7 – Am7, then III7 swapped in, E7 – Am7', 'C:maj7 E:m7 A:m7 C:maj7 E:7 A:m7'],
+  ] }],
+  ['types', 'm(maj7)', { ex: [
+    ['The line cliché in open A minor: Am – Am(maj7) – Am7 – Am6', 'A:min A:mMaj7 A:m7 A:m6'],
+    ['In E minor: F♯ø7 – B7 – Em(maj9), the spy-film ending', 'F#:m7b5 B:7 E:mMaj9'],
+  ] }],
+  ['types', '°7', { ex: [
+    ['In G: G♯°7 passing up from G to Am7', 'G:maj7 G#:dim7 A:m7 D:7 G:maj7'],
+    ['vii°7 in A minor: Am – Dm – G♯°7 – Am', 'A:min D:min G#:dim7 A:min'],
+    ['Common tone: C – C°7 – C, the C held while the others move', 'C:maj7 C:dim7 C:maj7'],
+  ] }],
+  ['types', 'maj7♯5', { ex: [
+    ['In A minor: Am(maj7) – Cmaj7♯5 – Dm7 – E7 – Am, ♭III from harmonic minor', 'A:mMaj7 C:maj7#5 D:m7 E:7 A:min'],
+    ['In F: Gm7 – C7 – Fmaj7♯5 – Fmaj7, the ♯5 falling back to the 5th', 'G:m7 C:7 F:maj7#5 F:maj7'],
+  ] }],
+  ['types', '13♭9', { ex: [
+    ['Plain 13, then 13♭9: the same V, sweet then dark', 'D:m7 G:13 C:maj7 D:m7 G:13b9 C:maj7'],
+    ['In F: Gm7 – C13♭9 – Fmaj7', 'G:m7 C:13b9 F:maj7'],
+    ['In C: I – I13♭9 – IV, a secondary dominant into a major chord', 'C:maj7 C:13b9 F:maj7'],
+  ] }],
+  ['melmin', 'Where they come from', { ex: [
+    ['In C minor: Dø7 – G7♭13 – Cm(maj7), three melodic-minor chords', 'D:m7b5 G:7b13 C:mMaj7'],
+    ['The tritone sub as 7♯11: Dm7 – D♭7♯11 – Cmaj7', 'D:m7 Db:7#11 C:maj7'],
+    ['In F: Gm7 – C7alt – Fmaj7', 'G:m7 C:7alt F:maj7'],
+  ] }],
+  ['melmin', 'Find the scale fast', { ex: [
+    ['Bø7 – E7alt – Am(maj7): D, F, then A melodic minor', 'B:m7b5 E:7alt A:mMaj7'],
+    ['Dø7 – G7♭13 – Cm6: F, C, then C melodic minor', 'D:m7b5 G:7b13 C:m6'],
+    ['In G: Am7 – A♭7♯11 – Gmaj7, E♭ melodic minor on the 7♯11', 'A:m7 Ab:7#11 G:maj7'],
+  ] }],
+  ['nopull', 'Pull or colour?', { ex: [
+    ['In G: C9 → G is colour, then D7 → G pulls', 'G:maj7 C:9 G:maj7 D:7 G:maj7'],
+    ['In G: E7 pulls to Am7, A7 to D7, D7 home', 'G:maj7 E:7b9 A:m7 A:7 D:7 G:maj7'],
+    ['In G: E♭9 – D7 – G, the ♭VI9 floats and D7 pulls', 'Eb:9 D:7 G:maj7'],
+  ] }],
+  ['nopull', 'How they move', { ex: [
+    ['In G: 7♯11s a half step above Am7 and G', 'G:maj7 Bb:7#11 A:m7 Ab:7#11 G:maj7'],
+    ['In G: ♭VI9 – ♭VII9 – I, up a whole step twice', 'Eb:9 F:9 G:maj7'],
+    ['A twelve-bar in G: IV9 – I7 is the plagal move', 'G:7 C:9 G:7 G:7 C:9 C:9 G:7 G:7 D:9 C:9 G:7 D:9'],
+  ] }],
+  ['dim', 'A °7 is a rootless 7♭9', { ex: [
+    ['E7♭9 → Am7, then G♯°7 → Am7: the same pull without the E', 'E:7b9 A:m7 G#:dim7 A:m7'],
+    ['B7♭9 → Em7, then D♯°7 → Em7: the same pull without the B', 'B:7b9 E:m7 D#:dim7 E:m7'],
+  ] }],
+  ['dim', 'Finding it', { ex: [
+    ['A7 → D7, then C♯°7 → D7: on A7’s 3rd', 'A:7 D:7 C#:dim7 D:7 G:maj7'],
+    ['E7 → Am7, then F°7 → Am7: a half step above E, the same chord as G♯°7', 'E:7 A:m7 F:dim7 A:m7'],
+  ] }],
+  ['dim', 'Only three exist', { ex: [
+    ['The same chord under four names: C♯°7 – E°7 – G°7 – B♭°7, then Dm', 'C#:dim7 E:dim7 G:dim7 Bb:dim7 D:min'],
+    ['The top-four-string grip at frets 4, 7 and 10: one chord, three voicings', '=F#3 C4 D#4 A4 | A3 D#4 F#4 C5 | C4 F#4 A4 D#5', 'F♯°7 · A°7 · C°7'],
+  ] }],
+  ['dim', 'They collapse to three', { ex: [
+    ['F♯°7 → Gmaj7, then D♯°7 → Em7: one family, D7 and B7', 'F#:dim7 G:maj7 D#:dim7 E:m7'],
+    ['G♯°7 → Am7, then B°7 → Cmaj7: one family, E7 and G7', 'G#:dim7 A:m7 B:dim7 C:maj7'],
+    ['C♯°7 → D7, then A♯°7 → Bm7: one family, A7 and F♯7', 'C#:dim7 D:7 A#:dim7 B:m7'],
+  ] }],
+  ['dim', 'Descending passing', { ex: [
+    ['vi – ♭vi°7 – V – I: Em7 slides down to D7', 'E:m7 Eb:dim7 D:7 G:maj7'],
+    ['The rising version, for contrast: G – G♯°7 – Am7 – D7 – G', 'G:maj7 G#:dim7 A:m7 D:7 G:maj7'],
+  ] }],
+  ['dim', 'Rule of thumb', { ex: [
+    ['Dominant: G – G♯°7 – Am7, an E7♭9 in disguise', 'G:maj7 G#:dim7 A:m7 D:7'],
+    ['Common tone: G – G°7 – G, the root shared', 'G:maj7 G:dim7 G:maj7'],
+    ['Passing: Am7 – A♭°7 – Gmaj7, sliding down by step', 'C:maj7 A:m7 Ab:dim7 G:maj7'],
+  ] }],
+  ['dim', 'The scales', { ex: [
+    ['Half-whole from E over E7♭9, then Am', '=E2 D3 G#3 B3 F4 | E3 | F3 | G3 | G#3 | A#3 | B3 | C#4 | D4 | E4 | A2 E3 A3 C4 E4', 'E7♭9 → Am'],
+    ['Half-whole from D over D7♭9, then G', '=D3 F#3 C4 D#4 | D3 | D#3 | F3 | F#3 | G#3 | A3 | B3 | C4 | D4 | G2 D3 G3 B3', 'D7♭9 → G'],
+  ] }],
+  ['dim', '°7 vs ø7', { ex: [
+    ['F♯ø7 → G, then F♯°7 → G: E becomes E♭', 'F#:m7b5 G:maj7 F#:dim7 G:maj7'],
+    ['In E minor: F♯ø7 – B7 – Em7 (iiø), then D♯°7 – Em7 (vii°7)', 'F#:m7b5 B:7 E:m7 D#:dim7 E:m7'],
+  ] }],
+  ['mediants', 'What they are', { ex: [
+    ['All four from Am: C♯m, Fm, F♯m and Cm', 'A:min C#:min A:min F:min A:min F#:min A:min C:min A:min'],
+    ['C – E – A♭ – C: major 3rds round the octave', 'C:maj E:maj Ab:maj C:maj'],
+    ['In G: G – B – G – E♭ – G', 'G:maj B:maj G:maj Eb:maj G:maj'],
+  ] }],
+  ['mediants', 'How they work', { ex: [
+    ['To leave for good: C – E, then E’s own ii–V', 'C:maj E:maj F#:m7 B:7 E:maj7'],
+    ['To come home: A becomes A7, then Dm – G7 – C', 'C:maj A:maj A:7 D:min G:7 C:maj'],
+    ['A surprise before going home: C – F – C – A♭ – C', 'C:maj F:maj C:maj Ab:maj C:maj'],
+  ] }],
+  ['voicelead', 'Guide tones and shells', { ex: [
+    ['In F: Gm7 – C7 – Fmaj7, F falling to E and B♭ to A', '=G2 F3 Bb3 | C3 E3 Bb3 | F2 E3 A3', 'Gm7 · C7 · Fmaj7'],
+    ['A blues in G with shells: B falls to B♭ and F to E', '=G2 F3 B3 | C3 E3 Bb3 | G2 F3 B3 | D3 F#3 C4 | G2 F3 B3', 'G7 · C7 · G7 · D7 · G7'],
+    ['In A minor: Bø7 – E7 – Am7 as shells', '=B2 A3 D4 | E2 D3 G#3 | A2 G3 C4', 'Bø7 · E7 · Am7'],
+  ] }],
+  ['voicelead', 'Common tones', { ex: [
+    ['The same chords on the top three strings: one note moves at each change', '=G3 C4 E4 | A3 C4 E4 | A3 C4 F4 | A3 D4 F4', 'C · Am · F · Dm'],
+    ['In G: G – Em – C – Am, two notes held at every change', 'G:maj E:min C:maj A:min'],
+    ['vi – IV – I – V: Am and F share A and C, F and C share C, C and G share G', 'A:min F:maj C:maj G:maj'],
+  ] }],
+  ['voicelead', 'The top line', { ex: [
+    ['E held on top through ii – V – I', '=D3 F3 C4 E4 | G2 F3 B3 E4 | C3 G3 B3 E4', 'Dm9 · G13 · Cmaj7'],
+    ['The practice line in open chords: top E – E – F – F – E', '=C3 E3 G3 C4 E4 | A2 E3 A3 C4 E4 | D3 A3 D4 F4 | G2 B2 D3 G3 B3 F4 | C3 E3 G3 C4 E4', 'C · Am · Dm · G7 · C'],
+  ] }],
+  ['voicelead', 'Upper-structure triads', { ex: [
+    ['G7’s B and F low, then A, E, E♭ and D♭ triads on top', '=B2 F3 A3 C#4 E4 | B2 F3 G#3 B3 E4 | B2 F3 Bb3 Eb4 G4 | B2 F3 Ab3 Db4 F4', 'G13♯11 · G13♭9 · G7♯9♭13 · G7♭9♭5'],
+    ['E♭ over G7, then Cm: E♭ and G hold, the rest step up', '=B2 F3 Bb3 Eb4 G4 | C3 G3 C4 Eb4 G4', 'G7♯9♭13 → Cm'],
+  ] }],
+  ['voicelead', 'Quartal voicings', { ex: [
+    ['One shape, three chords: D G C F over D, then G, then F in the bass', '=D3 G3 C4 F4 | G2 D3 G3 C4 F4 | F2 D3 G3 C4 F4', 'Dm11 · G7sus4 · F6/9'],
+    ['Stacked 4ths planed up D Dorian on the low four strings', '=E2 A2 D3 G3 | F2 B2 E3 A3 | G2 C3 F3 B3 | A2 D3 G3 C4 | G2 C3 F3 B3 | F2 B2 E3 A3 | E2 A2 D3 G3', 'Quartal stacks on E, F, G, A'],
+  ] }],
+  ['map', 'Harmonic minor’s 5th mode', { ex: [
+    ['The flamenco descent: Am – G – F – E, E Phrygian dominant on the last chord', 'A:min G:maj F:maj E:maj'],
+    ['In D minor: Eø7 – A7♭9 – Dm7, A Phrygian dominant on the V', 'E:m7b5 A:7b9 D:m7'],
+    ['E7♭9 → Am, then G♯°7 → Am: the same scale, with and without the E', 'E:7b9 A:min G#:dim7 A:min'],
+  ] }],
+  ['map', 'Avoid notes', { ex: [
+    ['Over Cmaj7, F only passes: G – F – E, landing on the 3rd', '=C3 G3 B3 E4 | G4 | F4 | E4', 'Cmaj7'],
+    ['The 4th over a dominant: sus it first, G7sus4 – G7 – C', 'D:m7 G:7sus4 G:7 C:maj7'],
+    ['The 11 is fine on a minor chord: Dm11 – G7 – Cmaj7', 'D:m11 G:7 C:maj7'],
+  ] }],
+  ['modes', 'How a mode becomes the key', { ex: [
+    ['Dorian: Dm7 – G, the major IV carries the ♮6 (B)', 'D:m7 G:maj D:m7 G:maj'],
+    ['Mixolydian: G – F – C – G, the ♭VII carries the ♭7 (F)', 'G:maj F:maj C:maj G:maj'],
+    ['Lydian: C – D/C over a pedal, the major II carries the ♯4 (F♯)', 'C:maj D:maj/b7 C:maj D:maj/b7'],
+  ] }],
+  ['modes', 'Comping modally', { ex: [
+    ['Breaking the mode, then keeping it: Dm7 – A7 – Dm7, then Dm7 – Em7 – Dm7', 'D:m7 A:7 D:m7 D:m7 E:m7 D:m7'],
+    ['G Mixolydian over a G pedal: G – F/G – C/G – G', 'G:maj F:maj/2 C:maj/5 G:maj'],
+  ] }],
+  ['reharm', 'Start from the melody', { ex: [
+    ['G on top of six chords: as 5th, ♭3, ♭7, 9, 3 and root', '=C3 E3 G3 C4 G4 | E2 B2 E3 G3 D4 G4 | A2 E3 A3 C4 G4 | F2 C3 E3 A3 G4 | Eb3 Bb3 D4 G4 | G2 B2 D3 G3 B3 G4', 'C · Em7 · Am7 · Fmaj9 · E♭maj7 · G'],
+    ['A half step above a chord tone, made a ♭9: F over E7 resolves to E on Am', '=E2 D3 G#3 B3 F4 | A2 E3 A3 C4 E4', 'E7♭9 → Am'],
+  ] }],
+  ['reharm', 'Side-slipping', { ex: [
+    ['A♭7 → G7: the slip into V, which is also the tritone sub of D7', 'D:m7 Ab:7 G:7 C:maj7'],
+    ['From below: C♯m7 → Dm7, a lift rather than a sag', 'C#:m7 D:m7 G:7 C:maj7'],
+    ['In G: B♭m7 – E♭7 slips down into Am7 – D7', 'Bb:m7 Eb:7 A:m7 D:7 G:maj7'],
+  ] }],
+['progs', 'The diatonic cycle', { ex: [
+    ['In E minor: Em7 – Am7 – D7 – Gmaj7 – Cmaj7 – F♯ø7 – B7 – Em7', 'E:m7 A:m7 D:7 G:maj7 C:maj7 F#:m7b5 B:7 E:m7'],
+    ['The same cycle started from I, in C', 'C:maj7 F:maj7 B:m7b5 E:7 A:m7 D:m7 G:7 C:maj7'],
+    ['Triads only, in D minor: Dm – Gm – C – F – B♭ – E° – A7 – Dm', 'D:min G:min C:maj F:maj Bb:maj E:dim A:7 D:min'],
+  ] }],
+  ['progs', 'Major ii–V–I, then minor', { ex: [
+    ['The usual jazz key: B♭ major, then G minor', 'C:m7 F:7 Bb:maj7 Eb:maj7 A:m7b5 D:7b9 G:m7'],
+    ['In C, landing on A minor', 'D:m7 G:7 C:maj7 F:maj7 B:m7b5 E:7b9 A:m7'],
+    ['Reversed: the minor cadence first, then the major one', 'B:m7b5 E:7b9 A:m7 D:m7 G:7 C:maj7'],
+  ] }],
+  ['progs', 'The Andalusian cadence', { ex: [
+    ['In E minor: Em – D – C – B7', 'E:min D:maj C:maj B:7'],
+    ['In D minor, back home: Dm – C – B♭ – A7 – Dm', 'D:min C:maj Bb:maj A:7 D:min'],
+    ['Flamenco: resting on E, with F – E to finish', 'A:min G:maj F:maj E:maj F:maj E:maj'],
+  ] }],
+  ['progs', 'i – ♭VI – ♭III – ♭VII', { ex: [
+    ['In E minor: Em – C – G – D', 'E:min C:maj G:maj D:maj'],
+    ['Power chords in D minor: D5 – B♭5 – F5 – C5', 'D:5 Bb:5 F:5 C:5'],
+    ['With E7 for G: the classical pull back to Am', 'A:min F:maj C:maj E:7 A:min'],
+  ] }],
+  ['blues', 'The 12-bar blues', { ex: [
+    ['A blues in A, with the quick change (D7 in bar 2)', 'A:7 D:7 A:7 A:7 D:7 D:7 A:7 A:7 E:7 D:7 A:7 E:7'],
+    ['All 12 bars in E, the guitar key', 'E:7 E:7 E:7 E:7 A:7 A:7 E:7 E:7 B:7 A:7 E:7 B:7'],
+  ] }],
+  ['blues', 'What to play over it', { ex: [
+    ['C major pentatonic over C7: the sweeter sound', '=C3 E3 Bb3 | C4 | D4 | E4 | G4 | A4 | C5', 'C7, C major pentatonic'],
+    ['Change with the chords: E over C7, E♭ over F7', '=C3 E3 Bb3 | G4 | E4 | F2 Eb3 A3 | C4 | Eb4 | C3 E3 Bb3 | E4', 'C7 → F7 → C7'],
+    ['In A: the ♭3 slides into the 3', '=A2 G3 C#4 | C4 | C#4 | E4 | G4 | A4', 'A7, C to C♯'],
+  ] }],
+  ['blues', 'The jazz blues', { ex: [
+    ['All 12 bars in F, the usual key', 'F:7 Bb:7 F:7 C:m7 F:7 Bb:7 B:dim7 F:7 D:7 G:m7 C:7 F:7 D:7 G:m7 C:7'],
+    ['Bars 4–7 in C: Gm7 – C7 – F7 – F♯°7 – C/G, the bass climbing', 'C:7 G:m7 C:7 F:7 F#:dim7 C:maj/5'],
+    ['Bars 7–10 in C: Em7 – A7 into Dm7, then G7', 'C:7 E:m7 A:7 D:m7 G:7 C:7'],
+  ] }],
+  ['blues', 'The minor blues', { ex: [
+    ['All 12 bars in A minor, the guitar key', 'A:m7 A:m7 A:m7 A:m7 D:m7 D:m7 A:m7 A:m7 F:7 E:7 A:m7 E:7'],
+    ['Bars 8–11 in C minor: A♭7 slides down to G7', 'C:m7 Ab:7 G:7 C:m7'],
+    ['Before and after: Dø7 – G7, then A♭7 – G7', 'C:m7 D:m7b5 G:7 C:m7 Ab:7 G:7 C:m7'],
+  ] }],
+  ['forms', 'AABA', { ex: [
+    ['First A in C: it ends turning round to bar 1', 'C:maj7 A:m7 D:m7 G:7 E:m7 A:7 D:m7 G:7'],
+    ['Second A: same start, a cadence home for the bridge', 'C:maj7 A:m7 D:m7 G:7 D:m7 G:7 C:6 C:6'],
+    ['The “I Got Rhythm” bridge in C: E7 – A7 – D7 – G7', 'E:7 E:7 A:7 A:7 D:7 D:7 G:7 G:7'],
+  ] }],
+  ['forms', 'ABAC', { ex: [
+    ['The “All of Me” shape, A (bars 1–8)', 'C:6 C:6 E:7 E:7 A:7 A:7 D:m7 D:m7'],
+    ['B (bars 9–16): to vi, then a ii–V', 'E:7 E:7 A:m7 A:m7 D:7 D:7 D:m7 G:7'],
+    ['C (bars 25–32): the new ending, IV – iv to home', 'F:6 F:m6 E:m7 A:7 D:m7 G:7 C:6 C:6'],
+  ] }],
+  ['forms', 'Rhythm changes: the A section', { ex: [
+    ['The A section in B♭, the usual key', 'Bb:maj7 G:m7 C:m7 F:7 Bb:maj7 G:m7 C:m7 F:7 Bb:maj7 Bb:7 Eb:maj7 Eb:m7 Bb:maj7 F:7 Bb:maj7'],
+    ['Bars 5–8 with ♯iv°7 instead of iv: B♭7 – E♭ – E°7 – B♭/F – F7 – B♭', 'Bb:7 Eb:maj7 E:dim7 Bb:maj/5 F:7 Bb:maj7'],
+    ['Bars 1–4 with VI7, then iii for I', 'Bb:maj7 G:7 C:m7 F:7 D:m7 G:7 C:m7 F:7'],
+  ] }],
+  ['forms', 'The bridge', { ex: [
+    ['Through dominants: the rhythm-changes bridge in B♭', 'D:7 D:7 G:7 G:7 C:7 C:7 F:7 F:7'],
+    ['Up a half step: a bridge in D for a tune in D♭, back via E♭m7 – A♭7', 'E:m7 A:7 D:maj7 D:maj7 Eb:m7 Ab:7 Db:maj7'],
+    ['A key a major 3rd down: a ii–V to A♭, then back to C', 'Bb:m7 Eb:7 Ab:maj7 Ab:maj7 D:m7 G:7 C:maj7'],
+  ] }],
+  ['forms', 'Verse and chorus', { ex: [
+    ['A verse loop on vi, then the chorus lands on I', 'A:min F:maj A:min F:maj C:maj G:maj F:maj G:maj'],
+    ['A bridge from IV, ending on V for the last chorus', 'F:maj G:maj E:min A:min F:maj G:sus4 G:maj'],
+    ['In G: verse on Em – C, pre-chorus Am – D, chorus from G', 'E:min C:maj A:min D:maj G:maj D:maj E:min C:maj'],
+  ] }],
+  ['forms', 'Learn the form, not just the chords', { ex: [
+    ['Pattern: I – vi – ii – V, here in F', 'F:maj7 D:m7 G:m7 C:7'],
+    ['Pattern: a ii–V into IV (Gm7 – C7 – F)', 'C:maj7 G:m7 C:7 F:maj7'],
+    ['Pattern: backdoor home (Fm7 – B♭7 – C)', 'C:maj7 F:m7 Bb:7 C:maj7'],
+  ] }],
+  ['bass', 'Upper-structure slash chords', { ex: [
+    ['C/D as the soft V in G: Am7 – C/D – Gmaj7', 'A:m7 C:maj/2 G:maj7'],
+    ['D/C as a Lydian IV in G, landing on G/B', 'C:maj7 D:maj/b7 G:maj/3'],
+    ['One bass, four colours: C, D, E and B♭ over C', 'C:maj D:maj/b7 E:maj/b6 Bb:maj/2'],
+  ] }],
+  ['bass', 'Walking bass', { ex: [
+    ['Two-feel first: root and 5th, Cmaj7 – Am7 – Dm7 – G7 – C', '=C3 | G2 | A2 | E2 | D3 | A2 | G2 | D3 | C3', 'Cmaj7 – Am7 – Dm7 – G7 – C, half notes'],
+    ['A blues in F, bars 1–3: F7 – B♭7 – F7', '=F2 | A2 | C3 | B2 | Bb2 | D3 | F3 | E3 | F3', 'F7 – B♭7 – F7'],
+    ['In A minor: Bø7 – E7 – Am, each root approached from above', '=B2 | D3 | F3 | F2 | E2 | G#2 | B2 | Bb2 | A2', 'Bø7 – E7 – Am'],
+  ] }],
+  ['bass', 'Chromatic approach', { ex: [
+    ['All from above, the tritone-sub sound: A7 – D7 – E7 – A', '=A2 | C#3 | E3 | Eb3 | D3 | F#3 | A3 | F3 | E3 | G#3 | B3 | Bb3 | A3', 'A7 – D7 – E7 – A'],
+    ['By the 5th instead: A before D, D before G, G before C', '=C3 | E3 | G3 | A2 | D3 | F3 | A3 | D3 | G2 | B2 | D3 | G3 | C3', 'Cmaj7 – Dm7 – G7 – C'],
+    ['The same idea in chords: C – C♯°7 – Dm7 – D♯°7 – Em7', 'C:maj7 C#:dim7 D:m7 D#:dim7 E:m7'],
+  ] }],
+  ['slash', 'Two different things', { ex: [
+    ['In G: G/B (still G), then A/G (a new chord: G Lydian)', 'G:maj G:maj/3 G:maj A:maj/b7 G:maj'],
+    ['C – G/B – Am – F/G – C: an inversion, then a new chord', 'C:maj G:maj/3 A:min F:maj/2 C:maj'],
+    ['Am/C is still Am; Am/F♯ is F♯ø7', 'A:min A:min/b3 A:min A:min/6'],
+  ] }],
+  ['slash', 'How to read any slash chord', { ex: [
+    ['B♭/C: ♭7, 9, 11 over C, so C9sus4, resolving to F', 'Bb:maj/2 F:maj7'],
+    ['E/C, then Cmaj7♯5: the same sound named two ways', 'E:maj/b6 C:maj7#5'],
+    ['G/F: 9, ♯11, 13 over F, so F Lydian', 'F:maj7 G:maj/b7 F:maj7'],
+  ] }],
+  ['slash', 'The cadential 6/4', { ex: [
+    ['In G: C – G/D – D7 – G', 'C:maj G:maj/5 D:7 G:maj'],
+    ['In D, a hymn ending: G – D/A – A7 – D', 'G:maj D:maj/5 A:7 D:maj'],
+    ['In A minor: Dm – Am/E – E7 – Am', 'D:min A:min/5 E:7 A:min'],
+  ] }],
+  ['slash', 'Minor triads over a bass', { ex: [
+    ['Dm7/G – Cmaj7: G9sus4, the soft V', 'D:m7/4 C:maj7'],
+    ['In G: Bm/G (Gmaj7), then Em/G (G6)', 'G:maj B:min/b6 E:min/b3 G:maj'],
+    ['In F: Dm/F (F6), Am/F (Fmaj7), Cm/F (F9 with no 3rd)', 'D:min/b3 A:min/b6 C:min/4'],
+  ] }],
+  ['slash', 'On the guitar', { ex: [
+    ['B♭/C → F: C on the 5th string, B♭ triad on the top three', '=C3 Bb3 D4 F4 | F2 C3 F3 A3 C4 F4', 'B♭/C → F'],
+    ['G/F → C/E: the bass steps down F – E', '=F2 G3 B3 G4 | E2 C3 E3 G3 C4 E4', 'G/F → C/E'],
+    ['A/G → G: low G with an A triad on strings 4-3-2', '=G2 E3 A3 C#4 | G2 B2 D3 G3 B3 G4', 'A/G → G'],
+  ] }],
+  ['solo', 'Chord tones on the beat', { ex: [
+    ['Eighth notes: chord tones on every beat, scale notes between', '=D3 C4 | C5 | B4 | A4 | G4 | F4 | E4 | D4 | C4 | G2 F3 | B3 | C4 | D4 | E4 | F4 | A4 | G4 | F4 | C3 B3 | E4', 'Dm7 – G7 – Cmaj7, chord tones on the beats'],
+    ['Quarter notes over A7 – D7 – A7: the 3rd on each beat 1', '=A2 G3 C#4 | C#4 | E4 | A4 | G4 | D3 C4 F#4 | F#4 | A4 | D5 | C5 | A2 G3 C#4 | C#5', 'A7 – D7 – A7'],
+    ['In A minor: chord tones only, stepping into each change', '=B2 A3 D4 | D4 | F4 | A4 | F4 | E2 D3 G#3 | E4 | D4 | B3 | G#3 | A2 G3 C4 | A3', 'Bø7 – E7 – Am7'],
+  ] }],
+  ['solo', 'Arpeggios from the 3rd', { ex: [
+    ['In B♭: E♭maj7 over Cm7, Aø7 over F7, Dm7 over B♭maj7', '=C3 Bb3 | Eb4 | G4 | Bb4 | D5 | F2 Eb3 | C5 | A4 | G4 | Eb4 | Bb2 A3 | D4 | F4 | A4 | C5', 'Cm9 – F9 – B♭maj9 sounds'],
+    ['In D minor: C♯ø7 over A7, Fmaj7 over Dm7', '=A2 G3 | C#4 | E4 | G4 | B4 | D3 C4 | A4 | F4 | E4 | C4', 'A9 → Dm9 sounds'],
+    ['Further up, from the 5th: Am7 over Dm7, Gmaj7 over Cmaj7', '=D3 C4 | A4 | C5 | E5 | G5 | G2 F3 | F5 | D5 | B4 | A4 | C3 B3 | G4 | B4 | D5 | F#5', 'Dm11 – G9 – Cmaj9♯11 sounds'],
+  ] }],
+  ['solo', 'Approach notes and enclosures', { ex: [
+    ['From a half step below: D♯ – E, F♯ – G, A♯ – B over Cmaj7', '=C3 B3 | C4 | D#4 | E4 | F#4 | G4 | A#4 | B4', 'Cmaj7, chord tones approached from below'],
+    ['Through Dm7 – G7 – Cmaj7: enclosing B, then E', '=D3 C4 | F4 | G4 | A4 | F4 | D4 | E4 | C5 | A#4 | G2 F3 | B4 | D5 | F5 | D5 | B4 | A4 | F4 | D#4 | C3 B3 | E4', 'Dm7 – G7 – Cmaj7'],
+    ['Double chromatic: B – C – C♯ into the 3rd of A7', '=E2 D3 G#3 | E4 | D4 | B3 | A3 | G#3 | A3 | B3 | C4 | A2 G3 | C#4 | E4 | G4', 'E7 → A7'],
+  ] }],
+  ['solo', 'The bebop scale', { ex: [
+    ['One line through the ii–V: G bebop down from F, into C', '=D3 C4 | F5 | E5 | D5 | C5 | B4 | A4 | G4 | F#4 | G2 F3 | F4 | E4 | D4 | C4 | B3 | A3 | G3 | B3 | C3 B3 | C4', 'Dm7 – G7 – Cmaj7'],
+    ['Major bebop over C6: down from C, the G♯ keeping C, A, G, E on the beats', '=C3 E3 A3 | C5 | B4 | A4 | G#4 | G4 | F4 | E4 | D4 | C4', 'C6, C major bebop'],
+    ['In F: C bebop dominant down from C, into F', '=C3 Bb3 E4 | C5 | B4 | Bb4 | A4 | G4 | F4 | E4 | D4 | F2 C3 F3 A3 | C4', 'C7 → F'],
+  ] }],
+  ['solo', 'The ♭9 sound on V7', { ex: [
+    ['In A minor, its true home: G♯°7 over E7', '=E2 D3 G#3 | G#4 | B4 | D5 | F5 | E5 | A2 E3 A3 C4', 'E7♭9 → Am'],
+    ['The same shape three frets up: D°7 over G7, into C', '=G2 F3 B3 | D4 | F4 | Ab4 | B4 | C3 E3 G3 C4 | C5', 'G7♭9 → C'],
+    ['Down from A♭ into C minor: B lands on C', '=G2 F3 B3 | Ab4 | F4 | D4 | B3 | C3 G3 Eb4 | C4', 'G7♭9 → Cm'],
+  ] }],
+  ['solo', 'Triad pairs', { ex: [
+    ['F and G over Dm7: Dorian', '=D3 A3 C4 F4 | F4 | A4 | C5 | G4 | B4 | D5 | C5 | A4 | F4 | D5 | B4 | G4', 'Dm7, F and G triads'],
+    ['The same pair over Am7: the ♭VI – ♭VII sound', '=A2 G3 C4 E4 | F4 | A4 | C5 | G4 | B4 | D5 | F5 | C5 | A4 | D5 | B4 | G4 | A4', 'Am7, F and G triads'],
+    ['E♭ and F over Cm7, downwards: C Dorian', '=C3 G3 Bb3 Eb4 | Bb4 | G4 | Eb4 | C5 | A4 | F4 | G4 | Eb4 | Bb3 | A4 | F4 | C4', 'Cm7, E♭ and F triads'],
+  ] }],
+  ['solo', 'Motifs and space', { ex: [
+    ['One idea through a ii–V–I: only the last note moves', '=D3 C4 | A4 | G4 | F4 | G2 F3 | A4 | G4 | F4 | C3 B3 | A4 | G4 | E4', 'Dm7 – G7 – Cmaj7, one motif'],
+    ['♭3 – 3 – 5 on A7, moved to D7 and back', '=A2 G3 | C4 | C#4 | E4 | G4 | E4 | D3 C4 | F4 | F#4 | A4 | C5 | A4 | A2 G3 | C4 | C#4 | A3', 'A7 – D7 – A7'],
+    ['Ask and answer: two phrases up, two phrases down', '=C3 E3 G3 C4 | E4 | G4 | A4 | G4 | A2 E3 A3 C4 | E4 | G4 | A4 | C5 | F2 C3 F3 A3 | C5 | A4 | G4 | F4 | G2 B2 D3 G3 | G4 | F4 | D4 | C3 E3 G3 C4 | E4', 'C – Am – F – G – C'],
+  ] }],
+  ['solo', 'Sing it first', { ex: [
+    ['Sing the root of each chord: C, A, D, G', '=C3 E3 G3 C4 | C4 | A2 E3 A3 C4 | A3 | D3 A3 D4 F4 | D4 | G2 B2 D3 G3 B3 F4 | G3', 'C – Am – Dm – G7'],
+    ['Then the 3rds: E, C, F, B', '=C3 E3 G3 C4 | E4 | A2 E3 A3 C4 | C4 | D3 A3 D4 F4 | F4 | G2 B2 D3 G3 B3 F4 | B3', 'C – Am – Dm – G7'],
+    ['A guide-tone line to sing over roots and 5ths: C – B – B♭ – A', '=D3 A3 | C4 | G2 D3 | B3 | C3 G3 | Bb3 | F2 C3 | A3', 'Dm7 – G7 – C7 – Fmaj7'],
+  ] }],
+  ['chordmelody', 'What it is', { ex: [
+    ['Melody and bass only: E – D – C over C – G – C', '=C3 E4 | G2 D4 | C3 C4', 'C – G – C'],
+    ['Add one inner note under the tune', '=C3 G3 E4 | G2 F3 D4 | C3 E3 C4', 'C – G7 – C'],
+    ['Full chords under the same tune', '=C3 E3 G3 C4 E4 | G2 B2 D3 G3 D4 | C3 E3 G3 C4', 'C – G – C'],
+  ] }],
+  ['chordmelody', 'Learn the melody first', { ex: [
+    ['Step 1: the tune alone (“Mary Had a Little Lamb”, in D)', '=F#4 | E4 | D4 | E4 | F#4 | F#4 | F#4 | E4 | E4 | E4 | F#4 | A4 | A4', 'Melody alone'],
+    ['Step 2: the changes on their own', 'D:maj D:maj A:7 D:maj'],
+    ['Step 3: together, open-string bass under the tune', '=D3 F#4 | E4 | D4 | E4 | D3 F#4 | F#4 | F#4 | A2 E4 | E4 | E4 | D3 F#4 | A4 | A4', 'D – D – A – D'],
+  ] }],
+  ['chordmelody', 'Put the melody up high', { ex: [
+    ['In C: the melody E – E – F – D on top, chords under it', '=C3 E3 G3 C4 E4 | A2 E3 A3 C4 E4 | F2 C3 F3 A3 C4 F4 | G2 B2 D3 G3 D4', 'C – Am – F – G'],
+    ['In F: A – G – F on the top string', '=F3 A3 C4 F4 A4 | C3 G3 Bb3 E4 G4 | F2 C3 F3 A3 C4 F4', 'F – C7 – F'],
+    ['High up in A, the bass on open A, D and E', '=A2 C#4 E4 A4 | D3 F#4 A4 | E2 D4 G#4 B4', 'A – D – E7'],
+  ] }],
+  ['chordmelody', 'The melody is always the top note', { ex: [
+    ['The common mistake: open G has G on top; for melody B, drop it', '=G2 B2 D3 G3 B3 G4 | G2 B2 D3 G3 B3', 'G (G on top) → G (B on top)'],
+    ['Melody G – A – B – C: each chord built down from its note', '=C3 E3 G3 C4 G4 | D3 A3 C4 F4 A4 | G3 D4 F4 B4 | G3 C4 E4 C5', 'C – Dm7 – G7 – C'],
+    ['In A minor: C – B – A on top, open chords trimmed to fit', '=A2 E3 A3 C4 | E2 B2 D3 G#3 B3 | A2 E3 A3', 'Am – E7 – Am'],
+  ] }],
+  ['chordmelody', 'Every chord, every top note', { ex: [
+    ['G7, drop 2: G, B, D and F on top', '=F3 B3 D4 G4 | G3 D4 F4 B4 | B3 F4 G4 D5 | D4 G4 B4 F5', 'G7: G, B, D, F on top'],
+    ['Dm7, drop 2: F, A, C and D on top', '=D3 A3 C4 F4 | F3 C4 D4 A4 | A3 D4 F4 C5 | C4 F4 A4 D5', 'Dm7: F, A, C, D on top'],
+    ['Drop 3, root on the 6th: melody on the B string', '=A2 G3 C4 E4 | G2 F3 B3 D4 | F2 E3 A3 C4', 'Am7 – G7 – Fmaj7'],
+  ] }],
+  ['chordmelody', 'A melody note outside the chord', { ex: [
+    ['D over C: a passing note alone, a colour on top of Cmaj9', '=C3 E3 G3 C4 | D4 | C3 E3 B3 D4', 'C, then Cmaj9'],
+    ['A over G7: play G9, then fall to G over C', '=G2 F3 B3 A4 | C3 E3 G3 C4 G4', 'G9 → C'],
+    ['E – F – E: F becomes the 7th of G7, not a clash over C', '=C3 E3 G3 C4 E4 | G2 B2 D3 G3 B3 F4 | C3 E3 G3 C4 E4', 'C – G7 – C'],
+  ] }],
+  ['chordmelody', 'One note, many chords', { ex: [
+    ['E on top: the 3rd, 5th, 7th, 9th, then the root', '=C3 E3 G3 C4 E4 | A2 E3 A3 C4 E4 | F3 A3 C4 E4 | D3 F3 C4 E4 | E2 B2 D3 G#3 B3 E4', 'C – Am – Fmaj7 – Dm9 – E7'],
+    ['In F: A on top all the way, the chords moving under it', '=F3 A3 C4 F4 A4 | D3 A3 D4 F4 A4 | Bb2 D4 F4 A4 | G2 F3 B3 A4 | C3 Bb3 E4 A4 | F3 A3 C4 F4 A4', 'F – Dm – B♭maj7 – G9 – C13 – F'],
+    ['Plain, then bold: C on top over Am, then over A♭maj7', '=A2 E3 A3 C4 | G2 F3 B3 | C3 E3 G3 C4 | Ab2 Eb3 G3 C4 | G2 F3 B3 | C3 E3 G3 C4', 'Am – G7 – C, then A♭maj7 – G7 – C'],
+  ] }],
+  ['chordmelody', 'Three voices are enough', { ex: [
+    ['Dm7 – G7 – Cmaj7: C falls to B under the melody F – F – E', '=D3 C4 F4 | G2 B3 F4 | C3 B3 E4', 'Dm7 – G7 – Cmaj7'],
+    ['In F: guide tones F – E – E under the melody B♭ – B♭ – A', '=G2 F3 Bb3 | C3 E3 Bb3 | F2 E3 A3', 'Gm7 – C7 – Fmaj7'],
+    ['In A minor: guide tones A – G♯ – G under the melody D – D – C', '=B2 A3 D4 | E2 G#3 D4 | A2 G3 C4', 'Bø7 – E7 – Am7'],
+  ] }],
+  ['chordmelody', 'Not every note gets a chord', { ex: [
+    ['Four quarters over C: a chord on 1, two notes on 3, single notes between', '=C3 E3 G3 C4 E4 | F4 | C4 G4 | E4', 'C'],
+    ['“Mary Had a Little Lamb” in C: a chord on each bar’s first note only', '=C3 E3 G3 C4 E4 | D4 | C4 | D4 | C3 G3 E4 | E4 | E4 | G2 B2 D3 G3 D4 | D4 | D4 | C3 G3 E4 | G4 | G4', 'C – C – G – C'],
+    ['A pickup played alone, then chords only where the melody lands', '=E4 | F4 | C3 E3 G3 C4 G4 | A4 | G4 | E4 | F2 C3 F3 A3 C4 F4 | E4 | D4 | G2 F3 B3 D4 | C3 E3 G3 C4', 'C – F – G7 – C'],
+  ] }],
+  ['chordmelody', 'Bass on the downbeat', { ex: [
+    ['In G: just the bass and the tune, E – F♯ – G', '=A2 E4 | D3 F#4 | G2 G4', 'Am7 – D7 – G'],
+    ['Then one guide tone inside: G, C, B', '=A2 G3 E4 | D3 C4 F#4 | G2 B3 G4', 'Am7 – D7 – G'],
+    ['C/E on beat 1: the bass climbs C – E – F under the tune', '=C3 E3 G3 C4 E4 | E2 C3 E3 G3 C4 E4 | F2 C3 F3 A3 C4 F4', 'C – C/E – F'],
+  ] }],
+  ['chordmelody', 'Let the melody sing', { ex: [
+    ['Roll it: the bass first, the melody note last, then strike it', '=C3 | G3 | B3 | E4 | C3 G3 B3 E4', 'Cmaj7, rolled then struck'],
+    ['Thumb low, fingers high: open-string bass under a high tune in A', '=A2 E4 A4 | B4 | C#5 | D3 F#4 D5 | C#5 | B4 | E2 D4 G#4 B4 | A2 C#4 E4 A4', 'A – D – E7 – A'],
+    ['E held on the open top string while the bass walks down C – B – A – G', '=C3 E3 G3 C4 E4 | B2 E3 G3 C4 E4 | A2 E3 A3 C4 E4 | G2 E3 A3 C4 E4', 'C – C/B – Am – Am/G'],
+  ] }],
+  ['chordmelody', 'Fill the long notes', { ex: [
+    ['E held on top while the inner voice falls A – G♯ – G – F♯', '=A2 A3 C4 E4 | A2 G#3 C4 E4 | A2 G3 C4 E4 | A2 F#3 C4 E4', 'Am – Am(maj7) – Am7 – Am6'],
+    ['G held on top while the bass walks down into F', '=C3 E3 G3 C4 G4 | B2 | A2 | G2 | F2 C3 F3 A3 C4 F4', 'C (bass B – A – G) → F'],
+    ['E held over a passing °7: C – C♯°7 – Dm9', '=C3 G3 C4 E4 | C#3 G3 Bb3 E4 | D3 F3 C4 E4', 'C – C♯°7 – Dm9'],
+  ] }],
+  ['chordmelody', 'Plan the fingering', { ex: [
+    ['A phrase in one position, frets 3–6: no shifts', '=C3 G3 C4 E4 | G2 F3 B3 D4 | A2 G3 C4 E4 | D3 C4 F4', 'C – G7 – Am7 – Dm7'],
+    ['Shift during an open string: open A, then A at the 5th fret', '=A2 E3 A3 C#4 E4 | E4 | A2 C#4 E4 A4', 'A (open) → A (5th fret)'],
+    ['Fingers that stay: C and E hold from Am7 to D9', '=A2 G3 C4 E4 | D3 F#3 C4 E4 | G2 F#3 B3 D4', 'Am7 – D9 – Gmaj7'],
+  ] }],
+  ['chordmelody', 'Arrange in passes', { ex: [
+    ['Pass 1: the melody alone, on the top strings', '=E4 | F#4 | G4 | C5 | D4 | E4 | F#4 | B4', 'Melody over Am7 – D7 – Gmaj7'],
+    ['Pass 2: a bass note on each change', '=E4 | F#4 | G4 | A2 C5 | D3 D4 | E4 | F#4 | G3 B4', 'Am7 – D7 – Gmaj7, bass only'],
+    ['Pass 3: one guide tone under each: G, C, F♯', '=E4 | F#4 | G4 | A2 G3 C5 | D3 C4 D4 | E4 | F#4 | G3 F#4 B4', 'Am7 – D7 – Gmaj7, with guide tones'],
+  ] }],
+  ['chordmelody', 'The second time through', { ex: [
+    ['First chorus, plain: the melody F – F – E on top', '=D3 C4 F4 | G2 B3 F4 | C3 B3 E4', 'Dm7 – G7 – Cmaj7'],
+    ['Second chorus: D♭7 for G7, same melody', '=D3 C4 F4 | Db3 B3 F4 | C3 B3 E4', 'Dm7 – D♭7 – Cmaj7'],
+    ['A tag ending: iii – VI7 – ii – V twice, then home', 'E:m7 A:7 D:m7 G:7 E:m7 A:7 D:m7 G:7 C:6/9'],
+  ] }],
+  ['chordmelody', 'Listen and steal', { ex: [
+    ['“Autumn Leaves” in G minor: the first eight bars', 'C:m7 F:7 Bb:maj7 Eb:maj7 A:m7b5 D:7 G:m7 G:m7'],
+    ['“Fly Me to the Moon” changes as three-note shells: few notes, whole band', '=A2 G3 C4 | D3 C4 F4 | G2 F3 B3 | C3 B3 E4 | F2 E3 A3 | B2 A3 D4 | E2 D3 G#3 | A2 G3 C4', 'Am7 – Dm7 – G7 – Cmaj7 – Fmaj7 – Bø7 – E7 – Am7'],
+    ['A moving inner voice, Ted Greene style: C – B – B♭ – A under E – F', '=C3 G3 C4 E4 | C3 G3 B3 E4 | C3 G3 Bb3 E4 | F2 C3 F3 A3 C4 F4', 'C – Cmaj7 – C7 – F'],
+  ] }],
+  ['fluency', 'How to build speed', { ex: [
+    ['A one-beat burst over Cmaj7, then stop', '=C3 B3 E4 | C4 | D4 | E4 | G4', 'Cmaj7, one-beat burst'],
+    ['A two-beat burst: up A minor pentatonic and back', '=A2 E3 A3 C4 E4 | A3 | C4 | D4 | E4 | G4 | E4 | D4 | C4 | A3', 'Am, two-beat burst'],
+    ['Chord changes build the same way: C – Am – F – G, 5 bpm at a time', 'C:maj A:min F:maj G:maj'],
+  ] }],
+  ['menu', 'The Menu System', { ex: [
+    ['One shape, three addresses: Fmaj7 as the ♭3 of Dm7, the ♭7 of G7, the ♭2 of Em7', '=D3 C4 | F4 | A4 | C5 | E5 | G2 F3 | F4 | A4 | C5 | E5 | E2 D3 | F4 | A4 | C5 | E5', 'Dm7 – G7 – Em7, Fmaj7 over each'],
+    ['A ii–V–I room by room: Fmaj7 (♭3), D♭7 (♭5), Em7 (3)', '=D3 C4 | F4 | A4 | C5 | E5 | G2 F3 | Db5 | B4 | Ab4 | F4 | C3 B3 | E4 | G4 | B4 | D5', 'Dm7 – G7alt – Cmaj7'],
+    ['The minor ii–V–i room by room: Fm6, then B°7, into Cm6', '=D3 Ab3 C4 | F4 | Ab4 | C5 | D5 | G2 F3 B3 | B4 | Ab4 | F4 | D4 | C3 A3 Eb4 G4', 'Dø7 – G7♭9 – Cm6'],
+  ] }],
+  ['menu', 'Tier-one order', { ex: [
+    ['1. maj7 on the ♭3: Fmaj7 over Dm7', '=D3 A3 C4 | F4 | A4 | C5 | E5', 'Dm7 → Dm9 sound'],
+    ['2. maj7 on the ♭7: B♭maj7 over C7', '=C3 Bb3 | Bb3 | D4 | F4 | A4', 'C7 → C13sus sound'],
+    ['3. m7 on the 3: Am7 over Fmaj7', '=F2 E3 A3 | A3 | C4 | E4 | G4', 'Fmaj7 → Fmaj9 sound'],
+  ] }],
+  ['menu', 'Ionian', { ex: [
+    ['In G: Bm7 over Gmaj7', '=G2 F#3 B3 | B3 | D4 | F#4 | A4', 'Gmaj7 → Gmaj9 sound'],
+    ['The catch: F over Cmaj7 rubs; F♯ (Lydian) doesn’t', '=C3 G3 B3 E4 | F4 | C3 G3 B3 E4 | F#4', 'Cmaj7 with F, then with F♯'],
+    ['Down from D: Em7 over Cmaj7, descending', '=C3 B3 E4 | D5 | B4 | G4 | E4', 'Cmaj7 → Cmaj9 sound'],
+  ] }],
+  ['menu', 'Mixolydian', { ex: [
+    ['Fmaj7 over G7sus: G13sus', '=G2 F3 C4 | F4 | A4 | C5 | E5', 'G7sus → G13sus sound'],
+    ['In G: a C triad over D (♭7 9 11), then home', '=D3 C4 G4 | C5 | G4 | E4 | C4 | G2 F#3 B3 D4', 'D9sus → Gmaj7'],
+  ] }],
+  ['menu', 'Aeolian', { ex: [
+    ['maj7 on the ♭6: Fmaj7 over Am7', '=A2 G3 C4 | F4 | A4 | C5 | E5', 'Am7 with its ♭6'],
+    ['In E minor: Gmaj7 over Em7, Em9', '=E2 D3 G3 | G4 | B4 | D5 | F#5', 'Em7 → Em9 sound'],
+    ['The catch: Gmaj7 over Am7 brings F♯, Dorian’s 6', '=A2 G3 C4 | G4 | B4 | D5 | F#5', 'Am7 with F♯: the Dorian colour'],
+  ] }],
+  ['menu', 'Phrygian', { ex: [
+    ['In F: B♭maj7 over Am7, the iii chord', '=A2 G3 C4 | Bb3 | D4 | F4 | A4', 'Am7 as iii of F'],
+    ['Down the Fmaj7 shape over Em7, F falling to E on Am7', '=E2 D3 G3 | E5 | C5 | A4 | F4 | A2 G3 C4 E4', 'Em7 → Am7'],
+    ['The catch: Gmaj7 over Em7 brings F♯, a natural 9', '=E2 D3 G3 | G4 | B4 | D5 | F#5', 'Em7 with F♯: not Phrygian'],
+  ] }],
+  ['menu', 'Phrygian dominant', { ex: [
+    ['In A minor: A harmonic minor down over E7, landing on C', '=E2 D3 G#3 | F5 | E5 | D5 | C5 | B4 | A4 | G#4 | B4 | A2 E3 A3 C4 | C5', 'E7♭9 → Am'],
+    ['In D minor: C♯°7 down over A7, C♯ rising to D', '=A2 G3 C#4 | Bb4 | G4 | E4 | C#4 | D3 A3 D4 F4', 'A7♭9 → Dm'],
+    ['As chords: Dø7 – G7♭9 – Cm6', 'D:m7b5 G:7b9 C:m6'],
+  ] }],
+  ['menu', 'Locrian ♮2', { ex: [
+    ['In A minor: Dm6 over Bø7, the same four notes', '=B2 A3 D4 | F4 | A4 | B4 | D5', 'Bø7 = Dm6'],
+    ['The whole minor ii–V–i: Fm6, then D♭7 over G7, into Cm', '=D3 Ab3 C4 | F4 | Ab4 | C5 | D5 | G2 F3 B3 | Db5 | B4 | Ab4 | F4 | C3 G3 Eb4 | Eb4', 'Dø7 – G7alt – Cm'],
+    ['The parent scale from D: F melodic minor, E the ♮2', '=D3 Ab3 C4 | D4 | E4 | F4 | G4 | Ab4 | Bb4 | C5 | D5', 'Dø7, Locrian ♮2'],
+  ] }],
+  ['menu', 'Altered', { ex: [
+    ['A♭ melodic minor up from G, F falling to E on C', '=G2 F3 B3 | G4 | Ab4 | Bb4 | B4 | Db5 | Eb5 | F5 | C3 G3 B3 E4 | E5', 'G7alt → Cmaj7'],
+    ['An E♭ triad over G7: E♭ resolves up to E on C', '=G2 F3 B3 | Bb4 | G4 | Eb4 | C3 G3 B3 E4', 'G7♯9♭13 → Cmaj7'],
+    ['An A♭m triad over G7, A♭ falling to G on C', '=G2 F3 B3 | Eb5 | B4 | Ab4 | C3 E3 G3 C4 G4', 'G7alt → C'],
+  ] }],
+  ['menu', 'Lydian dominant', { ex: [
+    ['In context: Dm7 – D♭7♯11 – Cmaj7, the E♭ triad on D♭7', '=D3 C4 F4 | Db3 B3 F4 | Eb4 | G4 | Bb4 | C3 B3 E4 | B4', 'Dm7 – D♭7♯11 – Cmaj7'],
+    ['D♭ Lydian dominant up from D♭: the same notes as G altered', '=Db3 B3 F4 | Db4 | Eb4 | F4 | G4 | Ab4 | Bb4 | B4 | C3 B3 E4 | C5', 'D♭7♯11 → Cmaj7'],
+    ['On ♭VII7: a C triad over B♭7, then home to C', '=Bb2 Ab3 D4 | C4 | E4 | G4 | C3 G3 C4 E4', 'B♭7♯11 → C'],
+  ] }],
+  ['menu', 'Melodic minor tonic', { ex: [
+    ['The alias: an Aø7 arpeggio over Cm6', '=C3 A3 Eb4 | A3 | C4 | Eb4 | G4', 'Cm6 = Aø7'],
+    ['At the end of a minor ii–V–i, G – B – D on top', '=D3 Ab3 C4 | G2 F3 B3 | C3 A3 Eb4 | G4 | B4 | D5', 'Dø7 – G7 – Cm6'],
+    ['C melodic minor up: B resolves straight to C', '=C3 A3 Eb4 | C4 | D4 | Eb4 | F4 | G4 | A4 | B4 | C5', 'Cm6, C melodic minor'],
+  ] }],
+  ['menu', 'Half-whole', { ex: [
+    ['A♭°7 over G7, F falling to E on C', '=G2 F3 B3 | Ab4 | B4 | D5 | F5 | C3 G3 C4 E4 | E5', 'G7♭9 → C'],
+    ['The G half-whole scale up, landing on C', '=G2 F3 B3 | G4 | Ab4 | Bb4 | B4 | C#5 | D5 | E5 | F5 | C3 G3 C4 E4 | E5', 'G13♭9 → C'],
+    ['As chords: Dm7 – G13♭9 – Cmaj7', 'D:m7 G:13b9 C:maj7'],
+  ] }],
+  ['menu', 'Whole tone', { ex: [
+    ['The whole-tone scale up from G, then C', '=G2 F3 B3 | G4 | A4 | B4 | C#5 | D#5 | F5 | C3 G3 C4 E4 | E5', 'G7♯5 → C'],
+    ['As chords: Dm7 – G7♯5 – Cmaj7', 'D:m7 G:7#5 C:maj7'],
+    ['In F: C+ then D+ over C7♯5, A♯ falling to A', '=C3 Bb3 E4 | C4 | E4 | G#4 | D4 | F#4 | A#4 | F2 C3 F3 A3 | A4', 'C7♯5 → F'],
+  ] }]
+];
+for (const [deck, title, add] of MOREEX) {
+  const c = DECKS.find((d) => d.id === deck)?.cards.find((x) => x.t === title);
+  if (!c) { console.warn('no card', deck, title); continue; }
+  const own = c.play ? [['The example', c.play]] : [];
+  c.ex = [...(c.ex || []), ...own, ...add.ex.filter(([, p]) => !(c.ex || []).some(([, q]) => q === p))]; delete c.play;
+}
+
+// the key-learning cards play the keys they talk about
+for (const [deck, title, ex] of [
+  ['learnkeys', 'You don’t learn 12 lists', [['I – IV – V – I in C, then the same in E♭: one pattern, any key', 'C:maj F:maj G:maj C:maj Eb:maj Ab:maj Bb:maj Eb:maj'], ['And in E, the guitar key', 'E:maj A:maj B:maj E:maj']]],
+  ['learnkeys', 'The order of sharps', [['One sharp (F♯): G – C – D – G', 'G:maj C:maj D:maj G:maj'], ['Two (F♯ C♯): D – G – A – D', 'D:maj G:maj A:maj D:maj'], ['Three (F♯ C♯ G♯): A – D – E – A', 'A:maj D:maj E:maj A:maj']]],
+  ['learnkeys', 'The order of flats', [['One flat (B♭): F – B♭ – C – F', 'F:maj Bb:maj C:maj F:maj'], ['Two (B♭ E♭): B♭ – E♭ – F – B♭', 'Bb:maj Eb:maj F:maj Bb:maj'], ['Three (B♭ E♭ A♭): E♭ – A♭ – B♭ – E♭', 'Eb:maj Ab:maj Bb:maj Eb:maj']]],
+  ['learnkeys', 'How many sharps or flats', [['Round the 4ths: C – F – B♭ – E♭ – A♭', 'C:maj F:maj Bb:maj Eb:maj Ab:maj']]],
+  ['learnkeys', 'The add-to-7 trick', [['G (1 sharp), then G♭ (6 flats)', 'G:maj C:maj D:7 G:maj Gb:maj Cb:maj Db:7 Gb:maj'], ['A (3 sharps), then A♭ (4 flats)', 'A:maj D:maj E:7 A:maj Ab:maj Db:maj Eb:7 Ab:maj']]],
+  ['learnkeys', 'Name the key from the signature', [['Last sharp G♯, so A major', 'A:maj D:maj E:7 A:maj'], ['Flats B♭ E♭ A♭, so E♭ major', 'Eb:maj Ab:maj Bb:7 Eb:maj'], ['Two sharps, but F♯7 says B minor', 'B:min E:min F#:7 B:min']]],
+  ['learnkeys', 'Spell any key in three steps', [['E♭ major: E♭ F G A♭ B♭ C D', 'Eb:maj7 C:m7 F:m7 Bb:7 Eb:maj7'], ['E major: E F♯ G♯ A B C♯ D♯', 'E:maj C#:min A:maj B:7 E:maj']]],
+  ['learnkeys', 'Play in any key without the names', [['The same I – IV – V – I moved from G to A to C', 'G:maj C:maj D:maj G:maj A:maj D:maj E:maj A:maj C:maj F:maj G:maj C:maj'], ['I – vi – IV – V in F, from the box', 'F:maj D:min Bb:maj C:maj F:maj']]],
+  ['learnkeys', 'Learn the keys you play first', [['The guitar keys’ I chords: E – A – D – G – C', 'E:maj A:maj D:maj G:maj C:maj'], ['The horn keys: F – B♭ – E♭', 'F:maj Bb:maj Eb:maj'], ['Their relative minors: C♯m – F♯m – Bm – Em – Am', 'C#:min F#:min B:min E:min A:min']]],
+  ['majkeys', 'Name the key', [['Three sharps: A major', 'A:maj D:maj E:7 A:maj'], ['Two flats: B♭ major', 'Bb:maj Eb:maj F:7 Bb:maj']]],
+  ['minkeys', 'Minor keys', [['A minor, natural then harmonic: G, then G♯ in E7', 'A:min D:min E:min A:min A:min D:min E:7 A:min'], ['A minor and C major: the same notes, a different home', 'A:min F:maj G:maj A:min C:maj F:maj G:maj C:maj']]],
+]) {
+  const c = DECKS.find((d) => d.id === deck)?.cards.find((x) => x.t === title);
+  if (!c) { console.warn('no card', deck, title); continue; }
+  c.ex = [...(c.ex || []), ...ex];
 }

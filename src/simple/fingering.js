@@ -23,7 +23,8 @@ function playCost(notes, q) {
   const barre = fingers.length !== new Set(fingers).size;
   const opens = notes.filter((x) => x.fret === 0).length;
   const plain = TRIAD.has(q);
-  return 0.5 * span + 0.8 * gaps + (plain ? 0.4 * Math.max(0, 5 - n) : 0.4 * Math.abs(n - 4.5)) + (barre ? 0.35 : 0) + opens * (plain ? -0.25 : 0.6);
+  const no5 = plain && q !== '5' && !notes.some((x) => /5$/.test(String(x.iv))) ? 1.2 : 0; // a triad wants all three notes
+  return no5 + 0.5 * span + 0.8 * gaps + (plain ? 0.4 * Math.max(0, 5 - n) : 0.4 * Math.abs(n - 4.5)) + (barre ? 0.35 : 0) + opens * (plain ? -0.25 : 0.6);
 }
 const sig = (notes) => notes.map((n) => `${n.string}:${n.fret}`).sort().join();
 const fretted = (notes) => notes.filter((n) => n.fret > 0).map((n) => n.fret);
@@ -129,6 +130,58 @@ function shellCands(tok) {
   return out;
 }
 
+// the chords every guitarist is taught: the open shapes where they exist, otherwise the E-shape and A-shape barres
+const OPEN_SHAPES = {
+  maj: { C: 'x32010', A: 'x02220', G: '320003', E: '022100', D: 'xx0232' },
+  min: { A: 'x02210', E: '022000', D: 'xx0231' },
+  7: { C: 'x32310', A: 'x02020', G: '320001', E: '020100', D: 'xx0212', B: 'x21202' },
+  m7: { A: 'x02010', E: '020000', D: 'xx0211' },
+  maj7: { C: 'x32000', A: 'x02120', F: 'xx3210', D: 'xx0222', E: '021100' },
+  6: { C: 'x32210', A: 'x02222', G: '320000', E: '022120', D: 'xx0202' },
+  m6: { A: 'x02212', E: '022020', D: 'xx0201' },
+  sus4: { A: 'x02230', D: 'xx0233', E: '022200' },
+  sus2: { A: 'x02200', D: 'xx0230' },
+  add9: { C: 'x32033', G: '320203', D: 'xx0230' },
+};
+const BARRE = {
+  maj: [['E', [0, 2, 2, 1, 0, 0]], ['A', [null, 0, 2, 2, 2, 0]]],
+  min: [['E', [0, 2, 2, 0, 0, 0]], ['A', [null, 0, 2, 2, 1, 0]]],
+  7: [['E', [0, 2, 0, 1, 0, 0]], ['A', [null, 0, 2, 0, 2, 0]]],
+  m7: [['E', [0, 2, 0, 0, 0, 0]], ['A', [null, 0, 2, 0, 1, 0]]],
+  maj7: [['E', [0, null, 1, 1, 0, null]], ['A', [null, 0, 2, 1, 2, 0]]],
+  6: [['A', [null, 0, 2, 2, 2, 2]]],
+  m6: [['A', [null, 0, null, -1, 1, 0]]],
+  sus4: [['E', [0, 2, 2, 2, 0, 0]], ['A', [null, 0, 2, 2, 3, 0]]],
+  sus2: [['A', [null, 0, 2, 2, 0, 0]]],
+  add9: [['A', [null, 0, 2, 4, 0, null]]],
+};
+function standardCands(tok) {
+  const c = T.parseChordToken(tok);
+  if (c.bass || !BARRE[c.quality]) return [];
+  const q = c.quality, rpc = T.notePc(c.root), ivs = T.getChord(q).ivs;
+  const ivOf = (m) => ivs.find((iv) => T.intervalSemis(iv) % 12 === ((m - rpc) % 12 + 12) % 12) || '?';
+  const make = (frets) => {
+    const notes = [];
+    frets.forEach((f, i) => { if (f !== null) { const s = 6 - i; notes.push({ string: s, fret: f, midi: OPEN[s] + f, iv: ivOf(OPEN[s] + f) }); } });
+    if (notes.some((n) => n.fret < 0 || n.fret > MAX || n.iv === '?')) return null;
+    const fg = fingerGrip(notes);
+    return fg ? { notes: fg.sort((a, b) => b.string - a.string), cost: playCost(fg, q) } : null;
+  };
+  const out = [];
+  const name = T.noteName(c.root).replace(/b$/, 'b');
+  const open = OPEN_SHAPES[q]?.[name];
+  if (open) { const g = make(open.split('').map((x) => (x === 'x' ? null : Number(x)))); if (g) out.push({ ...g, cost: g.cost - 1 }); } // the open chord first
+  for (const [shape, offs] of BARRE[q]) {
+    const anchor = shape === 'E' ? 6 : 5;
+    for (let r = ((rpc - OPEN[anchor]) % 12 + 12) % 12; r <= 12; r += 12) {
+      if (r === 0) continue; // fret 0 is the open chord, already there
+      const g = make(offs.map((o) => (o === null ? null : r + o)));
+      if (g) out.push(g);
+    }
+  }
+  return out;
+}
+
 // prefer: 'shell' to show root–3rd–7th shells (cards about guide tones); otherwise the style suits the example
 export function progGrips(tokens, prefer = null) {
   // a pop example (mostly plain triads) gets open and barre chords; a jazz one gets movable 4–5 note grips
@@ -136,13 +189,13 @@ export function progGrips(tokens, prefer = null) {
   const jazz = qs.filter((q) => !TRIAD.has(q)).length * 2 >= qs.length;
   const C = tokens.map((t) => {
     if (prefer === 'shell') { const sh = shellCands(t); if (sh.length) return sh; }
+    if (!jazz) { const std = standardCands(t); if (std.length) return std; return candidates(t); }
     const all = candidates(t);
-    if (!jazz) return all;
     const movable = all.filter((g) => g.notes.length >= 4 && g.notes.every((n) => n.fret > 0));
     return movable.length ? movable : all;
   });
   if (C.some((l) => !l.length)) return null;
-  const own = (g) => g.cost + 0.09 * centre(g.notes);
+  const own = (g) => g.cost + (jazz ? 0.09 : 0.22) * centre(g.notes); // plain chords: the low, familiar positions
   const move = (a, b) => {
     const d = Math.abs(centre(a.notes) - centre(b.notes));
     let slide = 0, swap = 0;
