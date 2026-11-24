@@ -111,6 +111,7 @@ button.on { color: var(--amber); border-color: rgba(255, 181, 71, 0.6); backgrou
 .cbody { color: var(--soft); font-size: 16.5px; line-height: 1.5; margin-top: 10px; }
 .cbody p { margin: 0 0 10px; }
 .cbody b { color: var(--text); }
+.cbody a { color: var(--amber); text-decoration: underline; text-underline-offset: 2px; }
 .cbody ul { margin: 0 0 10px; padding-left: 20px; }
 .cbody li { margin: 0 0 6px; }
 .cbody li::marker { color: var(--amber); }

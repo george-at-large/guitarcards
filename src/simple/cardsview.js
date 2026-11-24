@@ -343,6 +343,11 @@ const compHTML = (c, st) => {
   </div>`;
 };
 
+// Contents sections: a heading before the first deck of each group (by id prefix)
+const GROUPS = [['ir-', 'iReal Pro'], ['lum-', 'Guitar Luminary handouts']];
+const groupOf = (d) => GROUPS.find(([p]) => d?.id.startsWith(p));
+const groupHead = (d, prev) => { const g = groupOf(d); return g && g !== groupOf(prev) ? `<h3 class="hgroup">${g[1]}</h3>` : ''; };
+
 // ---------- a card ----------
 function bodyHTML(lines = []) {
   let out = '', list = false;
@@ -445,7 +450,7 @@ export function mountCards(root, S, save) {
       <button class="hcont" data-cont><small>Carry on · ${esc(deckName(st.deck))} · ${Math.min(pos() + 1, n)} / ${n}</small><b>${c ? acc(c.t) : 'Back to the start'}</b><span>▶</span></button>
       <button class="hall" data-all>All decks in a row <span>${listFor('all').length} cards</span></button>
       <button class="hall hex" data-exs>Exercises (play-along decks and drill cards) <span>${showEx ? 'shown' : 'hidden'}</span></button>
-      ${DECKS.filter((d) => showEx || !EXERCISE.has(d.id)).map((d, i, arr) => `${d.id.startsWith('lum-') && !arr[i - 1]?.id.startsWith('lum-') ? '<h3 class="hgroup">Guitar Luminary handouts</h3>' : ''}<section class="hsec${openDeck === d.id ? ' open' : ''}">
+      ${DECKS.filter((d) => showEx || !EXERCISE.has(d.id)).map((d, i, arr) => `${groupHead(d, arr[i - 1])}<section class="hsec${openDeck === d.id ? ' open' : ''}">
         <div class="hhead"><button class="hname" data-open="${d.id}"><i>${openDeck === d.id ? '▾' : '▸'}</i>${esc(d.name)}<span>${d.cards.length}</span></button><button class="hstart" data-tdeck="${d.id}">Test</button><button class="hstart" data-start="${d.id}">Start</button></div>
         ${openDeck === d.id ? `<div class="hcards">${d.cards.map((x, i) => `<button data-jump="${d.id}:${i}"><span>${i + 1}</span>${acc(x.t)}</button>`).join('')}</div>` : ''}
       </section>`).join('')}
@@ -534,6 +539,7 @@ export function mountCards(root, S, save) {
   stage.onpointerup = end;
   stage.onpointercancel = (e) => { if (drag) { card.style.transition = 'transform .2s'; card.style.transform = ''; } x0 = null; drag = false; };
   stage.onclick = (e) => {
+    if (e.target.closest('.cbody a')) { e.stopPropagation(); return; } // listening links open in a new tab
     const dk = e.target.closest('[data-dnk], .dnk [data-dn]');
     if (dk) { e.stopPropagation(); const cardObj = mode === 'test' ? tcard : current(); openDn(dk.dataset.dnk ? dk : dn.btn, cardObj, cs.drill); return; }
     const xc = e.target.closest('.exneck [data-ex], .exneck [data-exi]'); if (xc) { e.stopPropagation(); exControl(xc); return; }

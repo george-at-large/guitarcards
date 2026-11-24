@@ -11,6 +11,7 @@ import { DECKS as LUM_A } from './lum/a.js';
 import { DECKS as LUM_B } from './lum/b.js';
 import { DECKS as LUM_C, NOCTURNE_FIXES } from './lum/c.js';
 import { DECKS as LUM_D } from './lum/d.js';
+import { DECKS as IREAL } from './ireal.js';
 
 export const DECKS = [
   {
@@ -6923,7 +6924,9 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
 // the play-along exercise decks sit together at the end: comping, rhythm, grooves, drills
 { const i = DECKS.findIndex((d) => d.id === 'comping'); const [cp] = DECKS.splice(i, 1); DECKS.splice(DECKS.findIndex((d) => d.id === 'rhythm'), 0, cp); }
 
-// Guitar Luminary handouts: their own section at the very end of Contents (cardsview puts a heading before the first)
+// the iReal Pro tunes, then the Guitar Luminary handouts: their own sections at the end of Contents (cardsview puts a
+// heading before each)
+DECKS.push(...IREAL);
 {
   const noc = DECKS.splice(DECKS.findIndex((d) => d.id === 'lum-nocturne'), 1)[0];
   for (const f of NOCTURNE_FIXES) { const i = noc.cards.findIndex((c) => c.t === f.replaces); if (i < 0) throw new Error(`no card ${f.replaces}`); noc.cards[i] = f.card; }
