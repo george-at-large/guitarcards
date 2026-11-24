@@ -12,6 +12,14 @@ const CHROM = ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7'];
 const NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 const SHAPES = ['C', 'A', 'G', 'E', 'D'];
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
+// how the answer plays: the notes in turn, together (each note sounded with the first), or in turn then together;
+// and how fast. Shared with the Degrees page (sing.js).
+export const PLAYS = [['seq', 'In turn'], ['uni', 'Together'], ['both', 'In turn, then together']];
+export const SPEEDS = [['normal', 'Normal', 0.6], ['slow', 'Slow', 1.0], ['vslow', 'Very slow', 1.6]];
+export const gapOf = (sp) => (SPEEDS.find(([v]) => v === sp) || SPEEDS[0])[2];
+const cycle = (list, cur) => list[(list.findIndex(([v]) => v === cur) + 1) % list.length][0];
+export const nextSpeed = (cur) => cycle(SPEEDS, cur);
+export const speedName = (cur) => (SPEEDS.find(([v]) => v === cur) || SPEEDS[0])[1];
 const semis = (iv) => T.intervalSemis(iv) % 12;
 
 // the scale's notes as intervals from the root (chromatic: all twelve)
@@ -81,7 +89,7 @@ const noteLabel = (n) => T.noteName(n.note, true);
 
 // find: the other way round. The first note shows and the line plays unseen; tap its notes on the neck in order.
 export function mountSingNeck(root, S, save, { upright, onPage, find = false }) {
-  S.singNeck = Object.assign({ area: 'neck', labels: 'iv', len: 2, scale: 'chromatic', drone: false }, S.singNeck || {});
+  S.singNeck = Object.assign({ area: 'neck', labels: 'iv', len: 2, scale: 'chromatic', drone: false, play: 'both', speed: 'normal' }, S.singNeck || {});
   const st = S.singNeck;
   let q = makeLine(st), checked = false, droning = false;
   let k = 1, misses = 0, bad = null; // Find it: the next note to find, wrong taps, the last wrong spot
@@ -89,11 +97,15 @@ export function mountSingNeck(root, S, save, { upright, onPage, find = false }) 
   const lab = (n, other = false) => ((st.labels === 'iv') !== other ? ivLabel(n) : noteLabel(n));
   const drone = () => { if (st.drone) { A.unlockAudio(); A.startDrone(40 + ((q.pc - 4 + 12) % 12), false); droning = true; } else { A.stopDrone(); droning = false; } };
   const playFirst = () => { A.unlockAudio(); A.pluck(q.line[0].midi, A.audioCtx().currentTime + 0.05, { vel: 0.85, dur: 1.4 }); };
+  // in turn, together, or both. Together: two notes sound at once; a longer line plays each note against the first
   const playAll = () => {
     A.unlockAudio();
-    const t = A.audioCtx().currentTime + 0.05;
-    q.line.forEach((n, i) => A.pluck(n.midi, t + i * 0.6, { vel: 0.85, dur: 0.7 }));
-    if (q.line.length === 2) A.strum(q.line.map((n) => n.midi), t + 1.5, { spread: 0.02, vel: 0.7 }); // and together
+    const gap = gapOf(st.speed), ring = gap * 1.15;
+    let t = A.audioCtx().currentTime + 0.05;
+    if (st.play !== 'uni') { q.line.forEach((n, i) => A.pluck(n.midi, t + i * gap, { vel: 0.85, dur: ring })); t += q.line.length * gap + gap * 0.6; }
+    if (st.play === 'seq') return;
+    const [first, ...rest] = q.line;
+    rest.forEach((n, i) => A.strum([first.midi, n.midi].sort((a, b) => a - b), t + i * gap * 2, { spread: 0.02, vel: 0.72, dur: gap * 1.8 }));
   };
   const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
   const done = () => k >= q.line.length;
@@ -113,6 +125,7 @@ export function mountSingNeck(root, S, save, { upright, onPage, find = false }) 
       : `<div class="row big"><button id="nCheck" class="${checked ? 'on' : ''}">${checked ? '▶ Again' : '▶ Check'}</button></div>
       <div class="row"><button id="nNext" class="wide">Next ▶</button></div>
       <div class="row toggles"><button id="nFirst">▶ First</button><button id="nDrone" class="${st.drone ? 'on' : ''}">Drone</button></div>`}
+      <div class="row toggles"><button id="nPlay">Play: ${esc((PLAYS.find(([v]) => v === st.play) || PLAYS[2])[1].toLowerCase())}</button><button id="nSpeed">Speed: ${esc(speedName(st.speed).toLowerCase())}</button></div>
       <div class="menus">
         <label><span>Area</span><select id="nArea">${[['neck', 'Whole neck'], ['caged', 'One CAGED shape']].map(([v, l]) => opt(v, l, st.area)).join('')}</select></label>
         <label><span>Show</span><select id="nLab">${[['iv', 'Intervals'], ['note', 'Note names']].map(([v, l]) => opt(v, l, st.labels)).join('')}</select></label>
@@ -128,6 +141,8 @@ export function mountSingNeck(root, S, save, { upright, onPage, find = false }) 
     if (find) $('nShow').onclick = () => { checked = !checked; render(); };
     else $('nFirst').onclick = () => playFirst();
     $('nDrone').onclick = () => { st.drone = !st.drone; save(); drone(); render(); };
+    $('nPlay').onclick = () => { st.play = cycle(PLAYS, st.play); save(); render(); playAll(); }; // hear the new way at once
+    $('nSpeed').onclick = () => { st.speed = nextSpeed(st.speed); save(); render(); playAll(); };
     const set = (id, k, num) => { $(id).onchange = (e) => { st[k] = num ? Number(e.target.value) : e.target.value; save(); next(); }; };
     set('nArea', 'area'); set('nLab', 'labels'); set('nLen', 'len', true); set('nScale', 'scale');
   };

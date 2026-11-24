@@ -5,6 +5,7 @@ import * as T from '../theory.js';
 import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { MODE_DEFAULT, scaleName, parent, formula, steps, colour } from '../fundamentals/scaledata.js';
+import { gapOf, nextSpeed, speedName } from './singneck.js';
 
 const MAJOR = ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'];
 const SETS = [['major', 'The 7 major modes'], ['core', 'Modes to know (13)'], ...MODE_DEFAULT.map((id) => [id, scaleName(id)])];
@@ -64,7 +65,7 @@ export function makeSing(st) {
 
 // ---------- the screen ----------
 export function mountSing(root, S, save, { onPage } = {}) {
-  S.sing = Object.assign({ set: 'core', key: 'any', reg: 'any', len: 5, range: '13', drone: false }, S.sing || {});
+  S.sing = Object.assign({ set: 'core', key: 'any', reg: 'any', len: 5, range: '13', drone: false, speed: 'normal' }, S.sing || {});
   const st = S.sing;
   let q = makeSing(st), showStruct = false, showAns = false, droning = false;
   const nm = (n) => T.noteName(n, true);
@@ -73,8 +74,9 @@ export function mountSing(root, S, save, { onPage } = {}) {
   const hear = (withLine) => {
     A.unlockAudio();
     const c = A.audioCtx(), t = c.currentTime + 0.05;
+    const gap = gapOf(st.speed);
     A.pluck(q.rootMidi, t, { vel: 0.85, dur: 1.2 });
-    if (withLine) q.seq.forEach((s, i) => A.pluck(q.rootMidi + s.semis, t + 0.9 + i * 0.62, { vel: 0.75, dur: 0.55 }));
+    if (withLine) q.seq.forEach((s, i) => A.pluck(q.rootMidi + s.semis, t + 0.3 + gap * 1.0 + i * gap, { vel: 0.75, dur: gap * 0.9 }));
   };
   const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
   const render = () => {
@@ -98,6 +100,7 @@ export function mountSing(root, S, save, { onPage } = {}) {
       <div class="row toggles">
         <button id="sRoot">▶ Root</button>
         <button id="sDrone" class="${st.drone ? 'on' : ''}" aria-pressed="${st.drone}">Drone ${esc(nm(q.root))}</button>
+        <button id="sSpeed">Speed: ${esc(speedName(st.speed).toLowerCase())}</button>
       </div>`;
     root.querySelector('.sopts').innerHTML = `
       <label><span>Modes</span><select id="sSet">${SETS.map(([v, l]) => opt(v, l, st.set)).join('')}</select></label>
@@ -112,6 +115,7 @@ export function mountSing(root, S, save, { onPage } = {}) {
     $('sHear').onclick = () => hear(true);
     $('sRoot').onclick = () => hear(false);
     $('sNext').onclick = () => next();
+    $('sSpeed').onclick = () => { st.speed = nextSpeed(st.speed); save(); render(); hear(true); };
     $('sDrone').onclick = () => { st.drone = !st.drone; save(); drone(); render(); };
     const set = (id, k, num) => { $(id).onchange = (e) => { st[k] = num ? Number(e.target.value) : e.target.value; save(); next(); }; };
     set('sSet', 'set'); set('sKey', 'key'); set('sReg', 'reg'); set('sLen', 'len', true); set('sRange', 'range');
