@@ -97,15 +97,16 @@ export async function unlockAudio() {
 }
 const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
-function ksBuffer(midi, muted = false) {
-  const key = midi + (muted ? 'm' : '');
+// long: a sustained note (Sing's Sustain), ringing about twice as long as a normal pluck
+function ksBuffer(midi, muted = false, long = false) {
+  const key = midi + (muted ? 'm' : '') + (long ? 'L' : '');
   if (pluckCache.has(key)) return pluckCache.get(key);
   const c = audioCtx();
   const sr = c.sampleRate;
   const f = hz(midi);
   // low strings ring longer than high ones
-  const t60 = muted ? 0.09 : Math.max(1.1, 4.2 - (midi - 40) * 0.075);
-  const len = Math.floor(sr * Math.min(3.2, muted ? 0.16 : t60 * 0.85));
+  const t60 = muted ? 0.09 : long ? Math.max(4, 8 - (midi - 40) * 0.08) : Math.max(1.1, 4.2 - (midi - 40) * 0.075);
+  const len = Math.floor(sr * Math.min(long ? 7 : 3.2, muted ? 0.16 : t60 * 0.85));
   const buf = c.createBuffer(1, len, sr);
   const y = buf.getChannelData(0);
   const D = sr / f - 0.5;                 // loop delay incl. the averaging filter's half-sample
@@ -134,10 +135,10 @@ function ksBuffer(midi, muted = false) {
   return buf;
 }
 
-export function pluck(midi, t, { vel = 0.8, muted = false, dur = null, dest = null } = {}) {
+export function pluck(midi, t, { vel = 0.8, muted = false, dur = null, dest = null, long = false } = {}) {
   const c = audioCtx();
   const s = c.createBufferSource();
-  s.buffer = ksBuffer(midi, muted);
+  s.buffer = ksBuffer(midi, muted, long);
   const g = c.createGain();
   const v = vel * 0.42;
   g.gain.value = v;
@@ -213,11 +214,11 @@ export function click(t, level = 1) {
 }
 
 // strum: midis low->high; dir 'D' plays low->high, 'U' high->low
-export function strum(midis, t, { dir = 'D', spread = 0.012, vel = 0.8, muted = false, dur = null, sound = 'guitar' } = {}) {
+export function strum(midis, t, { dir = 'D', spread = 0.012, vel = 0.8, muted = false, dur = null, sound = 'guitar', long = false } = {}) {
   const ord = dir === 'U' ? [...midis].reverse() : midis;
   ord.forEach((m, i) => {
     if (sound === 'keys') keys(m, t, dur || 1, vel * 0.8);
-    else pluck(m, t + i * spread, { vel: vel * (dir === 'U' ? 0.8 : 1), muted, dur });
+    else pluck(m, t + i * spread, { vel: vel * (dir === 'U' ? 0.8 : 1), muted, dur, long });
   });
 }
 

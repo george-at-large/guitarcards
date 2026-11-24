@@ -65,7 +65,7 @@ export function makeSing(st) {
 
 // ---------- the screen ----------
 export function mountSing(root, S, save, { onPage } = {}) {
-  S.sing = Object.assign({ set: 'core', key: 'any', reg: 'any', len: 5, range: '13', drone: false, speed: 'normal' }, S.sing || {});
+  S.sing = Object.assign({ set: 'core', key: 'any', reg: 'any', len: 5, range: '13', drone: false, speed: 'normal', sustain: false }, S.sing || {});
   const st = S.sing;
   let q = makeSing(st), showStruct = false, showAns = false, droning = false;
   const nm = (n) => T.noteName(n, true);
@@ -75,8 +75,9 @@ export function mountSing(root, S, save, { onPage } = {}) {
     A.unlockAudio();
     const c = A.audioCtx(), t = c.currentTime + 0.05;
     const gap = gapOf(st.speed);
-    A.pluck(q.rootMidi, t, { vel: 0.85, dur: 1.2 });
-    if (withLine) q.seq.forEach((s, i) => A.pluck(q.rootMidi + s.semis, t + 0.3 + gap * 1.0 + i * gap, { vel: 0.75, dur: gap * 0.9 }));
+    const long = st.sustain; // Sustain: every note rings out
+    A.pluck(q.rootMidi, t, { vel: 0.85, dur: long ? null : 1.2, long });
+    if (withLine) q.seq.forEach((s, i) => A.pluck(q.rootMidi + s.semis, t + 0.3 + gap * 1.0 + i * gap, { vel: 0.75, dur: long ? null : gap * 0.9, long }));
   };
   const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
   const render = () => {
@@ -101,6 +102,7 @@ export function mountSing(root, S, save, { onPage } = {}) {
         <button id="sRoot">▶ Root</button>
         <button id="sDrone" class="${st.drone ? 'on' : ''}" aria-pressed="${st.drone}">Drone ${esc(nm(q.root))}</button>
         <button id="sSpeed">Speed: ${esc(speedName(st.speed).toLowerCase())}</button>
+        <button id="sSus" class="${st.sustain ? 'on' : ''}" aria-pressed="${st.sustain}">Sustain</button>
       </div>`;
     root.querySelector('.sopts').innerHTML = `
       <label><span>Modes</span><select id="sSet">${SETS.map(([v, l]) => opt(v, l, st.set)).join('')}</select></label>
@@ -116,6 +118,7 @@ export function mountSing(root, S, save, { onPage } = {}) {
     $('sRoot').onclick = () => hear(false);
     $('sNext').onclick = () => next();
     $('sSpeed').onclick = () => { st.speed = nextSpeed(st.speed); save(); render(); hear(true); };
+    $('sSus').onclick = () => { st.sustain = !st.sustain; save(); render(); hear(true); };
     $('sDrone').onclick = () => { st.drone = !st.drone; save(); drone(); render(); };
     const set = (id, k, num) => { $(id).onchange = (e) => { st[k] = num ? Number(e.target.value) : e.target.value; save(); next(); }; };
     set('sSet', 'set'); set('sKey', 'key'); set('sReg', 'reg'); set('sLen', 'len', true); set('sRange', 'range');

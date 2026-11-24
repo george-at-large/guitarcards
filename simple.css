@@ -334,3 +334,6 @@ h1 .tabs { margin-left: 8px; }
 #simple.v .xpos { margin: 0; gap: 4px; }
 #simple.v .xpos button { min-width: 0; padding: 7px 0; font-size: 13px; }
 .home .hgroup { margin: 18px 4px 6px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); font-weight: 600; }
+/* Sing's upright neck on a wide screen: keep the panel a readable width */
+#simple.v.wide-v { max-width: 760px; margin-inline: auto; }
+@media (min-width: 700px) { #simple.wide-v .menus { grid-template-columns: 1fr 1fr; } }

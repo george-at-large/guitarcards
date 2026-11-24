@@ -89,23 +89,23 @@ const noteLabel = (n) => T.noteName(n.note, true);
 
 // find: the other way round. The first note shows and the line plays unseen; tap its notes on the neck in order.
 export function mountSingNeck(root, S, save, { upright, onPage, find = false }) {
-  S.singNeck = Object.assign({ area: 'neck', labels: 'iv', len: 2, scale: 'chromatic', drone: false, play: 'both', speed: 'normal' }, S.singNeck || {});
+  S.singNeck = Object.assign({ area: 'neck', labels: 'iv', len: 2, scale: 'chromatic', drone: false, play: 'both', speed: 'normal', sustain: false }, S.singNeck || {});
   const st = S.singNeck;
   let q = makeLine(st), checked = false, droning = false;
   let k = 1, misses = 0, bad = null; // Find it: the next note to find, wrong taps, the last wrong spot
   const box = root.querySelector('.neckbox'), panel = root.querySelector('.panel');
   const lab = (n, other = false) => ((st.labels === 'iv') !== other ? ivLabel(n) : noteLabel(n));
   const drone = () => { if (st.drone) { A.unlockAudio(); A.startDrone(40 + ((q.pc - 4 + 12) % 12), false); droning = true; } else { A.stopDrone(); droning = false; } };
-  const playFirst = () => { A.unlockAudio(); A.pluck(q.line[0].midi, A.audioCtx().currentTime + 0.05, { vel: 0.85, dur: 1.4 }); };
+  const playFirst = () => { A.unlockAudio(); A.pluck(q.line[0].midi, A.audioCtx().currentTime + 0.05, { vel: 0.85, dur: st.sustain ? null : 1.4, long: st.sustain }); };
   // in turn, together, or both. Together: two notes sound at once; a longer line plays each note against the first
   const playAll = () => {
     A.unlockAudio();
-    const gap = gapOf(st.speed), ring = gap * 1.15;
+    const gap = gapOf(st.speed), ring = st.sustain ? null : gap * 1.15, long = st.sustain; // Sustain: every note rings out
     let t = A.audioCtx().currentTime + 0.05;
-    if (st.play !== 'uni') { q.line.forEach((n, i) => A.pluck(n.midi, t + i * gap, { vel: 0.85, dur: ring })); t += q.line.length * gap + gap * 0.6; }
+    if (st.play !== 'uni') { q.line.forEach((n, i) => A.pluck(n.midi, t + i * gap, { vel: 0.85, dur: ring, long })); t += q.line.length * gap + gap * (st.sustain ? 1.6 : 0.6); }
     if (st.play === 'seq') return;
     const [first, ...rest] = q.line;
-    rest.forEach((n, i) => A.strum([first.midi, n.midi].sort((a, b) => a - b), t + i * gap * 2, { spread: 0.02, vel: 0.72, dur: gap * 1.8 }));
+    rest.forEach((n, i) => A.strum([first.midi, n.midi].sort((a, b) => a - b), t + i * gap * 2, { spread: 0.02, vel: 0.72, dur: st.sustain ? null : gap * 1.8, long }));
   };
   const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
   const done = () => k >= q.line.length;
@@ -125,7 +125,7 @@ export function mountSingNeck(root, S, save, { upright, onPage, find = false }) 
       : `<div class="row big"><button id="nCheck" class="${checked ? 'on' : ''}">${checked ? '▶ Again' : '▶ Check'}</button></div>
       <div class="row"><button id="nNext" class="wide">Next ▶</button></div>
       <div class="row toggles"><button id="nFirst">▶ First</button><button id="nDrone" class="${st.drone ? 'on' : ''}">Drone</button></div>`}
-      <div class="row toggles"><button id="nPlay">Play: ${esc((PLAYS.find(([v]) => v === st.play) || PLAYS[2])[1].toLowerCase())}</button><button id="nSpeed">Speed: ${esc(speedName(st.speed).toLowerCase())}</button></div>
+      <div class="row toggles"><button id="nPlay">Play: ${esc((PLAYS.find(([v]) => v === st.play) || PLAYS[2])[1].toLowerCase())}</button><button id="nSpeed">Speed: ${esc(speedName(st.speed).toLowerCase())}</button><button id="nSus" class="${st.sustain ? 'on' : ''}" aria-pressed="${st.sustain}">Sustain</button></div>
       <div class="menus">
         <label><span>Area</span><select id="nArea">${[['neck', 'Whole neck'], ['caged', 'One CAGED shape']].map(([v, l]) => opt(v, l, st.area)).join('')}</select></label>
         <label><span>Show</span><select id="nLab">${[['iv', 'Intervals'], ['note', 'Note names']].map(([v, l]) => opt(v, l, st.labels)).join('')}</select></label>
@@ -143,6 +143,7 @@ export function mountSingNeck(root, S, save, { upright, onPage, find = false }) 
     $('nDrone').onclick = () => { st.drone = !st.drone; save(); drone(); render(); };
     $('nPlay').onclick = () => { st.play = cycle(PLAYS, st.play); save(); render(); playAll(); }; // hear the new way at once
     $('nSpeed').onclick = () => { st.speed = nextSpeed(st.speed); save(); render(); playAll(); };
+    $('nSus').onclick = () => { st.sustain = !st.sustain; save(); render(); playAll(); };
     const set = (id, k, num) => { $(id).onchange = (e) => { st[k] = num ? Number(e.target.value) : e.target.value; save(); next(); }; };
     set('nArea', 'area'); set('nLab', 'labels'); set('nLen', 'len', true); set('nScale', 'scale');
   };
