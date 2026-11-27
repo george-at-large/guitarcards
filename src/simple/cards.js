@@ -13,6 +13,7 @@ import { DECKS as LUM_C, NOCTURNE_FIXES } from './lum/c.js';
 import { DECKS as LUM_D } from './lum/d.js';
 import { DECKS as LUM_E } from './lum/e.js';
 import { DECKS as IREAL } from './ireal.js';
+import { DECKS as SUPERIMP } from './superimp.js';
 
 export const DECKS = [
   {
@@ -6927,6 +6928,7 @@ DECKS.splice(DECKS.findIndex((d) => d.id === 'symbols') + 1, 0, {
 
 // the iReal Pro tunes, then the Guitar Luminary handouts: their own sections at the end of Contents (cardsview puts a
 // heading before each)
+DECKS.splice(DECKS.findIndex((d) => d.id === 'menu') + 1, 0, ...SUPERIMP);
 DECKS.push(...IREAL);
 {
   const noc = DECKS.splice(DECKS.findIndex((d) => d.id === 'lum-nocturne'), 1)[0];
