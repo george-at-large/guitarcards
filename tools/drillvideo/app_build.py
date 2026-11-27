@@ -3,6 +3,7 @@
 
     tools/audiation/.venv/bin/python tools/drillvideo/app_build.py
 """
+import hashlib
 import json
 import subprocess
 import sys
@@ -51,7 +52,9 @@ def main() -> None:
                 done += 1
         if not dst.exists():
             continue
-        catalogue.append({'n': n, 'id': vid, 'strand': name, 'title': title, 'duration': round(dur)})
+        # v changes whenever the file does, so a phone never plays a stale or half-downloaded copy from its cache
+        v = hashlib.md5(dst.read_bytes()).hexdigest()[:8]
+        catalogue.append({'n': n, 'id': vid, 'strand': name, 'title': title, 'duration': round(dur), 'v': v})
     keep = {f"{c['id']}.mp4" for c in catalogue}
     for old in VIDEOS.glob('*.mp4'):
         if old.name not in keep:
