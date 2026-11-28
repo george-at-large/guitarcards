@@ -29,8 +29,9 @@ export function spell(pc, id) {
 }
 
 // every position of an area type: [{ title, short, sub, notes, path, win }]
-export function positions(id, pc, type) {
-  const ivs = ivsOf(id), root = spell(pc, id);
+export const positions = (id, pc, type) => positionsIvs(ivsOf(id), pc, type, spell(pc, id));
+// the same for any set of intervals (a chord's tones) on a given root
+export function positionsIvs(ivs, pc, type, root) {
   const bySemi = new Map(); ivs.forEach((iv) => { if (!bySemi.has(semi(iv))) bySemi.set(semi(iv), iv); });
   const rel = (m) => ((m - pc) % 12 + 12) % 12;
   const at = (s, f) => { const m = F.OPEN[s] + f; return bySemi.has(rel(m)) ? { string: s, fret: f, midi: m, iv: bySemi.get(rel(m)) } : null; };

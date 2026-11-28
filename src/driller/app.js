@@ -8,9 +8,11 @@ import * as F from '../fretboard.js';
 import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { GROUPS, ORDER, BY, TIPS, nameOf, ivsOf, ivForNumber, semi, sizeOf, groupOf } from './data.js';
-import { AREAS, AREA_NAME, positions, spell, placePitch, NECK_TOP } from './areas.js';
+import { AREAS, AREA_NAME, positions, positionsIvs, spell, placePitch, NECK_TOP } from './areas.js';
 import { PR, CATS, practicesFor, isBest, pattern, example, hiddenPents, TWISTS } from './practice.js';
 import { chordOf } from './data.js';
+import { CHORD_LIST, CHORD_NAME, chordIvs, WK, workoutsFor, chordExample } from './chords.js';
+import { spellRoot } from '../fundamentals/core.js';
 import { neck } from './neck.js';
 import { BUILD } from './build.js';
 
@@ -22,6 +24,8 @@ const S = Object.assign({ mode: 'drill', key: 7, scale: 'dorian', area: 'caged',
 S.game = Object.assign({ groups: [0, 1, 2, 3, 4, 5], areas: ['caged', 'pair', 'nps3'], keys: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], cats: ['runs', 'seq', 'arp', 'voc'], every: 0, twist: true, locks: {}, done: 0 }, saved.game || {});
 S.num = Object.assign({ len: 6, top: 9, style: 'melodic', line: null, hint: true, pool: 'all' }, saved.num || {});
 S.pos = Object.assign({ caged: 0, pair: 0, nps3: 0, neck: 0 }, S.pos);
+S.ch = Object.assign({ q: 'maj7', w: 'arp', area: 'caged', pos: { caged: 0, pair: 0, neck: 0 }, step: 0 }, saved.ch || {});
+if (!CHORD_NAME[S.ch.q]) S.ch.q = 'maj7';
 if (!BY[S.scale] || !ORDER.includes(S.scale)) S.scale = 'dorian';
 if (!AREA_NAME[S.area]) S.area = 'caged';
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* private mode */ } };
@@ -34,8 +38,35 @@ const pickNot = (list, cur) => { const l = list.length > 1 ? list.filter((x) => 
 
 // ---------- what's on the neck ----------
 let data = null, area = null, pat = null, seed = Math.random(), lit = null, peek = false, twist = null, showAll = false;
+const isCh = () => S.mode === 'chords';
+const curArea = () => (isCh() ? S.ch.area : S.area);
+const posMap = () => (isCh() ? S.ch.pos : S.pos);
+const curIvs = () => (isCh() ? chordIvs(S.ch.q) : ivsOf(S.scale));
+let steps = null; // a voicing workout's grips
+function loadChord() {
+  const q = S.ch.q, ivs = chordIvs(q), root = spellRoot(S.key, q);
+  if (!['caged', 'pair', 'neck'].includes(S.ch.area)) S.ch.area = 'caged';
+  data = positionsIvs(ivs, S.key, S.ch.area, root);
+  S.ch.pos[S.ch.area] = Math.min(S.ch.pos[S.ch.area] || 0, data.list.length - 1);
+  area = data.list[S.ch.pos[S.ch.area]];
+  const list = workoutsFor(q);
+  if (!list.some((w) => w.id === S.ch.w)) S.ch.w = list[0].id;
+  const w = WK[S.ch.w];
+  if (w.kind === 'arp') {
+    const ext = [...ivs, '9'].filter((x, i, a) => a.findIndex((y) => semi(y) === semi(x)) === i);
+    const extArea = positionsIvs(ext, S.key, S.ch.area, root).list[S.ch.pos[S.ch.area]];
+    pat = { groups: w.gen({ P: area.path, Pext: extArea.path, ivs, q, pc: S.key }).filter((g) => g.some(Boolean)) };
+    steps = null;
+  } else {
+    steps = w.steps({ root, q, area });
+    S.ch.step = Math.max(0, Math.min(S.ch.step || 0, steps.length - 1));
+    pat = { groups: [] };
+  }
+  cachedSeq = null;
+}
 function load() {
   showAll = false;
+  if (isCh()) return loadChord();
   data = positions(S.scale, S.key, S.area);
   S.pos[S.area] = Math.min(S.pos[S.area] || 0, data.list.length - 1);
   area = data.list[S.pos[S.area]];
@@ -45,11 +76,11 @@ function load() {
   cachedSeq = null;
 }
 const rootName = () => T.noteName(data.root, true);
-const titleOf = () => `${rootName()} ${nameOf(S.scale)}`;
+const titleOf = () => (isCh() ? T.pretty(T.chordSymbol(data.root, S.ch.q)) : `${rootName()} ${nameOf(S.scale)}`);
 // note names; a double sharp or flat (C𝄪 in B altered) is shown as the note players call it (D)
 const noteOf = (iv) => { const n = T.transpose(data.root, F.simpleIv(iv)); return T.noteName(Math.abs(n.acc) > 1 ? T.enharmonic(n) : n, true); };
 function role(iv) {
-  const s = semi(iv), colour = (TIPS[S.scale]?.colour || []).some((c) => semi(c) === s);
+  const s = semi(iv), colour = !isCh() && (TIPS[S.scale]?.colour || []).some((c) => semi(c) === s);
   if (s === 0) return 'r';
   if (colour) return 'c';
   const d = F.simpleIv(iv).replace(/[^0-9]/g, '');
@@ -93,21 +124,21 @@ function drawNeck() {
   const line = S.mode === 'numbers' ? placedLine() : [];
   const tags = new Map();
   if (numHint) line.forEach((x, i) => { if (x.note) { const k = x.note.string + ':' + x.note.fret; tags.set(k, tags.has(k) ? tags.get(k) + ',' + (i + 1) : String(i + 1)); } });
-  const isLit = (n) => lit && lit.string === n.string && lit.fret === n.fret;
-  let dots = area.notes.map((n) => {
+  const isLit = (n) => !!lit && lit.some((l) => l.string === n.string && l.fret === n.fret);
+  const stepNotes = isCh() && steps ? (steps[S.ch.step]?.notes || []) : null;
+  let dots = (stepNotes || area.notes).map((n) => {
     const k = n.string + ':' + n.fret;
     return { string: n.string, fret: n.fret, cls: role(n.iv), ring: semi(n.iv) === 0, lit: isLit(n), tag: tags.get(k), dim: numHint && !tags.has(k),
       label: labels === 'iv' || labels === 'root' ? T.prettyIv(n.iv) : labels === 'note' ? noteOf(n.iv) : '', root: semi(n.iv) === 0 };
   });
   if (labels === 'root') dots = dots.filter((d) => d.root || d.lit || d.tag);
   if (labels === 'none') dots = dots.filter((d) => d.lit).map((d) => ({ ...d, label: '' }));
-  if (lit && lit.chrom && !dots.some((d) => d.lit)) dots.push({ string: lit.string, fret: lit.fret, cls: 'chrom', lit: true, label: labels === 'none' ? '' : lit.chrom });
-  if (lit && !dots.some((d) => d.lit) && !lit.chrom) dots.push({ string: lit.string, fret: lit.fret, cls: role(lit.iv), lit: true, label: labels === 'none' ? '' : T.prettyIv(lit.iv) });
+  for (const l of lit || []) if (!dots.some((d) => d.string === l.string && d.fret === l.fret)) dots.push({ string: l.string, fret: l.fret, cls: l.chrom ? 'chrom' : role(l.iv), lit: true, label: labels === 'none' ? '' : l.chrom || T.prettyIv(l.iv) });
   // numbers mode: line notes that fall outside the area still show
   for (const x of line) if (numHint && x.note && !dots.some((d) => d.string === x.note.string && d.fret === x.note.fret)) dots.push({ string: x.note.string, fret: x.note.fret, cls: role(x.iv), tag: tags.get(x.note.string + ':' + x.note.fret), label: labels === 'none' ? '' : T.prettyIv(x.iv) });
   const top = Math.min(19, Math.max(NECK_TOP, area.top + 1, ...dots.map((d) => d.fret + 1)));
   let from = 0, to = top;
-  if (S.zoom && !area.whole) {
+  if (S.zoom && !area.whole && !stepNotes) {
     const fr = dots.map((d) => d.fret).concat([area.win.lo, area.win.hi]);
     from = Math.max(0, Math.min(...fr) - 1); to = Math.max(...fr) + 1;
     if (from <= 1) from = 0;
@@ -115,11 +146,12 @@ function drawNeck() {
   }
   // the rest of the scale, faint, all over the neck
   const ghosts = [];
-  if (!area.whole && labels !== 'none') {
-    const pcs = new Set(ivsOf(S.scale).map(semi));
+  if ((!area.whole || stepNotes) && labels !== 'none') {
+    const pcs = new Set(curIvs().map(semi));
     for (let s = 1; s <= 6; s++) for (let f = 0; f <= to; f++) { const r = ((F.OPEN[s] + f - S.key) % 12 + 12) % 12; if (pcs.has(r) && (labels !== 'root' || r === 0)) ghosts.push({ string: s, fret: f, cls: r === 0 ? 'r' : 'x' }); }
   }
-  box.innerHTML = neck({ dir: v ? 'v' : 'h', from, to, win: area.whole ? null : area.win, ghosts, dots });
+  const showWin = !area.whole && (!stepNotes || WK[S.ch.w].usesArea);
+  box.innerHTML = neck({ dir: v ? 'v' : 'h', from, to, win: showWin ? area.win : null, ghosts, dots });
 }
 
 // ---------- sound: metronome, guide, drone ----------
@@ -127,8 +159,11 @@ let run = null, cachedSeq = null, droneAt = null, wake = null;
 // the notes of one pass, one per subdivision, padded with rests to whole bars so every pass starts on beat 1
 function seqNow() {
   if (cachedSeq) return cachedSeq;
-  const base = S.mode === 'numbers' ? placedLine().map((x) => x.note || null) : pat.groups.flat();
-  const bar = S.sub * 4, rest = S.mode === 'numbers' ? S.sub * 2 : S.sub;
+  const bar = S.sub * 4;
+  // a voicing workout: one grip per bar
+  const base = isCh() && steps ? steps.flatMap((st, i) => [{ chord: st.notes, step: i }, ...Array(bar - 1).fill(null)])
+    : S.mode === 'numbers' ? placedLine().map((x) => x.note || null) : pat.groups.flat();
+  const rest = isCh() && steps ? 0 : S.mode === 'numbers' ? S.sub * 2 : S.sub;
   const len = Math.ceil((base.length + rest) / bar) * bar;
   cachedSeq = base.concat(Array(len - base.length).fill(null));
   return cachedSeq;
@@ -154,9 +189,13 @@ function startRun() {
         if (down && m.wait) { m.idx = 0; m.wait = false; }
         if (!m.wait) {
           const seq = seqNow(), n = seq[m.idx % seq.length];
-          if (n && S.guide) {
+          if (n && n.chord) {
+            // a grip: strum it on the downbeat (if Play notes is on) and show it for the bar
+            if (S.guide) A.strum(n.chord.map((x) => x.midi).sort((a, b) => a - b), t, { vel: 0.7, dur: (60 / S.bpm) * 3.6 });
+            m.timers.push(setTimeout(() => { if (run === m) { S.ch.step = n.step; lit = S.guide ? n.chord : null; render(); } }, at));
+          } else if (n && S.guide) {
             A.pluck(n.midi, t, { vel: 0.7, dur: Math.min(0.6, (60 / S.bpm / sub) * 1.5) });
-            m.timers.push(setTimeout(() => { if (run === m) { lit = n; drawNeck(); } }, at));
+            m.timers.push(setTimeout(() => { if (run === m) { lit = [n]; drawNeck(); } }, at));
           }
           m.idx++;
         }
@@ -178,7 +217,7 @@ function stopRun() {
 function changed() { cachedSeq = null; lit = null; if (run) run.wait = true; }
 function syncDrone() {
   const want = S.drone ? 40 + ((S.key - 4 + 12) % 12) : null;
-  const fifth = ivsOf(S.scale).some((iv) => semi(iv) === 7);
+  const fifth = curIvs().some((iv) => semi(iv) === 7);
   const k = want == null ? null : want + (fifth ? 'f' : '');
   if (k === droneAt) return;
   if (droneAt != null) A.stopDrone();
@@ -222,10 +261,10 @@ function newLine() {
 // ---------- the screen ----------
 const $app = document.getElementById('driller');
 const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
-const keyOpts = () => Array.from({ length: 12 }, (_, i) => opt(i, T.noteName(spell(i, S.scale), true), S.key)).join('');
+const keyOpts = () => Array.from({ length: 12 }, (_, i) => opt(i, T.noteName(isCh() ? spellRoot(i, S.ch.q) : spell(i, S.scale), true), S.key)).join('');
 const scaleOpts = () => GROUPS.map(([g, ids]) => `<optgroup label="${esc(g)}">${ids.map((id) => opt(id, nameOf(id), S.scale)).join('')}</optgroup>`).join('');
-const areaOpts = () => AREAS.map(([id, l]) => opt(id, l, S.area)).join('');
-const formula = () => `<div class="form">${ivsOf(S.scale).map((iv) => `<span class="${role(iv)}"><b>${esc(T.prettyIv(iv))}</b><small>${esc(noteOf(iv))}</small></span>`).join('')}</div>`;
+const areaOpts = () => AREAS.filter(([id]) => !isCh() || id !== 'nps3').map(([id, l]) => opt(id, l, curArea())).join('');
+const formula = () => `<div class="form">${curIvs().map((iv) => `<span class="${role(iv)}"><b>${esc(T.prettyIv(iv))}</b><small>${esc(noteOf(iv))}</small></span>`).join('')}</div>`;
 // the notes a description refers to, named in this key
 const nameSemis = (x) => { const n = T.transposeSemis(data.root, x); return T.noteName(Math.abs(n.acc) > 1 ? T.enharmonic(n) : n, true); };
 const STR = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high E' };
@@ -248,7 +287,7 @@ function infoFor(pid) {
 
 const where = () => `
   <label><span>Where</span><select id="dArea">${areaOpts()}</select></label>
-  ${data.list.length > 1 ? `<div class="chips pos">${data.list.map((p, i) => `<button data-pos="${i}" class="${i === S.pos[S.area] ? 'on' : ''}">${esc(p.short)}</button>`).join('')}</div>` : ''}
+  ${data.list.length > 1 ? `<div class="chips pos">${data.list.map((p, i) => `<button data-pos="${i}" class="${i === posMap()[curArea()] ? 'on' : ''}">${esc(p.short)}</button>`).join('')}</div>` : ''}
   <div class="sub">${esc(area.title)} · ${esc(area.sub)}</div>`;
 
 function practiceBlock() {
@@ -290,6 +329,40 @@ function drillPanel() {
     ${where()}
     ${practiceBlock()}
     ${transport()}`;
+}
+// ---------- chords ----------
+function chordText(w) {
+  const ex = chordExample(w.id, S.ch.q);
+  const exHTML = ex ? `<p class="ex"><span>Example in ${esc(titleOf())}, from the root</span><b>${esc(ex.map((g) => g.map((n) => n.lab).join(' ')).join(' · '))} …</b><i>${esc(ex.map((g) => g.map((n) => noteOf(n.iv)).join(' ')).join(' · '))} …</i></p>` : '';
+  return `<p class="desc">${esc(w.how)}</p>${w.priority ? `<p class="prio"><b>What to prioritise:</b> ${esc(w.priority)}</p>` : ''}${exHTML}<p class="why"><b>Why:</b> ${esc(w.why)}</p>`;
+}
+function chordsPanel() {
+  const q = S.ch.q, list = workoutsFor(q), w = WK[S.ch.w], ranked = list.filter((x) => x.rank(q)), extras = list.filter((x) => !x.rank(q));
+  const rk = w.rank(q);
+  const st = steps ? steps[S.ch.step] : null;
+  return `
+    <div class="cap"><b>${esc(titleOf())}</b><span class="cname">${esc(CHORD_NAME[q])}</span></div>
+    ${formula()}
+    <div class="menus">
+      <label class="k"><span>Key</span><select id="dKey">${keyOpts()}</select></label>
+      <label><span>Chord</span><select id="cQ">${CHORD_LIST.map(([g, l]) => `<optgroup label="${esc(g)}">${l.map(([id, nm]) => opt(id, nm, q)).join('')}</optgroup>`).join('')}</select></label>
+    </div>
+    <div class="order">
+      <b>Practise in this order</b>
+      <span>The usual advice from teachers: arpeggios first, then ${q.length && chordIvs(q).length === 3 ? 'triad inversions, then the CAGED forms' : 'shell voicings, then drop 2, then drop 3'}.</span>
+      <ol>${ranked.map((x) => `<li><button data-wk="${x.id}" class="${x.id === w.id ? 'on' : ''}">${esc(x.name)}${x.id === 'arpinv' ? ' <i>(3rd and 7th starts first)</i>' : ''}</button></li>`).join('')}</ol>
+      ${extras.length ? `<span>Extras, once those are solid:</span><div class="chips">${extras.map((x) => `<button data-wk="${x.id}" class="${x.id === w.id ? 'on' : ''}">${esc(x.name)}</button>`).join('')}</div>` : ''}
+    </div>
+    <div class="prac">
+      <div class="pname">${esc(w.name)} <span class="rk">${rk ? `Step ${rk} of ${ranked.length}` : 'Extra'}</span></div>
+      <div class="flick"><button id="cPrev" aria-label="Previous workout">◀</button>
+        <select id="cW">${list.map((x) => opt(x.id, (x.rank(q) ? x.rank(q) + '. ' : 'Extra: ') + x.name, w.id)).join('')}</select>
+        <button id="cNext" aria-label="Next workout">▶</button></div>
+      ${chordText(w)}
+      ${st ? `<div class="stepnav"><button id="sPrev" aria-label="Previous grip">◀</button><div><b>Grip ${S.ch.step + 1} of ${steps.length}</b><span>${esc(st.text)}</span></div><button id="sNext" aria-label="Next grip">▶</button></div>` : ''}
+    </div>
+    ${w.kind === 'arp' || w.usesArea ? where() : '<p class="sub">This workout runs up the whole neck, so Where isn’t used.</p>'}
+    ${transport(steps ? 'Start (a grip per bar)' : 'Start')}`;
 }
 function gamePanel() {
   const L = S.game.locks, p = PR[S.prac];
@@ -339,11 +412,11 @@ function numbersPanel() {
 function render() {
   const v = upright();
   $app.className = v ? 'v' : 'h';
-  const panel = S.mode === 'game' ? gamePanel() : S.mode === 'numbers' ? numbersPanel() : drillPanel();
+  const panel = S.mode === 'game' ? gamePanel() : S.mode === 'numbers' ? numbersPanel() : isCh() ? chordsPanel() : drillPanel();
   const keepScroll = $app.querySelector('.panel')?.scrollTop || 0;
   $app.innerHTML = `
     <header><h1>Scale Driller <button id="dHelp" class="help" aria-label="What everything does">?</button></h1>
-      <div class="seg">${[['drill', 'Drill'], ['game', 'Game'], ['numbers', 'Numbers']].map(([m, l]) => `<button data-mode="${m}" class="${S.mode === m ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <div class="seg">${[['drill', 'Scales'], ['chords', 'Chords'], ['game', 'Game'], ['numbers', 'Numbers']].map(([m, l]) => `<button data-mode="${m}" class="${S.mode === m ? 'on' : ''}">${l}</button>`).join('')}</div>
     </header>
     <div class="neckbox"></div>
     <div class="panel">${panel}</div>`;
@@ -364,8 +437,19 @@ function bind() {
   }));
   on('dKey', 'onchange', (e) => { S.key = Number(e.target.value); redo(); });
   on('dScale', 'onchange', (e) => { S.scale = e.target.value; redo(); });
-  on('dArea', 'onchange', (e) => { S.area = e.target.value; redo(); });
-  $app.querySelectorAll('[data-pos]').forEach((b) => (b.onclick = () => { S.pos[S.area] = Number(b.dataset.pos); redo(); }));
+  on('dArea', 'onchange', (e) => { if (isCh()) S.ch.area = e.target.value; else S.area = e.target.value; redo(); });
+  // chords
+  on('cQ', 'onchange', (e) => { S.ch.q = e.target.value; S.ch.step = 0; redo(); });
+  const setWk = (id) => { S.ch.w = id; S.ch.step = 0; redo(); };
+  $app.querySelectorAll('[data-wk]').forEach((b) => (b.onclick = () => setWk(b.dataset.wk)));
+  on('cW', 'onchange', (e) => setWk(e.target.value));
+  const flickWk = (d) => { const l = workoutsFor(S.ch.q); setWk(l[(l.findIndex((x) => x.id === S.ch.w) + d + l.length) % l.length].id); };
+  on('cPrev', 'onclick', () => flickWk(-1));
+  on('cNext', 'onclick', () => flickWk(1));
+  const stepBy = (d) => { if (!steps) return; S.ch.step = (S.ch.step + d + steps.length) % steps.length; lit = null; save(); render(); };
+  on('sPrev', 'onclick', () => stepBy(-1));
+  on('sNext', 'onclick', () => stepBy(1));
+  $app.querySelectorAll('[data-pos]').forEach((b) => (b.onclick = () => { posMap()[curArea()] = Number(b.dataset.pos); redo(); }));
   const flickPrac = (d) => { const l = practicesFor(S.scale); S.prac = l[(l.findIndex((p) => p.id === S.prac) + d + l.length) % l.length].id; seed = Math.random(); redo(); };
   on('dPrPrev', 'onclick', () => flickPrac(-1));
   on('dPrNext', 'onclick', () => flickPrac(1));
@@ -448,6 +532,7 @@ function openHelp() {
     ${row('8ths / Triplets / 16ths', 'How many notes per click: one note per subdivision.')}
     ${row('Drone', 'A low held note on the key’s root (and its 5th if the scale has one), so you hear every note against home.')}
     ${row('Show', 'What the dots say: intervals, note names, plain dots, roots only, or nothing (test yourself). Hold Peek to look.')}
+    ${row('Chords', 'One chord in one key, practised in the usual order of priority: the arpeggio through the shape, the arpeggio from every chord tone (3rd and 7th starts first), then shell voicings, drop 2 and drop 3 (for a triad: triad inversions on each string set, then the CAGED forms). Extras come after. Voicing workouts show one grip at a time: step through them with ◀ ▶, or press Start for one grip per bar.')}
     ${row('Game', 'Deals a random scale, key, area and drill. Hold keeps one of them the same on the next deal. New deal can come every few bars while the metronome runs. Game settings choose what gets dealt.')}
     ${row('Numbers', 'A line of scale degrees to play in order, e.g. 1 3 5 9 7 4. 8 and above are an octave up (9 is the 2nd an octave higher). The line stays put while ◀ ▶ change the scale, so the same shape of melody comes out in each scale. A crossed-out number isn’t in that scale: skip it. Show the line numbers its notes on the neck in order.')}
     ${row('Tips', 'For this scale: what to play it over, its colour notes, how to find it, how to practise it, and its best drills.')}

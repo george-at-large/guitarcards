@@ -175,3 +175,26 @@ button:disabled { opacity: .35; }
 
 /* across: header, the neck, then the controls in columns */
 #driller.h .panel { max-width: 640px; margin: 12px auto 0; }
+
+/* chords */
+.cname { color: var(--muted); font-size: 13px; text-align: right; }
+.order { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(126, 224, 138, 0.35); background: rgba(126, 224, 138, 0.06); }
+.order > b { font: 600 15px var(--f-num); color: var(--green); }
+.order > span { font-size: 13px; color: var(--soft); }
+.order ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+.order li::marker { color: var(--green); font-weight: 700; }
+.order li button { width: 100%; text-align: left; padding: 7px 9px; font-size: 13.5px; }
+.order li button i { color: var(--muted); font-style: normal; font-size: 12px; }
+.order li button.on i { color: inherit; }
+.rk { font: 600 11px var(--f-ui); text-transform: uppercase; letter-spacing: 0.06em; color: var(--green); margin-left: 4px; vertical-align: 2px; }
+.prio { margin: 0; padding: 8px 10px; border-radius: 10px; background: rgba(126, 224, 138, 0.09); color: var(--text); font-size: 14px; }
+.prio b { color: var(--green); }
+.stepnav { display: flex; align-items: center; gap: 6px; padding: 8px; border-radius: 12px; background: var(--surface2); }
+.stepnav > button { flex: none; width: 40px; padding: 10px 0; }
+.stepnav > div { flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: center; }
+.stepnav b { font-size: 14px; }
+.stepnav span { font-size: 12.5px; color: var(--soft); }
+#driller.v .seg { display: grid; grid-template-columns: 1fr 1fr; }
+#driller.v .seg button + button { border-left: 0; }
+#driller.v .seg button:nth-child(even) { border-left: 1px solid var(--line); }
+#driller.v .seg button:nth-child(n+3) { border-top: 1px solid var(--line); }
