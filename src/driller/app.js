@@ -11,7 +11,7 @@ import { GROUPS, ORDER, BY, TIPS, nameOf, ivsOf, ivForNumber, semi, sizeOf, grou
 import { AREAS, AREA_NAME, positions, positionsIvs, spell, placePitch, NECK_TOP } from './areas.js';
 import { PR, CATS, practicesFor, isBest, pattern, example, hiddenPents, TWISTS } from './practice.js';
 import { chordOf } from './data.js';
-import { CHORD_LIST, CHORD_NAME, chordIvs, WK, workoutsFor, chordExample } from './chords.js';
+import { CHORD_LIST, CHORD_NAME, chordIvs, WK, workoutsFor, chordExample, progName } from './chords.js';
 import { spellRoot } from '../fundamentals/core.js';
 import { neck } from './neck.js';
 import { BUILD } from './build.js';
@@ -41,7 +41,7 @@ let data = null, area = null, pat = null, seed = Math.random(), lit = null, peek
 const isCh = () => S.mode === 'chords';
 const curArea = () => (isCh() ? S.ch.area : S.area);
 const posMap = () => (isCh() ? S.ch.pos : S.pos);
-const curIvs = () => (isCh() ? chordIvs(S.ch.q) : ivsOf(S.scale));
+const curIvs = () => (isCh() ? (WK[S.ch.w]?.scaleArea ? ivsOf('ionian') : chordIvs(S.ch.q)) : ivsOf(S.scale));
 let steps = null; // a voicing workout's grips
 function loadChord() {
   const q = S.ch.q, ivs = chordIvs(q), root = spellRoot(S.key, q);
@@ -52,13 +52,19 @@ function loadChord() {
   const list = workoutsFor(q);
   if (!list.some((w) => w.id === S.ch.w)) S.ch.w = list[0].id;
   const w = WK[S.ch.w];
-  if (w.kind === 'arp') {
+  if (w.scaleArea) {
+    // arpeggios over the changes: the key's major scale on the neck, the chords' notes lit as they go
+    data = positionsIvs(ivsOf('ionian'), S.key, S.ch.area, spell(S.key, 'ionian'));
+    area = data.list[S.ch.pos[S.ch.area]] || data.list[0];
+    pat = { groups: w.gen({ P: area.path, key: S.key }).filter((g) => g.some(Boolean)) };
+    steps = null;
+  } else if (w.kind === 'arp') {
     const ext = [...ivs, '9'].filter((x, i, a) => a.findIndex((y) => semi(y) === semi(x)) === i);
     const extArea = positionsIvs(ext, S.key, S.ch.area, root).list[S.ch.pos[S.ch.area]];
     pat = { groups: w.gen({ P: area.path, Pext: extArea.path, ivs, q, pc: S.key }).filter((g) => g.some(Boolean)) };
     steps = null;
   } else {
-    steps = w.steps({ root, q, area });
+    steps = w.steps({ root, q, area, key: S.key });
     S.ch.step = Math.max(0, Math.min(S.ch.step || 0, steps.length - 1));
     pat = { groups: [] };
   }
@@ -334,11 +340,17 @@ function drillPanel() {
 function chordText(w) {
   const ex = chordExample(w.id, S.ch.q);
   const exHTML = ex ? `<p class="ex"><span>Example in ${esc(titleOf())}, from the root</span><b>${esc(ex.map((g) => g.map((n) => n.lab).join(' ')).join(' · '))} …</b><i>${esc(ex.map((g) => g.map((n) => noteOf(n.iv)).join(' ')).join(' · '))} …</i></p>` : '';
-  return `<p class="desc">${esc(w.how)}</p>${w.priority ? `<p class="prio"><b>What to prioritise:</b> ${esc(w.priority)}</p>` : ''}${exHTML}<p class="why"><b>Why:</b> ${esc(w.why)}</p>`;
+  const prog = w.move ? `<p class="info">${w.id === 'cycle' ? `${esc(titleOf())} round the cycle: ${esc(Array.from({ length: 12 }, (_, i) => T.noteName(spellRoot((S.key + 5 * i) % 12, S.ch.q), true)).join(' '))}` : w.id === 'scale7' ? `The key of ${esc(rootName())} major` : `In ${esc(rootName())}: ${esc(progName(S.key, w.id === 'minor251'))}`}</p>` : '';
+  return `<p class="desc">${esc(w.how)}</p>${w.priority ? `<p class="prio"><b>What to prioritise:</b> ${esc(w.priority)}</p>` : ''}${prog}${exHTML}<p class="why"><b>Why:</b> ${esc(w.why)}</p>`;
 }
 function chordsPanel() {
-  const q = S.ch.q, list = workoutsFor(q), w = WK[S.ch.w], ranked = list.filter((x) => x.rank(q)), extras = list.filter((x) => !x.rank(q));
-  const rk = w.rank(q);
+  const q = S.ch.q, list = workoutsFor(q), w = WK[S.ch.w];
+  const one = workoutsFor(q, false), mov = workoutsFor(q, true);
+  const ranked = one.filter((x) => x.rank(q)), extras = one.filter((x) => !x.rank(q));
+  const mRanked = mov.filter((x) => x.rank(q)), mExtras = mov.filter((x) => !x.rank(q));
+  const rk = w.rank(q), ofN = w.move ? mRanked.length : ranked.length;
+  const item = (x) => `<li><button data-wk="${x.id}" class="${x.id === w.id ? 'on' : ''}">${esc(x.name)}${x.id === 'arpinv' ? ' <i>(3rd and 7th starts first)</i>' : ''}</button></li>`;
+  const chips = (l) => `<div class="chips">${l.map((x) => `<button data-wk="${x.id}" class="${x.id === w.id ? 'on' : ''}">${esc(x.name)}</button>`).join('')}</div>`;
   const st = steps ? steps[S.ch.step] : null;
   return `
     <div class="cap"><b>${esc(titleOf())}</b><span class="cname">${esc(CHORD_NAME[q])}</span></div>
@@ -350,18 +362,24 @@ function chordsPanel() {
     <div class="order">
       <b>Practise in this order</b>
       <span>The usual advice from teachers: arpeggios first, then ${q.length && chordIvs(q).length === 3 ? 'triad inversions, then the CAGED forms' : 'shell voicings, then drop 2, then drop 3'}.</span>
-      <ol>${ranked.map((x) => `<li><button data-wk="${x.id}" class="${x.id === w.id ? 'on' : ''}">${esc(x.name)}${x.id === 'arpinv' ? ' <i>(3rd and 7th starts first)</i>' : ''}</button></li>`).join('')}</ol>
-      ${extras.length ? `<span>Extras, once those are solid:</span><div class="chips">${extras.map((x) => `<button data-wk="${x.id}" class="${x.id === w.id ? 'on' : ''}">${esc(x.name)}</button>`).join('')}</div>` : ''}
+      <ol>${ranked.map(item).join('')}</ol>
+      ${extras.length ? `<span>Extras, once those are solid:</span>${chips(extras)}` : ''}
+    </div>
+    <div class="order">
+      <b>Then: moving between chords</b>
+      <span>Most chord practice is chords in motion, above all the ii–V–I. In ${esc(rootName())}: ${esc(progName(S.key))}; minor ${esc(progName(S.key, true))}. The usual order: guide tones, shells, drop 2, the minor ii–V–i.</span>
+      <ol>${mRanked.map(item).join('')}</ol>
+      ${mExtras.length ? `<span>Extras:</span>${chips(mExtras)}` : ''}
     </div>
     <div class="prac">
-      <div class="pname">${esc(w.name)} <span class="rk">${rk ? `Step ${rk} of ${ranked.length}` : 'Extra'}</span></div>
+      <div class="pname">${esc(w.name)} <span class="rk">${rk ? `${w.move ? 'Moving between chords · ' : ''}Step ${rk} of ${ofN}` : 'Extra'}</span></div>
       <div class="flick"><button id="cPrev" aria-label="Previous workout">◀</button>
-        <select id="cW">${list.map((x) => opt(x.id, (x.rank(q) ? x.rank(q) + '. ' : 'Extra: ') + x.name, w.id)).join('')}</select>
+        <select id="cW"><optgroup label="One chord">${one.map((x) => opt(x.id, (x.rank(q) ? x.rank(q) + '. ' : 'Extra: ') + x.name, w.id)).join('')}</optgroup><optgroup label="Moving between chords">${mov.map((x) => opt(x.id, (x.rank(q) ? x.rank(q) + '. ' : 'Extra: ') + x.name, w.id)).join('')}</optgroup></select>
         <button id="cNext" aria-label="Next workout">▶</button></div>
       ${chordText(w)}
       ${st ? `<div class="stepnav"><button id="sPrev" aria-label="Previous grip">◀</button><div><b>Grip ${S.ch.step + 1} of ${steps.length}</b><span>${esc(st.text)}</span></div><button id="sNext" aria-label="Next grip">▶</button></div>` : ''}
     </div>
-    ${w.kind === 'arp' || w.usesArea ? where() : '<p class="sub">This workout runs up the whole neck, so Where isn’t used.</p>'}
+    ${w.kind === 'arp' || w.usesArea ? where() : `<p class="sub">${w.move ? 'This workout picks its own shapes on the neck' : 'This workout runs up the whole neck'}, so Where isn’t used.</p>`}
     ${transport(steps ? 'Start (a grip per bar)' : 'Start')}`;
 }
 function gamePanel() {
