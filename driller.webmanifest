@@ -1,0 +1,16 @@
+{
+  "id": "./driller.html",
+  "name": "Scale Driller",
+  "short_name": "Scales",
+  "description": "Any scale in any key, in one CAGED shape, two, three per string or the whole neck: drills, a game and number lines, with a metronome and a drone.",
+  "start_url": "./driller.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0c10",
+  "theme_color": "#0b0c10",
+  "icons": [
+    { "src": "icons/driller-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/driller-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/driller-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

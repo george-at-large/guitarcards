@@ -1,0 +1,165 @@
+// Kinds of practice. Each one turns the area's playing path (the scale low to high in that position) into groups of
+// notes: the pattern you play, shown as degrees and played by the guide. A null in a group is a rest (a held note).
+// fits() says which scales it suits: 3rds and diatonic 7ths need a seven-note scale, cells in minor 3rds belong to
+// the diminished scales, and so on.
+import * as T from '../theory.js';
+import { TIPS, sizeOf, pcsOf, ivsOf, chordOf, semi } from './data.js';
+
+export const CATS = [
+  ['runs', 'Runs'],
+  ['seq', 'Sequences'],
+  ['arp', 'Arpeggios'],
+  ['voc', 'Vocabulary'],
+];
+const CHROM = ['1', '♭2', '2', '♭3', '3', '4', '♯4', '5', '♭6', '6', '♭7', '7'];
+const mirror = (groups) => [...groups].reverse().map((g) => [...g].reverse());
+const updown = (groups) => groups.concat(mirror(groups));
+const slide = (P, offs, step = 1) => { const out = []; const span = Math.max(...offs); for (let i = 0; i + span < P.length; i += step) out.push(offs.map((o) => P[i + o])); return out; };
+const chunk = (list, k = 8) => { const out = []; for (let i = 0; i < list.length; i += k) out.push(list.slice(i, i + k)); return out; };
+const isRoot = (n) => semi(n.iv) === 0;
+const rootIdx = (P) => P.map((n, i) => (isRoot(n) ? i : -1)).filter((i) => i >= 0);
+
+// the major pentatonics a scale holds, as offsets from its root
+export function hiddenPents(id) {
+  const pcs = pcsOf(ivsOf(id));
+  const out = [];
+  for (let x = 0; x < 12; x++) if ([0, 2, 4, 7, 9].every((o) => pcs.includes((x + o) % 12))) out.push(x);
+  return out;
+}
+const isBebop = (id) => id.startsWith('bebop');
+const isDim = (id) => id.startsWith('dim-');
+
+export const PRACTICES = [
+  { id: 'updown', cat: 'runs', name: 'Up and down', how: 'Lowest note to the highest and back. Say each degree as you play it. Even 8ths, alternate picking.',
+    fits: () => true, gen: ({ P }) => chunk(P).concat(chunk([...P].reverse().slice(1))) },
+  { id: 'rootroot', cat: 'runs', name: 'Root to root', how: 'From the lowest root to the highest and back, so you hear it as a scale with a home.',
+    fits: () => true, gen: ({ P }) => { const r = rootIdx(P); if (r.length < 2) return chunk(P); const s = P.slice(r[0], r[r.length - 1] + 1); return chunk(s).concat(chunk([...s].reverse().slice(1))); } },
+  { id: 'anywhere', cat: 'runs', name: 'Start anywhere', how: 'From a random note: up to the top, down to the bottom, back to where you began. It breaks the start-on-the-root habit. New start each time you pick this drill.',
+    fits: () => true, gen: ({ P, seed }) => { const s = Math.floor(seed * (P.length - 2)) + 1; return [P.slice(s), [...P].reverse().slice(1), P.slice(1, s + 1)].flatMap((x) => chunk(x)); } },
+  { id: 'skip', cat: 'runs', name: 'String skipping', how: 'The notes on strings 6 and 4, then 5 and 3, 4 and 2, 3 and 1, and back down. Wide intervals out of the box sound.',
+    fits: () => true, gen: ({ notes }) => { const on = (s) => notes.filter((n) => n.string === s).sort((a, b) => a.fret - b.fret); const up = [[6, 4], [5, 3], [4, 2], [3, 1]].map(([a, b]) => [...on(a), ...on(b)]).filter((g) => g.length); return updown(up); } },
+  { id: 'g3', cat: 'seq', name: 'Groups of 3', how: '1 2 3, 2 3 4, 3 4 5 … to the top, then the mirror down. In 8ths the accent moves round the bar; in triplets it locks.',
+    fits: () => true, gen: ({ P }) => updown(slide(P, [0, 1, 2])) },
+  { id: 'g4', cat: 'seq', name: 'Groups of 4', how: '1 2 3 4, 2 3 4 5 … up, then mirrored down. 16ths; the rock and fusion staple.',
+    fits: () => true, gen: ({ P }) => updown(slide(P, [0, 1, 2, 3])) },
+  { id: 'thirds', cat: 'seq', name: 'In 3rds', how: 'Skip a note: 1 3, 2 4, 3 5 … up, then mirrored down. The single most useful sequence.',
+    fits: (id) => !isBebop(id), gen: ({ P }) => updown(slide(P, [0, 2])) },
+  { id: 'thirdsAlt', cat: 'seq', name: '3rds, one up, one back', how: '1 3, 4 2, 3 5, 6 4 …: alternate the direction of each 3rd. Smoother and more melodic than plain 3rds.',
+    fits: (id) => sizeOf(id) >= 6 && !isBebop(id), gen: ({ P }) => updown(slide(P, [0, 2]).map((g, i) => (i % 2 ? [g[1], g[0]] : g))) },
+  { id: 'fourths', cat: 'seq', name: 'In 4ths', how: 'Diatonic 4ths: 1 4, 2 5 … Many sit on the same fret: roll one finger across two strings.',
+    fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 3])) },
+  { id: 'sixths', cat: 'seq', name: 'In 6ths', how: '1 6, 2 7 …: wide, vocal intervals, mostly a string apart.',
+    fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 5])) },
+  { id: 'cells', cat: 'seq', name: '1‑2‑3‑5 cells', how: 'From each note: step, step, leap a 3rd (1 2 3 5, 2 3 4 6 …). Coltrane’s cell, up then mirrored down.',
+    fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 1, 2, 4])) },
+  { id: 'pedal', cat: 'seq', name: 'Pedal on the root', how: 'Root, 2, root, 3, root, 4 …: every note against the root. The quickest way to hear what a mode sounds like.',
+    fits: () => true, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const up = P.slice(r + 1).map((n) => [P[r], n]); return up.concat([...up].reverse().slice(1)); } },
+  { id: 'home', cat: 'arp', name: 'Arpeggio of its chord', how: 'Only the chord tones, through the whole area and back. These are the notes to land on.',
+    fits: () => true, gen: ({ P, chord }) => { const a = P.filter((n) => chord.includes(semi(n.iv))); return chunk(a).concat(chunk([...a].reverse().slice(1))); } },
+  { id: 'triads', cat: 'arp', name: 'Triads on every note', how: 'A triad from each note (1 3 5, 2 4 6 …) up, then mirrored down: the scale’s own chords.',
+    fits: (id) => sizeOf(id) === 7 || id === 'whole-tone', gen: ({ P }) => updown(slide(P, [0, 2, 4])) },
+  { id: 'triadsAlt', cat: 'arp', name: 'Triads, up one, down the next', how: '1 3 5, 6 4 2, 3 5 7 …: alternate direction, so the line keeps turning.',
+    fits: (id) => sizeOf(id) === 7 || id === 'whole-tone', gen: ({ P }) => updown(slide(P, [0, 2, 4]).map((g, i) => (i % 2 ? [...g].reverse() : g))) },
+  { id: 'sevenths', cat: 'arp', name: '7th arpeggios on every note', how: '1 3 5 7, 2 4 6 8 …: the scale’s 7th chords as arpeggios. The jazz drill.',
+    fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 2, 4, 6])) },
+  { id: 'ext', cat: 'arp', name: 'Extended arpeggio', how: '1 3 5 7 9 11 13: stack 3rds from the root up through the area and back. You hear every chord the scale implies.',
+    fits: (id) => sizeOf(id) === 7, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const a = P.filter((_, i) => i >= r && (i - r) % 2 === 0); return [a, [...a].reverse().slice(1)]; } },
+  { id: 'dimarps', cat: 'arp', name: '°7 arpeggios', how: 'Every other note of a diminished scale is a °7 chord. Arpeggiate from each note up, then down.',
+    fits: isDim, gen: ({ P }) => updown(slide(P, [0, 2, 4, 6])) },
+  { id: 'dimtriads', cat: 'arp', name: 'Its four major triads', how: 'Four major triads a minor 3rd apart live in this scale. Arpeggiate each one as you climb, then come down.',
+    fits: isDim, gen: ({ P, rel }) => {
+      const pcs = new Set(P.map(rel));
+      const up = [];
+      P.forEach((n, i) => {
+        const x = rel(n);
+        if (!pcs.has((x + 4) % 12) || !pcs.has((x + 7) % 12)) return;
+        const a = P.slice(i + 1).find((m) => rel(m) === (x + 4) % 12 && m.midi - n.midi === 4);
+        const b = P.slice(i + 1).find((m) => rel(m) === (x + 7) % 12 && m.midi - n.midi === 7);
+        if (a && b) up.push([n, a, b]);
+      });
+      return updown(up);
+    } },
+  { id: 'into', cat: 'voc', name: 'Run into chord tones', how: 'Three scale notes into each chord tone; land it on the beat and let it ring. Then from above, coming down.',
+    fits: (id) => sizeOf(id) >= 6, gen: ({ P, chord }) => {
+      const ct = (n) => chord.includes(semi(n.iv));
+      const up = [], down = [];
+      P.forEach((n, j) => { if (ct(n) && j >= 3) up.push([null, P[j - 3], P[j - 2], P[j - 1], n, null, null, null]); });
+      for (let j = P.length - 4; j >= 0; j--) if (ct(P[j])) down.push([null, P[j + 3], P[j + 2], P[j + 1], P[j], null, null, null]);
+      return up.concat(down);
+    } },
+  { id: 'enclose', cat: 'voc', name: 'Enclosures', how: 'The scale note above, the half step below, then the chord tone on the beat. The bebop way to target a note.',
+    fits: (id) => sizeOf(id) >= 7, gen: ({ P, chord, pc }) => {
+      const out = [];
+      P.forEach((n, j) => {
+        if (!chord.includes(semi(n.iv)) || j === 0 || j === P.length - 1) return;
+        const below = n.fret > 0 ? { string: n.string, fret: n.fret - 1, midi: n.midi - 1 } : null;
+        if (!below) return;
+        below.iv = null; below.chrom = CHROM[((below.midi - pc) % 12 + 12) % 12];
+        out.push([P[j + 1], below, n, null]);
+      });
+      return out;
+    } },
+  { id: 'pents', cat: 'voc', name: 'Pentatonics inside it', how: 'The pentatonic scales hidden in this one, each up and down in the same area. Playing them makes the mode sound like music, not a scale.',
+    fits: (id) => sizeOf(id) === 7 && hiddenPents(id).length > 0, gen: ({ P, rel, id }) => {
+      const out = [];
+      for (const x of hiddenPents(id)) {
+        const set = [0, 2, 4, 7, 9].map((o) => (x + o) % 12);
+        const a = P.filter((n) => set.includes(rel(n)));
+        out.push(...chunk(a), ...chunk([...a].reverse().slice(1)), [null, null]);
+      }
+      return out;
+    } },
+  { id: 'm3cells', cat: 'voc', name: 'Cells up in minor 3rds', how: 'A four-note cell, moved up a minor 3rd (two scale notes) each time, then down. The classic diminished line.',
+    fits: isDim, gen: ({ P }) => updown(slide(P, [0, 1, 2, 3], 2)) },
+  { id: 'bebopdown', cat: 'voc', name: 'Bebop descent', how: 'From the top root down in 8ths, starting on the beat: the passing note puts every chord tone on a beat. Then from each chord tone.',
+    fits: isBebop, gen: ({ P, chord }) => {
+      const out = [];
+      for (let j = P.length - 1; j >= 0; j--) {
+        if (!chord.includes(semi(P[j].iv))) continue;
+        const run = []; for (let k = j; k >= 0 && run.length < 8; k--) run.push(P[k]);
+        if (run.length === 8) out.push(run);
+      }
+      return out;
+    } },
+];
+export const PR = Object.fromEntries(PRACTICES.map((p) => [p.id, p]));
+
+// the drills for a scale: its best ones first (starred), then the rest in order
+export function practicesFor(id) {
+  const fit = PRACTICES.filter((p) => p.fits(id));
+  const best = (TIPS[id]?.best || []).filter((b) => fit.some((p) => p.id === b));
+  return [...best.map((b) => PR[b]), ...fit.filter((p) => !best.includes(p.id))];
+}
+export const isBest = (id, pid) => (TIPS[id]?.best || []).includes(pid);
+
+// a pattern over an area: { groups, info }
+export function pattern(pid, id, pc, area, seed = 0.5) {
+  const P = area.path, rel = (n) => ((n.midi - pc) % 12 + 12) % 12;
+  const chord = chordOf(id).map(semi);
+  const groups = (PR[pid] || PR.updown).gen({ P, notes: area.notes, chord, rel, pc, id, seed }).filter((g) => g.some(Boolean));
+  let info = '';
+  if (pid === 'home') info = `Chord tones: ${chordOf(id).map(T.prettyIv).join(' ')}`;
+  if (pid === 'pents') info = hiddenPents(id).map((x) => `minor pentatonic from the ${CHROM[(x + 9) % 12]} (= major from the ${CHROM[x]})`).join('; ');
+  return { groups, info };
+}
+// the degrees of the first few groups, as text
+export function preview(groups, n = 4) {
+  const lab = (x) => (x ? (x.chrom ? `(${x.chrom})` : T.prettyIv(x.iv)) : '–');
+  return groups.slice(0, n).map((g) => g.map(lab).join(' ').replace(/^– | –( –)*$/g, '')).join(' · ') + (groups.length > n ? ' …' : '');
+}
+
+// game mode's extra twists: a constraint on how to play the drill
+export const TWISTS = [
+  'Say each degree out loud as you play it.',
+  'Play it in triplets.',
+  'Play it in 16ths, then half time.',
+  'Start from the top: descend first.',
+  'Legato: pick only the first note on each string.',
+  'Accent every third note.',
+  'Don’t look at the neck.',
+  'Play it twice: once loud, once as quietly as you can.',
+  'Swing the 8ths.',
+  'Leave a beat of rest after every group.',
+  'Sing each note before you play it.',
+  'Economy picking: sweep across each string change.',
+];
