@@ -9,7 +9,7 @@ import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { GROUPS, ORDER, BY, TIPS, nameOf, ivsOf, ivForNumber, semi, sizeOf, groupOf } from './data.js';
 import { AREAS, AREA_NAME, positions, spell, placePitch, NECK_TOP } from './areas.js';
-import { PR, CATS, practicesFor, isBest, pattern, preview, TWISTS } from './practice.js';
+import { PR, CATS, practicesFor, isBest, pattern, TWISTS } from './practice.js';
 import { neck } from './neck.js';
 import { BUILD } from './build.js';
 
@@ -32,8 +32,9 @@ const pick = (list) => list[Math.floor(Math.random() * list.length)];
 const pickNot = (list, cur) => { const l = list.length > 1 ? list.filter((x) => x !== cur) : list; return pick(l); };
 
 // ---------- what's on the neck ----------
-let data = null, area = null, pat = null, seed = Math.random(), lit = null, peek = false, twist = null;
+let data = null, area = null, pat = null, seed = Math.random(), lit = null, peek = false, twist = null, showAll = false;
 function load() {
+  showAll = false;
   data = positions(S.scale, S.key, S.area);
   S.pos[S.area] = Math.min(S.pos[S.area] || 0, data.list.length - 1);
   area = data.list[S.pos[S.area]];
@@ -216,7 +217,16 @@ const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v
 const keyOpts = () => Array.from({ length: 12 }, (_, i) => opt(i, T.noteName(spell(i, S.scale), true), S.key)).join('');
 const scaleOpts = () => GROUPS.map(([g, ids]) => `<optgroup label="${esc(g)}">${ids.map((id) => opt(id, nameOf(id), S.scale)).join('')}</optgroup>`).join('');
 const areaOpts = () => AREAS.map(([id, l]) => opt(id, l, S.area)).join('');
-const formula = () => `<div class="form">${ivsOf(S.scale).map((iv) => `<span class="${role(iv)}">${esc(T.prettyIv(iv))}</span>`).join('')}</div>`;
+const formula = () => `<div class="form">${ivsOf(S.scale).map((iv) => `<span class="${role(iv)}"><b>${esc(T.prettyIv(iv))}</b><small>${esc(noteOf(iv))}</small></span>`).join('')}</div>`;
+// the drill's notes, group by group: each note's degree with its note name under it, an arrow for up or down, and
+// what the group is (the string pair, the chord tone it runs into…)
+const chromNote = (n) => { const x = T.transposeSemis(data.root, ((n.midi - S.key) % 12 + 12) % 12); return T.noteName(Math.abs(x.acc) > 1 ? T.enharmonic(x) : x, true); };
+function patternHTML(groups, limit, more = true) {
+  const shown = showAll ? groups : groups.slice(0, limit);
+  const note = (x) => (x.chrom ? `<b class="pn ch"><em>${esc(x.chrom)}</em><small>${esc(chromNote(x))}</small></b>` : `<b class="pn ${role(x.iv)}"><em>${esc(T.prettyIv(x.iv))}</em><small>${esc(noteOf(x.iv))}</small></b>`);
+  const grp = (g) => `<div class="grp">${g.dir || g.label ? `<span class="gh">${g.dir === 'up' ? '↑ ' : g.dir === 'down' ? '↓ ' : ''}${esc(g.label || (g.dir === 'up' ? 'up' : 'down'))}</span>` : ''}<span class="gn">${g.filter(Boolean).map(note).join('')}</span></div>`;
+  return `<div class="pat">${shown.map(grp).join('')}</div>${more && groups.length > limit ? `<button class="more" id="dMore">${showAll ? 'Show fewer' : `Show all ${groups.length} groups`}</button>` : ''}`;
+}
 
 const where = () => `
   <label><span>Where</span><select id="dArea">${areaOpts()}</select></label>
@@ -231,7 +241,8 @@ function practiceBlock() {
       <div class="flick"><button id="dPrPrev" aria-label="Previous drill">◀</button>
         <select id="dPrac">${CATS.map(([c, cl]) => { const ps = list.filter((x) => x.cat === c); return ps.length ? `<optgroup label="${cl}">${ps.map((x) => opt(x.id, (isBest(S.scale, x.id) ? '★ ' : '') + x.name, S.prac)).join('')}</optgroup>` : ''; }).join('')}</select>
         <button id="dPrNext" aria-label="Next drill">▶</button></div>
-      <div class="pv">${esc(preview(pat.groups))}</div>
+      <div class="pathead">What you play: one group after another, left to right. Big = the degree, small = the note.</div>
+      ${patternHTML(pat.groups, 4)}
       <p>${isBest(S.scale, p.id) ? '<b class="star">★ suits this scale.</b> ' : ''}${esc(p.how)}</p>
       ${pat.info ? `<p class="info">${esc(pat.info)}</p>` : ''}
     </div>`;
@@ -241,12 +252,12 @@ function transport(label = 'Start') {
     <div class="row"><button id="dGo" class="go ${run ? 'on' : ''}">${run ? '■ Stop' : `▶ ${label}`}</button></div>
     <div class="row"><button class="sq" id="dDown">−</button><span class="bpm" id="dBpm">${S.bpm} bpm</span><button class="sq" id="dUp">+</button><button id="dSub" class="sm">${SUBS[S.sub]}</button></div>
     <div class="row tg">
-      <button id="dGuide" class="${S.guide ? 'on' : ''}">Guide</button>
+      <button id="dGuide" class="${S.guide ? 'on' : ''}">Play notes</button>
       <button id="dClick" class="${S.click ? 'on' : ''}">Click</button>
-      <button id="dDrone" class="${S.drone ? 'on' : ''}">Drone</button>
+      <button id="dDrone" class="${S.drone ? 'on' : ''}">Drone ${esc(rootName())}</button>
     </div>
     <div class="row tg">
-      <button id="dLab">${LABEL[S.labels]}</button>
+      <button id="dLab">Show: ${LABEL[S.labels]}</button>
       ${S.labels === 'none' || S.labels === 'dot' || S.labels === 'root' ? '<button id="dPeek">Peek</button>' : ''}
       <button id="dZoom" class="${S.zoom ? 'on' : ''}" ${area.whole ? 'disabled' : ''}>Zoom</button>
     </div>`;
@@ -272,7 +283,7 @@ function gamePanel() {
       <div class="dl"><div><i>Scale</i><b class="big">${esc(titleOf())}</b></div>${lock('scale')}</div>
       <div class="dl"><div><i>Key</i><b>${esc(rootName())}</b></div>${lock('key')}</div>
       <div class="dl"><div><i>Where</i><b>${esc(area.title)}</b><span>${esc(area.sub)}</span></div>${lock('area')}</div>
-      <div class="dl"><div><i>Drill</i><b>${isBest(S.scale, p.id) ? '★ ' : ''}${esc(p.name)}</b><span class="pv">${esc(preview(pat.groups, 3))}</span></div>${lock('prac')}</div>
+      <div class="dl"><div><i>Drill</i><b>${isBest(S.scale, p.id) ? '★ ' : ''}${esc(p.name)}</b>${patternHTML(pat.groups, 2, false)}</div>${lock('prac')}</div>
       ${twist ? `<div class="twist">${esc(twist)}</div>` : ''}
     </div>
     <div class="row"><button id="gDeal" class="go deal-b">Deal ⟳</button></div>
@@ -315,7 +326,7 @@ function render() {
   const panel = S.mode === 'game' ? gamePanel() : S.mode === 'numbers' ? numbersPanel() : drillPanel();
   const keepScroll = $app.querySelector('.panel')?.scrollTop || 0;
   $app.innerHTML = `
-    <header><h1>Scale Driller</h1>
+    <header><h1>Scale Driller <button id="dHelp" class="help" aria-label="What everything does">?</button></h1>
       <div class="seg">${[['drill', 'Drill'], ['game', 'Game'], ['numbers', 'Numbers']].map(([m, l]) => `<button data-mode="${m}" class="${S.mode === m ? 'on' : ''}">${l}</button>`).join('')}</div>
     </header>
     <div class="neckbox"></div>
@@ -362,6 +373,8 @@ function bind() {
   }
   on('dZoom', 'onclick', () => { S.zoom = !S.zoom; save(); render(); });
   on('dTips', 'onclick', openTips);
+  on('dHelp', 'onclick', openHelp);
+  on('dMore', 'onclick', () => { showAll = !showAll; render(); });
   // game
   on('gDeal', 'onclick', () => { deal(); render(); });
   on('gEvery', 'onchange', (e) => { S.game.every = Number(e.target.value); save(); });
@@ -408,6 +421,22 @@ function openTips() {
     ${t.tips ? `<h3>How to practise it</h3><ul>${t.tips.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
     ${list.length ? `<h3>Best drills for it</h3><div class="chips">${list.map((p) => `<button data-go="${p.id}">★ ${esc(p.name)}</button>`).join('')}</div>` : ''}
   `, (el, close) => el.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => { S.prac = b.dataset.go; seed = Math.random(); save(); load(); changed(); close(); })));
+}
+function openHelp() {
+  const row = (t, d) => `<h3>${esc(t)}</h3><p>${d}</p>`;
+  sheet('What everything does', `
+    ${row('The neck', 'The scale in the area you picked. Big dots are the notes to play; the faint dots are the same scale elsewhere on the neck. Ringed dots are the roots. Colours: <b style="color:var(--amber)">root</b>, <b style="color:var(--cyan)">3rd</b>, <b style="color:var(--bone)">5th</b>, <b style="color:var(--rose)">7th</b>, <b style="color:var(--green)">the scale’s colour notes</b>, <b style="color:var(--violet)">the rest</b>.')}
+    ${row('The row of coloured boxes', 'The scale’s formula: each degree (big) with its note in this key (small). G Dorian is 1 2 ♭3 4 5 6 ♭7, which is G A B♭ C D E F.')}
+    ${row('Where', 'One CAGED shape: the five-fret area round one of the five chord shapes, so the CAGED letter just tells you where the roots sit. Two shapes joined: two neighbouring areas as one. 3 notes per string: seven long diagonal patterns, one from each note. Whole neck: everything. Zoom fills the screen with the area.')}
+    ${row('The drill', 'A way of playing through the scale in that area. The boxes under it are exactly what to play, group by group: ↑ means going up, ↓ coming back down. Big numbers are degrees of the scale, small letters are the notes. “Groups of 3” in G Dorian starts 1 2 ♭3 (G A B♭), then 2 ♭3 4 (A B♭ C), and so on. ★ marks the drills that suit this scale best. ◀ ▶ step through every drill for the scale.')}
+    ${row('Start', 'Starts the metronome (after one bar of count-in). With Play notes on, the app also plays the drill in time and lights each note on the neck, so you can hear and see it before you play along. Turn Play notes off to play it yourself to the click.')}
+    ${row('8ths / Triplets / 16ths', 'How many notes per click: one note per subdivision.')}
+    ${row('Drone', 'A low held note on the key’s root (and its 5th if the scale has one), so you hear every note against home.')}
+    ${row('Show', 'What the dots say: intervals, note names, plain dots, roots only, or nothing (test yourself). Hold Peek to look.')}
+    ${row('Game', 'Deals a random scale, key, area and drill. Hold keeps one of them the same on the next deal. New deal can come every few bars while the metronome runs. Game settings choose what gets dealt.')}
+    ${row('Numbers', 'A line of scale degrees to play in order, e.g. 1 3 5 9 7 4. 8 and above are an octave up (9 is the 2nd an octave higher). The line stays put while ◀ ▶ change the scale, so the same shape of melody comes out in each scale. A crossed-out number isn’t in that scale: skip it. Show the line numbers its notes on the neck in order.')}
+    ${row('Tips', 'For this scale: what to play it over, its colour notes, how to find it, how to practise it, and its best drills.')}
+  `);
 }
 function openGameSettings() {
   const g = S.game;

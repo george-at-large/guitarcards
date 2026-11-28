@@ -12,10 +12,13 @@ export const CATS = [
   ['voc', 'Vocabulary'],
 ];
 const CHROM = ['1', '♭2', '2', '♭3', '3', '4', '♯4', '5', '♭6', '6', '♭7', '7'];
-const mirror = (groups) => [...groups].reverse().map((g) => [...g].reverse());
-const updown = (groups) => groups.concat(mirror(groups));
+// a group can carry a label (Strings 6 & 4, into ♭3) and a direction (up or down), shown with the pattern
+const tag = (g, label, dir) => Object.assign(g, label ? { label } : {}, dir ? { dir } : {});
+const mirror = (groups) => [...groups].reverse().map((g) => tag([...g].reverse(), g.label, 'down'));
+const updown = (groups) => groups.map((g) => tag(g, g.label, 'up')).concat(mirror(groups));
 const slide = (P, offs, step = 1) => { const out = []; const span = Math.max(...offs); for (let i = 0; i + span < P.length; i += step) out.push(offs.map((o) => P[i + o])); return out; };
-const chunk = (list, k = 8) => { const out = []; for (let i = 0; i < list.length; i += k) out.push(list.slice(i, i + k)); return out; };
+const chunk = (list, k = 8, dir = null) => { const out = []; for (let i = 0; i < list.length; i += k) out.push(tag(list.slice(i, i + k), null, dir)); return out; };
+const upThenDown = (a) => chunk(a, 8, 'up').concat(chunk([...a].reverse().slice(1), 8, 'down'));
 const isRoot = (n) => semi(n.iv) === 0;
 const rootIdx = (P) => P.map((n, i) => (isRoot(n) ? i : -1)).filter((i) => i >= 0);
 
@@ -31,13 +34,13 @@ const isDim = (id) => id.startsWith('dim-');
 
 export const PRACTICES = [
   { id: 'updown', cat: 'runs', name: 'Up and down', how: 'Lowest note to the highest and back. Say each degree as you play it. Even 8ths, alternate picking.',
-    fits: () => true, gen: ({ P }) => chunk(P).concat(chunk([...P].reverse().slice(1))) },
+    fits: () => true, gen: ({ P }) => upThenDown(P) },
   { id: 'rootroot', cat: 'runs', name: 'Root to root', how: 'From the lowest root to the highest and back, so you hear it as a scale with a home.',
-    fits: () => true, gen: ({ P }) => { const r = rootIdx(P); if (r.length < 2) return chunk(P); const s = P.slice(r[0], r[r.length - 1] + 1); return chunk(s).concat(chunk([...s].reverse().slice(1))); } },
+    fits: () => true, gen: ({ P }) => { const r = rootIdx(P); if (r.length < 2) return upThenDown(P); return upThenDown(P.slice(r[0], r[r.length - 1] + 1)); } },
   { id: 'anywhere', cat: 'runs', name: 'Start anywhere', how: 'From a random note: up to the top, down to the bottom, back to where you began. It breaks the start-on-the-root habit. New start each time you pick this drill.',
-    fits: () => true, gen: ({ P, seed }) => { const s = Math.floor(seed * (P.length - 2)) + 1; return [P.slice(s), [...P].reverse().slice(1), P.slice(1, s + 1)].flatMap((x) => chunk(x)); } },
+    fits: () => true, gen: ({ P, seed }) => { const s = Math.floor(seed * (P.length - 2)) + 1; return [...chunk(P.slice(s), 8, 'up'), ...chunk([...P].reverse().slice(1), 8, 'down'), ...chunk(P.slice(1, s + 1), 8, 'up')]; } },
   { id: 'skip', cat: 'runs', name: 'String skipping', how: 'The notes on strings 6 and 4, then 5 and 3, 4 and 2, 3 and 1, and back down. Wide intervals out of the box sound.',
-    fits: () => true, gen: ({ notes }) => { const on = (s) => notes.filter((n) => n.string === s).sort((a, b) => a.fret - b.fret); const up = [[6, 4], [5, 3], [4, 2], [3, 1]].map(([a, b]) => [...on(a), ...on(b)]).filter((g) => g.length); return updown(up); } },
+    fits: () => true, gen: ({ notes }) => { const on = (s) => notes.filter((n) => n.string === s).sort((a, b) => a.fret - b.fret); const up = [[6, 4], [5, 3], [4, 2], [3, 1]].map(([a, b]) => tag([...on(a), ...on(b)], `strings ${a} & ${b}`)).filter((g) => g.length); return updown(up); } },
   { id: 'g3', cat: 'seq', name: 'Groups of 3', how: '1 2 3, 2 3 4, 3 4 5 … to the top, then the mirror down. In 8ths the accent moves round the bar; in triplets it locks.',
     fits: () => true, gen: ({ P }) => updown(slide(P, [0, 1, 2])) },
   { id: 'g4', cat: 'seq', name: 'Groups of 4', how: '1 2 3 4, 2 3 4 5 … up, then mirrored down. 16ths; the rock and fusion staple.',
@@ -53,9 +56,9 @@ export const PRACTICES = [
   { id: 'cells', cat: 'seq', name: '1‑2‑3‑5 cells', how: 'From each note: step, step, leap a 3rd (1 2 3 5, 2 3 4 6 …). Coltrane’s cell, up then mirrored down.',
     fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 1, 2, 4])) },
   { id: 'pedal', cat: 'seq', name: 'Pedal on the root', how: 'Root, 2, root, 3, root, 4 …: every note against the root. The quickest way to hear what a mode sounds like.',
-    fits: () => true, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const up = P.slice(r + 1).map((n) => [P[r], n]); return up.concat([...up].reverse().slice(1)); } },
+    fits: () => true, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const up = P.slice(r + 1).map((n) => tag([P[r], n], null, 'up')); return up.concat([...up].reverse().slice(1).map((g) => tag([...g], null, 'down'))); } },
   { id: 'home', cat: 'arp', name: 'Arpeggio of its chord', how: 'Only the chord tones, through the whole area and back. These are the notes to land on.',
-    fits: () => true, gen: ({ P, chord }) => { const a = P.filter((n) => chord.includes(semi(n.iv))); return chunk(a).concat(chunk([...a].reverse().slice(1))); } },
+    fits: () => true, gen: ({ P, chord }) => { return upThenDown(P.filter((n) => chord.includes(semi(n.iv)))); } },
   { id: 'triads', cat: 'arp', name: 'Triads on every note', how: 'A triad from each note (1 3 5, 2 4 6 …) up, then mirrored down: the scale’s own chords.',
     fits: (id) => sizeOf(id) === 7 || id === 'whole-tone', gen: ({ P }) => updown(slide(P, [0, 2, 4])) },
   { id: 'triadsAlt', cat: 'arp', name: 'Triads, up one, down the next', how: '1 3 5, 6 4 2, 3 5 7 …: alternate direction, so the line keeps turning.',
@@ -63,7 +66,7 @@ export const PRACTICES = [
   { id: 'sevenths', cat: 'arp', name: '7th arpeggios on every note', how: '1 3 5 7, 2 4 6 8 …: the scale’s 7th chords as arpeggios. The jazz drill.',
     fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 2, 4, 6])) },
   { id: 'ext', cat: 'arp', name: 'Extended arpeggio', how: '1 3 5 7 9 11 13: stack 3rds from the root up through the area and back. You hear every chord the scale implies.',
-    fits: (id) => sizeOf(id) === 7, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const a = P.filter((_, i) => i >= r && (i - r) % 2 === 0); return [a, [...a].reverse().slice(1)]; } },
+    fits: (id) => sizeOf(id) === 7, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const a = P.filter((_, i) => i >= r && (i - r) % 2 === 0); return [tag(a, null, 'up'), tag([...a].reverse().slice(1), null, 'down')]; } },
   { id: 'dimarps', cat: 'arp', name: '°7 arpeggios', how: 'Every other note of a diminished scale is a °7 chord. Arpeggiate from each note up, then down.',
     fits: isDim, gen: ({ P }) => updown(slide(P, [0, 2, 4, 6])) },
   { id: 'dimtriads', cat: 'arp', name: 'Its four major triads', how: 'Four major triads a minor 3rd apart live in this scale. Arpeggiate each one as you climb, then come down.',
@@ -83,8 +86,8 @@ export const PRACTICES = [
     fits: (id) => sizeOf(id) >= 6, gen: ({ P, chord }) => {
       const ct = (n) => chord.includes(semi(n.iv));
       const up = [], down = [];
-      P.forEach((n, j) => { if (ct(n) && j >= 3) up.push([null, P[j - 3], P[j - 2], P[j - 1], n, null, null, null]); });
-      for (let j = P.length - 4; j >= 0; j--) if (ct(P[j])) down.push([null, P[j + 3], P[j + 2], P[j + 1], P[j], null, null, null]);
+      P.forEach((n, j) => { if (ct(n) && j >= 3) up.push(tag([null, P[j - 3], P[j - 2], P[j - 1], n, null, null, null], `into ${T.prettyIv(n.iv)}`, 'up')); });
+      for (let j = P.length - 4; j >= 0; j--) if (ct(P[j])) down.push(tag([null, P[j + 3], P[j + 2], P[j + 1], P[j], null, null, null], `into ${T.prettyIv(P[j].iv)}`, 'down'));
       return up.concat(down);
     } },
   { id: 'enclose', cat: 'voc', name: 'Enclosures', how: 'The scale note above, the half step below, then the chord tone on the beat. The bebop way to target a note.',
@@ -95,7 +98,7 @@ export const PRACTICES = [
         const below = n.fret > 0 ? { string: n.string, fret: n.fret - 1, midi: n.midi - 1 } : null;
         if (!below) return;
         below.iv = null; below.chrom = CHROM[((below.midi - pc) % 12 + 12) % 12];
-        out.push([P[j + 1], below, n, null]);
+        out.push(tag([P[j + 1], below, n, null], `around ${T.prettyIv(n.iv)}`));
       });
       return out;
     } },
@@ -105,7 +108,7 @@ export const PRACTICES = [
       for (const x of hiddenPents(id)) {
         const set = [0, 2, 4, 7, 9].map((o) => (x + o) % 12);
         const a = P.filter((n) => set.includes(rel(n)));
-        out.push(...chunk(a), ...chunk([...a].reverse().slice(1)), [null, null]);
+        const g = upThenDown(a); g[0].label = `minor pent. from the ${CHROM[(x + 9) % 12]}`; out.push(...g, [null, null]);
       }
       return out;
     } },
@@ -117,7 +120,7 @@ export const PRACTICES = [
       for (let j = P.length - 1; j >= 0; j--) {
         if (!chord.includes(semi(P[j].iv))) continue;
         const run = []; for (let k = j; k >= 0 && run.length < 8; k--) run.push(P[k]);
-        if (run.length === 8) out.push(run);
+        if (run.length === 8) out.push(tag(run, `from ${T.prettyIv(P[j].iv)}`, 'down'));
       }
       return out;
     } },
