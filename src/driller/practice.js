@@ -60,6 +60,18 @@ export const PRACTICES = [
     fits: () => true, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const up = P.slice(r + 1).map((n) => tag([P[r], n], null, 'up')); return up.concat([...up].reverse().slice(1).map((g) => tag([...g], null, 'down'))); } },
   { id: 'home', cat: 'arp', name: 'Arpeggio of its chord', how: 'Play only the notes of the scale’s own chord (listed below) and leave the other notes out. Go from the lowest chord tone in the shape to the highest, then back down.', why: 'These are the strongest, safest notes over the chord: the ones to land on when you improvise.',
     fits: () => true, gen: ({ P, chord }) => { return upThenDown(P.filter((n) => chord.includes(semi(n.iv)))); } },
+  { id: 'inv', cat: 'arp', name: 'Its chord from every chord tone', how: 'Play the scale’s chord as an arpeggio (chord tones listed below), starting from each chord tone in turn. First from the root up to the next root and back down. Then from the 3rd up to the next 3rd and back, then from the 5th, then from the 7th. Use the lowest one of each in the shape.',
+    why: 'Real lines rarely start on the root. Each starting note gives a different shape (the chord’s inversions), and the 3rd and 7th matter most: they are the notes that define the chord.',
+    fits: () => true, gen: ({ P, chord }) => {
+      const A = P.filter((n) => chord.includes(semi(n.iv))), k = new Set(A.map((n) => semi(n.iv))).size, out = [];
+      for (const c of chord) {
+        const i = A.findIndex((n) => semi(n.iv) === c);
+        if (i < 0 || A.length - i < k) continue; // room for the inversion; the octave on top if the shape has it
+        const up = A.slice(i, i + k + 1);
+        out.push(tag(up, `from the ${T.prettyIv(A[i].iv)}`, 'up'), tag([...up].reverse().slice(1), null, 'down'));
+      }
+      return out;
+    } },
   { id: 'triads', cat: 'arp', name: 'Triads on every note', how: 'Build a three-note chord on each note of the scale and play it one note at a time: the note, the note two steps above it, and the note two steps above that. Then do the same from the next note of the scale. Go to the top of the shape, then play the triads downwards.', why: 'It shows you every chord inside the scale, and joins scales to arpeggios.',
     fits: (id) => sizeOf(id) === 7 || id === 'whole-tone', gen: ({ P }) => updown(slide(P, [0, 2, 4])) },
   { id: 'triadsAlt', cat: 'arp', name: 'Triads, up one, down the next', how: 'The same triads, built on each note of the scale, but every second one is played downwards: the first triad from the bottom up, the next from its top note down, the next up again, and so on to the top of the shape and back.', why: 'The line keeps turning, so it sounds musical, and you practise changing direction.',
@@ -149,7 +161,7 @@ export function pattern(pid, id, pc, area, seed = 0.5) {
 // a short example in this scale's degrees, counted up from the root (the {ex} in a description)
 // a short example: the first groups of the drill played up from the root, as [{ lab, semis }] (null for a group gap).
 // Above the octave, 2 4 6 read 9 11 13 and the root reads 8.
-const EXN = { updown: [1, 9], rootroot: [1, 9], home: [1, 5], ext: [1, 7], bebopdown: [1, 8], pents: [1, 6], into: [2, 8], enclose: [3, 4], dimtriads: [2, 3] };
+const EXN = { inv: [4, 5], updown: [1, 9], rootroot: [1, 9], home: [1, 5], ext: [1, 7], bebopdown: [1, 8], pents: [1, 6], into: [2, 8], enclose: [3, 4], dimtriads: [2, 3] };
 export function example(pid, id) {
   if (pid === 'skip' || pid === 'anywhere') return null;
   const ivs = ivsOf(id), P = [];

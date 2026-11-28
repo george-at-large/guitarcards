@@ -63,13 +63,13 @@ export const TIPS = {
     over: 'maj7 and 6 chords on I; the parent of every major mode.',
     colour: ['7', '3'], think: 'The parent shapes: learn these and the other six modes are the same fingers from another note.',
     tips: ['The 4 is an avoid note over a maj7: pass through it, don’t sit on it.', 'Drill 3rds and diatonic 7ths here first. Every mode inherits them.', 'Sing the degree as you play it.'],
-    best: ['thirds', 'sevenths', 'g4', 'cells', 'triads'],
+    best: ['thirds', 'sevenths', 'inv', 'g4', 'cells', 'triads'],
   },
   dorian: {
     over: 'm7 and m6 chords, a ii in a major key, or a minor vamp (So What, Oye Como Va).',
     colour: ['6'], think: 'The major scale from its 2nd note, or natural minor with a raised 6.',
     tips: ['The natural 6 is the whole sound: pedal the root against it until you hear it.', 'Hidden inside: minor pentatonics on 1, 2 and 5. Drill them and the mode stops sounding like a scale.', 'Over a m7, target ♭3 and ♭7 on the beat.'],
-    best: ['pedal', 'pents', 'sevenths', 'thirds', 'into'],
+    best: ['pedal', 'pents', 'inv', 'sevenths', 'thirds', 'into'],
   },
   phrygian: {
     over: 'm7 on iii, minor vamps with a ♭II (Spanish, metal), sus♭9 sounds.',
@@ -87,7 +87,7 @@ export const TIPS = {
     over: 'Dominant 7ths that resolve or vamp: V7, blues and funk, rock I chords.',
     colour: ['b7', '3'], think: 'The major scale from its 5th note, or major with a ♭7.',
     tips: ['The 4 is the avoid note over a 7th chord: use it as a passing note into the 3.', 'Run into the chord tones (1 3 5 ♭7) so they land on the beat.', 'Mix in the minor pentatonic’s ♭3 for blues.'],
-    best: ['into', 'enclose', 'sevenths', 'g4', 'home'],
+    best: ['into', 'enclose', 'inv', 'sevenths', 'g4'],
   },
   aeolian: {
     over: 'The vi chord, m7 in a minor key, minor rock and pop.',
@@ -99,19 +99,19 @@ export const TIPS = {
     over: 'm7♭5 (half-diminished), the ii of a minor ii–V.',
     colour: ['b5', 'b2'], think: 'The major scale from its 7th note.',
     tips: ['The ♭2 sounds harsh over ø7: Locrian ♮2 is the smoother modern choice.', 'Drill the m7♭5 arpeggio (1 ♭3 ♭5 ♭7) inside the scale before anything else.', 'Resolve its ♭7 down a half step to the next chord’s 3rd (Bø → E7: A → G♯).'],
-    best: ['home', 'sevenths', 'thirds', 'into'],
+    best: ['sevenths', 'thirds', 'inv', 'into'],
   },
   'min-pent': {
     over: 'Minor chords, dominant 7ths in a blues, rock riffs.',
     colour: ['b3', 'b7'], think: 'Same notes as the major pentatonic a minor 3rd up.',
     tips: ['Learn the five boxes, then join them: the 3-per-string shapes give you long diagonal runs.', 'Groups of 3 and 4 are the classic rock sequences.', 'String skipping breaks the box sound.'],
-    best: ['g4', 'g3', 'skip', 'thirds', 'home'],
+    best: ['g4', 'g3', 'inv', 'skip', 'thirds'],
   },
   'maj-pent': {
     over: 'Major and 6 chords, dominants in country and soul.',
     colour: ['6', '3'], think: 'The minor pentatonic’s shapes, a minor 3rd down.',
     tips: ['No half steps, so nothing clashes: play it over the I, IV and V of a major key.', 'Groups of 4 and skipping thirds make it sound like a melody, not a scale.', 'Over a maj7, try the major pentatonic from the 5th: it adds the 7 and 9.'],
-    best: ['g4', 'thirds', 'skip', 'g3', 'home'],
+    best: ['g4', 'thirds', 'inv', 'skip', 'g3'],
   },
   blues: {
     over: 'The whole 12-bar blues, minor vamps, rock.',
@@ -141,7 +141,7 @@ export const TIPS = {
     over: 'm(maj7) and m6 tonics, a minor i in jazz.',
     colour: ['7', '6'], think: 'Major with a ♭3. Learn its shapes once and you have all seven modes below.',
     tips: ['Diatonic 7ths here give m(maj7), m7, maj7♯5, 7, 7, ø, ø: the jazz vocabulary.', 'Thirds and 1-2-3-5 cells are the classic drills.', 'Then play the same fingering over its other roots: it is the altered, Lydian dominant and Locrian ♮2 too.'],
-    best: ['sevenths', 'thirds', 'cells', 'triads', 'ext'],
+    best: ['sevenths', 'thirds', 'inv', 'cells', 'triads', 'ext'],
   },
   'dorian-b2': {
     over: 'sus♭9 chords (7sus with a ♭9), Phrygian-minor vamps.',
@@ -171,7 +171,7 @@ export const TIPS = {
     over: 'm7♭5 chords: the ii of a minor ii–V, and ♯iv ø in major.',
     colour: ['2', 'b5'], think: 'Melodic minor from the ♭3 (C melodic minor = A Locrian ♮2).',
     tips: ['The natural 9 is the difference from Locrian: smooth instead of harsh.', 'Drill the ø7 arpeggio and the extended arpeggio (1 ♭3 ♭5 ♭7 9 11).', 'Play the melodic minor shape a minor 3rd up.'],
-    best: ['home', 'ext', 'sevenths', 'into', 'thirds'],
+    best: ['ext', 'sevenths', 'inv', 'into', 'thirds'],
   },
   altered: {
     over: 'V7alt resolving, above all into minor: 7♭9, 7♯9, 7♭13, 7♯11.',
@@ -183,7 +183,7 @@ export const TIPS = {
     over: 'Minor i with a leading tone, m(maj7), and V7♭9 → i (from its 5th).',
     colour: ['7', 'b6'], think: 'Natural minor with a raised 7.',
     tips: ['The ♭6–7 gap is the sound: play it slowly, it’s a stretch.', 'Diatonic 7ths: m(maj7), ø, maj7♯5, m7, 7, maj7, °7.', 'Its °7 arpeggio on the 7th is the V7♭9 sound.'],
-    best: ['sevenths', 'thirds', 'triads', 'g3', 'cells'],
+    best: ['sevenths', 'thirds', 'inv', 'triads', 'g3', 'cells'],
   },
   'phryg-dom': {
     over: 'V7♭9 into minor (E7♭9 → Am), flamenco, klezmer, metal.',
@@ -219,7 +219,7 @@ export const TIPS = {
     over: 'Dominant 7ths, and the ii–V when you think in V.',
     colour: ['7'], think: 'Mixolydian with a passing major 7.',
     tips: ['Descend from the root in 8ths starting on the beat: chord tones land on the beats.', 'Start from any chord tone on a downbeat and the passing tone keeps them on the beat.', 'Enclose the 3rd and the root.'],
-    best: ['bebopdown', 'enclose', 'into', 'home'],
+    best: ['bebopdown', 'enclose', 'inv', 'into'],
   },
   'bebop-maj': {
     over: 'maj7 and 6 chords; Barry Harris’s major 6th diminished.',
@@ -231,6 +231,6 @@ export const TIPS = {
     over: 'm7 chords, the ii of a ii–V.',
     colour: ['3'], think: 'Dorian with a passing major 3rd.',
     tips: ['Descend from the root in 8ths: chord tones on the beats.', 'The major 3 is only a passing tone between 4 and ♭3.', 'Enclose the ♭3 and the root.'],
-    best: ['bebopdown', 'enclose', 'into', 'home'],
+    best: ['bebopdown', 'enclose', 'inv', 'into'],
   },
 };

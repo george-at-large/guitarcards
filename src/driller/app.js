@@ -238,7 +238,7 @@ function drillText(p, why = true) {
 }
 function infoFor(pid) {
   const tones = () => chordOf(S.scale).map((iv) => `${T.prettyIv(iv)} (${noteOf(iv)})`).join(', ');
-  if (['home', 'into', 'enclose'].includes(pid)) return `Chord tones: ${tones()}.`;
+  if (['home', 'inv', 'into', 'enclose'].includes(pid)) return `Chord tones: ${tones()}.`;
   if (pid === 'bebopdown') return `Chord tones: ${tones()}.`;
   if (pid === 'pents') return `Hidden inside: ${hiddenPents(S.scale).map((x) => `${nameSemis((x + 9) % 12)} minor pentatonic`).join(', ')}.`;
   if (pid === 'dimtriads') { const pcs = new Set(ivsOf(S.scale).map(semi)); const r = []; for (let x = 0; x < 12; x++) if (pcs.has(x) && pcs.has((x + 4) % 12) && pcs.has((x + 7) % 12)) r.push(nameSemis(x)); return `The triads: ${r.join(', ')} major.`; }
