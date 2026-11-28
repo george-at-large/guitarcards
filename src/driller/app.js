@@ -279,7 +279,48 @@ function drillText(p, why = true) {
   const ex = example(p.id, S.scale), info = infoFor(p.id);
   const more = (g) => (ex.length > 1 || g.length >= 5 ? ' …' : '');
   const exHTML = ex ? `<p class="ex"><span>Example in ${esc(titleOf())}, from the root</span><b>${esc(ex.map((g) => g.map((n) => n.lab).join(' ')).join(' · '))}${more(ex[0])}</b><i>${esc(ex.map((g) => g.map((n) => (n.iv ? noteOf(n.iv) : nameSemis(n.semis))).join(' ')).join(' · '))}${more(ex[0])}</i></p>` : '';
+  if (p.id === 'pents') return `<p class="desc">${esc(p.how)}</p>${pentsBlock()}${why && p.why ? `<p class="why"><b>Why:</b> ${esc(p.why)}</p>` : ''}`;
   return `<p class="desc">${esc(p.how)}</p>${exHTML}${info ? `<p class="info">${esc(info)}</p>` : ''}${why && p.why ? `<p class="why"><b>Why:</b> ${esc(p.why)}</p>` : ''}`;
+}
+// the pentatonics hidden in a scale: what each one gives over the root, which carry the colour notes, and how to
+// use them when you play
+function pentsBlock() {
+  const ivs = ivsOf(S.scale), ivAt = (x) => ivs.find((iv) => semi(iv) === x) || '?';
+  const colour = (TIPS[S.scale]?.colour || []).map(semi);
+  const list = hiddenPents(S.scale).map((x) => {
+    const m = (x + 9) % 12, degs = [0, 3, 5, 7, 10].map((o) => (m + o) % 12);
+    return { m, x, degs, root: degs.includes(0), cols: degs.filter((d) => colour.includes(d)) };
+  }).sort((a, b) => b.cols.length - a.cols.length || b.root - a.root);
+  // each pentatonic named as players name it (B♭ minor, not A♯) and its notes spelled from its own root
+  const MINOR = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+  const pRoot = (m) => T.parseNote(MINOR[(S.key + m) % 12]);
+  const pName = (m) => T.noteName(pRoot(m), true), pMajor = (m) => T.noteName(T.transpose(pRoot(m), 'b3'), true);
+  const pNotes = (m) => ['1', 'b3', '4', '5', 'b7'].map((iv) => T.noteName(T.transpose(pRoot(m), iv), true));
+  const ct = chordOf(S.scale), c3 = ct.filter((iv) => /3|4/.test(F.simpleIv(iv).replace(/[^0-9]/g, '')) && semi(iv) !== 0).map(semi), c7 = ct.filter((iv) => /[67]/.test(F.simpleIv(iv).replace(/[^0-9]/g, ''))).map(semi);
+  const item = (p) => {
+    const has3 = c3.some((d) => p.degs.includes(d)), has7 = c7.some((d) => p.degs.includes(d));
+    const tags = [
+      p.cols.length ? `it has the colour note${p.cols.length > 1 ? 's' : ''} ${p.cols.map((d) => T.prettyIv(ivAt(d))).join(' ')}` : 'no colour note',
+      has3 && has7 ? 'the 3rd and 7th, so it outlines the chord' : has3 ? 'the 3rd but not the 7th' : has7 ? 'the 7th but no 3rd, so it sounds open' : 'no 3rd or 7th, so it sounds open and suspended',
+      p.root ? 'the root, so it sounds settled' : 'no root, so it floats over the chord',
+    ];
+    return `<li><b>${esc(pName(p.m))} minor pentatonic</b> <span class="muted">(= ${esc(pMajor(p.m))} major pentatonic, starting on the ${esc(T.prettyIv(ivAt(p.m)))})</span><br>Over ${esc(rootName())} its notes are <b class="amb">${esc(p.degs.map((d) => T.prettyIv(ivAt(d))).join(' '))}</b> (${esc(pNotes(p.m).join(' '))}). ${esc(tags[0][0].toUpperCase() + tags[0].slice(1))}; ${esc(tags[1])}; ${esc(tags[2])}.</li>`;
+  };
+  const best = list.find((p) => p.cols.length && !p.root) || list.find((p) => p.cols.length);
+  return `
+    <div class="pents">
+      <b class="ph">The pentatonics in ${esc(titleOf())}</b>
+      <ul>${list.map(item).join('')}</ul>
+      ${best ? `<p class="pick">To show off the ${esc(nameOf(S.scale))} sound, reach for <b>${esc(pName(best.m))} minor pentatonic</b>: it has the colour note${best.cols.length > 1 ? 's' : ''} ${esc(best.cols.map((d) => T.prettyIv(ivAt(d))).join(' '))}.</p>` : ''}
+      <b class="ph">How to use them</b>
+      <ol>
+        <li><b>Learn each shape in this area.</b> That’s the drill above: each pentatonic up and down, using only its five notes.</li>
+        <li><b>Hear them against the root.</b> Turn the drone on (${esc(rootName())}) and improvise with one pentatonic for a minute, then the next. Same five-note shapes, different sound each time, because each puts different degrees over the root.</li>
+        <li><b>Move licks you already know.</b> Take any minor pentatonic lick and play it from each of these roots: ${esc(list.map((p) => pName(p.m)).join(', '))}. Over a ${esc(titleOf())} vamp they all fit.</li>
+        <li><b>Use them over the chord.</b> The one with the root sounds settled; the ones with the colour note sound like this scale; the ones without the root float.</li>
+        <li><b>Switch between them.</b> Two bars on one, two on the next, then change mid-phrase. Lines stop sounding like a scale run.</li>
+      </ol>
+    </div>`;
 }
 function infoFor(pid) {
   const tones = () => chordOf(S.scale).map((iv) => `${T.prettyIv(iv)} (${noteOf(iv)})`).join(', ');

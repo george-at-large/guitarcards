@@ -198,3 +198,13 @@ button:disabled { opacity: .35; }
 #driller.v .seg button + button { border-left: 0; }
 #driller.v .seg button:nth-child(even) { border-left: 1px solid var(--line); }
 #driller.v .seg button:nth-child(n+3) { border-top: 1px solid var(--line); }
+
+/* pentatonics inside a scale */
+.pents { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 12px; background: rgba(126, 224, 138, 0.06); border: 1px solid rgba(126, 224, 138, 0.25); }
+.pents .ph { font: 600 14px var(--f-num); color: var(--green); }
+.pents ul, .pents ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--soft); }
+.pents li::marker { color: var(--green); }
+.pents b { color: var(--text); }
+.pents .amb { color: var(--amber); }
+.pents .muted { color: var(--muted); font-size: 12.5px; }
+.pents .pick { margin: 0; font-size: 13.5px; color: var(--text); }
