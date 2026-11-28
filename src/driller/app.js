@@ -9,7 +9,8 @@ import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { GROUPS, ORDER, BY, TIPS, nameOf, ivsOf, ivForNumber, semi, sizeOf, groupOf } from './data.js';
 import { AREAS, AREA_NAME, positions, spell, placePitch, NECK_TOP } from './areas.js';
-import { PR, CATS, practicesFor, isBest, pattern, TWISTS } from './practice.js';
+import { PR, CATS, practicesFor, isBest, pattern, describe, hiddenPents, TWISTS } from './practice.js';
+import { chordOf } from './data.js';
 import { neck } from './neck.js';
 import { BUILD } from './build.js';
 
@@ -218,14 +219,17 @@ const keyOpts = () => Array.from({ length: 12 }, (_, i) => opt(i, T.noteName(spe
 const scaleOpts = () => GROUPS.map(([g, ids]) => `<optgroup label="${esc(g)}">${ids.map((id) => opt(id, nameOf(id), S.scale)).join('')}</optgroup>`).join('');
 const areaOpts = () => AREAS.map(([id, l]) => opt(id, l, S.area)).join('');
 const formula = () => `<div class="form">${ivsOf(S.scale).map((iv) => `<span class="${role(iv)}"><b>${esc(T.prettyIv(iv))}</b><small>${esc(noteOf(iv))}</small></span>`).join('')}</div>`;
-// the drill's notes, group by group: each note's degree with its note name under it, an arrow for up or down, and
-// what the group is (the string pair, the chord tone it runs into…)
-const chromNote = (n) => { const x = T.transposeSemis(data.root, ((n.midi - S.key) % 12 + 12) % 12); return T.noteName(Math.abs(x.acc) > 1 ? T.enharmonic(x) : x, true); };
-function patternHTML(groups, limit, more = true) {
-  const shown = showAll ? groups : groups.slice(0, limit);
-  const note = (x) => (x.chrom ? `<b class="pn ch"><em>${esc(x.chrom)}</em><small>${esc(chromNote(x))}</small></b>` : `<b class="pn ${role(x.iv)}"><em>${esc(T.prettyIv(x.iv))}</em><small>${esc(noteOf(x.iv))}</small></b>`);
-  const grp = (g) => `<div class="grp">${g.dir || g.label ? `<span class="gh">${g.dir === 'up' ? '↑ ' : g.dir === 'down' ? '↓ ' : ''}${esc(g.label || (g.dir === 'up' ? 'up' : 'down'))}</span>` : ''}<span class="gn">${g.filter(Boolean).map(note).join('')}</span></div>`;
-  return `<div class="pat">${shown.map(grp).join('')}</div>${more && groups.length > limit ? `<button class="more" id="dMore">${showAll ? 'Show fewer' : `Show all ${groups.length} groups`}</button>` : ''}`;
+// the notes a description refers to, named in this key
+const nameSemis = (x) => { const n = T.transposeSemis(data.root, x); return T.noteName(Math.abs(n.acc) > 1 ? T.enharmonic(n) : n, true); };
+const STR = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high E' };
+function infoFor(pid) {
+  const tones = () => chordOf(S.scale).map((iv) => `${T.prettyIv(iv)} (${noteOf(iv)})`).join(', ');
+  if (['home', 'into', 'enclose'].includes(pid)) return `Chord tones: ${tones()}.`;
+  if (pid === 'bebopdown') return `Chord tones: ${tones()}.`;
+  if (pid === 'pents') return `Hidden inside: ${hiddenPents(S.scale).map((x) => `${nameSemis((x + 9) % 12)} minor pentatonic`).join(', ')}.`;
+  if (pid === 'dimtriads') { const pcs = new Set(ivsOf(S.scale).map(semi)); const r = []; for (let x = 0; x < 12; x++) if (pcs.has(x) && pcs.has((x + 4) % 12) && pcs.has((x + 7) % 12)) r.push(nameSemis(x)); return `The triads: ${r.join(', ')} major.`; }
+  if (pid === 'anywhere') { const P = area.path, n = P[Math.floor(seed * (P.length - 2)) + 1]; return `Start on: ${noteOf(n.iv)} (the ${T.prettyIv(n.iv)}) on the ${STR[n.string]} string, fret ${n.fret}.`; }
+  return '';
 }
 
 const where = () => `
@@ -241,10 +245,9 @@ function practiceBlock() {
       <div class="flick"><button id="dPrPrev" aria-label="Previous drill">◀</button>
         <select id="dPrac">${CATS.map(([c, cl]) => { const ps = list.filter((x) => x.cat === c); return ps.length ? `<optgroup label="${cl}">${ps.map((x) => opt(x.id, (isBest(S.scale, x.id) ? '★ ' : '') + x.name, S.prac)).join('')}</optgroup>` : ''; }).join('')}</select>
         <button id="dPrNext" aria-label="Next drill">▶</button></div>
-      <div class="pathead">What you play: one group after another, left to right. Big = the degree, small = the note.</div>
-      ${patternHTML(pat.groups, 4)}
-      <p>${isBest(S.scale, p.id) ? '<b class="star">★ suits this scale.</b> ' : ''}${esc(p.how)}</p>
-      ${pat.info ? `<p class="info">${esc(pat.info)}</p>` : ''}
+      <p class="desc">${esc(describe(p.id, S.scale))}</p>
+      ${infoFor(p.id) ? `<p class="info">${esc(infoFor(p.id))}</p>` : ''}
+      ${isBest(S.scale, p.id) ? '<p class="star">★ One of the best drills for this scale.</p>' : ''}
     </div>`;
 }
 function transport(label = 'Start') {
@@ -283,13 +286,13 @@ function gamePanel() {
       <div class="dl"><div><i>Scale</i><b class="big">${esc(titleOf())}</b></div>${lock('scale')}</div>
       <div class="dl"><div><i>Key</i><b>${esc(rootName())}</b></div>${lock('key')}</div>
       <div class="dl"><div><i>Where</i><b>${esc(area.title)}</b><span>${esc(area.sub)}</span></div>${lock('area')}</div>
-      <div class="dl"><div><i>Drill</i><b>${isBest(S.scale, p.id) ? '★ ' : ''}${esc(p.name)}</b>${patternHTML(pat.groups, 2, false)}</div>${lock('prac')}</div>
+      <div class="dl"><div><i>Drill</i><b>${isBest(S.scale, p.id) ? '★ ' : ''}${esc(p.name)}</b></div>${lock('prac')}</div>
       ${twist ? `<div class="twist">${esc(twist)}</div>` : ''}
     </div>
     <div class="row"><button id="gDeal" class="go deal-b">Deal ⟳</button></div>
     <div class="row"><label class="inl"><span>New deal</span><select id="gEvery">${[[0, 'when I tap Deal'], [2, 'every 2 bars'], [4, 'every 4 bars'], [8, 'every 8 bars'], [16, 'every 16 bars'], [32, 'every 32 bars']].map(([v, l]) => opt(v, l, S.game.every)).join('')}</select></label></div>
     <div class="row tg"><button id="gSet">Game settings</button><button id="dTips">Tips</button></div>
-    <p class="howto">${esc(p.how)}</p>
+    <p class="howto">${esc(describe(p.id, S.scale))}</p>${infoFor(p.id) ? `<p class="howto info">${esc(infoFor(p.id))}</p>` : ''}
     ${formula()}
     ${transport()}
     <div class="count">${S.game.done} dealt</div>`;
@@ -374,7 +377,6 @@ function bind() {
   on('dZoom', 'onclick', () => { S.zoom = !S.zoom; save(); render(); });
   on('dTips', 'onclick', openTips);
   on('dHelp', 'onclick', openHelp);
-  on('dMore', 'onclick', () => { showAll = !showAll; render(); });
   // game
   on('gDeal', 'onclick', () => { deal(); render(); });
   on('gEvery', 'onchange', (e) => { S.game.every = Number(e.target.value); save(); });
@@ -428,7 +430,7 @@ function openHelp() {
     ${row('The neck', 'The scale in the area you picked. Big dots are the notes to play; the faint dots are the same scale elsewhere on the neck. Ringed dots are the roots. Colours: <b style="color:var(--amber)">root</b>, <b style="color:var(--cyan)">3rd</b>, <b style="color:var(--bone)">5th</b>, <b style="color:var(--rose)">7th</b>, <b style="color:var(--green)">the scale’s colour notes</b>, <b style="color:var(--violet)">the rest</b>.')}
     ${row('The row of coloured boxes', 'The scale’s formula: each degree (big) with its note in this key (small). G Dorian is 1 2 ♭3 4 5 6 ♭7, which is G A B♭ C D E F.')}
     ${row('Where', 'One CAGED shape: the five-fret area round one of the five chord shapes, so the CAGED letter just tells you where the roots sit. Two shapes joined: two neighbouring areas as one. 3 notes per string: seven long diagonal patterns, one from each note. Whole neck: everything. Zoom fills the screen with the area.')}
-    ${row('The drill', 'A way of playing through the scale in that area. The boxes under it are exactly what to play, group by group: ↑ means going up, ↓ coming back down. Big numbers are degrees of the scale, small letters are the notes. “Groups of 3” in G Dorian starts 1 2 ♭3 (G A B♭), then 2 ♭3 4 (A B♭ C), and so on. ★ marks the drills that suit this scale best. ◀ ▶ step through every drill for the scale.')}
+    ${row('The drill', 'A way of playing through the scale in that area, described in words with a short example. The numbers in the example are the scale’s degrees counted up from the root: in G Dorian, 1 2 ♭3 is G A B♭. ★ marks the drills that suit this scale best. ◀ ▶ step through every drill for the scale.')}
     ${row('Start', 'Starts the metronome (after one bar of count-in). With Play notes on, the app also plays the drill in time and lights each note on the neck, so you can hear and see it before you play along. Turn Play notes off to play it yourself to the click.')}
     ${row('8ths / Triplets / 16ths', 'How many notes per click: one note per subdivision.')}
     ${row('Drone', 'A low held note on the key’s root (and its 5th if the scale has one), so you hear every note against home.')}

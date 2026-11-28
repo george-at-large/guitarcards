@@ -87,6 +87,7 @@ button:disabled { opacity: .35; }
 .prac .info { color: var(--green); }
 .star { color: var(--amber); font-weight: 600; }
 .pname { font: 600 17px/1.2 var(--f-num); }
+.desc { margin: 0; color: var(--text); font-size: 15px; line-height: 1.45; }
 .pathead { font-size: 12px; color: var(--muted); }
 .pat { display: flex; flex-direction: column; gap: 5px; }
 .grp { display: flex; flex-direction: column; gap: 2px; }

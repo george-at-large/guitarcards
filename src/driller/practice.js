@@ -33,43 +33,43 @@ const isBebop = (id) => id.startsWith('bebop');
 const isDim = (id) => id.startsWith('dim-');
 
 export const PRACTICES = [
-  { id: 'updown', cat: 'runs', name: 'Up and down', how: 'Lowest note to the highest and back. Say each degree as you play it. Even 8ths, alternate picking.',
+  { id: 'updown', cat: 'runs', name: 'Up and down', how: 'Play every note in the shape from the lowest to the highest, then back down to the lowest.',
     fits: () => true, gen: ({ P }) => upThenDown(P) },
-  { id: 'rootroot', cat: 'runs', name: 'Root to root', how: 'From the lowest root to the highest and back, so you hear it as a scale with a home.',
+  { id: 'rootroot', cat: 'runs', name: 'Root to root', how: 'Start on the lowest root. Play up the scale to the highest root, then back down to where you started.',
     fits: () => true, gen: ({ P }) => { const r = rootIdx(P); if (r.length < 2) return upThenDown(P); return upThenDown(P.slice(r[0], r[r.length - 1] + 1)); } },
-  { id: 'anywhere', cat: 'runs', name: 'Start anywhere', how: 'From a random note: up to the top, down to the bottom, back to where you began. It breaks the start-on-the-root habit. New start each time you pick this drill.',
+  { id: 'anywhere', cat: 'runs', name: 'Start anywhere', how: 'Start on the note given below instead of the root. Play up to the highest note in the shape, down to the lowest, then back up to where you started.',
     fits: () => true, gen: ({ P, seed }) => { const s = Math.floor(seed * (P.length - 2)) + 1; return [...chunk(P.slice(s), 8, 'up'), ...chunk([...P].reverse().slice(1), 8, 'down'), ...chunk(P.slice(1, s + 1), 8, 'up')]; } },
-  { id: 'skip', cat: 'runs', name: 'String skipping', how: 'The notes on strings 6 and 4, then 5 and 3, 4 and 2, 3 and 1, and back down. Wide intervals out of the box sound.',
+  { id: 'skip', cat: 'runs', name: 'String skipping', how: 'Play the notes on the low E string, then jump over the A string and play the notes on the D string. Then do the same on A and G, D and B, G and high E. Come back down the same way.',
     fits: () => true, gen: ({ notes }) => { const on = (s) => notes.filter((n) => n.string === s).sort((a, b) => a.fret - b.fret); const up = [[6, 4], [5, 3], [4, 2], [3, 1]].map(([a, b]) => tag([...on(a), ...on(b)], `strings ${a} & ${b}`)).filter((g) => g.length); return updown(up); } },
-  { id: 'g3', cat: 'seq', name: 'Groups of 3', how: '1 2 3, 2 3 4, 3 4 5 … to the top, then the mirror down. In 8ths the accent moves round the bar; in triplets it locks.',
+  { id: 'g3', cat: 'seq', name: 'Groups of 3', how: 'Play three notes up the scale, then start again one note higher, all the way to the top: {ex}. Come back down the same way.',
     fits: () => true, gen: ({ P }) => updown(slide(P, [0, 1, 2])) },
-  { id: 'g4', cat: 'seq', name: 'Groups of 4', how: '1 2 3 4, 2 3 4 5 … up, then mirrored down. 16ths; the rock and fusion staple.',
+  { id: 'g4', cat: 'seq', name: 'Groups of 4', how: 'Play four notes up the scale, then start again one note higher, all the way to the top: {ex}. Come back down the same way.',
     fits: () => true, gen: ({ P }) => updown(slide(P, [0, 1, 2, 3])) },
-  { id: 'thirds', cat: 'seq', name: 'In 3rds', how: 'Skip a note: 1 3, 2 4, 3 5 … up, then mirrored down. The single most useful sequence.',
+  { id: 'thirds', cat: 'seq', name: 'In 3rds', how: 'Play each note, then the note two steps above it, all the way up: {ex}. Come back down the same way.',
     fits: (id) => !isBebop(id), gen: ({ P }) => updown(slide(P, [0, 2])) },
-  { id: 'thirdsAlt', cat: 'seq', name: '3rds, one up, one back', how: '1 3, 4 2, 3 5, 6 4 …: alternate the direction of each 3rd. Smoother and more melodic than plain 3rds.',
+  { id: 'thirdsAlt', cat: 'seq', name: '3rds, one up, one back', how: 'The same pairs as 3rds, but every second pair goes downwards: {ex}.',
     fits: (id) => sizeOf(id) >= 6 && !isBebop(id), gen: ({ P }) => updown(slide(P, [0, 2]).map((g, i) => (i % 2 ? [g[1], g[0]] : g))) },
-  { id: 'fourths', cat: 'seq', name: 'In 4ths', how: 'Diatonic 4ths: 1 4, 2 5 … Many sit on the same fret: roll one finger across two strings.',
+  { id: 'fourths', cat: 'seq', name: 'In 4ths', how: 'Play each note, then the note three steps above it: {ex}. Up to the top, then back down.',
     fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 3])) },
-  { id: 'sixths', cat: 'seq', name: 'In 6ths', how: '1 6, 2 7 …: wide, vocal intervals, mostly a string apart.',
+  { id: 'sixths', cat: 'seq', name: 'In 6ths', how: 'Play each note, then the note five steps above it: {ex}. Up to the top, then back down.',
     fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 5])) },
-  { id: 'cells', cat: 'seq', name: '1‑2‑3‑5 cells', how: 'From each note: step, step, leap a 3rd (1 2 3 5, 2 3 4 6 …). Coltrane’s cell, up then mirrored down.',
+  { id: 'cells', cat: 'seq', name: '1‑2‑3‑5 cells', how: 'From each note, play it and the next two notes, then skip one: {ex}. Up to the top, then back down.',
     fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 1, 2, 4])) },
-  { id: 'pedal', cat: 'seq', name: 'Pedal on the root', how: 'Root, 2, root, 3, root, 4 …: every note against the root. The quickest way to hear what a mode sounds like.',
+  { id: 'pedal', cat: 'seq', name: 'Pedal on the root', how: 'Go back to the root between every note: {ex}, up to the top and back. Listen to how each note sounds against the root.',
     fits: () => true, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const up = P.slice(r + 1).map((n) => tag([P[r], n], null, 'up')); return up.concat([...up].reverse().slice(1).map((g) => tag([...g], null, 'down'))); } },
-  { id: 'home', cat: 'arp', name: 'Arpeggio of its chord', how: 'Only the chord tones, through the whole area and back. These are the notes to land on.',
+  { id: 'home', cat: 'arp', name: 'Arpeggio of its chord', how: 'Play only the chord tones (listed below), lowest to highest in the shape, then back down.',
     fits: () => true, gen: ({ P, chord }) => { return upThenDown(P.filter((n) => chord.includes(semi(n.iv)))); } },
-  { id: 'triads', cat: 'arp', name: 'Triads on every note', how: 'A triad from each note (1 3 5, 2 4 6 …) up, then mirrored down: the scale’s own chords.',
+  { id: 'triads', cat: 'arp', name: 'Triads on every note', how: 'Play a three-note chord from each note of the scale, one note at a time: {ex}. Up to the top, then back down.',
     fits: (id) => sizeOf(id) === 7 || id === 'whole-tone', gen: ({ P }) => updown(slide(P, [0, 2, 4])) },
-  { id: 'triadsAlt', cat: 'arp', name: 'Triads, up one, down the next', how: '1 3 5, 6 4 2, 3 5 7 …: alternate direction, so the line keeps turning.',
+  { id: 'triadsAlt', cat: 'arp', name: 'Triads, up one, down the next', how: 'The same triads, but alternate the direction: {ex}.',
     fits: (id) => sizeOf(id) === 7 || id === 'whole-tone', gen: ({ P }) => updown(slide(P, [0, 2, 4]).map((g, i) => (i % 2 ? [...g].reverse() : g))) },
-  { id: 'sevenths', cat: 'arp', name: '7th arpeggios on every note', how: '1 3 5 7, 2 4 6 8 …: the scale’s 7th chords as arpeggios. The jazz drill.',
+  { id: 'sevenths', cat: 'arp', name: '7th arpeggios on every note', how: 'Play a four-note chord from each note of the scale, one note at a time: {ex}. Up to the top, then back down.',
     fits: (id) => sizeOf(id) === 7, gen: ({ P }) => updown(slide(P, [0, 2, 4, 6])) },
-  { id: 'ext', cat: 'arp', name: 'Extended arpeggio', how: '1 3 5 7 9 11 13: stack 3rds from the root up through the area and back. You hear every chord the scale implies.',
+  { id: 'ext', cat: 'arp', name: 'Extended arpeggio', how: 'From the lowest root, play every other note right to the top of the shape: {ex}. Then back down.',
     fits: (id) => sizeOf(id) === 7, gen: ({ P }) => { const r = rootIdx(P)[0] ?? 0; const a = P.filter((_, i) => i >= r && (i - r) % 2 === 0); return [tag(a, null, 'up'), tag([...a].reverse().slice(1), null, 'down')]; } },
-  { id: 'dimarps', cat: 'arp', name: '°7 arpeggios', how: 'Every other note of a diminished scale is a °7 chord. Arpeggiate from each note up, then down.',
+  { id: 'dimarps', cat: 'arp', name: '°7 arpeggios', how: 'From each note, play every other note, four notes in all: that is a diminished 7th chord. {ex}. Up, then back down.',
     fits: isDim, gen: ({ P }) => updown(slide(P, [0, 2, 4, 6])) },
-  { id: 'dimtriads', cat: 'arp', name: 'Its four major triads', how: 'Four major triads a minor 3rd apart live in this scale. Arpeggiate each one as you climb, then come down.',
+  { id: 'dimtriads', cat: 'arp', name: 'Its four major triads', how: 'Four major triads live in this scale (listed below). Play each one as you climb the shape, then come back down.',
     fits: isDim, gen: ({ P, rel }) => {
       const pcs = new Set(P.map(rel));
       const up = [];
@@ -82,7 +82,7 @@ export const PRACTICES = [
       });
       return updown(up);
     } },
-  { id: 'into', cat: 'voc', name: 'Run into chord tones', how: 'Three scale notes into each chord tone; land it on the beat and let it ring. Then from above, coming down.',
+  { id: 'into', cat: 'voc', name: 'Run into chord tones', how: 'For each chord tone (listed below): play the three scale notes under it, then land on it on the beat and hold it. Go up through the shape, then do the same coming down from above.',
     fits: (id) => sizeOf(id) >= 6, gen: ({ P, chord }) => {
       const ct = (n) => chord.includes(semi(n.iv));
       const up = [], down = [];
@@ -90,7 +90,7 @@ export const PRACTICES = [
       for (let j = P.length - 4; j >= 0; j--) if (ct(P[j])) down.push(tag([null, P[j + 3], P[j + 2], P[j + 1], P[j], null, null, null], `into ${T.prettyIv(P[j].iv)}`, 'down'));
       return up.concat(down);
     } },
-  { id: 'enclose', cat: 'voc', name: 'Enclosures', how: 'The scale note above, the half step below, then the chord tone on the beat. The bebop way to target a note.',
+  { id: 'enclose', cat: 'voc', name: 'Enclosures', how: 'For each chord tone (listed below): play the scale note just above it, then the note a half step below it, then the chord tone itself, on the beat.',
     fits: (id) => sizeOf(id) >= 7, gen: ({ P, chord, pc }) => {
       const out = [];
       P.forEach((n, j) => {
@@ -102,7 +102,7 @@ export const PRACTICES = [
       });
       return out;
     } },
-  { id: 'pents', cat: 'voc', name: 'Pentatonics inside it', how: 'The pentatonic scales hidden in this one, each up and down in the same area. Playing them makes the mode sound like music, not a scale.',
+  { id: 'pents', cat: 'voc', name: 'Pentatonics inside it', how: 'Complete pentatonic scales are hidden inside this one (listed below). Play each of them up and down in the shape, using only its five notes.',
     fits: (id) => sizeOf(id) === 7 && hiddenPents(id).length > 0, gen: ({ P, rel, id }) => {
       const out = [];
       for (const x of hiddenPents(id)) {
@@ -112,9 +112,9 @@ export const PRACTICES = [
       }
       return out;
     } },
-  { id: 'm3cells', cat: 'voc', name: 'Cells up in minor 3rds', how: 'A four-note cell, moved up a minor 3rd (two scale notes) each time, then down. The classic diminished line.',
+  { id: 'm3cells', cat: 'voc', name: 'Cells up in minor 3rds', how: 'Play four notes up the scale, then move up two notes and play four more: {ex}. Each move is a minor 3rd. Up to the top, then back down.',
     fits: isDim, gen: ({ P }) => updown(slide(P, [0, 1, 2, 3], 2)) },
-  { id: 'bebopdown', cat: 'voc', name: 'Bebop descent', how: 'From the top root down in 8ths, starting on the beat: the passing note puts every chord tone on a beat. Then from each chord tone.',
+  { id: 'bebopdown', cat: 'voc', name: 'Bebop descent', how: 'Start on a chord tone, on the beat, and run straight down the scale for eight notes. Do it from every chord tone, from the top down. The extra passing note keeps the chord tones on the beats.',
     fits: isBebop, gen: ({ P, chord }) => {
       const out = [];
       for (let j = P.length - 1; j >= 0; j--) {
@@ -145,6 +145,16 @@ export function pattern(pid, id, pc, area, seed = 0.5) {
   if (pid === 'pents') info = hiddenPents(id).map((x) => `minor pentatonic from the ${CHROM[(x + 9) % 12]} (= major from the ${CHROM[x]})`).join('; ');
   return { groups, info };
 }
+// a short example in this scale's degrees, counted up from the root (the {ex} in a description)
+export function example(pid, id) {
+  const ivs = ivsOf(id), P = [];
+  for (let o = 0; o < 3; o++) for (const iv of ivs) P.push({ iv, midi: 60 + semi(iv) + 12 * o, string: 1, fret: 0 });
+  const lab = (n) => { if (n.midi < 72) return T.prettyIv(n.iv); const d = Number(n.iv.replace(/[^0-9]/g, '')); return T.prettyIv(d >= 8 ? n.iv : n.iv.replace(/[0-9]+/, String(d + 7))); };
+  const groups = PR[pid].gen({ P, notes: [], chord: chordOf(id).map(semi), rel: (n) => semi(n.iv), pc: 0, id, seed: 0 });
+  if (pid === 'ext') return groups[0].slice(0, 7).map(lab).join(' ');
+  return groups.slice(0, 3).map((g) => g.filter(Boolean).map(lab).join(' ')).join(', ') + ', and so on';
+}
+export const describe = (pid, id) => PR[pid].how.replace('{ex}', () => example(pid, id));
 // the degrees of the first few groups, as text
 export function preview(groups, n = 4) {
   const lab = (x) => (x ? (x.chrom ? `(${x.chrom})` : T.prettyIv(x.iv)) : '–');
