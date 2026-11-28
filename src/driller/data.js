@@ -28,6 +28,40 @@ const NAME = {
 export const nameOf = (id) => NAME[id] || BY[id].name[0].toUpperCase() + BY[id].name.slice(1);
 export const ivsOf = (id) => BY[id].ivs;
 
+// how useful each scale is to a working guitarist (rock, blues, pop, jazz), 1 to 5, and why
+export const RATING = {
+  ionian: [5, 'The parent of all the modes, and the sound of most tonal music.'],
+  dorian: [5, 'The go-to minor sound in jazz, funk and rock: every ii chord and most minor vamps.'],
+  phrygian: [3, 'Spanish, metal and modal vamps; rarely the right choice over a plain minor chord.'],
+  lydian: [4, 'The bright maj7 sound: IV chords, maj7♯11, film music.'],
+  mixolydian: [5, 'Every dominant 7th that isn’t altered: blues, rock, funk and the V chord.'],
+  aeolian: [5, 'Natural minor: rock, pop and minor-key tunes.'],
+  locrian: [3, 'Over m7♭5, though many players prefer Locrian ♮2 there.'],
+  'min-pent': [5, 'The most used scale on the guitar.'],
+  'maj-pent': [5, 'Country, pop, soul and the sweet side of the blues.'],
+  blues: [5, 'Blues and rock: the minor pentatonic with its blue note.'],
+  'maj-blues': [4, 'Major pentatonic plus the ♭3: country, gospel and soul blues.'],
+  'dom-pent': [3, 'A handy dominant sound with no avoid notes, but less widely taught.'],
+  'm6-pent': [2, 'A niche Dorian colour; most players just use Dorian.'],
+  'mel-min': [4, 'The jazz minor scale, and the parent of the altered and Lydian dominant scales.'],
+  'dorian-b2': [2, 'Only for sus♭9 chords.'],
+  'lyd-aug': [2, 'Only for maj7♯5 chords.'],
+  'lyd-dom': [4, 'Dominants that don’t resolve down a 5th: tritone subs, ♭VII7, 7♯11.'],
+  'mixo-b6': [2, 'An occasional choice for V7 into minor; the altered or Phrygian dominant scales are more common.'],
+  'locrian-n2': [3, 'The modern jazz choice over m7♭5.'],
+  altered: [4, 'The standard jazz sound for a V7 resolving, above all into minor.'],
+  'harm-min': [4, 'Classical and minor-key harmony, and the source of the V7♭9 sound.'],
+  'phryg-dom': [4, 'V7♭9 into minor, flamenco, klezmer and metal.'],
+  'harm-maj': [2, 'Rare as a scale to solo with; more a harmony resource.'],
+  'dim-hw': [4, 'The standard sound for 7♭9 and 13♭9 dominants.'],
+  'dim-wh': [3, 'Over diminished 7th chords, which come up often in standards.'],
+  'whole-tone': [3, 'For 7♯5 chords: distinctive, but a little goes a long way.'],
+  'bebop-dom': [4, 'The basis of bebop lines over dominants.'],
+  'bebop-maj': [3, 'Bebop lines over major and 6 chords (Barry Harris’s 6th-diminished).'],
+  'bebop-dor': [3, 'Bebop lines over minor 7th chords.'],
+};
+export const stars = (id) => { const r = RATING[id]?.[0] || 0; return '★'.repeat(r) + '☆'.repeat(5 - r); };
+
 // the scale's own chord (its arpeggio), where the 1-3-5-7 rule doesn't give the right one
 const CHORD = {
   'maj-pent': ['1', '3', '5', '6'], 'maj-blues': ['1', '3', '5', '6'], 'm6-pent': ['1', 'b3', '5', '6'],

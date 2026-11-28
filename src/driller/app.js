@@ -7,7 +7,7 @@ import * as T from '../theory.js';
 import * as F from '../fretboard.js';
 import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
-import { GROUPS, ORDER, BY, TIPS, nameOf, ivsOf, ivForNumber, semi, sizeOf, groupOf } from './data.js';
+import { GROUPS, ORDER, BY, TIPS, RATING, stars, nameOf, ivsOf, ivForNumber, semi, sizeOf, groupOf } from './data.js';
 import { AREAS, AREA_NAME, positions, positionsIvs, spell, placePitch, NECK_TOP } from './areas.js';
 import { PR, CATS, practicesFor, isBest, pattern, example, hiddenPents, TWISTS } from './practice.js';
 import { chordOf } from './data.js';
@@ -268,7 +268,7 @@ function newLine() {
 const $app = document.getElementById('driller');
 const opt = (v, l, cur) => `<option value="${esc(v)}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(l)}</option>`;
 const keyOpts = () => Array.from({ length: 12 }, (_, i) => opt(i, T.noteName(isCh() ? spellRoot(i, S.ch.q) : spell(i, S.scale), true), S.key)).join('');
-const scaleOpts = () => GROUPS.map(([g, ids]) => `<optgroup label="${esc(g)}">${ids.map((id) => opt(id, nameOf(id), S.scale)).join('')}</optgroup>`).join('');
+const scaleOpts = () => GROUPS.map(([g, ids]) => `<optgroup label="${esc(g)}">${ids.map((id) => opt(id, `${stars(id)}  ${nameOf(id)}`, S.scale)).join('')}</optgroup>`).join('');
 const areaOpts = () => AREAS.filter(([id]) => !isCh() || id !== 'nps3').map(([id, l]) => opt(id, l, curArea())).join('');
 const formula = () => `<div class="form">${curIvs().map((iv) => `<span class="${role(iv)}"><b>${esc(T.prettyIv(iv))}</b><small>${esc(noteOf(iv))}</small></span>`).join('')}</div>`;
 // the notes a description refers to, named in this key
@@ -409,6 +409,7 @@ function transport(label = 'Start') {
 function drillPanel() {
   return `
     <div class="cap"><b>${esc(titleOf())}</b><button id="dTips" class="tipsb">Tips</button></div>
+    ${RATING[S.scale] ? `<div class="rate"><span>${stars(S.scale)}</span> ${esc(RATING[S.scale][1])}</div>` : ''}
     ${formula()}
     <div class="menus">
       <label class="k"><span>Key</span><select id="dKey">${keyOpts()}</select></label>
@@ -614,6 +615,7 @@ function openTips() {
   sheet(titleOf(), `
     ${formula()}
     <p class="feel">${esc(sc.feel)}</p>
+    ${RATING[S.scale] ? `<p class="rate"><span>${stars(S.scale)}</span> ${esc(RATING[S.scale][1])}</p>` : ''}
     ${t.over ? `<h3>Play it over</h3><p>${esc(t.over)}</p>` : ''}
     ${t.colour ? `<h3>Its colour notes</h3><p>${t.colour.map((c) => `<span class="cn">${esc(T.prettyIv(c))}</span> ${esc(noteOf(c))}`).join(' &nbsp; ')}. Lean on them: they’re what makes it this scale. Green on the neck.</p>` : ''}
     ${t.think ? `<h3>Find it</h3><p>${esc(t.think)}</p>` : ''}
