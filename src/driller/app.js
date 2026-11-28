@@ -124,32 +124,39 @@ function drawNeck() {
 
 // ---------- sound: metronome, guide, drone ----------
 let run = null, cachedSeq = null, droneAt = null, wake = null;
+// the notes of one pass, one per subdivision, padded with rests to whole bars so every pass starts on beat 1
 function seqNow() {
   if (cachedSeq) return cachedSeq;
-  if (S.mode === 'numbers') cachedSeq = placedLine().map((x) => x.note || null).concat(Array(S.sub * 2).fill(null));
-  else cachedSeq = pat.groups.flat().concat(Array(S.sub).fill(null));
+  const base = S.mode === 'numbers' ? placedLine().map((x) => x.note || null) : pat.groups.flat();
+  const bar = S.sub * 4, rest = S.mode === 'numbers' ? S.sub * 2 : S.sub;
+  const len = Math.ceil((base.length + rest) / bar) * bar;
+  cachedSeq = base.concat(Array(len - base.length).fill(null));
   return cachedSeq;
 }
 function startRun() {
   stopRun();
   A.unlockAudio();
   const c = A.audioCtx();
-  const m = { next: c.currentTime + 0.12, slot: -S.sub * 4, idx: 0, timers: [], timer: null };
+  const m = { next: c.currentTime + 0.12, slot: -S.sub * 4, idx: 0, wait: false, timers: [], timer: null };
   const tick = () => {
     while (m.next < c.currentTime + 0.12) {
       const sub = S.sub, k = ((m.slot % sub) + sub) % sub, beat = Math.floor(m.slot / sub), t = m.next;
       if (k === 0 && (S.click || m.slot < 0)) A.click(t, ((beat % 4) + 4) % 4 === 0 ? 2 : 1);
       if (m.slot >= 0) {
-        // game: a new deal every N bars, on the downbeat
+        const down = k === 0 && ((beat % 4) + 4) % 4 === 0, at = Math.max(0, (t - c.currentTime) * 1000);
+        // game: a new deal every N bars, dealt as this downbeat is scheduled so its first note lands on it
         const every = S.game.every;
         if (S.mode === 'game' && every && m.slot > 0 && m.slot % (sub * 4 * every) === 0) {
-          m.timers.push(setTimeout(() => { if (run === m) { deal(); render(); } }, Math.max(0, (t - c.currentTime) * 1000)));
-          m.idx = 0;
-        } else if (S.guide) {
+          deal();
+          m.timers.push(setTimeout(() => { if (run === m) render(); }, at));
+        }
+        // after a change the pattern waits for the next bar line and starts from its first note
+        if (down && m.wait) { m.idx = 0; m.wait = false; }
+        if (!m.wait) {
           const seq = seqNow(), n = seq[m.idx % seq.length];
-          if (n) {
+          if (n && S.guide) {
             A.pluck(n.midi, t, { vel: 0.7, dur: Math.min(0.6, (60 / S.bpm / sub) * 1.5) });
-            m.timers.push(setTimeout(() => { if (run === m) { lit = n; drawNeck(); } }, Math.max(0, (t - c.currentTime) * 1000)));
+            m.timers.push(setTimeout(() => { if (run === m) { lit = n; drawNeck(); } }, at));
           }
           m.idx++;
         }
@@ -168,7 +175,7 @@ function stopRun() {
   lit = null;
 }
 // restart the guide from the top of the pattern after a change
-function changed() { cachedSeq = null; lit = null; if (run) run.idx = 0; }
+function changed() { cachedSeq = null; lit = null; if (run) run.wait = true; }
 function syncDrone() {
   const want = S.drone ? 40 + ((S.key - 4 + 12) % 12) : null;
   const fifth = ivsOf(S.scale).some((iv) => semi(iv) === 7);
@@ -362,7 +369,7 @@ function bind() {
   const bpm = (d) => { S.bpm = Math.max(30, Math.min(260, S.bpm + d)); save(); $('dBpm').textContent = `${S.bpm} bpm`; };
   on('dDown', 'onclick', () => bpm(-5));
   on('dUp', 'onclick', () => bpm(5));
-  on('dSub', 'onclick', (e) => { S.sub = { 1: 2, 2: 3, 3: 4, 4: 1 }[S.sub]; save(); changed(); e.currentTarget.textContent = SUBS[S.sub]; });
+  on('dSub', 'onclick', (e) => { S.sub = { 1: 2, 2: 3, 3: 4, 4: 1 }[S.sub]; save(); changed(); e.currentTarget.textContent = SUBS[S.sub]; if (run) startRun(); }); // a new subdivision starts again from a count-in, so the bar lines stay true
   on('dGuide', 'onclick', () => { S.guide = !S.guide; lit = null; save(); render(); });
   on('dClick', 'onclick', () => { S.click = !S.click; save(); render(); });
   on('dDrone', 'onclick', () => { S.drone = !S.drone; save(); syncDrone(); render(); });

@@ -90,7 +90,7 @@ export const PRACTICES = [
       for (let j = P.length - 4; j >= 0; j--) if (ct(P[j])) down.push(tag([null, P[j + 3], P[j + 2], P[j + 1], P[j], null, null, null], `into ${T.prettyIv(P[j].iv)}`, 'down'));
       return up.concat(down);
     } },
-  { id: 'enclose', cat: 'voc', name: 'Enclosures', how: 'For each chord tone (listed below): play the scale note just above it, then the note a half step below it, then the chord tone itself, on the beat.',
+  { id: 'enclose', cat: 'voc', name: 'Enclosures', how: 'For each chord tone (listed below): play the scale note just above it, then the note a half step below it, then the chord tone itself. In 8ths the chord tone lands on the beat.',
     fits: (id) => sizeOf(id) >= 7, gen: ({ P, chord, pc }) => {
       const out = [];
       P.forEach((n, j) => {
