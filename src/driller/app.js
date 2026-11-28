@@ -282,43 +282,84 @@ function drillText(p, why = true) {
   if (p.id === 'pents') return `<p class="desc">${esc(p.how)}</p>${pentsBlock()}${why && p.why ? `<p class="why"><b>Why:</b> ${esc(p.why)}</p>` : ''}`;
   return `<p class="desc">${esc(p.how)}</p>${exHTML}${info ? `<p class="info">${esc(info)}</p>` : ''}${why && p.why ? `<p class="why"><b>Why:</b> ${esc(p.why)}</p>` : ''}`;
 }
-// the pentatonics hidden in a scale: what each one gives over the root, which carry the colour notes, and how to
-// use them when you play
+// the pentatonics hidden in a scale, the way jazz players use them over its chord (pentatonic superimposition):
+// what each one adds over the chord (in chord terms: 9, 11, 13, ♯11, ♭9 …), the rule of thumb for the chord, and
+// how to use them
+const PENT_RULE = {
+  dorian: 'Over a minor 7th chord: minor pentatonics on the root, the 2nd and the 5th (“1, 2, 5”).',
+  aeolian: 'Over a minor chord in a minor key: minor pentatonics on the 1, 4 and 5. The one on the 4 brings in the ♭6.',
+  phrygian: 'Over a Phrygian minor chord: minor pentatonics on the 1, 4 and ♭7. The ♭2 isn’t in any of them, so add it yourself for the Spanish sound.',
+  ionian: 'Over a maj7: the major pentatonic on the root or the 5th (the same notes as the minor pentatonic on the 6th or the 3rd). Skip the one on the 4th: it has the 4th, which clashes with the major 3rd.',
+  lydian: 'Over a maj7 (or maj7♯11): major pentatonics on the 1, 2 and 5. The one on the 2nd (D major over Cmaj7) carries the ♯11: the Lydian sound.',
+  mixolydian: 'Over a dominant 7th: the major pentatonic on the root for the inside sound. Minor pentatonics on the 5th or the 2nd give a sus sound, because they hold the 11.',
+  altered: 'Over an altered dominant: the minor pentatonic a minor 3rd above the root (B♭ minor over G7alt). It’s the same as the major pentatonic of the tritone sub (D♭ major). Add the chord’s 3rd and you have the whole altered scale.',
+  locrian: 'Over m7♭5: the minor pentatonic on the ♭3 (B♭ minor over Gø), the same notes as the major pentatonic on the ♭5.',
+  'mel-min': 'Over m(maj7) or m6: the minor pentatonic on the 2nd (D minor over Cm6), which gives 9 11 5 13: the melodic minor sound without the 7.',
+};
 function pentsBlock() {
-  const ivs = ivsOf(S.scale), ivAt = (x) => ivs.find((iv) => semi(iv) === x) || '?';
+  const ivs = ivsOf(S.scale);
+  const ct = chordOf(S.scale), cts = ct.map(semi);
+  const q = T.recogniseChord(ct.map(F.simpleIv));
+  const chordName = q ? T.pretty(T.chordSymbol(data.root, q)) : `${rootName()} ${nameOf(S.scale)}`;
+  const major3 = cts.includes(4), minor3 = cts.includes(3);
   const colour = (TIPS[S.scale]?.colour || []).map(semi);
+  // a note over the chord, named as an extension
+  const ext = (d) => ({ 0: '1', 1: '♭9', 2: '9', 3: major3 ? '♯9' : '♭3', 4: major3 || !minor3 ? '3' : '♭11', 5: '11', 6: cts.includes(6) ? '♭5' : '♯11', 7: '5', 8: cts.includes(8) ? '♯5' : '♭13', 9: cts.includes(9) ? '6' : '13', 10: '♭7', 11: '7' }[d]);
+  const MINOR = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+  const pName = (m) => T.noteName(T.parseNote(MINOR[(S.key + m) % 12]), true);
+  const pMajor = (m) => T.noteName(T.transpose(T.parseNote(MINOR[(S.key + m) % 12]), 'b3'), true);
   const list = hiddenPents(S.scale).map((x) => {
     const m = (x + 9) % 12, degs = [0, 3, 5, 7, 10].map((o) => (m + o) % 12);
-    return { m, x, degs, root: degs.includes(0), cols: degs.filter((d) => colour.includes(d)) };
-  }).sort((a, b) => b.cols.length - a.cols.length || b.root - a.root);
-  // each pentatonic named as players name it (B♭ minor, not A♯) and its notes spelled from its own root
-  const MINOR = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
-  const pRoot = (m) => T.parseNote(MINOR[(S.key + m) % 12]);
-  const pName = (m) => T.noteName(pRoot(m), true), pMajor = (m) => T.noteName(T.transpose(pRoot(m), 'b3'), true);
-  const pNotes = (m) => ['1', 'b3', '4', '5', 'b7'].map((iv) => T.noteName(T.transpose(pRoot(m), iv), true));
-  const ct = chordOf(S.scale), c3 = ct.filter((iv) => /3|4/.test(F.simpleIv(iv).replace(/[^0-9]/g, '')) && semi(iv) !== 0).map(semi), c7 = ct.filter((iv) => /[67]/.test(F.simpleIv(iv).replace(/[^0-9]/g, ''))).map(semi);
-  const item = (p) => {
-    const has3 = c3.some((d) => p.degs.includes(d)), has7 = c7.some((d) => p.degs.includes(d));
-    const tags = [
-      p.cols.length ? `it has the colour note${p.cols.length > 1 ? 's' : ''} ${p.cols.map((d) => T.prettyIv(ivAt(d))).join(' ')}` : 'no colour note',
-      has3 && has7 ? 'the 3rd and 7th, so it outlines the chord' : has3 ? 'the 3rd but not the 7th' : has7 ? 'the 7th but no 3rd, so it sounds open' : 'no 3rd or 7th, so it sounds open and suspended',
-      p.root ? 'the root, so it sounds settled' : 'no root, so it floats over the chord',
-    ];
-    return `<li><b>${esc(pName(p.m))} minor pentatonic</b> <span class="muted">(= ${esc(pMajor(p.m))} major pentatonic, starting on the ${esc(T.prettyIv(ivAt(p.m)))})</span><br>Over ${esc(rootName())} its notes are <b class="amb">${esc(p.degs.map((d) => T.prettyIv(ivAt(d))).join(' '))}</b> (${esc(pNotes(p.m).join(' '))}). ${esc(tags[0][0].toUpperCase() + tags[0].slice(1))}; ${esc(tags[1])}; ${esc(tags[2])}.</li>`;
+    const third = cts.find((d) => d === 3 || d === 4 || d === 5 && !major3 && !minor3), sev = cts.find((d) => d >= 9);
+    return { m, x, degs, has3: degs.includes(third), has7: degs.includes(sev), root: degs.includes(0), cols: degs.filter((d) => colour.includes(d)),
+      alt: major3 && cts.includes(10) ? degs.filter((d) => [1, 3, 8].includes(d)).length : 0, eleven: major3 && degs.includes(5) };
+  });
+  // the notes that make the chord what it is: its 3rd and 7th, and a ♭5 or ♯5 if it has one; the scale's colour
+  // notes that aren't chord tones
+  const defining = cts.filter((d) => d !== 0 && d !== 7);
+  const distinct = colour.filter((d) => !cts.includes(d));
+  const dominant = major3 && cts.includes(10);
+  for (const p of list) {
+    p.states = defining.every((d) => p.degs.includes(d));
+    p.missing = defining.filter((d) => !p.degs.includes(d));
+    p.dcols = p.degs.filter((d) => distinct.includes(d));
+    const no5 = p.missing.some((d) => d === 6 || d === 8);
+    p.score = p.alt >= 2 ? 3 : p.root && p.has3 && !p.dcols.length && !no5 ? 0 : p.dcols.length && !no5 ? 1 : 2;
+  }
+  list.sort((a, b) => a.score - b.score);
+  const and = (l) => (l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l[l.length - 1]}` : l[0] || '');
+  let firstInside = true;
+  const what = (p) => {
+    const bits = [];
+    bits.push(p.has3 && p.has7 ? 'Has the 3rd and 7th' : p.has3 ? 'Has the 3rd, not the 7th' : p.has7 ? 'Has the 7th, not the 3rd' : 'No 3rd or 7th');
+    bits.push(p.root ? 'has the root' : 'no root');
+    if (p.missing.length && (p.has3 || p.has7) && defining.some((d) => d === 6 || d === 8)) bits.push(`no ${and(p.missing.filter((d) => d === 6 || d === 8).map(ext))}, so it doesn’t spell out ${chordName}`);
+    if (p.dcols.length && p.alt < 2) bits.push(`brings in the ${and(p.dcols.map(ext))}, the ${nameOf(S.scale)} colour`);
+    if (p.alt >= 2) bits.push(`carries the altered notes ${and(p.degs.filter((d) => [1, 3, 8, 6].includes(d)).map(ext))}`);
+    if (p.eleven) bits.push('holds the 11, which rubs against the major 3rd, so pass through it rather than holding it');
+    const use = p.alt >= 2 ? 'Use it for tension just before the chord resolves, and land on the next chord’s 3rd.'
+      : p.score === 0 ? (firstInside ? (firstInside = false, `The inside choice: it states the chord${minor3 ? ' (and sounds bluesy)' : ''}. Start here.`) : 'Also inside: it states the chord.')
+      : p.score === 1 ? `The one that brings out the ${nameOf(S.scale)} sound${p.states ? ', and it spells out the whole chord' : ''}.`
+      : p.missing.some((d) => d === 6 || d === 8) ? 'Usable, but weaker than the ones that have it.'
+      : p.has3 && p.has7 ? 'States the chord without leaning on the root: a more modern sound.'
+      : 'An open, floating sound over the chord: good for a lift once the chord is established.';
+    return `${bits.join('; ')}. ${use}`;
   };
-  const best = list.find((p) => p.cols.length && !p.root) || list.find((p) => p.cols.length);
+  const item = (p) => `<li><b>${esc(pName(p.m))} minor pentatonic</b> <span class="muted">(= ${esc(pMajor(p.m))} major) · on the ${esc(T.prettyIv(ivs.find((iv) => semi(iv) === p.m) || ext(p.m)))}</span><br>Over ${esc(chordName)}: <b class="amb">${esc(p.degs.map(ext).join(' '))}</b>. ${esc(what(p))}</li>`;
+  const rule = PENT_RULE[S.scale] || `In ${nameOf(S.scale)}: minor pentatonic${list.length > 1 ? 's' : ''} on the ${list.map((p) => T.prettyIv(ivs.find((iv) => semi(iv) === p.m) || ext(p.m))).join(', ')}.`;
+  // on a ii–V–I the key's major pentatonic fits all three chords
   return `
     <div class="pents">
-      <b class="ph">The pentatonics in ${esc(titleOf())}</b>
+      <b class="ph">Pentatonics over ${esc(chordName)}</b>
+      <p class="rule"><b>Rule to remember:</b> ${esc(rule)}</p>
       <ul>${list.map(item).join('')}</ul>
-      ${best ? `<p class="pick">To show off the ${esc(nameOf(S.scale))} sound, reach for <b>${esc(pName(best.m))} minor pentatonic</b>: it has the colour note${best.cols.length > 1 ? 's' : ''} ${esc(best.cols.map((d) => T.prettyIv(ivAt(d))).join(' '))}.</p>` : ''}
-      <b class="ph">How to use them</b>
+      <b class="ph">How players use them</b>
       <ol>
-        <li><b>Learn each shape in this area.</b> That’s the drill above: each pentatonic up and down, using only its five notes.</li>
-        <li><b>Hear them against the root.</b> Turn the drone on (${esc(rootName())}) and improvise with one pentatonic for a minute, then the next. Same five-note shapes, different sound each time, because each puts different degrees over the root.</li>
-        <li><b>Move licks you already know.</b> Take any minor pentatonic lick and play it from each of these roots: ${esc(list.map((p) => pName(p.m)).join(', '))}. Over a ${esc(titleOf())} vamp they all fit.</li>
-        <li><b>Use them over the chord.</b> The one with the root sounds settled; the ones with the colour note sound like this scale; the ones without the root float.</li>
-        <li><b>Switch between them.</b> Two bars on one, two on the next, then change mid-phrase. Lines stop sounding like a scale run.</li>
+        <li><b>Choose by sound, don’t just pick any.</b> Start a solo with the inside one to state the chord, move to the colour one for the ${esc(nameOf(S.scale))} sound or for lift, then come back. Inside, outside, home again: that’s tension and release inside a single chord.</li>
+        <li><b>End phrases on strong notes.</b> Finish on a chord tone or on the 9 or 13${major3 ? ', not on the 11' : ''}. The pentatonic gets you there; the last note is what the ear judges.</li>
+        <li><b>Play them as intervals, not as blues boxes.</b> Groups of 4, 1‑2‑3‑5 cells and 4ths across the strings are what make pentatonics sound like jazz (the McCoy Tyner and Coltrane sound) rather than rock licks.</li>
+        <li><b>One shape for a whole ii–V–I.</b> The major pentatonic of the key’s I fits all three chords: G major pentatonic over Am7–D7–Gmaj7. Good for learning to play through changes before you switch shapes per chord.</li>
+        <li><b>For outside tension,</b> shift the pentatonic up a half step for a beat or two, then step back into the right one.</li>
       </ol>
     </div>`;
 }

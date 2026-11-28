@@ -208,3 +208,5 @@ button:disabled { opacity: .35; }
 .pents .amb { color: var(--amber); }
 .pents .muted { color: var(--muted); font-size: 12.5px; }
 .pents .pick { margin: 0; font-size: 13.5px; color: var(--text); }
+.pents .rule { margin: 0; padding: 8px 10px; border-radius: 10px; background: rgba(255, 181, 71, 0.08); font-size: 14px; color: var(--text); }
+.pents .rule b { color: var(--amber); }
