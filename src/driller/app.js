@@ -9,7 +9,7 @@ import * as A from '../audio.js';
 import { esc } from '../fundamentals/core.js';
 import { GROUPS, ORDER, BY, TIPS, nameOf, ivsOf, ivForNumber, semi, sizeOf, groupOf } from './data.js';
 import { AREAS, AREA_NAME, positions, spell, placePitch, NECK_TOP } from './areas.js';
-import { PR, CATS, practicesFor, isBest, pattern, describe, hiddenPents, TWISTS } from './practice.js';
+import { PR, CATS, practicesFor, isBest, pattern, example, hiddenPents, TWISTS } from './practice.js';
 import { chordOf } from './data.js';
 import { neck } from './neck.js';
 import { BUILD } from './build.js';
@@ -229,6 +229,13 @@ const formula = () => `<div class="form">${ivsOf(S.scale).map((iv) => `<span cla
 // the notes a description refers to, named in this key
 const nameSemis = (x) => { const n = T.transposeSemis(data.root, x); return T.noteName(Math.abs(n.acc) > 1 ? T.enharmonic(n) : n, true); };
 const STR = { 6: 'low E', 5: 'A', 4: 'D', 3: 'G', 2: 'B', 1: 'high E' };
+// a drill in words: what to do, an example in this key (degrees, then the notes), the notes it refers to, and why
+function drillText(p, why = true) {
+  const ex = example(p.id, S.scale), info = infoFor(p.id);
+  const more = (g) => (ex.length > 1 || g.length >= 5 ? ' …' : '');
+  const exHTML = ex ? `<p class="ex"><span>Example in ${esc(titleOf())}, from the root</span><b>${esc(ex.map((g) => g.map((n) => n.lab).join(' ')).join(' · '))}${more(ex[0])}</b><i>${esc(ex.map((g) => g.map((n) => (n.iv ? noteOf(n.iv) : nameSemis(n.semis))).join(' ')).join(' · '))}${more(ex[0])}</i></p>` : '';
+  return `<p class="desc">${esc(p.how)}</p>${exHTML}${info ? `<p class="info">${esc(info)}</p>` : ''}${why && p.why ? `<p class="why"><b>Why:</b> ${esc(p.why)}</p>` : ''}`;
+}
 function infoFor(pid) {
   const tones = () => chordOf(S.scale).map((iv) => `${T.prettyIv(iv)} (${noteOf(iv)})`).join(', ');
   if (['home', 'into', 'enclose'].includes(pid)) return `Chord tones: ${tones()}.`;
@@ -252,8 +259,7 @@ function practiceBlock() {
       <div class="flick"><button id="dPrPrev" aria-label="Previous drill">◀</button>
         <select id="dPrac">${CATS.map(([c, cl]) => { const ps = list.filter((x) => x.cat === c); return ps.length ? `<optgroup label="${cl}">${ps.map((x) => opt(x.id, (isBest(S.scale, x.id) ? '★ ' : '') + x.name, S.prac)).join('')}</optgroup>` : ''; }).join('')}</select>
         <button id="dPrNext" aria-label="Next drill">▶</button></div>
-      <p class="desc">${esc(describe(p.id, S.scale))}</p>
-      ${infoFor(p.id) ? `<p class="info">${esc(infoFor(p.id))}</p>` : ''}
+      ${drillText(p)}
       ${isBest(S.scale, p.id) ? '<p class="star">★ One of the best drills for this scale.</p>' : ''}
     </div>`;
 }
@@ -299,7 +305,7 @@ function gamePanel() {
     <div class="row"><button id="gDeal" class="go deal-b">Deal ⟳</button></div>
     <div class="row"><label class="inl"><span>New deal</span><select id="gEvery">${[[0, 'when I tap Deal'], [2, 'every 2 bars'], [4, 'every 4 bars'], [8, 'every 8 bars'], [16, 'every 16 bars'], [32, 'every 32 bars']].map(([v, l]) => opt(v, l, S.game.every)).join('')}</select></label></div>
     <div class="row tg"><button id="gSet">Game settings</button><button id="dTips">Tips</button></div>
-    <p class="howto">${esc(describe(p.id, S.scale))}</p>${infoFor(p.id) ? `<p class="howto info">${esc(infoFor(p.id))}</p>` : ''}
+    <div class="howto">${drillText(p, false)}</div>
     ${formula()}
     ${transport()}
     <div class="count">${S.game.done} dealt</div>`;
@@ -437,7 +443,7 @@ function openHelp() {
     ${row('The neck', 'The scale in the area you picked. Big dots are the notes to play; the faint dots are the same scale elsewhere on the neck. Ringed dots are the roots. Colours: <b style="color:var(--amber)">root</b>, <b style="color:var(--cyan)">3rd</b>, <b style="color:var(--bone)">5th</b>, <b style="color:var(--rose)">7th</b>, <b style="color:var(--green)">the scale’s colour notes</b>, <b style="color:var(--violet)">the rest</b>.')}
     ${row('The row of coloured boxes', 'The scale’s formula: each degree (big) with its note in this key (small). G Dorian is 1 2 ♭3 4 5 6 ♭7, which is G A B♭ C D E F.')}
     ${row('Where', 'One CAGED shape: the five-fret area round one of the five chord shapes, so the CAGED letter just tells you where the roots sit. Two shapes joined: two neighbouring areas as one. 3 notes per string: seven long diagonal patterns, one from each note. Whole neck: everything. Zoom fills the screen with the area.')}
-    ${row('The drill', 'A way of playing through the scale in that area, described in words with a short example. The numbers in the example are the scale’s degrees counted up from the root: in G Dorian, 1 2 ♭3 is G A B♭. ★ marks the drills that suit this scale best. ◀ ▶ step through every drill for the scale.')}
+    ${row('The drill', 'A way of playing through the scale in that area: what to do, an example starting from the root (degrees, with the notes in this key under them; · separates one group from the next), and why it’s worth doing. ★ marks the drills that suit this scale best. ◀ ▶ step through every drill for the scale.')}
     ${row('Start', 'Starts the metronome (after one bar of count-in). With Play notes on, the app also plays the drill in time and lights each note on the neck, so you can hear and see it before you play along. Turn Play notes off to play it yourself to the click.')}
     ${row('8ths / Triplets / 16ths', 'How many notes per click: one note per subdivision.')}
     ${row('Drone', 'A low held note on the key’s root (and its 5th if the scale has one), so you hear every note against home.')}
