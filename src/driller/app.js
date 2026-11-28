@@ -14,6 +14,7 @@ import { chordOf } from './data.js';
 import { CHORD_LIST, CHORD_NAME, chordIvs, WK, workoutsFor, chordExample, progName } from './chords.js';
 import { spellRoot } from '../fundamentals/core.js';
 import { neck } from './neck.js';
+import { FIT, gripsFor, gripSVG } from './fit.js';
 import { BUILD } from './build.js';
 
 // ---------- state ----------
@@ -408,7 +409,7 @@ function transport(label = 'Start') {
 
 function drillPanel() {
   return `
-    <div class="cap"><b>${esc(titleOf())}</b><button id="dTips" class="tipsb">Tips</button></div>
+    <div class="cap"><b>${esc(titleOf())}</b><span class="capb"><button id="dFit" class="tipsb fitb">Play it over</button><button id="dTips" class="tipsb">Tips</button></span></div>
     ${RATING[S.scale] ? `<div class="rate"><span>${stars(S.scale)}</span> ${esc(RATING[S.scale][1])}</div>` : ''}
     ${formula()}
     <div class="menus">
@@ -574,6 +575,7 @@ function bind() {
   }
   on('dZoom', 'onclick', () => { S.zoom = !S.zoom; save(); render(); });
   on('dTips', 'onclick', openTips);
+  on('dFit', 'onclick', openFit);
   on('dHelp', 'onclick', openHelp);
   // game
   on('gDeal', 'onclick', () => { deal(); render(); });
@@ -622,6 +624,23 @@ function openTips() {
     ${t.tips ? `<h3>How to practise it</h3><ul>${t.tips.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
     ${list.length ? `<h3>Best drills for it</h3><div class="chips">${list.map((p) => `<button data-go="${p.id}">★ ${esc(p.name)}</button>`).join('')}</div>` : ''}
   `, (el, close) => el.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => { S.prac = b.dataset.go; seed = Math.random(); save(); load(); changed(); close(); })));
+}
+// the chords this scale sounds good over: which chord tone the scale starts on, when it works, and grips for each
+const FROM_NAME = { '1': 'root', b2: '♭9 (a half step above the root)', '2': '2nd (the 9th)', b3: '♭3', '3': '3rd', '4': '4th (the 11th)', '5': '5th', '6': '6th', b7: '♭7', '7': '7th' };
+function openFit() {
+  const list = FIT[S.scale] || [];
+  const body = list.map(([q, from, ctx]) => {
+    const pc = ((S.key - semi(from)) % 12 + 12) % 12, root = spellRoot(pc, q);
+    const sym = T.pretty(T.chordSymbol(root, q));
+    const grips = gripsFor(root, q);
+    return `<section class="fit">
+      <h3 class="fith"><b>${esc(sym)}</b> <span>${from === '1' ? `${esc(titleOf())} from the chord’s root` : `${esc(titleOf())} starts on the chord’s ${esc(FROM_NAME[from] || T.prettyIv(from))}`}</span></h3>
+      <p>${esc(ctx)}</p>
+      <div class="chordtones">${T.getChord(q).ivs.map((iv) => `<span>${esc(T.prettyIv(iv))} <i>${esc(T.noteName(T.transpose(root, F.simpleIv(iv)), true))}</i></span>`).join('')}</div>
+      <div class="grips">${grips.map((g) => `<figure>${gripSVG(g.notes, q)}<figcaption>${esc(g.label)}</figcaption></figure>`).join('')}</div>
+    </section>`;
+  }).join('');
+  sheet(`Play ${titleOf()} over`, `<p class="small">The chords this scale suits, which note of each chord it starts on, and when it works. The grips show every note as an interval of the chord.</p>${body}`);
 }
 function openHelp() {
   const row = (t, d) => `<h3>${esc(t)}</h3><p>${d}</p>`;
